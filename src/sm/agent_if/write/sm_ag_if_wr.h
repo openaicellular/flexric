@@ -39,7 +39,7 @@ typedef enum{
   PDCP_CTRL_REQ_V0 = 3,
   SLICE_CTRL_REQ_V0 = 4,
   TC_CTRL_REQ_V0 = 5,
-  GTP_CTRL_REQ_V0 = 7,
+  GTP_CTRL_REQ_V0 = 6,
   SM_AGENT_IF_WRITE_V0_END,
 } sm_ag_if_wr_e;
 
