@@ -366,6 +366,32 @@ bool eq_rrc_func_def(rrc_func_def_t* m0, rrc_func_def_t* m1)
   return true;
 }
 
+///////////////
+// RIC Indication
+///////////////
 
+rrc_ind_data_t cp_rrc_ind_data( rrc_ind_data_t const* src)
+{
+  assert(src != NULL);
+  rrc_ind_data_t dst = {0};
+  dst.hdr = cp_rrc_ind_hdr(&src->hdr);
+  dst.msg = cp_rrc_ind_msg(&src->msg);
+  
+  if(src->proc_id != NULL){
+    dst.proc_id = malloc(sizeof(rrc_call_proc_id_t)); 
+    assert(dst.proc_id != NULL && "Memory exhausted");
+    *dst.proc_id = cp_rrc_call_proc_id(src->proc_id);
+  }
+
+  return dst;
+}
+
+void free_rrc_ind_data(rrc_ind_data_t* ind)
+{
+  assert(ind != NULL);
+  free_rrc_ind_hdr(&ind->hdr);
+  free_rrc_ind_msg(&ind->msg);
+  free_rrc_call_proc_id(ind->proc_id);
+}
 
 

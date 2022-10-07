@@ -189,6 +189,10 @@ typedef struct{
   rrc_call_proc_id_t* proc_id;
 } rrc_ind_data_t;
 
+rrc_ind_data_t cp_rrc_ind_data( rrc_ind_data_t const* src);
+
+void free_rrc_ind_data(rrc_ind_data_t* ind);
+
 ///////////////
 // RIC Control
 ///////////////
