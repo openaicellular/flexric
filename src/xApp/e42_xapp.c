@@ -43,6 +43,7 @@
 #include "../sm/mac_sm/mac_sm_id.h"
 #include "../sm/rlc_sm/rlc_sm_id.h"
 #include "../sm/pdcp_sm/pdcp_sm_id.h"
+#include "../sm/rrc_sm/rrc_sm_id.h"
 #include "../sm/slice_sm/slice_sm_id.h"
 #include "../sm/tc_sm/tc_sm_id.h"
 #include "../sm/gtp_sm/gtp_sm_id.h"

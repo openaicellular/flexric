@@ -25,6 +25,7 @@
 #include "ric/iApps/../../sm/mac_sm/ie/mac_data_ie.h"    // for mac_ind_msg_t
 #include "ric/iApps/../../sm/pdcp_sm/ie/pdcp_data_ie.h"  // for pdcp_ind_msg_t
 #include "ric/iApps/../../sm/rlc_sm/ie/rlc_data_ie.h"    // for rlc_ind_msg_t
+#include "ric/iApps/../../sm/rrc_sm/ie/rrc_data_ie.h"    // for rrc_ind_msg_t
 #include "string_parser.h"                               // for to_string_ma..
 
 #include "../../util/time_now_us.h"

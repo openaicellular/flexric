@@ -1,0 +1,126 @@
+set(ASN_MODULE_SRCS
+    BIT_STRING.c
+    E2SM-RRCStats-ActionDefinition-Format1.c
+    E2SM-RRCStats-ActionDefinition.c
+    E2SM-RRCStats-ControlHeader-Format1.c
+    E2SM-RRCStats-ControlHeader.c
+    E2SM-RRCStats-ControlMessage-Format1.c
+    E2SM-RRCStats-ControlMessage.c
+    E2SM-RRCStats-ControlOutcome-Format1.c
+    E2SM-RRCStats-ControlOutcome.c
+    E2SM-RRCStats-EventTriggerDefinition-Format1.c
+    E2SM-RRCStats-EventTriggerDefinition.c
+    E2SM-RRCStats-IndicationHeader-Format1.c
+    E2SM-RRCStats-IndicationHeader.c
+    E2SM-RRCStats-IndicationMessage-Format1.c
+    E2SM-RRCStats-IndicationMessage.c
+    INTEGER.c
+    NativeEnumerated.c
+    NativeInteger.c
+    OCTET_STRING.c
+    OPEN_TYPE.c
+    RANparameter-ID.c
+    RANparameter-Item.c
+    RANparameter-Name.c
+    RANparameter-Test.c
+    RANparameter-Value.c
+    RRCStats-ControlOutcome.c
+    RRCStats-Header.c
+    RRCStats-Message.c
+    RRCStats-TriggerNature.c
+    RRCUeStats.c
+    asn_SEQUENCE_OF.c
+    asn_SET_OF.c
+    asn_application.c
+    asn_bit_data.c
+    asn_codecs_prim.c
+    asn_internal.c
+    asn_random_fill.c
+    ber_decoder.c
+    ber_tlv_length.c
+    ber_tlv_tag.c
+    constr_CHOICE.c
+    constr_SEQUENCE.c
+    constr_SEQUENCE_OF.c
+    constr_SET_OF.c
+    constr_TYPE.c
+    constraints.c
+    der_encoder.c
+    per_decoder.c
+    per_encoder.c
+    per_opentype.c
+    per_support.c
+    xer_decoder.c
+    xer_encoder.c
+    xer_support.c
+)
+# unused for now ${ASN_MODULE_HDRS}
+set(ASN_MODULE_HDRS
+    BIT_STRING.h
+    E2SM-RRCStats-ActionDefinition-Format1.h
+    E2SM-RRCStats-ActionDefinition.h
+    E2SM-RRCStats-ControlHeader-Format1.h
+    E2SM-RRCStats-ControlHeader.h
+    E2SM-RRCStats-ControlMessage-Format1.h
+    E2SM-RRCStats-ControlMessage.h
+    E2SM-RRCStats-ControlOutcome-Format1.h
+    E2SM-RRCStats-ControlOutcome.h
+    E2SM-RRCStats-EventTriggerDefinition-Format1.h
+    E2SM-RRCStats-EventTriggerDefinition.h
+    E2SM-RRCStats-IndicationHeader-Format1.h
+    E2SM-RRCStats-IndicationHeader.h
+    E2SM-RRCStats-IndicationMessage-Format1.h
+    E2SM-RRCStats-IndicationMessage.h
+    INTEGER.h
+    NativeEnumerated.h
+    NativeInteger.h
+    OCTET_STRING.h
+    OPEN_TYPE.h
+    RANparameter-ID.h
+    RANparameter-Item.h
+    RANparameter-Name.h
+    RANparameter-Test.h
+    RANparameter-Value.h
+    RRCStats-ControlOutcome.h
+    RRCStats-Header.h
+    RRCStats-Message.h
+    RRCStats-TriggerNature.h
+    RRCUeStats.h
+    asn_SEQUENCE_OF.h
+    asn_SET_OF.h
+    asn_application.h
+    asn_bit_data.h
+    asn_codecs.h
+    asn_codecs_prim.h
+    asn_internal.h
+    asn_ioc.h
+    asn_random_fill.h
+    asn_system.h
+    ber_decoder.h
+    ber_tlv_length.h
+    ber_tlv_tag.h
+    constr_CHOICE.h
+    constr_SEQUENCE.h
+    constr_SEQUENCE_OF.h
+    constr_SET_OF.h
+    constr_TYPE.h
+    constraints.h
+    der_encoder.h
+    per_decoder.h
+    per_encoder.h
+    per_opentype.h
+    per_support.h
+    xer_decoder.h
+    xer_encoder.h
+    xer_support.h
+)
+
+add_library(e2sm_rrc_asn1_obj OBJECT ${ASN_MODULE_SRCS})
+target_include_directories(e2sm_rrc_asn1_obj
+                          PUBLIC
+                           "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                           )
+
+target_compile_options(e2sm_rrc_asn1_obj PUBLIC "-DASN_DISABLE_OER_SUPPORT")
+target_compile_options(e2sm_rrc_asn1_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
+

@@ -13,6 +13,7 @@
 #include "../../sm/mac_sm/ie/mac_data_ie.h"
 #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
 #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
+#include "../../sm/rrc_sm/ie/rrc_data_ie.h"
 #include "../../sm/slice_sm/ie/slice_data_ie.h"
 #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
 
@@ -91,6 +92,24 @@ struct pdcp_cb {
 void report_pdcp_sm(global_e2_node_id_t* id, Interval inter, pdcp_cb* handler);
 
 void rm_report_pdcp_sm(void);
+
+//////////////////////////////////////
+// RRC SM   
+/////////////////////////////////////
+
+struct swig_rrc_ind_msg_t{
+  std::vector<rrc_ue_stats_impl_t> ue_stats;
+  int64_t tstamp;
+};
+
+struct rrc_cb {
+    virtual void handle(swig_rrc_ind_msg_t* a) = 0;
+    virtual ~rrc_cb() {}
+};
+
+void report_rrc_sm(global_e2_node_id_t* id, Interval inter, rrc_cb* handler);
+
+void rm_report_rrc_sm(void);
 
 //////////////////////////////////////
 // SLICE SM   

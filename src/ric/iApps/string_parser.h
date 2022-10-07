@@ -29,6 +29,7 @@
 #include "../../sm/mac_sm/ie/mac_data_ie.h"
 #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
 #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
+#include "../../sm/rrc_sm/ie/rrc_data_ie.h"
 #include "../../sm/slice_sm/ie/slice_data_ie.h"
 #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
 #include "../../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"

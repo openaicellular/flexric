@@ -60,6 +60,7 @@ SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE ${XAPP_LANG} SOURCES
                                                  ../../sm/mac_sm/ie/mac_data_ie.c 
                                                  ../../sm/rlc_sm/ie/rlc_data_ie.c
                                                  ../../sm/pdcp_sm/ie/pdcp_data_ie.c
+                                                 ../../sm/rrc_sm/ie/rrc_data_ie.c 
                                                  ../../sm/slice_sm/ie/slice_data_ie.c
                                                  ../../sm/tc_sm/ie/tc_data_ie.c
                                                  ../../sm/gtp_sm/ie/gtp_data_ie.c

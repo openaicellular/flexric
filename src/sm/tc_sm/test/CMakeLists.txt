@@ -43,6 +43,7 @@ add_executable(test_tc_sm main.c
                       ../../mac_sm/ie/mac_data_ie.c
                       ../../rlc_sm/ie/rlc_data_ie.c
                       ../../pdcp_sm/ie/pdcp_data_ie.c
+                      ../../rrc_sm/ie/rrc_data_ie.c
                       ../../slice_sm/ie/slice_data_ie.c
                       ../../tc_sm/ie/tc_data_ie.c
                       )
@@ -207,6 +208,7 @@ add_executable(test_tc_sm main.c
                       ../../mac_sm/ie/mac_data_ie.c
                       ../../rlc_sm/ie/rlc_data_ie.c
                       ../../pdcp_sm/ie/pdcp_data_ie.c
+                      ../../rrc_sm/ie/mac_data_ie.c
                       ../../../util/alg_ds/alg/eq_float.c
                       ${asn_sources} 
                       )
