@@ -261,6 +261,48 @@ void to_string_pdcp_rb(pdcp_radio_bearer_stats_t* pdcp, int64_t tstamp, char* ou
   assert(rc < (int)max && "Not enough space in the char array to write all the data");
 }
 
+void to_string_rrc_ue_stats(rrc_ue_stats_impl_t* stats, int64_t tstamp, char* out, size_t out_len)
+{
+  assert(stats != NULL);
+  assert(out != NULL);
+  const size_t max = 1024;
+  assert(out_len >= max);
+  int rc = snprintf(out, max, "rrc_stats: "
+        "tstamp=%ld,"
+        "rnti=%x,"
+        "rbid=%d,"
+        "DRB_active[0]=%d,"
+        "DRB_active[1]=%d,"
+        "DRB_active[2]=%d,"
+        "DRB_active[3]=%d,"
+        "DRB_active[4]=%d,"
+        "DRB_active[5]=%d,"
+        "DRB_active[6]=%d,"
+        "DRB_active[7]=%d,"
+        "StatusRrc=%d,"
+        "setup_pdu_session=%d,"
+        "nb_of_pdusessions=%d,"
+        "ue_rrc_inactivity_timer=%d"
+        "\n"
+        ,tstamp
+        ,stats->rnti
+        ,stats->rbid
+        ,stats->DRB_active[0]
+        ,stats->DRB_active[1] 
+        ,stats->DRB_active[2] 
+        ,stats->DRB_active[3]  
+        ,stats->DRB_active[4]
+        ,stats->DRB_active[5]
+        ,stats->DRB_active[6]
+        ,stats->DRB_active[7]
+        ,stats->StatusRrc 
+        ,stats->setup_pdu_session 
+        ,stats->nb_of_pdusessions 
+        ,stats->ue_rrc_inactivity_timer
+        );
+  assert(rc < (int)max && "Not enough space in the char array to write all the data");
+}
+
 void to_string_slice(slice_ind_msg_t const* slice, int64_t tstamp, char* out, size_t out_len)
 {
   assert(slice != NULL);

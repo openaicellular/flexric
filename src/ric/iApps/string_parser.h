@@ -41,6 +41,8 @@ void to_string_rlc_rb(rlc_radio_bearer_stats_t* rlc, int64_t tstamp, char* out, 
 
 void to_string_pdcp_rb(pdcp_radio_bearer_stats_t* pdcp, int64_t tstamp, char* out, size_t out_len);
 
+void to_string_rrc_ue_stats(rrc_ue_stats_impl_t* stats, int64_t tstamp, char* out, size_t out_len);
+
 void to_string_slice(slice_ind_msg_t const* slice, int64_t tstamp, char* out, size_t out_len);
 
 void to_string_gtp_ngu(gtp_ngu_t_stats_t const* gtp, int64_t tstamp, char* out, size_t out_len);
