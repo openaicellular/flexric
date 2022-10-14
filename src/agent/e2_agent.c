@@ -29,6 +29,7 @@
 #include "lib/ap/free/e2ap_msg_free.h"
 #include "sm/mac_sm/mac_sm_agent.h"
 #include "sm/rlc_sm/rlc_sm_agent.h"
+#include "sm/rrc_sm/rrc_sm_agent.h"
 #include "util/alg_ds/alg/alg.h"
 #include "util/compare.h"
 

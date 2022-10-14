@@ -34,6 +34,7 @@
 #include "ric/iApps/../../sm/mac_sm/ie/mac_data_ie.h"    // for mac_ind_msg_t
 #include "ric/iApps/../../sm/pdcp_sm/ie/pdcp_data_ie.h"  // for pdcp_ind_msg_t
 #include "ric/iApps/../../sm/rlc_sm/ie/rlc_data_ie.h"    // for rlc_ind_msg_t
+#include "ric/iApps/../../sm/rrc_sm/ie/rrc_data_ie.h"    // for rrc_ind_msg_t
 #include "string_parser.h"                               // for to_string_ma...
 
 static
@@ -104,6 +105,15 @@ void notify_influx_listener(sm_ag_if_rd_t const* data)
       int const rc = sendto(sockfd, stats, strlen(stats),  MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
       assert(rc != -1);
     } 
+  } else if (data->type == RRC_STATS_V0){
+    rrc_ind_msg_t const* ind =  &data->rrc_stats.msg;
+
+    for(uint32_t i = 0; i < ind->len_ue_stats; ++i){
+      char stats[1024] = {0};
+      to_string_rrc_ue_stats(&ind->ue_stats[i], ind->tstamp, stats, 1024);
+      int const rc = sendto(sockfd, stats, strlen(stats),  MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
+      assert(rc != -1);
+    }
   } else if(data->type == SLICE_STATS_V0){
     slice_ind_msg_t const* slice = &data->slice_stats.msg;
 

@@ -1,0 +1,216 @@
+-- ASN1 START
+-- **************************************************************
+-- E2SM-RRC Stats
+-- Information Element Definitions
+-- 
+-- **************************************************************
+
+E2SM-RRCStats-IEs { }
+
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxofRANParameters						INTEGER ::= 255
+
+-- E2 Service model IEs
+
+
+-- ---------------------------------------------------
+-- Event Trigger Definition OCTET STRING contents
+-- ---------------------------------------------------
+
+-- E2SM-RRCStats-EventTriggerDefinition IE
+E2SM-RRCStats-EventTriggerDefinition ::= CHOICE{
+	eventDefinition-Format1		E2SM-RRCStats-EventTriggerDefinition-Format1,
+	...
+}
+
+-- E2SM-RRCStats-eventTriggerDefinition IE Format 1
+E2SM-RRCStats-EventTriggerDefinition-Format1 ::= SEQUENCE{
+	triggerNature						RRCStats-TriggerNature,
+	...
+}
+
+-- ---------------------------------------------------
+-- Action Definition OCTET STRING contents
+-- ---------------------------------------------------
+
+E2SM-RRCStats-ActionDefinition ::= CHOICE{
+	actionDefinition-Format1		E2SM-RRCStats-ActionDefinition-Format1,
+	...
+}
+
+-- E2SM-RRCStats-actionDefinition IE used for Action Format 1
+E2SM-RRCStats-ActionDefinition-Format1 ::= SEQUENCE{
+	ranParameter-List					SEQUENCE (SIZE(1..maxofRANParameters)) OF RANparameter-Item OPTIONAL,
+	...
+}
+
+
+-- ---------------------------------------------------
+-- Indication Header OCTET STRING contents
+-- ---------------------------------------------------
+
+E2SM-RRCStats-IndicationHeader ::= CHOICE{
+	indicationHeader-Format1		E2SM-RRCStats-IndicationHeader-Format1,
+	...
+}
+
+-- E2SM-RRCStats-indicationHeader Format 1
+E2SM-RRCStats-IndicationHeader-Format1 ::= SEQUENCE{
+	indicationHeaderParam						RRCStats-Header,
+	...
+}
+
+-- ---------------------------------------------------
+-- Indication Message OCTET STRING contents
+-- ---------------------------------------------------
+
+-- E2SM-RRCStats-indicationMessage IE
+E2SM-RRCStats-IndicationMessage ::= CHOICE{
+	indicationMessage-Format1		E2SM-RRCStats-IndicationMessage-Format1,
+	...
+}
+
+-- E2SM-RRCStats-IndicationMessage Format 1
+E2SM-RRCStats-IndicationMessage-Format1 ::= SEQUENCE{
+        indicationMsgParam                      RRCStats-Message,
+        ...
+}
+
+-- ---------------------------------------------------
+-- Call Process ID
+-- ---------------------------------------------------
+
+-- Not defined in this E2SM
+
+-- ---------------------------------------------------
+-- Control Header OCTET STRING contents
+-- ---------------------------------------------------
+
+-- E2SM-RRCStats-ControlHeader
+E2SM-RRCStats-ControlHeader ::= CHOICE{
+	controlHeader-Format1		E2SM-RRCStats-ControlHeader-Format1,
+	...
+}
+
+-- E2SM-RRCStats-ControlHeader Format 1
+E2SM-RRCStats-ControlHeader-Format1 ::= SEQUENCE{
+	controlHeaderParam			RRCStats-Header,
+	...
+}
+
+-- ---------------------------------------------------
+-- Control Message OCTET STRING contents
+-- ---------------------------------------------------
+
+-- E2SM-RRCStats-ControlMessage
+E2SM-RRCStats-ControlMessage ::= CHOICE{
+	controlMessage-Format1		E2SM-RRCStats-ControlMessage-Format1,
+	...
+}
+
+-- E2SM-RRCStats-controlMessage Format 1
+E2SM-RRCStats-ControlMessage-Format1 ::= SEQUENCE{
+	controlMsgParam				INTEGER(0..4294967295),
+	...
+}
+
+-- ---------------------------------------------------
+-- Control Outcome OCTET STRING contents
+-- ---------------------------------------------------
+
+E2SM-RRCStats-ControlOutcome ::= CHOICE{
+	controlOutcome-Format1		E2SM-RRCStats-ControlOutcome-Format1,
+	...
+}
+
+E2SM-RRCStats-ControlOutcome-Format1 ::= SEQUENCE{
+	outcome						RRCStats-ControlOutcome,
+	...
+}
+
+
+
+-- ---------------------------------------------------
+-- RAN Function definition OCTET STRING contents
+-- ---------------------------------------------------
+
+-- Not defined in this E2SM
+
+
+
+
+-- ---------------------------------------------------
+-- commmon IEs
+-- ---------------------------------------------------
+
+
+RRCStats-Header ::= INTEGER
+
+RRCStats-Message ::= SEQUENCE
+{
+    ueStats           SEQUENCE OF RRCUeStats,
+    tstamp            INTEGER,
+    ...
+}
+
+
+RRCUeStats ::= SEQUENCE
+{
+    rnti                    INTEGER(0..4294967295),
+    rbid                    INTEGER(0..255),
+    drbActive               SEQUENCE OF INTEGER(0..255),
+    statusRrc               INTEGER(0..255),
+    setupPduSession         INTEGER(0..255),
+    nbOfPdusessions         INTEGER(0..255),
+    ueRrcInactivityTimer    INTEGER(0..255),
+    ...
+}
+
+RRCStats-TriggerNature ::= ENUMERATED{
+	oneMs,
+	twoMs,
+	fiveMs,
+	...
+}
+
+RANparameter-Item ::= SEQUENCE {
+	ranParameter-ID			RANparameter-ID,
+	ranParameter-Name		RANparameter-Name,
+	ranParameter-Test		RANparameter-Test,
+	ranParameter-Value		RANparameter-Value,
+	...
+}
+
+
+RANparameter-ID ::= INTEGER (0..maxofRANParameters)
+
+RANparameter-Name ::= OCTET STRING
+
+RANparameter-Test ::= ENUMERATED{
+	equal,
+	greaterthan,
+	lessthan,
+	contains,
+	present,
+	...
+}
+
+RANparameter-Value ::= OCTET STRING
+
+
+RRCStats-ControlOutcome ::= ENUMERATED{
+	rrcCtrlOutcomeOk,
+	rrcCtrlOutcomeEnd,
+	...
+}
+
+END
+
+-- ASN1 STOP

@@ -29,6 +29,7 @@
 #include "../../sm/mac_sm/ie/mac_data_ie.h"
 #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
 #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
+#include "../../sm/rrc_sm/ie/rrc_data_ie.h"
 #include "../../sm/slice_sm/ie/slice_data_ie.h"
 #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
 #include "../../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"
@@ -39,6 +40,8 @@ void to_string_mac_ue_stats(mac_ue_stats_impl_t* stats, int64_t tstamp, char* ou
 void to_string_rlc_rb(rlc_radio_bearer_stats_t* rlc, int64_t tstamp, char* out, size_t out_len);
 
 void to_string_pdcp_rb(pdcp_radio_bearer_stats_t* pdcp, int64_t tstamp, char* out, size_t out_len);
+
+void to_string_rrc_ue_stats(rrc_ue_stats_impl_t* stats, int64_t tstamp, char* out, size_t out_len);
 
 void to_string_slice(slice_ind_msg_t const* slice, int64_t tstamp, char* out, size_t out_len);
 

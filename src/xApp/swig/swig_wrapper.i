@@ -15,6 +15,7 @@
   #include "../../sm/mac_sm/ie/mac_data_ie.h"
   #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
   #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
+  #include "../../sm/rrc_sm/ie/rrc_data_ie.h"
   #include "../../sm/slice_sm/ie/slice_data_ie.h"
   #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
 %}
@@ -81,6 +82,7 @@
 %feature("director") mac_cb;
 %feature("director") rlc_cb;
 %feature("director") pdcp_cb;
+%feature("director") rrc_cb;
 %feature("director") slice_cb;
 %feature("director") gtp_cb;
 
@@ -91,6 +93,7 @@ namespace std {
   %template(MACStatsVector) vector<mac_ue_stats_impl_t>;
   %template(RLC_RBStatsVector) vector<rlc_radio_bearer_stats_t>;
   %template(PDCP_RBStatsVector) vector<pdcp_radio_bearer_stats_t>;
+  %template(RRCStatsVector) vector<rrc_ue_stats_impl_t>;
   %template(StringVector) vector<std::string>;
   %template(SLICE_slicesStatsVector) vector<swig_fr_slice_t>;
   %template(SLICE_UEsStatsVector) vector<ue_slice_assoc_t>;
@@ -111,6 +114,7 @@ namespace std {
 %include "../../sm/mac_sm/ie/mac_data_ie.h"
 %include "../../sm/rlc_sm/ie/rlc_data_ie.h"
 %include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
+%include "../../sm/rrc_sm/ie/rrc_data_ie.h"
 %include "../../sm/slice_sm/ie/slice_data_ie.h"
 %include "../../sm/gtp_sm/ie/gtp_data_ie.h"
 

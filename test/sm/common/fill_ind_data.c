@@ -310,6 +310,38 @@ void fill_pdcp_ind_data(pdcp_ind_data_t* ind)
   }
 }
 
+void fill_rrc_ind_data(rrc_ind_data_t* ind_data)
+{
+  srand(time(0));
+
+  int const mod = 1024;
+
+  rrc_ind_msg_t* ind_msg = &ind_data->msg; 
+
+  int const NUM_UES = abs(rand()%10);
+  
+  ind_msg->len_ue_stats = NUM_UES;
+
+  ind_msg->tstamp = time_now_us();
+
+  if (NUM_UES > 0){
+    ind_msg->ue_stats = calloc (NUM_UES, sizeof(rrc_ue_stats_impl_t));
+    assert(ind_msg->ue_stats !=NULL && "memory exhausted");
+  }
+
+  for ( uint32_t i = 0; i < ind_msg->len_ue_stats; ++i ){
+    ind_msg->ue_stats[i].rnti = abs(rand()%mod);
+    ind_msg->ue_stats[i].rbid = abs(rand()%11);
+    for (uint8_t j = 0 ; j < 8 ; ++j) {
+      ind_msg->ue_stats[i].DRB_active[j] = abs(rand()%2);
+    }
+    ind_msg->ue_stats[i].StatusRrc = abs(rand()%9);
+    ind_msg->ue_stats[i].setup_pdu_session = abs(rand()%mod);
+    ind_msg->ue_stats[i].nb_of_pdusessions = abs(rand()%mod);
+    ind_msg->ue_stats[i].ue_rrc_inactivity_timer = abs(rand()%mod);
+  }
+}
+
 static
 void fill_static_slice(static_slice_t* sta)
 {
