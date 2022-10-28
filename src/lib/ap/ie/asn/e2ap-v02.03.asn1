@@ -164,12 +164,12 @@ E2AP-ELEMENTARY-PROCEDURES-CLASS-2 E2AP-ELEMENTARY-PROCEDURE ::= {
 --
 -- **************************************************************
 
--- New for v01.01
-e2connectionUpdate		E2AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE		E2connectionUpdate
-	SUCCESSFUL OUTCOME		E2connectionUpdateAcknowledge
-	UNSUCCESSFUL OUTCOME	E2connectionUpdateFailure
-	PROCEDURE CODE			id-E2connectionUpdate
+-- New for v01.01
+e2connectionUpdate		E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E2connectionUpdate
+	SUCCESSFUL OUTCOME		E2connectionUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	E2connectionUpdateFailure
+	PROCEDURE CODE			id-E2connectionUpdate
 	CRITICALITY				reject
 }
 
@@ -181,7 +181,7 @@ e2nodeConfigurationUpdate	E2AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
--- New for v02.01
+-- New for v02.01
 e2removal	E2AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		E2RemovalRequest
 	SUCCESSFUL OUTCOME		E2RemovalResponse
@@ -2046,66 +2046,3 @@ ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, E2AP-P
 
 END
 -- ASN1STOP
-
-9.4	Message transfer syntax
-E2AP shall use the ASN.1 Basic Packed Encoding Rules (BASIC-PER) Aligned Variant as transfer syntax, as specified in ITU-T Rec. X.691 [15].
-9.5	Timers
-The following Timers are defined for use over the E2 interface in Near-RT RIC and E2 Node.
-
-TRICEVENTcreate 
--	Specifies the maximum time for the RIC Subscription Request event creation procedure in the E2 Node.
-TRICEVENTdelete 
--	Specifies the maximum time for the RIC Subscription Request event deletion procedure in the E2 Node.
-TRICcontrol 
--	Specifies the maximum time for the RIC Control Request event request procedure in the E2 Node.
-
-
-
-10	Handling of Unknown, Unforeseen and Erroneous Protocol Data
-Section 10 of TS 36.413 [24] is applicable for the purposes of the present document.
-
-
-Revision history
-Date
-Revision
-Description
-2022.07.20
-02.03
-Document prepared for publication
-2022.07.15
-02.02.05
-Addition of <NOK.AO-2022.06.24-WG3-CR-0015-E2AP-RIC Service Update Ack (ASN.1)-v03>
-2022.06.20
-02.02.04
-Addition of CR < NOK.AO-2022.05.24-WG3-CR-0013-E2AP-EditorialCorrections-v02 >
-
-
-History
-Date
-Revision
-Description
-2022.07.20
-02.03
-Version ready for July22 publication
-2022.06.29
-02.02
-Version ready for March22 publication
-2022.02.07
-02.01
-Version ready for Nov21 publication
-2021.08.10
-02.00
-TSC Approved
-2020.07.15
-01.01
-Incremented version for Publication
-
-
-1
-
-O-RAN.WG3.E2AP-v02.03
-
-
-© 2022 by the O-RAN ALLIANCE e.V. Your use is subject to the copyright statement on the cover page of this specification      .1
-
-
