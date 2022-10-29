@@ -41,6 +41,12 @@
 
 #include "util/alg_ds/ds/lock_guard/lock_guard.h"
 
+static
+void notify_msg_iapp_api_wrapper(void* arg)
+{
+   notify_msg_iapp_api((e2ap_msg_t*)(arg));
+}
+
 static inline
 bool check_valid_msg_type(e2_msg_type_t msg_type)
 {
@@ -177,7 +183,17 @@ e2ap_msg_t e2ap_msg_handle_ric(near_ric_t* ric, const e2ap_msg_t* msg)
 //  assert(rc_mtx == 0);
 
 #ifndef TEST_AGENT_RIC  
-  notify_msg_iapp_api(msg);
+
+  e2ap_msg_t* cp = calloc(1, sizeof(e2ap_msg_t) );
+  assert(cp != NULL);
+  memcpy((e2_msg_type_t*)&cp->type, &msg->type, sizeof(e2_msg_type_t  ) );
+  assert(cp->type == RIC_SUBSCRIPTION_RESPONSE) ;
+  cp->u_msgs.ric_sub_resp = cp_ric_subscription_respponse(&msg->u_msgs.ric_sub_resp);
+
+  task_t task = {.args = cp, .func = notify_msg_iapp_api_wrapper};
+  async_task_manager(&ric->task_man, task);
+
+//  notify_msg_iapp_api(msg);
 #endif
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
@@ -209,7 +225,17 @@ e2ap_msg_t e2ap_msg_handle_ric(near_ric_t* ric, const e2ap_msg_t* msg)
   stop_pending_event(ric, &ev);
 
 #ifndef TEST_AGENT_RIC  
-  notify_msg_iapp_api(msg);
+
+  e2ap_msg_t* cp = calloc(1, sizeof(e2ap_msg_t) );
+  assert(cp != NULL);
+  memcpy((e2_msg_type_t*)&cp->type, &msg->type, sizeof(e2_msg_type_t  ) );
+  assert(cp->type == RIC_SUBSCRIPTION_DELETE_RESPONSE) ;
+  cp->u_msgs.ric_sub_del_resp = cp_ric_subscription_delete_respponse(&msg->u_msgs.ric_sub_del_resp);
+
+
+ task_t task = {.args = cp, .func = notify_msg_iapp_api_wrapper};
+ async_task_manager(&ric->task_man, task);
+//  notify_msg_iapp_api(msg);
 #endif
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans;
@@ -286,7 +312,17 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_t* d)
 
   // Notify the iApp
 #ifndef TEST_AGENT_RIC  
-  notify_msg_iapp_api(msg);
+  e2ap_msg_t* cp = calloc(1, sizeof(e2ap_msg_t) );
+  assert(cp != NULL);
+  memcpy((e2_msg_type_t*)&cp->type, &msg->type, sizeof(e2_msg_type_t  ) );
+  assert(cp->type == RIC_INDICATION) ;
+  cp->u_msgs.ric_ind = mv_ric_indication((ric_indication_t*)&msg->u_msgs.ric_ind);
+
+ task_t task = {.args = cp, .func = notify_msg_iapp_api_wrapper};
+ async_task_manager(&ric->task_man, task);
+
+//  notify_msg_iapp_api(msg);
+
 #endif
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE };
@@ -309,7 +345,19 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_t* d)
   printf("[NEAR-RIC]: CONTROL ACKNOWLEDGE received\n");
 
 #ifndef TEST_AGENT_RIC  
-  notify_msg_iapp_api(msg);
+
+  e2ap_msg_t* cp = calloc(1, sizeof(e2ap_msg_t) );
+  assert(cp != NULL);
+  memcpy((e2_msg_type_t*) &cp->type, &msg->type, sizeof(e2_msg_type_t  ) );
+  assert(cp->type == RIC_INDICATION) ;
+  assert(cp->type == RIC_CONTROL_ACKNOWLEDGE) ;
+  cp->u_msgs.ric_ctrl_ack = cp_ric_control_ack(&msg->u_msgs.ric_ctrl_ack);
+
+ task_t task = {.args = cp, .func = notify_msg_iapp_api_wrapper};
+ async_task_manager(&ric->task_man, task);
+
+
+//  notify_msg_iapp_api(msg);
 #endif
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};

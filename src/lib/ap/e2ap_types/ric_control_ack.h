@@ -40,6 +40,8 @@ typedef struct {
   byte_array_t* control_outcome; // optional
 } ric_control_acknowledge_t;
 
+ric_control_acknowledge_t cp_ric_control_ack( ric_control_acknowledge_t const* src);
+
 bool eq_ric_control_ack_req(const ric_control_acknowledge_t* m0, const ric_control_acknowledge_t* m1);
 
 #endif

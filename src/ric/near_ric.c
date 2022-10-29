@@ -40,7 +40,7 @@
 #include "util/alg_ds/alg/alg.h"
 #include "util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "util/compare.h"
-
+#include "util/task_manager.h"
 
 #include <assert.h>
 #include <dlfcn.h>
@@ -246,6 +246,9 @@ near_ric_t* init_near_ric(fr_args_t const* args)
 
   near_ric_if_t ric_if = {.type = ric};
   init_iapp_api(addr, ric_if);
+ 
+  init_task_manager(&ric->task_man, 4);
+
 
   ric->req_id = 1021; // 0 could be a sign of a bug
   ric->stop_token = false;
@@ -488,6 +491,8 @@ void free_near_ric(near_ric_t* ric)
   assert(rc == 0);
 
   bi_map_free(&ric->pending);
+
+  free_task_manager(&ric->task_man, NULL);
 
   stop_iapp_api();
 

@@ -243,7 +243,7 @@ sudo phc2sys -m -s InterfaceName -w
 * demo: [here](DEMO.md) you can find a demo 
 * [wiki page](https://gitlab.eurecom.fr/mosaic5g/flexric/-/wikis/home)
 * [ppt](https://gitlab.eurecom.fr/mosaic5g/flexric/-/wikis/home) presentation with a gentle introduction to flexric 
-* [Original FlexRIC paper ACM CoNEXT 2021](https://bit.ly/3uOXuCV)
+* [Original FlexRIC paper: ACM CoNEXT 2021](https://bit.ly/3uOXuCV)
 
 ## 5. Roadmap
 

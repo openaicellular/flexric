@@ -30,6 +30,8 @@ typedef struct{
   ric_gen_id_t ric_id;
 } ric_subscription_delete_response_t;
 
+ric_subscription_delete_response_t  cp_ric_subscription_delete_respponse( ric_subscription_delete_response_t const* src );
+
 bool eq_ric_subscription_delete_response(const ric_subscription_delete_response_t* m0, const ric_subscription_delete_response_t* m1);
 
 #endif

@@ -22,11 +22,34 @@
 
 
 #include "ric_control_ack.h"
+#include <assert.h>
+#include <stdlib.h>
 
-  ric_gen_id_t ric_id;
-  byte_array_t* call_process_id; // optional
-  ric_control_status_t status;
-  byte_array_t* control_outcome; // optional
+
+ric_control_acknowledge_t cp_ric_control_ack( ric_control_acknowledge_t const* src)
+{
+  assert(src != NULL);
+
+  ric_control_acknowledge_t dst = {0}; 
+
+  dst.ric_id = src->ric_id;
+
+  if(src->call_process_id != NULL){
+    dst.call_process_id = calloc(1, sizeof(byte_array_t)) ;
+    assert(dst.call_process_id != NULL);
+    *dst.call_process_id = copy_byte_array(*src->call_process_id);
+  }
+
+  dst.status = src->status;
+
+  if(src-> control_outcome  != NULL){
+    dst.control_outcome  = calloc(1, sizeof(byte_array_t)) ;
+    assert(dst.control_outcome != NULL);
+    *dst.control_outcome  = copy_byte_array(*src->control_outcome  );
+  }
+
+  return dst;
+}
 
 
 

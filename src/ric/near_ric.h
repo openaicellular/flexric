@@ -33,6 +33,7 @@
 #include "sm/sm_ric.h"
 #include "plugin_ric.h"
 #include "map_e2_node_sockaddr.h"
+#include "util/task_manager.h"
 
 //#include "../ric/iApp/iapp_if.h"
 
@@ -64,6 +65,11 @@ typedef struct near_ric_s
   // Pending events
   bi_map_t pending; // left: fd, right: pending_event_ric_t   
   pthread_mutex_t pend_mtx;
+
+
+  // task manager for iApp
+  task_manager_t task_man;
+
 
   atomic_bool server_stopped;
   atomic_bool stop_token;

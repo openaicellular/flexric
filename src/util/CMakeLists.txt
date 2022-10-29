@@ -1,6 +1,7 @@
 
 add_library(e2ap_ds_obj OBJECT 
                         byte_array.c 
+                        task_manager.c
                         alg_ds/ds/seq_container/seq_arr.c
                         alg_ds/ds/seq_container/seq_ring.c
                         alg_ds/ds/assoc_container/assoc_rb_tree.c

@@ -144,5 +144,6 @@ typedef struct e2ap_msg_s {
   int64_t tstamp; // for debugginf purposes;
 } e2ap_msg_t;
 
+
 #endif // E2AP_TYPE_DEFS_H 
 

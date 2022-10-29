@@ -33,6 +33,10 @@
 #include "../../util/ngran_types.h"                              // for ngran_gNB                
 #include "../../util/conf_file.h"
 
+// Sucks
+#include "lib/ap/free/e2ap_msg_free.h"
+
+
 static
 e42_iapp_t* iapp = NULL;
 
@@ -83,10 +87,52 @@ void rm_e2_node_iapp_api(global_e2_node_id_t* id)
   rm_e2_node_iapp(iapp, id);
 }
 
+
+typedef void (*e2ap_free_fp)(e2ap_msg_t*);
+static
+e2ap_free_fp free_func_table[31] = {
+  e2ap_free_subscription_request_msg,
+  e2ap_free_subscription_response_msg,
+  e2ap_free_subscription_failure_msg,
+  e2ap_free_subscription_delete_request_msg,
+  e2ap_free_subscription_delete_response_msg,
+  e2ap_free_subscription_delete_failure_msg,
+  e2ap_free_indication_msg,
+  e2ap_free_control_request_msg,
+  e2ap_free_control_ack_msg,
+  e2ap_free_control_failure_msg,
+  e2ap_free_error_indication_msg,
+  e2ap_free_setup_request_msg,
+  e2ap_free_setup_response_msg,
+  e2ap_free_setup_failure_msg,
+  e2ap_free_reset_request_msg,
+  e2ap_free_reset_response_msg,
+  e2ap_free_service_update_msg,
+  e2ap_free_service_update_ack_msg,
+  e2ap_free_service_update_failure_msg,
+  e2ap_free_service_query_msg,
+  e2ap_free_node_configuration_update_msg,
+  e2ap_free_node_configuration_update_ack_msg,
+  e2ap_free_node_configuration_update_failure_msg,
+  e2ap_free_node_connection_update_msg,
+  e2ap_free_node_connection_update_ack_msg,
+  e2ap_free_node_connection_update_failure_msg,
+  e2ap_free_e42_setup_request_msg,
+  e2ap_free_e42_setup_response_msg,
+  e2ap_free_e42_ric_subscription_request_msg,
+  e2ap_free_e42_ric_subscription_delete_request_msg,
+  e2ap_free_e42_ric_control_request_msg,
+};
+
+
 void notify_msg_iapp_api(e2ap_msg_t const* msg)
 {
   assert(iapp != NULL);
   assert(msg != NULL);
   notify_msg_iapp(iapp, msg);
+
+  // This sucks and should be removed
+  free_func_table[msg->type]((e2ap_msg_t*) msg);
+  free( (e2ap_msg_t*)msg);
 }
 

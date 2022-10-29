@@ -22,6 +22,7 @@
 
 #include "ric_subscription_delete_response.h"
 
+#include <assert.h>
 #include <stddef.h>
 
 bool eq_ric_subscription_delete_response(const ric_subscription_delete_response_t* m0, const ric_subscription_delete_response_t* m1)
@@ -36,3 +37,11 @@ bool eq_ric_subscription_delete_response(const ric_subscription_delete_response_
   return true;
 }
 
+ric_subscription_delete_response_t cp_ric_subscription_delete_respponse( ric_subscription_delete_response_t const* src )
+{
+  assert(src != NULL);
+ ric_subscription_delete_response_t dst = { 0 }; 
+ // Bad bad bad...
+ dst.ric_id = src-> ric_id;
+  return dst;
+}
