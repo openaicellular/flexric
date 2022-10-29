@@ -186,6 +186,7 @@ e2ap_msg_t e2ap_msg_handle_ric(near_ric_t* ric, const e2ap_msg_t* msg)
 
   e2ap_msg_t* cp = calloc(1, sizeof(e2ap_msg_t) );
   assert(cp != NULL);
+  cp->tstamp = msg->tstamp;
   memcpy((e2_msg_type_t*)&cp->type, &msg->type, sizeof(e2_msg_type_t  ) );
   assert(cp->type == RIC_SUBSCRIPTION_RESPONSE) ;
   cp->u_msgs.ric_sub_resp = cp_ric_subscription_respponse(&msg->u_msgs.ric_sub_resp);
@@ -228,6 +229,7 @@ e2ap_msg_t e2ap_msg_handle_ric(near_ric_t* ric, const e2ap_msg_t* msg)
 
   e2ap_msg_t* cp = calloc(1, sizeof(e2ap_msg_t) );
   assert(cp != NULL);
+  cp->tstamp = msg->tstamp;
   memcpy((e2_msg_type_t*)&cp->type, &msg->type, sizeof(e2_msg_type_t  ) );
   assert(cp->type == RIC_SUBSCRIPTION_DELETE_RESPONSE) ;
   cp->u_msgs.ric_sub_del_resp = cp_ric_subscription_delete_respponse(&msg->u_msgs.ric_sub_del_resp);
@@ -314,6 +316,7 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_t* d)
 #ifndef TEST_AGENT_RIC  
   e2ap_msg_t* cp = calloc(1, sizeof(e2ap_msg_t) );
   assert(cp != NULL);
+  cp->tstamp = msg->tstamp;
   memcpy((e2_msg_type_t*)&cp->type, &msg->type, sizeof(e2_msg_type_t  ) );
   assert(cp->type == RIC_INDICATION) ;
   cp->u_msgs.ric_ind = mv_ric_indication((ric_indication_t*)&msg->u_msgs.ric_ind);
@@ -348,6 +351,7 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_t* d)
 
   e2ap_msg_t* cp = calloc(1, sizeof(e2ap_msg_t) );
   assert(cp != NULL);
+  cp->tstamp = msg->tstamp;
   memcpy((e2_msg_type_t*) &cp->type, &msg->type, sizeof(e2_msg_type_t  ) );
   assert(cp->type == RIC_INDICATION) ;
   assert(cp->type == RIC_CONTROL_ACKNOWLEDGE) ;
