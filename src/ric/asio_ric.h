@@ -30,6 +30,13 @@ typedef struct{
 } asio_ric_t;
 
 
+typedef struct{
+
+  int len;
+  int fd[128];
+
+} event_asio_ric_t ;
+
 void init_asio_ric(asio_ric_t* io);
 
 void add_fd_asio_ric(asio_ric_t* io, int fd);
@@ -38,7 +45,7 @@ int create_timer_ms_asio_ric(asio_ric_t* io, long initial_ms, long interval_ms);
 
 void rm_fd_asio_ric(asio_ric_t* io, int fd);
 
-int event_asio_ric(asio_ric_t const* io);
+event_asio_ric_t event_asio_ric(asio_ric_t const* io);
 
 
 #endif

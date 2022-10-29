@@ -356,13 +356,22 @@ bool pend_event(near_ric_t* ric, int fd, pending_event_t** p_ev)
 }
 
 
+static
+event_asio_ric_t ev_asio; 
 
 static
 async_event_t next_asio_event_ric(near_ric_t* ric)
 {
   assert(ric != NULL);
 
-  int const fd = event_asio_ric(&ric->io);
+//  int const fd = event_asio_ric(&ric->io);
+
+  if(ev_asio.len < 1)
+    ev_asio = event_asio_ric(&ric->io);
+
+  int const fd = ev_asio.len > 0 ? ev_asio.fd[ev_asio.len -1 ] : -1 ;
+  ev_asio.len -= 1;
+
 
   async_event_t e = {.type = UNKNOWN_EVENT,
                      .fd = fd};

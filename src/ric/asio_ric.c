@@ -112,11 +112,11 @@ void rm_fd_asio_ric(asio_ric_t* io, int fd)
 
 }
 
-int event_asio_ric(asio_ric_t const* io)
+event_asio_ric_t event_asio_ric(asio_ric_t const* io)
 {
   assert(io != NULL);
 
-  const int maxevents = 1;
+  const int maxevents = 128;
   struct epoll_event events[maxevents];
   const int timeout_ms = 1000;
 
@@ -125,12 +125,20 @@ int event_asio_ric(asio_ric_t const* io)
     printf("Error detected = %s \n", strerror(errno));
     fflush(stdout);
   }
-  assert(events_ready == 0 || events_ready == 1);
+//  assert(events_ready == 0 || events_ready == 1);
+  assert(events_ready < maxevents + 1); // == 0 || events_ready == 1);
 
-  if(events_ready == 0) return -1;
+  event_asio_ric_t ret = {.len = -1}; 
+  if(events_ready == 0) return ret;// -1;
 
   // Max. one event ready
   assert((events[0].events & EPOLLERR) == 0);
-  return events[0].data.fd; 
+  
+  ret.len = events_ready; 
+  for(int i =0; i < events_ready; ++i){
+    ret.fd[i] = events[i].data.fd;
+  }
+
+  return ret;//events[0].data.fd; 
 }
 
