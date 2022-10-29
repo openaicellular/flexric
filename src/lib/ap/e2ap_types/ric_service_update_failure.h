@@ -28,8 +28,10 @@
 #include "common/e2ap_time_to_wait.h"
 
 typedef struct {
-  rejected_ran_function_t* rejected;
-  size_t len_rej;
+  rejected_ran_function_t* rejected; // remove
+  size_t len_rej;                    // remove
+  // transaction id
+  // cause
   e2ap_time_to_wait_e* time_to_wait;
   criticality_diagnostics_t* crit_diag;
 } ric_service_update_failure_t;

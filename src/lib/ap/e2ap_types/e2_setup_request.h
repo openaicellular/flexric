@@ -33,7 +33,7 @@ typedef struct e2_setup_request {
   global_e2_node_id_t id;
   ran_function_t* ran_func_item;
   size_t len_rf;
-  e2_node_component_config_update_t* comp_conf_update;
+  e2_node_component_config_update_t* comp_conf_update; // addition
   size_t len_ccu;
 } e2_setup_request_t;
 

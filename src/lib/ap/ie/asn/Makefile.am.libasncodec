@@ -13,21 +13,19 @@ ASN_MODULE_SRCS=	\
 	RICaction-NotAdmitted-List.c	\
 	RICaction-NotAdmitted-Item.c	\
 	RICsubscriptionFailure.c	\
-	E42RICsubscriptionRequest.c	\
-	E42RICsubscriptionDeleteRequest.c	\
 	RICsubscriptionDeleteRequest.c	\
 	RICsubscriptionDeleteResponse.c	\
 	RICsubscriptionDeleteFailure.c	\
+	RICsubscriptionDeleteRequired.c	\
+	RICsubscription-List-withCause.c	\
+	RICsubscription-withCause-Item.c	\
 	RICindication.c	\
 	RICcontrolRequest.c	\
-	E42RICcontrolRequest.c	\
 	RICcontrolAcknowledge.c	\
 	RICcontrolFailure.c	\
 	ErrorIndication.c	\
 	E2setupRequest.c	\
-	E42setupRequest.c	\
 	E2setupResponse.c	\
-	E42setupResponse.c	\
 	E2setupFailure.c	\
 	E2connectionUpdate.c	\
 	E2connectionUpdate-List.c	\
@@ -39,11 +37,21 @@ ASN_MODULE_SRCS=	\
 	E2connectionSetupFailed-Item.c	\
 	E2connectionUpdateFailure.c	\
 	E2nodeConfigurationUpdate.c	\
+	E2nodeComponentConfigAddition-List.c	\
+	E2nodeComponentConfigAddition-Item.c	\
 	E2nodeComponentConfigUpdate-List.c	\
 	E2nodeComponentConfigUpdate-Item.c	\
+	E2nodeComponentConfigRemoval-List.c	\
+	E2nodeComponentConfigRemoval-Item.c	\
+	E2nodeTNLassociationRemoval-List.c	\
+	E2nodeTNLassociationRemoval-Item.c	\
 	E2nodeConfigurationUpdateAcknowledge.c	\
+	E2nodeComponentConfigAdditionAck-List.c	\
+	E2nodeComponentConfigAdditionAck-Item.c	\
 	E2nodeComponentConfigUpdateAck-List.c	\
 	E2nodeComponentConfigUpdateAck-Item.c	\
+	E2nodeComponentConfigRemovalAck-List.c	\
+	E2nodeComponentConfigRemovalAck-Item.c	\
 	E2nodeConfigurationUpdateFailure.c	\
 	ResetRequest.c	\
 	ResetResponse.c	\
@@ -52,31 +60,36 @@ ASN_MODULE_SRCS=	\
 	RANfunction-Item.c	\
 	RANfunctionsID-List.c	\
 	RANfunctionID-Item.c	\
-	E2nodeConnected-List.c	\
 	RICserviceUpdateAcknowledge.c	\
 	RANfunctionsIDcause-List.c	\
 	RANfunctionIDcause-Item.c	\
 	RICserviceUpdateFailure.c	\
 	RICserviceQuery.c	\
+	E2RemovalRequest.c	\
+	E2RemovalResponse.c	\
+	E2RemovalFailure.c	\
+	AMFName.c	\
 	Cause.c	\
+	CauseE2node.c	\
 	CauseMisc.c	\
 	CauseProtocol.c	\
-	CauseRIC.c	\
+	CauseRICrequest.c	\
 	CauseRICservice.c	\
 	CauseTransport.c	\
 	CriticalityDiagnostics.c	\
 	CriticalityDiagnostics-IE-List.c	\
 	CriticalityDiagnostics-IE-Item.c	\
-	E2nodeComponentConfigUpdate.c	\
-	E2nodeComponentConfigUpdateGNB.c	\
-	E2nodeComponentConfigUpdateENgNB.c	\
-	E2nodeComponentConfigUpdateNGeNB.c	\
-	E2nodeComponentConfigUpdateENB.c	\
-	E2nodeComponentConfigUpdateAck.c	\
-	E2nodeComponentType.c	\
+	E2nodeComponentConfiguration.c	\
+	E2nodeComponentConfigurationAck.c	\
+	E2nodeComponentInterfaceType.c	\
 	E2nodeComponentID.c	\
-	E2nodeComponentGNB-CU-UP-ID.c	\
-	E2nodeComponentGNB-DU-ID.c	\
+	E2nodeComponentInterfaceE1.c	\
+	E2nodeComponentInterfaceF1.c	\
+	E2nodeComponentInterfaceNG.c	\
+	E2nodeComponentInterfaceS1.c	\
+	E2nodeComponentInterfaceX2.c	\
+	E2nodeComponentInterfaceXn.c	\
+	E2nodeComponentInterfaceW1.c	\
 	ENB-ID.c	\
 	ENB-ID-Choice.c	\
 	ENGNB-ID.c	\
@@ -89,10 +102,13 @@ ASN_MODULE_SRCS=	\
 	GlobalenGNB-ID.c	\
 	GlobalgNB-ID.c	\
 	GlobalngeNB-ID.c	\
+	GlobalNG-RANNode-ID.c	\
 	GlobalRIC-ID.c	\
 	GNB-CU-UP-ID.c	\
 	GNB-DU-ID.c	\
 	GNB-ID-Choice.c	\
+	MMEname.c	\
+	NGENB-DU-ID.c	\
 	PLMN-Identity.c	\
 	RANfunctionDefinition.c	\
 	RANfunctionID.c	\
@@ -106,7 +122,6 @@ ASN_MODULE_SRCS=	\
 	RICcontrolHeader.c	\
 	RICcontrolMessage.c	\
 	RICcontrolOutcome.c	\
-	RICcontrolStatus.c	\
 	RICeventTriggerDefinition.c	\
 	RICindicationHeader.c	\
 	RICindicationMessage.c	\
@@ -119,8 +134,8 @@ ASN_MODULE_SRCS=	\
 	TimeToWait.c	\
 	TNLinformation.c	\
 	TNLusage.c	\
+	TransactionID.c	\
 	TypeOfError.c	\
-	XAPP-ID.c	\
 	Criticality.c	\
 	Presence.c	\
 	ProcedureCode.c	\
@@ -149,21 +164,19 @@ ASN_MODULE_HDRS=	\
 	RICaction-NotAdmitted-List.h	\
 	RICaction-NotAdmitted-Item.h	\
 	RICsubscriptionFailure.h	\
-	E42RICsubscriptionRequest.h	\
-	E42RICsubscriptionDeleteRequest.h	\
 	RICsubscriptionDeleteRequest.h	\
 	RICsubscriptionDeleteResponse.h	\
 	RICsubscriptionDeleteFailure.h	\
+	RICsubscriptionDeleteRequired.h	\
+	RICsubscription-List-withCause.h	\
+	RICsubscription-withCause-Item.h	\
 	RICindication.h	\
 	RICcontrolRequest.h	\
-	E42RICcontrolRequest.h	\
 	RICcontrolAcknowledge.h	\
 	RICcontrolFailure.h	\
 	ErrorIndication.h	\
 	E2setupRequest.h	\
-	E42setupRequest.h	\
 	E2setupResponse.h	\
-	E42setupResponse.h	\
 	E2setupFailure.h	\
 	E2connectionUpdate.h	\
 	E2connectionUpdate-List.h	\
@@ -175,11 +188,21 @@ ASN_MODULE_HDRS=	\
 	E2connectionSetupFailed-Item.h	\
 	E2connectionUpdateFailure.h	\
 	E2nodeConfigurationUpdate.h	\
+	E2nodeComponentConfigAddition-List.h	\
+	E2nodeComponentConfigAddition-Item.h	\
 	E2nodeComponentConfigUpdate-List.h	\
 	E2nodeComponentConfigUpdate-Item.h	\
+	E2nodeComponentConfigRemoval-List.h	\
+	E2nodeComponentConfigRemoval-Item.h	\
+	E2nodeTNLassociationRemoval-List.h	\
+	E2nodeTNLassociationRemoval-Item.h	\
 	E2nodeConfigurationUpdateAcknowledge.h	\
+	E2nodeComponentConfigAdditionAck-List.h	\
+	E2nodeComponentConfigAdditionAck-Item.h	\
 	E2nodeComponentConfigUpdateAck-List.h	\
 	E2nodeComponentConfigUpdateAck-Item.h	\
+	E2nodeComponentConfigRemovalAck-List.h	\
+	E2nodeComponentConfigRemovalAck-Item.h	\
 	E2nodeConfigurationUpdateFailure.h	\
 	ResetRequest.h	\
 	ResetResponse.h	\
@@ -188,31 +211,36 @@ ASN_MODULE_HDRS=	\
 	RANfunction-Item.h	\
 	RANfunctionsID-List.h	\
 	RANfunctionID-Item.h	\
-	E2nodeConnected-List.h	\
 	RICserviceUpdateAcknowledge.h	\
 	RANfunctionsIDcause-List.h	\
 	RANfunctionIDcause-Item.h	\
 	RICserviceUpdateFailure.h	\
 	RICserviceQuery.h	\
+	E2RemovalRequest.h	\
+	E2RemovalResponse.h	\
+	E2RemovalFailure.h	\
+	AMFName.h	\
 	Cause.h	\
+	CauseE2node.h	\
 	CauseMisc.h	\
 	CauseProtocol.h	\
-	CauseRIC.h	\
+	CauseRICrequest.h	\
 	CauseRICservice.h	\
 	CauseTransport.h	\
 	CriticalityDiagnostics.h	\
 	CriticalityDiagnostics-IE-List.h	\
 	CriticalityDiagnostics-IE-Item.h	\
-	E2nodeComponentConfigUpdate.h	\
-	E2nodeComponentConfigUpdateGNB.h	\
-	E2nodeComponentConfigUpdateENgNB.h	\
-	E2nodeComponentConfigUpdateNGeNB.h	\
-	E2nodeComponentConfigUpdateENB.h	\
-	E2nodeComponentConfigUpdateAck.h	\
-	E2nodeComponentType.h	\
+	E2nodeComponentConfiguration.h	\
+	E2nodeComponentConfigurationAck.h	\
+	E2nodeComponentInterfaceType.h	\
 	E2nodeComponentID.h	\
-	E2nodeComponentGNB-CU-UP-ID.h	\
-	E2nodeComponentGNB-DU-ID.h	\
+	E2nodeComponentInterfaceE1.h	\
+	E2nodeComponentInterfaceF1.h	\
+	E2nodeComponentInterfaceNG.h	\
+	E2nodeComponentInterfaceS1.h	\
+	E2nodeComponentInterfaceX2.h	\
+	E2nodeComponentInterfaceXn.h	\
+	E2nodeComponentInterfaceW1.h	\
 	ENB-ID.h	\
 	ENB-ID-Choice.h	\
 	ENGNB-ID.h	\
@@ -225,10 +253,13 @@ ASN_MODULE_HDRS=	\
 	GlobalenGNB-ID.h	\
 	GlobalgNB-ID.h	\
 	GlobalngeNB-ID.h	\
+	GlobalNG-RANNode-ID.h	\
 	GlobalRIC-ID.h	\
 	GNB-CU-UP-ID.h	\
 	GNB-DU-ID.h	\
 	GNB-ID-Choice.h	\
+	MMEname.h	\
+	NGENB-DU-ID.h	\
 	PLMN-Identity.h	\
 	RANfunctionDefinition.h	\
 	RANfunctionID.h	\
@@ -242,7 +273,6 @@ ASN_MODULE_HDRS=	\
 	RICcontrolHeader.h	\
 	RICcontrolMessage.h	\
 	RICcontrolOutcome.h	\
-	RICcontrolStatus.h	\
 	RICeventTriggerDefinition.h	\
 	RICindicationHeader.h	\
 	RICindicationMessage.h	\
@@ -255,8 +285,8 @@ ASN_MODULE_HDRS=	\
 	TimeToWait.h	\
 	TNLinformation.h	\
 	TNLusage.h	\
+	TransactionID.h	\
 	TypeOfError.h	\
-	XAPP-ID.h	\
 	Criticality.h	\
 	Presence.h	\
 	ProcedureCode.h	\

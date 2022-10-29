@@ -39,7 +39,7 @@ typedef struct {
 
   rejected_ran_function_t* rejected;
   size_t len_rej;
-  e2_node_component_config_update_t* comp_conf_update_ack_list;
+  e2_node_component_config_update_t* comp_conf_update_ack_list; // addition ack
   size_t len_ccual;
 } e2_setup_response_t;
 
