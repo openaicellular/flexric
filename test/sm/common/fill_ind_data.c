@@ -139,7 +139,7 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
   } else {
 
     adapter_MeasDataItem_t *KPMData = calloc(1, sizeof(adapter_MeasDataItem_t));
-    KPMData[0].measRecord_len = rand()%100;
+    KPMData[0].measRecord_len = rand()%100 + 1;
     KPMData[0].incompleteFlag =  -1;
     
     adapter_MeasRecord_t * KPMRecord = calloc(KPMData[0].measRecord_len, sizeof(adapter_MeasRecord_t));
