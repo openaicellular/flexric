@@ -23,12 +23,29 @@
 
 #include "e2ap_error_indication.h"
 
+static
+bool eq_trx_id(uint8_t* m0, uint8_t* m1)
+{
+  if(m0 == m1) return true;
+
+  if(m0 == NULL || m1 == NULL)
+    return false;
+
+  if(*m0 != *m1)
+    return false;
+
+  return true;
+}
+
 
 bool eq_error_indication(const e2ap_error_indication_t* m0, const e2ap_error_indication_t* m1)
 {
   if(m0 == m1) return true;
 
   if(m0 == NULL || m1 == NULL) 
+    return false;
+
+  if(!eq_trx_id(m0->trx_id, m1->trx_id))
     return false;
 
   if(eq_ric_gen_id(m0->ric_id, m1->ric_id) == false)

@@ -361,10 +361,12 @@ void test_error_indication()
   ric_id->ric_req_id = 3;
   ric_id->ran_func_id = 42;
 
+  uint8_t* trx_id = NULL; // optional
   cause_t* cause = NULL; // optional
   criticality_diagnostics_t* crit_diag = NULL; // optional
 
   e2ap_error_indication_t ei_begin = {
+  .trx_id = trx_id, // optional
   .ric_id = ric_id, // optional
   .cause = cause, // optional
   .crit_diag = crit_diag, // optional

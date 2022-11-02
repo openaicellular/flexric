@@ -1211,6 +1211,11 @@ E2AP_PDU_t* e2ap_enc_error_indication_asn_pdu(const e2ap_error_indication_t* ei)
   pdu->choice.initiatingMessage->value.present = InitiatingMessage__value_PR_ErrorIndication; 
 
   ErrorIndication_t* out = &pdu->choice.initiatingMessage->value.choice.ErrorIndication;
+
+  if (ei->trx_id != NULL) {
+    assert(false && "not implemented");
+  }
+
   //FixME. Here you either have non or both due to ric_id... 
   // RIC Request ID. Optional
   if(ei->ric_id != NULL ){

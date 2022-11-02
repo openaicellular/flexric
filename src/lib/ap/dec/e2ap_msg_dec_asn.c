@@ -1218,12 +1218,15 @@ e2ap_msg_t e2ap_dec_error_indication(const E2AP_PDU_t* pdu)
   int elm = 0;
   while (elm < out->protocolIEs.list.count){
     const ErrorIndication_IEs_t* err_ind = out->protocolIEs.list.array[elm];
-    assert(err_ind->id == ProtocolIE_ID_id_RICrequestID
+    assert(err_ind->id == ProtocolIE_ID_id_TransactionID
+          || err_ind->id == ProtocolIE_ID_id_RICrequestID
           || err_ind->id == ProtocolIE_ID_id_RANfunctionID
           || err_ind->id == ProtocolIE_ID_id_Cause
           || err_ind->id == ProtocolIE_ID_id_CriticalityDiagnostics
         );
-      if(err_ind->id == ProtocolIE_ID_id_RICrequestID){
+      if (err_ind->id == ProtocolIE_ID_id_TransactionID) {
+        assert(false && "not implemented");
+      } else if (err_ind->id == ProtocolIE_ID_id_RICrequestID){
         //RIC Request ID. Mandatory
         assert(err_ind->criticality == Criticality_reject);
         assert(err_ind->value.present == ErrorIndication_IEs__value_PR_RICrequestID); 
