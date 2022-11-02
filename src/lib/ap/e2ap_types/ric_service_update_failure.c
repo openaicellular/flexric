@@ -38,6 +38,9 @@ bool eq_ric_service_update_failure(const ric_service_update_failure_t* m0, const
       return false;
   }
 
+  if (!eq_cause(&m0->cause, &m1->cause))
+    return false;
+
   if(eq_time_to_wait(m0->time_to_wait, m1->time_to_wait) == false)
     return false;
 

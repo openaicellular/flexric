@@ -124,22 +124,19 @@ void test_subscription_response()
 
 void test_subscription_failure()
 {
-    const ric_gen_id_t ric_id = {.ric_req_id = 0,
+  const ric_gen_id_t ric_id = {
+    .ric_req_id = 0,
     .ric_inst_id = 2,
-    .ran_func_id = 12};
+    .ran_func_id = 12
+  };
 
-
-  ric_action_not_admitted_t* na = calloc(1,sizeof(ric_action_not_admitted_t)); 
-  na->ric_act_id = 2;
-  na->cause.present = CAUSE_PROTOCOL;
-  na->cause.protocol = CAUSE_PROTOCOL_SEMANTIC_ERROR;	
+  cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
 
   criticality_diagnostics_t* crit_diag = NULL; 
 
   ric_subscription_failure_t sf_begin = {
     .ric_id = ric_id,
-    . not_admitted = na,
-    .len_na = 1,
+    .cause = cause,
     .crit_diag = crit_diag, // optional
   };
 
@@ -148,7 +145,7 @@ void test_subscription_failure()
   free_pdu(pdu); 
   assert(msg.type == RIC_SUBSCRIPTION_FAILURE);
   ric_subscription_failure_t* sf_end = &msg.u_msgs.ric_sub_fail;
-  assert(eq_ric_subscritption_failure(&sf_begin, sf_end) == true);
+  assert(eq_ric_subscription_failure(&sf_begin, sf_end) == true);
   e2ap_free_subscription_failure(&sf_begin);
   e2ap_free_subscription_failure(sf_end);
 }
@@ -385,7 +382,7 @@ void test_error_indication()
   e2ap_free_error_indication(ei_end);
 }
 
-void test_setup_rquest()
+void test_setup_request()
 {
   plmn_t plmn = {
     .mcc = 10,
@@ -405,9 +402,12 @@ void test_setup_rquest()
   ran_function_t* ran_func_item = calloc(len_rf, sizeof(ran_function_t));
   ran_func_item[0].id = 32;
   ran_func_item[0].rev = 0;
+  ran_func_item[0].oid = malloc(sizeof(*ran_func_item[0].oid));
+  const char* oid = "TEST OID";
+  ran_func_item[0].oid->buf = (uint8_t*) strdup(oid);
+  ran_func_item[0].oid->len = strlen(oid);
   const char* def = "This is the possible deficniotn";
-  ran_func_item[0].def.buf = malloc(strlen(def));
-  memcpy(ran_func_item[0].def.buf, def, strlen(def)); 
+  ran_func_item[0].def.buf = (uint8_t*) strdup(def);
   ran_func_item[0].def.len = strlen(def); 
 
 
@@ -550,18 +550,18 @@ void test_reset_response()
 
 void test_service_update()
 {
-  byte_array_t ba;
-  memset(&ba, 0, sizeof(byte_array_t));
   const char* def = "This is a dummy definition";
-  ba.buf =  malloc(strlen(def));
-  memcpy(ba.buf, def, strlen(def));
-  ba.len = strlen(def);
+  const char* oid = "TEST OID";
 
   const size_t len_added = 1;
   ran_function_t* added = calloc(len_added, sizeof(ran_function_t ));
   added->id = 42;
   added->rev = 0;
-  added->def = ba;
+  added->def.buf = (uint8_t*) strdup(def);
+  added->def.len = strlen(def);
+  added->oid = malloc(sizeof(*added->oid));
+  added->oid->buf = (uint8_t*) strdup(oid);
+  added->oid->len = strlen(oid);
 
   ran_function_t* modified = NULL;
   const size_t len_modified = 0;
@@ -619,10 +619,8 @@ void test_service_update_ack()
 void test_service_update_failure()
 {
   const cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
-  const size_t len_rej = 1;
-  rejected_ran_function_t* rejected = calloc(len_rej, sizeof(rejected_ran_function_t));
-   rejected->id = 42;
-    rejected->cause = cause;
+  const size_t len_rej = 0;
+  rejected_ran_function_t* rejected = NULL;
 
   e2ap_time_to_wait_e* time_to_wait = NULL;
   criticality_diagnostics_t* crit_diag = NULL;
@@ -631,6 +629,7 @@ void test_service_update_failure()
   ric_service_update_failure_t uf_begin = {
   .rejected = rejected, 
   .len_rej= len_rej,
+  .cause = cause,
   .time_to_wait = time_to_wait,
   .crit_diag = crit_diag,
   };
@@ -1016,7 +1015,7 @@ int main()
     test_control_request_ack(); 
     test_control_request_failure(); 
     test_error_indication();
-    test_setup_rquest();
+    test_setup_request();
     test_setup_response();
     test_setup_failure();
     test_reset_request(); 
@@ -1035,12 +1034,12 @@ int main()
     //  test_connection_update_failure();
 
     // E42
-    test_e42_setup_request();
-    test_e42_setup_response();
-    test_e42_subscription_request();
-    test_e42_subscription_delete_request();     
+    //test_e42_setup_request();
+    //test_e42_setup_response();
+    //test_e42_subscription_request();
+    //test_e42_subscription_delete_request();
 
-    test_e42_control_request();
+    //test_e42_control_request();
 
   }
   puts("Sucess running the encoding/decoding test");

@@ -25,13 +25,14 @@
 
 #include "common/e2ap_rejected_ran_function.h"
 #include "common/e2ap_criticality_diagnostics.h"
+#include "common/e2ap_cause.h"
 #include "common/e2ap_time_to_wait.h"
 
 typedef struct {
   rejected_ran_function_t* rejected; // remove
   size_t len_rej;                    // remove
   // transaction id
-  // cause
+  cause_t cause;
   e2ap_time_to_wait_e* time_to_wait;
   criticality_diagnostics_t* crit_diag;
 } ric_service_update_failure_t;

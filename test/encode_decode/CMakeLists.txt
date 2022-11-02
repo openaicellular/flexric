@@ -31,6 +31,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
   target_compile_options(test_e2ap_enc_dec_asn PUBLIC "-DASN_DISABLE_OER_SUPPORT")
   target_compile_options(test_e2ap_enc_dec_asn PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
   target_include_directories(test_e2ap_enc_dec_asn PRIVATE "../../src/lib/ap/ie/asn/")
+  add_test(Unit_test_E2AP_enc_dec_ASN test_e2ap_enc_dec_asn)
 
 ###########################
 # E2AP Flatbuffers Encoding

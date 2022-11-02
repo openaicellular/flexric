@@ -126,8 +126,6 @@ void e2ap_free_subscription_failure_msg(e2ap_msg_t* msg)
 void e2ap_free_subscription_failure(ric_subscription_failure_t* sf)
 {
   assert(sf != NULL);
-  assert(sf->not_admitted != NULL);
-  free(sf->not_admitted);
 
   if(sf->crit_diag != NULL){
     assert(0!=0 && "Not implemented");

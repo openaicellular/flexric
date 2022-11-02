@@ -184,48 +184,45 @@ int e2ap_asn1c_get_procedureCode(const E2AP_PDU_t* pdu)
 static inline
 cause_t copy_cause(Cause_t src)
 {
-  cause_t dst; 
-  memset(&dst, 0, sizeof(cause_t));
+  cause_t dst = {0};
   switch(src.present) {
-    case Cause_PR_NOTHING: {
-                             assert(0 != 0 && "Not Implemented!");
-                             break;
-                           }
-    case Cause_PR_ricRequest: {
-                                assert(src.choice.ricRequest < 11);
-                                dst.present = CAUSE_RICREQUEST;
-                                dst.ricRequest = src.choice.ricRequest; 
-                                break;
-                              }
-    case  Cause_PR_ricService: {
-                                 assert(src.choice.ricService < 3);
-                                 dst.present = CAUSE_RICSERVICE;
-                                 dst.ricService = src.choice.ricService;
-                                 break;
-                               }
-    case Cause_PR_transport:{
-                              assert(src.choice.transport < 2);
-                              dst.present = CAUSE_TRANSPORT;
-                              dst.transport = src.choice.transport;
-                              break;
-                            }
-    case  Cause_PR_protocol: {
-
-                               assert(src.choice.protocol < 7);
-                               dst.present = CAUSE_PROTOCOL;
-                               dst.protocol = src.choice.protocol;
-                               break;
-                             }
-    case  Cause_PR_misc:{
-                          assert(src.choice.misc < 4);
-                          dst.present = CAUSE_MISC;
-                          dst.misc = src.choice.misc; 
-                          break;
-                        }
-    default: {
-               assert(0!= 0 && "Invalid code path. Error caused assigned");
-               break;
-             }
+    case Cause_PR_NOTHING:
+      assert(0 != 0 && "Not Implemented!");
+      break;
+    case Cause_PR_ricRequest:
+      assert(src.choice.ricRequest < 14);
+      dst.present = CAUSE_RICREQUEST;
+      dst.ricRequest = src.choice.ricRequest;
+      break;
+    case Cause_PR_ricService:
+      assert(src.choice.ricService < 3);
+      dst.present = CAUSE_RICSERVICE;
+      dst.ricService = src.choice.ricService;
+      break;
+    case Cause_PR_e2Node:
+      assert(src.choice.e2Node == 0);
+      dst.present = CAUSE_E2NODE;
+      dst.e2Node = src.choice.e2Node;
+      break;
+    case Cause_PR_transport:
+      assert(src.choice.transport < 2);
+      dst.present = CAUSE_TRANSPORT;
+      dst.transport = src.choice.transport;
+      break;
+    case Cause_PR_protocol:
+      assert(src.choice.protocol < 7);
+      dst.present = CAUSE_PROTOCOL;
+      dst.protocol = src.choice.protocol;
+      break;
+    case Cause_PR_misc:
+      assert(src.choice.misc < 4);
+      dst.present = CAUSE_MISC;
+      dst.misc = src.choice.misc;
+      break;
+    default:
+      printf("cause %d\n", src.present);
+      assert(0!= 0 && "Invalid code path. Error caused assigned");
+      break;
   }
 
   return dst;
@@ -627,10 +624,7 @@ e2ap_msg_t e2ap_dec_subscription_failure(const E2AP_PDU_t* pdu)
   assert(cause->id == ProtocolIE_ID_id_Cause);
   assert(cause->criticality == Criticality_reject);
   assert(cause->value.present == RICsubscriptionFailure_IEs__value_PR_Cause);
-  //sf->cause = copy_cause(act_not_adm->value.choice.Cause);
-
-  sf->len_na = 0; // TODO remove
-  sf->not_admitted = NULL;
+  sf->cause = copy_cause(cause->value.choice.Cause);
 
  // Criticality Diagnosis. Optional
   if(out->protocolIEs.list.count > 3){
@@ -1747,54 +1741,67 @@ e2ap_msg_t e2ap_dec_service_update(const E2AP_PDU_t* pdu)
 
   const RICserviceUpdate_t *out = &pdu->choice.initiatingMessage->value.choice.RICserviceUpdate;
 
-  // List of RAN Functions Added
-  const RICserviceUpdate_IEs_t* ran_add = out->protocolIEs.list.array[0];
-  assert(ran_add->id == ProtocolIE_ID_id_RANfunctionsAdded);
-  assert(ran_add->criticality == Criticality_reject);
-  assert(ran_add->value.present == RICserviceUpdate_IEs__value_PR_RANfunctions_List);
-  const int sz_add = ran_add->value.choice.RANfunctions_List.list.count;
-  su->added = calloc(sz_add, sizeof(ran_function_t));
-  su->len_added = sz_add;
-  for(int i = 0; i < sz_add; ++i){
-    const RANfunction_ItemIEs_t* r = (const RANfunction_ItemIEs_t*)ran_add->value.choice.RANfunctions_List.list.array[i];
-    assert(r->id == ProtocolIE_ID_id_RANfunction_Item);
-    assert(r->criticality == Criticality_reject);
-    assert(r->value.present == RANfunction_ItemIEs__value_PR_RANfunction_Item);
-    su->added[i] = copy_ran_function(&r->value.choice.RANfunction_Item);
-  }
+  const RICserviceUpdate_IEs_t* trx_id = out->protocolIEs.list.array[0];
+  assert(trx_id->id == ProtocolIE_ID_id_TransactionID);
+  assert(trx_id->criticality == Criticality_reject);
+  assert(trx_id->value.present == RICserviceUpdate_IEs__value_PR_TransactionID);
+  //su->trx_id = trx_id->value.choice.TransactionID;
+  assert(trx_id->value.choice.TransactionID == 0);
 
-  // List of RAN Functions Modified
-  const RICserviceUpdate_IEs_t* ran_mod = out->protocolIEs.list.array[1];
-  assert(ran_mod->id == ProtocolIE_ID_id_RANfunctionsModified);
-  assert(ran_mod->criticality == Criticality_reject);
-  assert(ran_mod->value.present == RICserviceUpdate_IEs__value_PR_RANfunctions_List);
-
-  const int sz_mod = ran_mod->value.choice.RANfunctions_List.list.count;
-  su->modified = calloc(sz_mod, sizeof(ran_function_t));
-  su->len_modified = sz_mod;
-  for(int i = 0; i < sz_mod; ++i){
-    const RANfunction_ItemIEs_t* r = (const RANfunction_ItemIEs_t*)ran_mod->value.choice.RANfunctions_List.list.array[i];
-    assert(r->id == ProtocolIE_ID_id_RANfunction_Item);
-    assert(r->criticality == Criticality_reject);
-    assert(r->value.present == RANfunction_ItemIEs__value_PR_RANfunction_Item);
-    su->modified[i] = copy_ran_function(&r->value.choice.RANfunction_Item);
-  }
-
-  // List of RAN Functions Deleted
-  const RICserviceUpdate_IEs_t* ran_del = out->protocolIEs.list.array[2];
-  assert(ran_del->id == ProtocolIE_ID_id_RANfunctionsDeleted);
-  assert(ran_del->criticality == Criticality_reject);
-  assert(ran_del->value.present == RICserviceUpdate_IEs__value_PR_RANfunctionsID_List);
-  const int sz_del = ran_del->value.choice.RANfunctions_List.list.count;
-  su->deleted  = calloc(sz_del, sizeof(ran_function_t));
-  su->len_deleted = sz_del;
-  for(int i = 0; i < sz_del; ++i){
-    const RANfunction_ItemIEs_t* r = (const RANfunction_ItemIEs_t*)ran_del->value.choice.RANfunctions_List.list.array[i];
-    assert(r->id == ProtocolIE_ID_id_RANfunction_Item);
-    assert(r->criticality == Criticality_reject);
-    assert(r->value.present == RANfunction_ItemIEs__value_PR_RANfunction_Item);
-    su->deleted[i].id = r->value.choice.RANfunction_Item.ranFunctionID;
-    su->deleted[i].rev = r->value.choice.RANfunction_Item.ranFunctionRevision;
+  int elm = 1;
+  while(elm < out->protocolIEs.list.count){
+    const RICserviceUpdate_IEs_t* serv_up = out->protocolIEs.list.array[elm];
+    assert(serv_up->id == ProtocolIE_ID_id_RANfunctionsAdded
+           || serv_up->id == ProtocolIE_ID_id_RANfunctionsModified
+           || serv_up->id == ProtocolIE_ID_id_RANfunctionsDeleted);
+    if (serv_up->id == ProtocolIE_ID_id_RANfunctionsAdded) {
+      // List of RAN Functions Added
+      assert(serv_up->criticality == Criticality_reject);
+      assert(serv_up->value.present == RICserviceUpdate_IEs__value_PR_RANfunctions_List);
+      assert(su->added == NULL && su->len_added == 0 && "Added RAN Functions already read");
+      const int sz_add = serv_up->value.choice.RANfunctions_List.list.count;
+      su->added = calloc(sz_add, sizeof(ran_function_t));
+      su->len_added = sz_add;
+      for(int i = 0; i < sz_add; ++i){
+        const RANfunction_ItemIEs_t* r = (const RANfunction_ItemIEs_t*)serv_up->value.choice.RANfunctions_List.list.array[i];
+        assert(r->id == ProtocolIE_ID_id_RANfunction_Item);
+        assert(r->criticality == Criticality_reject);
+        assert(r->value.present == RANfunction_ItemIEs__value_PR_RANfunction_Item);
+        su->added[i] = copy_ran_function(&r->value.choice.RANfunction_Item);
+      }
+    } else if (serv_up->id == ProtocolIE_ID_id_RANfunctionsModified) {
+      // List of RAN Functions Modified
+      assert(serv_up->criticality == Criticality_reject);
+      assert(serv_up->value.present == RICserviceUpdate_IEs__value_PR_RANfunctions_List);
+      assert(su->modified == NULL && su->len_modified == 0 && "Modified RAN functions already read");
+      const int sz_mod = serv_up->value.choice.RANfunctions_List.list.count;
+      su->modified = calloc(sz_mod, sizeof(ran_function_t));
+      su->len_modified = sz_mod;
+      for(int i = 0; i < sz_mod; ++i){
+        const RANfunction_ItemIEs_t* r = (const RANfunction_ItemIEs_t*)serv_up->value.choice.RANfunctions_List.list.array[i];
+        assert(r->id == ProtocolIE_ID_id_RANfunction_Item);
+        assert(r->criticality == Criticality_reject);
+        assert(r->value.present == RANfunction_ItemIEs__value_PR_RANfunction_Item);
+        su->modified[i] = copy_ran_function(&r->value.choice.RANfunction_Item);
+      }
+    } else { // serv_up->id == ProtocolIE_ID_id_RANfunctionsDeleted
+      // List of RAN Functions Deleted
+      assert(serv_up->criticality == Criticality_reject);
+      assert(serv_up->value.present == RICserviceUpdate_IEs__value_PR_RANfunctionsID_List);
+      assert(su->deleted == NULL && su->len_deleted == 00 && "Deleted RAN functions already read");
+      const int sz_del = serv_up->value.choice.RANfunctions_List.list.count;
+      su->deleted  = calloc(sz_del, sizeof(ran_function_t));
+      su->len_deleted = sz_del;
+      for(int i = 0; i < sz_del; ++i){
+        const RANfunction_ItemIEs_t* r = (const RANfunction_ItemIEs_t*)serv_up->value.choice.RANfunctions_List.list.array[i];
+        assert(r->id == ProtocolIE_ID_id_RANfunction_Item);
+        assert(r->criticality == Criticality_reject);
+        assert(r->value.present == RANfunction_ItemIEs__value_PR_RANfunction_Item);
+        su->deleted[i].id = r->value.choice.RANfunction_Item.ranFunctionID;
+        su->deleted[i].rev = r->value.choice.RANfunction_Item.ranFunctionRevision;
+      }
+    }
+    elm++;
   }
   return ret;
 }
@@ -1887,9 +1894,9 @@ e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
   assert(cause->id == ProtocolIE_ID_id_Cause);
   assert(cause->criticality == Criticality_reject);
   assert(cause->value.present == RICserviceUpdateFailure_IEs__value_PR_Cause);
-  // TODO store it
+  uf->cause = copy_cause(cause->value.choice.Cause);
 
-  int elm = out->protocolIEs.list.count - 1;
+  int elm = out->protocolIEs.list.count - 2;
   while(elm > 0){
     const RICserviceUpdateFailure_IEs_t* su = out->protocolIEs.list.array[elm]; 
     assert(su->value.present ==  RICserviceUpdateFailure_IEs__value_PR_TimeToWait

@@ -121,48 +121,44 @@ BIT_STRING_t	copy_ba_to_bit_string(byte_array_t ba)
 static inline
 Cause_t copy_cause(cause_t src)
 {
-  Cause_t dst; 
-  memset(&dst, 0, sizeof(Cause_t));
+  Cause_t dst = {0};
   switch(src.present) {
-    case CAUSE_NOTHING: {
-                          assert(0 != 0 && "Not Implemented!");
-                          break;
-                        }
-    case CAUSE_RICREQUEST: {
-                             assert(src.ricRequest < 11);
-                             dst.present = Cause_PR_ricRequest;
-                             dst.choice.ricRequest = src.ricRequest; 
-                             break;
-                           }
-    case CAUSE_RICSERVICE: {
-                             assert(src.ricService < 3);
-                             dst.present = Cause_PR_ricService;
-                             dst.choice.ricService = src.ricService;
-                             break;
-                           }
-    case CAUSE_TRANSPORT:{
-                           assert(src.transport < 2);
-                           dst.present = Cause_PR_transport;
-                           dst.choice.transport = src.transport;
-                           break;
-                         }
-    case CAUSE_PROTOCOL: {
-
-                           assert(src.protocol < 7);
-                           dst.present = Cause_PR_protocol;
-                           dst.choice.protocol = src.protocol;
-                           break;
-                         }
-    case CAUSE_MISC:{
-                      assert(src.misc < 4);
-                      dst.present = Cause_PR_misc;
-                      dst.choice.misc = src.misc; 
-                      break;
-                    }
-    default: {
-               assert(0!= 0 && "Invalid code path. Error caused assigned");
-               break;
-             }
+    case CAUSE_NOTHING:
+      assert(0 != 0 && "Not Implemented!");
+      break;
+    case CAUSE_RICREQUEST:
+      assert(src.ricRequest < 14);
+      dst.present = Cause_PR_ricRequest;
+      dst.choice.ricRequest = src.ricRequest;
+      break;
+    case CAUSE_RICSERVICE:
+      assert(src.ricService < 3);
+      dst.present = Cause_PR_ricService;
+      dst.choice.ricService = src.ricService;
+      break;
+    case CAUSE_E2NODE:
+      assert(src.e2Node == 0);
+      dst.present = Cause_PR_e2Node;
+      dst.choice.e2Node = src.e2Node;
+      break;
+    case CAUSE_TRANSPORT:
+      assert(src.transport < 2);
+      dst.present = Cause_PR_transport;
+      dst.choice.transport = src.transport;
+      break;
+    case CAUSE_PROTOCOL:
+      assert(src.protocol < 7);
+      dst.present = Cause_PR_protocol;
+      dst.choice.protocol = src.protocol;
+      break;
+    case CAUSE_MISC:
+      assert(src.misc < 4);
+      dst.present = Cause_PR_misc;
+      dst.choice.misc = src.misc;
+      break;
+    default:
+      assert(0 != 0 && "Invalid code path. Error caused assigned");
+      break;
   }
 
   return dst;
@@ -622,8 +618,7 @@ E2AP_PDU_t* e2ap_enc_subscription_failure_asn_pdu(const ric_subscription_failure
   cause->id = ProtocolIE_ID_id_Cause;
   cause->criticality = Criticality_reject;
   cause->value.present = RICsubscriptionFailure_IEs__value_PR_Cause;
-  cause_t c = {.present = CAUSE_MISC, .misc = CAUSE_MISC_UNSPECIFIED }; // TODO
-  cause->value.choice.Cause = copy_cause(c);
+  cause->value.choice.Cause = copy_cause(sf->cause);
   rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, cause);
   assert(rc == 0);
 
@@ -1721,6 +1716,15 @@ E2AP_PDU_t* e2ap_enc_service_update_asn_pdu(const ric_service_update_t* su)
 
   RICserviceUpdate_t *out = &pdu->choice.initiatingMessage->value.choice.RICserviceUpdate;
 
+  // transaction ID. Mandatory
+  RICserviceUpdate_IEs_t* trx_id = calloc(1, sizeof(*trx_id));
+  trx_id->id = ProtocolIE_ID_id_TransactionID;
+  trx_id->criticality = Criticality_reject;
+  trx_id->value.present = RICserviceUpdate_IEs__value_PR_TransactionID;
+  trx_id->value.choice.TransactionID = 0; // TODO TRANSACTION ID
+  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, trx_id);
+  assert(rc == 0);
+
   // List of RAN Functions Added
   if (su->len_added > 0) {
     RICserviceUpdate_IEs_t* ran_add = calloc(1,sizeof(RICserviceUpdate_IEs_t));
@@ -1880,6 +1884,7 @@ byte_array_t e2ap_enc_service_update_failure_asn_msg(const e2ap_msg_t* msg)
 E2AP_PDU_t* e2ap_enc_service_update_failure_asn_pdu(const ric_service_update_failure_t* uf)
 {
   assert(uf != NULL);
+  assert(uf->rejected == NULL && uf->len_rej == 0 && "no list of rejected in E2AP v2");
 
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
@@ -1905,8 +1910,7 @@ E2AP_PDU_t* e2ap_enc_service_update_failure_asn_pdu(const ric_service_update_fai
   cause->id = ProtocolIE_ID_id_Cause;
   cause->criticality = Criticality_reject;
   cause->value.present = RICserviceUpdateFailure_IEs__value_PR_Cause;
-  cause_t c = {.present = CAUSE_MISC, .misc = CAUSE_MISC_UNSPECIFIED }; // TODO
-  cause->value.choice.Cause = copy_cause(c);
+  cause->value.choice.Cause = copy_cause(uf->cause);
   rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, cause);
   assert(rc == 0);
 

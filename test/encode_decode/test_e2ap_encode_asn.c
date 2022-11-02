@@ -138,18 +138,13 @@ void test_ric_subscription_failure()
     .ric_inst_id = 2,
     .ran_func_id = 12};
 
-
-  ric_action_not_admitted_t* na = calloc(1,sizeof(ric_action_not_admitted_t)); 
-  na->ric_act_id = 2;
-  na->cause.present = CAUSE_PROTOCOL;
-  na->cause.protocol = CAUSE_PROTOCOL_SEMANTIC_ERROR;	
+  cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
 
   criticality_diagnostics_t* crit_diag = NULL; 
 
   ric_subscription_failure_t sf = {
     .ric_id = ric_id,
-    . not_admitted = na,
-    .len_na = 1,
+    .cause = cause,
     .crit_diag = crit_diag, // optional
   };
 
@@ -612,10 +607,8 @@ void test_ric_service_update_ack()
 void test_ric_service_update_failure()
 {
   const cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
-  const size_t len_rej = 1;
-  rejected_ran_function_t* rejected = calloc(len_rej, sizeof(rejected_ran_function_t));
-   rejected->id = 42;
-    rejected->cause = cause;
+  const size_t len_rej = 0;
+  rejected_ran_function_t* rejected = NULL;
 
   e2ap_time_to_wait_e* time_to_wait = NULL;
   criticality_diagnostics_t* crit_diag = NULL;
@@ -624,6 +617,7 @@ void test_ric_service_update_failure()
   ric_service_update_failure_t uf = {
   .rejected = rejected, 
   .len_rej= len_rej,
+  .cause = cause,
   .time_to_wait = time_to_wait,
   .crit_diag = crit_diag,
   };
