@@ -66,6 +66,7 @@ set(ASN_MODULE_SRCS
     E2nodeConfigurationUpdateAcknowledge.c
     E2nodeConfigurationUpdate.c
     E2nodeConfigurationUpdateFailure.c
+    E2nodeConnected-List.c
     E2nodeTNLassociationRemoval-Item.c
     E2nodeTNLassociationRemoval-List.c
     E2RemovalFailure.c
@@ -74,6 +75,11 @@ set(ASN_MODULE_SRCS
     E2setupFailure.c
     E2setupRequest.c
     E2setupResponse.c
+    E42RICcontrolRequest.c
+    E42RICsubscriptionDeleteRequest.c
+    E42RICsubscriptionRequest.c
+    E42setupRequest.c
+    E42setupResponse.c
     ENB-ID.c
     ENB-ID-Choice.c
     ENGNB-ID.c
@@ -177,6 +183,7 @@ set(ASN_MODULE_SRCS
     TriggeringMessage.c
     TypeOfError.c
     UnsuccessfulOutcome.c
+    XAPP-ID.c
     xer_decoder.c
     xer_encoder.c
     xer_support.c
@@ -254,6 +261,7 @@ set(ASN_MODULE_HDRS
     E2nodeConfigurationUpdateAcknowledge.h
     E2nodeConfigurationUpdateFailure.h
     E2nodeConfigurationUpdate.h
+    E2nodeConnected-List.h
     E2nodeTNLassociationRemoval-Item.h
     E2nodeTNLassociationRemoval-List.h
     E2RemovalFailure.h
@@ -262,6 +270,11 @@ set(ASN_MODULE_HDRS
     E2setupFailure.h
     E2setupRequest.h
     E2setupResponse.h
+    E42RICcontrolRequest.h
+    E42RICsubscriptionDeleteRequest.h
+    E42RICsubscriptionRequest.h
+    E42setupRequest.h
+    E42setupResponse.h
     ENB-ID-Choice.h
     ENB-ID.h
     ENGNB-ID.h
@@ -365,6 +378,7 @@ set(ASN_MODULE_HDRS
     TriggeringMessage.h
     TypeOfError.h
     UnsuccessfulOutcome.h
+    XAPP-ID.h
     xer_decoder.h
     xer_encoder.h
     xer_support.h

@@ -23,17 +23,22 @@ extern "C" {
 struct RICsubscriptionRequest_IEs;
 struct RICsubscriptionResponse_IEs;
 struct RICsubscriptionFailure_IEs;
+struct E42RICsubscriptionRequest_IEs;
+struct E42RICsubscriptionDeleteRequest_IEs;
 struct RICsubscriptionDeleteRequest_IEs;
 struct RICsubscriptionDeleteResponse_IEs;
 struct RICsubscriptionDeleteFailure_IEs;
 struct RICsubscriptionDeleteRequired_IEs;
 struct RICindication_IEs;
 struct RICcontrolRequest_IEs;
+struct E42RICcontrolRequest_IEs;
 struct RICcontrolAcknowledge_IEs;
 struct RICcontrolFailure_IEs;
 struct ErrorIndication_IEs;
 struct E2setupRequestIEs;
+struct E42setupRequestIEs;
 struct E2setupResponseIEs;
+struct E42setupResponseIEs;
 struct E2setupFailureIEs;
 struct E2connectionUpdate_IEs;
 struct E2connectionUpdateAck_IEs;
@@ -44,6 +49,7 @@ struct E2nodeConfigurationUpdateFailure_IEs;
 struct ResetRequestIEs;
 struct ResetResponseIEs;
 struct RICserviceUpdate_IEs;
+struct E2nodeConnected_ItemIEs;
 struct RICserviceUpdateAcknowledge_IEs;
 struct RICserviceUpdateFailure_IEs;
 struct RICserviceQuery_IEs;
@@ -52,308 +58,368 @@ struct E2RemovalResponseIEs;
 struct E2RemovalFailureIEs;
 
 /* ProtocolIE-Container */
-typedef struct ProtocolIE_Container_2003P0 {
+typedef struct ProtocolIE_Container_2153P0 {
 	A_SEQUENCE_OF(struct RICsubscriptionRequest_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P0_t;
-typedef struct ProtocolIE_Container_2003P1 {
+} ProtocolIE_Container_2153P0_t;
+typedef struct ProtocolIE_Container_2153P1 {
 	A_SEQUENCE_OF(struct RICsubscriptionResponse_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P1_t;
-typedef struct ProtocolIE_Container_2003P2 {
+} ProtocolIE_Container_2153P1_t;
+typedef struct ProtocolIE_Container_2153P2 {
 	A_SEQUENCE_OF(struct RICsubscriptionFailure_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P2_t;
-typedef struct ProtocolIE_Container_2003P3 {
+} ProtocolIE_Container_2153P2_t;
+typedef struct ProtocolIE_Container_2153P3 {
+	A_SEQUENCE_OF(struct E42RICsubscriptionRequest_IEs) list;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} ProtocolIE_Container_2153P3_t;
+typedef struct ProtocolIE_Container_2153P4 {
+	A_SEQUENCE_OF(struct E42RICsubscriptionDeleteRequest_IEs) list;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} ProtocolIE_Container_2153P4_t;
+typedef struct ProtocolIE_Container_2153P5 {
 	A_SEQUENCE_OF(struct RICsubscriptionDeleteRequest_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P3_t;
-typedef struct ProtocolIE_Container_2003P4 {
+} ProtocolIE_Container_2153P5_t;
+typedef struct ProtocolIE_Container_2153P6 {
 	A_SEQUENCE_OF(struct RICsubscriptionDeleteResponse_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P4_t;
-typedef struct ProtocolIE_Container_2003P5 {
+} ProtocolIE_Container_2153P6_t;
+typedef struct ProtocolIE_Container_2153P7 {
 	A_SEQUENCE_OF(struct RICsubscriptionDeleteFailure_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P5_t;
-typedef struct ProtocolIE_Container_2003P6 {
+} ProtocolIE_Container_2153P7_t;
+typedef struct ProtocolIE_Container_2153P8 {
 	A_SEQUENCE_OF(struct RICsubscriptionDeleteRequired_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P6_t;
-typedef struct ProtocolIE_Container_2003P7 {
+} ProtocolIE_Container_2153P8_t;
+typedef struct ProtocolIE_Container_2153P9 {
 	A_SEQUENCE_OF(struct RICindication_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P7_t;
-typedef struct ProtocolIE_Container_2003P8 {
+} ProtocolIE_Container_2153P9_t;
+typedef struct ProtocolIE_Container_2153P10 {
 	A_SEQUENCE_OF(struct RICcontrolRequest_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P8_t;
-typedef struct ProtocolIE_Container_2003P9 {
+} ProtocolIE_Container_2153P10_t;
+typedef struct ProtocolIE_Container_2153P11 {
+	A_SEQUENCE_OF(struct E42RICcontrolRequest_IEs) list;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} ProtocolIE_Container_2153P11_t;
+typedef struct ProtocolIE_Container_2153P12 {
 	A_SEQUENCE_OF(struct RICcontrolAcknowledge_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P9_t;
-typedef struct ProtocolIE_Container_2003P10 {
+} ProtocolIE_Container_2153P12_t;
+typedef struct ProtocolIE_Container_2153P13 {
 	A_SEQUENCE_OF(struct RICcontrolFailure_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P10_t;
-typedef struct ProtocolIE_Container_2003P11 {
+} ProtocolIE_Container_2153P13_t;
+typedef struct ProtocolIE_Container_2153P14 {
 	A_SEQUENCE_OF(struct ErrorIndication_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P11_t;
-typedef struct ProtocolIE_Container_2003P12 {
+} ProtocolIE_Container_2153P14_t;
+typedef struct ProtocolIE_Container_2153P15 {
 	A_SEQUENCE_OF(struct E2setupRequestIEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P12_t;
-typedef struct ProtocolIE_Container_2003P13 {
+} ProtocolIE_Container_2153P15_t;
+typedef struct ProtocolIE_Container_2153P16 {
+	A_SEQUENCE_OF(struct E42setupRequestIEs) list;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} ProtocolIE_Container_2153P16_t;
+typedef struct ProtocolIE_Container_2153P17 {
 	A_SEQUENCE_OF(struct E2setupResponseIEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P13_t;
-typedef struct ProtocolIE_Container_2003P14 {
+} ProtocolIE_Container_2153P17_t;
+typedef struct ProtocolIE_Container_2153P18 {
+	A_SEQUENCE_OF(struct E42setupResponseIEs) list;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} ProtocolIE_Container_2153P18_t;
+typedef struct ProtocolIE_Container_2153P19 {
 	A_SEQUENCE_OF(struct E2setupFailureIEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P14_t;
-typedef struct ProtocolIE_Container_2003P15 {
+} ProtocolIE_Container_2153P19_t;
+typedef struct ProtocolIE_Container_2153P20 {
 	A_SEQUENCE_OF(struct E2connectionUpdate_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P15_t;
-typedef struct ProtocolIE_Container_2003P16 {
+} ProtocolIE_Container_2153P20_t;
+typedef struct ProtocolIE_Container_2153P21 {
 	A_SEQUENCE_OF(struct E2connectionUpdateAck_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P16_t;
-typedef struct ProtocolIE_Container_2003P17 {
+} ProtocolIE_Container_2153P21_t;
+typedef struct ProtocolIE_Container_2153P22 {
 	A_SEQUENCE_OF(struct E2connectionUpdateFailure_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P17_t;
-typedef struct ProtocolIE_Container_2003P18 {
+} ProtocolIE_Container_2153P22_t;
+typedef struct ProtocolIE_Container_2153P23 {
 	A_SEQUENCE_OF(struct E2nodeConfigurationUpdate_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P18_t;
-typedef struct ProtocolIE_Container_2003P19 {
+} ProtocolIE_Container_2153P23_t;
+typedef struct ProtocolIE_Container_2153P24 {
 	A_SEQUENCE_OF(struct E2nodeConfigurationUpdateAcknowledge_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P19_t;
-typedef struct ProtocolIE_Container_2003P20 {
+} ProtocolIE_Container_2153P24_t;
+typedef struct ProtocolIE_Container_2153P25 {
 	A_SEQUENCE_OF(struct E2nodeConfigurationUpdateFailure_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P20_t;
-typedef struct ProtocolIE_Container_2003P21 {
+} ProtocolIE_Container_2153P25_t;
+typedef struct ProtocolIE_Container_2153P26 {
 	A_SEQUENCE_OF(struct ResetRequestIEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P21_t;
-typedef struct ProtocolIE_Container_2003P22 {
+} ProtocolIE_Container_2153P26_t;
+typedef struct ProtocolIE_Container_2153P27 {
 	A_SEQUENCE_OF(struct ResetResponseIEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P22_t;
-typedef struct ProtocolIE_Container_2003P23 {
+} ProtocolIE_Container_2153P27_t;
+typedef struct ProtocolIE_Container_2153P28 {
 	A_SEQUENCE_OF(struct RICserviceUpdate_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P23_t;
-typedef struct ProtocolIE_Container_2003P24 {
+} ProtocolIE_Container_2153P28_t;
+typedef struct ProtocolIE_Container_2153P29 {
+	A_SEQUENCE_OF(struct E2nodeConnected_ItemIEs) list;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} ProtocolIE_Container_2153P29_t;
+typedef struct ProtocolIE_Container_2153P30 {
 	A_SEQUENCE_OF(struct RICserviceUpdateAcknowledge_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P24_t;
-typedef struct ProtocolIE_Container_2003P25 {
+} ProtocolIE_Container_2153P30_t;
+typedef struct ProtocolIE_Container_2153P31 {
 	A_SEQUENCE_OF(struct RICserviceUpdateFailure_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P25_t;
-typedef struct ProtocolIE_Container_2003P26 {
+} ProtocolIE_Container_2153P31_t;
+typedef struct ProtocolIE_Container_2153P32 {
 	A_SEQUENCE_OF(struct RICserviceQuery_IEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P26_t;
-typedef struct ProtocolIE_Container_2003P27 {
+} ProtocolIE_Container_2153P32_t;
+typedef struct ProtocolIE_Container_2153P33 {
 	A_SEQUENCE_OF(struct E2RemovalRequestIEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P27_t;
-typedef struct ProtocolIE_Container_2003P28 {
+} ProtocolIE_Container_2153P33_t;
+typedef struct ProtocolIE_Container_2153P34 {
 	A_SEQUENCE_OF(struct E2RemovalResponseIEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P28_t;
-typedef struct ProtocolIE_Container_2003P29 {
+} ProtocolIE_Container_2153P34_t;
+typedef struct ProtocolIE_Container_2153P35 {
 	A_SEQUENCE_OF(struct E2RemovalFailureIEs) list;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} ProtocolIE_Container_2003P29_t;
+} ProtocolIE_Container_2153P35_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P0;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P0_specs_1;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P0_1[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P0_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P1;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P1_specs_3;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P1_3[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P1_constr_3;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P2;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P2_specs_5;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P2_5[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P2_constr_5;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P3;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P3_specs_7;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P3_7[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P3_constr_7;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P4;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P4_specs_9;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P4_9[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P4_constr_9;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P5;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P5_specs_11;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P5_11[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P5_constr_11;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P6;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P6_specs_13;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P6_13[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P6_constr_13;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P7;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P7_specs_15;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P7_15[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P7_constr_15;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P8;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P8_specs_17;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P8_17[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P8_constr_17;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P9;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P9_specs_19;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P9_19[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P9_constr_19;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P10;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P10_specs_21;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P10_21[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P10_constr_21;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P11;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P11_specs_23;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P11_23[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P11_constr_23;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P12;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P12_specs_25;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P12_25[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P12_constr_25;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P13;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P13_specs_27;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P13_27[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P13_constr_27;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P14;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P14_specs_29;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P14_29[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P14_constr_29;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P15;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P15_specs_31;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P15_31[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P15_constr_31;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P16;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P16_specs_33;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P16_33[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P16_constr_33;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P17;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P17_specs_35;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P17_35[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P17_constr_35;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P18;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P18_specs_37;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P18_37[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P18_constr_37;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P19;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P19_specs_39;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P19_39[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P19_constr_39;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P20;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P20_specs_41;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P20_41[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P20_constr_41;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P21;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P21_specs_43;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P21_43[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P21_constr_43;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P22;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P22_specs_45;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P22_45[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P22_constr_45;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P23;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P23_specs_47;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P23_47[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P23_constr_47;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P24;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P24_specs_49;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P24_49[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P24_constr_49;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P25;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P25_specs_51;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P25_51[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P25_constr_51;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P26;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P26_specs_53;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P26_53[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P26_constr_53;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P27;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P27_specs_55;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P27_55[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P27_constr_55;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P28;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P28_specs_57;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P28_57[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P28_constr_57;
-extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2003P29;
-extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2003P29_specs_59;
-extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2003P29_59[1];
-extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2003P29_constr_59;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P0;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P0_specs_1;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P0_1[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P0_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P1;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P1_specs_3;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P1_3[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P1_constr_3;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P2;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P2_specs_5;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P2_5[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P2_constr_5;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P3;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P3_specs_7;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P3_7[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P3_constr_7;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P4;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P4_specs_9;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P4_9[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P4_constr_9;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P5;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P5_specs_11;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P5_11[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P5_constr_11;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P6;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P6_specs_13;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P6_13[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P6_constr_13;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P7;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P7_specs_15;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P7_15[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P7_constr_15;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P8;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P8_specs_17;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P8_17[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P8_constr_17;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P9;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P9_specs_19;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P9_19[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P9_constr_19;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P10;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P10_specs_21;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P10_21[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P10_constr_21;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P11;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P11_specs_23;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P11_23[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P11_constr_23;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P12;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P12_specs_25;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P12_25[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P12_constr_25;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P13;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P13_specs_27;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P13_27[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P13_constr_27;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P14;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P14_specs_29;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P14_29[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P14_constr_29;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P15;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P15_specs_31;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P15_31[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P15_constr_31;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P16;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P16_specs_33;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P16_33[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P16_constr_33;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P17;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P17_specs_35;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P17_35[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P17_constr_35;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P18;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P18_specs_37;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P18_37[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P18_constr_37;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P19;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P19_specs_39;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P19_39[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P19_constr_39;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P20;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P20_specs_41;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P20_41[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P20_constr_41;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P21;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P21_specs_43;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P21_43[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P21_constr_43;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P22;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P22_specs_45;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P22_45[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P22_constr_45;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P23;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P23_specs_47;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P23_47[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P23_constr_47;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P24;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P24_specs_49;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P24_49[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P24_constr_49;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P25;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P25_specs_51;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P25_51[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P25_constr_51;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P26;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P26_specs_53;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P26_53[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P26_constr_53;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P27;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P27_specs_55;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P27_55[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P27_constr_55;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P28;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P28_specs_57;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P28_57[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P28_constr_57;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P29;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P29_specs_59;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P29_59[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P29_constr_59;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P30;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P30_specs_61;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P30_61[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P30_constr_61;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P31;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P31_specs_63;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P31_63[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P31_constr_63;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P32;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P32_specs_65;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P32_65[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P32_constr_65;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P33;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P33_specs_67;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P33_67[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P33_constr_67;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P34;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P34_specs_69;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P34_69[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P34_constr_69;
+extern asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2153P35;
+extern asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2153P35_specs_71;
+extern asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2153P35_71[1];
+extern asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2153P35_constr_71;
 
 #ifdef __cplusplus
 }

@@ -13,6 +13,8 @@ ASN_MODULE_SRCS=	\
 	RICaction-NotAdmitted-List.c	\
 	RICaction-NotAdmitted-Item.c	\
 	RICsubscriptionFailure.c	\
+	E42RICsubscriptionRequest.c	\
+	E42RICsubscriptionDeleteRequest.c	\
 	RICsubscriptionDeleteRequest.c	\
 	RICsubscriptionDeleteResponse.c	\
 	RICsubscriptionDeleteFailure.c	\
@@ -21,11 +23,14 @@ ASN_MODULE_SRCS=	\
 	RICsubscription-withCause-Item.c	\
 	RICindication.c	\
 	RICcontrolRequest.c	\
+	E42RICcontrolRequest.c	\
 	RICcontrolAcknowledge.c	\
 	RICcontrolFailure.c	\
 	ErrorIndication.c	\
 	E2setupRequest.c	\
+	E42setupRequest.c	\
 	E2setupResponse.c	\
+	E42setupResponse.c	\
 	E2setupFailure.c	\
 	E2connectionUpdate.c	\
 	E2connectionUpdate-List.c	\
@@ -60,6 +65,7 @@ ASN_MODULE_SRCS=	\
 	RANfunction-Item.c	\
 	RANfunctionsID-List.c	\
 	RANfunctionID-Item.c	\
+	E2nodeConnected-List.c	\
 	RICserviceUpdateAcknowledge.c	\
 	RANfunctionsIDcause-List.c	\
 	RANfunctionIDcause-Item.c	\
@@ -136,6 +142,7 @@ ASN_MODULE_SRCS=	\
 	TNLusage.c	\
 	TransactionID.c	\
 	TypeOfError.c	\
+	XAPP-ID.c	\
 	Criticality.c	\
 	Presence.c	\
 	ProcedureCode.c	\
@@ -164,6 +171,8 @@ ASN_MODULE_HDRS=	\
 	RICaction-NotAdmitted-List.h	\
 	RICaction-NotAdmitted-Item.h	\
 	RICsubscriptionFailure.h	\
+	E42RICsubscriptionRequest.h	\
+	E42RICsubscriptionDeleteRequest.h	\
 	RICsubscriptionDeleteRequest.h	\
 	RICsubscriptionDeleteResponse.h	\
 	RICsubscriptionDeleteFailure.h	\
@@ -172,11 +181,14 @@ ASN_MODULE_HDRS=	\
 	RICsubscription-withCause-Item.h	\
 	RICindication.h	\
 	RICcontrolRequest.h	\
+	E42RICcontrolRequest.h	\
 	RICcontrolAcknowledge.h	\
 	RICcontrolFailure.h	\
 	ErrorIndication.h	\
 	E2setupRequest.h	\
+	E42setupRequest.h	\
 	E2setupResponse.h	\
+	E42setupResponse.h	\
 	E2setupFailure.h	\
 	E2connectionUpdate.h	\
 	E2connectionUpdate-List.h	\
@@ -211,6 +223,7 @@ ASN_MODULE_HDRS=	\
 	RANfunction-Item.h	\
 	RANfunctionsID-List.h	\
 	RANfunctionID-Item.h	\
+	E2nodeConnected-List.h	\
 	RICserviceUpdateAcknowledge.h	\
 	RANfunctionsIDcause-List.h	\
 	RANfunctionIDcause-Item.h	\
@@ -287,6 +300,7 @@ ASN_MODULE_HDRS=	\
 	TNLusage.h	\
 	TransactionID.h	\
 	TypeOfError.h	\
+	XAPP-ID.h	\
 	Criticality.h	\
 	Presence.h	\
 	ProcedureCode.h	\

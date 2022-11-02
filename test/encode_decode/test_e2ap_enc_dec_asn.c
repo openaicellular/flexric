@@ -714,7 +714,11 @@ void fill_ran_function(ran_function_t* rf)
 
   rf->id = rand()%1024;  
   rf->rev = rand()%8; 
-  rf->oid = NULL;
+
+  const char* oid = "Object Identifier";
+  rf->oid = calloc(1, sizeof(*rf->oid));
+  rf->oid->buf = (uint8_t*) strdup(oid);
+  rf->oid->len = strlen(oid);
 }
 
 static
@@ -798,10 +802,9 @@ void test_e42_setup_response()
     .nb_id = 0,
   };
 
-
   e42_setup_response_t sr_begin = {
-    .xapp_id = rand()%1024,
-    .len_e2_nodes_conn = rand()%4+1,
+      .xapp_id = rand() % 1024,
+      .len_e2_nodes_conn = rand() % 4 + 1,
   };
 
   if(sr_begin.len_e2_nodes_conn > 0 ){
@@ -811,9 +814,9 @@ void test_e42_setup_response()
 
   for(size_t i = 0; i < sr_begin.len_e2_nodes_conn; ++i){
     e2_node_connected_t* n = &sr_begin.nodes[i];
-    n->id = id; 
+    n->id = id;
 
-    uint32_t r = rand()%8;
+    uint32_t r = rand() % 8 + 1;
 
     n->len_rf = r;
     if(r > 0){
@@ -1034,12 +1037,12 @@ int main()
     //  test_connection_update_failure();
 
     // E42
-    //test_e42_setup_request();
-    //test_e42_setup_response();
-    //test_e42_subscription_request();
-    //test_e42_subscription_delete_request();
+    test_e42_setup_request();
+    test_e42_setup_response();
+    test_e42_subscription_request();
+    test_e42_subscription_delete_request();
 
-    //test_e42_control_request();
+    test_e42_control_request();
 
   }
   puts("Sucess running the encoding/decoding test");

@@ -42,6 +42,11 @@
 #include "E2RemovalRequest.h"
 #include "E2RemovalResponse.h"
 #include "E2RemovalFailure.h"
+#include "E42setupRequest.h"
+#include "E42setupResponse.h"
+#include "E42RICsubscriptionRequest.h"
+#include "E42RICsubscriptionDeleteRequest.h"
+#include "E42RICcontrolRequest.h"
 #include "RICindication.h"
 #include "RICserviceQuery.h"
 #include "ErrorIndication.h"
@@ -66,6 +71,10 @@ typedef enum InitiatingMessage__value_PR {
 	InitiatingMessage__value_PR_E2connectionUpdate,
 	InitiatingMessage__value_PR_ResetRequest,
 	InitiatingMessage__value_PR_E2RemovalRequest,
+	InitiatingMessage__value_PR_E42setupRequest,
+	InitiatingMessage__value_PR_E42RICsubscriptionRequest,
+	InitiatingMessage__value_PR_E42RICsubscriptionDeleteRequest,
+	InitiatingMessage__value_PR_E42RICcontrolRequest,
 	InitiatingMessage__value_PR_RICindication,
 	InitiatingMessage__value_PR_RICserviceQuery,
 	InitiatingMessage__value_PR_ErrorIndication,
@@ -88,6 +97,10 @@ typedef struct InitiatingMessage {
 			E2connectionUpdate_t	 E2connectionUpdate;
 			ResetRequest_t	 ResetRequest;
 			E2RemovalRequest_t	 E2RemovalRequest;
+			E42setupRequest_t	 E42setupRequest;
+			E42RICsubscriptionRequest_t	 E42RICsubscriptionRequest;
+			E42RICsubscriptionDeleteRequest_t	 E42RICsubscriptionDeleteRequest;
+			E42RICcontrolRequest_t	 E42RICcontrolRequest;
 			RICindication_t	 RICindication;
 			RICserviceQuery_t	 RICserviceQuery;
 			ErrorIndication_t	 ErrorIndication;

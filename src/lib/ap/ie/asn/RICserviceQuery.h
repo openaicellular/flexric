@@ -21,7 +21,7 @@ extern "C" {
 
 /* RICserviceQuery */
 typedef struct RICserviceQuery {
-	ProtocolIE_Container_2003P26_t	 protocolIEs;
+	ProtocolIE_Container_2153P32_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

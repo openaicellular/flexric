@@ -44,6 +44,8 @@
 #include "RICaction-NotAdmitted-List.h"
 #include "Cause.h"
 #include "CriticalityDiagnostics.h"
+#include "XAPP-ID.h"
+#include "GlobalE2node-ID.h"
 #include "RICsubscription-List-withCause.h"
 #include "RICactionID.h"
 #include "RICindicationSN.h"
@@ -56,13 +58,13 @@
 #include "RICcontrolAckRequest.h"
 #include "RICcontrolOutcome.h"
 #include "TransactionID.h"
-#include "GlobalE2node-ID.h"
 #include "RANfunctions-List.h"
 #include "E2nodeComponentConfigAddition-List.h"
 #include "GlobalRIC-ID.h"
 #include "RANfunctionsID-List.h"
 #include "RANfunctionsIDcause-List.h"
 #include "E2nodeComponentConfigAdditionAck-List.h"
+#include "E2nodeConnected-List.h"
 #include "TimeToWait.h"
 #include "TNLinformation.h"
 #include "E2connectionUpdate-List.h"
@@ -167,6 +169,20 @@ typedef enum RICsubscriptionFailure_IEs__value_PR {
 	RICsubscriptionFailure_IEs__value_PR_Cause,
 	RICsubscriptionFailure_IEs__value_PR_CriticalityDiagnostics
 } RICsubscriptionFailure_IEs__value_PR;
+typedef enum E42RICsubscriptionRequest_IEs__value_PR {
+	E42RICsubscriptionRequest_IEs__value_PR_NOTHING,	/* No components present */
+	E42RICsubscriptionRequest_IEs__value_PR_XAPP_ID,
+	E42RICsubscriptionRequest_IEs__value_PR_GlobalE2node_ID,
+	E42RICsubscriptionRequest_IEs__value_PR_RICrequestID,
+	E42RICsubscriptionRequest_IEs__value_PR_RANfunctionID,
+	E42RICsubscriptionRequest_IEs__value_PR_RICsubscriptionDetails
+} E42RICsubscriptionRequest_IEs__value_PR;
+typedef enum E42RICsubscriptionDeleteRequest_IEs__value_PR {
+	E42RICsubscriptionDeleteRequest_IEs__value_PR_NOTHING,	/* No components present */
+	E42RICsubscriptionDeleteRequest_IEs__value_PR_XAPP_ID,
+	E42RICsubscriptionDeleteRequest_IEs__value_PR_RICrequestID,
+	E42RICsubscriptionDeleteRequest_IEs__value_PR_RANfunctionID
+} E42RICsubscriptionDeleteRequest_IEs__value_PR;
 typedef enum RICsubscriptionDeleteRequest_IEs__value_PR {
 	RICsubscriptionDeleteRequest_IEs__value_PR_NOTHING,	/* No components present */
 	RICsubscriptionDeleteRequest_IEs__value_PR_RICrequestID,
@@ -208,6 +224,17 @@ typedef enum RICcontrolRequest_IEs__value_PR {
 	RICcontrolRequest_IEs__value_PR_RICcontrolMessage,
 	RICcontrolRequest_IEs__value_PR_RICcontrolAckRequest
 } RICcontrolRequest_IEs__value_PR;
+typedef enum E42RICcontrolRequest_IEs__value_PR {
+	E42RICcontrolRequest_IEs__value_PR_NOTHING,	/* No components present */
+	E42RICcontrolRequest_IEs__value_PR_XAPP_ID,
+	E42RICcontrolRequest_IEs__value_PR_GlobalE2node_ID,
+	E42RICcontrolRequest_IEs__value_PR_RICrequestID,
+	E42RICcontrolRequest_IEs__value_PR_RANfunctionID,
+	E42RICcontrolRequest_IEs__value_PR_RICcallProcessID,
+	E42RICcontrolRequest_IEs__value_PR_RICcontrolHeader,
+	E42RICcontrolRequest_IEs__value_PR_RICcontrolMessage,
+	E42RICcontrolRequest_IEs__value_PR_RICcontrolAckRequest
+} E42RICcontrolRequest_IEs__value_PR;
 typedef enum RICcontrolAcknowledge_IEs__value_PR {
 	RICcontrolAcknowledge_IEs__value_PR_NOTHING,	/* No components present */
 	RICcontrolAcknowledge_IEs__value_PR_RICrequestID,
@@ -239,6 +266,10 @@ typedef enum E2setupRequestIEs__value_PR {
 	E2setupRequestIEs__value_PR_RANfunctions_List,
 	E2setupRequestIEs__value_PR_E2nodeComponentConfigAddition_List
 } E2setupRequestIEs__value_PR;
+typedef enum E42setupRequestIEs__value_PR {
+	E42setupRequestIEs__value_PR_NOTHING,	/* No components present */
+	E42setupRequestIEs__value_PR_RANfunctions_List
+} E42setupRequestIEs__value_PR;
 typedef enum E2setupResponseIEs__value_PR {
 	E2setupResponseIEs__value_PR_NOTHING,	/* No components present */
 	E2setupResponseIEs__value_PR_TransactionID,
@@ -247,6 +278,11 @@ typedef enum E2setupResponseIEs__value_PR {
 	E2setupResponseIEs__value_PR_RANfunctionsIDcause_List,
 	E2setupResponseIEs__value_PR_E2nodeComponentConfigAdditionAck_List
 } E2setupResponseIEs__value_PR;
+typedef enum E42setupResponseIEs__value_PR {
+	E42setupResponseIEs__value_PR_NOTHING,	/* No components present */
+	E42setupResponseIEs__value_PR_XAPP_ID,
+	E42setupResponseIEs__value_PR_E2nodeConnected_List
+} E42setupResponseIEs__value_PR;
 typedef enum E2setupFailureIEs__value_PR {
 	E2setupFailureIEs__value_PR_NOTHING,	/* No components present */
 	E2setupFailureIEs__value_PR_TransactionID,
@@ -315,6 +351,11 @@ typedef enum RICserviceUpdate_IEs__value_PR {
 	RICserviceUpdate_IEs__value_PR_RANfunctions_List_1,
 	RICserviceUpdate_IEs__value_PR_RANfunctionsID_List
 } RICserviceUpdate_IEs__value_PR;
+typedef enum E2nodeConnected_ItemIEs__value_PR {
+	E2nodeConnected_ItemIEs__value_PR_NOTHING,	/* No components present */
+	E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID,
+	E2nodeConnected_ItemIEs__value_PR_RANfunctions_List
+} E2nodeConnected_ItemIEs__value_PR;
 typedef enum RICserviceUpdateAcknowledge_IEs__value_PR {
 	RICserviceUpdateAcknowledge_IEs__value_PR_NOTHING,	/* No components present */
 	RICserviceUpdateAcknowledge_IEs__value_PR_TransactionID,
@@ -678,6 +719,44 @@ typedef struct RICsubscriptionFailure_IEs {
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
 } RICsubscriptionFailure_IEs_t;
+typedef struct E42RICsubscriptionRequest_IEs {
+	ProtocolIE_ID_t	 id;
+	Criticality_t	 criticality;
+	struct E42RICsubscriptionRequest_IEs__value {
+		E42RICsubscriptionRequest_IEs__value_PR present;
+		union E42RICsubscriptionRequest_IEs__value_u {
+			XAPP_ID_t	 XAPP_ID;
+			GlobalE2node_ID_t	 GlobalE2node_ID;
+			RICrequestID_t	 RICrequestID;
+			RANfunctionID_t	 RANfunctionID;
+			RICsubscriptionDetails_t	 RICsubscriptionDetails;
+		} choice;
+		
+		/* Context for parsing across buffer boundaries */
+		asn_struct_ctx_t _asn_ctx;
+	} value;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} E42RICsubscriptionRequest_IEs_t;
+typedef struct E42RICsubscriptionDeleteRequest_IEs {
+	ProtocolIE_ID_t	 id;
+	Criticality_t	 criticality;
+	struct E42RICsubscriptionDeleteRequest_IEs__value {
+		E42RICsubscriptionDeleteRequest_IEs__value_PR present;
+		union E42RICsubscriptionDeleteRequest_IEs__value_u {
+			XAPP_ID_t	 XAPP_ID;
+			RICrequestID_t	 RICrequestID;
+			RANfunctionID_t	 RANfunctionID;
+		} choice;
+		
+		/* Context for parsing across buffer boundaries */
+		asn_struct_ctx_t _asn_ctx;
+	} value;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} E42RICsubscriptionDeleteRequest_IEs_t;
 typedef struct RICsubscriptionDeleteRequest_IEs {
 	ProtocolIE_ID_t	 id;
 	Criticality_t	 criticality;
@@ -791,6 +870,29 @@ typedef struct RICcontrolRequest_IEs {
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
 } RICcontrolRequest_IEs_t;
+typedef struct E42RICcontrolRequest_IEs {
+	ProtocolIE_ID_t	 id;
+	Criticality_t	 criticality;
+	struct E42RICcontrolRequest_IEs__value {
+		E42RICcontrolRequest_IEs__value_PR present;
+		union E42RICcontrolRequest_IEs__value_u {
+			XAPP_ID_t	 XAPP_ID;
+			GlobalE2node_ID_t	 GlobalE2node_ID;
+			RICrequestID_t	 RICrequestID;
+			RANfunctionID_t	 RANfunctionID;
+			RICcallProcessID_t	 RICcallProcessID;
+			RICcontrolHeader_t	 RICcontrolHeader;
+			RICcontrolMessage_t	 RICcontrolMessage;
+			RICcontrolAckRequest_t	 RICcontrolAckRequest;
+		} choice;
+		
+		/* Context for parsing across buffer boundaries */
+		asn_struct_ctx_t _asn_ctx;
+	} value;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} E42RICcontrolRequest_IEs_t;
 typedef struct RICcontrolAcknowledge_IEs {
 	ProtocolIE_ID_t	 id;
 	Criticality_t	 criticality;
@@ -870,6 +972,22 @@ typedef struct E2setupRequestIEs {
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
 } E2setupRequestIEs_t;
+typedef struct E42setupRequestIEs {
+	ProtocolIE_ID_t	 id;
+	Criticality_t	 criticality;
+	struct E42setupRequestIEs__value {
+		E42setupRequestIEs__value_PR present;
+		union E42setupRequestIEs__value_u {
+			RANfunctions_List_t	 RANfunctions_List;
+		} choice;
+		
+		/* Context for parsing across buffer boundaries */
+		asn_struct_ctx_t _asn_ctx;
+	} value;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} E42setupRequestIEs_t;
 typedef struct E2setupResponseIEs {
 	ProtocolIE_ID_t	 id;
 	Criticality_t	 criticality;
@@ -890,6 +1008,23 @@ typedef struct E2setupResponseIEs {
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
 } E2setupResponseIEs_t;
+typedef struct E42setupResponseIEs {
+	ProtocolIE_ID_t	 id;
+	Criticality_t	 criticality;
+	struct E42setupResponseIEs__value {
+		E42setupResponseIEs__value_PR present;
+		union E42setupResponseIEs__value_u {
+			XAPP_ID_t	 XAPP_ID;
+			E2nodeConnected_List_t	 E2nodeConnected_List;
+		} choice;
+		
+		/* Context for parsing across buffer boundaries */
+		asn_struct_ctx_t _asn_ctx;
+	} value;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} E42setupResponseIEs_t;
 typedef struct E2setupFailureIEs {
 	ProtocolIE_ID_t	 id;
 	Criticality_t	 criticality;
@@ -1078,6 +1213,23 @@ typedef struct RICserviceUpdate_IEs {
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
 } RICserviceUpdate_IEs_t;
+typedef struct E2nodeConnected_ItemIEs {
+	ProtocolIE_ID_t	 id;
+	Criticality_t	 criticality;
+	struct E2nodeConnected_ItemIEs__value {
+		E2nodeConnected_ItemIEs__value_PR present;
+		union E2nodeConnected_ItemIEs__value_u {
+			GlobalE2node_ID_t	 GlobalE2node_ID;
+			RANfunctions_List_t	 RANfunctions_List;
+		} choice;
+		
+		/* Context for parsing across buffer boundaries */
+		asn_struct_ctx_t _asn_ctx;
+	} value;
+	
+	/* Context for parsing across buffer boundaries */
+	asn_struct_ctx_t _asn_ctx;
+} E2nodeConnected_ItemIEs_t;
 typedef struct RICserviceUpdateAcknowledge_IEs {
 	ProtocolIE_ID_t	 id;
 	Criticality_t	 criticality;
@@ -1245,87 +1397,105 @@ extern asn_TYPE_member_t asn_MBR_RICsubscriptionResponse_IEs_73[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICsubscriptionFailure_IEs;
 extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscriptionFailure_IEs_specs_77;
 extern asn_TYPE_member_t asn_MBR_RICsubscriptionFailure_IEs_77[3];
+extern asn_TYPE_descriptor_t asn_DEF_E42RICsubscriptionRequest_IEs;
+extern asn_SEQUENCE_specifics_t asn_SPC_E42RICsubscriptionRequest_IEs_specs_81;
+extern asn_TYPE_member_t asn_MBR_E42RICsubscriptionRequest_IEs_81[3];
+extern asn_TYPE_descriptor_t asn_DEF_E42RICsubscriptionDeleteRequest_IEs;
+extern asn_SEQUENCE_specifics_t asn_SPC_E42RICsubscriptionDeleteRequest_IEs_specs_85;
+extern asn_TYPE_member_t asn_MBR_E42RICsubscriptionDeleteRequest_IEs_85[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICsubscriptionDeleteRequest_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscriptionDeleteRequest_IEs_specs_81;
-extern asn_TYPE_member_t asn_MBR_RICsubscriptionDeleteRequest_IEs_81[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscriptionDeleteRequest_IEs_specs_89;
+extern asn_TYPE_member_t asn_MBR_RICsubscriptionDeleteRequest_IEs_89[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICsubscriptionDeleteResponse_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscriptionDeleteResponse_IEs_specs_85;
-extern asn_TYPE_member_t asn_MBR_RICsubscriptionDeleteResponse_IEs_85[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscriptionDeleteResponse_IEs_specs_93;
+extern asn_TYPE_member_t asn_MBR_RICsubscriptionDeleteResponse_IEs_93[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICsubscriptionDeleteFailure_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscriptionDeleteFailure_IEs_specs_89;
-extern asn_TYPE_member_t asn_MBR_RICsubscriptionDeleteFailure_IEs_89[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscriptionDeleteFailure_IEs_specs_97;
+extern asn_TYPE_member_t asn_MBR_RICsubscriptionDeleteFailure_IEs_97[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICsubscriptionDeleteRequired_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscriptionDeleteRequired_IEs_specs_93;
-extern asn_TYPE_member_t asn_MBR_RICsubscriptionDeleteRequired_IEs_93[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscriptionDeleteRequired_IEs_specs_101;
+extern asn_TYPE_member_t asn_MBR_RICsubscriptionDeleteRequired_IEs_101[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICindication_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICindication_IEs_specs_97;
-extern asn_TYPE_member_t asn_MBR_RICindication_IEs_97[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICindication_IEs_specs_105;
+extern asn_TYPE_member_t asn_MBR_RICindication_IEs_105[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICcontrolRequest_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICcontrolRequest_IEs_specs_101;
-extern asn_TYPE_member_t asn_MBR_RICcontrolRequest_IEs_101[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICcontrolRequest_IEs_specs_109;
+extern asn_TYPE_member_t asn_MBR_RICcontrolRequest_IEs_109[3];
+extern asn_TYPE_descriptor_t asn_DEF_E42RICcontrolRequest_IEs;
+extern asn_SEQUENCE_specifics_t asn_SPC_E42RICcontrolRequest_IEs_specs_113;
+extern asn_TYPE_member_t asn_MBR_E42RICcontrolRequest_IEs_113[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICcontrolAcknowledge_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICcontrolAcknowledge_IEs_specs_105;
-extern asn_TYPE_member_t asn_MBR_RICcontrolAcknowledge_IEs_105[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICcontrolAcknowledge_IEs_specs_117;
+extern asn_TYPE_member_t asn_MBR_RICcontrolAcknowledge_IEs_117[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICcontrolFailure_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICcontrolFailure_IEs_specs_109;
-extern asn_TYPE_member_t asn_MBR_RICcontrolFailure_IEs_109[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICcontrolFailure_IEs_specs_121;
+extern asn_TYPE_member_t asn_MBR_RICcontrolFailure_IEs_121[3];
 extern asn_TYPE_descriptor_t asn_DEF_ErrorIndication_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_ErrorIndication_IEs_specs_113;
-extern asn_TYPE_member_t asn_MBR_ErrorIndication_IEs_113[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_ErrorIndication_IEs_specs_125;
+extern asn_TYPE_member_t asn_MBR_ErrorIndication_IEs_125[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2setupRequestIEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2setupRequestIEs_specs_117;
-extern asn_TYPE_member_t asn_MBR_E2setupRequestIEs_117[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2setupRequestIEs_specs_129;
+extern asn_TYPE_member_t asn_MBR_E2setupRequestIEs_129[3];
+extern asn_TYPE_descriptor_t asn_DEF_E42setupRequestIEs;
+extern asn_SEQUENCE_specifics_t asn_SPC_E42setupRequestIEs_specs_133;
+extern asn_TYPE_member_t asn_MBR_E42setupRequestIEs_133[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2setupResponseIEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2setupResponseIEs_specs_121;
-extern asn_TYPE_member_t asn_MBR_E2setupResponseIEs_121[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2setupResponseIEs_specs_137;
+extern asn_TYPE_member_t asn_MBR_E2setupResponseIEs_137[3];
+extern asn_TYPE_descriptor_t asn_DEF_E42setupResponseIEs;
+extern asn_SEQUENCE_specifics_t asn_SPC_E42setupResponseIEs_specs_141;
+extern asn_TYPE_member_t asn_MBR_E42setupResponseIEs_141[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2setupFailureIEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2setupFailureIEs_specs_125;
-extern asn_TYPE_member_t asn_MBR_E2setupFailureIEs_125[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2setupFailureIEs_specs_145;
+extern asn_TYPE_member_t asn_MBR_E2setupFailureIEs_145[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2connectionUpdate_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2connectionUpdate_IEs_specs_129;
-extern asn_TYPE_member_t asn_MBR_E2connectionUpdate_IEs_129[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2connectionUpdate_IEs_specs_149;
+extern asn_TYPE_member_t asn_MBR_E2connectionUpdate_IEs_149[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2connectionUpdateAck_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2connectionUpdateAck_IEs_specs_133;
-extern asn_TYPE_member_t asn_MBR_E2connectionUpdateAck_IEs_133[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2connectionUpdateAck_IEs_specs_153;
+extern asn_TYPE_member_t asn_MBR_E2connectionUpdateAck_IEs_153[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2connectionUpdateFailure_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2connectionUpdateFailure_IEs_specs_137;
-extern asn_TYPE_member_t asn_MBR_E2connectionUpdateFailure_IEs_137[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2connectionUpdateFailure_IEs_specs_157;
+extern asn_TYPE_member_t asn_MBR_E2connectionUpdateFailure_IEs_157[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2nodeConfigurationUpdate_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConfigurationUpdate_IEs_specs_141;
-extern asn_TYPE_member_t asn_MBR_E2nodeConfigurationUpdate_IEs_141[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConfigurationUpdate_IEs_specs_161;
+extern asn_TYPE_member_t asn_MBR_E2nodeConfigurationUpdate_IEs_161[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2nodeConfigurationUpdateAcknowledge_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConfigurationUpdateAcknowledge_IEs_specs_145;
-extern asn_TYPE_member_t asn_MBR_E2nodeConfigurationUpdateAcknowledge_IEs_145[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConfigurationUpdateAcknowledge_IEs_specs_165;
+extern asn_TYPE_member_t asn_MBR_E2nodeConfigurationUpdateAcknowledge_IEs_165[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2nodeConfigurationUpdateFailure_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConfigurationUpdateFailure_IEs_specs_149;
-extern asn_TYPE_member_t asn_MBR_E2nodeConfigurationUpdateFailure_IEs_149[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConfigurationUpdateFailure_IEs_specs_169;
+extern asn_TYPE_member_t asn_MBR_E2nodeConfigurationUpdateFailure_IEs_169[3];
 extern asn_TYPE_descriptor_t asn_DEF_ResetRequestIEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_ResetRequestIEs_specs_153;
-extern asn_TYPE_member_t asn_MBR_ResetRequestIEs_153[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_ResetRequestIEs_specs_173;
+extern asn_TYPE_member_t asn_MBR_ResetRequestIEs_173[3];
 extern asn_TYPE_descriptor_t asn_DEF_ResetResponseIEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_ResetResponseIEs_specs_157;
-extern asn_TYPE_member_t asn_MBR_ResetResponseIEs_157[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_ResetResponseIEs_specs_177;
+extern asn_TYPE_member_t asn_MBR_ResetResponseIEs_177[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICserviceUpdate_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICserviceUpdate_IEs_specs_161;
-extern asn_TYPE_member_t asn_MBR_RICserviceUpdate_IEs_161[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICserviceUpdate_IEs_specs_181;
+extern asn_TYPE_member_t asn_MBR_RICserviceUpdate_IEs_181[3];
+extern asn_TYPE_descriptor_t asn_DEF_E2nodeConnected_ItemIEs;
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConnected_ItemIEs_specs_185;
+extern asn_TYPE_member_t asn_MBR_E2nodeConnected_ItemIEs_185[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICserviceUpdateAcknowledge_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICserviceUpdateAcknowledge_IEs_specs_165;
-extern asn_TYPE_member_t asn_MBR_RICserviceUpdateAcknowledge_IEs_165[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICserviceUpdateAcknowledge_IEs_specs_189;
+extern asn_TYPE_member_t asn_MBR_RICserviceUpdateAcknowledge_IEs_189[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICserviceUpdateFailure_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICserviceUpdateFailure_IEs_specs_169;
-extern asn_TYPE_member_t asn_MBR_RICserviceUpdateFailure_IEs_169[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICserviceUpdateFailure_IEs_specs_193;
+extern asn_TYPE_member_t asn_MBR_RICserviceUpdateFailure_IEs_193[3];
 extern asn_TYPE_descriptor_t asn_DEF_RICserviceQuery_IEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICserviceQuery_IEs_specs_173;
-extern asn_TYPE_member_t asn_MBR_RICserviceQuery_IEs_173[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_RICserviceQuery_IEs_specs_197;
+extern asn_TYPE_member_t asn_MBR_RICserviceQuery_IEs_197[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2RemovalRequestIEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2RemovalRequestIEs_specs_177;
-extern asn_TYPE_member_t asn_MBR_E2RemovalRequestIEs_177[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2RemovalRequestIEs_specs_201;
+extern asn_TYPE_member_t asn_MBR_E2RemovalRequestIEs_201[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2RemovalResponseIEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2RemovalResponseIEs_specs_181;
-extern asn_TYPE_member_t asn_MBR_E2RemovalResponseIEs_181[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2RemovalResponseIEs_specs_205;
+extern asn_TYPE_member_t asn_MBR_E2RemovalResponseIEs_205[3];
 extern asn_TYPE_descriptor_t asn_DEF_E2RemovalFailureIEs;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2RemovalFailureIEs_specs_185;
-extern asn_TYPE_member_t asn_MBR_E2RemovalFailureIEs_185[3];
+extern asn_SEQUENCE_specifics_t asn_SPC_E2RemovalFailureIEs_specs_209;
+extern asn_TYPE_member_t asn_MBR_E2RemovalFailureIEs_209[3];
 
 #ifdef __cplusplus
 }

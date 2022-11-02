@@ -17,7 +17,7 @@ asn_TYPE_member_t asn_MBR_RANfunctionsID_List_1[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_ProtocolIE_SingleContainer_2006P15,
+		&asn_DEF_ProtocolIE_SingleContainer_2156P15,
 		0,
 		{ 0, 0, 0 },
 		0, 0, /* No default value */

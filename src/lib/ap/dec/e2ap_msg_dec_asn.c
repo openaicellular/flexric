@@ -329,138 +329,137 @@ e2ap_msg_t e2ap_dec_subscription_request(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
 {
   assert(pdu != NULL);
-  assert(false && "not implemented");
 
   e2ap_msg_t ret = {.type = E42_RIC_SUBSCRIPTION_REQUEST};
 
-  //assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
-  //assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_E42RICsubscription);
-  //// the O-RAN RIC wrongly sets the criticality -- we ignore it for
-  //// interoperatibility for the moment
-  ////assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
-  //assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_E42RICsubscriptionRequest);
+  assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
+  assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_E42RICsubscription);
+  // the O-RAN RIC wrongly sets the criticality -- we ignore it for
+  // interoperatibility for the moment
+  //assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
+  assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_E42RICsubscriptionRequest);
 
-  //e42_ric_subscription_request_t* e42_sr = &ret.u_msgs.e42_ric_sub_req;
+  e42_ric_subscription_request_t* e42_sr = &ret.u_msgs.e42_ric_sub_req;
 
-  //const E42RICsubscriptionRequest_t* out = &pdu->choice.initiatingMessage->value.choice.E42RICsubscriptionRequest;
-
-
-  //ric_subscription_request_t* sr = &e42_sr->sr;
-
-  //assert(out->protocolIEs.list.count == 5);
-
-  //// XAPP ID. Mandatory
-  //E42RICsubscriptionRequest_IEs_t* xapp_id = out->protocolIEs.list.array[0];
-  //assert(xapp_id->id == ProtocolIE_ID_id_XAPP_ID);
-  //assert(xapp_id->criticality == Criticality_reject);
-  //assert(xapp_id->value.present == E42RICsubscriptionRequest_IEs__value_PR_XAPP_ID);
-  //e42_sr->xapp_id = xapp_id->value.choice.XAPP_ID;
-
-  //// Global E2 Node ID. Mandatory
-  //E42RICsubscriptionRequest_IEs_t* node_src = out->protocolIEs.list.array[1];
-
-  //global_e2_node_id_t* id = &e42_sr->id;
-  //// Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
-  //assert(node_src->id == ProtocolIE_ID_id_GlobalE2node_ID);
-  //assert(node_src->criticality == Criticality_reject);
-  //assert(node_src->value.present == E42RICsubscriptionRequest_IEs__value_PR_GlobalE2node_ID);
-  //if (node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
-  //  assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-  //  id->type = ngran_gNB;
-
-  //  GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
-  //  assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
-  //  PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
-  //  BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, id->nb_id);
-
-  //  if (e2gnb->gNB_CU_UP_ID) {
-  //    id->type = ngran_gNB_CU;
-  //    id->cu_du_id = calloc(1, sizeof(uint64_t));
-  //    assert(id->cu_du_id  != NULL && "memory exhausted");
-  //    asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
-  //  }
-  //  else if (e2gnb->gNB_DU_ID) {
-  //    id->type = ngran_gNB_DU;
-  //    id->cu_du_id = calloc(1, sizeof(uint64_t));
-  //    assert(id->cu_du_id != NULL && "memory exhausted");
-  //    asn_INTEGER2ulong(e2gnb->gNB_DU_ID, id->cu_du_id);
-  //  }
-  //} else {
-  //  assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-  //  id->type = ngran_eNB;
-
-  //  GlobalE2node_eNB_ID_t *e2enb = node_src->value.choice.GlobalE2node_ID.choice.eNB;
-  //  assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
-  //  PLMNID_TO_MCC_MNC(&e2enb->global_eNB_ID.pLMN_Identity, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
-  //  BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, id->nb_id);
-  //}
-
-  //// RIC Request ID. Mandatory.
-  //E42RICsubscriptionRequest_IEs_t* sub_req  = out->protocolIEs.list.array[2];
-
-  //assert(sub_req->id == ProtocolIE_ID_id_RICrequestID);	
-  //assert(sub_req->criticality == Criticality_reject);
-  //assert(sub_req->value.present == E42RICsubscriptionRequest_IEs__value_PR_RICrequestID);
-  //sr->ric_id.ric_inst_id = sub_req->value.choice.RICrequestID.ricInstanceID;
-  //sr->ric_id.ric_req_id = sub_req->value.choice.RICrequestID.ricRequestorID;
+  const E42RICsubscriptionRequest_t* out = &pdu->choice.initiatingMessage->value.choice.E42RICsubscriptionRequest;
 
 
-  //E42RICsubscriptionRequest_IEs_t* ran_id  = out->protocolIEs.list.array[3];
+  ric_subscription_request_t* sr = &e42_sr->sr;
 
-  //assert(ran_id->id == ProtocolIE_ID_id_RANfunctionID);
-  //assert(ran_id->criticality == Criticality_reject);
-  //assert(ran_id->value.present == E42RICsubscriptionRequest_IEs__value_PR_RANfunctionID);
-  //// RAN Function ID. Mandatory
-  //sr->ric_id.ran_func_id = ran_id->value.choice.RANfunctionID;
+  assert(out->protocolIEs.list.count == 5);
 
-  //// RIC Subscription Details. Mandatory
-  //E42RICsubscriptionRequest_IEs_t* sub_det = out->protocolIEs.list.array[4];
-  //assert(sub_det->id == ProtocolIE_ID_id_RICsubscriptionDetails);
-  //assert(sub_det->criticality == Criticality_reject);
-  //assert(sub_det->value.present == E42RICsubscriptionRequest_IEs__value_PR_RICsubscriptionDetails);
+  // XAPP ID. Mandatory
+  E42RICsubscriptionRequest_IEs_t* xapp_id = out->protocolIEs.list.array[0];
+  assert(xapp_id->id == ProtocolIE_ID_id_XAPP_ID);
+  assert(xapp_id->criticality == Criticality_reject);
+  assert(xapp_id->value.present == E42RICsubscriptionRequest_IEs__value_PR_XAPP_ID);
+  e42_sr->xapp_id = xapp_id->value.choice.XAPP_ID;
 
-  ////RIC Event Trigger Definition. Mandatory
-  //const int size_event_trigger = sub_det->value.choice.RICsubscriptionDetails.ricEventTriggerDefinition.size;
-  //sr->event_trigger.buf = calloc(1,size_event_trigger);
-  //memcpy(sr->event_trigger.buf, sub_det->value.choice.RICsubscriptionDetails.ricEventTriggerDefinition.buf, size_event_trigger);
-  //sr->event_trigger.len = size_event_trigger;
+  // Global E2 Node ID. Mandatory
+  E42RICsubscriptionRequest_IEs_t* node_src = out->protocolIEs.list.array[1];
 
-  //const int len_ra = sub_det->value.choice.RICsubscriptionDetails.ricAction_ToBeSetup_List.list.count;
-  //assert(len_ra > 0 && len_ra <= MAX_NUM_ACTION_DEF );
+  global_e2_node_id_t* id = &e42_sr->id;
+  // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
+  assert(node_src->id == ProtocolIE_ID_id_GlobalE2node_ID);
+  assert(node_src->criticality == Criticality_reject);
+  assert(node_src->value.present == E42RICsubscriptionRequest_IEs__value_PR_GlobalE2node_ID);
+  if (node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
+    assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
+    id->type = ngran_gNB;
 
-  //sr->len_action = len_ra;
-  //sr->action = calloc(len_ra, sizeof(ric_action_t));
+    GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
+    assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
+    PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
+    BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, id->nb_id);
 
-  //RICaction_ToBeSetup_ItemIEs_t** arr = (RICaction_ToBeSetup_ItemIEs_t**) sub_det->value.choice.RICsubscriptionDetails.ricAction_ToBeSetup_List.list.array;
-  ////Sequence of Actions. Mandatory
-  //for(int i = 0; i < len_ra ; ++i){
-  //  assert(arr[i]->id == ProtocolIE_ID_id_RICaction_ToBeSetup_Item);	
-  //  // the O-RAN RIC wrongly sets the criticality -- we ignore it for
-  //  // interoperatibility for the moment
-  //  //assert(arr[i]->criticality == Criticality_reject);
-  //  assert(arr[i]->value.present == RICaction_ToBeSetup_ItemIEs__value_PR_RICaction_ToBeSetup_Item);
+    if (e2gnb->gNB_CU_UP_ID) {
+      id->type = ngran_gNB_CU;
+      id->cu_du_id = calloc(1, sizeof(uint64_t));
+      assert(id->cu_du_id  != NULL && "memory exhausted");
+      asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
+    }
+    else if (e2gnb->gNB_DU_ID) {
+      id->type = ngran_gNB_DU;
+      id->cu_du_id = calloc(1, sizeof(uint64_t));
+      assert(id->cu_du_id != NULL && "memory exhausted");
+      asn_INTEGER2ulong(e2gnb->gNB_DU_ID, id->cu_du_id);
+    }
+  } else {
+    assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
+    id->type = ngran_eNB;
 
-  //  const RICaction_ToBeSetup_Item_t* src = &arr[i]->value.choice.RICaction_ToBeSetup_Item;
-  //  ric_action_t * dst = &sr->action[i];
-  //  //Sequence of Actions. Mandatory
-  //  dst->id = src->ricActionID;
-  //  dst->type = src->ricActionType;
+    GlobalE2node_eNB_ID_t *e2enb = node_src->value.choice.GlobalE2node_ID.choice.eNB;
+    assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
+    PLMNID_TO_MCC_MNC(&e2enb->global_eNB_ID.pLMN_Identity, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
+    BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, id->nb_id);
+  }
 
-  //  // RIC Action Definition. Optional
-  //  if(src->ricActionDefinition != NULL){
-  //    dst->definition = calloc(1, sizeof(byte_array_t));
-  //    *dst->definition = copy_ostring_to_ba(*src->ricActionDefinition);
-  //  }
-  //  // RIC Subsequent Action. Optional
-  //  if(src->ricSubsequentAction != NULL){
-  //    dst->subseq_action = calloc(1, sizeof(ric_subsequent_action_t));
-  //    dst->subseq_action->type = src->ricSubsequentAction->ricSubsequentActionType;
-  //    if(src->ricSubsequentAction->ricTimeToWait != 0){ // Optional but it is defined as a uint32_t .....
-  //      dst->subseq_action->time_to_wait_ms = malloc(sizeof(uint32_t));
-  //      *dst->subseq_action->time_to_wait_ms = src->ricSubsequentAction->ricTimeToWait ;
-  //    }
-  //  }
-  //}
+  // RIC Request ID. Mandatory.
+  E42RICsubscriptionRequest_IEs_t* sub_req  = out->protocolIEs.list.array[2];
+
+  assert(sub_req->id == ProtocolIE_ID_id_RICrequestID);	
+  assert(sub_req->criticality == Criticality_reject);
+  assert(sub_req->value.present == E42RICsubscriptionRequest_IEs__value_PR_RICrequestID);
+  sr->ric_id.ric_inst_id = sub_req->value.choice.RICrequestID.ricInstanceID;
+  sr->ric_id.ric_req_id = sub_req->value.choice.RICrequestID.ricRequestorID;
+
+
+  E42RICsubscriptionRequest_IEs_t* ran_id  = out->protocolIEs.list.array[3];
+
+  assert(ran_id->id == ProtocolIE_ID_id_RANfunctionID);
+  assert(ran_id->criticality == Criticality_reject);
+  assert(ran_id->value.present == E42RICsubscriptionRequest_IEs__value_PR_RANfunctionID);
+  // RAN Function ID. Mandatory
+  sr->ric_id.ran_func_id = ran_id->value.choice.RANfunctionID;
+
+  // RIC Subscription Details. Mandatory
+  E42RICsubscriptionRequest_IEs_t* sub_det = out->protocolIEs.list.array[4];
+  assert(sub_det->id == ProtocolIE_ID_id_RICsubscriptionDetails);
+  assert(sub_det->criticality == Criticality_reject);
+  assert(sub_det->value.present == E42RICsubscriptionRequest_IEs__value_PR_RICsubscriptionDetails);
+
+  //RIC Event Trigger Definition. Mandatory
+  const int size_event_trigger = sub_det->value.choice.RICsubscriptionDetails.ricEventTriggerDefinition.size;
+  sr->event_trigger.buf = calloc(1,size_event_trigger);
+  memcpy(sr->event_trigger.buf, sub_det->value.choice.RICsubscriptionDetails.ricEventTriggerDefinition.buf, size_event_trigger);
+  sr->event_trigger.len = size_event_trigger;
+
+  const int len_ra = sub_det->value.choice.RICsubscriptionDetails.ricAction_ToBeSetup_List.list.count;
+  assert(len_ra > 0 && len_ra <= MAX_NUM_ACTION_DEF );
+
+  sr->len_action = len_ra;
+  sr->action = calloc(len_ra, sizeof(ric_action_t));
+
+  RICaction_ToBeSetup_ItemIEs_t** arr = (RICaction_ToBeSetup_ItemIEs_t**) sub_det->value.choice.RICsubscriptionDetails.ricAction_ToBeSetup_List.list.array;
+  //Sequence of Actions. Mandatory
+  for(int i = 0; i < len_ra ; ++i){
+    assert(arr[i]->id == ProtocolIE_ID_id_RICaction_ToBeSetup_Item);	
+    // the O-RAN RIC wrongly sets the criticality -- we ignore it for
+    // interoperatibility for the moment
+    //assert(arr[i]->criticality == Criticality_reject);
+    assert(arr[i]->value.present == RICaction_ToBeSetup_ItemIEs__value_PR_RICaction_ToBeSetup_Item);
+
+    const RICaction_ToBeSetup_Item_t* src = &arr[i]->value.choice.RICaction_ToBeSetup_Item;
+    ric_action_t * dst = &sr->action[i];
+    //Sequence of Actions. Mandatory
+    dst->id = src->ricActionID;
+    dst->type = src->ricActionType;
+
+    // RIC Action Definition. Optional
+    if(src->ricActionDefinition != NULL){
+      dst->definition = calloc(1, sizeof(byte_array_t));
+      *dst->definition = copy_ostring_to_ba(*src->ricActionDefinition);
+    }
+    // RIC Subsequent Action. Optional
+    if(src->ricSubsequentAction != NULL){
+      dst->subseq_action = calloc(1, sizeof(ric_subsequent_action_t));
+      dst->subseq_action->type = src->ricSubsequentAction->ricSubsequentActionType;
+      if(src->ricSubsequentAction->ricTimeToWait != 0){ // Optional but it is defined as a uint32_t .....
+        dst->subseq_action->time_to_wait_ms = malloc(sizeof(uint32_t));
+        *dst->subseq_action->time_to_wait_ms = src->ricSubsequentAction->ricTimeToWait ;
+      }
+    }
+  }
   return ret;
 }
 
@@ -941,137 +940,136 @@ e2ap_msg_t e2ap_dec_control_request(const E2AP_PDU_t* pdu)
 // RIC -> E2
 e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
 {
-  assert(false && "not implemented");
   assert(pdu != NULL);
 
   e2ap_msg_t ret = {.type = E42_RIC_CONTROL_REQUEST };
 
-  //e42_ric_control_request_t* e42_ctrl = &ret.u_msgs.e42_ric_ctrl_req;
+  e42_ric_control_request_t* e42_ctrl = &ret.u_msgs.e42_ric_ctrl_req;
 
-  //ric_control_request_t* ctrl = &e42_ctrl->ctrl_req;
+  ric_control_request_t* ctrl = &e42_ctrl->ctrl_req;
 
-  //assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
-  //assert(pdu->choice.initiatingMessage->procedureCode ==   ProcedureCode_id_E42RICcontrol);
-  //// the O-RAN RIC wrongly sets the criticality -- we ignore it for
-  //// interoperatibility for the moment
-  ////assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
-  //assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_E42RICcontrolRequest);
+  assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
+  assert(pdu->choice.initiatingMessage->procedureCode ==   ProcedureCode_id_E42RICcontrol);
+  // the O-RAN RIC wrongly sets the criticality -- we ignore it for
+  // interoperatibility for the moment
+  //assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
+  assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_E42RICcontrolRequest);
 
-  //const E42RICcontrolRequest_t *out = &pdu->choice.initiatingMessage->value.choice.E42RICcontrolRequest;
+  const E42RICcontrolRequest_t *out = &pdu->choice.initiatingMessage->value.choice.E42RICcontrolRequest;
 
-  //// XAPP ID. Mandatory
-  //E42RICcontrolRequest_IEs_t* xapp_id = out->protocolIEs.list.array[0];
-  //assert(xapp_id->id == ProtocolIE_ID_id_XAPP_ID);
-  //assert(xapp_id->criticality == Criticality_reject);
-  //assert(xapp_id->value.present == E42RICcontrolRequest_IEs__value_PR_XAPP_ID);
-  //e42_ctrl->xapp_id = xapp_id->value.choice.XAPP_ID;
+  // XAPP ID. Mandatory
+  E42RICcontrolRequest_IEs_t* xapp_id = out->protocolIEs.list.array[0];
+  assert(xapp_id->id == ProtocolIE_ID_id_XAPP_ID);
+  assert(xapp_id->criticality == Criticality_reject);
+  assert(xapp_id->value.present == E42RICcontrolRequest_IEs__value_PR_XAPP_ID);
+  e42_ctrl->xapp_id = xapp_id->value.choice.XAPP_ID;
 
-  //// Global E2 Node ID. Mandatory
-  //E42RICcontrolRequest_IEs_t* node_src = out->protocolIEs.list.array[1];
+  // Global E2 Node ID. Mandatory
+  E42RICcontrolRequest_IEs_t* node_src = out->protocolIEs.list.array[1];
 
-  //global_e2_node_id_t* id = &e42_ctrl->id;
-  //// Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
-  //assert(node_src->id == ProtocolIE_ID_id_GlobalE2node_ID);
-  //assert(node_src->criticality == Criticality_reject);
-  //assert(node_src->value.present == E42RICcontrolRequest_IEs__value_PR_GlobalE2node_ID);
-  //if (node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
-  //  assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-  //  id->type = ngran_gNB;
+  global_e2_node_id_t* id = &e42_ctrl->id;
+  // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
+  assert(node_src->id == ProtocolIE_ID_id_GlobalE2node_ID);
+  assert(node_src->criticality == Criticality_reject);
+  assert(node_src->value.present == E42RICcontrolRequest_IEs__value_PR_GlobalE2node_ID);
+  if (node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
+    assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
+    id->type = ngran_gNB;
 
-  //  GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
-  //  assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
-  //  PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
-  //  BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, id->nb_id);
+    GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
+    assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
+    PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
+    BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, id->nb_id);
 
-  //  if (e2gnb->gNB_CU_UP_ID) {
-  //    id->type = ngran_gNB_CU;
-  //    id->cu_du_id = calloc(1, sizeof(uint64_t));
-  //    assert(id->cu_du_id != NULL && "memory exhausted");
-  //    asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
-  //  }
-  //  else if (e2gnb->gNB_DU_ID) {
-  //    id->type = ngran_gNB_DU;
-  //    id->cu_du_id = calloc(1, sizeof(uint64_t));
-  //    assert(id->cu_du_id != NULL && "memory exhausted");
-  //    asn_INTEGER2ulong(e2gnb->gNB_DU_ID, id->cu_du_id);
-  //  }
-  //} else {
-  //  assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-  //  id->type = ngran_eNB;
+    if (e2gnb->gNB_CU_UP_ID) {
+      id->type = ngran_gNB_CU;
+      id->cu_du_id = calloc(1, sizeof(uint64_t));
+      assert(id->cu_du_id != NULL && "memory exhausted");
+      asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
+    }
+    else if (e2gnb->gNB_DU_ID) {
+      id->type = ngran_gNB_DU;
+      id->cu_du_id = calloc(1, sizeof(uint64_t));
+      assert(id->cu_du_id != NULL && "memory exhausted");
+      asn_INTEGER2ulong(e2gnb->gNB_DU_ID, id->cu_du_id);
+    }
+  } else {
+    assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
+    id->type = ngran_eNB;
 
-  //  GlobalE2node_eNB_ID_t *e2enb = node_src->value.choice.GlobalE2node_ID.choice.eNB;
-  //  assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
-  //  PLMNID_TO_MCC_MNC(&e2enb->global_eNB_ID.pLMN_Identity, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
-  //  BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, id->nb_id);
-  //}
+    GlobalE2node_eNB_ID_t *e2enb = node_src->value.choice.GlobalE2node_ID.choice.eNB;
+    assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
+    PLMNID_TO_MCC_MNC(&e2enb->global_eNB_ID.pLMN_Identity, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
+    BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, id->nb_id);
+  }
 
-  //// RIC Request ID. Mandatory
-  //const E42RICcontrolRequest_IEs_t *ric_req_id = out->protocolIEs.list.array[2];
-  //assert(ric_req_id->id == ProtocolIE_ID_id_RICrequestID);
-  //// the O-RAN RIC wrongly sets the criticality -- we ignore it for
-  //// interoperatibility for the moment
-  ////assert(ric_req_id->criticality == Criticality_reject);
-  //assert(ric_req_id->value.present == E42RICcontrolRequest_IEs__value_PR_RICrequestID);
-  //assert(ric_req_id->value.choice.RICrequestID.ricInstanceID < MAX_RIC_INSTANCE_ID);
-  //ctrl->ric_id.ric_inst_id = ric_req_id->value.choice.RICrequestID.ricInstanceID;
-  //assert(ric_req_id->value.choice.RICrequestID.ricRequestorID < MAX_RIC_REQUEST_ID);
-  //ctrl->ric_id.ric_req_id = ric_req_id->value.choice.RICrequestID.ricRequestorID;
+  // RIC Request ID. Mandatory
+  const E42RICcontrolRequest_IEs_t *ric_req_id = out->protocolIEs.list.array[2];
+  assert(ric_req_id->id == ProtocolIE_ID_id_RICrequestID);
+  // the O-RAN RIC wrongly sets the criticality -- we ignore it for
+  // interoperatibility for the moment
+  //assert(ric_req_id->criticality == Criticality_reject);
+  assert(ric_req_id->value.present == E42RICcontrolRequest_IEs__value_PR_RICrequestID);
+  assert(ric_req_id->value.choice.RICrequestID.ricInstanceID < MAX_RIC_INSTANCE_ID);
+  ctrl->ric_id.ric_inst_id = ric_req_id->value.choice.RICrequestID.ricInstanceID;
+  assert(ric_req_id->value.choice.RICrequestID.ricRequestorID < MAX_RIC_REQUEST_ID);
+  ctrl->ric_id.ric_req_id = ric_req_id->value.choice.RICrequestID.ricRequestorID;
 
-  ////RAN Function ID. Mandatory
-  //const E42RICcontrolRequest_IEs_t* ran_id = out->protocolIEs.list.array[3];
-  //assert(ran_id->id == ProtocolIE_ID_id_RANfunctionID);
-  //// the O-RAN RIC wrongly sets the criticality -- we ignore it for
-  //// interoperatibility for the moment
-  ////assert(ran_id->criticality == Criticality_reject);
-  //assert(ran_id->value.present == E42RICcontrolRequest_IEs__value_PR_RANfunctionID);
-  //assert(ran_id->value.choice.RANfunctionID < MAX_RAN_FUNC_ID);
-  //ctrl->ric_id.ran_func_id = ran_id->value.choice.RANfunctionID;
+  //RAN Function ID. Mandatory
+  const E42RICcontrolRequest_IEs_t* ran_id = out->protocolIEs.list.array[3];
+  assert(ran_id->id == ProtocolIE_ID_id_RANfunctionID);
+  // the O-RAN RIC wrongly sets the criticality -- we ignore it for
+  // interoperatibility for the moment
+  //assert(ran_id->criticality == Criticality_reject);
+  assert(ran_id->value.present == E42RICcontrolRequest_IEs__value_PR_RANfunctionID);
+  assert(ran_id->value.choice.RANfunctionID < MAX_RAN_FUNC_ID);
+  ctrl->ric_id.ran_func_id = ran_id->value.choice.RANfunctionID;
 
-  //int elm = 4;
-  //while (elm < out->protocolIEs.list.count) {
-  //  const E42RICcontrolRequest_IEs_t* ric_ctrl = out->protocolIEs.list.array[elm];
-  //  const ProtocolIE_ID_t	id = ric_ctrl->id;
-  //  assert(id == ProtocolIE_ID_id_RICcallProcessID
-  //      || id == ProtocolIE_ID_id_RICcontrolHeader
-  //      || id == ProtocolIE_ID_id_RICcontrolMessage
-  //      || id == ProtocolIE_ID_id_RICcontrolAckRequest);
+  int elm = 4;
+  while (elm < out->protocolIEs.list.count) {
+    const E42RICcontrolRequest_IEs_t* ric_ctrl = out->protocolIEs.list.array[elm];
+    const ProtocolIE_ID_t	id = ric_ctrl->id;
+    assert(id == ProtocolIE_ID_id_RICcallProcessID
+        || id == ProtocolIE_ID_id_RICcontrolHeader
+        || id == ProtocolIE_ID_id_RICcontrolMessage
+        || id == ProtocolIE_ID_id_RICcontrolAckRequest);
 
-  //  if (id == ProtocolIE_ID_id_RICcallProcessID) {
-  //    // RIC Call Process ID. Optional
-  //    // the O-RAN RIC wrongly sets the criticality -- we ignore it for
-  //    // interoperatibility for the moment
-  //    //assert(ric_ctrl->criticality == Criticality_reject);
-  //    assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcallProcessID);
-  //    ctrl->call_process_id = malloc(sizeof(*ctrl->call_process_id));
-  //    assert(ctrl->call_process_id);
-  //    *ctrl->call_process_id = copy_ostring_to_ba(ric_ctrl->value.choice.RICcallProcessID);
-  //  } else if (id == ProtocolIE_ID_id_RICcontrolHeader) {
-  //    // RIC Control Header. Mandatory
-  //    // the O-RAN RIC wrongly sets the criticality -- we ignore it for
-  //    // interoperatibility for the moment
-  //    //assert(ric_ctrl->criticality == Criticality_reject);
-  //    assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolHeader);
-  //    ctrl->hdr = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolHeader);
-  //  } else if (id == ProtocolIE_ID_id_RICcontrolMessage) {
-  //    // RIC Control Message. Mandatory
-  //    // the O-RAN RIC wrongly sets the criticality -- we ignore it for
-  //    // interoperatibility for the moment
-  //    //assert(ric_ctrl->criticality == Criticality_reject);
-  //    assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolMessage);
-  //    ctrl->msg = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolMessage);
-  //  } else { // if (id == ProtocolIE_ID_id_RICcontrolAckRequest)
-  //    // RIC Control Ack Request. Optional
-  //    // the O-RAN RIC wrongly sets the criticality -- we ignore it for
-  //    // interoperatibility for the moment
-  //    //assert(ric_ctrl->criticality == Criticality_reject);
-  //    assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolAckRequest);
-  //    ctrl->ack_req = malloc(sizeof(*ctrl->ack_req));
-  //    assert(ctrl->ack_req);
-  //    assert(ric_ctrl->value.choice.RICcontrolAckRequest < 3);
-  //    *ctrl->ack_req = ric_ctrl->value.choice.RICcontrolAckRequest;
-  //  }
-  //  elm += 1;
-  //}
+    if (id == ProtocolIE_ID_id_RICcallProcessID) {
+      // RIC Call Process ID. Optional
+      // the O-RAN RIC wrongly sets the criticality -- we ignore it for
+      // interoperatibility for the moment
+      //assert(ric_ctrl->criticality == Criticality_reject);
+      assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcallProcessID);
+      ctrl->call_process_id = malloc(sizeof(*ctrl->call_process_id));
+      assert(ctrl->call_process_id);
+      *ctrl->call_process_id = copy_ostring_to_ba(ric_ctrl->value.choice.RICcallProcessID);
+    } else if (id == ProtocolIE_ID_id_RICcontrolHeader) {
+      // RIC Control Header. Mandatory
+      // the O-RAN RIC wrongly sets the criticality -- we ignore it for
+      // interoperatibility for the moment
+      //assert(ric_ctrl->criticality == Criticality_reject);
+      assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolHeader);
+      ctrl->hdr = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolHeader);
+    } else if (id == ProtocolIE_ID_id_RICcontrolMessage) {
+      // RIC Control Message. Mandatory
+      // the O-RAN RIC wrongly sets the criticality -- we ignore it for
+      // interoperatibility for the moment
+      //assert(ric_ctrl->criticality == Criticality_reject);
+      assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolMessage);
+      ctrl->msg = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolMessage);
+    } else { // if (id == ProtocolIE_ID_id_RICcontrolAckRequest)
+      // RIC Control Ack Request. Optional
+      // the O-RAN RIC wrongly sets the criticality -- we ignore it for
+      // interoperatibility for the moment
+      //assert(ric_ctrl->criticality == Criticality_reject);
+      assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolAckRequest);
+      ctrl->ack_req = malloc(sizeof(*ctrl->ack_req));
+      assert(ctrl->ack_req);
+      assert(ric_ctrl->value.choice.RICcontrolAckRequest < 3);
+      *ctrl->ack_req = ric_ctrl->value.choice.RICcontrolAckRequest;
+    }
+    elm += 1;
+  }
 
   return ret;
 }
@@ -2043,48 +2041,44 @@ e2ap_msg_t e2ap_dec_e42_setup_request(const struct E2AP_PDU* pdu)
   assert(pdu != NULL);
   assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
 
-  assert(false && "not implemented");
-
-  //assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_E42setup);
-  //assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
-  //assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_E42setupRequest);
+  assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_E42setup);
+  assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
+  assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_E42setupRequest);
 
   e2ap_msg_t ret = {.type = E42_SETUP_REQUEST};
-  //e42_setup_request_t* sr = &ret.u_msgs.e42_stp_req;
+  e42_setup_request_t* sr = &ret.u_msgs.e42_stp_req;
 
-  //const E42setupRequest_t *out = &pdu->choice.initiatingMessage->value.choice.E42setupRequest;
-  //assert(out->protocolIEs.list.count > 0 && "Need to have some functionality");
+  const E42setupRequest_t *out = &pdu->choice.initiatingMessage->value.choice.E42setupRequest;
+  assert(out->protocolIEs.list.count > 0 && "Need to have some functionality");
 
-  //E42setupRequestIEs_t* ran_list = out->protocolIEs.list.array[0];
+  E42setupRequestIEs_t* ran_list = out->protocolIEs.list.array[0];
 
-  //assert(ran_list->id == ProtocolIE_ID_id_RANfunctionsAdded);
-  //assert(ran_list->criticality == Criticality_reject);
-  //assert(ran_list->value.present == E42setupRequestIEs__value_PR_RANfunctions_List);
+  assert(ran_list->id == ProtocolIE_ID_id_RANfunctionsAdded);
+  assert(ran_list->criticality == Criticality_reject);
+  assert(ran_list->value.present == E42setupRequestIEs__value_PR_RANfunctions_List);
 
-  //size_t const sz = ran_list->value.choice.RANfunctions_List.list.count;
-  //sr->len_rf = sz;
+  size_t const sz = ran_list->value.choice.RANfunctions_List.list.count;
+  sr->len_rf = sz;
 
-  //if(sr->len_rf > 0){
-  //  sr->ran_func_item = calloc(sr->len_rf, sizeof(ran_function_t));
-  //}
-  //RANfunction_ItemIEs_t** arr = (RANfunction_ItemIEs_t**)ran_list->value.choice.RANfunctions_List.list.array;
-  //for(size_t i =0; i < sr->len_rf; ++i){
-  //  ran_function_t* dst = &sr->ran_func_item[i];
-  //  const RANfunction_Item_t* src = &arr[i]->value.choice.RANfunction_Item;
+  if(sr->len_rf > 0){
+    sr->ran_func_item = calloc(sr->len_rf, sizeof(ran_function_t));
+  }
+  RANfunction_ItemIEs_t** arr = (RANfunction_ItemIEs_t**)ran_list->value.choice.RANfunctions_List.list.array;
+  for(size_t i =0; i < sr->len_rf; ++i){
+    ran_function_t* dst = &sr->ran_func_item[i];
+    const RANfunction_Item_t* src = &arr[i]->value.choice.RANfunction_Item;
 
-  //  assert(src->ranFunctionID <= MAX_RAN_FUNC_ID);
-  //  dst->id = src->ranFunctionID;
+    assert(src->ranFunctionID <= MAX_RAN_FUNC_ID);
+    dst->id = src->ranFunctionID;
 
-  //  assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
-  //  dst->rev = src->ranFunctionRevision;
+    assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
+    dst->rev = src->ranFunctionRevision;
 
-  //  dst->def = copy_ostring_to_ba(src->ranFunctionDefinition);
+    dst->def = copy_ostring_to_ba(src->ranFunctionDefinition);
 
-  //  if(src->ranFunctionOID != NULL){
-  //    dst->oid = malloc(sizeof(byte_array_t));
-  //    *dst->oid = copy_ostring_to_ba(*src->ranFunctionOID);
-  //  }
-  //}
+    dst->oid = malloc(sizeof(byte_array_t));
+    *dst->oid = copy_ostring_to_ba(src->ranFunctionOID);
+  }
 
   return ret;
 }
@@ -2095,114 +2089,110 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
   assert(pdu != NULL);
   assert(pdu->present == E2AP_PDU_PR_successfulOutcome);
 
-  assert(false && "not implemented");
-
-  //assert(pdu->choice.successfulOutcome->procedureCode == ProcedureCode_id_E42setup);
-  //assert(pdu->choice.successfulOutcome->criticality == Criticality_reject);
-  //assert(pdu->choice.successfulOutcome->value.present == SuccessfulOutcome__value_PR_E42setupResponse);
+  assert(pdu->choice.successfulOutcome->procedureCode == ProcedureCode_id_E42setup);
+  assert(pdu->choice.successfulOutcome->criticality == Criticality_reject);
+  assert(pdu->choice.successfulOutcome->value.present == SuccessfulOutcome__value_PR_E42setupResponse);
 
   e2ap_msg_t ret = {.type = E42_SETUP_RESPONSE};
-  //e42_setup_response_t* sr = &ret.u_msgs.e42_stp_resp;
+  e42_setup_response_t* sr = &ret.u_msgs.e42_stp_resp;
 
-  //E42setupResponse_t const* out = &pdu->choice.successfulOutcome->value.choice.E42setupResponse;
+  E42setupResponse_t const* out = &pdu->choice.successfulOutcome->value.choice.E42setupResponse;
 
-  //size_t elm = out->protocolIEs.list.count;
-  //assert(elm > 0 && "At least the xApp-id should be here");
+  size_t elm = out->protocolIEs.list.count;
+  assert(elm > 0 && "At least the xApp-id should be here");
 
-  //E42setupResponseIEs_t* setup_rid = out->protocolIEs.list.array[0];
+  E42setupResponseIEs_t* setup_rid = out->protocolIEs.list.array[0];
 
-  //assert(setup_rid->id == ProtocolIE_ID_id_XAPP_ID);
-  //assert(setup_rid->criticality == Criticality_reject);
-  //assert(setup_rid->value.present == E42setupResponseIEs__value_PR_XAPP_ID);
+  assert(setup_rid->id == ProtocolIE_ID_id_XAPP_ID);
+  assert(setup_rid->criticality == Criticality_reject);
+  assert(setup_rid->value.present == E42setupResponseIEs__value_PR_XAPP_ID);
 
-  //sr->xapp_id = setup_rid->value.choice.XAPP_ID;
-  //elm -= 1;
+  sr->xapp_id = setup_rid->value.choice.XAPP_ID;
+  elm -= 1;
 
-  //sr->len_e2_nodes_conn = elm;
-  //if(elm > 0){
-  //  sr->nodes = calloc(elm, sizeof( e2_node_connected_t) );
-  //  assert(sr->nodes != NULL && "Memory exhausted");
-  //}
+  sr->len_e2_nodes_conn = elm;
+  if(elm > 0){
+    sr->nodes = calloc(elm, sizeof( e2_node_connected_t) );
+    assert(sr->nodes != NULL && "Memory exhausted");
+  }
 
-  //for(size_t i = 0; i < elm; ++i){
-  //  E42setupResponseIEs_t const* conn_list = out->protocolIEs.list.array[i+1];
+  for(size_t i = 0; i < elm; ++i){
+    E42setupResponseIEs_t const* conn_list = out->protocolIEs.list.array[i+1];
 
-  //  assert(conn_list->id == ProtocolIE_ID_id_E2nodesConnected);
-  //  assert(conn_list->criticality == Criticality_reject);
-  //  assert(conn_list->value.present == E42setupResponseIEs__value_PR_E2nodeConnected_List);
-  //  assert(conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.count == 2 && "Need the Global E2 Node ID and the RAN functions" );
+    assert(conn_list->id == ProtocolIE_ID_id_E2nodesConnected);
+    assert(conn_list->criticality == Criticality_reject);
+    assert(conn_list->value.present == E42setupResponseIEs__value_PR_E2nodeConnected_List);
+    assert(conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.count == 2 && "Need the Global E2 Node ID and the RAN functions" );
 
-  //  // Global E2 Node ID. Mandatory
-  //  E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
+    // Global E2 Node ID. Mandatory
+    E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
 
-  //  e2_node_connected_t* dst = &sr->nodes[i];
-  //  // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
-  //  assert(src->id == ProtocolIE_ID_id_GlobalE2node_ID);
-  //  assert(src->criticality == Criticality_reject);
-  //  assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
-  //  if (src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
-  //    assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-  //    dst->id.type = ngran_gNB;
+    e2_node_connected_t* dst = &sr->nodes[i];
+    // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
+    assert(src->id == ProtocolIE_ID_id_GlobalE2node_ID);
+    assert(src->criticality == Criticality_reject);
+    assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
+    if (src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
+      assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
+      dst->id.type = ngran_gNB;
 
-  //    GlobalE2node_gNB_ID_t *e2gnb = src->value.choice.GlobalE2node_ID.choice.gNB;
-  //    assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
-  //    PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, dst->id.plmn.mcc, dst->id.plmn.mnc, dst->id.plmn.mnc_digit_len);
-  //    BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, dst->id.nb_id);
+      GlobalE2node_gNB_ID_t *e2gnb = src->value.choice.GlobalE2node_ID.choice.gNB;
+      assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
+      PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, dst->id.plmn.mcc, dst->id.plmn.mnc, dst->id.plmn.mnc_digit_len);
+      BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, dst->id.nb_id);
 
-  //    if (e2gnb->gNB_CU_UP_ID) {
-  //      dst->id.type = ngran_gNB_CU;
-  //      dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
-  //      assert(dst->id.cu_du_id != NULL && "memory exhausted");
-  //      asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
-  //    }
-  //    else if (e2gnb->gNB_DU_ID) {
-  //      dst->id.type = ngran_gNB_DU;
-  //      dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
-  //      assert(dst->id.cu_du_id != NULL && "memory exhausted");
-  //      asn_INTEGER2ulong(e2gnb->gNB_DU_ID, dst->id.cu_du_id);
-  //    }
-  //  } else {
-  //    assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-  //    dst->id.type = ngran_eNB;
+      if (e2gnb->gNB_CU_UP_ID) {
+        dst->id.type = ngran_gNB_CU;
+        dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
+        assert(dst->id.cu_du_id != NULL && "memory exhausted");
+        asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
+      }
+      else if (e2gnb->gNB_DU_ID) {
+        dst->id.type = ngran_gNB_DU;
+        dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
+        assert(dst->id.cu_du_id != NULL && "memory exhausted");
+        asn_INTEGER2ulong(e2gnb->gNB_DU_ID, dst->id.cu_du_id);
+      }
+    } else {
+      assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
+      dst->id.type = ngran_eNB;
 
-  //    GlobalE2node_eNB_ID_t *e2enb = src->value.choice.GlobalE2node_ID.choice.eNB;
-  //    assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
-  //    PLMNID_TO_MCC_MNC(&e2enb->global_eNB_ID.pLMN_Identity, dst->id.plmn.mcc, dst->id.plmn.mnc, dst->id.plmn.mnc_digit_len);
-  //    BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, dst->id.nb_id);
-  //  }
+      GlobalE2node_eNB_ID_t *e2enb = src->value.choice.GlobalE2node_ID.choice.eNB;
+      assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
+      PLMNID_TO_MCC_MNC(&e2enb->global_eNB_ID.pLMN_Identity, dst->id.plmn.mcc, dst->id.plmn.mnc, dst->id.plmn.mnc_digit_len);
+      BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, dst->id.nb_id);
+    }
 
-  //  E2nodeConnected_ItemIEs_t const* src_ran = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[1];
+    E2nodeConnected_ItemIEs_t const* src_ran = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[1];
 
-  //  assert(src_ran->id ==   ProtocolIE_ID_id_RANfunctionsAdded);
-  //  assert(src_ran->criticality == Criticality_reject);
-  //  assert(src_ran->value.present == E2nodeConnected_ItemIEs__value_PR_RANfunctions_List);
+    assert(src_ran->id ==   ProtocolIE_ID_id_RANfunctionsAdded);
+    assert(src_ran->criticality == Criticality_reject);
+    assert(src_ran->value.present == E2nodeConnected_ItemIEs__value_PR_RANfunctions_List);
 
-  //  dst->len_rf = src_ran->value.choice.RANfunctions_List.list.count;
-  //  if(dst->len_rf > 0){
-  //    dst->ack_rf = calloc(dst->len_rf, sizeof(ran_function_t));
-  //    assert(dst->ack_rf != NULL && "memory exhausted");
-  //  }
+    dst->len_rf = src_ran->value.choice.RANfunctions_List.list.count;
+    if(dst->len_rf > 0){
+      dst->ack_rf = calloc(dst->len_rf, sizeof(ran_function_t));
+      assert(dst->ack_rf != NULL && "memory exhausted");
+    }
 
 
-  //  RANfunction_ItemIEs_t** arr = (RANfunction_ItemIEs_t**)src_ran->value.choice.RANfunctions_List.list.array;
-  //  for(size_t i =0; i < dst->len_rf; ++i){
-  //    ran_function_t* dst_ie = &dst->ack_rf[i];
-  //    const RANfunction_Item_t* src = &arr[i]->value.choice.RANfunction_Item;
+    RANfunction_ItemIEs_t** arr = (RANfunction_ItemIEs_t**)src_ran->value.choice.RANfunctions_List.list.array;
+    for(size_t i =0; i < dst->len_rf; ++i){
+      ran_function_t* dst_ie = &dst->ack_rf[i];
+      const RANfunction_Item_t* src = &arr[i]->value.choice.RANfunction_Item;
 
-  //    assert(src->ranFunctionID <= MAX_RAN_FUNC_ID);
-  //    dst_ie->id = src->ranFunctionID;
+      assert(src->ranFunctionID <= MAX_RAN_FUNC_ID);
+      dst_ie->id = src->ranFunctionID;
 
-  //    assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
-  //    dst_ie->rev = src->ranFunctionRevision;
+      assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
+      dst_ie->rev = src->ranFunctionRevision;
 
-  //    dst_ie->def = copy_ostring_to_ba(src->ranFunctionDefinition);
+      dst_ie->def = copy_ostring_to_ba(src->ranFunctionDefinition);
 
-  //    if(src->ranFunctionOID != NULL){
-  //      dst_ie->oid = malloc(sizeof(byte_array_t));
-  //      *dst_ie->oid = copy_ostring_to_ba(*src->ranFunctionOID);
-  //    }
-  //  }
-  //}
+      dst_ie->oid = malloc(sizeof(byte_array_t));
+      *dst_ie->oid = copy_ostring_to_ba(src->ranFunctionOID);
+    }
+  }
   return ret;
 }
 
@@ -2210,43 +2200,42 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
 e2ap_msg_t e2ap_dec_e42_subscription_delete_request(const struct E2AP_PDU* pdu)
 {
   assert(pdu != NULL);
-  assert(false && "not implemented");
   e2ap_msg_t ret = {.type = E42_RIC_SUBSCRIPTION_DELETE_REQUEST};
-  //e42_ric_subscription_delete_request_t* e42_sdr = &ret.u_msgs.e42_ric_sub_del_req;
+  e42_ric_subscription_delete_request_t* e42_sdr = &ret.u_msgs.e42_ric_sub_del_req;
 
-  //// Message Type. Mandatory
-  //assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
-  //assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_E42RICsubscriptionDelete);
-  //assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
-  //assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_E42RICsubscriptionDeleteRequest);
+  // Message Type. Mandatory
+  assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
+  assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_E42RICsubscriptionDelete);
+  assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
+  assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_E42RICsubscriptionDeleteRequest);
 
-  //const E42RICsubscriptionDeleteRequest_t* out = &pdu->choice.initiatingMessage->value.choice.E42RICsubscriptionDeleteRequest;
+  const E42RICsubscriptionDeleteRequest_t* out = &pdu->choice.initiatingMessage->value.choice.E42RICsubscriptionDeleteRequest;
 
-  //// XAPP ID. Mandatory
-  //E42RICsubscriptionDeleteRequest_IEs_t* xapp_id = out->protocolIEs.list.array[0];
-  //assert(xapp_id->id == ProtocolIE_ID_id_XAPP_ID);
-  //assert(xapp_id->criticality == Criticality_reject);
-  //assert(xapp_id->value.present == E42RICsubscriptionDeleteRequest_IEs__value_PR_XAPP_ID);
-  //e42_sdr->xapp_id = xapp_id->value.choice.XAPP_ID;
+  // XAPP ID. Mandatory
+  E42RICsubscriptionDeleteRequest_IEs_t* xapp_id = out->protocolIEs.list.array[0];
+  assert(xapp_id->id == ProtocolIE_ID_id_XAPP_ID);
+  assert(xapp_id->criticality == Criticality_reject);
+  assert(xapp_id->value.present == E42RICsubscriptionDeleteRequest_IEs__value_PR_XAPP_ID);
+  e42_sdr->xapp_id = xapp_id->value.choice.XAPP_ID;
 
 
-  //ric_subscription_delete_request_t* dr = &e42_sdr->sdr;
-  //// RIC Request ID. Mandatory
-  //const E42RICsubscriptionDeleteRequest_IEs_t* sub_req = out->protocolIEs.list.array[1];
-  //assert(sub_req->id == ProtocolIE_ID_id_RICrequestID);	
-  //assert(sub_req->criticality == Criticality_reject);
-  //assert(sub_req->value.present == E42RICsubscriptionDeleteRequest_IEs__value_PR_RICrequestID);
-  //dr->ric_id.ric_inst_id = sub_req->value.choice.RICrequestID.ricInstanceID;
-  //dr->ric_id.ric_req_id = sub_req->value.choice.RICrequestID.ricRequestorID;
+  ric_subscription_delete_request_t* dr = &e42_sdr->sdr;
+  // RIC Request ID. Mandatory
+  const E42RICsubscriptionDeleteRequest_IEs_t* sub_req = out->protocolIEs.list.array[1];
+  assert(sub_req->id == ProtocolIE_ID_id_RICrequestID);	
+  assert(sub_req->criticality == Criticality_reject);
+  assert(sub_req->value.present == E42RICsubscriptionDeleteRequest_IEs__value_PR_RICrequestID);
+  dr->ric_id.ric_inst_id = sub_req->value.choice.RICrequestID.ricInstanceID;
+  dr->ric_id.ric_req_id = sub_req->value.choice.RICrequestID.ricRequestorID;
 
-  //// RIC Function ID. Mandatory
-  //const E42RICsubscriptionDeleteRequest_IEs_t* ran_id = out->protocolIEs.list.array[2];
-  //assert(ran_id->id == ProtocolIE_ID_id_RANfunctionID);
-  //assert(ran_id->criticality == Criticality_reject);
-  //assert(ran_id->value.present == E42RICsubscriptionDeleteRequest_IEs__value_PR_RANfunctionID);
+  // RIC Function ID. Mandatory
+  const E42RICsubscriptionDeleteRequest_IEs_t* ran_id = out->protocolIEs.list.array[2];
+  assert(ran_id->id == ProtocolIE_ID_id_RANfunctionID);
+  assert(ran_id->criticality == Criticality_reject);
+  assert(ran_id->value.present == E42RICsubscriptionDeleteRequest_IEs__value_PR_RANfunctionID);
 
-  //assert(ran_id->value.choice.RANfunctionID < MAX_RAN_FUNC_ID);
-  //dr->ric_id.ran_func_id = ran_id->value.choice.RANfunctionID;
+  assert(ran_id->value.choice.RANfunctionID < MAX_RAN_FUNC_ID);
+  dr->ric_id.ran_func_id = ran_id->value.choice.RANfunctionID;
   return ret;
 }
 
@@ -2336,37 +2325,37 @@ e2_msg_type_t e2ap_get_msg_type(const E2AP_PDU_t* pdu)
       }
       break;
 
-    //case ProcedureCode_id_E42setup:
-    //  switch (index) {
-    //    case E2AP_PDU_PR_initiatingMessage:   return E42_SETUP_REQUEST;
-    //    case E2AP_PDU_PR_successfulOutcome:   return E42_SETUP_RESPONSE;
-    //    case E2AP_PDU_PR_unsuccessfulOutcome: return E2_SETUP_FAILURE;
-    //  }
-    //  break;
+    case ProcedureCode_id_E42setup:
+      switch (index) {
+        case E2AP_PDU_PR_initiatingMessage:   return E42_SETUP_REQUEST;
+        case E2AP_PDU_PR_successfulOutcome:   return E42_SETUP_RESPONSE;
+        case E2AP_PDU_PR_unsuccessfulOutcome: return E2_SETUP_FAILURE;
+      }
+      break;
 
-    //case ProcedureCode_id_E42RICsubscription:
-    //  switch (index) {
-    //    case E2AP_PDU_PR_initiatingMessage:   return E42_RIC_SUBSCRIPTION_REQUEST;
-    //    case E2AP_PDU_PR_successfulOutcome:   return RIC_SUBSCRIPTION_RESPONSE;
-    //    case E2AP_PDU_PR_unsuccessfulOutcome: return RIC_SUBSCRIPTION_FAILURE;
-    //  }
-    //  break;
+    case ProcedureCode_id_E42RICsubscription:
+      switch (index) {
+        case E2AP_PDU_PR_initiatingMessage:   return E42_RIC_SUBSCRIPTION_REQUEST;
+        case E2AP_PDU_PR_successfulOutcome:   return RIC_SUBSCRIPTION_RESPONSE;
+        case E2AP_PDU_PR_unsuccessfulOutcome: return RIC_SUBSCRIPTION_FAILURE;
+      }
+      break;
 
-    //case ProcedureCode_id_E42RICsubscriptionDelete:
-    //  switch (index) {
-    //    case E2AP_PDU_PR_initiatingMessage:   return E42_RIC_SUBSCRIPTION_DELETE_REQUEST;
-    //    case E2AP_PDU_PR_successfulOutcome:   return RIC_SUBSCRIPTION_DELETE_RESPONSE;
-    //    case E2AP_PDU_PR_unsuccessfulOutcome: return RIC_SUBSCRIPTION_DELETE_FAILURE;
-    //  }
-    //  break;
+    case ProcedureCode_id_E42RICsubscriptionDelete:
+      switch (index) {
+        case E2AP_PDU_PR_initiatingMessage:   return E42_RIC_SUBSCRIPTION_DELETE_REQUEST;
+        case E2AP_PDU_PR_successfulOutcome:   return RIC_SUBSCRIPTION_DELETE_RESPONSE;
+        case E2AP_PDU_PR_unsuccessfulOutcome: return RIC_SUBSCRIPTION_DELETE_FAILURE;
+      }
+      break;
 
-    //case ProcedureCode_id_E42RICcontrol:
-    //  switch (index) {
-    //    case E2AP_PDU_PR_initiatingMessage:   return E42_RIC_CONTROL_REQUEST;
-    //    case E2AP_PDU_PR_successfulOutcome:   return RIC_CONTROL_ACKNOWLEDGE;
-    //    case E2AP_PDU_PR_unsuccessfulOutcome: return RIC_CONTROL_FAILURE;
-    //  }
-    //  break;
+    case ProcedureCode_id_E42RICcontrol:
+      switch (index) {
+        case E2AP_PDU_PR_initiatingMessage:   return E42_RIC_CONTROL_REQUEST;
+        case E2AP_PDU_PR_successfulOutcome:   return RIC_CONTROL_ACKNOWLEDGE;
+        case E2AP_PDU_PR_unsuccessfulOutcome: return RIC_CONTROL_FAILURE;
+      }
+      break;
 
 
 

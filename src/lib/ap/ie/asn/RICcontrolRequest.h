@@ -21,7 +21,7 @@ extern "C" {
 
 /* RICcontrolRequest */
 typedef struct RICcontrolRequest {
-	ProtocolIE_Container_2003P8_t	 protocolIEs;
+	ProtocolIE_Container_2153P10_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

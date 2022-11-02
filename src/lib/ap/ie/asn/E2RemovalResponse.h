@@ -21,7 +21,7 @@ extern "C" {
 
 /* E2RemovalResponse */
 typedef struct E2RemovalResponse {
-	ProtocolIE_Container_2003P28_t	 protocolIEs;
+	ProtocolIE_Container_2153P34_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

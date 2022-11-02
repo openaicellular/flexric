@@ -25,14 +25,22 @@ static const long asn_VAL_8_id_Reset = 3;
 static const long asn_VAL_8_reject = 0;
 static const long asn_VAL_9_id_E2removal = 13;
 static const long asn_VAL_9_reject = 0;
-static const long asn_VAL_10_id_RICindication = 5;
-static const long asn_VAL_10_ignore = 1;
-static const long asn_VAL_11_id_RICserviceQuery = 6;
-static const long asn_VAL_11_ignore = 1;
-static const long asn_VAL_12_id_ErrorIndication = 2;
-static const long asn_VAL_12_ignore = 1;
-static const long asn_VAL_13_id_RICsubscriptionDeleteRequired = 12;
-static const long asn_VAL_13_ignore = 1;
+static const long asn_VAL_10_id_E42setup = 14;
+static const long asn_VAL_10_reject = 0;
+static const long asn_VAL_11_id_E42RICsubscription = 15;
+static const long asn_VAL_11_reject = 0;
+static const long asn_VAL_12_id_E42RICsubscriptionDelete = 16;
+static const long asn_VAL_12_reject = 0;
+static const long asn_VAL_13_id_E42RICcontrol = 17;
+static const long asn_VAL_13_reject = 0;
+static const long asn_VAL_14_id_RICindication = 5;
+static const long asn_VAL_14_ignore = 1;
+static const long asn_VAL_15_id_RICserviceQuery = 6;
+static const long asn_VAL_15_ignore = 1;
+static const long asn_VAL_16_id_ErrorIndication = 2;
+static const long asn_VAL_16_ignore = 1;
+static const long asn_VAL_17_id_RICsubscriptionDeleteRequired = 12;
+static const long asn_VAL_17_ignore = 1;
 static const asn_ioc_cell_t asn_IOS_E2AP_ELEMENTARY_PROCEDURES_1_rows[] = {
 	{ "&InitiatingMessage", aioc__type, &asn_DEF_RICsubscriptionRequest },
 	{ "&SuccessfulOutcome", aioc__type, &asn_DEF_RICsubscriptionResponse },
@@ -79,29 +87,49 @@ static const asn_ioc_cell_t asn_IOS_E2AP_ELEMENTARY_PROCEDURES_1_rows[] = {
 	{ "&UnsuccessfulOutcome", aioc__type, &asn_DEF_E2RemovalFailure },
 	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_9_id_E2removal },
 	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_9_reject },
+	{ "&InitiatingMessage", aioc__type, &asn_DEF_E42setupRequest },
+	{ "&SuccessfulOutcome", aioc__type, &asn_DEF_E42setupResponse },
+	{ "&UnsuccessfulOutcome", aioc__type, &asn_DEF_E2setupFailure },
+	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_10_id_E42setup },
+	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_10_reject },
+	{ "&InitiatingMessage", aioc__type, &asn_DEF_E42RICsubscriptionRequest },
+	{ "&SuccessfulOutcome", aioc__type, &asn_DEF_RICsubscriptionResponse },
+	{ "&UnsuccessfulOutcome", aioc__type, &asn_DEF_RICsubscriptionFailure },
+	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_11_id_E42RICsubscription },
+	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_11_reject },
+	{ "&InitiatingMessage", aioc__type, &asn_DEF_E42RICsubscriptionDeleteRequest },
+	{ "&SuccessfulOutcome", aioc__type, &asn_DEF_RICsubscriptionDeleteResponse },
+	{ "&UnsuccessfulOutcome", aioc__type, &asn_DEF_RICsubscriptionDeleteFailure },
+	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_12_id_E42RICsubscriptionDelete },
+	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_12_reject },
+	{ "&InitiatingMessage", aioc__type, &asn_DEF_E42RICcontrolRequest },
+	{ "&SuccessfulOutcome", aioc__type, &asn_DEF_RICcontrolAcknowledge },
+	{ "&UnsuccessfulOutcome", aioc__type, &asn_DEF_RICcontrolFailure },
+	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_13_id_E42RICcontrol },
+	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_13_reject },
 	{ "&InitiatingMessage", aioc__type, &asn_DEF_RICindication },
 	{ "&SuccessfulOutcome",  },
 	{ "&UnsuccessfulOutcome",  },
-	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_10_id_RICindication },
-	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_10_ignore },
+	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_14_id_RICindication },
+	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_14_ignore },
 	{ "&InitiatingMessage", aioc__type, &asn_DEF_RICserviceQuery },
 	{ "&SuccessfulOutcome",  },
 	{ "&UnsuccessfulOutcome",  },
-	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_11_id_RICserviceQuery },
-	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_11_ignore },
+	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_15_id_RICserviceQuery },
+	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_15_ignore },
 	{ "&InitiatingMessage", aioc__type, &asn_DEF_ErrorIndication },
 	{ "&SuccessfulOutcome",  },
 	{ "&UnsuccessfulOutcome",  },
-	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_12_id_ErrorIndication },
-	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_12_ignore },
+	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_16_id_ErrorIndication },
+	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_16_ignore },
 	{ "&InitiatingMessage", aioc__type, &asn_DEF_RICsubscriptionDeleteRequired },
 	{ "&SuccessfulOutcome",  },
 	{ "&UnsuccessfulOutcome",  },
-	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_13_id_RICsubscriptionDeleteRequired },
-	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_13_ignore }
+	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_17_id_RICsubscriptionDeleteRequired },
+	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_17_ignore }
 };
 static const asn_ioc_set_t asn_IOS_E2AP_ELEMENTARY_PROCEDURES_1[] = {
-	{ 13, 5, asn_IOS_E2AP_ELEMENTARY_PROCEDURES_1_rows }
+	{ 17, 5, asn_IOS_E2AP_ELEMENTARY_PROCEDURES_1_rows }
 };
 static int
 memb_procedureCode_constraint_1(const asn_TYPE_descriptor_t *td, const void *sptr,
@@ -317,17 +345,57 @@ static asn_TYPE_member_t asn_MBR_value_4[] = {
 		0, 0, /* No default value */
 		"E2RemovalResponse"
 		},
+	{ ATF_NOFLAGS, 0, offsetof(struct SuccessfulOutcome__value, choice.E42setupResponse),
+		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
+		0,
+		&asn_DEF_E42setupResponse,
+		0,
+		{ 0, 0, 0 },
+		0, 0, /* No default value */
+		"E42setupResponse"
+		},
+	{ ATF_NOFLAGS, 0, offsetof(struct SuccessfulOutcome__value, choice.RICsubscriptionResponse_1),
+		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
+		0,
+		&asn_DEF_RICsubscriptionResponse,
+		0,
+		{ 0, 0, 0 },
+		0, 0, /* No default value */
+		"RICsubscriptionResponse"
+		},
+	{ ATF_NOFLAGS, 0, offsetof(struct SuccessfulOutcome__value, choice.RICsubscriptionDeleteResponse_1),
+		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
+		0,
+		&asn_DEF_RICsubscriptionDeleteResponse,
+		0,
+		{ 0, 0, 0 },
+		0, 0, /* No default value */
+		"RICsubscriptionDeleteResponse"
+		},
+	{ ATF_NOFLAGS, 0, offsetof(struct SuccessfulOutcome__value, choice.RICcontrolAcknowledge_1),
+		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
+		0,
+		&asn_DEF_RICcontrolAcknowledge,
+		0,
+		{ 0, 0, 0 },
+		0, 0, /* No default value */
+		"RICcontrolAcknowledge"
+		},
 };
 static const asn_TYPE_tag2member_t asn_MAP_value_tag2el_4[] = {
-    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 0, 0, 8 }, /* RICsubscriptionResponse */
-    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 1, -1, 7 }, /* RICsubscriptionDeleteResponse */
-    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 2, -2, 6 }, /* RICserviceUpdateAcknowledge */
-    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 3, -3, 5 }, /* RICcontrolAcknowledge */
-    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 4, -4, 4 }, /* E2setupResponse */
-    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 5, -5, 3 }, /* E2nodeConfigurationUpdateAcknowledge */
-    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 6, -6, 2 }, /* E2connectionUpdateAcknowledge */
-    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 7, -7, 1 }, /* ResetResponse */
-    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 8, -8, 0 } /* E2RemovalResponse */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 0, 0, 12 }, /* RICsubscriptionResponse */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 1, -1, 11 }, /* RICsubscriptionDeleteResponse */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 2, -2, 10 }, /* RICserviceUpdateAcknowledge */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 3, -3, 9 }, /* RICcontrolAcknowledge */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 4, -4, 8 }, /* E2setupResponse */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 5, -5, 7 }, /* E2nodeConfigurationUpdateAcknowledge */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 6, -6, 6 }, /* E2connectionUpdateAcknowledge */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 7, -7, 5 }, /* ResetResponse */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 8, -8, 4 }, /* E2RemovalResponse */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 9, -9, 3 }, /* E42setupResponse */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 10, -10, 2 }, /* RICsubscriptionResponse */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 11, -11, 1 }, /* RICsubscriptionDeleteResponse */
+    { (ASN_TAG_CLASS_UNIVERSAL | (16 << 2)), 12, -12, 0 } /* RICcontrolAcknowledge */
 };
 static asn_CHOICE_specifics_t asn_SPC_value_specs_4 = {
 	sizeof(struct SuccessfulOutcome__value),
@@ -335,7 +403,7 @@ static asn_CHOICE_specifics_t asn_SPC_value_specs_4 = {
 	offsetof(struct SuccessfulOutcome__value, present),
 	sizeof(((struct SuccessfulOutcome__value *)0)->present),
 	asn_MAP_value_tag2el_4,
-	9,	/* Count of tags in the map */
+	13,	/* Count of tags in the map */
 	0, 0,
 	-1	/* Extensions start */
 };
@@ -350,7 +418,7 @@ asn_TYPE_descriptor_t asn_DEF_value_4 = {
 	0,	/* No tags (count) */
 	{ 0, 0, OPEN_TYPE_constraint },
 	asn_MBR_value_4,
-	9,	/* Elements count */
+	13,	/* Elements count */
 	&asn_SPC_value_specs_4	/* Additional specs */
 };
 

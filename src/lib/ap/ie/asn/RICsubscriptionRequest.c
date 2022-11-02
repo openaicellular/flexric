@@ -11,7 +11,7 @@ asn_TYPE_member_t asn_MBR_RICsubscriptionRequest_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct RICsubscriptionRequest, protocolIEs),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_ProtocolIE_Container_2003P0,
+		&asn_DEF_ProtocolIE_Container_2153P0,
 		0,
 		{ 0, 0, 0 },
 		0, 0, /* No default value */

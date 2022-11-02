@@ -21,7 +21,7 @@ extern "C" {
 
 /* E2RemovalRequest */
 typedef struct E2RemovalRequest {
-	ProtocolIE_Container_2003P27_t	 protocolIEs;
+	ProtocolIE_Container_2153P33_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

@@ -94,6 +94,9 @@ per_type_encoder_f ProtocolIE_ID_encode_aper;
 #define ProtocolIE_ID_id_E2nodeTNLassociationRemoval_Item	((ProtocolIE_ID_t)59)
 #define ProtocolIE_ID_id_RICsubscriptionToBeRemoved	((ProtocolIE_ID_t)60)
 #define ProtocolIE_ID_id_RICsubscription_withCause_Item	((ProtocolIE_ID_t)61)
+#define ProtocolIE_ID_id_XAPP_ID	((ProtocolIE_ID_t)62)
+#define ProtocolIE_ID_id_E2nodesConnected	((ProtocolIE_ID_t)63)
+#define ProtocolIE_ID_id_NODEfunctionID_Item	((ProtocolIE_ID_t)64)
 
 #ifdef __cplusplus
 }

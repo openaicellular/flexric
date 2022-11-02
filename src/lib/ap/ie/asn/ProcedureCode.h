@@ -48,6 +48,10 @@ per_type_encoder_f ProcedureCode_encode_aper;
 #define ProcedureCode_id_E2connectionUpdate	((ProcedureCode_t)11)
 #define ProcedureCode_id_RICsubscriptionDeleteRequired	((ProcedureCode_t)12)
 #define ProcedureCode_id_E2removal	((ProcedureCode_t)13)
+#define ProcedureCode_id_E42setup	((ProcedureCode_t)14)
+#define ProcedureCode_id_E42RICsubscription	((ProcedureCode_t)15)
+#define ProcedureCode_id_E42RICsubscriptionDelete	((ProcedureCode_t)16)
+#define ProcedureCode_id_E42RICcontrol	((ProcedureCode_t)17)
 
 #ifdef __cplusplus
 }

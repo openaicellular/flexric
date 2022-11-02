@@ -42,6 +42,11 @@
 #include "E2RemovalRequest.h"
 #include "E2RemovalResponse.h"
 #include "E2RemovalFailure.h"
+#include "E42setupRequest.h"
+#include "E42setupResponse.h"
+#include "E42RICsubscriptionRequest.h"
+#include "E42RICsubscriptionDeleteRequest.h"
+#include "E42RICcontrolRequest.h"
 #include "RICindication.h"
 #include "RICserviceQuery.h"
 #include "ErrorIndication.h"
@@ -64,7 +69,11 @@ typedef enum UnsuccessfulOutcome__value_PR {
 	UnsuccessfulOutcome__value_PR_E2setupFailure,
 	UnsuccessfulOutcome__value_PR_E2nodeConfigurationUpdateFailure,
 	UnsuccessfulOutcome__value_PR_E2connectionUpdateFailure,
-	UnsuccessfulOutcome__value_PR_E2RemovalFailure
+	UnsuccessfulOutcome__value_PR_E2RemovalFailure,
+	UnsuccessfulOutcome__value_PR_E2setupFailure_1,
+	UnsuccessfulOutcome__value_PR_RICsubscriptionFailure_1,
+	UnsuccessfulOutcome__value_PR_RICsubscriptionDeleteFailure_1,
+	UnsuccessfulOutcome__value_PR_RICcontrolFailure_1
 } UnsuccessfulOutcome__value_PR;
 
 /* UnsuccessfulOutcome */
@@ -82,6 +91,10 @@ typedef struct UnsuccessfulOutcome {
 			E2nodeConfigurationUpdateFailure_t	 E2nodeConfigurationUpdateFailure;
 			E2connectionUpdateFailure_t	 E2connectionUpdateFailure;
 			E2RemovalFailure_t	 E2RemovalFailure;
+			E2setupFailure_t	 E2setupFailure_1;
+			RICsubscriptionFailure_t	 RICsubscriptionFailure_1;
+			RICsubscriptionDeleteFailure_t	 RICsubscriptionDeleteFailure_1;
+			RICcontrolFailure_t	 RICcontrolFailure_1;
 		} choice;
 		
 		/* Context for parsing across buffer boundaries */

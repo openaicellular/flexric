@@ -42,6 +42,11 @@
 #include "E2RemovalRequest.h"
 #include "E2RemovalResponse.h"
 #include "E2RemovalFailure.h"
+#include "E42setupRequest.h"
+#include "E42setupResponse.h"
+#include "E42RICsubscriptionRequest.h"
+#include "E42RICsubscriptionDeleteRequest.h"
+#include "E42RICcontrolRequest.h"
 #include "RICindication.h"
 #include "RICserviceQuery.h"
 #include "ErrorIndication.h"
@@ -65,7 +70,11 @@ typedef enum SuccessfulOutcome__value_PR {
 	SuccessfulOutcome__value_PR_E2nodeConfigurationUpdateAcknowledge,
 	SuccessfulOutcome__value_PR_E2connectionUpdateAcknowledge,
 	SuccessfulOutcome__value_PR_ResetResponse,
-	SuccessfulOutcome__value_PR_E2RemovalResponse
+	SuccessfulOutcome__value_PR_E2RemovalResponse,
+	SuccessfulOutcome__value_PR_E42setupResponse,
+	SuccessfulOutcome__value_PR_RICsubscriptionResponse_1,
+	SuccessfulOutcome__value_PR_RICsubscriptionDeleteResponse_1,
+	SuccessfulOutcome__value_PR_RICcontrolAcknowledge_1
 } SuccessfulOutcome__value_PR;
 
 /* SuccessfulOutcome */
@@ -84,6 +93,10 @@ typedef struct SuccessfulOutcome {
 			E2connectionUpdateAcknowledge_t	 E2connectionUpdateAcknowledge;
 			ResetResponse_t	 ResetResponse;
 			E2RemovalResponse_t	 E2RemovalResponse;
+			E42setupResponse_t	 E42setupResponse;
+			RICsubscriptionResponse_t	 RICsubscriptionResponse_1;
+			RICsubscriptionDeleteResponse_t	 RICsubscriptionDeleteResponse_1;
+			RICcontrolAcknowledge_t	 RICcontrolAcknowledge_1;
 		} choice;
 		
 		/* Context for parsing across buffer boundaries */
