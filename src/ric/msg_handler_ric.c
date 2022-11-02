@@ -301,7 +301,6 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_t* d)
   assert(msg->type == RIC_CONTROL_ACKNOWLEDGE);
 
   ric_control_acknowledge_t const* ack = &msg->u_msgs.ric_ctrl_ack;
-  assert( ack->status == RIC_CONTROL_STATUS_SUCCESS && "Only success supported ") ;
 
   pending_event_ric_t ev = {.ev = CONTROL_REQUEST_PENDING_EVENT, .id = ack->ric_id }; 
   stop_pending_event(ric, &ev);

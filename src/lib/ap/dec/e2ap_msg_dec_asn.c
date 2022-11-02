@@ -1168,7 +1168,8 @@ e2ap_msg_t e2ap_dec_control_failure(const E2AP_PDU_t* pdu)
     RICcontrolFailure_IEs_t * cf_ie = out->protocolIEs.list.array[elm];
     assert(cf_ie->id == ProtocolIE_ID_id_RICcallProcessID
             || cf_ie->id == ProtocolIE_ID_id_Cause
-            || cf_ie->id ==  ProtocolIE_ID_id_RICcontrolOutcome); 
+            || cf_ie->id ==  ProtocolIE_ID_id_RICcontrolOutcome
+            || cf_ie->id == ProtocolIE_ID_id_CriticalityDiagnostics);
 
     if(cf_ie->id == ProtocolIE_ID_id_RICcallProcessID){
       //RIC Call process ID. Optional
@@ -1181,12 +1182,14 @@ e2ap_msg_t e2ap_dec_control_failure(const E2AP_PDU_t* pdu)
       assert(cf_ie->criticality == Criticality_reject);
       assert(cf_ie->value.present == RICcontrolFailure_IEs__value_PR_Cause); 
       cf->cause = copy_cause(cf_ie->value.choice.Cause); 
-    } else { //if (cf_ie->id ==  ProtocolIE_ID_id_RICcontrolOutcome)
+    } else if (cf_ie->id ==  ProtocolIE_ID_id_RICcontrolOutcome) {
       //RIC Control Outcome. Optional
       assert(cf_ie->criticality == Criticality_reject);
       assert(cf_ie->value.present == RICcontrolFailure_IEs__value_PR_RICcontrolOutcome);
       cf->control_outcome = calloc(1, sizeof(byte_array_t));
       *cf->control_outcome = copy_ostring_to_ba(cf_ie->value.choice.RICcontrolOutcome);
+    } else { // if (cf_ie->id == ProtocolIE_ID_id_CriticalityDiagnostics)
+      assert(false && "not implemented");
     }
     elm += 1;
   }

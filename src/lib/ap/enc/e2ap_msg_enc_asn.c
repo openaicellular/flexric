@@ -1170,6 +1170,12 @@ E2AP_PDU_t* e2ap_enc_control_failure_asn_pdu( const ric_control_failure_t* cf)
     rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, ric_out);
     assert(rc == 0);
   }
+
+  // RIC Criticality Diagnostics. Optional
+  if (cf->criticality_diagnostics != NULL) {
+    assert(false && "not implemented");
+  }
+
   return pdu;
 }
 

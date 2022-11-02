@@ -308,13 +308,11 @@ void test_control_request_ack()
     .ran_func_id = 12};
 
   byte_array_t* call_process_id = NULL; // optional
-  ric_control_status_t status = RIC_CONTROL_STATUS_SUCCESS;
   byte_array_t* control_outcome = NULL; // optional
 
   ric_control_acknowledge_t c_ack_begin = {
     .ric_id = ric_id,
     .call_process_id = call_process_id,
-    .status = status,
     .control_outcome = control_outcome,
   };
 

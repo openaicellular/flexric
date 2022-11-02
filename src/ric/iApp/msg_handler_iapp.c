@@ -156,7 +156,6 @@ e2ap_msg_t e2ap_handle_e42_ric_control_ack_iapp(e42_iapp_t* iapp, const e2ap_msg
   defer( { e2ap_msg_free_iapp(&iapp->ap, &ans); } );
   ric_control_acknowledge_t* dst = &ans.u_msgs.ric_ctrl_ack;
   dst->ric_id = x.ric_id;
-  dst->status = src->status; 
 
   printf("[iApp]: RIC_CONTROL_ACKNOWLEDGE tx\n");
 
