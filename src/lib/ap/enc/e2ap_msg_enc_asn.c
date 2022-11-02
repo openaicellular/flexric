@@ -1730,7 +1730,7 @@ E2AP_PDU_t* e2ap_enc_service_update_asn_pdu(const ric_service_update_t* su)
 
     for(size_t i = 0; i < su->len_added; ++i){
       RANfunction_ItemIEs_t* r = calloc(1, sizeof(RANfunction_ItemIEs_t));
-      r->id = ProtocolIE_ID_id_RANfunctionsAdded;
+      r->id = ProtocolIE_ID_id_RANfunction_Item;
       r->criticality = Criticality_reject;
       r->value.present = RANfunction_ItemIEs__value_PR_RANfunction_Item;
       r->value.choice.RANfunction_Item = copy_ran_function(&su->added[i]);
@@ -1750,7 +1750,7 @@ E2AP_PDU_t* e2ap_enc_service_update_asn_pdu(const ric_service_update_t* su)
 
     for(size_t i = 0; i < su->len_modified; ++i){
       RANfunction_ItemIEs_t* r = calloc(1, sizeof(RANfunction_ItemIEs_t));
-      r->id = ProtocolIE_ID_id_RANfunctionsModified;
+      r->id = ProtocolIE_ID_id_RANfunction_Item;
       r->criticality = Criticality_reject;
       r->value.present = RANfunction_ItemIEs__value_PR_RANfunction_Item;
       r->value.choice.RANfunction_Item = copy_ran_function(&su->modified[i]);
@@ -1770,7 +1770,7 @@ E2AP_PDU_t* e2ap_enc_service_update_asn_pdu(const ric_service_update_t* su)
 
     for(size_t i = 0; i < su->len_deleted; ++i){
       RANfunctionID_ItemIEs_t* r = calloc(1, sizeof(*r));
-      r->id = ProtocolIE_ID_id_RANfunctionsDeleted;
+      r->id = ProtocolIE_ID_id_RANfunctionID_Item;
       r->criticality = Criticality_reject;
       r->value.present = RANfunctionID_ItemIEs__value_PR_RANfunctionID_Item;
       RANfunctionID_Item_t* dst = &r->value.choice.RANfunctionID_Item;
