@@ -404,10 +404,9 @@ void test_setup_request()
   ran_function_t* ran_func_item = calloc(len_rf, sizeof(ran_function_t));
   ran_func_item[0].id = 32;
   ran_func_item[0].rev = 0;
-  ran_func_item[0].oid = malloc(sizeof(*ran_func_item[0].oid));
   const char* oid = "TEST OID";
-  ran_func_item[0].oid->buf = (uint8_t*) strdup(oid);
-  ran_func_item[0].oid->len = strlen(oid);
+  ran_func_item[0].oid.buf = (uint8_t*) strdup(oid);
+  ran_func_item[0].oid.len = strlen(oid);
   const char* def = "This is the possible deficniotn";
   ran_func_item[0].def.buf = (uint8_t*) strdup(def);
   ran_func_item[0].def.len = strlen(def); 
@@ -562,9 +561,8 @@ void test_service_update()
   added->rev = 0;
   added->def.buf = (uint8_t*) strdup(def);
   added->def.len = strlen(def);
-  added->oid = malloc(sizeof(*added->oid));
-  added->oid->buf = (uint8_t*) strdup(oid);
-  added->oid->len = strlen(oid);
+  added->oid.buf = (uint8_t*) strdup(oid);
+  added->oid.len = strlen(oid);
 
   ran_function_t* modified = NULL;
   const size_t len_modified = 0;
@@ -719,9 +717,8 @@ void fill_ran_function(ran_function_t* rf)
   rf->rev = rand()%8; 
 
   const char* oid = "Object Identifier";
-  rf->oid = calloc(1, sizeof(*rf->oid));
-  rf->oid->buf = (uint8_t*) strdup(oid);
-  rf->oid->len = strlen(oid);
+  rf->oid.buf = (uint8_t*) strdup(oid);
+  rf->oid.len = strlen(oid);
 }
 
 static

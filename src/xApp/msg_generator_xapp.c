@@ -93,9 +93,8 @@ e42_setup_request_t generate_e42_setup_request(e42_xapp_t* xapp)
     byte_array_t ba = {.len = def.len_rfd, .buf = def.ran_fun_def};
     ran_func[i].def = ba; 
 
-    ran_func[i].oid = calloc(1, sizeof(*ran_func[i].oid));
-    ran_func[i].oid->buf = (uint8_t*)strndup(sm->ran_func_name, sizeof(sm->ran_func_name));
-    ran_func[i].oid->len = strlen((char*)ran_func[i].oid->buf);
+    ran_func[i].oid.buf = (uint8_t*)strndup(sm->ran_func_name, sizeof(sm->ran_func_name));
+    ran_func[i].oid.len = strlen((char*)ran_func[i].oid.buf);
 
     it = assoc_next(&xapp->plugin_ag.sm_ds ,it);
   }

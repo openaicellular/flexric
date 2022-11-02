@@ -53,9 +53,7 @@ void free_e2_node_connected(e2_node_connected_t* src)
   for(size_t i = 0; i < src->len_rf; ++i){
     ran_function_t* rf = &src->ack_rf[i]; 
     free(rf->def.buf);
-    if(rf->oid != NULL){
-      free(rf->oid->buf);
-    }
+    free(rf->oid.buf);
   }
 
   free(src->ack_rf);

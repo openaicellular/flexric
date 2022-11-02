@@ -172,8 +172,7 @@ RANfunction_Item_t copy_ran_function(const ran_function_t* src)
   dst.ranFunctionID = src->id;
   dst.ranFunctionRevision = src->rev;
   dst.ranFunctionDefinition = copy_ba_to_ostring(src->def);
-  assert(src->oid != NULL); // now mandatory
-  dst.ranFunctionOID = copy_ba_to_ostring(*src->oid);
+  dst.ranFunctionOID = copy_ba_to_ostring(src->oid);
   return dst;
 }
 

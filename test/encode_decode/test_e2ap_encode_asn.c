@@ -283,10 +283,9 @@ void test_e2_setup_request()
   ran_function_t* ran_func_item = calloc(len_rf, sizeof(ran_function_t));
   ran_func_item[0].id = 32;
   ran_func_item[0].rev = 0;
-  ran_func_item[0].oid = malloc(sizeof(*ran_func_item[0].oid));
   const char* oid = "TEST OID";
-  ran_func_item[0].oid->buf = (uint8_t*) strdup(oid);
-  ran_func_item[0].oid->len = strlen(oid);
+  ran_func_item[0].oid.buf = (uint8_t*) strdup(oid);
+  ran_func_item[0].oid.len = strlen(oid);
   const char* def = "This is the possible deficniotn";
   ran_func_item[0].def.buf = malloc(strlen(def));
   memcpy(ran_func_item[0].def.buf, def, strlen(def)); 
@@ -545,9 +544,8 @@ void test_ric_service_update()
   added->rev = 0;
   added->def.buf = (uint8_t*) strdup(def);
   added->def.len = strlen(def);
-  added->oid = malloc(sizeof(*added->oid));
-  added->oid->buf = (uint8_t*) strdup(oid);
-  added->oid->len = strlen(oid);
+  added->oid.buf = (uint8_t*) strdup(oid);
+  added->oid.len = strlen(oid);
 
   const size_t len_modified = 1;
   ran_function_t* modified = calloc(len_modified, sizeof(*modified));
@@ -555,9 +553,8 @@ void test_ric_service_update()
   modified->rev = 1;
   modified->def.buf = (uint8_t *) strdup(def);
   modified->def.len = strlen(def);
-  modified->oid = malloc(sizeof(*modified->oid));
-  modified->oid->buf = (uint8_t*) strdup(oid);
-  modified->oid->len = strlen(oid);
+  modified->oid.buf = (uint8_t*) strdup(oid);
+  modified->oid.len = strlen(oid);
 
   const size_t len_deleted = 1;
   e2ap_ran_function_id_rev_t* deleted = calloc(len_deleted, sizeof(*deleted));
