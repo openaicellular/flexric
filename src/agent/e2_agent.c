@@ -61,11 +61,14 @@ e2_setup_request_t generate_setup_request(e2_agent_t* ag)
 
     ran_func[i].id = sm->ran_func_id; 
     ran_func[i].rev = 0;
-    ran_func[i].oid = NULL;
 
     sm_e2_setup_t def = sm->proc.on_e2_setup(sm);
     byte_array_t ba = {.len = def.len_rfd, .buf = def.ran_fun_def};
     ran_func[i].def = ba; 
+
+    ran_func[i].oid = calloc(1, sizeof(*ran_func[i].oid));
+    ran_func[i].oid->buf = (uint8_t*)strndup(sm->ran_func_name, sizeof(sm->ran_func_name));
+    ran_func[i].oid->len = strlen((char*)ran_func[i].oid->buf);
 
     it = assoc_next(&ag->plugin.sm_ds ,it);
   }
