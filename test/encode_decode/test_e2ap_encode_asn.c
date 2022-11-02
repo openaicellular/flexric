@@ -263,6 +263,7 @@ void test_ric_indication()
 
 void test_e2_setup_request()
 {
+  uint8_t trx_id = 1;
 
   plmn_t plmn = {
     .mcc = 10,
@@ -297,6 +298,7 @@ void test_e2_setup_request()
 
   e2_setup_request_t e2_stp_req =
   {
+    .trx_id = trx_id,
     .id = id,
     .ran_func_item = ran_func_item ,
     .len_rf = len_rf, 

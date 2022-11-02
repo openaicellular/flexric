@@ -1270,9 +1270,15 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
   e2_setup_request_t* sr = &ret.u_msgs.e2_stp_req;
 
   const E2setupRequest_t *out = &pdu->choice.initiatingMessage->value.choice.E2setupRequest;
-  assert(out->protocolIEs.list.count > 0 && out->protocolIEs.list.count < 4);
+  assert(out->protocolIEs.list.count > 0 && out->protocolIEs.list.count < 5);
 
-  E2setupRequestIEs_t* setup_rid = out->protocolIEs.list.array[0];
+  const E2setupRequestIEs_t* trx_id = out->protocolIEs.list.array[0];
+  assert(trx_id->id == ProtocolIE_ID_id_TransactionID);
+  assert(trx_id->criticality == Criticality_reject);
+  assert(trx_id->value.present == E2setupRequestIEs__value_PR_TransactionID);
+  sr->trx_id = trx_id->value.choice.TransactionID;
+
+  E2setupRequestIEs_t* setup_rid = out->protocolIEs.list.array[1];
 
   // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
   assert(setup_rid->id == ProtocolIE_ID_id_GlobalE2node_ID);
@@ -1309,10 +1315,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, sr->id.nb_id);
   }
 
-  int elm_id = out->protocolIEs.list.count - 1;
-  assert(elm_id > -1 && elm_id < 3);
-
-  while(elm_id != 0){
+  for(int elm_id = 2; elm_id < out->protocolIEs.list.count; elm_id++){
     const ProtocolIE_ID_t proto_id = out->protocolIEs.list.array[elm_id]->id;  
     assert(proto_id == ProtocolIE_ID_id_RANfunctionsAdded || proto_id == ProtocolIE_ID_id_E2nodeComponentConfigAddition);
     // List of RAN Functions Added
@@ -1453,7 +1456,6 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
       //  }
       //}
     }     
-    elm_id -=1; 
   }
   //printf("e2ap_dec_setup_request_asn called \n");
   return ret;

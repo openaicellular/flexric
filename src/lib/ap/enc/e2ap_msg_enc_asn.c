@@ -1294,13 +1294,21 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
 
   E2setupRequest_t *out = &pdu->choice.initiatingMessage->value.choice.E2setupRequest;
 
+  // transaction ID. Mandatory
+  RICserviceUpdate_IEs_t* trx_id = calloc(1, sizeof(*trx_id));
+  trx_id->id = ProtocolIE_ID_id_TransactionID;
+  trx_id->criticality = Criticality_reject;
+  trx_id->value.present = RICserviceUpdate_IEs__value_PR_TransactionID;
+  trx_id->value.choice.TransactionID = sr->trx_id;
+  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, trx_id);
+  assert(rc == 0);
+
   // Global E2 Node ID. Mandatory
   E2setupRequestIEs_t* setup_rid = calloc(1,sizeof(E2setupRequestIEs_t));
   setup_rid->id = ProtocolIE_ID_id_GlobalE2node_ID;
   setup_rid->criticality = Criticality_reject;
   setup_rid->value.present = E2setupRequestIEs__value_PR_GlobalE2node_ID;
 
-  int rc = 0;
   if (sr->id.type != ngran_eNB) {
     setup_rid->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_gNB;
 

@@ -29,7 +29,7 @@
 e2_setup_request_t cp_e2_setup_request(const e2_setup_request_t* src)
 {
   assert(src != NULL);
-  e2_setup_request_t dst = {.id = src->id, .len_rf = src->len_rf, .len_ccu = src->len_ccu }; 
+  e2_setup_request_t dst = {.trx_id = src->trx_id, .id = src->id, .len_rf = src->len_rf, .len_ccu = src->len_ccu };
 
   dst.ran_func_item = calloc(src->len_rf, sizeof(ran_function_t));
   assert( dst.ran_func_item != NULL && "Memory exhausted");
@@ -64,6 +64,9 @@ bool eq_e2_setup_request(const e2_setup_request_t* m0, const e2_setup_request_t*
   if(m0 == m1) return true;
 
   if(m0 == NULL || m1 == NULL) return false;
+
+  if(m0->trx_id != m1->trx_id)
+    return false;
 
   if(eq_global_e2_node_id(&m0->id,&m1->id) == false)
     return false;
