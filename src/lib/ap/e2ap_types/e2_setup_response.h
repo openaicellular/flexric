@@ -32,6 +32,7 @@
 typedef uint16_t accepted_ran_function_t;
 
 typedef struct {
+  uint8_t trx_id;
   global_ric_id_t id;
 
   accepted_ran_function_t* accepted;

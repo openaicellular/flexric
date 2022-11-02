@@ -438,6 +438,8 @@ void test_setup_request()
 
 void test_setup_response()
 {
+  uint8_t trx_id = 1;
+
   plmn_t plmn = {
     .mcc = 10,
     .mnc = 15,
@@ -458,6 +460,7 @@ void test_setup_response()
   const size_t len_ccual = 0;
 
   e2_setup_response_t e2_stp_res_begin = {
+    .trx_id = trx_id,
     .id = id,
     .accepted = accepted ,
     .len_acc = len_acc ,

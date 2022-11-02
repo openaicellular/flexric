@@ -32,6 +32,9 @@ bool eq_e2_setup_response(const e2_setup_response_t* m0, const e2_setup_response
 
   if(m0 == NULL || m1 == NULL) return false;
 
+  if(m0->trx_id != m1->trx_id)
+    return false;
+
   if(eq_global_ric_id(&m0->id, &m1->id) == false )
     return false;
 

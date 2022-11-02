@@ -1294,10 +1294,10 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
   E2setupRequest_t *out = &pdu->choice.initiatingMessage->value.choice.E2setupRequest;
 
   // transaction ID. Mandatory
-  RICserviceUpdate_IEs_t* trx_id = calloc(1, sizeof(*trx_id));
+  E2setupRequestIEs_t* trx_id = calloc(1, sizeof(*trx_id));
   trx_id->id = ProtocolIE_ID_id_TransactionID;
   trx_id->criticality = Criticality_reject;
-  trx_id->value.present = RICserviceUpdate_IEs__value_PR_TransactionID;
+  trx_id->value.present = E2setupRequestIEs__value_PR_TransactionID;
   trx_id->value.choice.TransactionID = sr->trx_id;
   int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, trx_id);
   assert(rc == 0);
@@ -1419,6 +1419,15 @@ struct E2AP_PDU* e2ap_enc_setup_response_asn_pdu(const e2_setup_response_t* sr)
 
   E2setupResponse_t* out = &pdu->choice.successfulOutcome->value.choice.E2setupResponse;
 
+  // transaction ID. Mandatory
+  E2setupResponseIEs_t* trx_id = calloc(1, sizeof(*trx_id));
+  trx_id->id = ProtocolIE_ID_id_TransactionID;
+  trx_id->criticality = Criticality_reject;
+  trx_id->value.present = E2setupResponseIEs__value_PR_TransactionID;
+  trx_id->value.choice.TransactionID = sr->trx_id;
+  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, trx_id);
+  assert(rc == 0);
+
   // Global RIC ID. Mandatory
   E2setupResponseIEs_t * setup_rid = calloc(1,sizeof(E2setupResponseIEs_t));
   setup_rid->id =  ProtocolIE_ID_id_GlobalRIC_ID;
@@ -1427,7 +1436,7 @@ struct E2AP_PDU* e2ap_enc_setup_response_asn_pdu(const e2_setup_response_t* sr)
   MCC_MNC_TO_PLMNID(sr->id.plmn.mcc, sr->id.plmn.mnc ,sr->id.plmn.mnc_digit_len, &setup_rid->value.choice.GlobalRIC_ID.pLMN_Identity);
   MACRO_ENB_ID_TO_BIT_STRING(sr->id.near_ric_id.double_word, &setup_rid->value.choice.GlobalRIC_ID.ric_ID);
 
-  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
+  rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
   assert(rc == 0);
 
   // List of RAN Functions Accepted

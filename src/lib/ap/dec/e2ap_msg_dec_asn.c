@@ -1484,9 +1484,15 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
 
   const E2setupResponse_t* out = &pdu->choice.successfulOutcome->value.choice.E2setupResponse;
 
-  assert(out->protocolIEs.list.count > 0 && out->protocolIEs.list.count < 4); 
+  assert(out->protocolIEs.list.count > 0 && out->protocolIEs.list.count < 5);
 
-  const E2setupResponseIEs_t* setup_rid = out->protocolIEs.list.array[0];
+  const E2setupResponseIEs_t* trx_id = out->protocolIEs.list.array[0];
+  assert(trx_id->id == ProtocolIE_ID_id_TransactionID);
+  assert(trx_id->criticality == Criticality_reject);
+  assert(trx_id->value.present == E2setupResponseIEs__value_PR_TransactionID);
+  sr->trx_id = trx_id->value.choice.TransactionID;
+
+  const E2setupResponseIEs_t* setup_rid = out->protocolIEs.list.array[1];
 
   assert(setup_rid->id == ProtocolIE_ID_id_GlobalRIC_ID);
   assert(setup_rid->criticality == Criticality_reject);
@@ -1498,10 +1504,7 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
 
 
 //  memcpy(&sr->id.near_ric_id, &setup_rid->value.choice.GlobalRIC_ID.ric_ID, sizeof(uint8_t)*3); 
-  int elm_id = out->protocolIEs.list.count - 1;
-  assert(elm_id > -1 && elm_id < 4);
-
-  while(elm_id != 0){
+  for(int elm_id = 2; elm_id < out->protocolIEs.list.count; elm_id++) {
     const ProtocolIE_ID_t proto_id = out->protocolIEs.list.array[elm_id]->id;  
     assert(proto_id == ProtocolIE_ID_id_RANfunctionsAccepted || proto_id == ProtocolIE_ID_id_RANfunctionsRejected || proto_id == ProtocolIE_ID_id_E2nodeComponentConfigUpdateAck);
     if(proto_id == ProtocolIE_ID_id_RANfunctionsAccepted){
@@ -1523,7 +1526,6 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
         assert(arr[i]->value.choice.RANfunctionID_Item.ranFunctionID < MAX_RAN_FUNC_ID);
         sr->accepted[i] = arr[i]->value.choice.RANfunctionID_Item.ranFunctionID; 
       }
-      elm_id -=1; 
     } else if (proto_id == ProtocolIE_ID_id_RANfunctionsRejected) {
       // List of RAN Functions Rejected
       const E2setupResponseIEs_t* ran_rej = out->protocolIEs.list.array[elm_id];
@@ -1586,7 +1588,6 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
             assert(0!=0 && "not valid code path");
         }
       }
-      elm_id -=1; 
     } else { // ProtocolIE_ID_id_E2nodeComponentConfigAdditionAck
 
       const E2setupResponseIEs_t* comp_conf = out->protocolIEs.list.array[elm_id];
@@ -1607,7 +1608,6 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
       //  assert(arr[i]->value.present == E2nodeComponentConfigUpdateAck_ItemIEs__value_PR_E2nodeComponentConfigUpdateAck_Item);
 
       //}
-      elm_id -=1; 
     }
   }
   return ret;
