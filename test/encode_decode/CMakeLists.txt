@@ -18,6 +18,8 @@ if(E2AP_ENCODING STREQUAL "ASN")
   target_compile_options(test_e2ap_encode_asn  PUBLIC "-DASN_DISABLE_OER_SUPPORT")
   target_compile_options(test_e2ap_encode_asn  PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
   target_include_directories(test_e2ap_encode_asn PRIVATE "../../src/lib/ap/ie/asn/")
+  enable_testing()
+  add_test(Unit_test_E2AP_encode_ASN test_e2ap_encode_asn)
 
   add_executable(test_e2ap_enc_dec_asn test_e2ap_enc_dec_asn.c)
   target_link_libraries(test_e2ap_enc_dec_asn

@@ -287,6 +287,10 @@ void test_e2_setup_request()
   ran_function_t* ran_func_item = calloc(len_rf, sizeof(ran_function_t));
   ran_func_item[0].id = 32;
   ran_func_item[0].rev = 0;
+  ran_func_item[0].oid = malloc(sizeof(*ran_func_item[0].oid));
+  const char* oid = "TEST OID";
+  ran_func_item[0].oid->buf = (uint8_t*) strdup(oid);
+  ran_func_item[0].oid->len = strlen(oid);
   const char* def = "This is the possible deficniotn";
   ran_func_item[0].def.buf = malloc(strlen(def));
   memcpy(ran_func_item[0].def.buf, def, strlen(def)); 
@@ -535,32 +539,42 @@ void test_reset_response()
 
 void test_ric_service_update()
 {
-  byte_array_t ba;
-  memset(&ba, 0, sizeof(byte_array_t));
   const char* def = "This is a dummy definition";
-  ba.buf =  malloc(strlen(def));
-  memcpy(ba.buf, def, strlen(def));
-  ba.len = strlen(def);
+  const char* oid = "TEST OID";
 
   const size_t len_added = 1;
   ran_function_t* added = calloc(len_added, sizeof(ran_function_t ));
   added->id = 42;
   added->rev = 0;
-  added->def = ba;
+  added->def.buf = (uint8_t*) strdup(def);
+  added->def.len = strlen(def);
+  added->oid = malloc(sizeof(*added->oid));
+  added->oid->buf = (uint8_t*) strdup(oid);
+  added->oid->len = strlen(oid);
 
-  ran_function_t* modified = NULL;
-  const size_t len_modified = 0;
-  e2ap_ran_function_id_rev_t* deleted = NULL;
-  size_t len_deleted = 0;
+  const size_t len_modified = 1;
+  ran_function_t* modified = calloc(len_modified, sizeof(*modified));
+  modified->id = 43;
+  modified->rev = 1;
+  modified->def.buf = (uint8_t *) strdup(def);
+  modified->def.len = strlen(def);
+  modified->oid = malloc(sizeof(*modified->oid));
+  modified->oid->buf = (uint8_t*) strdup(oid);
+  modified->oid->len = strlen(oid);
 
- ric_service_update_t su = {
-  .len_added = len_added,
-  .added = added,  
-  .modified = modified,
-  .len_modified = len_modified, 
-  .deleted = deleted,
-  .len_deleted = len_deleted,
- };
+  const size_t len_deleted = 1;
+  e2ap_ran_function_id_rev_t* deleted = calloc(len_deleted, sizeof(*deleted));
+  deleted->id = 44;
+  deleted->rev = 2;
+
+  ric_service_update_t su = {
+    .len_added = len_added,
+    .added = added,
+    .modified = modified,
+    .len_modified = len_modified,
+    .deleted = deleted,
+    .len_deleted = len_deleted,
+  };
 
   E2AP_PDU_t* pdu = e2ap_enc_service_update_asn_pdu(&su);
   e2ap_free_service_update(&su);
@@ -824,8 +838,8 @@ int main()
   test_ric_service_update_ack(); 
   test_ric_service_update_failure(); 
   test_ric_service_query(); 
-  test_e2_node_configuration_update();  
-  test_e2_node_configuration_update_ack();  
+  //test_e2_node_configuration_update();
+  //test_e2_node_configuration_update_ack();
   test_e2_node_configuration_update_failure();  
   test_e2_node_connection_update();
   test_e2_node_connection_update_ack(); 

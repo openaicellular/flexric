@@ -1722,61 +1722,67 @@ E2AP_PDU_t* e2ap_enc_service_update_asn_pdu(const ric_service_update_t* su)
   RICserviceUpdate_t *out = &pdu->choice.initiatingMessage->value.choice.RICserviceUpdate;
 
   // List of RAN Functions Added
-  RICserviceUpdate_IEs_t* ran_add = calloc(1,sizeof(RICserviceUpdate_IEs_t));
-  ran_add->id = ProtocolIE_ID_id_RANfunctionsAdded;
-  ran_add->criticality = Criticality_reject;
-  ran_add->value.present = RICserviceUpdate_IEs__value_PR_RANfunctions_List;
- 
-  for(size_t i = 0; i < su->len_added; ++i){
-    RANfunction_ItemIEs_t* r = calloc(1, sizeof(RANfunction_ItemIEs_t));
-    r->id = ProtocolIE_ID_id_RANfunction_Item;
-    r->criticality = Criticality_reject;
-    r->value.present = RANfunction_ItemIEs__value_PR_RANfunction_Item;
-    r->value.choice.RANfunction_Item = copy_ran_function(&su->added[i]);
-    int rc = ASN_SEQUENCE_ADD(&ran_add->value.choice.RANfunctions_List.list, r);
+  if (su->len_added > 0) {
+    RICserviceUpdate_IEs_t* ran_add = calloc(1,sizeof(RICserviceUpdate_IEs_t));
+    ran_add->id = ProtocolIE_ID_id_RANfunctionsAdded;
+    ran_add->criticality = Criticality_reject;
+    ran_add->value.present = RICserviceUpdate_IEs__value_PR_RANfunctions_List;
+
+    for(size_t i = 0; i < su->len_added; ++i){
+      RANfunction_ItemIEs_t* r = calloc(1, sizeof(RANfunction_ItemIEs_t));
+      r->id = ProtocolIE_ID_id_RANfunctionsAdded;
+      r->criticality = Criticality_reject;
+      r->value.present = RANfunction_ItemIEs__value_PR_RANfunction_Item;
+      r->value.choice.RANfunction_Item = copy_ran_function(&su->added[i]);
+      int rc = ASN_SEQUENCE_ADD(&ran_add->value.choice.RANfunctions_List.list, r);
+      assert(rc == 0);
+    }
+    int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list,ran_add);
     assert(rc == 0);
   }
-  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list,ran_add);
-  assert(rc == 0);
 
   // List of RAN Functions Modified
-  RICserviceUpdate_IEs_t* ran_mod = calloc(1,sizeof(RICserviceUpdate_IEs_t));
-  ran_mod->id = ProtocolIE_ID_id_RANfunctionsModified;
-  ran_mod->criticality = Criticality_reject;
-  ran_mod->value.present = RICserviceUpdate_IEs__value_PR_RANfunctions_List;
- 
-  for(size_t i = 0; i < su->len_modified; ++i){
-    RANfunction_ItemIEs_t* r = calloc(1, sizeof(RANfunction_ItemIEs_t));
-    r->id = ProtocolIE_ID_id_RANfunction_Item;
-    r->criticality = Criticality_reject;
-    r->value.present = RANfunction_ItemIEs__value_PR_RANfunction_Item;
-    r->value.choice.RANfunction_Item = copy_ran_function(&su->modified[i]);
-    rc = ASN_SEQUENCE_ADD(&ran_mod->value.choice.RANfunctions_List.list, r);
+  if (su->len_modified > 0) {
+    RICserviceUpdate_IEs_t* ran_mod = calloc(1,sizeof(RICserviceUpdate_IEs_t));
+    ran_mod->id = ProtocolIE_ID_id_RANfunctionsModified;
+    ran_mod->criticality = Criticality_reject;
+    ran_mod->value.present = RICserviceUpdate_IEs__value_PR_RANfunctions_List_1;
+
+    for(size_t i = 0; i < su->len_modified; ++i){
+      RANfunction_ItemIEs_t* r = calloc(1, sizeof(RANfunction_ItemIEs_t));
+      r->id = ProtocolIE_ID_id_RANfunctionsModified;
+      r->criticality = Criticality_reject;
+      r->value.present = RANfunction_ItemIEs__value_PR_RANfunction_Item;
+      r->value.choice.RANfunction_Item = copy_ran_function(&su->modified[i]);
+      int rc = ASN_SEQUENCE_ADD(&ran_mod->value.choice.RANfunctions_List_1.list, r);
+      assert(rc == 0);
+    }
+    int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, ran_mod);
     assert(rc == 0);
   }
-  rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, ran_mod);
-  assert(rc == 0);
 
   // List of RAN Functions Deleted
-  RICserviceUpdate_IEs_t* ran_del = calloc(1,sizeof(RICserviceUpdate_IEs_t));
-  ran_del->id = ProtocolIE_ID_id_RANfunctionsDeleted;
-  ran_del->criticality = Criticality_reject;
-  ran_del->value.present = RICserviceUpdate_IEs__value_PR_RANfunctionsID_List;
-  
-  for(size_t i = 0; i < su->len_deleted; ++i){
-    RANfunction_ItemIEs_t* r = calloc(1, sizeof(RANfunction_ItemIEs_t));
-    r->id = ProtocolIE_ID_id_RANfunction_Item;
-    r->criticality = Criticality_reject;
-    r->value.present = RANfunction_ItemIEs__value_PR_RANfunction_Item;
-    RANfunction_Item_t* dst = &r->value.choice.RANfunction_Item;
-    const e2ap_ran_function_id_rev_t* src = &su->deleted[i];
-    dst->ranFunctionID = src->id;
-    dst->ranFunctionRevision = src->rev;
-    rc = ASN_SEQUENCE_ADD(&ran_mod->value.choice.RANfunctions_List.list, r);
+  if (su->len_deleted > 0) {
+    RICserviceUpdate_IEs_t* ran_del = calloc(1,sizeof(RICserviceUpdate_IEs_t));
+    ran_del->id = ProtocolIE_ID_id_RANfunctionsDeleted;
+    ran_del->criticality = Criticality_reject;
+    ran_del->value.present = RICserviceUpdate_IEs__value_PR_RANfunctionsID_List;
+
+    for(size_t i = 0; i < su->len_deleted; ++i){
+      RANfunctionID_ItemIEs_t* r = calloc(1, sizeof(*r));
+      r->id = ProtocolIE_ID_id_RANfunctionsDeleted;
+      r->criticality = Criticality_reject;
+      r->value.present = RANfunctionID_ItemIEs__value_PR_RANfunctionID_Item;
+      RANfunctionID_Item_t* dst = &r->value.choice.RANfunctionID_Item;
+      const e2ap_ran_function_id_rev_t* src = &su->deleted[i];
+      dst->ranFunctionID = src->id;
+      dst->ranFunctionRevision = src->rev;
+      int rc = ASN_SEQUENCE_ADD(&ran_del->value.choice.RANfunctionsID_List.list, r);
+      assert(rc == 0);
+    }
+    int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, ran_del);
     assert(rc == 0);
   }
-  rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, ran_del);
-  assert(rc == 0);
   return pdu;
 }
 
