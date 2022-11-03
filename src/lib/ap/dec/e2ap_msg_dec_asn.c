@@ -1765,16 +1765,15 @@ e2ap_msg_t e2ap_dec_service_update(const E2AP_PDU_t* pdu)
 
   const RICserviceUpdate_t *out = &pdu->choice.initiatingMessage->value.choice.RICserviceUpdate;
 
+  // TransactionID. Mandatory
   const RICserviceUpdate_IEs_t* trx_id = out->protocolIEs.list.array[0];
   assert(trx_id->id == ProtocolIE_ID_id_TransactionID);
   assert(trx_id->criticality == Criticality_reject);
   assert(trx_id->value.present == RICserviceUpdate_IEs__value_PR_TransactionID);
-  //su->trx_id = trx_id->value.choice.TransactionID;
-  assert(trx_id->value.choice.TransactionID == 0);
+  su->trx_id = trx_id->value.choice.TransactionID;
 
-  int elm = 1;
-  while(elm < out->protocolIEs.list.count){
-    const RICserviceUpdate_IEs_t* serv_up = out->protocolIEs.list.array[elm];
+  for(int elm_id = 1; elm_id < out->protocolIEs.list.count; elm_id++) {
+    const RICserviceUpdate_IEs_t* serv_up = out->protocolIEs.list.array[elm_id];
     assert(serv_up->id == ProtocolIE_ID_id_RANfunctionsAdded
            || serv_up->id == ProtocolIE_ID_id_RANfunctionsModified
            || serv_up->id == ProtocolIE_ID_id_RANfunctionsDeleted);
@@ -1825,7 +1824,6 @@ e2ap_msg_t e2ap_dec_service_update(const E2AP_PDU_t* pdu)
         su->deleted[i].rev = r->value.choice.RANfunction_Item.ranFunctionRevision;
       }
     }
-    elm++;
   }
   return ret;
 }
@@ -1845,9 +1843,15 @@ e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
 
   const RICserviceUpdateAcknowledge_t* out = &pdu->choice.successfulOutcome->value.choice.RICserviceUpdateAcknowledge; 
 
-  int elm = 0;
-  while(elm < out->protocolIEs.list.count){
-    RICserviceUpdateAcknowledge_IEs_t* up_ack = out->protocolIEs.list.array[elm]; 
+  // TransactionID. Mandatory
+  const RICserviceUpdateAcknowledge_IEs_t* trx_id = out->protocolIEs.list.array[0];
+  assert(trx_id->id == ProtocolIE_ID_id_TransactionID);
+  assert(trx_id->criticality == Criticality_reject);
+  assert(trx_id->value.present == RICserviceUpdateAcknowledge_IEs__value_PR_TransactionID);
+  su->trx_id = trx_id->value.choice.TransactionID;
+
+  for(int elm_id = 1; elm_id < out->protocolIEs.list.count; elm_id++) {
+    RICserviceUpdateAcknowledge_IEs_t* up_ack = out->protocolIEs.list.array[elm_id];
     assert(up_ack->id == ProtocolIE_ID_id_RANfunctionsAccepted
         || up_ack->id == ProtocolIE_ID_id_RANfunctionsRejected);
 
@@ -1887,7 +1891,6 @@ e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
         dst->cause = copy_cause(src->cause);
       }
     }
-    elm += 1;
   }
   return ret;
 }
@@ -1911,7 +1914,7 @@ e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
   assert(trx_id->id == ProtocolIE_ID_id_TransactionID);
   assert(trx_id->criticality == Criticality_reject);
   assert(trx_id->value.present == RICserviceUpdateFailure_IEs__value_PR_TransactionID);
-  // TODO store it
+  uf->trx_id = trx_id->value.choice.TransactionID;
 
   // Cause. Mandatory
   RICserviceUpdateFailure_IEs_t* cause = out->protocolIEs.list.array[1];
@@ -1920,9 +1923,8 @@ e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
   assert(cause->value.present == RICserviceUpdateFailure_IEs__value_PR_Cause);
   uf->cause = copy_cause(cause->value.choice.Cause);
 
-  int elm = out->protocolIEs.list.count - 2;
-  while(elm > 0){
-    const RICserviceUpdateFailure_IEs_t* su = out->protocolIEs.list.array[elm]; 
+  for(int elm_id = 2; elm_id < out->protocolIEs.list.count; elm_id++) {
+    const RICserviceUpdateFailure_IEs_t* su = out->protocolIEs.list.array[elm_id];
     assert(su->value.present ==  RICserviceUpdateFailure_IEs__value_PR_TimeToWait
             || su->value.present == RICserviceUpdateFailure_IEs__value_PR_CriticalityDiagnostics);
     if(su->value.present == RICserviceUpdateFailure_IEs__value_PR_TimeToWait){
@@ -1935,7 +1937,6 @@ e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
     assert(su->criticality == Criticality_reject);
     assert(0!=0 && "Not implememnted");
     }
-    elm -= 1;
   }
   return ret;
 }
@@ -1954,8 +1955,15 @@ e2ap_msg_t e2ap_dec_service_query(const E2AP_PDU_t* pdu)
 
   const RICserviceQuery_t* out = &pdu->choice.initiatingMessage->value.choice.RICserviceQuery; 
 
+  // Transaction ID. Mandatory
+  RICserviceQuery_IEs_t* trx_id = out->protocolIEs.list.array[0];
+  assert(trx_id->id == ProtocolIE_ID_id_TransactionID);
+  assert(trx_id->criticality == Criticality_reject);
+  assert(trx_id->value.present == RICserviceQuery_IEs__value_PR_TransactionID);
+  sq->trx_id = trx_id->value.choice.TransactionID;
+
   // List of RAN Functions Accepted. Mandatory
-  const RICserviceQuery_IEs_t* serv_query_ie = out->protocolIEs.list.array[0];
+  const RICserviceQuery_IEs_t* serv_query_ie = out->protocolIEs.list.array[1];
   assert(serv_query_ie->id == ProtocolIE_ID_id_RANfunctionsAccepted); 
   assert(serv_query_ie->criticality == Criticality_ignore);
   assert(serv_query_ie->value.present == RICserviceQuery_IEs__value_PR_RANfunctionsID_List); 

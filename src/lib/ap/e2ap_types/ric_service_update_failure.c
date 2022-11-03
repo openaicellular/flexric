@@ -30,13 +30,8 @@ bool eq_ric_service_update_failure(const ric_service_update_failure_t* m0, const
 
   if(m0 == NULL || m1 == NULL) return false;
 
-  if(m0->len_rej != m1->len_rej) 
+  if(m0->trx_id != m1->trx_id)
     return false;
-
-  for(size_t i = 0; i < m0->len_rej; ++i){
-    if(eq_rejected_ran_function(&m0->rejected[i], &m1->rejected[i]) == false)
-      return false;
-  }
 
   if (!eq_cause(&m0->cause, &m1->cause))
     return false;

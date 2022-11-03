@@ -546,6 +546,8 @@ void test_reset_response()
 
 void test_ric_service_update()
 {
+  uint8_t trx_id = 1;
+
   const char* def = "This is a dummy definition";
   const char* oid = "TEST OID";
 
@@ -573,6 +575,7 @@ void test_ric_service_update()
   deleted->rev = 2;
 
   ric_service_update_t su = {
+    .trx_id = trx_id,
     .len_added = len_added,
     .added = added,
     .modified = modified,
@@ -591,6 +594,8 @@ void test_ric_service_update()
 
 void test_ric_service_update_ack()
 {
+  uint8_t trx_id = 1;
+
   const size_t len_accepted = 1;
   ran_function_id_t* accepted = calloc(len_accepted, sizeof(ran_function_t));
   accepted->id = 3;
@@ -600,6 +605,7 @@ void test_ric_service_update_ack()
   size_t len_rejected = 0;
 
   ric_service_update_ack_t su = {
+    .trx_id = trx_id,
     .accepted = accepted,
     .len_accepted = len_accepted,
     .rejected = rejected,
@@ -616,20 +622,18 @@ void test_ric_service_update_ack()
 
 void test_ric_service_update_failure()
 {
+  uint8_t trx_id = 1;
+
   const cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
-  const size_t len_rej = 0;
-  rejected_ran_function_t* rejected = NULL;
 
   e2ap_time_to_wait_e* time_to_wait = NULL;
   criticality_diagnostics_t* crit_diag = NULL;
 
-
   ric_service_update_failure_t uf = {
-  .rejected = rejected, 
-  .len_rej= len_rej,
-  .cause = cause,
-  .time_to_wait = time_to_wait,
-  .crit_diag = crit_diag,
+    .trx_id = trx_id,
+    .cause = cause,
+    .time_to_wait = time_to_wait,
+    .crit_diag = crit_diag,
   };
 
   E2AP_PDU_t* pdu = e2ap_enc_service_update_failure_asn_pdu(&uf);
@@ -642,6 +646,8 @@ void test_ric_service_update_failure()
 
 void test_ric_service_query()
 {
+  uint8_t trx_id = 1;
+
   size_t len_accepted = 1;
   e2ap_ran_function_id_rev_t*  accepted = calloc(len_accepted, sizeof(e2ap_ran_function_id_rev_t));
 
@@ -649,6 +655,7 @@ void test_ric_service_query()
   accepted->rev = 5;
 
   ric_service_query_t sq = {
+    .trx_id = trx_id,
     .accepted = accepted,
     .len_accepted = len_accepted,
   };

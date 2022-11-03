@@ -451,7 +451,6 @@ void e2ap_free_service_update_failure_msg(e2ap_msg_t* msg)
 void e2ap_free_service_update_failure(ric_service_update_failure_t* uf)
 {
   assert(uf != NULL);
-  free(uf->rejected); 
   if(uf->crit_diag != NULL){
     assert(0!=0 && "not implemented");
   }

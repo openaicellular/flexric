@@ -24,10 +24,13 @@
 #ifndef RIC_SERVICE_UPDATE_H
 #define  RIC_SERVICE_UPDATE_H
 
+#include <stdint.h>
 #include "common/e2ap_ran_function.h"
 #include "common/e2ap_ran_function_id_rev.h"
 
 typedef struct {
+  uint8_t trx_id;
+
   ran_function_t* added;
   size_t len_added;
 

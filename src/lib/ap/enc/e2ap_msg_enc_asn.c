@@ -1775,7 +1775,7 @@ E2AP_PDU_t* e2ap_enc_service_update_asn_pdu(const ric_service_update_t* su)
   trx_id->id = ProtocolIE_ID_id_TransactionID;
   trx_id->criticality = Criticality_reject;
   trx_id->value.present = RICserviceUpdate_IEs__value_PR_TransactionID;
-  trx_id->value.choice.TransactionID = 0; // TODO TRANSACTION ID
+  trx_id->value.choice.TransactionID = su->trx_id;
   int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, trx_id);
   assert(rc == 0);
 
@@ -1875,6 +1875,15 @@ E2AP_PDU_t* e2ap_enc_service_update_ack_asn_pdu(const ric_service_update_ack_t* 
 
   RICserviceUpdateAcknowledge_t* out = &pdu->choice.successfulOutcome->value.choice.RICserviceUpdateAcknowledge; 
 
+  // transaction ID. Mandatory
+  RICserviceUpdateAcknowledge_IEs_t* trx_id = calloc(1, sizeof(*trx_id));
+  trx_id->id = ProtocolIE_ID_id_TransactionID;
+  trx_id->criticality = Criticality_reject;
+  trx_id->value.present = RICserviceUpdateAcknowledge_IEs__value_PR_TransactionID;
+  trx_id->value.choice.TransactionID = su->trx_id;
+  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, trx_id);
+  assert(rc == 0);
+
   if(su->len_accepted > 0){
     // List of RAN Functions Accepted 
     RICserviceUpdateAcknowledge_IEs_t* update_ack = calloc(1,sizeof(RICserviceUpdateAcknowledge_IEs_t)); 
@@ -1938,7 +1947,6 @@ byte_array_t e2ap_enc_service_update_failure_asn_msg(const e2ap_msg_t* msg)
 E2AP_PDU_t* e2ap_enc_service_update_failure_asn_pdu(const ric_service_update_failure_t* uf)
 {
   assert(uf != NULL);
-  assert(uf->rejected == NULL && uf->len_rej == 0 && "no list of rejected in E2AP v2");
 
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
@@ -1956,7 +1964,7 @@ E2AP_PDU_t* e2ap_enc_service_update_failure_asn_pdu(const ric_service_update_fai
   trx_id->id = ProtocolIE_ID_id_TransactionID;
   trx_id->criticality = Criticality_reject;
   trx_id->value.present = RICserviceUpdateFailure_IEs__value_PR_TransactionID;
-  trx_id->value.choice.TransactionID = 0; // TODO TRANSACTION ID
+  trx_id->value.choice.TransactionID = uf->trx_id;
   rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, trx_id);
   assert(rc == 0);
 
@@ -2025,6 +2033,15 @@ struct E2AP_PDU* e2ap_enc_service_query_asn_pdu(const ric_service_query_t* sq)
 
   RICserviceQuery_t* out = &pdu->choice.initiatingMessage->value.choice.RICserviceQuery; 
 
+  // transaction ID. Mandatory
+  RICserviceQuery_IEs_t* trx_id = calloc(1, sizeof(*trx_id));
+  trx_id->id = ProtocolIE_ID_id_TransactionID;
+  trx_id->criticality = Criticality_reject;
+  trx_id->value.present = RICserviceQuery_IEs__value_PR_TransactionID;
+  trx_id->value.choice.TransactionID = sq->trx_id;
+  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, trx_id);
+  assert(rc == 0);
+
   // List of RAN Functions Accepted. Mandatory
   RICserviceQuery_IEs_t* serv_query_ie = calloc(1,sizeof(RICserviceQuery_IEs_t)); 
   serv_query_ie->id = ProtocolIE_ID_id_RANfunctionsAccepted; 
@@ -2040,7 +2057,7 @@ struct E2AP_PDU* e2ap_enc_service_query_asn_pdu(const ric_service_query_t* sq)
     int rc = ASN_SEQUENCE_ADD(&serv_query_ie->value.choice.RANfunctionsID_List.list, r);
     assert(rc == 0);
   }
-  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, serv_query_ie);
+  rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, serv_query_ie);
   assert(rc == 0);
   return pdu;
 }
