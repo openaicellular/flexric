@@ -1667,13 +1667,22 @@ E2AP_PDU_t* e2ap_enc_reset_request_asn_pdu(const e2ap_reset_request_t* rr)
 
   ResetRequest_t* out = &pdu->choice.initiatingMessage->value.choice.ResetRequest;
 
+  // transaction ID. Mandatory
+  ResetRequestIEs_t* trx_id = calloc(1, sizeof(*trx_id));
+  trx_id->id = ProtocolIE_ID_id_TransactionID;
+  trx_id->criticality = Criticality_reject;
+  trx_id->value.present = ResetRequestIEs__value_PR_TransactionID;
+  trx_id->value.choice.TransactionID = rr->trx_id;
+  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, trx_id);
+  assert(rc == 0);
+
   // Cause. Mandatory
   ResetRequestIEs_t * cause = calloc(1, sizeof(ResetRequestIEs_t)); 
   cause->criticality = Criticality_ignore;
   cause->id = ProtocolIE_ID_id_Cause;	
   cause->value.present = ResetRequestIEs__value_PR_Cause;
   cause->value.choice.Cause = copy_cause(rr->cause);
-  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, cause);
+  rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, cause);
   assert(rc == 0);
   return pdu;
 }
@@ -1707,6 +1716,15 @@ E2AP_PDU_t* e2ap_enc_reset_response_asn_pdu(const e2ap_reset_response_t* rr)
 
  ResetResponse_t* out = &pdu->choice.successfulOutcome->value.choice.ResetResponse;
 
+  // transaction ID. Mandatory
+  ResetResponseIEs_t* trx_id = calloc(1, sizeof(*trx_id));
+  trx_id->id = ProtocolIE_ID_id_TransactionID;
+  trx_id->criticality = Criticality_reject;
+  trx_id->value.present = ResetResponseIEs__value_PR_TransactionID;
+  trx_id->value.choice.TransactionID = rr->trx_id;
+  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, trx_id);
+  assert(rc == 0);
+
   // Criticality Diagnostics. Optional
   if(rr->crit_diag != NULL){
   ResetResponseIEs_t* res = calloc(1, sizeof( ResetResponseIEs_t));
@@ -1715,7 +1733,7 @@ E2AP_PDU_t* e2ap_enc_reset_response_asn_pdu(const e2ap_reset_response_t* rr)
   res->value.present = ResetResponseIEs__value_PR_CriticalityDiagnostics;
   assert(0!=0 && "Not implemented");
   //res->value.choice.CriticalityDiagnostics = *crit_diag;
-  int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, res);
+  rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, res);
   assert(rc == 0);
   }
   return pdu;

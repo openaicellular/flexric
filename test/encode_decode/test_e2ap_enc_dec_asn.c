@@ -524,8 +524,10 @@ void test_setup_failure()
 
 void test_reset_request()
 {
+  uint8_t trx_id = 1;
+
   const cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
- e2ap_reset_request_t rr_begin = {.cause = cause};
+  e2ap_reset_request_t rr_begin = {.trx_id = trx_id, .cause = cause};
 
   E2AP_PDU_t* pdu = e2ap_enc_reset_request_asn_pdu(&rr_begin);
   e2ap_msg_t msg = e2ap_dec_reset_request(pdu);
@@ -540,8 +542,11 @@ void test_reset_request()
 
 void test_reset_response()
 {
+  uint8_t trx_id = 1;
+
   criticality_diagnostics_t* crit_diag = NULL; // optional
   e2ap_reset_response_t rr_begin = {
+    .trx_id = trx_id,
     .crit_diag = crit_diag, // optional
   };
 

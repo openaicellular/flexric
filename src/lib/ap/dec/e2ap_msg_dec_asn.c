@@ -1699,8 +1699,16 @@ e2ap_msg_t e2ap_dec_reset_request(const E2AP_PDU_t* pdu)
   assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_ResetRequest); 
 
   const ResetRequest_t* out = &pdu->choice.initiatingMessage->value.choice.ResetRequest;
+
+  // TransactionID. Mandatory
+  const ResetRequestIEs_t* trx_id = out->protocolIEs.list.array[0];
+  assert(trx_id->id == ProtocolIE_ID_id_TransactionID);
+  assert(trx_id->criticality == Criticality_reject);
+  assert(trx_id->value.present == ResetRequestIEs__value_PR_TransactionID);
+  rr->trx_id = trx_id->value.choice.TransactionID;
+
   // Cause. Mandatory
-  const ResetRequestIEs_t * cause = out->protocolIEs.list.array[0];
+  const ResetRequestIEs_t * cause = out->protocolIEs.list.array[1];
   assert(cause->criticality  == Criticality_ignore);
   assert(cause->id == ProtocolIE_ID_id_Cause);	
   assert(cause->value.present == ResetRequestIEs__value_PR_Cause);
@@ -1714,6 +1722,7 @@ e2ap_msg_t e2ap_dec_reset_response(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
   e2ap_msg_t ret = {.type = E2AP_RESET_RESPONSE};
+  e2ap_reset_response_t* rr = &ret.u_msgs.rst_resp;
 
   // Message Type. Mandatory
   assert(pdu->present == E2AP_PDU_PR_successfulOutcome);
@@ -1722,9 +1731,17 @@ e2ap_msg_t e2ap_dec_reset_response(const E2AP_PDU_t* pdu)
   assert(pdu->choice.successfulOutcome->value.present == SuccessfulOutcome__value_PR_ResetResponse);
 
  const ResetResponse_t* out = &pdu->choice.successfulOutcome->value.choice.ResetResponse;
+
+  // TransactionID. Mandatory
+  const ResetResponseIEs_t* trx_id = out->protocolIEs.list.array[0];
+  assert(trx_id->id == ProtocolIE_ID_id_TransactionID);
+  assert(trx_id->criticality == Criticality_reject);
+  assert(trx_id->value.present == ResetResponseIEs__value_PR_TransactionID);
+  rr->trx_id = trx_id->value.choice.TransactionID;
+
   // Criticality Diagnostics. Optional
-  if(out->protocolIEs.list.count > 0){
-    const ResetResponseIEs_t* res = out->protocolIEs.list.array[0]; 
+  if(out->protocolIEs.list.count > 1){
+    const ResetResponseIEs_t* res = out->protocolIEs.list.array[1];
     assert(res->id  == ProtocolIE_ID_id_CriticalityDiagnostics);
     assert(res->criticality == Criticality_ignore);
     assert(res->value.present == ResetResponseIEs__value_PR_CriticalityDiagnostics);
