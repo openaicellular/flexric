@@ -483,6 +483,8 @@ void test_setup_response()
 
 void test_setup_failure()
 {
+  uint8_t trx_id = 1;
+
   cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
 
 //  e2ap_time_to_wait_e* time_to_wait_ms = NULL;
@@ -499,14 +501,15 @@ void test_setup_failure()
   const char* port = "1010";
   tl_info->port->buf = malloc(strlen(port));
   memcpy(tl_info->port->buf, port, strlen(port));
-  tl_info->port->len = strlen(port);  
+  tl_info->port->len = strlen(port);
 
   e2_setup_failure_t sf_begin = {
-  .cause = cause,
-  .time_to_wait_ms = time_to_wait_ms,            // optional
-  .crit_diag = crit_diag, // optional
-  .tl_info = tl_info, // optional
-};
+    .trx_id = trx_id,
+    .cause = cause,
+    .time_to_wait_ms = time_to_wait_ms,  // optional
+    .crit_diag = crit_diag,              // optional
+    .tl_info = tl_info,                  // optional
+  };
 
   E2AP_PDU_t* pdu = e2ap_enc_setup_failure_asn_pdu(&sf_begin);
   e2ap_msg_t msg = e2ap_dec_setup_failure(pdu);

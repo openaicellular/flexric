@@ -1639,17 +1639,21 @@ e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
 
   const E2setupFailure_t* out = &pdu->choice.unsuccessfulOutcome->value.choice.E2setupFailure;
 
+  // TransactionID. Mandatory
+  const E2setupFailureIEs_t* trx_id = out->protocolIEs.list.array[0];
+  assert(trx_id->id == ProtocolIE_ID_id_TransactionID);
+  assert(trx_id->criticality == Criticality_reject);
+  assert(trx_id->value.present == E2setupFailureIEs__value_PR_TransactionID);
+  sf->trx_id = trx_id->value.choice.TransactionID;
+
   // Cause. Mandatory
-  const E2setupFailureIEs_t* cause = out->protocolIEs.list.array[0]; 
+  const E2setupFailureIEs_t* cause = out->protocolIEs.list.array[1];
   assert(cause->id  == ProtocolIE_ID_id_E2connectionSetupFailed);
   assert(cause->criticality == Criticality_ignore);
   assert(cause->value.present == E2setupFailureIEs__value_PR_Cause);
   sf->cause = copy_cause(cause->value.choice.Cause);
 
-  int elm_id = out->protocolIEs.list.count - 1;
-  assert(elm_id > -1 && elm_id < 4);
-
-  while(elm_id != 0){
+  for(int elm_id = 2; elm_id < out->protocolIEs.list.count; elm_id++) {
     const E2setupFailureIEs_t* src = out->protocolIEs.list.array[elm_id];
     assert(src->value.present == E2setupFailureIEs__value_PR_TimeToWait
         || src->value.present == E2setupFailureIEs__value_PR_CriticalityDiagnostics
@@ -1677,7 +1681,6 @@ e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
         *sf->tl_info->port = copy_bs_to_ba(*src->value.choice.TNLinformation.tnlPort );
       }
     }
-    elm_id -= 1;
   }
   return ret;
 }
