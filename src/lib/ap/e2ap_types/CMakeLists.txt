@@ -42,6 +42,7 @@ set(e2ap_src_types
   common/e2ap_time_to_wait.c 
   common/e2ap_rejected_ran_function.c 
   common/e2ap_node_component_config.c
+  common/e2ap_node_component_config_ack.c
   common/e2ap_node_component_interface_type.c
   common/e2ap_node_component_id.c
   common/e2ap_node_component_config_update.c  

@@ -473,8 +473,18 @@ void test_setup_response()
   accepted[0] = 45;
   const size_t len_rej = 0;
   rejected_ran_function_t* rejected = NULL;
-  e2_node_component_config_update_t* comp_conf_update_ack_list = NULL;
-  const size_t len_ccual = 0;
+  const size_t len_cca = 1;
+  e2_node_component_config_ack_t* ccaa = calloc(len_cca, sizeof(*ccaa));
+  ccaa[0].interface_type = E2_NODE_COMPONENT_INTERFACE_TYPE_NG;
+  const char* amf_name = "FANCY OAI AMF";
+  ccaa[0].id.ng.amf_name.buf = (uint8_t*) strdup(amf_name);
+  ccaa[0].id.ng.amf_name.len = strlen(amf_name);
+  ccaa[0].config_ack.outcome = E2_NODE_COMPONENT_CONFIGURATION_ACKNOWLEDGE_FAILURE;
+  ccaa[0].config_ack.cause = calloc(1, sizeof(*ccaa[0].config_ack.cause));
+  *ccaa[0].config_ack.cause = (cause_t) {
+    .present = CAUSE_RICSERVICE,
+    .ricService = CAUSE_RICSERVICE_RIC_RESOURCE_LIMIT
+  };
 
   e2_setup_response_t e2_stp_res_begin = {
     .trx_id = trx_id,
@@ -483,8 +493,8 @@ void test_setup_response()
     .len_acc = len_acc ,
     .rejected = rejected ,
     .len_rej = len_rej ,
-    .comp_conf_update_ack_list = comp_conf_update_ack_list ,
-    .len_ccual = len_ccual ,
+    .comp_conf_ack = ccaa,
+    .len_cca = len_cca,
   };
 
   E2AP_PDU_t* pdu = e2ap_enc_setup_response_asn_pdu(&e2_stp_res_begin);

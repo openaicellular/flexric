@@ -20,32 +20,33 @@
  */
 
 
+#ifndef E2AP_NODE_COMPONENT_CONFIG_ACK_H
+#define E2AP_NODE_COMPONENT_CONFIG_ACK_H
 
-#ifndef E2_SETUP_RESPONSE_H
-#define E2_SETUP_RESPONSE_H
+#include "../../../../util/byte_array.h"
+#include "e2ap_node_component_interface_type.h"
+#include "e2ap_node_component_id.h"
+#include "e2ap_cause.h"
+#include <stdint.h>
 
-#include "common/e2ap_global_ric_id.h"
-#include "common/e2ap_node_component_config_ack.h"
-#include "common/e2ap_rejected_ran_function.h"
-#include <stdbool.h>
-
-typedef uint16_t accepted_ran_function_t;
+typedef enum {
+  E2_NODE_COMPONENT_CONFIGURATION_ACKNOWLEDGE_SUCCESS = 0,
+  E2_NODE_COMPONENT_CONFIGURATION_ACKNOWLEDGE_FAILURE = 1
+} e2_node_component_config_ack_outcome_e;
 
 typedef struct {
-  uint8_t trx_id;
-  global_ric_id_t id;
+  e2_node_component_config_ack_outcome_e outcome;
+  cause_t* cause; // optional
+} e2_node_component_configuration_acknowledge_t;
 
-  accepted_ran_function_t* accepted;
-  size_t len_acc;
+typedef struct {
+  e2_node_component_interface_type_e interface_type;
+  e2_node_component_id_t id;
+  e2_node_component_configuration_acknowledge_t config_ack;
+} e2_node_component_config_ack_t;
 
-  rejected_ran_function_t* rejected;
-  size_t len_rej;
-
-  e2_node_component_config_ack_t* comp_conf_ack;
-  size_t len_cca;
-} e2_setup_response_t;
-
-bool eq_e2_setup_response(const e2_setup_response_t* m0, const e2_setup_response_t* m1);
+e2_node_component_config_ack_t cp_e2_node_component_config_ack(const e2_node_component_config_ack_t* src);
+void free_e2_node_component_config_ack(e2_node_component_config_ack_t* src);
+bool eq_e2_node_component_config_ack(const e2_node_component_config_ack_t* m0, const e2_node_component_config_ack_t* m1);
 
 #endif
-

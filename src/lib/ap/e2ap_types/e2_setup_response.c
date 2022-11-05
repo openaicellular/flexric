@@ -54,11 +54,11 @@ bool eq_e2_setup_response(const e2_setup_response_t* m0, const e2_setup_response
       return false;
   }
 
-  if(m0->len_ccual != m1->len_ccual)
+  if(m0->len_cca != m1->len_cca)
     return false;
 
-  for(size_t i = 0 ; i < m0->len_ccual; ++i){
-    if(eq_e2_node_component_config_update(m0->comp_conf_update_ack_list, m1->comp_conf_update_ack_list) == false)
+  for(size_t i = 0 ; i < m0->len_cca; ++i){
+    if(!eq_e2_node_component_config_ack(m0->comp_conf_ack, m1->comp_conf_ack))
       return false;
   }
 

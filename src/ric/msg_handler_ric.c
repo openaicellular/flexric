@@ -109,8 +109,8 @@ e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_requ
       .len_acc = len_acc,
       .rejected = NULL,
       .len_rej = 0,
-      .comp_conf_update_ack_list = NULL,
-      .len_ccual = 0
+      .comp_conf_ack = NULL,
+      .len_cca = 0
   };
 
   return sr;

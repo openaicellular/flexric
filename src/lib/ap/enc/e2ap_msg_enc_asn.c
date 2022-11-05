@@ -182,6 +182,49 @@ RANfunction_Item_t copy_ran_function(const ran_function_t* src)
 }
 
 static
+E2nodeComponentID_t e2ap_enc_node_component_id(e2_node_component_interface_type_e interface_type, const e2_node_component_id_t* id)
+{
+  E2nodeComponentID_t ncid = {0};
+  switch(interface_type) {
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_NG:
+      ncid.present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeNG;
+      ncid.choice.e2nodeComponentInterfaceTypeNG = calloc(1, sizeof(*ncid.choice.e2nodeComponentInterfaceTypeNG));
+      ncid.choice.e2nodeComponentInterfaceTypeNG->amf_name = copy_ba_to_ostring(id->ng.amf_name);
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_XN:
+      assert(false && "interface type Xn not implemented");
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_E1:
+      ncid.present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeE1;
+      ncid.choice.e2nodeComponentInterfaceTypeE1 = calloc(1, sizeof(*ncid.choice.e2nodeComponentInterfaceTypeE1));
+      asn_uint642INTEGER(&ncid.choice.e2nodeComponentInterfaceTypeE1->gNB_CU_CP_ID, id->e1.gnb_cu_up_id);
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_F1:
+      ncid.present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeF1;
+      ncid.choice.e2nodeComponentInterfaceTypeF1 = calloc(1, sizeof(*ncid.choice.e2nodeComponentInterfaceTypeF1));
+      asn_uint642INTEGER(&ncid.choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, id->f1.gnb_du_id);
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_W1:
+      ncid.present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeW1;
+      ncid.choice.e2nodeComponentInterfaceTypeW1 = calloc(1, sizeof(*ncid.choice.e2nodeComponentInterfaceTypeW1));
+      asn_uint642INTEGER(&ncid.choice.e2nodeComponentInterfaceTypeW1->ng_eNB_DU_ID, id->w1.ng_enb_du_id);
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_S1:
+      ncid.present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeS1;
+      ncid.choice.e2nodeComponentInterfaceTypeS1 = calloc(1, sizeof(*ncid.choice.e2nodeComponentInterfaceTypeS1));
+      ncid.choice.e2nodeComponentInterfaceTypeS1->mme_name = copy_ba_to_ostring(id->s1.mme_name);
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_X2:
+      assert(false && "interface type X2 not implemented");
+      break;
+    default:
+        assert(false && "illegal code path");
+        break;
+  }
+  return ncid;
+}
+
+static
 E2nodeComponentConfigAddition_ItemIEs_t* e2ap_enc_node_component_conf_addition(const  e2_node_component_config_t* src)
 {
   assert(src != NULL);
@@ -196,43 +239,7 @@ E2nodeComponentConfigAddition_ItemIEs_t* e2ap_enc_node_component_conf_addition(c
   cca->e2nodeComponentInterfaceType = src->interface_type;
 
   // E2 Node Component ID. Mandatory
-  E2nodeComponentID_t* ncid = &cca->e2nodeComponentID;
-  switch(src->interface_type) {
-    case E2_NODE_COMPONENT_INTERFACE_TYPE_NG:
-      ncid->present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeNG;
-      ncid->choice.e2nodeComponentInterfaceTypeNG = calloc(1, sizeof(*ncid->choice.e2nodeComponentInterfaceTypeNG));
-      ncid->choice.e2nodeComponentInterfaceTypeNG->amf_name = copy_ba_to_ostring(src->id.ng.amf_name);
-      break;
-    case E2_NODE_COMPONENT_INTERFACE_TYPE_XN:
-      assert(false && "interface type Xn not implemented");
-      break;
-    case E2_NODE_COMPONENT_INTERFACE_TYPE_E1:
-      ncid->present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeE1;
-      ncid->choice.e2nodeComponentInterfaceTypeE1 = calloc(1, sizeof(*ncid->choice.e2nodeComponentInterfaceTypeE1));
-      asn_uint642INTEGER(&ncid->choice.e2nodeComponentInterfaceTypeE1->gNB_CU_CP_ID, src->id.e1.gnb_cu_up_id);
-      break;
-    case E2_NODE_COMPONENT_INTERFACE_TYPE_F1:
-      ncid->present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeF1;
-      ncid->choice.e2nodeComponentInterfaceTypeF1 = calloc(1, sizeof(*ncid->choice.e2nodeComponentInterfaceTypeF1));
-      asn_uint642INTEGER(&ncid->choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, src->id.f1.gnb_du_id);
-      break;
-    case E2_NODE_COMPONENT_INTERFACE_TYPE_W1:
-      ncid->present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeW1;
-      ncid->choice.e2nodeComponentInterfaceTypeW1 = calloc(1, sizeof(*ncid->choice.e2nodeComponentInterfaceTypeW1));
-      asn_uint642INTEGER(&ncid->choice.e2nodeComponentInterfaceTypeW1->ng_eNB_DU_ID, src->id.w1.ng_enb_du_id);
-      break;
-    case E2_NODE_COMPONENT_INTERFACE_TYPE_S1:
-      ncid->present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeS1;
-      ncid->choice.e2nodeComponentInterfaceTypeS1 = calloc(1, sizeof(*ncid->choice.e2nodeComponentInterfaceTypeS1));
-      ncid->choice.e2nodeComponentInterfaceTypeS1->mme_name = copy_ba_to_ostring(src->id.s1.mme_name);
-      break;
-    case E2_NODE_COMPONENT_INTERFACE_TYPE_X2:
-      assert(false && "interface type X2 not implemented");
-      break;
-    default:
-        assert(false && "illegal code path");
-        break;
-  }
+  cca->e2nodeComponentID = e2ap_enc_node_component_id(src->interface_type, &src->id);
 
   // E2 Node Component Configuration. Mandatory
   E2nodeComponentConfiguration_t* ncc = &cca->e2nodeComponentConfiguration;
@@ -242,6 +249,33 @@ E2nodeComponentConfigAddition_ItemIEs_t* e2ap_enc_node_component_conf_addition(c
   return cca_ie;
 }
 
+static
+E2nodeComponentConfigAdditionAck_ItemIEs_t* e2ap_enc_node_component_conf_addition_ack(const e2_node_component_config_ack_t* src)
+{
+  assert(src != NULL);
+
+  E2nodeComponentConfigAdditionAck_ItemIEs_t* ccaa_ie = calloc(1, sizeof(*ccaa_ie));
+  ccaa_ie->id = ProtocolIE_ID_id_E2nodeComponentConfigAdditionAck_Item;
+  ccaa_ie->criticality = Criticality_reject;
+  ccaa_ie->value.present = E2nodeComponentConfigAdditionAck_ItemIEs__value_PR_E2nodeComponentConfigAdditionAck_Item;
+
+  E2nodeComponentConfigAdditionAck_Item_t* ccaa = &ccaa_ie->value.choice.E2nodeComponentConfigAdditionAck_Item;
+  //// E2 Node Component Type. Mandatory
+  ccaa->e2nodeComponentInterfaceType = src->interface_type;
+
+  //// E2 Node Component ID. Mandatory
+  ccaa->e2nodeComponentID = e2ap_enc_node_component_id(src->interface_type, &src->id);
+
+  //// E2 Node Component Configuration Acknowledge. Mandatory
+  ccaa->e2nodeComponentConfigurationAck.updateOutcome = src->config_ack.outcome;
+  if (src->config_ack.cause != NULL) {
+    Cause_t* cause = calloc(1, sizeof(*cause));
+    *cause = copy_cause(*src->config_ack.cause);
+    ccaa->e2nodeComponentConfigurationAck.failureCause = cause;
+  }
+
+  return ccaa_ie;
+}
 
 byte_array_t e2ap_enc_asn_pdu_ba(struct E2AP_PDU* pdu)
 {
@@ -1260,7 +1294,7 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
   ca_list->value.present = E2setupRequestIEs__value_PR_E2nodeComponentConfigAddition_List;
 
   for(size_t i = 0; i < sr->len_cca; ++i){
-    // E2 Node Component Configuration Addition Item
+    // E2 Node Component Configuration Addition Ack Item
     E2nodeComponentConfigAddition_ItemIEs_t* comp_addition_item_ie = e2ap_enc_node_component_conf_addition(&sr->comp_conf_addition[i]);
     rc = ASN_SEQUENCE_ADD(&ca_list->value.choice.E2nodeComponentConfigAddition_List.list, comp_addition_item_ie);
     assert(rc == 0);
@@ -1291,7 +1325,7 @@ struct E2AP_PDU* e2ap_enc_setup_response_asn_pdu(const e2_setup_response_t* sr)
   assert(sr != NULL);
   assert(sr->len_acc <= (size_t)MAX_NUM_RAN_FUNC_ID);
   assert(sr->len_rej <= (size_t)MAX_NUM_RAN_FUNC_ID);
-  assert(sr->len_ccual <= (size_t)MAX_NUM_E2_NODE_COMPONENTS);
+  assert(sr->len_cca <= (size_t)MAX_NUM_E2_NODE_COMPONENTS);
 
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
@@ -1409,29 +1443,20 @@ struct E2AP_PDU* e2ap_enc_setup_response_asn_pdu(const e2_setup_response_t* sr)
     assert(rc == 0);
   }
 
-  if(sr->len_ccual > 0){
-    assert(false && "not supported");
-    //// E2 Node Component Configuration Update Acknowledge List
-    //E2setupResponseIEs_t * comp_conf = calloc(1,sizeof(E2setupResponseIEs_t));
-    //comp_conf->id = ProtocolIE_ID_id_E2nodeComponentConfigUpdateAck;
-    //comp_conf->criticality = Criticality_reject;
-    //comp_conf->value.present = E2setupResponseIEs__value_PR_E2nodeComponentConfigUpdateAck_List;
+  assert(sr->len_cca > 0);
+  // E2 Node Component Configuration Addition Acknowledge List
+  E2setupResponseIEs_t* ca_list = calloc(1,sizeof(*ca_list));
+  ca_list->id = ProtocolIE_ID_id_E2nodeComponentConfigAdditionAck;
+  ca_list->criticality = Criticality_reject;
+  ca_list->value.present = E2setupResponseIEs__value_PR_E2nodeComponentConfigAdditionAck_List;
 
-    //for (size_t i = 0; i < sr->len_ccual; ++i) {
-    //  E2nodeComponentConfigUpdateAck_ItemIEs_t* comp_config = calloc(1, sizeof(E2nodeComponentConfigUpdateAck_ItemIEs_t));
-    //  comp_config->id = ProtocolIE_ID_id_RANfunctionID_Item;
-    //  comp_config->criticality = Criticality_ignore;
-    //  comp_config->value.present = E2nodeComponentConfigUpdateAck_ItemIEs__value_PR_E2nodeComponentConfigUpdateAck_Item;
-    //  assert(0!=0 && "Not implemented");
-    //  // RAN Function ID. Mandatory
-    //  // Cause. Mandatory
-//  //    comp_config->value.choice.E2nodeComponentConfigUpdateAck_Item = comp_conf_update_ack[i];
-    //  rc = ASN_SEQUENCE_ADD(&comp_conf->value.choice.RANfunctionsIDcause_List.list, comp_config);
-    //  assert(rc == 0);
-    //}
-    //rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, comp_conf);
-    //assert(rc == 0);
+  for (size_t i = 0; i < sr->len_cca; ++i) {
+    E2nodeComponentConfigAdditionAck_ItemIEs_t* ccaa_ie = e2ap_enc_node_component_conf_addition_ack(&sr->comp_conf_ack[i]);
+    rc = ASN_SEQUENCE_ADD(&ca_list->value.choice.E2nodeComponentConfigAdditionAck_List.list, ccaa_ie);
+    assert(rc == 0);
   }
+  rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, ca_list);
+  assert(rc == 0);
   return pdu;
 }
 

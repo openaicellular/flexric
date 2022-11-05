@@ -332,9 +332,9 @@ void e2ap_free_setup_response(e2_setup_response_t* sr)
     assert(0!= 0 && "Not Implemented");
   }
 
-  if(sr->len_ccual > 0){
-    assert(0!= 0 && "Not Implemented");
-  }
+  for (size_t i = 0; i < sr->len_cca; ++i)
+    free_e2_node_component_config_ack(&sr->comp_conf_ack[i]);
+  free(sr->comp_conf_ack);
 
 }
 

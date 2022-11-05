@@ -340,8 +340,16 @@ void test_e2_setup_response()
   accepted[0] = 45;
   const size_t len_rej = 0;
   rejected_ran_function_t* rejected = NULL;
-  e2_node_component_config_update_t* comp_conf_update_ack_list = NULL;
-  const size_t len_ccual = 0;
+  const size_t len_cca = 1;
+  e2_node_component_config_ack_t* cca = calloc(len_cca, sizeof(*cca));
+  cca[0].interface_type = E2_NODE_COMPONENT_INTERFACE_TYPE_F1;
+  cca[0].id.f1.gnb_du_id = 1234567;
+  cca[0].config_ack.outcome = E2_NODE_COMPONENT_CONFIGURATION_ACKNOWLEDGE_FAILURE;
+  cca[0].config_ack.cause = calloc(1, sizeof(*cca[0].config_ack.cause));
+  *cca[0].config_ack.cause = (cause_t) {
+    .present = CAUSE_RICSERVICE,
+    .ricService = CAUSE_RICSERVICE_RIC_RESOURCE_LIMIT
+  };
 
   e2_setup_response_t e2_stp_res = {
     .trx_id = trx_id,
@@ -350,8 +358,8 @@ void test_e2_setup_response()
     .len_acc = len_acc ,
     .rejected = rejected ,
     .len_rej = len_rej ,
-    .comp_conf_update_ack_list = comp_conf_update_ack_list ,
-    .len_ccual = len_ccual ,
+    .comp_conf_ack = cca,
+    .len_cca = len_cca,
   };
 
   E2AP_PDU_t* pdu = e2ap_enc_setup_response_asn_pdu(&e2_stp_res);
