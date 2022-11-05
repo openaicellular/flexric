@@ -108,85 +108,6 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
   printf("KPM ind_msg latency > %ld s\n", now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime);
 }
 
-
-static
-void sm_cb_mac(sm_ag_if_rd_t const* rd)
-{
-  assert(rd != NULL);
-  assert(rd->type == MAC_STATS_V0); 
-
-  int64_t now = time_now_us();
-  printf("MAC ind_msg latency = %ld μs\n", now - rd->mac_stats.msg.tstamp);
-}
-
-static
-void sm_cb_rlc(sm_ag_if_rd_t const* rd)
-{
-  assert(rd != NULL);
-  assert(rd->type == RLC_STATS_V0); 
-
-  int64_t now = time_now_us();
-
-  printf("RLC ind_msg latency = %ld μs\n", now - rd->rlc_stats.msg.tstamp);
-}
-
-static
-void sm_cb_gtp(sm_ag_if_rd_t const* rd)
-{
-  assert(rd != NULL);
-  assert(rd->type == GTP_STATS_V0); 
-
-  int64_t now = time_now_us();
-  printf("GTP ind_msg latency = %ld μs\n", now - rd->gtp_stats.msg.tstamp);
-}
-
-static
-sm_ag_if_wr_t create_add_slice(void)
-{
-  sm_ag_if_wr_t ctrl_msg = {.type = SLICE_CTRL_REQ_V0 };
-  ctrl_msg.slice_req_ctrl.hdr.dummy = 2;
- 
-  slice_ctrl_msg_t* sl_ctrl_msg = &ctrl_msg.slice_req_ctrl.msg;
-  sl_ctrl_msg->type = SLICE_CTRL_SM_V0_ADD;
-  char sched_name[] = "My scheduler";
-  size_t const sz = strlen(sched_name);
-  sl_ctrl_msg->u.add_mod_slice.dl.len_sched_name = sz;
-  sl_ctrl_msg->u.add_mod_slice.dl.sched_name = calloc(1,sz+1);
-  memcpy(sl_ctrl_msg->u.add_mod_slice.dl.sched_name, sched_name, sz);
-
-  sl_ctrl_msg->u.add_mod_slice.dl.len_slices = 1;
-  sl_ctrl_msg->u.add_mod_slice.dl.slices = calloc(1, sizeof(fr_slice_t) );
-  sl_ctrl_msg->u.add_mod_slice.dl.slices[0].id = 37;
-  sl_ctrl_msg->u.add_mod_slice.dl.slices[0].params.type = SLICE_ALG_SM_V0_STATIC;
-  sl_ctrl_msg->u.add_mod_slice.dl.slices[0].params.u.sta.pos_high = 10;
-  sl_ctrl_msg->u.add_mod_slice.dl.slices[0].params.u.sta.pos_low = 0;
- 
-  return ctrl_msg; 
-
-}
-
-static
-sm_ag_if_wr_t create_assoc_slice(void)
-{
-  sm_ag_if_wr_t ctrl_msg = { .type = SLICE_CTRL_REQ_V0 };
-  ctrl_msg.slice_req_ctrl.hdr.dummy = 2;
- 
-  slice_ctrl_msg_t* sl_ctrl_msg = &ctrl_msg.slice_req_ctrl.msg;
-  sl_ctrl_msg->type = SLICE_CTRL_SM_V0_UE_SLICE_ASSOC;
-
-  ue_slice_conf_t* ue_slice = &sl_ctrl_msg->u.ue_slice;
-
-  ue_slice->len_ue_slice = 2;
-  ue_slice->ues = calloc(2, sizeof(ue_slice_assoc_t));
-  for(size_t i = 0; i < 2; ++i){
-    ue_slice_assoc_t* assoc = &ue_slice->ues[i];
-    assoc->dl_id = 42;
-    assoc->ul_id = 42;
-    assoc->rnti = 121;
-  }
-  return ctrl_msg;
-}
-
 int main(int argc, char *argv[])
 {
   // Init the Agent
@@ -222,56 +143,14 @@ int main(int argc, char *argv[])
   for(size_t i = 0; i < n->len_rf; ++i)
     printf("Registered ran func id = %d \n ", n->ack_rf[i].id );
 
-  inter_xapp_e i = ms_1;
+  inter_xapp_e i = ms_1000;
   // returns a handle for KPM
   sm_ans_xapp_t h = report_sm_xapp_api(&nodes.n[0].id, SM_KPM_ID, i, sm_cb_kpm);
   assert(h.success == true);
-  sleep(2);
-
-  inter_xapp_e i_1 = ms_1;
-  // returns a handle
-  sm_ans_xapp_t h_1 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[0].id, i_1, sm_cb_mac);
-  assert(h_1.success == true);
-  sleep(2);
-
-  inter_xapp_e i_2 = ms_1;
-  // returns a handle
-  sm_ans_xapp_t h_2 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[1].id, i_2, sm_cb_rlc);
-  assert(h_2.success == true);
-  sleep(2);
-
-  inter_xapp_e i_3 = ms_1;
-  // returns a handle
-  sm_ans_xapp_t h_3 = report_sm_xapp_api(&nodes.n[0].id, SM_GTP_ID, i_3, sm_cb_gtp);
-  assert(h_3.success == true);
-  sleep(2);
-
-  // Control ADD slice
-  sm_ag_if_wr_t ctrl_msg_add = create_add_slice();
-  control_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, &ctrl_msg_add);
-  free(ctrl_msg_add.slice_req_ctrl.msg.u.add_mod_slice.dl.slices); 
-  free(ctrl_msg_add.slice_req_ctrl.msg.u.add_mod_slice.dl.sched_name);
-
-  sleep(1);
-
-  // Control ASSOC slice
-  sm_ag_if_wr_t ctrl_msg_assoc = create_assoc_slice();
-  control_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, &ctrl_msg_assoc);
-  free(ctrl_msg_assoc.slice_req_ctrl.msg.u.ue_slice.ues); 
-
-  sleep(1);
+  sleep(20);
 
   // Remove the handle previously returned
   rm_report_sm_xapp_api(h.u.handle);
-
-  // Remove the handle previously returned
-  rm_report_sm_xapp_api(h_1.u.handle);
-
-  // Remove the handle previously returned
-  rm_report_sm_xapp_api(h_2.u.handle);
-
-  // Remove the handle previously returned
-  rm_report_sm_xapp_api(h_3.u.handle);
 
   sleep(1);
 
