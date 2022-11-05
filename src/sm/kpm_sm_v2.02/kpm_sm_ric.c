@@ -65,6 +65,10 @@ static sm_subs_data_t on_subscription_kpm_sm_ric(sm_ric_t const* sm_ric, const c
     ev.ms = 5;
   } else if (strncmp(cmd, "10_ms", max_str_sz) == 0 ) {
     ev.ms = 10;
+  } else if (strncmp(cmd, "100_ms", max_str_sz) == 0 ) {
+    ev.ms = 100;
+  } else if (strncmp(cmd, "1000_ms", max_str_sz) == 0 ) {
+    ev.ms = 1000;
   } else {
     assert(0 != 0 && "Invalid input");
   }

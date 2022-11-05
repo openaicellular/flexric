@@ -60,6 +60,8 @@ typedef enum{
   ms_2,
   ms_5,
   ms_10,
+  ms_100,
+  ms_1000,
 
 
   ms_end,

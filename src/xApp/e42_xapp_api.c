@@ -106,6 +106,8 @@ bool valid_interval(inter_xapp_e i)
         || i == ms_2
         || i == ms_5
         || i == ms_10
+        || i == ms_100
+        || i == ms_1000
       );
 
   return true;
