@@ -45,7 +45,7 @@ set(e2ap_src_types
   common/e2ap_node_component_config_ack.c
   common/e2ap_node_component_interface_type.c
   common/e2ap_node_component_id.c
-  common/e2ap_node_component_config_update.c  
+  common/e2ap_node_component_config_update.c  # delete
   common/transport_layer_info.c 
   common/e2ap_plmn.c 
   common/ric_subsequent_action.c
