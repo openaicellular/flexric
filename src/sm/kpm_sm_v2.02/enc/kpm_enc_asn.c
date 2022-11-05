@@ -30,7 +30,6 @@
 #include "../ie/asn/RANfunction-Name.h"
 
 #include "kpm_enc_asn.h"
-#include "../../../util/alg_ds/alg/defer.h"
 #include "../../../util/conversions.h"
 
 #include <assert.h>
@@ -57,8 +56,7 @@ byte_array_t kpm_enc_event_trigger_asn(kpm_event_trigger_t const* event_trigger)
   assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
   ba.len = er.encoded;
   
-  ASN_STRUCT_RESET(asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu);
-  free(pdu);
+  ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu);
 
   return ba;
 }
@@ -136,12 +134,8 @@ byte_array_t kpm_enc_action_def_asn(kpm_action_def_t const* action_def)
                                       (const char *)action_def->pLMNIdentity.buf, 
                                       action_def->pLMNIdentity.len);
           assert(ret == 0);
-          // FIXME These all are bugs. The memory is freed when it goes out of scope, and thus, nothing is written
-          defer({OCTET_STRING_free(&asn_DEF_PLMNIdentity, &adf_p->cellGlobalID->choice.nR_CGI->pLMNIdentity, ASFM_FREE_UNDERLYING);});
 
           NR_CELL_ID_TO_BIT_STRING(action_def->nRCellIdentity, &adf_p->cellGlobalID->choice.nR_CGI->nRCellIdentity);
-	        defer({BIT_STRING_free(&asn_DEF_NRCellIdentity, &adf_p->cellGlobalID->choice.nR_CGI->nRCellIdentity, ASFM_FREE_UNDERLYING);});
-
       } else if (cell_global_id == KPMV2_CELL_ID_CHOICE_EUTRA_CGI ){
         adf_p->cellGlobalID->present = CGI_PR_eUTRA_CGI;
         ret = OCTET_STRING_fromBuf(&adf_p->cellGlobalID->choice.eUTRA_CGI->pLMNIdentity, 
@@ -149,12 +143,7 @@ byte_array_t kpm_enc_action_def_asn(kpm_action_def_t const* action_def)
                                    action_def->pLMNIdentity.len);
         assert(ret == 0);
 
-        // FIXME These all are bugs. The memory is freed when it goes out of scope, and thus, nothing is written
-        defer({OCTET_STRING_free(&asn_DEF_PLMNIdentity, &adf_p->cellGlobalID->choice.eUTRA_CGI->pLMNIdentity, ASFM_FREE_UNDERLYING);});
-
         NR_CELL_ID_TO_BIT_STRING(action_def->eUTRACellIdentity, &adf_p->cellGlobalID->choice.eUTRA_CGI->eUTRACellIdentity);
-	      defer({BIT_STRING_free(&asn_DEF_EUTRACellIdentity, &adf_p->cellGlobalID->choice.eUTRA_CGI->eUTRACellIdentity, ASFM_FREE_UNDERLYING);});
-
       } else {
         assert(0!=0 && "Unknown cellGlobalIDtype");
       }
@@ -175,8 +164,7 @@ byte_array_t kpm_enc_action_def_asn(kpm_action_def_t const* action_def)
   assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
   ba.len = er.encoded;
 
-  ASN_STRUCT_RESET(asn_DEF_E2SM_KPM_ActionDefinition, pdu);
-  free(pdu);
+  ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_ActionDefinition, pdu);
 
   return ba;
 }
@@ -188,7 +176,6 @@ byte_array_t kpm_enc_action_def_asn(kpm_action_def_t const* action_def)
 byte_array_t kpm_enc_ind_hdr_asn(kpm_ind_hdr_t const* ind_hdr)
 {
   assert(ind_hdr != NULL);
-  // FIXME: Do not allocate heap memory. Use the stack. This applies to all the functions
   E2SM_KPM_IndicationHeader_t *pdu = calloc(1,sizeof(E2SM_KPM_IndicationHeader_t));
   assert( pdu !=NULL && "Memory exhausted" );
 
@@ -200,41 +187,34 @@ byte_array_t kpm_enc_ind_hdr_asn(kpm_ind_hdr_t const* ind_hdr)
   INT32_TO_OCTET_STRING(ts, &ih_p->colletStartTime);
   int ret;
   if (ind_hdr->fileFormatversion != NULL){
-        // FIXME These all are bugs. The memory is freed when it goes out of scope, and thus, nothing is written
     ret = OCTET_STRING_fromBuf(ih_p->fileFormatversion, 
                               (const char *)ind_hdr->fileFormatversion->buf, 
                               ind_hdr->fileFormatversion->len);
     assert(ret == 0);
-    defer({OCTET_STRING_free(&asn_DEF_PrintableString, ih_p->fileFormatversion, ASFM_FREE_EVERYTHING);});
   }
 
   if (ind_hdr->senderName != NULL){
-        // FIXME These all are bugs. The memory is freed when it goes out of scope, and thus, nothing is written
+    ih_p->senderName = calloc(1, sizeof(*ih_p->senderName));
     ret = OCTET_STRING_fromBuf(ih_p->senderName, 
                               (const char *)ind_hdr->senderName->buf, 
                               ind_hdr->senderName->len);
     assert(ret == 0);
-    defer({OCTET_STRING_free(&asn_DEF_PrintableString, ih_p->senderName, ASFM_FREE_EVERYTHING);});
   }
 
   if (ind_hdr->senderType != NULL){
-
-        // FIXME These all are bugs. The memory is freed when it goes out of scope, and thus, nothing is written
+    ih_p->senderType = calloc(1, sizeof(*ih_p->senderType));
     ret = OCTET_STRING_fromBuf(ih_p->senderType, 
                               (const char *)ind_hdr->senderType->buf, 
                               ind_hdr->senderType->len);
     assert(ret == 0);
-    defer({OCTET_STRING_free(&asn_DEF_PrintableString, ih_p->senderType, ASFM_FREE_EVERYTHING);});
   }
 
 	if (ind_hdr->vendorName != NULL) {
-
-        // FIXME These all are bugs. The memory is freed when it goes out of scope, and thus, nothing is written
+    ih_p->vendorName = calloc(1, sizeof(*ih_p->vendorName));
     ret = OCTET_STRING_fromBuf(ih_p->vendorName, 
                               (const char *)ind_hdr->vendorName->buf, 
                               ind_hdr->vendorName->len);
     assert(ret == 0);
-    defer({OCTET_STRING_free(&asn_DEF_PrintableString, ih_p->vendorName, ASFM_FREE_EVERYTHING);});
   }
 
   byte_array_t  ba = {.buf = malloc(2048), .len = 2048};
@@ -244,8 +224,7 @@ byte_array_t kpm_enc_ind_hdr_asn(kpm_ind_hdr_t const* ind_hdr)
   ba.len = er.encoded;
 
 
-  ASN_STRUCT_RESET(asn_DEF_E2SM_KPM_IndicationHeader, pdu);
-  free(pdu);
+  ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_IndicationHeader, pdu);
 
   return ba;
 }
@@ -358,8 +337,7 @@ byte_array_t kpm_enc_ind_msg_asn(kpm_ind_msg_t const* ind_msg)
   ba.len = er.encoded;
 
 
-  ASN_STRUCT_RESET(asn_DEF_E2SM_KPM_IndicationMessage, pdu);
-  free(pdu);
+  ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_IndicationMessage, pdu);
 
   return ba;
 }
@@ -401,8 +379,7 @@ byte_array_t kpm_enc_func_def_asn(kpm_func_def_t const* func_def)
   ba.len = er.encoded;
 
 
-  ASN_STRUCT_RESET(asn_DEF_E2SM_KPM_RANfunction_Description, pdu);
-  free(pdu);
+  ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_RANfunction_Description, pdu);
 
   return ba;
 }

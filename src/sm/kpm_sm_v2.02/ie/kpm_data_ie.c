@@ -53,14 +53,22 @@ void free_kpm_action_def(kpm_action_def_t* src)
 void free_kpm_ind_hdr(kpm_ind_hdr_t* src)
 {
   assert(src != NULL);
-  if (src->fileFormatversion != NULL)
-    free_byte_array(*(src->fileFormatversion));
-  if (src->senderName != NULL)
-    free_byte_array(*(src->senderName));
-  if (src->senderType != NULL)
-    free_byte_array(*(src->senderType));
-  if (src->vendorName != NULL)
-    free_byte_array(*(src->vendorName));
+  if (src->fileFormatversion != NULL) {
+    free_byte_array(*src->fileFormatversion);
+    free(src->fileFormatversion);
+  }
+  if (src->senderName != NULL) {
+    free_byte_array(*src->senderName);
+    free(src->senderName);
+  }
+  if (src->senderType != NULL) {
+    free_byte_array(*src->senderType);
+    free(src->senderType);
+  }
+  if (src->vendorName != NULL) {
+    free_byte_array(*src->vendorName);
+    free(src->vendorName);
+  }
 }
 
 void free_kpm_ind_msg(kpm_ind_msg_t* src) 
