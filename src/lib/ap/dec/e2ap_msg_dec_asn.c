@@ -35,6 +35,11 @@
 #include "lib/ap/ie/asn/ProtocolIE-Field.h"
 #include "lib/ap/ie/asn/RANfunction-Item.h"
 #include "lib/ap/ie/asn/E2AP-PDU.h"
+#include "E2nodeComponentInterfaceNG.h"
+#include "E2nodeComponentInterfaceE1.h"
+#include "E2nodeComponentInterfaceF1.h"
+#include "E2nodeComponentInterfaceW1.h"
+#include "E2nodeComponentInterfaceS1.h"
 #include "lib/ap/ie/asn/E2nodeComponentConfigUpdate-Item.h"
 #include "lib/ap/ie/asn/E2nodeComponentID.h"
 #include "lib/ap/ie/asn/RICindication.h"
@@ -103,81 +108,69 @@ int e2ap_asn1c_get_procedureCode(const E2AP_PDU_t* pdu)
   return rc;
 }
 
-//static inline
-//e2_node_component_config_update_t copy_e2_node_component_conf_update(const E2nodeComponentConfigUpdate_Item_t* src)
-//{
-//  e2_node_component_config_update_t dst;
-//  memset(&dst, 0, sizeof(e2_node_component_config_update_t));
-//  // E2 Node Component Type. Mandatory
-//  assert(src->e2nodeComponentType < 6);
-//  dst.e2_node_component_type = src->e2nodeComponentType;
-//  // E2 Node Component Configuration Update. Mandatory
-//  switch (src->e2nodeComponentConfigUpdate.present) {
-//    case E2nodeComponentConfigUpdate_PR_gNBconfigUpdate:
-//      {
-//        dst.update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_GNB_CONFIG_UPDATE;
-//        const E2nodeComponentConfigUpdateGNB_t* gNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.gNBconfigUpdate;
-//        if (gNBconfigUpdate->ngAPconfigUpdate != NULL){
-//          dst.gnb.ngap_gnb_cu_cp = malloc(sizeof(byte_array_t));
-//          *dst.gnb.ngap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->ngAPconfigUpdate);
-//        }
-//        if (gNBconfigUpdate->xnAPconfigUpdate != NULL){
-//          dst.gnb.xnap_gnb_cu_cp = malloc(sizeof(byte_array_t));
-//          *dst.gnb.xnap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->xnAPconfigUpdate);
-//        }
-//        if (gNBconfigUpdate->e1APconfigUpdate != NULL){
-//          dst.gnb.e1ap_gnb_cu_cp = malloc(sizeof(byte_array_t) );
-//          *dst.gnb.e1ap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->e1APconfigUpdate);
-//        }
-//        if (gNBconfigUpdate->f1APconfigUpdate != NULL){
-//          dst.gnb.f1ap_gnb_cu_cp = malloc(sizeof(byte_array_t));
-//          *dst.gnb.f1ap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->f1APconfigUpdate);
-//        }
-//        break;
-//      }
-//    case E2nodeComponentConfigUpdate_PR_en_gNBconfigUpdate:
-//      {
-//        dst.update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_EN_GNB_CONFIG_UPDATE;
-//        const E2nodeComponentConfigUpdateENgNB_t* en_gNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.en_gNBconfigUpdate;
-//        if (en_gNBconfigUpdate->x2APconfigUpdate != NULL){
-//          dst.en_gnb.x2ap_en_gnb = malloc(sizeof(byte_array_t) );
-//          *dst.en_gnb.x2ap_en_gnb = copy_ostring_to_ba(*en_gNBconfigUpdate->x2APconfigUpdate);
-//        }
-//        break;
-//      }
-//    case E2nodeComponentConfigUpdate_PR_ng_eNBconfigUpdate:
-//      {
-//        dst.update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_NG_ENB_CONFIG_UPDATE;
-//        const E2nodeComponentConfigUpdateNGeNB_t* ng_eNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.ng_eNBconfigUpdate;
-//        if (ng_eNBconfigUpdate->ngAPconfigUpdate != NULL){
-//          dst.ng_enb.ngap_ng_enb = malloc(sizeof(byte_array_t));
-//          *dst.ng_enb.ngap_ng_enb = copy_ostring_to_ba(*ng_eNBconfigUpdate->ngAPconfigUpdate);
-//        }
-//        if (ng_eNBconfigUpdate->xnAPconfigUpdate != NULL){
-//          dst.ng_enb.xnap_ng_enb = malloc(sizeof(byte_array_t)) ;
-//          *dst.ng_enb.xnap_ng_enb = copy_ostring_to_ba(*ng_eNBconfigUpdate->xnAPconfigUpdate);
-//        }
-//        break;
-//      }
-//    case E2nodeComponentConfigUpdate_PR_eNBconfigUpdate:
-//      {
-//        dst.update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_ENB_CONFIG_UPDATE;
-//        const E2nodeComponentConfigUpdateENB_t* eNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.eNBconfigUpdate;
-//        if (eNBconfigUpdate->s1APconfigUpdate != NULL){
-//          dst.enb.s1ap_enb = malloc(sizeof(byte_array_t));
-//          *dst.enb.s1ap_enb = copy_ostring_to_ba(*eNBconfigUpdate->s1APconfigUpdate);
-//        }
-//        if (eNBconfigUpdate->x2APconfigUpdate != NULL){
-//          dst.enb.x2ap_enb = malloc(sizeof(byte_array_t) );
-//          *dst.enb.x2ap_enb = copy_ostring_to_ba(*eNBconfigUpdate->x2APconfigUpdate);
-//        }
-//        break;
-//      }
-//    default:
-//      assert(0!=0 && "Invalid code path");
-//  }
-//  return dst;
-//}
+static
+e2_node_component_config_t e2ap_dec_node_component_conf_addition(const E2nodeComponentConfigAddition_ItemIEs_t* src)
+{
+  assert(src != NULL);
+  assert(src->id == ProtocolIE_ID_id_E2nodeComponentConfigAddition_Item);
+  assert(src->criticality == Criticality_reject);
+  assert(src->value.present == E2nodeComponentConfigAddition_ItemIEs__value_PR_E2nodeComponentConfigAddition_Item);
+
+  const E2nodeComponentConfigAddition_Item_t* cca = &src->value.choice.E2nodeComponentConfigAddition_Item;
+  e2_node_component_config_t dst = {0};
+
+  // E2 Node Component Type. Mandatory
+  assert(cca->e2nodeComponentInterfaceType <= E2nodeComponentInterfaceType_x2);
+  dst.interface_type = cca->e2nodeComponentInterfaceType;
+
+  // E2 Node Component ID. Mandatory
+  switch(cca->e2nodeComponentID.present) {
+    case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeNG:
+      assert(dst.interface_type == E2_NODE_COMPONENT_INTERFACE_TYPE_NG);
+      assert(cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeNG != NULL);
+      dst.id.ng.amf_name = copy_ostring_to_ba(cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeNG->amf_name);
+      break;
+    case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeXn:
+      assert(dst.interface_type == E2_NODE_COMPONENT_INTERFACE_TYPE_XN);
+      assert(cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeXn != NULL);
+      assert(false && "interfaceTypeXn not Implemented");
+      break;
+    case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeE1:
+      assert(dst.interface_type == E2_NODE_COMPONENT_INTERFACE_TYPE_E1);
+      assert(cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeE1 != NULL);
+      asn_INTEGER2ulong(&cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeE1->gNB_CU_CP_ID, &dst.id.e1.gnb_cu_up_id);
+      break;
+    case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeF1:
+      assert(dst.interface_type == E2_NODE_COMPONENT_INTERFACE_TYPE_F1);
+      assert(cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeF1 != NULL);
+      asn_INTEGER2ulong(&cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, &dst.id.f1.gnb_du_id);
+      break;
+    case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeW1:
+      assert(dst.interface_type == E2_NODE_COMPONENT_INTERFACE_TYPE_W1);
+      assert(cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeW1 != NULL);
+      asn_INTEGER2ulong(&cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeW1->ng_eNB_DU_ID, &dst.id.w1.ng_enb_du_id);
+      break;
+    case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeS1:
+      assert(dst.interface_type == E2_NODE_COMPONENT_INTERFACE_TYPE_S1);
+      assert(cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeS1 != NULL);
+      dst.id.s1.mme_name = copy_ostring_to_ba(cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeS1->mme_name);
+      break;
+    case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeX2:
+      assert(dst.interface_type == E2_NODE_COMPONENT_INTERFACE_TYPE_X2);
+      assert(cca->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeX2 != NULL);
+      assert(false && "interfaceTypeX2 not Implemented");
+      break;
+    default:
+      assert(false && "illegal code path");
+      break;
+  }
+
+  // E2 Node Component Configuration. Mandatory
+  dst.configuration.request_part = copy_ostring_to_ba(cca->e2nodeComponentConfiguration.e2nodeComponentRequestPart);
+  dst.configuration.response_part = copy_ostring_to_ba(cca->e2nodeComponentConfiguration.e2nodeComponentResponsePart);
+
+  return dst;
+}
 
 
 static inline
@@ -1344,118 +1337,24 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
         dst->oid = copy_ostring_to_ba(src->ranFunctionOID);
       }
     } else { //if(proto_id == ProtocolIE_ID_id_E2nodeComponentConfigAddition)
-      assert(false && "not implemented");
-      //const E2setupRequestIEs_t* comp_update = out->protocolIEs.list.array[elm_id];
-      //assert(comp_update->criticality == Criticality_reject);
-      //assert(comp_update->value.present == E2setupRequestIEs__value_PR_E2nodeComponentConfigUpdate_List);
+      const E2setupRequestIEs_t* ca_list = out->protocolIEs.list.array[elm_id];
+      assert(ca_list->criticality == Criticality_reject);
+      assert(ca_list->value.present == E2setupRequestIEs__value_PR_E2nodeComponentConfigAddition_List);
 
-      //assert(comp_update->value.choice.E2nodeComponentConfigUpdate_List.list.count < MAX_NUM_E2_NODE_COMPONENTS);
-      //const size_t sz = comp_update->value.choice.E2nodeComponentConfigUpdate_List.list.count;
-      //sr->len_ccu = sz;
-      //sr->comp_conf_update = calloc(sz, sizeof(e2_node_component_config_update_t));
+      const size_t sz = ca_list->value.choice.E2nodeComponentConfigAddition_List.list.count;
+      assert(sz < (size_t) MAX_NUM_E2_NODE_COMPONENTS);
+      sr->len_cca = sz;
+      sr->comp_conf_addition = calloc(sz, sizeof(*sr->comp_conf_addition));
 
-      //E2nodeComponentConfigUpdate_ItemIEs_t** arr = (E2nodeComponentConfigUpdate_ItemIEs_t**)comp_update->value.choice.E2nodeComponentConfigUpdate_List.list.array;
-      //assert(false && "not implemented");
-      //for(size_t i = 0; i < sz; ++i){
-      //  assert(arr[i]->id == ProtocolIE_ID_id_E2nodeComponentConfigUpdate_Item);
-      //  assert(arr[i]->criticality == Criticality_reject);
-      //  assert(arr[i]->value.present == E2nodeComponentConfigUpdate_ItemIEs__value_PR_E2nodeComponentConfigUpdate_Item);
-      //  const E2nodeComponentConfigUpdate_Item_t* src = &arr[i]->value.choice.E2nodeComponentConfigUpdate_Item;
-      //  e2_node_component_config_update_t* dst = &sr->comp_conf_update[i];
-      //  e2_node_component_config_update_t nccu = {0};
-      //  sr->comp_conf_update[i] = nccu; //copy_e2_node_component_conf_update(src);
-      //  /*
-      //  // E2 Node Component Type. Mandatory
-      //  assert(src->e2nodeComponentType < 6);
-      //  dst->e2_node_component_type = src->e2nodeComponentType;
-      //  // E2 Node Component Configuration Update. Mandatory
-      //  switch (src->e2nodeComponentConfigUpdate.present) {
-      //  case E2nodeComponentConfigUpdate_PR_gNBconfigUpdate:
-      //  {
-      //  dst->update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_GNB_CONFIG_UPDATE;
-      //  const E2nodeComponentConfigUpdateGNB_t* gNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.gNBconfigUpdate;
-      //  if (gNBconfigUpdate->ngAPconfigUpdate != NULL){
-      //  dst->gnb.ngap_gnb_cu_cp = malloc(sizeof(byte_array_t));
-      //   *dst->gnb.ngap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->ngAPconfigUpdate);
-      //   }
-      //   if (gNBconfigUpdate->xnAPconfigUpdate != NULL){
-      //   dst->gnb.xnap_gnb_cu_cp = malloc(sizeof(byte_array_t));
-      //   *dst->gnb.xnap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->xnAPconfigUpdate);
-      //   }
-      //   if (gNBconfigUpdate->e1APconfigUpdate != NULL){
-      //   dst->gnb.e1ap_gnb_cu_cp = malloc(sizeof(byte_array_t) );
-      //   *dst->gnb.e1ap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->e1APconfigUpdate);
-      //   }
-      //   if (gNBconfigUpdate->f1APconfigUpdate != NULL){
-      //   dst->gnb.f1ap_gnb_cu_cp = malloc(sizeof(byte_array_t));
-      //   *dst->gnb.f1ap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->f1APconfigUpdate);
-      //   }
-      //   break;
-      //   }
-      //   case E2nodeComponentConfigUpdate_PR_en_gNBconfigUpdate:
-      //   {
-      //   dst->update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_EN_GNB_CONFIG_UPDATE;
-      //   const E2nodeComponentConfigUpdateENgNB_t* en_gNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.en_gNBconfigUpdate;
-      //   if (en_gNBconfigUpdate->x2APconfigUpdate != NULL){
-      //   dst->en_gnb.x2ap_en_gnb = malloc(sizeof(byte_array_t) );
-      //   *dst->en_gnb.x2ap_en_gnb = copy_ostring_to_ba(*en_gNBconfigUpdate->x2APconfigUpdate);
-      //   }
-      //   break;
-      //   }
-      //   case E2nodeComponentConfigUpdate_PR_ng_eNBconfigUpdate:
-      //   {
-      //   dst->update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_NG_ENB_CONFIG_UPDATE;
-      //   const E2nodeComponentConfigUpdateNGeNB_t* ng_eNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.ng_eNBconfigUpdate;
-      //   if (ng_eNBconfigUpdate->ngAPconfigUpdate != NULL){
-      //   dst->ng_enb.ngap_ng_enb = malloc(sizeof(byte_array_t));
-      //   *dst->ng_enb.ngap_ng_enb = copy_ostring_to_ba(*ng_eNBconfigUpdate->ngAPconfigUpdate);
-      //   }
-      //   if (ng_eNBconfigUpdate->xnAPconfigUpdate != NULL){
-      //   dst->ng_enb.xnap_ng_enb = malloc(sizeof(byte_array_t)) ;
-      //   *dst->ng_enb.xnap_ng_enb = copy_ostring_to_ba(*ng_eNBconfigUpdate->xnAPconfigUpdate);
-      //   }
-      //   break;
-      //   }
-      //   case E2nodeComponentConfigUpdate_PR_eNBconfigUpdate:
-      //   {
-      //   dst->update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_ENB_CONFIG_UPDATE;
-      //   const E2nodeComponentConfigUpdateENB_t* eNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.eNBconfigUpdate;
-      //   if (eNBconfigUpdate->s1APconfigUpdate != NULL){
-      //   dst->enb.s1ap_enb = malloc(sizeof(byte_array_t));
-      //   *dst->enb.s1ap_enb = copy_ostring_to_ba(*eNBconfigUpdate->s1APconfigUpdate);
-      //   }
-      //   if (eNBconfigUpdate->x2APconfigUpdate != NULL){
-      //   dst->enb.x2ap_enb = malloc(sizeof(byte_array_t) );
-      //   *dst->enb.x2ap_enb = copy_ostring_to_ba(*eNBconfigUpdate->x2APconfigUpdate);
-      //   }
-      //   break;
-      //   }
-      //   default:
-      //   assert(0!=0 && "Invalid code path");
-      //   }
-      //   */
-
-      //  // E2 Node Component ID. Optional
-      //  if (src->e2nodeComponentID != NULL){
-      //    dst->id_present = malloc(sizeof(*dst->id_present));
-      //    switch (src->e2nodeComponentID->present) {
-      //      case E2nodeComponentID_PR_e2nodeComponentTypeGNB_CU_UP:
-      //        *dst->id_present = E2_NODE_COMPONENT_ID_E2_NODE_COMPONENT_TYPE_GNB_CU_UP;
-      //        // Is this what we want?
-      //        asn_INTEGER2ulong(&src->e2nodeComponentID->choice.e2nodeComponentTypeGNB_CU_UP->	 gNB_CU_UP_ID, &dst->gnb_cu_up_id);
-      //        break;
-      //      case E2nodeComponentID_PR_e2nodeComponentTypeGNB_DU:
-      //        *dst->id_present = E2_NODE_COMPONENT_ID_E2_NODE_COMPONENT_TYPE_GNB_DU;
-      //        asn_INTEGER2ulong(&src->e2nodeComponentID->choice.e2nodeComponentTypeGNB_DU->gNB_DU_ID, &dst->gnb_du_id);
-      //        break;
-      //      default:
-      //        assert(0!=0 && "Invalid code path");
-      //    }
-      //  }
-      //}
+      E2nodeComponentConfigAddition_ItemIEs_t** arr = (E2nodeComponentConfigAddition_ItemIEs_t**)ca_list->value.choice.E2nodeComponentConfigAddition_List.list.array;
+      for(size_t i = 0; i < sz; ++i){
+        assert(arr[i]->id == ProtocolIE_ID_id_E2nodeComponentConfigAddition_Item);
+        assert(arr[i]->criticality == Criticality_reject);
+        assert(arr[i]->value.present == E2nodeComponentConfigAddition_ItemIEs__value_PR_E2nodeComponentConfigAddition_Item);
+        sr->comp_conf_addition[i] = e2ap_dec_node_component_conf_addition(arr[i]);
+      }
     }     
   }
-  //printf("e2ap_dec_setup_request_asn called \n");
   return ret;
 }
 

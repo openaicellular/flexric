@@ -20,30 +20,28 @@
  */
 
 
+#ifndef E2AP_NODE_COMPONENT_CONFIG_H
+#define E2AP_NODE_COMPONENT_CONFIG_H
 
-#ifndef E2_SETUP_REQUEST_H
-#define E2_SETUP_REQUEST_H
+#include "../../../../util/byte_array.h"
+#include "e2ap_node_component_interface_type.h"
+#include "e2ap_node_component_id.h"
+#include <stdint.h>
 
-#include <stddef.h>
-#include "common/e2ap_ran_function.h"
-#include "common/e2ap_global_node_id.h"
-#include "common/e2ap_node_component_config.h"
+typedef struct {
+  byte_array_t request_part;
+  byte_array_t response_part;
+} e2_node_component_configuration_t;
 
-typedef struct e2_setup_request {
-  uint8_t trx_id;
-  global_e2_node_id_t id;
-  ran_function_t* ran_func_item;
-  size_t len_rf;
-  e2_node_component_config_t* comp_conf_addition;
-  size_t len_cca;
-} e2_setup_request_t;
+typedef struct {
+  e2_node_component_interface_type_e interface_type;
+  e2_node_component_id_t id;
+  e2_node_component_configuration_t configuration;
+} e2_node_component_config_t;
 
-
-e2_setup_request_t cp_e2_setup_request(const e2_setup_request_t* src);
-
-void free_e2_setup_request(e2_setup_request_t* src);
-
-bool eq_e2_setup_request(const e2_setup_request_t* m0, const e2_setup_request_t* m1);
+e2_node_component_config_t cp_e2_node_component_config(const e2_node_component_config_t* src);
+void free_e2_node_component_config(e2_node_component_config_t* src);
+bool eq_e2_node_component_config(const e2_node_component_config_t* m0, const e2_node_component_config_t* m1);
 
 #endif
 

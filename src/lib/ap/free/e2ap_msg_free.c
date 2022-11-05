@@ -74,6 +74,12 @@ void free_node_config_update(e2_node_component_config_update_t* dst)
   }
 }
 
+static
+void free_node_component_config(e2_node_component_config_t* dst)
+{
+  assert(dst != NULL);
+  free_e2_node_component_config(dst);
+}
 
 // RIC -> E2
 void e2ap_free_subscription_request_msg(e2ap_msg_t* msg)
@@ -298,10 +304,10 @@ void e2ap_free_setup_request(e2_setup_request_t* sr)
   }
   free(sr->ran_func_item);
 
-  for(size_t i = 0; i < sr->len_ccu; ++i){
-    free_node_config_update(&sr->comp_conf_update[i]);  
+  for(size_t i = 0; i < sr->len_cca; ++i){
+    free_node_component_config(&sr->comp_conf_addition[i]);
   } 
-  free(sr->comp_conf_update); 
+  free(sr->comp_conf_addition);
 }
 
 

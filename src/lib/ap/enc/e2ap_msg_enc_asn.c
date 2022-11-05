@@ -34,6 +34,11 @@
 #include "RANfunction-Item.h"
 #include "RICsubsequentAction.h"
 #include "RICaction-ToBeSetup-Item.h"
+#include "E2nodeComponentInterfaceNG.h"
+#include "E2nodeComponentInterfaceE1.h"
+#include "E2nodeComponentInterfaceF1.h"
+#include "E2nodeComponentInterfaceW1.h"
+#include "E2nodeComponentInterfaceS1.h"
 #include "E2nodeComponentConfigUpdate-Item.h"
 #include "E2connectionUpdate-Item.h"
 
@@ -176,185 +181,66 @@ RANfunction_Item_t copy_ran_function(const ran_function_t* src)
   return dst;
 }
 
-//static inline
-//E2nodeComponentConfigUpdate_ItemIEs_t* copy_e2_node_component_conf_update(const  e2_node_component_config_update_t* src)
-//{
-//  E2nodeComponentConfigUpdate_ItemIEs_t* comp_update_item_ie = calloc(1, sizeof(E2nodeComponentConfigUpdate_ItemIEs_t));
-//  comp_update_item_ie->id = ProtocolIE_ID_id_E2nodeComponentConfigUpdate_Item;
-//  comp_update_item_ie->criticality = Criticality_reject;
-//  comp_update_item_ie->value.present = E2nodeComponentConfigUpdate_ItemIEs__value_PR_E2nodeComponentConfigUpdate_Item;
-//
-//  E2nodeComponentConfigUpdate_Item_t* ccui = &comp_update_item_ie->value.choice.E2nodeComponentConfigUpdate_Item;
-//  // E2 Node Component Type. Mandatory
-//  ccui->e2nodeComponentType = src-> e2_node_component_type;
-//
-//  // E2 Node Component ID. Optional
-//  if (src->id_present != NULL) {
-//    ccui->e2nodeComponentID = calloc(1, sizeof( E2nodeComponentID_t));
-//    switch (*src->id_present) {
-//      case E2_NODE_COMPONENT_ID_E2_NODE_COMPONENT_TYPE_GNB_CU_UP:
-//        ccui->e2nodeComponentID->present = E2nodeComponentID_PR_e2nodeComponentTypeGNB_CU_UP;
-//        ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_CU_UP = calloc(1, sizeof(*ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_CU_UP));
-//        GNB_CU_UP_ID_t* gnb_cu_up_id = &ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_CU_UP->gNB_CU_UP_ID;
-//        asn_uint642INTEGER(gnb_cu_up_id, src->gnb_cu_up_id);
-//        break;
-//      case E2_NODE_COMPONENT_ID_E2_NODE_COMPONENT_TYPE_GNB_DU:
-//        ccui->e2nodeComponentID->present = E2nodeComponentID_PR_e2nodeComponentTypeGNB_DU;
-//        ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_DU = calloc(1, sizeof(*ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_DU));
-//        GNB_DU_ID_t *gnb_du_id = &ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_DU->gNB_DU_ID;
-//        asn_uint642INTEGER(gnb_du_id, src->gnb_du_id);
-//        break;
-//    }
-//  }
-//    // E2 Node Component Configuration Update. Mandatory
-//    E2nodeComponentConfigUpdate_t* e2_nccu = &ccui->e2nodeComponentConfigUpdate;
-//  switch (src->update_present) {
-//    case E2_NODE_COMPONENT_CONFIG_UPDATE_GNB_CONFIG_UPDATE:
-//      {
-//        e2_nccu->present = E2nodeComponentConfigUpdate_PR_gNBconfigUpdate;
-//        e2_nccu->choice.gNBconfigUpdate = calloc(1, sizeof(E2nodeComponentConfigUpdateGNB_t));
-//        E2nodeComponentConfigUpdateGNB_t* gnb = e2_nccu->choice.gNBconfigUpdate;
-//        if (src->gnb.ngap_gnb_cu_cp){
-//          gnb->ngAPconfigUpdate = calloc(1, sizeof(OCTET_STRING_t));
-//          *gnb->ngAPconfigUpdate = copy_ba_to_ostring(*src->gnb.ngap_gnb_cu_cp);
-//        }
-//        if (src->gnb.xnap_gnb_cu_cp){
-//          gnb->xnAPconfigUpdate = calloc(1, sizeof(OCTET_STRING_t));
-//          *gnb->xnAPconfigUpdate = copy_ba_to_ostring(*src->gnb.xnap_gnb_cu_cp);
-//        }
-//        if (src->gnb.e1ap_gnb_cu_cp){
-//          gnb->e1APconfigUpdate = calloc(1,sizeof(OCTET_STRING_t));
-//          *gnb->e1APconfigUpdate = copy_ba_to_ostring(*src->gnb.e1ap_gnb_cu_cp);
-//        }
-//        if (src->gnb.f1ap_gnb_cu_cp){
-//          gnb->f1APconfigUpdate = calloc(1, sizeof(OCTET_STRING_t));
-//          *gnb->f1APconfigUpdate = copy_ba_to_ostring(*src->gnb.f1ap_gnb_cu_cp);
-//        }
-//        break;
-//      }
-//    case E2_NODE_COMPONENT_CONFIG_UPDATE_EN_GNB_CONFIG_UPDATE:
-//      {
-//        e2_nccu->present = E2nodeComponentConfigUpdate_PR_en_gNBconfigUpdate;
-//        e2_nccu->choice.en_gNBconfigUpdate = calloc(1, sizeof(E2nodeComponentConfigUpdateENgNB_t));
-//        E2nodeComponentConfigUpdateENgNB_t* en_gnb = e2_nccu->choice.en_gNBconfigUpdate;
-//        if (src->en_gnb.x2ap_en_gnb){
-//          en_gnb->x2APconfigUpdate = calloc(1, sizeof(OCTET_STRING_t));
-//          *en_gnb->x2APconfigUpdate = copy_ba_to_ostring(*src->en_gnb.x2ap_en_gnb);
-//        }
-//        break;
-//      }
-//    case E2_NODE_COMPONENT_CONFIG_UPDATE_NG_ENB_CONFIG_UPDATE:
-//      {
-//        e2_nccu->present = E2nodeComponentConfigUpdate_PR_ng_eNBconfigUpdate;
-//        e2_nccu->choice.ng_eNBconfigUpdate = calloc(1, sizeof(E2nodeComponentConfigUpdateNGeNB_t));
-//        E2nodeComponentConfigUpdateNGeNB_t* ng_enb = e2_nccu->choice.ng_eNBconfigUpdate;
-//        if (src->ng_enb.ngap_ng_enb){
-//          ng_enb->ngAPconfigUpdate =  calloc(1, sizeof(OCTET_STRING_t));
-//          *ng_enb->ngAPconfigUpdate = copy_ba_to_ostring(*src->ng_enb.ngap_ng_enb);
-//        }
-//        if (src->ng_enb.xnap_ng_enb){
-//          ng_enb->xnAPconfigUpdate =  calloc(1,sizeof(OCTET_STRING_t));
-//          *ng_enb->xnAPconfigUpdate = copy_ba_to_ostring(*src->ng_enb.xnap_ng_enb);
-//        }
-//        break;
-//      }
-//    case E2_NODE_COMPONENT_CONFIG_UPDATE_ENB_CONFIG_UPDATE:
-//      {
-//        e2_nccu->present = E2nodeComponentConfigUpdate_PR_ng_eNBconfigUpdate;
-//        e2_nccu->choice.eNBconfigUpdate = calloc(1, sizeof(E2nodeComponentConfigUpdateENB_t));
-//        E2nodeComponentConfigUpdateENB_t* enb = e2_nccu->choice.eNBconfigUpdate;
-//        if (src->enb.s1ap_enb){
-//          enb->s1APconfigUpdate =  calloc(1,sizeof(OCTET_STRING_t));
-//          *enb->s1APconfigUpdate = copy_ba_to_ostring(*src->enb.s1ap_enb);
-//        }
-//        if (src->enb.x2ap_enb){
-//          enb->x2APconfigUpdate =  calloc(1,sizeof(OCTET_STRING_t));
-//          *enb->x2APconfigUpdate = copy_ba_to_ostring(*src->enb.x2ap_enb);
-//        }
-//        break;
-//      }
-//    case E2_NODE_COMPONENT_CONFIG_UPDATE_NOTHING:
-//    default:
-//      assert(0!=0 && "Ivalid code path");
-//  }
-//
-///*
-//  ///////////////////////////////////
-//  E2nodeComponentConfigUpdate_t dst;
-//  memset(&dst, 0, sizeof(E2nodeComponentConfigUpdate_t));
-//
-//  switch (src->update_present) {
-//    case E2_NODE_COMPONENT_CONFIG_UPDATE_GNB_CONFIG_UPDATE:
-//      {
-//        dst.present = E2nodeComponentConfigUpdate_PR_gNBconfigUpdate;
-//        dst.choice.gNBconfigUpdate = calloc(1, sizeof(E2nodeComponentConfigUpdateGNB_t));
-//        E2nodeComponentConfigUpdateGNB_t* gnb = dst.choice.gNBconfigUpdate;
-//        if (src->gnb.ngap_gnb_cu_cp){
-//          gnb->ngAPconfigUpdate = calloc(1, sizeof(OCTET_STRING_t));
-//          *gnb->ngAPconfigUpdate = copy_ba_to_ostring(*src->gnb.ngap_gnb_cu_cp);
-//        }
-//        if (src->gnb.xnap_gnb_cu_cp){
-//          gnb->xnAPconfigUpdate = calloc(1, sizeof(OCTET_STRING_t));
-//          *gnb->xnAPconfigUpdate = copy_ba_to_ostring(*src->gnb.xnap_gnb_cu_cp);
-//        }
-//        if (src->gnb.e1ap_gnb_cu_cp){
-//          gnb->e1APconfigUpdate = calloc(1,sizeof(OCTET_STRING_t));
-//          *gnb->e1APconfigUpdate = copy_ba_to_ostring(*src->gnb.e1ap_gnb_cu_cp);
-//        }
-//        if (src->gnb.f1ap_gnb_cu_cp){
-//          gnb->f1APconfigUpdate = calloc(1, sizeof(OCTET_STRING_t));
-//          *gnb->f1APconfigUpdate = copy_ba_to_ostring(*src->gnb.f1ap_gnb_cu_cp);
-//        }
-//        break;
-//      }
-//    case E2_NODE_COMPONENT_CONFIG_UPDATE_EN_GNB_CONFIG_UPDATE:
-//      {
-//        dst.present = E2nodeComponentConfigUpdate_PR_en_gNBconfigUpdate;
-//        dst.choice.en_gNBconfigUpdate = calloc(1, sizeof(E2nodeComponentConfigUpdateENgNB_t));
-//        E2nodeComponentConfigUpdateENgNB_t* en_gnb = dst.choice.en_gNBconfigUpdate;
-//        if (src->en_gnb.x2ap_en_gnb){
-//          en_gnb->x2APconfigUpdate = calloc(1, sizeof(OCTET_STRING_t));
-//          *en_gnb->x2APconfigUpdate = copy_ba_to_ostring(*src->en_gnb.x2ap_en_gnb);
-//        }
-//        break;
-//      }
-//    case E2_NODE_COMPONENT_CONFIG_UPDATE_NG_ENB_CONFIG_UPDATE:
-//      {
-//        dst.present = E2nodeComponentConfigUpdate_PR_ng_eNBconfigUpdate;
-//        dst.choice.ng_eNBconfigUpdate = calloc(1, sizeof(E2nodeComponentConfigUpdateNGeNB_t));
-//        E2nodeComponentConfigUpdateNGeNB_t* ng_enb = dst.choice.ng_eNBconfigUpdate;
-//        if (src->ng_enb.ngap_ng_enb){
-//          ng_enb->ngAPconfigUpdate =  calloc(1, sizeof(OCTET_STRING_t));
-//          *ng_enb->ngAPconfigUpdate = copy_ba_to_ostring(*src->ng_enb.ngap_ng_enb);
-//        }
-//        if (src->ng_enb.xnap_ng_enb){
-//          ng_enb->xnAPconfigUpdate =  calloc(1,sizeof(OCTET_STRING_t));
-//          *ng_enb->xnAPconfigUpdate = copy_ba_to_ostring(*src->ng_enb.xnap_ng_enb);
-//        }
-//        break;
-//      }
-//    case E2_NODE_COMPONENT_CONFIG_UPDATE_ENB_CONFIG_UPDATE:
-//      {
-//        dst.present = E2nodeComponentConfigUpdate_PR_ng_eNBconfigUpdate;
-//        dst.choice.eNBconfigUpdate = calloc(1, sizeof(E2nodeComponentConfigUpdateENB_t));
-//        E2nodeComponentConfigUpdateENB_t* enb = dst.choice.eNBconfigUpdate;
-//        if (src->enb.s1ap_enb){
-//          enb->s1APconfigUpdate =  calloc(1,sizeof(OCTET_STRING_t));
-//          *enb->s1APconfigUpdate = copy_ba_to_ostring(*src->enb.s1ap_enb);
-//        }
-//        if (src->enb.x2ap_enb){
-//          enb->x2APconfigUpdate =  calloc(1,sizeof(OCTET_STRING_t));
-//          *enb->x2APconfigUpdate = copy_ba_to_ostring(*src->enb.x2ap_enb);
-//        }
-//        break;
-//      }
-//    case E2_NODE_COMPONENT_CONFIG_UPDATE_NOTHING:
-//    default:
-//      assert(0!=0 && "Ivalid code path");
-//  }
-//*/
-//  return comp_update_item_ie;
-//}
+static
+E2nodeComponentConfigAddition_ItemIEs_t* e2ap_enc_node_component_conf_addition(const  e2_node_component_config_t* src)
+{
+  assert(src != NULL);
+
+  E2nodeComponentConfigAddition_ItemIEs_t* cca_ie = calloc(1, sizeof(E2nodeComponentConfigUpdate_ItemIEs_t));
+  cca_ie->id = ProtocolIE_ID_id_E2nodeComponentConfigAddition_Item;
+  cca_ie->criticality = Criticality_reject;
+  cca_ie->value.present = E2nodeComponentConfigAddition_ItemIEs__value_PR_E2nodeComponentConfigAddition_Item;
+
+  E2nodeComponentConfigAddition_Item_t* cca = &cca_ie->value.choice.E2nodeComponentConfigAddition_Item;
+  // E2 Node Component Type. Mandatory
+  cca->e2nodeComponentInterfaceType = src->interface_type;
+
+  // E2 Node Component ID. Mandatory
+  E2nodeComponentID_t* ncid = &cca->e2nodeComponentID;
+  switch(src->interface_type) {
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_NG:
+      ncid->present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeNG;
+      ncid->choice.e2nodeComponentInterfaceTypeNG = calloc(1, sizeof(*ncid->choice.e2nodeComponentInterfaceTypeNG));
+      ncid->choice.e2nodeComponentInterfaceTypeNG->amf_name = copy_ba_to_ostring(src->id.ng.amf_name);
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_XN:
+      assert(false && "interface type Xn not implemented");
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_E1:
+      ncid->present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeE1;
+      ncid->choice.e2nodeComponentInterfaceTypeE1 = calloc(1, sizeof(*ncid->choice.e2nodeComponentInterfaceTypeE1));
+      asn_uint642INTEGER(&ncid->choice.e2nodeComponentInterfaceTypeE1->gNB_CU_CP_ID, src->id.e1.gnb_cu_up_id);
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_F1:
+      ncid->present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeF1;
+      ncid->choice.e2nodeComponentInterfaceTypeF1 = calloc(1, sizeof(*ncid->choice.e2nodeComponentInterfaceTypeF1));
+      asn_uint642INTEGER(&ncid->choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, src->id.f1.gnb_du_id);
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_W1:
+      ncid->present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeW1;
+      ncid->choice.e2nodeComponentInterfaceTypeW1 = calloc(1, sizeof(*ncid->choice.e2nodeComponentInterfaceTypeW1));
+      asn_uint642INTEGER(&ncid->choice.e2nodeComponentInterfaceTypeW1->ng_eNB_DU_ID, src->id.w1.ng_enb_du_id);
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_S1:
+      ncid->present = E2nodeComponentID_PR_e2nodeComponentInterfaceTypeS1;
+      ncid->choice.e2nodeComponentInterfaceTypeS1 = calloc(1, sizeof(*ncid->choice.e2nodeComponentInterfaceTypeS1));
+      ncid->choice.e2nodeComponentInterfaceTypeS1->mme_name = copy_ba_to_ostring(src->id.s1.mme_name);
+      break;
+    case E2_NODE_COMPONENT_INTERFACE_TYPE_X2:
+      assert(false && "interface type X2 not implemented");
+      break;
+    default:
+        assert(false && "illegal code path");
+        break;
+  }
+
+  // E2 Node Component Configuration. Mandatory
+  E2nodeComponentConfiguration_t* ncc = &cca->e2nodeComponentConfiguration;
+  ncc->e2nodeComponentRequestPart = copy_ba_to_ostring(src->configuration.request_part);
+  ncc->e2nodeComponentResponsePart = copy_ba_to_ostring(src->configuration.response_part);
+
+  return cca_ie;
+}
 
 
 byte_array_t e2ap_enc_asn_pdu_ba(struct E2AP_PDU* pdu)
@@ -1366,23 +1252,21 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
     assert(rc == 0);
   }
 
-  if (sr->len_ccu > 0) {
-    assert(false && "not supported");
-    // E2 Node Component Configuration Addition List. Optional
-    //E2setupRequestIEs_t* comp_addition_ie = calloc(1, sizeof(E2setupRequestIEs_t));
-    //comp_addition_ie->id = ProtocolIE_ID_id_E2nodeComponentConfigAddition;
-    //comp_addition_ie->criticality = Criticality_reject;
-    //comp_addition_ie->value.present = E2setupRequestIEs__value_PR_E2nodeComponentConfigAddition_List;
+  assert(sr->len_cca > 0);
+  // E2 Node Component Configuration Addition List. Mandatory
+  E2setupRequestIEs_t* ca_list = calloc(1, sizeof(E2setupRequestIEs_t));
+  ca_list->id = ProtocolIE_ID_id_E2nodeComponentConfigAddition;
+  ca_list->criticality = Criticality_reject;
+  ca_list->value.present = E2setupRequestIEs__value_PR_E2nodeComponentConfigAddition_List;
 
-    //for(size_t i = 0; i < sr->len_ccu; ++i){
-    //  // E2 Node Component Configuration Addition Item
-    //  E2nodeComponentConfigAddition_ItemIEs_t* comp_addition_item_ie = copy_e2_node_component_conf_update(&sr->comp_conf_update[i]);
-    //  rc = ASN_SEQUENCE_ADD(&comp_addition_ie->value.choice.E2nodeComponentConfigAddition_List.list, comp_addition_item_ie);
-    //  assert(rc == 0);
-    //}
-    //rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, comp_update_ie);
-    //assert(rc == 0);
+  for(size_t i = 0; i < sr->len_cca; ++i){
+    // E2 Node Component Configuration Addition Item
+    E2nodeComponentConfigAddition_ItemIEs_t* comp_addition_item_ie = e2ap_enc_node_component_conf_addition(&sr->comp_conf_addition[i]);
+    rc = ASN_SEQUENCE_ADD(&ca_list->value.choice.E2nodeComponentConfigAddition_List.list, comp_addition_item_ie);
+    assert(rc == 0);
   }
+  rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, ca_list);
+  assert(rc == 0);
   return pdu;
 }
 

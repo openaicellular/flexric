@@ -412,17 +412,34 @@ void test_setup_request()
   ran_func_item[0].def.len = strlen(def); 
 
 
-  e2_node_component_config_update_t* comp_conf_update = NULL;
-  const size_t len_ccu = 0;
+  const size_t len_cca = 2;
+  e2_node_component_config_t* cca = calloc(len_cca, sizeof(*cca));
+  cca[0].interface_type = E2_NODE_COMPONENT_INTERFACE_TYPE_S1;
+  const char* mme_name = "FANCY OAI MME";
+  cca[0].id.s1.mme_name.buf = (uint8_t*) strdup(mme_name);
+  cca[0].id.s1.mme_name.len = strlen(mme_name);
+  const char* req1 = "FAKE REQUEST";
+  cca[0].configuration.request_part.buf = (uint8_t*) strdup(req1);
+  cca[0].configuration.request_part.len = strlen(req1);
+  const char* resp1 = "FAKE RESPONSE";
+  cca[0].configuration.response_part.buf = (uint8_t*) strdup(resp1);
+  cca[0].configuration.response_part.len = strlen(resp1);
+  cca[1].interface_type = E2_NODE_COMPONENT_INTERFACE_TYPE_E1;
+  cca[1].id.e1.gnb_cu_up_id = 12345;
+  const char* req2 = "FAKE REQUEST E1";
+  cca[1].configuration.request_part.buf = (uint8_t*) strdup(req2);
+  cca[1].configuration.request_part.len = strlen(req2);
+  const char* resp2 = "FAKE RESPONSE E1";
+  cca[1].configuration.response_part.buf = (uint8_t*) strdup(resp2);
+  cca[1].configuration.response_part.len = strlen(resp2);
 
-  e2_setup_request_t e2_stp_req_begin =
-  {
+  e2_setup_request_t e2_stp_req_begin = {
     .trx_id = trx_id,
     .id = id,
     .ran_func_item = ran_func_item ,
     .len_rf = len_rf, 
-    .comp_conf_update = comp_conf_update,
-    .len_ccu = len_ccu
+    .comp_conf_addition = cca,
+    .len_cca = len_cca
   };
 
   E2AP_PDU_t* pdu = e2ap_enc_setup_request_asn_pdu(&e2_stp_req_begin);

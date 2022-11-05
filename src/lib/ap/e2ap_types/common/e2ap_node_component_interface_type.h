@@ -20,30 +20,25 @@
  */
 
 
+#ifndef E2AP_NODE_COMPONENT_INTERFACE_TYPE_H
+#define E2AP_NODE_COMPONENT_INTERFACE_TYPE_H
 
-#ifndef E2_SETUP_REQUEST_H
-#define E2_SETUP_REQUEST_H
+#include <stdbool.h>
 
-#include <stddef.h>
-#include "common/e2ap_ran_function.h"
-#include "common/e2ap_global_node_id.h"
-#include "common/e2ap_node_component_config.h"
+typedef enum {
+  E2_NODE_COMPONENT_INTERFACE_TYPE_NG = 0,
+  E2_NODE_COMPONENT_INTERFACE_TYPE_XN = 1,
+  E2_NODE_COMPONENT_INTERFACE_TYPE_E1 = 2,
+  E2_NODE_COMPONENT_INTERFACE_TYPE_F1 = 3,
+  E2_NODE_COMPONENT_INTERFACE_TYPE_W1 = 4,
+  E2_NODE_COMPONENT_INTERFACE_TYPE_S1 = 5,
+  E2_NODE_COMPONENT_INTERFACE_TYPE_X2 = 6
+} e2_node_component_interface_type_e;
 
-typedef struct e2_setup_request {
-  uint8_t trx_id;
-  global_e2_node_id_t id;
-  ran_function_t* ran_func_item;
-  size_t len_rf;
-  e2_node_component_config_t* comp_conf_addition;
-  size_t len_cca;
-} e2_setup_request_t;
+e2_node_component_interface_type_e cp_e2_node_component_interface_type(e2_node_component_interface_type_e src);
 
+void free_e2_node_component_interface_type(e2_node_component_interface_type_e src);
 
-e2_setup_request_t cp_e2_setup_request(const e2_setup_request_t* src);
-
-void free_e2_setup_request(e2_setup_request_t* src);
-
-bool eq_e2_setup_request(const e2_setup_request_t* m0, const e2_setup_request_t* m1);
+bool eq_e2_node_component_interface_type(e2_node_component_interface_type_e m0, e2_node_component_interface_type_e m1);
 
 #endif
-

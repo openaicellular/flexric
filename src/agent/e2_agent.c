@@ -45,13 +45,14 @@ e2_setup_request_t generate_setup_request(e2_agent_t* ag)
 
   ran_function_t* ran_func = calloc(len_rf, sizeof(*ran_func));
   assert(ran_func != NULL);
+  assert(false && "comp_conf_addition required");
 
   e2_setup_request_t sr = {
     .id = ag->global_e2_node_id,
     .ran_func_item = ran_func,
     .len_rf = len_rf,
-    .comp_conf_update = NULL,
-    .len_ccu = 0
+    .comp_conf_addition = NULL,
+    .len_cca = 0
   };
 
   void* it = assoc_front(&ag->plugin.sm_ds);

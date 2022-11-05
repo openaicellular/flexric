@@ -29,7 +29,7 @@
 e2_setup_request_t cp_e2_setup_request(const e2_setup_request_t* src)
 {
   assert(src != NULL);
-  e2_setup_request_t dst = {.trx_id = src->trx_id, .id = src->id, .len_rf = src->len_rf, .len_ccu = src->len_ccu };
+  e2_setup_request_t dst = {.trx_id = src->trx_id, .id = src->id, .len_rf = src->len_rf, .len_cca = src->len_cca };
 
   dst.ran_func_item = calloc(src->len_rf, sizeof(ran_function_t));
   assert( dst.ran_func_item != NULL && "Memory exhausted");
@@ -37,9 +37,9 @@ e2_setup_request_t cp_e2_setup_request(const e2_setup_request_t* src)
     dst.ran_func_item[i] = cp_ran_function(&src->ran_func_item[i]); 
   }
 
-  dst.comp_conf_update = calloc(src->len_ccu, sizeof(e2_node_component_config_update_t) ); 
-  for(size_t i = 0; i < src->len_ccu; ++i){
-    dst.comp_conf_update[i] = cp_e2_node_component_config_update(&src->comp_conf_update[i]); 
+  dst.comp_conf_addition = calloc(src->len_cca, sizeof(*dst.comp_conf_addition));
+  for(size_t i = 0; i < src->len_cca; ++i){
+    dst.comp_conf_addition[i] = cp_e2_node_component_config(&src->comp_conf_addition[i]);
   }
 
   return dst;
@@ -53,10 +53,10 @@ void free_e2_setup_request(e2_setup_request_t* src)
   }
   free(src->ran_func_item);
 
-  for(size_t i = 0; i < src->len_ccu; ++i){
-    free_e2_node_component_config_update(&src->comp_conf_update[i]); 
+  for(size_t i = 0; i < src->len_cca; ++i){
+    free_e2_node_component_config(&src->comp_conf_addition[i]);
   }
-  free(src->comp_conf_update);
+  free(src->comp_conf_addition);
 }
 
 bool eq_e2_setup_request(const e2_setup_request_t* m0, const e2_setup_request_t* m1)
@@ -79,11 +79,11 @@ bool eq_e2_setup_request(const e2_setup_request_t* m0, const e2_setup_request_t*
       return false;
   }
 
-  if(m0->len_ccu != m1->len_ccu)
+  if(m0->len_cca != m1->len_cca)
     return false;
 
-  for(size_t i = 0; i < m0->len_ccu; ++i){
-    if( eq_e2_node_component_config_update(&m0->comp_conf_update[i], &m1->comp_conf_update[i]) == false) 
+  for(size_t i = 0; i < m0->len_cca; ++i){
+    if(!eq_e2_node_component_config(&m0->comp_conf_addition[i], &m1->comp_conf_addition[i]))
       return false;
   }
   return true;

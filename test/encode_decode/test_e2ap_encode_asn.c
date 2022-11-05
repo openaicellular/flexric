@@ -292,17 +292,24 @@ void test_e2_setup_request()
   ran_func_item[0].def.len = strlen(def); 
 
 
-  e2_node_component_config_update_t* comp_conf_update = NULL;
-  const size_t len_ccu = 0;
+  const size_t len_cca = 1;
+  e2_node_component_config_t* cca = calloc(len_cca, sizeof(*cca));
+  cca[0].interface_type = E2_NODE_COMPONENT_INTERFACE_TYPE_E1;
+  cca[0].id.e1.gnb_cu_up_id = 1234567;
+  const char* req = "FAKE REQUEST";
+  cca[0].configuration.request_part.buf = (uint8_t*) strdup(req);
+  cca[0].configuration.request_part.len = strlen(req);
+  const char* resp = "FAKE RESPONSE";
+  cca[0].configuration.response_part.buf = (uint8_t*) strdup(resp);
+  cca[0].configuration.response_part.len = strlen(resp);
 
-  e2_setup_request_t e2_stp_req =
-  {
+  e2_setup_request_t e2_stp_req = {
     .trx_id = trx_id,
     .id = id,
     .ran_func_item = ran_func_item ,
     .len_rf = len_rf, 
-    .comp_conf_update = comp_conf_update,
-    .len_ccu = len_ccu
+    .comp_conf_addition = cca,
+    .len_cca = len_cca
   };
 
   E2AP_PDU_t* pdu = e2ap_enc_setup_request_asn_pdu(&e2_stp_req);
