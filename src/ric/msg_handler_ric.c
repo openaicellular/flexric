@@ -102,6 +102,17 @@ e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_requ
     fflush(stdout);
   }
 
+  // accept any component configuration
+  const size_t len_cca = req->len_cca;
+  e2_node_component_config_ack_t* cca = calloc(len_cca, sizeof(*cca));
+  for (size_t i = 0; i < len_cca; ++i) {
+    e2_node_component_config_t* cc = &req->comp_conf_addition[i];
+    cca[i].interface_type = cp_e2_node_component_interface_type(cc->interface_type);
+    cca[i].id = cp_e2_node_component_id(cc->interface_type, &cc->id);
+    cca[i].config_ack.outcome = E2_NODE_COMPONENT_CONFIGURATION_ACKNOWLEDGE_SUCCESS;
+    printf("[NEAR-RIC]: Accepting interfaceType %d\n", cca[i].interface_type);
+  }
+
   e2_setup_response_t sr = {
       .id.plmn = req->id.plmn, 
       .id.near_ric_id.double_word = 25,
@@ -109,8 +120,8 @@ e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_requ
       .len_acc = len_acc,
       .rejected = NULL,
       .len_rej = 0,
-      .comp_conf_ack = NULL,
-      .len_cca = 0
+      .comp_conf_ack = cca,
+      .len_cca = len_cca
   };
 
   return sr;

@@ -45,14 +45,27 @@ e2_setup_request_t generate_setup_request(e2_agent_t* ag)
 
   ran_function_t* ran_func = calloc(len_rf, sizeof(*ran_func));
   assert(ran_func != NULL);
-  assert(false && "comp_conf_addition required");
+
+  printf("WARNING: sending dummy Component Configuration for NG interface!\n");
+  const size_t len_cca = 1;
+  e2_node_component_config_t* cca = calloc(len_cca, sizeof(*cca));
+  cca[0].interface_type = E2_NODE_COMPONENT_INTERFACE_TYPE_NG;
+  const char* mme_name = "DUMMY OAI-AMF";
+  cca[0].id.ng.amf_name.buf = (uint8_t*) strdup(mme_name);
+  cca[0].id.ng.amf_name.len = strlen(mme_name);
+  const char* req1 = "FAKE REQUEST";
+  cca[0].configuration.request_part.buf = (uint8_t*) strdup(req1);
+  cca[0].configuration.request_part.len = strlen(req1);
+  const char* resp1 = "FAKE RESPONSE";
+  cca[0].configuration.response_part.buf = (uint8_t*) strdup(resp1);
+  cca[0].configuration.response_part.len = strlen(resp1);
 
   e2_setup_request_t sr = {
     .id = ag->global_e2_node_id,
     .ran_func_item = ran_func,
     .len_rf = len_rf,
-    .comp_conf_addition = NULL,
-    .len_cca = 0
+    .comp_conf_addition = cca,
+    .len_cca = len_cca
   };
 
   void* it = assoc_front(&ag->plugin.sm_ds);
