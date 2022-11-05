@@ -98,6 +98,19 @@ void free_kpm_ind_msg(kpm_ind_msg_t* src)
     free(src->granulPeriod);
 }
 
+static byte_array_t* dup_byte_array(const byte_array_t* src)
+{
+  if (src == NULL)
+    return NULL;
+
+  byte_array_t* dst = malloc(sizeof(*dst));
+  assert(dst != NULL && "memory exhausted");
+  dst->len = src->len;
+  dst->buf = malloc(dst->len * sizeof(uint8_t));
+  memcpy(dst->buf, src->buf, src->len);
+  return dst;
+}
+
 kpm_ind_hdr_t cp_kpm_ind_hdr(kpm_ind_hdr_t const* src)
 {
   assert(src != NULL);
@@ -105,22 +118,10 @@ kpm_ind_hdr_t cp_kpm_ind_hdr(kpm_ind_hdr_t const* src)
 
   ret.collectStartTime = src->collectStartTime;
   
-  if (src->fileFormatversion){
-    ret.fileFormatversion = calloc (1, sizeof(adapter_PrintableString_t));
-    *(ret.fileFormatversion) = copy_byte_array(*(src->fileFormatversion));
-  }
-  if (src->senderName){
-    ret.senderName = calloc (1, sizeof(adapter_PrintableString_t));
-    *(ret.senderName) = copy_byte_array(*(src->senderName));
-  }
-  if (src->senderType){
-    ret.senderType = calloc (1, sizeof(adapter_PrintableString_t));
-    *(ret.senderType) = copy_byte_array(*(src->senderType));
-  }
-  if (src->vendorName){
-    ret.vendorName = calloc (1, sizeof(adapter_PrintableString_t));
-    *(ret.vendorName) = copy_byte_array(*(src->vendorName));
-  }
+  ret.fileFormatversion = dup_byte_array(src->fileFormatversion);
+  ret.senderName = dup_byte_array(src->senderName);
+  ret.senderType = dup_byte_array(src->senderType);
+  ret.vendorName = dup_byte_array(src->vendorName);
   return ret;
 }
 
@@ -219,23 +220,24 @@ void free_kpm_func_def(kpm_func_def_t* src)
  * ... more to be added in the future
  */
 
+static long* dup_long(const long* src)
+{
+  if (src == NULL)
+    return NULL;
+  long* dst = malloc(sizeof(*dst));
+  assert(dst != NULL && "memory exhausted");
+  *dst = *src;
+  return dst;
+}
+
 void cp_label_info(adapter_LabelInfoItem_t *dst, adapter_LabelInfoItem_t const *src) 
 {
   assert(src != NULL);
   assert(dst != NULL);
 
-  if (src->noLabel){
-    dst->noLabel = malloc(sizeof(*(dst->noLabel)));
-    assert (dst->noLabel != NULL && "Memory exhausted");
-    *(dst->noLabel) = *(src->noLabel);
-    return;
-  }
-  if (src->plmnID != NULL) {
-    dst->plmnID = malloc(sizeof(*(dst->plmnID)));
-    *dst->plmnID = copy_byte_array(*(src->plmnID));
-  } else {
-    assert (0!=0 && "Programming error: should be null as the remaining fileds have not been implemented yet");
-  }
+  dst->noLabel = dup_long(src->noLabel);
+  dst->plmnID = dup_byte_array(src->plmnID);
+
   // TO BE COMPLETED with the other fields
 }
 

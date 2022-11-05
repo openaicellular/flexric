@@ -321,8 +321,9 @@ static void cp_label_info_item_from_asn(adapter_LabelInfoItem_t *dst, LabelInfoI
     return;
   }
  
-  if (src->measLabel.plmnID != NULL)
+  if (src->measLabel.plmnID != NULL) {
     BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING_POINTERS (dst->plmnID, src->measLabel.plmnID);
+  }
 
   // To complete with below fields.
   // internal_S_NSSAI_t	          *sliceID;	/* OPTIONAL */
