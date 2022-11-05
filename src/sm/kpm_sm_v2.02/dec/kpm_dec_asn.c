@@ -38,6 +38,8 @@ kpm_event_trigger_t kpm_dec_event_trigger_asn(size_t len, uint8_t const ev_tr[le
   const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2SM_KPM_EventTriggerDefinition, (void**)&pdu, ev_tr, len);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGNED_BASIC_PER syntax?");
 
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu);
+
   kpm_event_trigger_t ret = {0};
 
   assert ( pdu->eventDefinition_formats.present == E2SM_KPM_EventTriggerDefinition__eventDefinition_formats_PR_eventDefinition_Format1 && "Invalid Choice"  );
@@ -65,6 +67,8 @@ kpm_action_def_t kpm_dec_action_def_asn(size_t len, uint8_t const action_def[len
   const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2SM_KPM_ActionDefinition, (void**)&pdu, action_def, len);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGNED_BASIC_PER syntax?");
   // note that constraints checking on data extracted is already performed by asn_decode()
+
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
 
   ret.ric_style_type = pdu->ric_Style_Type;
   
@@ -136,6 +140,8 @@ kpm_ind_hdr_t kpm_dec_ind_hdr_asn(size_t len, uint8_t const ind_hdr[len])
   const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2SM_KPM_IndicationHeader, (void**)&pdu, ind_hdr, len);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGNED_BASIC_PER syntax?");
 
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_IndicationHeader, pdu);
+
   if (pdu->indicationHeader_formats.present == E2SM_KPM_IndicationHeader__indicationHeader_formats_PR_indicationHeader_Format1)
   {
     E2SM_KPM_IndicationHeader_Format1_t *hdr = pdu->indicationHeader_formats.choice.indicationHeader_Format1;
@@ -195,6 +201,8 @@ kpm_ind_msg_t kpm_dec_ind_msg_asn(size_t len, uint8_t const ind_msg[len])
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2SM_KPM_IndicationMessage, (void**)&pdu, ind_msg, len);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGNED_BASIC_PER syntax?");
+
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_IndicationMessage, pdu);
 
   if (pdu->indicationMessage_formats.present == E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format1)
   {
@@ -285,6 +293,8 @@ kpm_func_def_t kpm_dec_func_def_asn(size_t len, uint8_t const func_def[len])
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2SM_KPM_RANfunction_Description, (void**)&pdu, func_def, len);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGNED_BASIC_PER syntax?");
+
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_RANfunction_Description, pdu);
   
   BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING (ret.ranFunction_Name.Description, pdu->ranFunction_Name.ranFunction_Description);
   BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING (ret.ranFunction_Name.E2SM_OID, pdu->ranFunction_Name.ranFunction_E2SM_OID);

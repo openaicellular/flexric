@@ -349,6 +349,8 @@ byte_array_t kpm_enc_ind_msg_asn(kpm_ind_msg_t const* ind_msg)
     *(msg->granulPeriod)=*(ind_msg->granulPeriod);
   }
 
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_IndicationMessage, pdu);
+
   byte_array_t  ba = {.buf = malloc(2048), .len = 2048};
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_IndicationMessage, pdu, ba.buf, ba.len);
