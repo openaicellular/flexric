@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "../../../util/alg_ds/alg/eq_float.h"
 #include "../../../util/byte_array.h"
 #include "kpm_data_ie.h"
@@ -170,20 +171,72 @@ kpm_ind_msg_t cp_kpm_ind_msg(kpm_ind_msg_t const* src) {
 }
 
 // Equality implemented as euristics for the moment. This function is used in test framework.
-// XXX: to be extended 
+#define OPTIONAL_CHECK_EQUAL_SIMPLE_TYPE(T0,T1) \
+  do { \
+    if ((T0) == NULL && (T1) != NULL) \
+      return false; \
+    if ((T0) != NULL && (T1) == NULL) \
+      return false; \
+    if ((T0) != NULL && (T1) != NULL) \
+      if (*(T0) != *(T1)) \
+        return false; \
+  } while (0)
+
 bool eq_kpm_ind_msg(kpm_ind_msg_t const* m0, kpm_ind_msg_t const* m1)
 {
   assert(m0 != NULL);
   assert(m1 != NULL);
 
-  bool ret = true;
-  if (m0->granulPeriod != NULL)
-    ret &= (m0->granulPeriod ==  m1->granulPeriod);
-  ret &= (m0->MeasData_len == m1->MeasData_len);
-  ret &= (m0->MeasInfo_len == m1->MeasInfo_len);
-  for (size_t i =0; i< m0->MeasData_len ; i++)
-    ret &= (m0->MeasData[i].measRecord_len == m1->MeasData[i].measRecord_len);
-  return ret;
+  if (m0->MeasData_len != m1->MeasData_len)
+    return false;
+  for (size_t i = 0; i < m0->MeasData_len; ++i) {
+    const adapter_MeasDataItem_t *mdi0 = &m0->MeasData[i];
+    const adapter_MeasDataItem_t *mdi1 = &m1->MeasData[i];
+    if (mdi0->measRecord_len != mdi1->measRecord_len)
+      return false;
+    for (size_t j = 0; j < mdi0->measRecord_len; ++j) {
+      const adapter_MeasRecord_t *mr0 = &mdi0->measRecord[j];
+      const adapter_MeasRecord_t *mr1 = &mdi1->measRecord[j];
+      if (mr0->type != mr1->type)
+        return false;
+      if (mr0->int_val != mr1->int_val)
+        return false;
+      if (fabs(mr0->real_val - mr1->real_val) > 0.0001f)
+        return false;
+    }
+    if (mdi0->incompleteFlag != mdi1->incompleteFlag)
+      return false;
+  }
+
+  if (m0->MeasInfo_len != m1->MeasInfo_len)
+    return false;
+  for (size_t i = 0; i < m0->MeasInfo_len; ++i) {
+    const MeasInfo_t *mi0 = &m0->MeasInfo[i];
+    const MeasInfo_t *mi1 = &m1->MeasInfo[i];
+    if (mi0->meas_type != mi1->meas_type)
+      return false;
+    if (mi0->meas_type == KPM_V2_MEASUREMENT_TYPE_NAME) {
+      if (mi0->measName.len != mi1->measName.len)
+        return false;
+      if (memcmp(mi0->measName.buf, mi1->measName.buf, mi0->measName.len) != 0)
+        return false;
+    } else {
+      if (mi0->measID != mi1->measID)
+        return false;
+    }
+    if (mi0->labelInfo_len != mi1->labelInfo_len)
+      return false;
+    for (size_t j = 0; j < mi0->labelInfo_len; ++j) {
+      const adapter_LabelInfoItem_t *lii0 = &mi0->labelInfo[0];
+      const adapter_LabelInfoItem_t *lii1 = &mi1->labelInfo[0];
+      OPTIONAL_CHECK_EQUAL_SIMPLE_TYPE(lii0->noLabel, lii1->noLabel);
+      // TODO additional checks missing
+    }
+  }
+
+  OPTIONAL_CHECK_EQUAL_SIMPLE_TYPE(m0->granulPeriod, m1->granulPeriod);
+  // otherwise they must both be NULL
+  return true;
 }
 
 
