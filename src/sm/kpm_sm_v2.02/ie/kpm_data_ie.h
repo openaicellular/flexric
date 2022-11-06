@@ -52,6 +52,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 #include "../../../util/byte_array.h"
+#include "../../../lib/ap/e2ap_types/common/e2ap_plmn.h"
 /* 
  * SEC 0: General data types that make the mapping between ASN data types and RIC ones
  */
@@ -84,7 +85,7 @@ typedef uint64_t                  adapter_EUTRACellIdentity_t; // 28 bit size
  */
 typedef struct adapter_LabelInfoItem_t {
   long	                        *noLabel;	/* OPTIONAL: looks like this is an enumeration datatype that accepts only true (0) */
-	adapter_PLMNIdentity_t	      *plmnID;	/* OPTIONAL */
+	plmn_t                        *plmn_id;  /* OPTIONAL */
 	adapter_S_NSSAI_t	            *sliceID;	/* OPTIONAL */
 	adapter_FiveQI_t	            *fiveQI;	/* OPTIONAL */
 	adapter_QosFlowIdentifier_t	  *qFI;	    /* OPTIONAL */

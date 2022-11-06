@@ -392,6 +392,7 @@ static LabelInfoItem_t * cp_label_info_item_into_asn(adapter_LabelInfoItem_t con
   assert (dst != NULL && "Memory exhausted");
 
   if (src->noLabel != NULL) {
+    assert(*src->noLabel == 0 && "has only one value (true)");
     dst->measLabel.noLabel = malloc (sizeof(*(dst->measLabel.noLabel)));
     assert (dst->measLabel.noLabel != NULL && "Memory exhausted");
     *(dst->measLabel.noLabel) = *(src->noLabel); 
@@ -402,31 +403,68 @@ static LabelInfoItem_t * cp_label_info_item_into_asn(adapter_LabelInfoItem_t con
     return dst;
   }      
 
-  if (src->plmnID != NULL){
-    dst->measLabel.plmnID = OCTET_STRING_new_fromBuf (&asn_DEF_PLMNIdentity, (const char *)src->plmnID->buf, src->plmnID->len);
-    assert(dst->measLabel.plmnID != NULL);
+  if (src->plmn_id != NULL){
+    dst->measLabel.plmnID = calloc(1, sizeof(*dst->measLabel.plmnID));
+    MCC_MNC_TO_PLMNID(src->plmn_id->mcc, src->plmn_id->mnc, src->plmn_id->mnc_digit_len, dst->measLabel.plmnID);
   }
 
-          // To complete with below fields.
-          // internal_S_NSSAI_t	          *sliceID;	/* OPTIONAL */
-          // internal_FiveQI_t	          *fiveQI;	/* OPTIONAL */
-          // internal_QosFlowIdentifier_t	*qFI;	    /* OPTIONAL */
-          // internal_QCI_t	              *qCI;	    /* OPTIONAL */
-          // internal_QCI_t	              *qCImax;	/* OPTIONAL */
-          // internal_QCI_t	              *qCImin;	/* OPTIONAL */
-          // long	              *aRPmax;	/* OPTIONAL */
-          // long	              *aRPmin;	/* OPTIONAL */
-          // long	              *bitrateRange;/* OPTIONAL */
-          // long	              *layerMU_MIMO;/* OPTIONAL */
-          // long	              *sUM;	    /* OPTIONAL */
-          // long	              *distBinX;/* OPTIONAL */
-          // long	              *distBinY;/* OPTIONAL */
-          // long	              *distBinZ;/* OPTIONAL */
-          // long	              *preLabelOverride;/* OPTIONAL */
-          // long	              *startEndInd;	/* OPTIONAL */
-          // long	              *min;	    /* OPTIONAL */
-          // long	              *max;	    /* OPTIONAL */
-          // long	              *avg;	    /* OPTIONAL */
+	if (src->sliceID != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->fiveQI != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->qFI != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->qCI != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->qCImax != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->qCImin != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->aRPmax != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->aRPmin != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->bitrateRange != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->layerMU_MIMO != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->sUM != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->distBinX != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->distBinY != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->distBinZ != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->preLabelOverride != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->startEndInd != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->min != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->max != NULL) {
+    assert(false && "not implemented");
+  }
+	if (src->avg != NULL) {
+    assert(false && "not implemented");
+  }
 
   return dst;
 } 

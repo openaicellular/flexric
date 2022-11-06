@@ -322,28 +322,65 @@ static void cp_label_info_item_from_asn(adapter_LabelInfoItem_t *dst, LabelInfoI
   }
  
   if (src->measLabel.plmnID != NULL) {
-    BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING_POINTERS (dst->plmnID, src->measLabel.plmnID);
+    dst->plmn_id = malloc(sizeof(*dst->plmn_id));
+    PLMNID_TO_MCC_MNC(src->measLabel.plmnID, dst->plmn_id->mcc, dst->plmn_id->mnc, dst->plmn_id->mnc_digit_len);
   }
 
-  // To complete with below fields.
-  // internal_S_NSSAI_t	          *sliceID;	/* OPTIONAL */
-  // internal_FiveQI_t	          *fiveQI;	/* OPTIONAL */
-  // internal_QosFlowIdentifier_t	*qFI;	    /* OPTIONAL */
-  // internal_QCI_t	              *qCI;	    /* OPTIONAL */
-  // internal_QCI_t	              *qCImax;	/* OPTIONAL */
-  // internal_QCI_t	              *qCImin;	/* OPTIONAL */
-  // long	              *aRPmax;	/* OPTIONAL */
-  // long	              *aRPmin;	/* OPTIONAL */
-  // long	              *bitrateRange;/* OPTIONAL */
-  // long	              *layerMU_MIMO;/* OPTIONAL */
-  // long	              *sUM;	    /* OPTIONAL */
-  // long	              *distBinX;/* OPTIONAL */
-  // long	              *distBinY;/* OPTIONAL */
-  // long	              *distBinZ;/* OPTIONAL */
-  // long	              *preLabelOverride;/* OPTIONAL */
-  // long	              *startEndInd;	/* OPTIONAL */
-  // long	              *min;	    /* OPTIONAL */
-  // long	              *max;	    /* OPTIONAL */
-  // long	              *avg;	    /* OPTIONAL */
-
+  if (src->measLabel.sliceID != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.fiveQI != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.qFI != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.qCI != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.qCImax != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.qCImin != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.aRPmax != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.aRPmin != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.bitrateRange != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.layerMU_MIMO != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.sUM != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.distBinX != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.distBinY != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.distBinZ != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.preLabelOverride != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.startEndInd != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.min != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.max != NULL) {
+    assert(false && "not implemented");
+  }
+  if (src->measLabel.avg != NULL) {
+    assert(false && "not implemented");
+  }
 } 
