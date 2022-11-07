@@ -163,9 +163,7 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
     
     MeasInfo_t* mi1 = &ind->msg.MeasInfo[0];
     mi1->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
-    char* measName = "PrbDlUsage";
-    mi1->measName.len = strlen(measName);
-    mi1->measName.buf = (uint8_t*) strdup(measName);
+    mi1->meas_name = strdup("PrbDlUsage");
 
     const size_t ll_len = 1;
     mi1->labelInfo_len = ll_len;

@@ -44,7 +44,7 @@ void free_kpm_action_def(kpm_action_def_t* src)
     free(src->MeasInfo[i].labelInfo);
         
     if (src->MeasInfo[i].meas_type == KPM_V2_MEASUREMENT_TYPE_NAME)
-      free_byte_array(src->MeasInfo[i].measName);
+      free(src->MeasInfo[i].meas_name);
   }
   
   free(src->MeasInfo);
@@ -79,7 +79,7 @@ void free_kpm_ind_msg(kpm_ind_msg_t* src)
     for (i=0; i<src->MeasInfo_len; i++)
     {
       if (src->MeasInfo[i].meas_type ==  KPM_V2_MEASUREMENT_TYPE_NAME)
-        free_byte_array(src->MeasInfo[i].measName);
+        free(src->MeasInfo[i].meas_name);
       for (size_t j = 0; j< src->MeasInfo[i].labelInfo_len; j++)
         free_label_info(&src->MeasInfo[i].labelInfo[j]);
       free(src->MeasInfo[i].labelInfo);
@@ -142,9 +142,9 @@ kpm_ind_msg_t cp_kpm_ind_msg(kpm_ind_msg_t const* src) {
       {
         ret.MeasInfo[i].meas_type = src->MeasInfo[i].meas_type;
         if (ret.MeasInfo[i].meas_type == KPM_V2_MEASUREMENT_TYPE_NAME)
-          ret.MeasInfo[i].measName = copy_byte_array(src->MeasInfo[i].measName);
+          ret.MeasInfo[i].meas_name = strdup(src->MeasInfo[i].meas_name);
         else 
-          ret.MeasInfo[i].measID = src->MeasInfo[i].measID;
+          ret.MeasInfo[i].meas_id = src->MeasInfo[i].meas_id;
         cp_label_info(&ret.MeasInfo[i].labelInfo[j], &src->MeasInfo[i].labelInfo[j]);
       }  
     }
@@ -199,12 +199,10 @@ bool eq_kpm_ind_msg(kpm_ind_msg_t const* m0, kpm_ind_msg_t const* m1)
     if (mi0->meas_type != mi1->meas_type)
       return false;
     if (mi0->meas_type == KPM_V2_MEASUREMENT_TYPE_NAME) {
-      if (mi0->measName.len != mi1->measName.len)
-        return false;
-      if (memcmp(mi0->measName.buf, mi1->measName.buf, mi0->measName.len) != 0)
+      if (strcmp(mi0->meas_name, mi1->meas_name) != 0)
         return false;
     } else {
-      if (mi0->measID != mi1->measID)
+      if (mi0->meas_id != mi1->meas_id)
         return false;
     }
     if (mi0->labelInfo_len != mi1->labelInfo_len)

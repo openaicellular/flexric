@@ -89,16 +89,18 @@ kpm_action_def_t kpm_dec_action_def_asn(size_t len, uint8_t const action_def[len
 
       for (size_t i = 0; i<ret.MeasInfo_len; i++)
       { 
-        switch (adf_p->measInfoList.list.array[i]->measType.present)
+        const MeasurementType_t* measType = &adf_p->measInfoList.list.array[i]->measType;
+        switch (measType->present)
         {
           case MeasurementType_PR_NOTHING:// manages backward compatibility
             continue;
           case MeasurementType_PR_measName:
-            BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING(ret.MeasInfo[i].measName, adf_p->measInfoList.list.array[i]->measType.choice.measName);
+            ret.MeasInfo[i].meas_name = calloc(measType->choice.measName.size + 1, sizeof(char));
+            memcpy(ret.MeasInfo[i].meas_name, measType->choice.measName.buf, measType->choice.measName.size);
             ret.MeasInfo[i].meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
             break;
           case MeasurementType_PR_measID:
-            ret.MeasInfo[i].measID = adf_p->measInfoList.list.array[i]->measType.choice.measID;
+            ret.MeasInfo[i].meas_id = measType->choice.measID;
             ret.MeasInfo[i].meas_type =  KPM_V2_MEASUREMENT_TYPE_ID;
             break;
           default:
@@ -243,15 +245,17 @@ kpm_ind_msg_t kpm_dec_ind_msg_asn(size_t len, uint8_t const ind_msg[len])
       for (int i=0; i<msg->measInfoList->list.count; i++)
       {
         MeasurementInfoItem_t * mInfo = msg->measInfoList->list.array[i];
+        const MeasurementType_t* measType = &mInfo->measType;
         switch (mInfo->measType.present)
         {
         case MeasurementType_PR_measName:
+          ret.MeasInfo[i].meas_name = calloc(measType->choice.measName.size + 1, sizeof(char));
+          memcpy(ret.MeasInfo[i].meas_name, measType->choice.measName.buf, measType->choice.measName.size);
           ret.MeasInfo[i].meas_type =  KPM_V2_MEASUREMENT_TYPE_NAME; 
-          BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING(ret.MeasInfo[i].measName, mInfo->measType.choice.measName);
           break;
         case MeasurementType_PR_measID:
-          ret.MeasInfo[i].meas_type =  KPM_V2_MEASUREMENT_TYPE_ID; 
-          ret.MeasInfo[i].measID = mInfo->measType.choice.measID;
+          ret.MeasInfo[i].meas_id = measType->choice.measID;
+          ret.MeasInfo[i].meas_type =  KPM_V2_MEASUREMENT_TYPE_ID;
           break;
         default:
           break;

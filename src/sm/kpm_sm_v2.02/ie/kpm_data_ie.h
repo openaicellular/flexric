@@ -118,8 +118,8 @@ typedef enum {
 
 typedef struct MeasInfo_t {
 	meas_type_e meas_type;
-  adapter_MeasurementTypeName_t	 measName;
-	adapter_MeasurementTypeID_t	   measID; 
+  char* meas_name;
+  long meas_id;
 	adapter_LabelInfoItem_t	         *labelInfo;   // list implemented as array having a maximum of 'maxnoofLabelInfo' items
   size_t                         labelInfo_len;// length of the array labelInfo
 } MeasInfo_t; 

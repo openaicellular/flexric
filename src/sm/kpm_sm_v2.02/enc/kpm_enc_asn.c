@@ -98,12 +98,11 @@ byte_array_t kpm_enc_action_def_asn(kpm_action_def_t const* action_def)
         mInfo->measType.present = meas_type == KPM_V2_MEASUREMENT_TYPE_NAME 
                                                ? MeasurementType_PR_measName : MeasurementType_PR_measID; 
         if (mInfo->measType.present == MeasurementType_PR_measName){
-          ret = OCTET_STRING_fromBuf( &(mInfo->measType.choice.measName), 
-                                      (char *)action_def->MeasInfo[i].measName.buf, 
-                                      (int)action_def->MeasInfo[i].measName.len);
+          const size_t len = strlen(action_def->MeasInfo[i].meas_name);
+          ret = OCTET_STRING_fromBuf(&(mInfo->measType.choice.measName), action_def->MeasInfo[i].meas_name, len);
           assert(ret == 0);
         } else {
-          mInfo->measType.choice.measID = action_def->MeasInfo[i].measID;
+          mInfo->measType.choice.measID = action_def->MeasInfo[i].meas_id;
         }
         
         assert((action_def->MeasInfo[i].labelInfo_len <= maxnoofLabelInfo && action_def->MeasInfo[i].labelInfo_len > 0) 
@@ -295,14 +294,13 @@ byte_array_t kpm_enc_ind_msg_asn(kpm_ind_msg_t const* ind_msg)
       switch (ind_msg->MeasInfo[i].meas_type){
         case KPM_V2_MEASUREMENT_TYPE_NAME:
           mInfo->measType.present = MeasurementType_PR_measName;
-          ret1 = OCTET_STRING_fromBuf(&mInfo->measType.choice.measName, 
-                                          (const char *)ind_msg->MeasInfo[i].measName.buf, 
-                                          ind_msg->MeasInfo[i].measName.len);
+          const size_t len = strlen(ind_msg->MeasInfo[i].meas_name);
+          ret1 = OCTET_STRING_fromBuf(&mInfo->measType.choice.measName, ind_msg->MeasInfo[i].meas_name, len);
           assert(ret1 == 0);
           break;
         case  KPM_V2_MEASUREMENT_TYPE_ID:
           mInfo->measType.present = MeasurementType_PR_measID;
-          mInfo->measType.choice.measID = ind_msg->MeasInfo[i].measID;
+          mInfo->measType.choice.measID = ind_msg->MeasInfo[i].meas_id;
           break;
         default:
             assert(0!= 0 && "unexpected Measurement type");
