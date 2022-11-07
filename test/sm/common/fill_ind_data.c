@@ -111,20 +111,10 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
 
   int64_t t = time_now_us();
   ind->hdr.collectStartTime = t / 1000000; // needs to be truncated to 32 bits to arrive to a resolution of seconds
-  ind->hdr.fileFormatversion = NULL;
-  const char* senderName = "My OAI-CU";
-  ind->hdr.senderName = malloc(sizeof(*ind->hdr.senderName));
-  ind->hdr.senderName->buf = (uint8_t*) strdup(senderName);
-  ind->hdr.senderName->len = strlen(senderName);
-  const char* senderType = "CU";
-  ind->hdr.senderType = malloc(sizeof(*ind->hdr.senderType));
-  ind->hdr.senderType->buf = (uint8_t*) strdup(senderType);
-  ind->hdr.senderType->len = strlen(senderType);
-  ind->hdr.vendorName = NULL;
-  const char* vendorName = "OAI";
-  ind->hdr.vendorName = malloc(sizeof(*ind->hdr.vendorName));
-  ind->hdr.vendorName->buf = (uint8_t*) strdup(vendorName);
-  ind->hdr.vendorName->len = strlen(vendorName);
+  ind->hdr.fileformat_version = NULL;
+  ind->hdr.sender_name = strdup("My OAI-CU");
+  ind->hdr.sender_type = strdup("CU");
+  ind->hdr.vendor_name = strdup("OAI");
 
   //if (rand()%100 == 0)
   //{

@@ -186,11 +186,11 @@ void free_kpm_action_def(kpm_action_def_t* src);
  * SEC 3. RIC Indication Header as per $8.2.1.3.1
  ************************************************/
 typedef struct {
-  adapter_TimeStamp_t        collectStartTime;   /* Measurement collection start time in UTC format.*/
-	adapter_PrintableString_t  *fileFormatversion;/* OPTIONAL */
-	adapter_PrintableString_t  *senderName;	      /* OPTIONAL */
-	adapter_PrintableString_t  *senderType;	      /* OPTIONAL */
-	adapter_PrintableString_t  *vendorName;	      /* OPTIONAL */
+  uint32_t collectStartTime;
+  char* fileformat_version;
+  char* sender_name;
+  char* sender_type;
+  char* vendor_name;
 } kpm_ind_hdr_t;
 
 void          free_kpm_ind_hdr(kpm_ind_hdr_t* src);

@@ -186,34 +186,31 @@ byte_array_t kpm_enc_ind_hdr_asn(kpm_ind_hdr_t const* ind_hdr)
   uint32_t ts = htonl(ind_hdr->collectStartTime);
   INT32_TO_OCTET_STRING(ts, &ih_p->colletStartTime);
   int ret;
-  if (ind_hdr->fileFormatversion != NULL){
-    ret = OCTET_STRING_fromBuf(ih_p->fileFormatversion, 
-                              (const char *)ind_hdr->fileFormatversion->buf, 
-                              ind_hdr->fileFormatversion->len);
+  if (ind_hdr->fileformat_version != NULL){
+    ih_p->fileFormatversion = calloc(1, sizeof(*ih_p->fileFormatversion));
+    const size_t len = strlen(ind_hdr->fileformat_version);
+    ret = OCTET_STRING_fromBuf(ih_p->fileFormatversion, ind_hdr->fileformat_version, len);
     assert(ret == 0);
   }
 
-  if (ind_hdr->senderName != NULL){
+  if (ind_hdr->sender_name != NULL){
     ih_p->senderName = calloc(1, sizeof(*ih_p->senderName));
-    ret = OCTET_STRING_fromBuf(ih_p->senderName, 
-                              (const char *)ind_hdr->senderName->buf, 
-                              ind_hdr->senderName->len);
+    const size_t len = strlen(ind_hdr->sender_name);
+    ret = OCTET_STRING_fromBuf(ih_p->senderName, ind_hdr->sender_name, len);
     assert(ret == 0);
   }
 
-  if (ind_hdr->senderType != NULL){
+  if (ind_hdr->sender_type != NULL){
     ih_p->senderType = calloc(1, sizeof(*ih_p->senderType));
-    ret = OCTET_STRING_fromBuf(ih_p->senderType, 
-                              (const char *)ind_hdr->senderType->buf, 
-                              ind_hdr->senderType->len);
+    const size_t len = strlen(ind_hdr->sender_type);
+    ret = OCTET_STRING_fromBuf(ih_p->senderType, ind_hdr->sender_type, len);
     assert(ret == 0);
   }
 
-	if (ind_hdr->vendorName != NULL) {
+	if (ind_hdr->vendor_name != NULL) {
     ih_p->vendorName = calloc(1, sizeof(*ih_p->vendorName));
-    ret = OCTET_STRING_fromBuf(ih_p->vendorName, 
-                              (const char *)ind_hdr->vendorName->buf, 
-                              ind_hdr->vendorName->len);
+    const size_t len = strlen(ind_hdr->vendor_name);
+    ret = OCTET_STRING_fromBuf(ih_p->vendorName, ind_hdr->vendor_name, len);
     assert(ret == 0);
   }
 

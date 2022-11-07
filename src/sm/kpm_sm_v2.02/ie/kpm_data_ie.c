@@ -54,22 +54,14 @@ void free_kpm_action_def(kpm_action_def_t* src)
 void free_kpm_ind_hdr(kpm_ind_hdr_t* src)
 {
   assert(src != NULL);
-  if (src->fileFormatversion != NULL) {
-    free_byte_array(*src->fileFormatversion);
-    free(src->fileFormatversion);
-  }
-  if (src->senderName != NULL) {
-    free_byte_array(*src->senderName);
-    free(src->senderName);
-  }
-  if (src->senderType != NULL) {
-    free_byte_array(*src->senderType);
-    free(src->senderType);
-  }
-  if (src->vendorName != NULL) {
-    free_byte_array(*src->vendorName);
-    free(src->vendorName);
-  }
+  if (src->fileformat_version != NULL)
+    free(src->fileformat_version);
+  if (src->sender_name != NULL)
+    free(src->sender_name);
+  if (src->sender_type != NULL)
+    free(src->sender_type);
+  if (src->vendor_name != NULL)
+    free(src->vendor_name);
 }
 
 void free_kpm_ind_msg(kpm_ind_msg_t* src) 
@@ -99,19 +91,6 @@ void free_kpm_ind_msg(kpm_ind_msg_t* src)
     free(src->granulPeriod);
 }
 
-static byte_array_t* dup_byte_array(const byte_array_t* src)
-{
-  if (src == NULL)
-    return NULL;
-
-  byte_array_t* dst = malloc(sizeof(*dst));
-  assert(dst != NULL && "memory exhausted");
-  dst->len = src->len;
-  dst->buf = malloc(dst->len * sizeof(uint8_t));
-  memcpy(dst->buf, src->buf, src->len);
-  return dst;
-}
-
 kpm_ind_hdr_t cp_kpm_ind_hdr(kpm_ind_hdr_t const* src)
 {
   assert(src != NULL);
@@ -119,10 +98,14 @@ kpm_ind_hdr_t cp_kpm_ind_hdr(kpm_ind_hdr_t const* src)
 
   ret.collectStartTime = src->collectStartTime;
   
-  ret.fileFormatversion = dup_byte_array(src->fileFormatversion);
-  ret.senderName = dup_byte_array(src->senderName);
-  ret.senderType = dup_byte_array(src->senderType);
-  ret.vendorName = dup_byte_array(src->vendorName);
+  if (src->fileformat_version)
+    ret.fileformat_version = strdup(src->fileformat_version);
+  if (src->sender_name)
+    ret.sender_name = strdup(src->sender_name);
+  if (src->sender_type)
+    ret.sender_type = strdup(src->sender_type);
+  if (src->vendor_name)
+    ret.vendor_name = strdup(src->vendor_name);
   return ret;
 }
 

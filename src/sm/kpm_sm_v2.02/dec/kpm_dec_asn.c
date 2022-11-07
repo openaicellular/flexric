@@ -151,28 +151,27 @@ kpm_ind_hdr_t kpm_dec_ind_hdr_asn(size_t len, uint8_t const ind_hdr[len])
     ret.collectStartTime = ntohl(reversed_ts);
     
     if (hdr->fileFormatversion){
-      ret.fileFormatversion = calloc(1, sizeof(*ret.fileFormatversion));
-      assert(ret.fileFormatversion !=NULL && "Memory exhausted" );
-      BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING_POINTERS(ret.fileFormatversion, hdr->fileFormatversion);
+      ret.fileformat_version = calloc(hdr->fileFormatversion->size + 1, sizeof(char));
+      assert(ret.fileformat_version != NULL && "Memory exhausted" );
+      memcpy(ret.fileformat_version, hdr->fileFormatversion->buf, hdr->fileFormatversion->size);
     }
 
     if (hdr->senderName){
-
-      ret.senderName = calloc(1, sizeof(*ret.senderName));
-      assert(ret.senderName !=NULL && "Memory exhausted" );
-      BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING_POINTERS(ret.senderName, hdr->senderName);
+      ret.sender_name = calloc(hdr->senderName->size + 1, sizeof(char));
+      assert(ret.sender_name != NULL && "Memory exhausted" );
+      memcpy(ret.sender_name, hdr->senderName->buf, hdr->senderName->size);
     }
 
     if (hdr->senderType){
-      ret.senderType = calloc(1, sizeof(*ret.senderType));
-      assert(ret.senderType !=NULL && "Memory exhausted" );
-      BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING_POINTERS(ret.senderType, hdr->senderType);
+      ret.sender_type = calloc(hdr->senderType->size + 1, sizeof(char));
+      assert(ret.sender_type != NULL && "Memory exhausted" );
+      memcpy(ret.sender_type, hdr->senderType->buf, hdr->senderType->size);
     }
 
     if (hdr->vendorName){
-      ret.vendorName = calloc(1, sizeof(*ret.vendorName));
-      assert(ret.vendorName !=NULL && "Memory exhausted" );
-      BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING_POINTERS(ret.vendorName, hdr->vendorName);
+      ret.vendor_name = calloc(hdr->vendorName->size + 1, sizeof(char));
+      assert(ret.vendor_name != NULL && "Memory exhausted" );
+      memcpy(ret.vendor_name, hdr->vendorName->buf, hdr->vendorName->size);
     }
   }
 
