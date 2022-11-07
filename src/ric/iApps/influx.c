@@ -202,7 +202,7 @@ void notify_influx_listener(sm_ag_if_rd_t const* data)
                           ",measID=%ld"
                           , i
                           , curMeasInfo->meas_type
-                          , curMeasInfo->measID
+                          , curMeasInfo->meas_id
                           );
         assert(rc < (int)max && "Not enough space in the char array to write all the data");
         rc = sendto(sockfd, stats, strlen(stats),  MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
@@ -212,12 +212,10 @@ void notify_influx_listener(sm_ag_if_rd_t const* data)
         int rc = snprintf(stats, max,
                           ",MeasInfo[%zu]"
                           ",measType=%d"
-                          ",measName->len=%zu"
-                          ",measName->buf=%s"
+                          ",measName=%s"
                           , i
                           , curMeasInfo->meas_type
-                          , curMeasInfo->measName.len
-                          , curMeasInfo->measName.buf
+                          , curMeasInfo->meas_name
                           );
         assert(rc < (int)max && "Not enough space in the char array to write all the data");
         rc = sendto(sockfd, stats, strlen(stats),  MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));

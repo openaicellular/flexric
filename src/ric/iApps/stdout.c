@@ -262,13 +262,13 @@ void print_kpm_stats(kpm_ind_data_t const* kpm)
 
     if (curMeasInfo->meas_type == KPM_V2_MEASUREMENT_TYPE_NAME){
       memset(stats, 0, sizeof(stats));
-      int rc = snprintf(stats, max, ",MeasInfo[%zu]=(type=ID, content=%ld)", i, curMeasInfo->measID);
+      int rc = snprintf(stats, max, ",MeasInfo[%zu]=(type=ID, content=%ld)", i, curMeasInfo->meas_id);
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
       rc = fputs(stats , fp);
       assert(rc > -1);
     } else if (curMeasInfo->meas_type == KPM_V2_MEASUREMENT_TYPE_ID){
       memset(stats, 0, sizeof(stats));
-      int rc = snprintf(stats, max, ",MeasInfo[%zu]=(type=NAME, content=%s)", i, curMeasInfo->measName.buf);
+      int rc = snprintf(stats, max, ",MeasInfo[%zu]=(type=NAME, content=%s)", i, curMeasInfo->meas_name);
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
       rc = fputs(stats , fp);
       assert(rc > -1);
