@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
-
+#include <signal.h>
 
 static
 void sm_cb_kpm(sm_ag_if_rd_t const* rd)
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
   printf("Connected E2 nodes = %d\n", nodes.len);
 
   // KPM indication
-  inter_xapp_e i_0 = ms_5;
+  inter_xapp_e i_0 = ms_1000;
   sm_ans_xapp_t* kpm_handle = NULL;
 
   if(nodes.len > 0){
@@ -97,7 +97,15 @@ int main(int argc, char *argv[])
     assert(kpm_handle[i].success == true);
   }
 
-  sleep(10);
+  static bool run_xapp = true;
+  void handle_sig(int signum) {
+    if (signum != SIGINT && signum != SIGTERM)
+      fprintf(stderr, "WARNING: received signal %d, stopping\n", signum);
+    run_xapp = false;
+  }
+  signal(SIGINT, handle_sig);
+  signal(SIGTERM, handle_sig);
+  while(run_xapp) usleep(100000);
 
 
   for(int i = 0; i < nodes.len; ++i){
