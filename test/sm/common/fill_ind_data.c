@@ -23,6 +23,7 @@
 #include "fill_ind_data.h"
 
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -139,40 +140,44 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
   //} else {
   {
 
-    adapter_MeasDataItem_t *KPMData = calloc(1, sizeof(adapter_MeasDataItem_t));
-    KPMData[0].measRecord_len = 3;
-    KPMData[0].incompleteFlag =  -1;
-    
-    adapter_MeasRecord_t * KPMRecord = calloc(KPMData[0].measRecord_len, sizeof(adapter_MeasRecord_t));
-    KPMData[0].measRecord = KPMRecord;
-    for (size_t i=0; i<KPMData[0].measRecord_len ; i++){
-      KPMRecord[i].type = MeasRecord_int;
-      KPMRecord[i].int_val = i + 3;
+    const size_t md_len = 4;
+    ind->msg.MeasData_len = md_len;
+    adapter_MeasDataItem_t *KPMData = calloc(md_len, sizeof(*KPMData));
+
+    for (size_t i=0; i < md_len; i++){
+      KPMData[i].incompleteFlag =  -1;
+
+      KPMData[i].measRecord_len = 1;
+      KPMData[i].measRecord = calloc(1, sizeof(*KPMData[i].measRecord));
+      KPMData[i].measRecord[0].type = MeasRecord_int;
+      KPMData[i].measRecord[0].int_val = i + 3;
     }
-    
 
     ind->msg.MeasData = KPMData;
-    ind->msg.MeasData_len = 1;
 
     ind->msg.granulPeriod = NULL;
     
-    const size_t mi_len = 1;
+    const size_t mi_len = 4;
     ind->msg.MeasInfo_len = mi_len;
     ind->msg.MeasInfo = calloc(mi_len, sizeof(MeasInfo_t));
     assert(ind->msg.MeasInfo != NULL && "Memory exhausted" );
     
-    MeasInfo_t* mi1 = &ind->msg.MeasInfo[0];
-    mi1->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
-    mi1->meas_name = strdup("PrbDlUsage");
+    for (size_t i = 0; i < mi_len; ++i) {
+      MeasInfo_t* mi1 = &ind->msg.MeasInfo[i];
+      mi1->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+      char s[100];
+      snprintf(s, 100, "RNTI %04x PrbDlUsage", (unsigned) (1111*i + 1111));
+      mi1->meas_name = strdup(s);
 
-    const size_t ll_len = 1;
-    mi1->labelInfo_len = ll_len;
-    mi1->labelInfo = calloc(ll_len, sizeof(*mi1->labelInfo));
-    //assert(mi1->labelInfo != NULL && "memory exhausted");
-    //mi1->labelInfo[0].noLabel = calloc(1, sizeof(long));
-    //*mi1->labelInfo[0].noLabel = 0; // 0 means true and that nothing else follows
-    mi1->labelInfo[0].plmn_id = malloc(sizeof(*mi1->labelInfo[0].plmn_id));
-    *mi1->labelInfo[0].plmn_id = (plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
+      const size_t ll_len = 1;
+      mi1->labelInfo_len = ll_len;
+      mi1->labelInfo = calloc(ll_len, sizeof(*mi1->labelInfo));
+      //assert(mi1->labelInfo != NULL && "memory exhausted");
+      //mi1->labelInfo[0].noLabel = calloc(1, sizeof(long));
+      //*mi1->labelInfo[0].noLabel = 0; // 0 means true and that nothing else follows
+      mi1->labelInfo[0].plmn_id = malloc(sizeof(*mi1->labelInfo[0].plmn_id));
+      *mi1->labelInfo[0].plmn_id = (plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
+    }
 
     //MeasInfo_t* info2 = &ind->msg.MeasInfo[1];
     //assert(info2 != NULL && "memory exhausted");

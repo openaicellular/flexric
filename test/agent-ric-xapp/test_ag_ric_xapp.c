@@ -101,11 +101,32 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
   assert(rd != NULL);
   assert(rd->type == KPM_STATS_V0); 
 
-  int64_t now = time_now_us();
-  
-  // Note that KPM has 1 second resolution in its indication header, while `now` is in microseconds. 
-  // Only reasonable latency value to print is a rounded one to seconds.
-  printf("KPM ind_msg latency > %ld s\n", now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime);
+  const kpm_ind_hdr_t* hdr = &rd->kpm_stats.hdr;
+  printf("received KPM indication at %d (sender '%s', type '%s', vendor '%s')\n",
+         hdr->collectStartTime, hdr->sender_name, hdr->sender_type, hdr->vendor_name);
+
+  const kpm_ind_msg_t* msg = &rd->kpm_stats.msg;
+  assert(msg->MeasInfo_len == msg->MeasData_len);
+  for (size_t i = 0; i < msg->MeasInfo_len; ++i) {
+    MeasInfo_t* mi = &msg->MeasInfo[i];
+    assert(mi->meas_type == KPM_V2_MEASUREMENT_TYPE_NAME);
+    printf("%s ", mi->meas_name);
+
+    assert(msg->MeasData[i].measRecord_len == 1);
+    const adapter_MeasRecord_t* mdi = &msg->MeasData[i].measRecord[0];
+    if (mdi->type == MeasRecord_int)
+      printf(" %7ld ", mdi->int_val);
+    else
+      printf(" %7.3f ", mdi->real_val);
+
+    assert(mi->labelInfo_len == 1);
+    if (mi->labelInfo[0].plmn_id != NULL) {
+      const plmn_t* plmn = mi->labelInfo[0].plmn_id;
+      printf(" (PLMN %03d.%0*d)",
+             plmn->mcc, plmn->mnc_digit_len, plmn->mnc);
+    }
+    printf("\n");
+  }
 }
 
 int main(int argc, char *argv[])
