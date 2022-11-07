@@ -41,7 +41,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
          hdr->collectStartTime, hdr->sender_name, hdr->sender_type, hdr->vendor_name);
 
   const kpm_ind_msg_t* msg = &rd->kpm_stats.msg;
-  assert(msg->MeasInfo_len == msg->MeasData_len);
+  //assert(msg->MeasInfo_len == msg->MeasData_len);
   for (size_t i = 0; i < msg->MeasInfo_len; ++i) {
     MeasInfo_t* mi = &msg->MeasInfo[i];
     assert(mi->meas_type == KPM_V2_MEASUREMENT_TYPE_NAME);
