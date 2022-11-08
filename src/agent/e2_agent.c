@@ -383,7 +383,7 @@ e2_agent_t* e2_init_agent(const char* addr, int port, global_e2_node_id_t ge2nid
   assert(addr != NULL);
   assert(port > 0 && port < 65535);
 
-  printf("[E2 AGENT]: Initializing ... \n");
+  printf("[E2-AGENT]: Initializing ... \n");
 
   e2_agent_t* ag = calloc(1, sizeof(*ag));
   assert(ag != NULL && "Memory exhausted");
