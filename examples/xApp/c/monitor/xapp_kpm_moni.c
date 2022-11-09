@@ -47,12 +47,26 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
     assert(mi->meas_type == KPM_V2_MEASUREMENT_TYPE_NAME);
     printf("%s ", mi->meas_name);
 
-    assert(msg->MeasData[i].measRecord_len == 1);
-    const adapter_MeasRecord_t* mdi = &msg->MeasData[i].measRecord[0];
-    if (mdi->type == MeasRecord_int)
-      printf(" %7ld ", mdi->int_val);
-    else
-      printf(" %7.3f ", mdi->real_val);
+    if (msg->MeasData[i].measRecord_len == 2) {
+      const adapter_MeasRecord_t* mdi = msg->MeasData[i].measRecord;
+      const long ctx = mdi[0].int_val;
+      const long crx = mdi[1].int_val;
+      if (i % 2 == 0){
+        static long tx[10] = {0};
+        static long rx[10] = {0};
+        const float thrtx = (float) (ctx - tx[i]) * 8 / 1e6;
+        tx[i] = ctx;
+        const float thrrx = (float) (crx - rx[i]) * 8 / 1e6;
+        rx[i] = crx;
+        printf(" TX %7.3f RX %7.3f (Mbps)\n                         ", thrtx, thrrx);
+      }
+      printf(" TX %7ld RX %7ld", ctx, crx);
+    } else {
+      for (size_t j = 0; j < msg->MeasData[i].measRecord_len; ++j) {
+        const adapter_MeasRecord_t* mdi = &msg->MeasData[i].measRecord[j];
+        printf(" [%ld] %7ld", j, mdi->int_val);
+      }
+    }
 
     assert(mi->labelInfo_len == 1);
     if (mi->labelInfo[0].plmn_id != NULL) {
