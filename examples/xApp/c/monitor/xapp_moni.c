@@ -56,12 +56,16 @@ void sm_cb_all(sm_ag_if_rd_t const* rd)
     aggr_tstamp_mac += now - rd->mac_stats.msg.tstamp;
     if (count_mac == count_max) {
       printf("MAC avg ind_msg latency = %ld\n", aggr_tstamp_mac/count_max);
+      count_mac = 0;
+      aggr_tstamp_mac = 0;
     }
   } else if (rd->type == RLC_STATS_V0) {
     count_rlc += 1;
     aggr_tstamp_rlc += now - rd->rlc_stats.msg.tstamp;
-    if (count_mac == count_max) {
+    if (count_rlc == count_max) {
       printf("RLC avg ind_msg latency = %ld\n", aggr_tstamp_rlc/count_max);
+      count_rlc = 0;
+      aggr_tstamp_rlc = 0;
     }
   } else if (rd->type == PDCP_STATS_V0)
     printf("RLC ind_msg latency = %ld\n", now - rd->rlc_stats.msg.tstamp);
@@ -203,18 +207,18 @@ int main(int argc, char *argv[])
   while(keepRunning) {
     size_t cur_nodes_len = e2_nodes_len_xapp_api();
     if (cur_nodes_len - nodes_len > 0) {
-      printf("//////////////// detect E2 nodes update ////////////////\n");
-      printf("/////////////// need to send new sub req ///////////////\n");
-      sleep(5);
-//      // get the new e2 nodes info
-//      e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
-//      defer({ free_e2_node_arr(&cur_nodes); });
-//
-//      // TODO: send subscription request to new e2 node
-//      for (size_t i = 0; i < nodes_len; i++) {
-//          send_subscription_req(&cur_nodes.n[i], i, handle, num_sm);
-//      }
-//      nodes_len = cur_nodes_len;
+      printf("//////////////// detect E2 nodes len update ////////////////\n");
+      printf("/////////////// send sub req to new E2 node  //////////////\n");
+      sleep(1);
+      // get the new e2 nodes info
+      e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
+      defer({ free_e2_node_arr(&cur_nodes); });
+
+      // TODO: send subscription request to new e2 node
+      for (size_t i = nodes_len; i < cur_nodes_len; i++) {
+          send_subscription_req(&cur_nodes.n[i], i, handle, num_sm);
+      }
+      nodes_len = cur_nodes_len;
     }
   }
 
