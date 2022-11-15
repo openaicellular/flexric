@@ -290,7 +290,8 @@ void notify_msg_iapp(e42_iapp_t* iapp, e2ap_msg_t const* msg)
   assert(msg->type == RIC_INDICATION 
       || msg->type == RIC_SUBSCRIPTION_RESPONSE 
       || msg->type == RIC_SUBSCRIPTION_DELETE_RESPONSE
-      || msg->type == RIC_CONTROL_ACKNOWLEDGE);
+      || msg->type == RIC_CONTROL_ACKNOWLEDGE
+      || msg->type == E2_SETUP_RESPONSE);
 
 
   e2ap_msg_t ans = e2ap_msg_handle_iapp(iapp, msg);

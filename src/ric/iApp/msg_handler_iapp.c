@@ -49,7 +49,8 @@ bool check_valid_msg_type(e2_msg_type_t msg_type )
       || msg_type == E42_RIC_CONTROL_REQUEST
       || msg_type == RIC_CONTROL_ACKNOWLEDGE
       || msg_type == RIC_INDICATION
-      || msg_type == RIC_SUBSCRIPTION_DELETE_RESPONSE;
+      || msg_type == RIC_SUBSCRIPTION_DELETE_RESPONSE
+      || msg_type == E2_SETUP_RESPONSE;
 }
 
 void init_handle_msg_iapp(handle_msg_fp_iapp (*handle_msg)[31])
@@ -64,6 +65,7 @@ void init_handle_msg_iapp(handle_msg_fp_iapp (*handle_msg)[31])
   (*handle_msg)[RIC_CONTROL_ACKNOWLEDGE] = e2ap_handle_e42_ric_control_ack_iapp;
   (*handle_msg)[RIC_INDICATION] = e2ap_handle_ric_indication_iapp;
   (*handle_msg)[RIC_SUBSCRIPTION_DELETE_RESPONSE] = e2ap_handle_subscription_delete_response_iapp;
+  (*handle_msg)[E2_SETUP_RESPONSE] = e2ap_handle_ric_e2_setup_response_iapp;
 
 //  (*handle_msg)[RIC_SUBSCRIPTION_REQUEST] = e2ap_handle_subscription_request_iapp;
 //  (*handle_msg)[RIC_SUBSCRIPTION_DELETE_REQUEST] =  e2ap_handle_subscription_delete_request_iapp;
@@ -489,4 +491,35 @@ e2ap_msg_t e2ap_handle_connection_update_iapp(e42_iapp_t* iapp, const e2ap_msg_t
   return ans; 
 }
 
+e2ap_msg_t e2ap_handle_ric_e2_setup_response_iapp(e42_iapp_t* iapp, const e2ap_msg_t* msg)
+{
+  assert(iapp != NULL);
+  assert(msg != NULL);
+  assert(msg->type == E2_SETUP_RESPONSE);
+
+  size_t init_xapp_id = 7;
+  size_t xapp_id_len = iapp->ep.xapps.tree.size;
+  e2_node_arr_t new_e2_arr = generate_e2_node_arr( &iapp->e2_nodes);
+
+  // generate E42 UPDATE-E2-NODE for each xApp
+  for (size_t i = init_xapp_id; i < init_xapp_id+xapp_id_len; i++) {
+    e2ap_msg_t ans = {.type = E42_UPDATE_E2_NODE};
+    defer( { e2ap_msg_free_iapp(&iapp->ap, &ans); } );
+    ans.u_msgs.e42_updt_e2_node.xapp_id = i;
+    ans.u_msgs.e42_updt_e2_node.len_e2_nodes_conn = new_e2_arr.len;
+    ans.u_msgs.e42_updt_e2_node.nodes = new_e2_arr.n;
+
+    sctp_msg_t sctp_msg = {0};
+    defer({ free_sctp_msg(&sctp_msg); } );
+    sctp_msg.info = find_map_xapps_sad(&iapp->ep.xapps, ans.u_msgs.e42_updt_e2_node.xapp_id);
+    sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans);
+
+    e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
+    printf("[iApp]: send E42 UPDATE-E2-NODE to xApp id %ld\n", i);
+    fflush(stdout);
+  }
+
+  e2ap_msg_t none = {.type = NONE_E2_MSG_TYPE};
+  return none;
+}
 
