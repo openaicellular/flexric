@@ -165,6 +165,7 @@ set(ASN_MODULE_SRCS
     E42RICcontrolRequest.c
     XAPP-ID.c
     E2nodeConnected-List.c
+    E42updateE2node.c
 )
 
 set(ASN_MODULE_HDRS

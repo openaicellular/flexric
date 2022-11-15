@@ -47,6 +47,7 @@
 #include "RICindication.h"
 #include "RICserviceQuery.h"
 #include "ErrorIndication.h"
+#include "E42updateE2node.h"
 #include <OPEN_TYPE.h>
 #include <constr_CHOICE.h>
 #include <constr_SEQUENCE.h>

@@ -21,7 +21,7 @@ extern "C" {
 
 /* RICserviceUpdateFailure */
 typedef struct RICserviceUpdateFailure {
-	ProtocolIE_Container_1477P30_t	 protocolIEs;
+	ProtocolIE_Container_1490P30_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

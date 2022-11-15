@@ -5,8 +5,8 @@
  * 	`asn1c -gen-PER -no-gen-OER -fcompound-names -no-gen-example -findirect-choice -fno-include-deps`
  */
 
-#ifndef	_E42setupRequest_H_
-#define	_E42setupRequest_H_
+#ifndef	_E42updateE2node_H_
+#define	_E42updateE2node_H_
 
 
 #include <asn_application.h>
@@ -19,9 +19,9 @@
 extern "C" {
 #endif
 
-/* E42setupRequest */
-typedef struct E42setupRequest {
-	ProtocolIE_Container_1490P15_t	 protocolIEs;
+/* E42updateE2node */
+typedef struct E42updateE2node {
+	ProtocolIE_Container_1490P17_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.
@@ -29,16 +29,16 @@ typedef struct E42setupRequest {
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;
-} E42setupRequest_t;
+} E42updateE2node_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E42setupRequest;
-extern asn_SEQUENCE_specifics_t asn_SPC_E42setupRequest_specs_1;
-extern asn_TYPE_member_t asn_MBR_E42setupRequest_1[1];
+extern asn_TYPE_descriptor_t asn_DEF_E42updateE2node;
+extern asn_SEQUENCE_specifics_t asn_SPC_E42updateE2node_specs_1;
+extern asn_TYPE_member_t asn_MBR_E42updateE2node_1[1];
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif	/* _E42setupRequest_H_ */
+#endif	/* _E42updateE2node_H_ */
 #include <asn_internal.h>
