@@ -99,6 +99,8 @@ void free_e42_xapp(e42_xapp_t* xapp);
 
 e2_node_arr_t e2_nodes_xapp(e42_xapp_t* xapp);
 
+size_t e2_nodes_len_xapp(e42_xapp_t* xapp);
+
 size_t not_dispatch_msg(e42_xapp_t* xapp);
 
 // We wait for the message to come back and avoid asyncronous programming

@@ -43,6 +43,8 @@ bool try_stop_xapp_api(void);
 
 e2_node_arr_t e2_nodes_xapp_api(void);
 
+size_t e2_nodes_len_xapp_api(void);
+
 typedef void (*sm_cb)(sm_ag_if_rd_t const*);
 
 typedef union{
