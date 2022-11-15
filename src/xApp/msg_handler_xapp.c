@@ -590,6 +590,13 @@ e2ap_msg_t e2ap_handle_e42_update_e2_node_xapp(e42_xapp_t* xapp, const e2ap_msg_
   *(uint16_t*)&xapp->id = sr->xapp_id;
   printf("[xApp]: xApp ID = %u \n", sr->xapp_id);
 
+  // mir what you want to do is extend the reg_e2_nodes struct which is basically a rb_tree with an
+  // update_or_insert_reg_e2_nodes function.
+  // There you first check if the node is already registered with a find function.
+  // And you either update it or call insert
+  // Also think that this code needs to be thread safe
+  // The level of abstraction does not belong to this function
+  //
   // TODO: find the registered e2 node and pend the new e2 node
   const size_t reg_e2_node_len = sz_reg_e2_node(&xapp->e2_nodes);
   for(size_t i = reg_e2_node_len; i < sr->len_e2_nodes_conn; ++i){

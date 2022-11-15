@@ -501,6 +501,15 @@ e2ap_msg_t e2ap_handle_ric_e2_setup_response_iapp(e42_iapp_t* iapp, const e2ap_m
   size_t xapp_id_len = iapp->ep.xapps.tree.size;
   e2_node_arr_t new_e2_arr = generate_e2_node_arr( &iapp->e2_nodes);
 
+
+  // mir: don;t write raw for loops. The abstraction here is that you want to do a for_each. There is an algorithm
+  // there. If not I will implement it. 
+  // Also, things like iapp->ep.xapps.tree.size; normally mean that you are going too deep into the structure and that
+  // you are not in the correct abstraction level. 
+  // maybe what is missing here is a good structure where you have the connected xApps, rather than the endpoints, which
+  // is bad.
+  // Maybe implement a ds for maintainig the number of connected xApps?
+
   // generate E42 UPDATE-E2-NODE for each xApp
   for (size_t i = init_xapp_id; i < init_xapp_id+xapp_id_len; i++) {
     e2ap_msg_t ans = {.type = E42_UPDATE_E2_NODE};
