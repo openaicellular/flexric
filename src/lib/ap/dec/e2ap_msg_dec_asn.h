@@ -160,6 +160,8 @@ e2ap_msg_t e2ap_dec_e42_subscription_delete_request(const struct E2AP_PDU* pdu);
 // xApp -> iApp 
 e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu);
 
+// iApp -> xApp
+e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu);
 
 #endif
 

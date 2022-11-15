@@ -692,3 +692,14 @@ void e2ap_free_e42_ric_control_request(e42_ric_control_request_t* e42_ctrl)
   free_global_e2_node_id(&e42_ctrl->id);
 }
 
+// iApp -> xApp
+void e2ap_free_e42_update_e2_node_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type == E42_UPDATE_E2_NODE);
+
+  // TODO: create e2ap_free_e42_update_e2_node() to free the msg
+  e2ap_free_e42_setup_response((e42_setup_response_t*)&msg->u_msgs.e42_updt_e2_node);
+}
+
+
