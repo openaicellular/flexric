@@ -209,6 +209,7 @@ e2ap_msg_t e2ap_handle_e42_setup_request_iapp(e42_iapp_t* iapp, const e2ap_msg_t
   ans.u_msgs.e42_stp_resp = generate_setup_response(iapp, req); 
 
   printf("[iApp]: E42 SETUP-RESPONSE sent\n");
+  //printf("[iApp]: send msg to xApp id %d\n", ans.u_msgs.e42_stp_resp.xapp_id);
   fflush(stdout);
 
   return ans;
@@ -491,29 +492,17 @@ e2ap_msg_t e2ap_handle_connection_update_iapp(e42_iapp_t* iapp, const e2ap_msg_t
   return ans; 
 }
 
-e2ap_msg_t e2ap_handle_ric_e2_setup_response_iapp(e42_iapp_t* iapp, const e2ap_msg_t* msg)
+static
+void generate_update_e2_node(e42_iapp_t* iapp, size_t num_xapp)
 {
   assert(iapp != NULL);
-  assert(msg != NULL);
-  assert(msg->type == E2_SETUP_RESPONSE);
+  assert(num_xapp != 0);
 
   size_t init_xapp_id = 7;
-  size_t xapp_id_len = iapp->ep.xapps.tree.size;
-  e2_node_arr_t new_e2_arr = generate_e2_node_arr( &iapp->e2_nodes);
+  e2_node_arr_t new_e2_arr = generate_e2_node_arr(&iapp->e2_nodes);
 
-
-  // mir: don;t write raw for loops. The abstraction here is that you want to do a for_each. There is an algorithm
-  // there. If not I will implement it. 
-  // Also, things like iapp->ep.xapps.tree.size; normally mean that you are going too deep into the structure and that
-  // you are not in the correct abstraction level. 
-  // maybe what is missing here is a good structure where you have the connected xApps, rather than the endpoints, which
-  // is bad.
-  // Maybe implement a ds for maintainig the number of connected xApps?
-
-  // generate E42 UPDATE-E2-NODE for each xApp
-  for (size_t i = init_xapp_id; i < init_xapp_id+xapp_id_len; i++) {
+  for (size_t i = init_xapp_id; i < init_xapp_id+num_xapp; i++) {
     e2ap_msg_t ans = {.type = E42_UPDATE_E2_NODE};
-    defer( { e2ap_msg_free_iapp(&iapp->ap, &ans); } );
     ans.u_msgs.e42_updt_e2_node.xapp_id = i;
     ans.u_msgs.e42_updt_e2_node.len_e2_nodes_conn = new_e2_arr.len;
     ans.u_msgs.e42_updt_e2_node.nodes = new_e2_arr.n;
@@ -527,8 +516,35 @@ e2ap_msg_t e2ap_handle_ric_e2_setup_response_iapp(e42_iapp_t* iapp, const e2ap_m
     printf("[iApp]: send E42 UPDATE-E2-NODE to xApp id %ld\n", i);
     fflush(stdout);
   }
+  return;
+}
 
+e2ap_msg_t e2ap_handle_ric_e2_setup_response_iapp(e42_iapp_t* iapp, const e2ap_msg_t* msg)
+{
+  assert(iapp != NULL);
+  assert(msg != NULL);
+  assert(msg->type == E2_SETUP_RESPONSE);
+
+  size_t num_xapp = get_num_connected_xapps(&iapp->ep.xapps);
   e2ap_msg_t none = {.type = NONE_E2_MSG_TYPE};
+
+  if (num_xapp <= 0) {
+    printf("[iApp]: no xApp connected, no need to generate E42 UPDATE-E2-NODE\n");
+    return none;
+  }
+
+  // mir: don;t write raw for loops. The abstraction here is that you want to do a for_each. There is an algorithm
+  // there. If not I will implement it. 
+  // Also, things like iapp->ep.xapps.tree.size; normally mean that you are going too deep into the structure and that
+  // you are not in the correct abstraction level. 
+  // maybe what is missing here is a good structure where you have the connected xApps, rather than the endpoints, which
+  // is bad.
+  // Maybe implement a ds for maintainig the number of connected xApps?
+
+  // if connected xApps > 0
+  // generate E42 UPDATE-E2-NODE for each xApp
+  generate_update_e2_node(iapp, num_xapp);
+
   return none;
 }
 
