@@ -597,16 +597,19 @@ e2ap_msg_t e2ap_handle_e42_update_e2_node_xapp(e42_xapp_t* xapp, const e2ap_msg_
   // Also think that this code needs to be thread safe
   // The level of abstraction does not belong to this function
   //
-  // TODO: find the registered e2 node and pend the new e2 node
-  const size_t reg_e2_node_len = sz_reg_e2_node(&xapp->e2_nodes);
-  for(size_t i = reg_e2_node_len; i < sr->len_e2_nodes_conn; ++i){
-    global_e2_node_id_t const id = cp_global_e2_node_id(&sr->nodes[i].id);
-    const size_t len = sr->nodes[i].len_rf;
-    ran_function_t* rf = sr->nodes[i].ack_rf;
-    add_reg_e2_node(&xapp->e2_nodes, &id, len, rf);
-  }
 
-  printf("Registered E2 Nodes = %ld \n",   sz_reg_e2_node(&xapp->e2_nodes) );
+  for(size_t i = 0; i < sr->len_e2_nodes_conn; ++i) {
+    if (!find_reg_e2_node(&xapp->e2_nodes, &sr->nodes[i].id)) {
+      global_e2_node_id_t const id = cp_global_e2_node_id(&sr->nodes[i].id);
+      //printf("[xApp]: haven't registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id);
+      const size_t len = sr->nodes[i].len_rf;
+      ran_function_t* rf = sr->nodes[i].ack_rf;
+      add_reg_e2_node(&xapp->e2_nodes, &id, len, rf);
+      printf("[xApp]: Registered E2 Nodes = %ld \n",   sz_reg_e2_node(&xapp->e2_nodes) );
+    } //else {
+      //printf("[xApp]: have registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id);
+    //}
+  }
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans;
