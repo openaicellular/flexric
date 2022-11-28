@@ -45,6 +45,8 @@ uint64_t count_mac = 0;
 uint64_t aggr_tstamp_mac = 0;
 uint64_t count_rlc = 0;
 uint64_t aggr_tstamp_rlc = 0;
+uint64_t count_pdcp = 0;
+uint64_t aggr_tstamp_pdcp = 0;
 static
 void sm_cb_all(sm_ag_if_rd_t const* rd)
 {
@@ -67,10 +69,17 @@ void sm_cb_all(sm_ag_if_rd_t const* rd)
       count_rlc = 0;
       aggr_tstamp_rlc = 0;
     }
-  } else if (rd->type == PDCP_STATS_V0)
-    printf("RLC ind_msg latency = %ld\n", now - rd->rlc_stats.msg.tstamp);
+  } else if (rd->type == PDCP_STATS_V0) {
+    count_pdcp += 1;
+    aggr_tstamp_pdcp += now - rd->pdcp_stats.msg.tstamp;
+    if (count_pdcp == count_max) {
+      printf("PDCP avg ind_msg latency = %ld\n", aggr_tstamp_pdcp/count_max);
+      count_pdcp = 0;
+      aggr_tstamp_pdcp = 0;
+    }
+  }
   else if (rd->type == GTP_STATS_V0)
-    printf("RLC ind_msg latency = %ld\n", now - rd->rlc_stats.msg.tstamp);
+    printf("GTP ind_msg latency = %ld\n", now - rd->gtp_stats.msg.tstamp);
   else if (rd->type == KPM_STATS_V0) {
     int64_t diff = now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime;
     if (diff > 1)
@@ -140,21 +149,56 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
   for(size_t j = 0; j < n->len_rf; j++)
     printf("Registered E2 node %d, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
 
-  assert(num_sm == 2);
-  // give the requested RAN func id
-  uint16_t sm_id_arr[2] = {SM_MAC_ID, SM_RLC_ID};
-  // TODO: select the SM from n->ack_rf
-  // uint16_t* sm_id_arr = get_rand_sm_id(num_sm);
-  // TODO: select the transmission interval time
   inter_xapp_e tti = ms_10;
-
-  for(size_t j = c_handle; j < c_handle+num_sm; j++){
-    uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-    printf("xApp subscribes RAN Func ID %d in E2 node %d\n", ran_func_id, n_idx);
-    handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
-    assert(handle[j].success == true);
-    c_handle+=1;
+  if (n->id.type == ngran_gNB) {
+    num_sm = 3;
+    uint16_t sm_id_arr[3] = {SM_MAC_ID, SM_RLC_ID, SM_PDCP_ID};
+    for(size_t j = c_handle; j < c_handle+num_sm; j++){
+      uint16_t ran_func_id = sm_id_arr[num_sm-=1];
+      printf("xApp subscribes RAN Func ID %d in E2 node %d\n", ran_func_id, n_idx);
+      handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
+      assert(handle[j].success == true);
+      c_handle+=1;
+    }
+  } else if (n->id.type == ngran_gNB_CU) {
+    num_sm = 1;
+    uint16_t sm_id_arr[1] = {SM_PDCP_ID};
+    for(size_t j = c_handle; j < c_handle+num_sm; j++){
+      uint16_t ran_func_id = sm_id_arr[num_sm-=1];
+      printf("xApp subscribes RAN Func ID %d in E2 node %d\n", ran_func_id, n_idx);
+      handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
+      assert(handle[j].success == true);
+      c_handle+=1;
+    }
+  } else if (n->id.type == ngran_gNB_DU) {
+    num_sm = 2;
+    uint16_t sm_id_arr[2] = {SM_MAC_ID, SM_RLC_ID};
+    for(size_t j = c_handle; j < c_handle+num_sm; j++){
+      uint16_t ran_func_id = sm_id_arr[num_sm-=1];
+      printf("xApp subscribes RAN Func ID %d in E2 node %d\n", ran_func_id, n_idx);
+      handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
+      assert(handle[j].success == true);
+      c_handle+=1;
+    }
+  } else {
+    printf("xApp doesn't support RAN type %d, do not send the subscription request\n", n->id.type);
+    return;
   }
+//  assert(num_sm == 2);
+//  // give the requested RAN func id
+//  uint16_t sm_id_arr[2] = {SM_MAC_ID, SM_RLC_ID};
+//  // TODO: select the SM from n->ack_rf
+//  // uint16_t* sm_id_arr = get_rand_sm_id(num_sm);
+//  // TODO: select the transmission interval time
+//  inter_xapp_e tti = ms_10;
+//
+//  for(size_t j = c_handle; j < c_handle+num_sm; j++){
+//    uint16_t ran_func_id = sm_id_arr[num_sm-=1];
+//    printf("xApp subscribes RAN Func ID %d in E2 node %d\n", ran_func_id, n_idx);
+//    handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
+//    assert(handle[j].success == true);
+//    c_handle+=1;
+//  }
 }
 
 
