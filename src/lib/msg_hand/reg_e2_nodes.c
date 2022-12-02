@@ -290,3 +290,18 @@ void rm_reg_e2_node(reg_e2_nodes_t* n, global_e2_node_id_t const* id)
   }
 }
 
+bool find_reg_e2_node(reg_e2_nodes_t* n, global_e2_node_id_t const* id)
+{
+  assert(n != NULL);
+  assert(id != NULL);
+  {
+    lock_guard(&n->mtx);
+
+    void* it = assoc_front(&n->node_to_rf);
+    void* end = assoc_end(&n->node_to_rf);
+    it = find_if(&n->node_to_rf, it, end, id, eq_global_e2_node_id_wrapper );
+
+    return it == end ? false : true;
+  }
+}
+

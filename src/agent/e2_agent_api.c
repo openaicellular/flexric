@@ -73,13 +73,13 @@ void init_agent_api(int mcc,
 
   char* ran_type_str = get_ngran_name(ran_type);
   if (NODE_IS_MONOLITHIC(ran_type)) {
-    printf("[E2 AGENT]: nearRT-RIC IP Address = %s, PORT = %d, RAN type = %s, nb_id = %d\n", server_ip_str, e2ap_server_port, ran_type_str, nb_id);
+    printf("[E2-AGENT]: nearRT-RIC IP Address = %s, PORT = %d, RAN type = %s, nb_id = %d\n", server_ip_str, e2ap_server_port, ran_type_str, nb_id);
   } else if (NODE_IS_CU(ran_type) || NODE_IS_DU(ran_type)) {
     assert(cu_du_id > 0);
     ge2ni.cu_du_id = calloc(1, sizeof(uint64_t));
     assert(ge2ni.cu_du_id != NULL && "memory exhausted");
     *ge2ni.cu_du_id = cu_du_id;
-    printf("[E2 AGENT]: nearRT-RIC IP Address = %s, PORT = %d, RAN type = %s, nb_id = %d, cu_du_id = %ld\n", server_ip_str, e2ap_server_port, ran_type_str, nb_id, *ge2ni.cu_du_id);
+    printf("[E2-AGENT]: nearRT-RIC IP Address = %s, PORT = %d, RAN type = %s, nb_id = %d, cu_du_id = %ld\n", server_ip_str, e2ap_server_port, ran_type_str, nb_id, *ge2ni.cu_du_id);
   } else {
     assert(0 != 0 && "not support RAN type\n");
   }

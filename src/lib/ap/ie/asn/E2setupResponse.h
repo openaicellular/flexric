@@ -21,7 +21,7 @@ extern "C" {
 
 /* E2setupResponse */
 typedef struct E2setupResponse {
-	ProtocolIE_Container_1477P16_t	 protocolIEs;
+	ProtocolIE_Container_1490P16_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

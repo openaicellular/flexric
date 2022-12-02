@@ -154,9 +154,9 @@ int main(int argc, char *argv[])
   fr_args_t args = init_fr_args(argc, argv);
 
   if (NODE_IS_MONOLITHIC(ran_type))
-    printf("[E2 AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n", nb_id, mcc, mnc, mnc_digit_len, get_ngran_name(ran_type));
+    printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n", nb_id, mcc, mnc, mnc_digit_len, get_ngran_name(ran_type));
   else
-    printf("[E2 AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %d\n", nb_id, mcc, mnc, mnc_digit_len, get_ngran_name(ran_type), cu_du_id);
+    printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %d\n", nb_id, mcc, mnc, mnc_digit_len, get_ngran_name(ran_type), cu_du_id);
   init_agent_api(mcc, mnc, mnc_digit_len, nb_id, cu_du_id, ran_type, io, &args);
 
   while(1){

@@ -44,6 +44,8 @@ void rm_map_xapps_sad(map_xapps_sockaddr_t* m, uint16_t xapp_id);
 
 sctp_info_t find_map_xapps_sad(map_xapps_sockaddr_t* m, uint16_t xapp_id);
 
+size_t get_num_connected_xapps(map_xapps_sockaddr_t* m);
+
 #endif
 
 

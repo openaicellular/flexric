@@ -11,7 +11,7 @@ asn_TYPE_member_t asn_MBR_RICcontrolRequest_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct RICcontrolRequest, protocolIEs),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_ProtocolIE_Container_1477P9,
+		&asn_DEF_ProtocolIE_Container_1490P9,
 		0,
 		{ 0, 0, 0 },
 		0, 0, /* No default value */

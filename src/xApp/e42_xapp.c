@@ -316,6 +316,12 @@ e2_node_arr_t e2_nodes_xapp(e42_xapp_t* xapp)
   return ans;
 }
 
+size_t e2_nodes_len_xapp(e42_xapp_t* xapp)
+{
+  assert(xapp != NULL);
+  return sz_reg_e2_node(&xapp->e2_nodes);
+}
+
 static
 void send_subscription_request(e42_xapp_t* xapp, global_e2_node_id_t* id, ric_gen_id_t ric_id, inter_xapp_e i)
 {

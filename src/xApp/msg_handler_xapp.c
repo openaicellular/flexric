@@ -54,6 +54,8 @@ bool check_valid_msg_type(e2_msg_type_t msg_type)
 
       msg_type == E42_SETUP_RESPONSE ||
       msg_type == E2_SETUP_FAILURE ||
+
+      msg_type == E42_UPDATE_E2_NODE ||
  
       msg_type == E42_RIC_CONTROL_REQUEST || 
 
@@ -90,9 +92,9 @@ void rm_pending_event_xapp(e42_xapp_t* xapp, pending_event_xapp_t* ev)
   defer({ free(fd); } );
 }
 
-void init_handle_msg_xapp(e2ap_handle_msg_fp_xapp (*handle_msg)[31])
+void init_handle_msg_xapp(e2ap_handle_msg_fp_xapp (*handle_msg)[32])
 {
-  memset((*handle_msg), 0, sizeof(e2ap_handle_msg_fp_xapp)*31);
+  memset((*handle_msg), 0, sizeof(e2ap_handle_msg_fp_xapp)*32);
   (*handle_msg)[RIC_SUBSCRIPTION_RESPONSE] =  e2ap_handle_subscription_response_xapp;
   (*handle_msg)[RIC_SUBSCRIPTION_FAILURE] =  e2ap_handle_subscription_failure_xapp;
   (*handle_msg)[RIC_SUBSCRIPTION_DELETE_RESPONSE] =  e2ap_handle_subscription_delete_response_xapp;
@@ -112,6 +114,7 @@ void init_handle_msg_xapp(e2ap_handle_msg_fp_xapp (*handle_msg)[31])
   (*handle_msg)[E42_RIC_SUBSCRIPTION_DELETE_REQUEST] = e2ap_handle_e42_subscription_delete_request_xapp;
 
   (*handle_msg)[E42_RIC_CONTROL_REQUEST] = e2ap_handle_e42_ric_control_request_xapp;
+  (*handle_msg)[E42_UPDATE_E2_NODE] = e2ap_handle_e42_update_e2_node_xapp;
 
   (*handle_msg)[E2AP_RESET_REQUEST] =  e2ap_handle_reset_request_xapp;
   (*handle_msg)[E2AP_RESET_RESPONSE] =  e2ap_handle_reset_response_xapp;
@@ -574,3 +577,40 @@ e2ap_msg_t e2ap_handle_e42_ric_control_request_xapp(e42_xapp_t* xapp, const e2ap
   return ans;
 }
 
+e2ap_msg_t e2ap_handle_e42_update_e2_node_xapp(e42_xapp_t* xapp, const e2ap_msg_t* msg)
+{
+  assert(xapp != NULL);
+  assert(msg != NULL);
+  assert(msg->type == E42_UPDATE_E2_NODE);
+
+  e42_update_e2_node_t const* sr = &msg->u_msgs.e42_updt_e2_node;
+
+  printf("[xApp]: E42 UPDATE-E2-NODE received\n");
+
+  *(uint16_t*)&xapp->id = sr->xapp_id;
+  printf("[xApp]: xApp ID = %u \n", sr->xapp_id);
+
+  // mir what you want to do is extend the reg_e2_nodes struct which is basically a rb_tree with an
+  // update_or_insert_reg_e2_nodes function.
+  // There you first check if the node is already registered with a find function.
+  // And you either update it or call insert
+  // Also think that this code needs to be thread safe
+  // The level of abstraction does not belong to this function
+  //
+
+  for(size_t i = 0; i < sr->len_e2_nodes_conn; ++i) {
+    if (!find_reg_e2_node(&xapp->e2_nodes, &sr->nodes[i].id)) {
+      global_e2_node_id_t const id = cp_global_e2_node_id(&sr->nodes[i].id);
+      //printf("[xApp]: haven't registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id);
+      const size_t len = sr->nodes[i].len_rf;
+      ran_function_t* rf = sr->nodes[i].ack_rf;
+      add_reg_e2_node(&xapp->e2_nodes, &id, len, rf);
+      printf("[xApp]: Registered E2 Nodes = %ld \n",   sz_reg_e2_node(&xapp->e2_nodes) );
+    } //else {
+      //printf("[xApp]: have registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id);
+    //}
+  }
+
+  e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
+  return ans;
+}

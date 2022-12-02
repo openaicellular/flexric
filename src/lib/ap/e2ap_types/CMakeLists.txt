@@ -20,6 +20,7 @@ set(e2ap_src_types
   e2_node_connected.c
   e42_ric_subscription_request.c
   e42_ric_subscription_delete_request.c
+  e42_update_e2_node.c
 
   e2ap_reset_request.c 
   e2ap_reset_response.c 

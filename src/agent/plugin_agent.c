@@ -251,7 +251,7 @@ void load_plugin_ag(plugin_ag_t* p, const char* path)
   assert(p != NULL);
   assert(path != NULL);
 
-  printf("[E2 AGENT]: Opening plugin from path = %s \n", path );
+  printf("[E2-AGENT]: Opening plugin from path = %s \n", path );
 
   void* handle = dlopen(path, RTLD_NOW);
   if(handle == NULL){

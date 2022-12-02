@@ -374,6 +374,11 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_t* d)
   lock_guard(&ric->conn_e2_nodes_mtx);
   seq_push_back(&ric->conn_e2_nodes, &n, sizeof(n));
 
+  // Notify the iApp
+#ifndef TEST_AGENT_RIC
+  notify_msg_iapp_api(&ans);
+#endif
+
   return ans;
 }
 

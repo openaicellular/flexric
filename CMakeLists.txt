@@ -236,7 +236,7 @@ endif ()
 # Install Emulator Agent
 ###
 if (XAPP_C_INSTALL)
-  install(TARGETS xapp_mac_rlc_pdcp_moni xapp_slice_moni_ctrl xapp_kpm_moni xapp_gtp_moni xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS xapp_mac_rlc_pdcp_moni xapp_slice_moni_ctrl xapp_kpm_moni xapp_gtp_moni xapp_hw xapp_moni DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
 

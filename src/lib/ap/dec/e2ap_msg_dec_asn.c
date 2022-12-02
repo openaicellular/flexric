@@ -2261,6 +2261,120 @@ e2ap_msg_t e2ap_dec_e42_subscription_delete_request(const struct E2AP_PDU* pdu)
   return ret;
 }
 
+// iApp -> xApp
+e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
+{
+  assert(pdu != NULL);
+  assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
+
+  assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_E42updateE2node);
+  assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
+  assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_E42updateE2node);
+
+  e2ap_msg_t ret = {.type = E42_UPDATE_E2_NODE};
+  e42_update_e2_node_t* sr = &ret.u_msgs.e42_updt_e2_node;
+
+  E42updateE2node_t const* out = &pdu->choice.initiatingMessage->value.choice.E42updateE2node;
+
+  size_t elm = out->protocolIEs.list.count;
+  assert(elm > 0 && "At least the xApp-id should be here");
+
+  E42setupResponseIEs_t* setup_rid = out->protocolIEs.list.array[0];
+
+  assert(setup_rid->id == ProtocolIE_ID_id_XAPP_ID);
+  assert(setup_rid->criticality == Criticality_reject);
+  assert(setup_rid->value.present == E42setupResponseIEs__value_PR_XAPP_ID);
+
+  sr->xapp_id = setup_rid->value.choice.XAPP_ID;
+  elm -= 1;
+
+  sr->len_e2_nodes_conn = elm;
+  if(elm > 0){
+    sr->nodes = calloc(elm, sizeof( e2_node_connected_t) );
+    assert(sr->nodes != NULL && "Memory exhausted");
+  }
+
+  for(size_t i = 0; i < elm; ++i){
+    E42setupResponseIEs_t const* conn_list = out->protocolIEs.list.array[i+1];
+
+    assert(conn_list->id == ProtocolIE_ID_id_E2nodesConnected);
+    assert(conn_list->criticality == Criticality_reject);
+    assert(conn_list->value.present == E42setupResponseIEs__value_PR_E2nodeConnected_List);
+    assert(conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.count == 2 && "Need the Global E2 Node ID and the RAN functions" );
+
+    // Global E2 Node ID. Mandatory
+    E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
+
+    e2_node_connected_t* dst = &sr->nodes[i];
+    // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
+    assert(src->id == ProtocolIE_ID_id_GlobalE2node_ID);
+    assert(src->criticality == Criticality_reject);
+    assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
+    if (src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
+      assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
+      dst->id.type = ngran_gNB;
+
+      GlobalE2node_gNB_ID_t *e2gnb = src->value.choice.GlobalE2node_ID.choice.gNB;
+      assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
+      PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, dst->id.plmn.mcc, dst->id.plmn.mnc, dst->id.plmn.mnc_digit_len);
+      BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, dst->id.nb_id);
+
+      if (e2gnb->gNB_CU_UP_ID) {
+        dst->id.type = ngran_gNB_CU;
+        dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
+        assert(dst->id.cu_du_id != NULL && "memory exhausted");
+        asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
+      }
+      else if (e2gnb->gNB_DU_ID) {
+        dst->id.type = ngran_gNB_DU;
+        dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
+        assert(dst->id.cu_du_id != NULL && "memory exhausted");
+        asn_INTEGER2ulong(e2gnb->gNB_DU_ID, dst->id.cu_du_id);
+      }
+    } else {
+      assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
+      dst->id.type = ngran_eNB;
+
+      GlobalE2node_eNB_ID_t *e2enb = src->value.choice.GlobalE2node_ID.choice.eNB;
+      assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
+      PLMNID_TO_MCC_MNC(&e2enb->global_eNB_ID.pLMN_Identity, dst->id.plmn.mcc, dst->id.plmn.mnc, dst->id.plmn.mnc_digit_len);
+      BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, dst->id.nb_id);
+    }
+
+    E2nodeConnected_ItemIEs_t const* src_ran = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[1];
+
+    assert(src_ran->id ==   ProtocolIE_ID_id_RANfunctionsAdded);
+    assert(src_ran->criticality == Criticality_reject);
+    assert(src_ran->value.present == E2nodeConnected_ItemIEs__value_PR_RANfunctions_List);
+
+    dst->len_rf = src_ran->value.choice.RANfunctions_List.list.count;
+    if(dst->len_rf > 0){
+      dst->ack_rf = calloc(dst->len_rf, sizeof(ran_function_t));
+      assert(dst->ack_rf != NULL && "memory exhausted");
+    }
+
+
+    RANfunction_ItemIEs_t** arr = (RANfunction_ItemIEs_t**)src_ran->value.choice.RANfunctions_List.list.array;
+    for(size_t i =0; i < dst->len_rf; ++i){
+      ran_function_t* dst_ie = &dst->ack_rf[i];
+      const RANfunction_Item_t* src = &arr[i]->value.choice.RANfunction_Item;
+
+      assert(src->ranFunctionID <= MAX_RAN_FUNC_ID);
+      dst_ie->id = src->ranFunctionID;
+
+      assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
+      dst_ie->rev = src->ranFunctionRevision;
+
+      dst_ie->def = copy_ostring_to_ba(src->ranFunctionDefinition);
+
+      if(src->ranFunctionOID != NULL){
+        dst_ie->oid = malloc(sizeof(byte_array_t));
+        *dst_ie->oid = copy_ostring_to_ba(*src->ranFunctionOID);
+      }
+    }
+  }
+  return ret;
+}
 
 ///////////////////////////////////////
 ///////////////////////////////////////
@@ -2379,6 +2493,9 @@ e2_msg_type_t e2ap_get_msg_type(const E2AP_PDU_t* pdu)
       }
       break;
 
+    case ProcedureCode_id_E42updateE2node:
+                                              return E42_UPDATE_E2_NODE;
+      break;
 
 
     default:

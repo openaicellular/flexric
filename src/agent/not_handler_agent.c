@@ -20,7 +20,7 @@ void notification_handle_ag(e2_agent_t* ag, sctp_msg_t const* msg)
   bi_map_insert(&ag->pending, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev)); 
 
 
-  puts("E2 AGENT: Communication with the nearRT-RIC lost\n" );
+  puts("E2-AGENT: Communication with the nearRT-RIC lost\n" );
 
 }
 

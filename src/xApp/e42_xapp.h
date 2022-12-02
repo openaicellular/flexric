@@ -54,7 +54,7 @@ typedef struct e42_xapp_s
   e2ap_ep_xapp_t ep;
   e2ap_xapp_t ap; 
   asio_xapp_t io;
-  e2ap_handle_msg_fp_xapp handle_msg[31]; // note that not all the slots will be occupied
+  e2ap_handle_msg_fp_xapp handle_msg[32]; // note that not all the slots will be occupied
 
   // Registered SMs
   plugin_ag_t plugin_ag; // Needed for E2 setup request
@@ -98,6 +98,8 @@ void start_e42_xapp(e42_xapp_t* xapp);
 void free_e42_xapp(e42_xapp_t* xapp);
 
 e2_node_arr_t e2_nodes_xapp(e42_xapp_t* xapp);
+
+size_t e2_nodes_len_xapp(e42_xapp_t* xapp);
 
 size_t not_dispatch_msg(e42_xapp_t* xapp);
 
