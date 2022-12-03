@@ -87,7 +87,7 @@
 namespace std {
   %template(IntVector) vector<int>;
   %template(E2NodeVector) vector<E2Node>;
-  %template(RANVector) vector<ran_function_t>;
+  %template(RANVector) vector<RanFunction>;
   %template(MACStatsVector) vector<mac_ue_stats_impl_t>;
   %template(RLC_RBStatsVector) vector<rlc_radio_bearer_stats_t>;
   %template(PDCP_RBStatsVector) vector<pdcp_radio_bearer_stats_t>;

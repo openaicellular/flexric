@@ -60,10 +60,19 @@ std::vector<E2Node> conn_e2_nodes(void)
     e2_node_connected_t const* src = &arr.n[i];
     tmp.id = cp_global_e2_node_id(&src->id); 
 
-    std::vector<ran_function_t> ran_func;//(src->len_rf);
+    std::vector<RanFunction> ran_func;//(src->len_rf);
 
     for(size_t j = 0; j < src->len_rf; ++j){
-      ran_function_t rf = cp_ran_function(&src->ack_rf[j]);
+      ran_function_t const* rf_src = &src->ack_rf[j];
+      byte_array_t const* def_ba = &rf_src->def; 
+      // casting unsigned char* to char*, which is unsafe
+      std::string str(reinterpret_cast<char*>(def_ba->buf), def_ba->len);
+
+      RanFunction rf;
+      rf.definition = str;
+      rf.id = rf_src->id;
+      rf.rev = rf_src->rev;
+
       ran_func.push_back(rf);// [j] = rf;
     }
     tmp.ran_func = ran_func;

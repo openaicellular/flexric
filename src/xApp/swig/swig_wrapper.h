@@ -20,9 +20,16 @@
 // General    
 /////////////////////////////////////
 
+struct RanFunction {
+  std::string definition;
+  int id;
+  int rev;
+  // string oid // optional
+};
+
 struct E2Node {
   global_e2_node_id_t id;
-  std::vector<ran_function_t> ran_func;
+  std::vector<RanFunction> ran_func;
 };
 
 void init(void); 
