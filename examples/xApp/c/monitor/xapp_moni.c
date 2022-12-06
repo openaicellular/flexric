@@ -156,7 +156,7 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
     uint16_t sm_id_arr[3] = {SM_MAC_ID, SM_RLC_ID, SM_PDCP_ID};
     for(size_t j = c_handle; j < c_handle+num_sm; j++){
       uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, (ngran_gNB)\n", ran_func_id, n_idx);
+      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, ngran_gNB\n", ran_func_id, n_idx);
       handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
       assert(handle[j].success == true);
       c_handle+=1;
@@ -166,7 +166,7 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
     uint16_t sm_id_arr[1] = {SM_PDCP_ID};
     for(size_t j = c_handle; j < c_handle+num_sm; j++){
       uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, (ngran_gNB_CU)\n", ran_func_id, n_idx);
+      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, ngran_gNB_CU\n", ran_func_id, n_idx);
       handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
       assert(handle[j].success == true);
       c_handle+=1;
@@ -176,7 +176,7 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
     uint16_t sm_id_arr[2] = {SM_MAC_ID, SM_RLC_ID};
     for(size_t j = c_handle; j < c_handle+num_sm; j++){
       uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, (ngran_gNB_DU)\n", ran_func_id, n_idx);
+      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, ngran_gNB_DU\n", ran_func_id, n_idx);
       handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
       assert(handle[j].success == true);
       c_handle+=1;
@@ -229,11 +229,10 @@ int main(int argc, char *argv[])
   // start the xApp subscription procedure until detect connected E2 nodes
   while (nodes_len <= 0) {
     // get the original connected e2 nodes info
-    e2_node_arr_t nodes = e2_nodes_xapp_api();
-    defer({ free_e2_node_arr(&nodes); });
-    if (nodes.len > nodes_len) {
-      printf("Update connected E2 nodes = %d\n", nodes.len);
-      nodes_len = nodes.len;
+    size_t tmp_len = e2_nodes_len_xapp_api();
+    if (tmp_len > nodes_len) {
+      printf("Update connected E2 nodes len = %ld\n", tmp_len);
+      nodes_len = tmp_len;
     } else {
       printf("No E2 node connects\n");
       sleep(1);
@@ -241,12 +240,11 @@ int main(int argc, char *argv[])
   }
 
   // case1: send subscription req to the original connected e2 node
-  // get current e2 nodes info
-  e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&cur_nodes); });
-  // TODO: send subscription request to new e2 node
-  for (size_t i = 0; i < nodes_len; i++) {
-    send_subscription_req(&cur_nodes.n[i], i, handle, num_sm);
+  // get original e2 nodes info
+  e2_node_arr_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr(&nodes); });
+  for (size_t i = 0; i < nodes.len; i++) {
+    send_subscription_req(&nodes.n[i], i, handle, num_sm);
   }
 
   // case2: send subscription req to the new connected e2 node
@@ -259,15 +257,28 @@ int main(int argc, char *argv[])
       e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
       defer({ free_e2_node_arr(&cur_nodes); });
 
-      for (size_t i = 0; i < cur_nodes_len; i++)
-        printf("/////////////// E2 node list, idx %ld, nb_id %d, type %s //////////////\n", i, cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
-
       // TODO: send subscription request to new e2 node
-      for (size_t i = nodes_len; i < cur_nodes_len; i++) {
-          printf("/////////////// send sub req to new E2 node type %s //////////////\n", get_ngran_name(cur_nodes.n[i].id.type));
+      for (size_t i = 0; i < cur_nodes_len; i++) {
+        //printf("/////////////// new E2 node list, idx %ld, nb_id %d, type %s //////////////\n", i,
+        //       cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
+        ngran_node_t cur_type = cur_nodes.n[i].id.type;
+        uint32_t cur_nb_id = cur_nodes.n[i].id.nb_id;
+        bool new_type = 1;
+        bool new_nb_id = 1;
+        // compare the type between old and new e2 nodes list
+        for (size_t j = 0; j < nodes_len; j++) {
+          //printf("/////////////// old E2 node list, idx %ld, nb_id %d, type %s //////////////\n", j,
+          //       nodes.n[j].id.nb_id, get_ngran_name(nodes.n[j].id.type));
+          if (nodes.n[j].id.type == cur_type) new_type = 0;
+          if (nodes.n[j].id.nb_id == cur_nb_id) new_nb_id = 0;
+        }
+        if (new_type || new_nb_id) {
+          printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
           send_subscription_req(&cur_nodes.n[i], i, handle, num_sm);
+        }
       }
       nodes_len = cur_nodes_len;
+      nodes = e2_nodes_xapp_api();
     }
   }
 
