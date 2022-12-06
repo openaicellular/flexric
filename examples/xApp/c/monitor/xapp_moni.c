@@ -27,6 +27,7 @@
 #include "../../../../src/sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../../../src/sm/gtp_sm/gtp_sm_id.h"
 #include "../../../../src/sm/kpm_sm_v2.02/kpm_sm_id.h"
+#include "../../../../src/util/ngran_types.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -147,7 +148,7 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
 {
   // send subscription request to each e2 nodes
   for(size_t j = 0; j < n->len_rf; j++)
-    printf("Registered E2 node %d, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
+    printf("Registered E2 node idx %d, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
 
   inter_xapp_e tti = ms_10;
   if (n->id.type == ngran_gNB) {
@@ -155,7 +156,7 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
     uint16_t sm_id_arr[3] = {SM_MAC_ID, SM_RLC_ID, SM_PDCP_ID};
     for(size_t j = c_handle; j < c_handle+num_sm; j++){
       uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-      printf("xApp subscribes RAN Func ID %d in E2 node %d\n", ran_func_id, n_idx);
+      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, (ngran_gNB)\n", ran_func_id, n_idx);
       handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
       assert(handle[j].success == true);
       c_handle+=1;
@@ -165,7 +166,7 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
     uint16_t sm_id_arr[1] = {SM_PDCP_ID};
     for(size_t j = c_handle; j < c_handle+num_sm; j++){
       uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-      printf("xApp subscribes RAN Func ID %d in E2 node %d\n", ran_func_id, n_idx);
+      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, (ngran_gNB_CU)\n", ran_func_id, n_idx);
       handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
       assert(handle[j].success == true);
       c_handle+=1;
@@ -175,7 +176,7 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
     uint16_t sm_id_arr[2] = {SM_MAC_ID, SM_RLC_ID};
     for(size_t j = c_handle; j < c_handle+num_sm; j++){
       uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-      printf("xApp subscribes RAN Func ID %d in E2 node %d\n", ran_func_id, n_idx);
+      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, (ngran_gNB_DU)\n", ran_func_id, n_idx);
       handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
       assert(handle[j].success == true);
       c_handle+=1;
@@ -222,6 +223,7 @@ int main(int argc, char *argv[])
   }
 
   signal(SIGINT, intHandler);
+  signal(SIGTERM, intHandler);
 
   size_t nodes_len = e2_nodes_len_xapp_api();
   // start the xApp subscription procedure until detect connected E2 nodes
@@ -252,7 +254,6 @@ int main(int argc, char *argv[])
     size_t cur_nodes_len = e2_nodes_len_xapp_api();
     if (cur_nodes_len - nodes_len > 0) {
       printf("//////////////// detect E2 nodes len update ////////////////\n");
-      printf("/////////////// send sub req to new E2 node  //////////////\n");
       sleep(1);
       // get the new e2 nodes info
       e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
@@ -260,6 +261,7 @@ int main(int argc, char *argv[])
 
       // TODO: send subscription request to new e2 node
       for (size_t i = nodes_len; i < cur_nodes_len; i++) {
+          printf("/////////////// send sub req to new E2 node type %s //////////////\n", get_ngran_name(cur_nodes.n[i].id.type));
           send_subscription_req(&cur_nodes.n[i], i, handle, num_sm);
       }
       nodes_len = cur_nodes_len;
