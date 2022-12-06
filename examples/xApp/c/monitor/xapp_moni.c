@@ -259,6 +259,9 @@ int main(int argc, char *argv[])
       e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
       defer({ free_e2_node_arr(&cur_nodes); });
 
+      for (size_t i = 0; i < cur_nodes_len; i++)
+        printf("/////////////// E2 node list, idx %ld, nb_id %d, type %s //////////////\n", i, cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
+
       // TODO: send subscription request to new e2 node
       for (size_t i = nodes_len; i < cur_nodes_len; i++) {
           printf("/////////////// send sub req to new E2 node type %s //////////////\n", get_ngran_name(cur_nodes.n[i].id.type));
