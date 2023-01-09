@@ -28,6 +28,8 @@
 #include "util/alg_ds/alg/alg.h"
 #include "util/compare.h"
 
+#include "../proxy-agent/notif_e2_ws.h"
+
 #include <stdio.h>
 
 static
@@ -145,6 +147,14 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   subscribe_timer_t t = sm->proc.on_subscription(sm, &data);
   int fd_timer = create_timer_ms_asio_agent(&ag->io, t.ms, t.ms); 
   //printf("fd_timer for subscription value created == %d\n", fd_timer);
+  #ifdef PROXY_AGENT
+  printf("[E2 AGENT] timer of %d ms related to subscription has been created.\n", t.ms);
+  ind_event_t e2_ws_sub;
+  e2_ws_sub.action_id = sr->action[0].id;
+  e2_ws_sub.ric_id = sr->ric_id;
+  e2_ws_sub.sm = sm;
+  fwd_e2_ws_subscription_timer (ag->ran_if, e2_ws_sub, t.ms, t.ms);
+  #endif
 
   // Register the indication event
   ind_event_t ev;

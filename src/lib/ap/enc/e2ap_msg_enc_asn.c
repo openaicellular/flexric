@@ -3155,3 +3155,4 @@ struct E2AP_PDU* e2ap_enc_e42_update_e2_node_asn_pdu(const e42_update_e2_node_t*
 
   return pdu;
 }
+

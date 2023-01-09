@@ -39,6 +39,10 @@
 #include "plugin_agent.h"
 #include "sm/sm_io.h"
 
+#ifdef PROXY_AGENT
+#include "../proxy-agent/ran_if.h"
+#endif
+
 #include <stdatomic.h>
 #include <stdbool.h>
 
@@ -66,6 +70,9 @@ typedef struct e2_agent_s
 
   atomic_bool stop_token;
   atomic_bool agent_stopped;
+  #ifdef PROXY_AGENT
+  ran_if_t *ran_if;
+  #endif
 } e2_agent_t;
 
 e2_agent_t* e2_init_agent(const char* addr, int port, global_e2_node_id_t ge2nid, sm_io_ag_t io, fr_args_t const* args);
