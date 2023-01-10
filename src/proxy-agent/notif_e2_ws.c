@@ -18,8 +18,6 @@ void fwd_e2_ws_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long initial
 {
   (void) initial_ms;
   
-  lwsl_user("[E2]: indication timer forwarded to WS interface\n");
-
   // create the timer on WS interface and pass it to the WS event loop datastrcuture 'user'
 
   /* XXX-BUG: the timer from LWS api, by design, can be delayed/overwritten by another timer that can arrive in the meanwhile. 
@@ -29,6 +27,7 @@ void fwd_e2_ws_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long initial
    * so we do not need a mutex like in lock_guard(&ric->pend_mtx);
    */
   int timer_id = ev.sm->ran_func_id;
+  lwsl_user("[E2]: indication timer (id=%d) forwarded to WS interface\n", timer_id);
   ran_if->user->timer_id = timer_id; 
   lws_set_timer_usecs(ran_if->lws, interval_ms); 
 

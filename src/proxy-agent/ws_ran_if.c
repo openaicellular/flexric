@@ -5,6 +5,9 @@
 #include <assert.h>
 
 #include "../util/alg_ds/alg/defer.h"
+#include "util/alg_ds/alg/alg.h"
+#include "util/compare.h"
+
 
 #include "ws_ran_if.h"
 #include "msg_json_ws.h"
@@ -12,6 +15,7 @@
 #include "ws_msg_hdlr.h"
 #include "proxy_agent.h"
 #include "ringbuffer.h"
+
 
 /* Forward static declarations =======================================================================*/
 
@@ -110,6 +114,36 @@ static void start_connecting_client(lws_sorted_usec_list_t *userlist)
   return;
 }
 
+// TEMPORARY COPY OF CODE from agent/e2_agent.c: <BEGIN>
+// to substitute for bi_map_extract_left(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id));
+// that does not work
+static inline void* ind_fd(bi_map_t *in, int fd)
+{
+  assert(fd > 0);
+
+  void* start_it = assoc_front(&in->left);
+  void* end_it = assoc_end(&in->left);
+
+  void* it = find_if(&in->left, start_it, end_it, &fd, eq_fd );
+  return it;
+}
+
+// 
+static inline
+bool ind_event(bi_map_t *in, int fd, ind_event_t** i_ev)
+{
+  assert(*i_ev == NULL);
+  void* it = ind_fd(in, fd);   
+  void* end_it = assoc_end(&in->left); // bi_map_end_left(&ag->ind_event);
+  if(it != end_it){
+    *i_ev = assoc_value(&in->left, it);
+    return true;
+  } 
+  return false;
+}
+
+// TEMPORARY COPY OF CODE: </END>
+
 /* 
  * main callback mechanism for sending/receiving data and events from the RAN
  */
@@ -183,7 +217,9 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     
     lwsl_user("[WS]: user time expired coming from SM_id = %d\n", shared_msg->timer_id);
     // XXX-BUG: 'bi_map_extract_left()' for some reason can't find the data I put inside in notif_e2_ws.c
-    ind_event_t *ev = bi_map_extract_left(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id));
+    ind_event_t *ev;
+    (void)ind_event(&p_agent->ran_if.ind_event, shared_msg->timer_id, &ev);
+    //ind_event_t *ev = bi_map_extract_left(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id));
     lwsl_user("[WS]: got event service model %d\n", ev->sm->ran_func_id);
     
     int msg_id = 1;
@@ -195,6 +231,7 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     
     // re-set timer for the same event
     lws_set_timer_usecs(wsi, RING_TIMER_TIMEOUT);
+    // 
     // bi_map_insert(&ran_if->ind_event, &timer_id, sizeof(timer_id), &ev, sizeof(ev));
 
     break;

@@ -28,6 +28,7 @@ struct ws_async_event_t
   int           req_id;     // request id: monotonically increasing to avoid collision.
   char          jsonmsg[1024]; // message to be sent to RAN in encoded form already
   int           timer_id;
+  long          timer_ms;
 };
 
 // Websocket functions that implement the ran_if.h

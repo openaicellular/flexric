@@ -24,6 +24,6 @@ void ws_initconf(struct proxy_conf_t * conf, int argc, char *argv[])
     conf->port = AMARISOFT_HOST_PORT;
     conf->address = AMARISOFT_HOST_IPv4;
   }
-  conf->logl = LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO | LLL_DEBUG; 
-  //conf->logl = LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO; 
+  //conf->logl = LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO | LLL_DEBUG; 
+  conf->logl = LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO; 
 }
