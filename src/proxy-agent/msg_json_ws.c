@@ -57,19 +57,6 @@ bool ws_json_decode_e2setup (const ws_msg_t *in_msg, global_e2_node_id_t *out)
   if (!json_object_object_get_ex(json_obj, "global_gnb_id", &key))
     return false;
   /* 
-  * PLMN is a (octet) string encoded in the following way:
-  * Digits 0 to 9 encoded 0000 to 1001. The 1111 is used as filler digit.
-  * Two digits per octet:
-  * - bits 4 to 1 of octet n encoding digit 2n-1
-  * - bits 8 to 5 of octet n encoding digit 2n
-  * PLMN Identity consists of 3 digits from MCC followed by either:
-  * - a filler digit plus 2 digits from MNC (in case of 2 digit MNC) or
-  * - 3 digits from MNC (in case of 3 digit MNC).
-  * Below a representation (f=filler)
-  * 32 ....................... 16 ...........................1
-  * | ---- | ---- | ---- | ---- | ---- |  ---- | ---- | ---- |   
-  *         [mnc]   mnc     mnc   mnc/f    mcc    mcc     mcc
-  
   * Example of json snippet coming from Amarisoft:
   * "global_gnb_id": {
   *      "plmn": 50501",
@@ -78,7 +65,6 @@ bool ws_json_decode_e2setup (const ws_msg_t *in_msg, global_e2_node_id_t *out)
   *      "gnb_name": gnb0000e06"
   * }
   *
-  * XXX-TESTS: near RT ric reports: mcc = 530, mnc = 353, mnc_digit_len = 3  for the PLMN 50501. Check if they are correct.
   */
 
   if (!json_object_object_get_ex(key, "plmn", &plmn))
@@ -86,18 +72,10 @@ bool ws_json_decode_e2setup (const ws_msg_t *in_msg, global_e2_node_id_t *out)
   const char *p = json_object_get_string(plmn);
   if (!p)
     return false;
-  /* caveats: struct similar to OCTET STRING, just to be used for the function PLMNID_TO_MCC_MNC()*/
-  struct local_plmnid_t {
-    const uint8_t *buf;	
-    size_t size;	
-  };
-  struct local_plmnid_t * p_octet = malloc(sizeof(struct local_plmnid_t));
-  if (!p_octet)
-    return false;
-  p_octet->buf = (unsigned char *)p;
-  p_octet->size = strlen(p) + 1;
-  PLMNID_TO_MCC_MNC(p_octet, out->plmn.mcc, out->plmn.mnc, out->plmn.mnc_digit_len);
-  free(p_octet);
+  const int plmn_val = atoi(p);
+  out->plmn.mcc = plmn_val/100;
+  out->plmn.mnc = plmn_val - out->plmn.mcc*100;
+  out->plmn.mnc_digit_len = out->plmn.mnc > 99 ? 3 : 2;
 
   if (!json_object_object_get_ex(key, "gnb_id", &gnb_id))
     return false;
