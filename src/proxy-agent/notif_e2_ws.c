@@ -27,9 +27,11 @@ void fwd_e2_ws_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long initial
    * so we do not need a mutex like in lock_guard(&ric->pend_mtx);
    */
   int timer_id = ev.sm->ran_func_id;
-  lwsl_user("[E2]: indication timer (id=%d) forwarded to WS interface\n", timer_id);
+
+  lwsl_user("[WS]: set indication timer (id=%d, %ld ms)\n", timer_id, interval_ms);
+  ran_if->user->timer_ms = interval_ms; 
   ran_if->user->timer_id = timer_id; 
-  lws_set_timer_usecs(ran_if->lws, interval_ms); 
+  lws_set_timer_usecs(ran_if->lws, interval_ms * 1000); 
 
   /* 
    * Insert the event into the ran event container. 

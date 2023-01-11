@@ -216,10 +216,9 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     assert (user != NULL && "should not happen. Loop internal datastructure is null\n");
     
     lwsl_user("[WS]: user time expired coming from SM_id = %d\n", shared_msg->timer_id);
-    // XXX-BUG: 'bi_map_extract_left()' for some reason can't find the data I put inside in notif_e2_ws.c
     ind_event_t *ev;
     (void)ind_event(&p_agent->ran_if.ind_event, shared_msg->timer_id, &ev);
-    //ind_event_t *ev = bi_map_extract_left(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id));
+    
     lwsl_user("[WS]: got event service model %d\n", ev->sm->ran_func_id);
     
     int msg_id = 1;
@@ -230,9 +229,9 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     ws_set_sendmode();
     
     // re-set timer for the same event
-    lws_set_timer_usecs(wsi, RING_TIMER_TIMEOUT);
-    // 
-    // bi_map_insert(&ran_if->ind_event, &timer_id, sizeof(timer_id), &ev, sizeof(ev));
+    lwsl_user("[WS]: set indication timer (id=%d, %ld ms)\n", shared_msg->timer_id, shared_msg->timer_ms);
+    lws_set_timer_usecs(wsi, shared_msg->timer_ms * 1000);
+    bi_map_insert(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id), &ev, sizeof(ind_event_t));
 
     break;
   case LWS_CALLBACK_CLIENT_CLOSED:
