@@ -17,9 +17,13 @@
 #include "proxy_agent.h"
 
 // TBC: using fake date as workaround until we are ready with real ringbuffer implementation
+#include "ws_msg_hdlr.h"
 #include "../test/sm/common/fill_ind_data.h"
 #define get_ringbuffer_kpm_data fill_kpm_ind_data
+// static void get_ringbuffer_kpm_data(kpm_ind_data_t *kpm_stats) {
 
+//   ws_ind_t ind = get_ringbuffer_data();
+// }
 /* 
  * We arrive here when the timer set by subscription procedure in agent/msg_handler_agent.c:e2ap_handle_subscription_request_agent()
  * expires. 

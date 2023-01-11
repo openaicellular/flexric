@@ -32,11 +32,77 @@ ws_msghdr_t ws_json_get_msghdr(const ws_msg_t *msg)
   return ret_msg;
 }
 
-bool ws_json_decode_indication (const ws_msg_t *msg, ws_ind_t *out) 
+bool ws_json_decode_indication (const ws_msg_t *in_msg, ws_ind_t *out) 
 {
-  (void)msg;
-  (void)out;
-  assert(0!=0 && "not implemented yet\n");
+  assert ((out != NULL || in_msg != NULL) && "programming error\n");
+  
+  struct json_tokener *tok = json_tokener_new();
+  struct json_object *root_json_obj = json_tokener_parse_ex(tok, in_msg->buf, in_msg->len);
+  if (root_json_obj == NULL){
+    lwsl_err("error json token: %s\n", json_tokener_error_desc(json_tokener_get_error(tok)));
+    return false;
+  }
+  
+  struct json_object *cells;
+  if (!json_object_object_get_ex(root_json_obj, "cells", &cells))
+    return false;
+  
+  int idx=0;
+  json_object_object_foreach(cells, key, val)
+  { 
+    out->cells_stats[idx].cell_id = atoi(key);
+
+    struct json_object *dl_bitrate;
+    if (!json_object_object_get_ex(val, "dl_bitrate", &dl_bitrate))
+      lwsl_debug("WS: indication from cell %d. dl_bitrate not found\n", out->cells_stats[idx].cell_id);
+    else 
+      out->cells_stats[idx].dl_bitrate = json_object_get_double(dl_bitrate);
+    
+    struct json_object *ul_bitrate;
+    if (!json_object_object_get_ex(val, "ul_bitrate", &ul_bitrate))
+      lwsl_debug("WS: indication from cell %d. ul_bitrate not found\n", out->cells_stats[idx].cell_id);
+    else 
+      out->cells_stats[idx].ul_bitrate = json_object_get_double(ul_bitrate);
+    
+    struct json_object *ue_count_avg;
+    if (!json_object_object_get_ex(val, "ue_count_avg", &ue_count_avg))
+      lwsl_debug("WS: indication from cell %d. ue_count_avg not found\n", out->cells_stats[idx].cell_id);
+    else 
+      out->cells_stats[idx].ue_count_avg = json_object_get_double(ue_count_avg);
+
+    struct json_object *dl_tx;
+    if (!json_object_object_get_ex(val, "dl_tx", &dl_tx))
+      lwsl_debug("WS: indication from cell %d. dl_tx not found\n", out->cells_stats[idx].cell_id);
+    else 
+      out->cells_stats[idx].dl_tx = json_object_get_int(dl_tx);
+
+    struct json_object *ul_tx;
+    if (!json_object_object_get_ex(val, "ul_tx", &ul_tx))
+      lwsl_debug("WS: indication from cell %d. ul_tx not found\n", out->cells_stats[idx].cell_id);
+    else 
+      out->cells_stats[idx].ul_tx = json_object_get_int(ul_tx);
+
+    struct json_object *dl_retx;
+    if (!json_object_object_get_ex(val, "dl_retx", &dl_retx))
+      lwsl_debug("WS: indication from cell %d. dl_retx not found\n", out->cells_stats[idx].cell_id);
+    else 
+      out->cells_stats[idx].dl_retx = json_object_get_int(dl_retx);
+
+    struct json_object *ul_retx;
+    if (!json_object_object_get_ex(val, "ul_retx", &ul_retx))
+      lwsl_debug("WS: indication from cell %d. ul_retx not found\n", out->cells_stats[idx].cell_id);
+    else 
+      out->cells_stats[idx].ul_retx = json_object_get_int(ul_retx);
+
+    idx++;
+    if (idx > AMARISOFT_UE_MAX_CELL) {
+      lwsl_err("hit hard limit on internal buffer\n");
+      return false;
+    }
+  }
+  
+  // // XXX-TODO: missing free of the memory 
+  return true;
 }
 
 

@@ -35,11 +35,28 @@ typedef struct {
   ws_type_id_t typeid;
 } ws_msghdr_t;
 
-// internal representation of RAN received messages
-// XXX: this is a generic data structure that will be used to map the info we want for being returned via the indication 
-// message of various SMs (i.e. KPM/MAC etc..) this data structure has to be SM agnostic
+#define AMARISOFT_UE_MAX_CELL 10
+ 
+typedef struct amarisoft_cell_t {
+  // XXX: I doubt on some datatypes below where spec of Amarisoft says it is float. To me should be integer (i.e. ue_count). to be tested
+  int   cell_id;
+  double dl_bitrate;         // Downlink bitrate in bits per seconds at PHY layer level (Counts acknowledged transmissions).
+  double ul_bitrate;         // Uplink bitrate in bits per seconds at PHY layer level (Counts successful transmissions).
+  double ue_count_avg;       // Current number of connected UE 
+  int   dl_tx;              // Number of downlink transmitted transport blocks (without retransmissions).
+  int   ul_tx;              // Number of received uplink transport blocks (without CRC error).
+  int   dl_retx;            // Number of downlink retransmitted transport blocks.
+  int   ul_retx;            // Number of received uplink transport blocks with CRC errors.
+  // TBC: etc....more to add following spec
+}amarisoft_cell_t;
+
+/* Internal representation of RAN received messages for gNB and ue statistics 
+ * This is a generic data structure that will be used to map the info we want for being returned via the indication 
+ * message of various SMs (i.e. KPM/MAC etc..). This data structure has to be SM agnostic
+ */
 typedef struct ws_ind_t {
-  //TBC
+  amarisoft_cell_t cells_stats[AMARISOFT_UE_MAX_CELL]; // gNB stats
+  // TBC: ue stats
 } ws_ind_t;
 
 e2_agent_msg_t ws_msg_handle(proxy_agent_t *p, const ws_msg_t* msg);

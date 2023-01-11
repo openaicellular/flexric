@@ -10,6 +10,7 @@
 #include "msg_json_ws.h"
 #include "proxy_agent.h"
 #include "notif_e2_ws.h"
+#include "ringbuffer.h"
 
 
 /* check for validity of the type field extracted from json reply .
@@ -84,8 +85,12 @@ e2_agent_msg_t ws_msg_handle(proxy_agent_t *p, const ws_msg_t* msg)
       break;
     case WS_INDICATION_RECV:
       lwsl_info("[WS] Received indication data\n");
-      lwsl_info("[WS] XXX: decode indication data into internal indication representation.\n");
-      lwsl_info("[WS] XXX: put indication data in ringbuffer with ind_data already encoded per SM so that E2 can read a fresh version. Key of the ringbuffer will be the SM\n");
+      ws_ind_t ind = {0};
+      if (ws_json_decode_indication (msg, &ind)  == true)
+        put_ringbuffer_data(ind);
+      else 
+        lwsl_err("[WS] Error parsing json message for indication message from RAN. Discarding msg \n");
+      
       ret_msg.type_id = WS_E2_NONE; // no reply to be sent to E2 interface as it will read indipendently the indication data with its own timer
       break;
     case WS_CTRL_ACK:
