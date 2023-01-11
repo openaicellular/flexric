@@ -139,8 +139,8 @@ bool ws_json_decode_e2setup (const ws_msg_t *in_msg, global_e2_node_id_t *out)
   if (!p)
     return false;
   const int plmn_val = atoi(p);
-  out->plmn.mcc = plmn_val/100;
-  out->plmn.mnc = plmn_val - out->plmn.mcc*100;
+  out->plmn.mcc = plmn_val > 99999 ? plmn_val/1000 : plmn_val/100;
+  out->plmn.mnc = plmn_val > 99999 ? plmn_val%1000 : plmn_val%100;
   out->plmn.mnc_digit_len = out->plmn.mnc > 99 ? 3 : 2;
 
   if (!json_object_object_get_ex(key, "gnb_id", &gnb_id))
