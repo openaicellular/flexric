@@ -57,6 +57,7 @@ add_executable(proxy_agent_ws
               msg_json_ws.c
               ringbuffer.c
               notif_e2_ws.c
+              ../../src/util/time_now_us.c
               ../../../test/sm/common/fill_ind_data.c # this is for emulating indication data. XXX: To be removed
               )
 
