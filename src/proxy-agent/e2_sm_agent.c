@@ -19,14 +19,8 @@
 
 // TBC: using fake date as workaround until we are ready with real ringbuffer implementation
 #include "ws_msg_hdlr.h"
-#include "../test/sm/common/fill_ind_data.h"
 #include "ringbuffer.h"
 
-#define get_ringbuffer_kpm_data fill_kpm_ind_data
-// static void get_ringbuffer_kpm_data(kpm_ind_data_t *kpm_stats) {
-
-//   ws_ind_t ind = get_ringbuffer_data();
-// }
 /* 
  * We arrive here when the timer set by subscription procedure in agent/msg_handler_agent.c:e2ap_handle_subscription_request_agent()
  * expires. 
@@ -38,7 +32,7 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
   assert( data->type == MAC_STATS_V0    ||
           data->type == PDCP_STATS_V0   ||
           data->type == KPM_STATS_V0);
-
+  
   lwsl_user("[E2 Agent]: reading data from ringbuffer\n");
   ws_ind_t temp = get_ringbuffer_data();
 

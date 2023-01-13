@@ -29,6 +29,8 @@ typedef struct ran_if_t
   // Pending events
   // bi_map_t pending; // left: fd, right: pending_event_t 
   struct ws_async_event_t  *user; // pointer to global variable holding the data to be shared in the loop function. This is valued at init time.
+
+  bool ind_timer_ready; 
 } ran_if_t;
 
 #endif

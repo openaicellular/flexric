@@ -214,7 +214,7 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     // XXX-INVESTIGATE/BUG: for some reasons, the first time I set the timer in fwd_e2_ws_subscription_timer() it takes almost one second to arrive here
     // To circumvent, you should put a flag in the global directory when for example you are ready to read indication from E2 interface.
     assert (user != NULL && "should not happen. Loop internal datastructure is null\n");
-    
+    p_agent->ran_if.ind_timer_ready = true;
     lwsl_user("[WS]: user time expired coming from SM_id = %d\n", shared_msg->timer_id);
     ind_event_t *ev = NULL;
     (void)ind_event(&p_agent->ran_if.ind_event, shared_msg->timer_id, &ev);

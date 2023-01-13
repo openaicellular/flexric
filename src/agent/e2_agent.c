@@ -324,6 +324,13 @@ void e2_event_loop_agent(e2_agent_t* ag)
         }
       case INDICATION_EVENT:
         {
+          #ifdef PROXY_AGENT
+          if (ag->ran_if->ind_timer_ready == false){
+            consume_fd(e.fd);
+            break;
+          }
+          #endif
+          
           sm_agent_t* sm = e.i_ev->sm;
           sm_ind_data_t data = sm->proc.on_indication(sm);
 

@@ -115,6 +115,7 @@ static proxy_agent_t * init_proxy_agent(int argc, char *argv[])
   proxy_agent->ran_if.free = ws_free;
   init_indication_event(&proxy_agent->ran_if.ind_event);
   proxy_agent->ran_if.user = &static_user;
+  proxy_agent->ran_if.ind_timer_ready = false;
 
   proxy_agent->conf.e2args = init_fr_args(argc, argv);
   ws_initconf(&proxy_agent->conf, argc, argv);
