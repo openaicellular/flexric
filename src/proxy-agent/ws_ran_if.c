@@ -216,7 +216,7 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     assert (user != NULL && "should not happen. Loop internal datastructure is null\n");
     
     lwsl_user("[WS]: user time expired coming from SM_id = %d\n", shared_msg->timer_id);
-    ind_event_t *ev;
+    ind_event_t *ev = NULL;
     (void)ind_event(&p_agent->ran_if.ind_event, shared_msg->timer_id, &ev);
     
     lwsl_user("[WS]: got event service model %d\n", ev->sm->ran_func_id);
@@ -231,7 +231,7 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     // re-set timer for the same event
     lwsl_user("[WS]: set indication timer (id=%d, %ld ms)\n", shared_msg->timer_id, shared_msg->timer_ms);
     lws_set_timer_usecs(wsi, shared_msg->timer_ms * 1000);
-    bi_map_insert(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id), &ev, sizeof(ind_event_t));
+    bi_map_insert(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id), ev, sizeof(ind_event_t));
 
     break;
   case LWS_CALLBACK_CLIENT_CLOSED:
