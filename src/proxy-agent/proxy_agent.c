@@ -41,10 +41,11 @@ static proxy_agent_t *proxy_agent = NULL;
 
 static void stop_e2_agent_api(void)
 {
-  assert(proxy_agent->e2_if != NULL);
-  e2_free_agent(proxy_agent->e2_if );
-  int const rc = pthread_join(get_e2_agent_thread_id(),NULL);
-  assert(rc == 0);
+  if (proxy_agent->e2_if != NULL) {
+    e2_free_agent(proxy_agent->e2_if );
+    int const rc = pthread_join(get_e2_agent_thread_id(),NULL);
+    assert(rc == 0);
+  }
 }
 
 

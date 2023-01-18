@@ -17,16 +17,9 @@
 #include "ws_ran_if.h"
 #include "proxy_agent.h"
 
-// TBC: using fake date as workaround until we are ready with real ringbuffer implementation
 #include "ws_msg_hdlr.h"
 #include "ringbuffer.h"
 
-/* 
- * We arrive here when the timer set by subscription procedure in agent/msg_handler_agent.c:e2ap_handle_subscription_request_agent()
- * expires. 
- * XXX-BUG: you have a race condition with the WS timer. You should wait reading data until the first timer is expired. check thes issue 
- * descripion in ws_ran_if.c:loop_callback() use case LWS_CALLBACK_TIMER 
- */
 void e2_read_RAN(sm_ag_if_rd_t *data)
 {
   assert( data->type == MAC_STATS_V0    ||
