@@ -26,7 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "string.h"
+#include <string.h>
 
 static
 void create_table(sqlite3* db, char* sql)
@@ -269,6 +269,7 @@ void create_kpm_table(sqlite3* db)
                        "nb_id INT,"
                        "cu_du_id TEXT,"
                        "incompleteFlag INT,"
+                       "name TEXT,"  //measRecord name 
                        "val REAL CHECK(val >=0 AND val < 4294967296 )"
                        ");";
   create_table(db, sql_kpm_measRecord);
@@ -897,8 +898,9 @@ int to_sql_string_gtp_NGUT(global_e2_node_id_t const* id,gtp_ngu_t_stats_t* gtp,
 static
 void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,  
                                  adapter_MeasDataItem_t* kpm_measData, 
-                                 adapter_MeasRecord_t* kpm_measRecord, 
-                                 adapter_TimeStamp_t tstamp, 
+                                 adapter_MeasRecord_t* kpm_measRecord,
+                                 MeasInfo_t* inf, 
+                                 adapter_TimeStamp_t tstamp,
                                  char* out, 
                                  size_t out_len)
 {
@@ -951,6 +953,7 @@ void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
           "%d," //nb_id
           "'%s'," //cu_du_id
           "%ld,"  //kpm_measData->incompleteFlag
+          "'%s'," //kpm_measName
           "%ld"  //kpm_measRecord->int_val
           ");" 
           , tstamp
@@ -961,7 +964,9 @@ void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
           , id->nb_id
           , id->cu_du_id ? c_cu_du_id : c_null
           , kpm_measData->incompleteFlag
+          , inf->measName.buf
           , kpm_measRecord->int_val
+          
           );
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
       return;
@@ -976,6 +981,7 @@ void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
           "%d," //nb_id 
           "'%s'," //cu_du_id
           "%ld,"  //kpm_measData->incompleteFlag
+          "'%s'," //Kpm_measData
           "%f"  //kpm_measRecord->real_val
           ");" 
           , tstamp
@@ -986,6 +992,7 @@ void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
           , id->nb_id
           , id->cu_du_id ? c_cu_du_id : c_null
           , kpm_measData->incompleteFlag
+          , inf->measName.buf
           , kpm_measRecord->real_val
           );
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
@@ -1157,17 +1164,21 @@ void write_kpm_stats(sqlite3* db, global_e2_node_id_t const* id, kpm_ind_data_t 
 
   for(size_t i = 0; i < ind_msg_kpm->MeasData_len; i++){
     adapter_MeasDataItem_t* curMeasData = &ind_msg_kpm->MeasData[i];
+   
+
     if (curMeasData->measRecord_len > 0){
       for (size_t j = 0; j < curMeasData->measRecord_len; j++){
         adapter_MeasRecord_t* curMeasRecord = &curMeasData->measRecord[j];
+        MeasInfo_t* info = &ind_msg_kpm->MeasInfo[j];
+        
         memset(buffer, 0, sizeof(buffer));
-        to_sql_string_kpm_measRecord(id, curMeasData, curMeasRecord, ind->hdr.collectStartTime, 
-                                     buffer, 512);
+        to_sql_string_kpm_measRecord(id, curMeasData, curMeasRecord, info, ind->hdr.collectStartTime,
+                                   buffer, 512);
         insert_db(db, buffer);
       }
     } else {
       memset(buffer, 0, sizeof(buffer));
-      to_sql_string_kpm_measRecord(id, curMeasData, NULL, ind->hdr.collectStartTime, 
+      to_sql_string_kpm_measRecord(id, curMeasData, NULL, NULL, ind->hdr.collectStartTime, 
                                    buffer, 512);
       insert_db(db, buffer);
     }
