@@ -179,12 +179,8 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
         //XXX:  insert this message in a map queue (key - value store) and get the msg_id related to the key. For the moment we set this to a 
         //      fixed value (2)
         int msg_id = 2;
-        // XXX: here you need to associate the SM to the encoding in json. 
-        // XXX: where do I get the SM that made the subscription request ? when you set the timer ? remember that subscription request is per SM, so, each of
-        // the SMs will have its own indication message to be retrieved possibly with different timers (cf: logs/flexric_ws_20230104-1672851795.log)
         const char *p = ws_json_encode_e2setup(msg_id);
         (void)strncpy(shared_msg->jsonmsg, p, sizeof(shared_msg->jsonmsg));
-        //defer({ free(msg); }; );
         shared_msg->req_id = msg_id;
         ws_set_sendmode();
       } else {
@@ -211,25 +207,21 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     break;
 
   case LWS_CALLBACK_TIMER:
-    // XXX-INVESTIGATE/BUG: for some reasons, the first time I set the timer in fwd_e2_ws_subscription_timer() it takes almost one second to arrive here
-    // To circumvent, you should put a flag in the global directory when for example you are ready to read indication from E2 interface.
+    // XXX-INVESTIGATE: for some reasons, the first time I set the timer in fwd_e2_ws_subscription_timer() it takes almost one second to arrive here
+    // To circumvent, I put a flag in the global directory when for example you are ready to read indication from E2 interface.
     assert (user != NULL && "should not happen. Loop internal datastructure is null\n");
     p_agent->ran_if.ind_timer_ready = true;
-    lwsl_user("[WS]: user time expired coming from SM_id = %d\n", shared_msg->timer_id);
     ind_event_t *ev = NULL;
     (void)ind_event(&p_agent->ran_if.ind_event, shared_msg->timer_id, &ev);
-    
-    lwsl_user("[WS]: got event service model %d\n", ev->sm->ran_func_id);
-    
     int msg_id = 1;
     const char *p = ws_json_encode_indication(msg_id, ev->sm->ran_func_id);
     (void)strncpy(shared_msg->jsonmsg, p, sizeof(shared_msg->jsonmsg));
     shared_msg->req_id = msg_id;
-    //defer({ free(msg); }; );
+    
     ws_set_sendmode();
     
     // re-set timer for the same event
-    lwsl_user("[WS]: set indication timer (id=%d, %ld ms)\n", shared_msg->timer_id, shared_msg->timer_ms);
+    lwsl_info("[WS]: set indication timer (id=%d, %ld ms)\n", shared_msg->timer_id, shared_msg->timer_ms);
     lws_set_timer_usecs(wsi, shared_msg->timer_ms * 1000);
     bi_map_insert(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id), ev, sizeof(ind_event_t));
 
