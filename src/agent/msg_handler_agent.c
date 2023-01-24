@@ -193,6 +193,10 @@ e2ap_msg_t e2ap_handle_subscription_delete_request_agent(e2_agent_t* ag, const e
 
   stop_ind_event(ag, sdr->ric_id);
 
+  #ifdef PROXY_AGENT
+  fwd_e2_ws_remove_subscription_timer(ag->ran_if, sdr->ric_id);
+  #endif
+
   ric_subscription_delete_response_t sub_del = {.ric_id = sdr->ric_id };
 
   e2ap_msg_t ans = {.type = RIC_SUBSCRIPTION_DELETE_RESPONSE};

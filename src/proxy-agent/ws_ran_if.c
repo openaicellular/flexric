@@ -130,7 +130,7 @@ static inline void* ind_fd(bi_map_t *in, int fd)
 
 // 
 static inline
-bool ind_event(bi_map_t *in, int fd, ind_event_t** i_ev)
+bool ind_event_search(bi_map_t *in, int fd, ind_event_t** i_ev)
 {
   assert(*i_ev == NULL);
   void* it = ind_fd(in, fd);   
@@ -212,7 +212,8 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     assert (user != NULL && "should not happen. Loop internal datastructure is null\n");
     p_agent->ran_if.ind_timer_ready = true;
     ind_event_t *ev = NULL;
-    (void)ind_event(&p_agent->ran_if.ind_event, shared_msg->timer_id, &ev);
+    if (ind_event_search(&p_agent->ran_if.ind_event, shared_msg->timer_id, &ev) == false)
+      assert ( 0!=0 && "missing indication event from the bi_map: should not happen\n");
     int msg_id = 1;
     const char *p = ws_json_encode_indication(msg_id, ev->sm->ran_func_id);
     (void)strncpy(shared_msg->jsonmsg, p, sizeof(shared_msg->jsonmsg));
@@ -223,12 +224,16 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     // re-set timer for the same event
     lwsl_info("[WS]: set indication timer (id=%d, %ld ms)\n", shared_msg->timer_id, shared_msg->timer_ms);
     lws_set_timer_usecs(wsi, shared_msg->timer_ms * 1000);
-    bi_map_insert(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id), ev, sizeof(ind_event_t));
+    // no need to insert again as we did not remove the event
+    // bi_map_insert(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id), ev, sizeof(ind_event_t));
 
     break;
   case LWS_CALLBACK_CLIENT_CLOSED:
     goto do_retry;
-  
+  case LWS_CALLBACK_PROTOCOL_DESTROY:
+    lwsl_user("Received request from RAN to close all: %s\n\n", ws_strerror(reason));
+    proxy_set_exit();
+    break;
   default:
     lwsl_user("**** WARN: callback event %d (%s) is not handled. IGNORING *****\n", reason, ws_strerror(reason));
     break;

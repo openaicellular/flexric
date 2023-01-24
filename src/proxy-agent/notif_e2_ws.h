@@ -15,6 +15,10 @@
 
 /* set timer for indication message at WS side*/
 void fwd_e2_ws_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long initial_ms, long interval_ms);
+
+/* remove timer for indication message event at WS side*/
+void fwd_e2_ws_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id);
+
 // 1.2 Control
 // TBD 
 
