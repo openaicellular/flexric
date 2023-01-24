@@ -153,7 +153,7 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   e2_ws_sub.action_id = sr->action[0].id;
   e2_ws_sub.ric_id = sr->ric_id;
   e2_ws_sub.sm = sm;
-  fwd_e2_ws_subscription_timer (ag->ran_if, e2_ws_sub, t.ms, t.ms);
+  fwd_e2_ws_subscription_timer (ag->ran_if, e2_ws_sub, t.ms, 200);
   #endif
 
   // Register the indication event

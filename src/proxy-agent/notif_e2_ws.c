@@ -41,24 +41,18 @@ void fwd_e2_ws_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long initial
 
 /* 
  * This is a basic implementation that removes the timer for all the SMs at WS interface
- * quoted from the E2AP specification
+ * XXX: handle timers per SMs at WS interface. For the moment there is just one timer.
+ * Quoted from the E2AP specification
  * " At reception of the RIC SUBSCRIPTION DELETE REQUEST message the target E2 Node shall:
  *  - Determine the target function using the information in the RAN Function ID IE and delete the corresponding RIC
  *    EVENT trigger using information in the RIC Request ID IE.
  *  - If one or more subsequent actions were included in the previously received RIC Subscription, then the target
  *  function shall delete the required actions along with the corresponding RIC Request ID IE.
- * 
- * XXX-BUG: This approach seems that does not work in case you call it once more, ie. you do another subscription + remove at a later time 
- * (i.e. calling again the xapp). 
  */
 void fwd_e2_ws_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id) 
 {
-  // WARN: in some ways these values for 'tmp' work, but it's unclear how.
-  // as when I insert it in ran_if->ind_event on fwd_e2_ws_subscription_timer() I use the event with .sm  and .action valued
   lwsl_info("Removing subscription request for SM %d\n", ric_id.ran_func_id);
   int timer_id = ric_id.ran_func_id;
-  //ind_event_t tmp = {.ric_id = ric_id, .sm = NULL, .action_id =0 }; 
-  // XXX: reality is that none used bi_map_extract_left() so it may not behave correctly
   bi_map_extract_left(&ran_if->ind_event, &timer_id, sizeof(timer_id));
 
   lws_set_timer_usecs(ran_if->lws, LWS_SET_TIMER_USEC_CANCEL);

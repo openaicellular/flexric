@@ -964,9 +964,8 @@ void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
           , id->nb_id
           , id->cu_du_id ? c_cu_du_id : c_null
           , kpm_measData->incompleteFlag
-          , inf->measName.buf
+          , inf ? inf->measName.buf : NULL
           , kpm_measRecord->int_val
-          
           );
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
       return;
@@ -992,7 +991,7 @@ void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
           , id->nb_id
           , id->cu_du_id ? c_cu_du_id : c_null
           , kpm_measData->incompleteFlag
-          , inf->measName.buf
+          , inf ? inf->measName.buf : NULL
           , kpm_measRecord->real_val
           );
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
