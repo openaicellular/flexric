@@ -58,6 +58,7 @@ int main(){
             ev_ext->action_id);
     ret = 1;
   }
+  free(ev_ext);
   bi_map_free(&ind_event);
   return ret;
 }
