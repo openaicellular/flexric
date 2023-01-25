@@ -157,8 +157,10 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
   switch (reason)
   {
   case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
-    lwsl_err("Unable to connect to remote host: %s\n", in ? (char *)in : "(null)");
-    lwsl_err("Check that the amarisoft websocket process is up and running.\n");
+    lwsl_err("Unable to connect to RAN host at %s:%d. Reason: %s\n", p_agent->conf.address, p_agent->conf.port, in ? (char *)in : "(null)");
+    lwsl_err("Check that the amarisoft websocket process is up and running at that location.\n");
+    ws_conf_print(&p_agent->conf);
+    ws_initconf_print_help();
     goto do_retry;
     break;
 

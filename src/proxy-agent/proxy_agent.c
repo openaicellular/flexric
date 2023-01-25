@@ -26,8 +26,9 @@
 #include <unistd.h>
 
 #define PROXY_AGENT
-#include "../src/util/compare.h"
-#include "../agent/e2_agent_api.h"
+#include "util/compare.h"
+#include "agent/e2_agent_api.h"
+
 #include "ws_ran_if.h"
 #include "ran_if.h"
 #include "e2_sm_agent.h"
@@ -118,7 +119,6 @@ static proxy_agent_t * init_proxy_agent(int argc, char *argv[])
   proxy_agent->ran_if.user = &static_user;
   proxy_agent->ran_if.ind_timer_ready = false;
 
-  proxy_agent->conf.e2args = init_fr_args(argc, argv);
   ws_initconf(&proxy_agent->conf, argc, argv);
 
   proxy_agent->ran_if.ctx = proxy_agent->ran_if.init(proxy_agent->conf);
