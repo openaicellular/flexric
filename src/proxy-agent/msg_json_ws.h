@@ -8,10 +8,11 @@
 /******  1. Decoding JSON messages ********/
 /* 
  * extract the message type extracted from value associated to json keyword "message" and "message_id"
- * RETURN: a malloced string representing the message type, NULL on error 
+ * RETURN: a malloced string representing the message type that you will have to free with ws_msghdr_free(), NULL on error 
 */
 ws_msghdr_t ws_json_get_msghdr(const ws_msg_t *msg);
 
+void ws_msghdr_free(ws_msghdr_t msg);
 /* 
  * extract from a json reply MSG the data related to measurements/indication and return the generic data structure of type indication in OUT
  */

@@ -4,17 +4,26 @@
 #include <libwebsockets.h>
 
 #include "util/conversions.h"
+#include "util/alg_ds/alg/defer.h"
 #include "msg_json_ws.h"
 #include "ws_msg_hdlr.h"
+
 static char global_buff[1024];
+
+void ws_msghdr_free(ws_msghdr_t msg) {
+  if (msg.type != NULL)
+    free (msg.type);
+}
 
 ws_msghdr_t ws_json_get_msghdr(const ws_msg_t *msg) 
 {
   ws_msghdr_t ret_msg = {.type = NULL, .msg_id = -1};
   struct json_tokener *tok = json_tokener_new();
+  defer({json_tokener_free(tok); }; );
   if (!tok)
     return ret_msg;
   struct json_object *json_obj = json_tokener_parse_ex(tok, msg->buf, msg->len);
+  defer({json_object_put(json_obj); }; );
   lwsl_debug("Dumping json data %s:\n", 
             json_object_to_json_string_ext(json_obj, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY));
   struct json_object *msg_type;
@@ -37,7 +46,10 @@ bool ws_json_decode_indication (const ws_msg_t *in_msg, ws_ind_t *out)
   assert ((out != NULL || in_msg != NULL) && "programming error\n");
   
   struct json_tokener *tok = json_tokener_new();
+  defer({json_tokener_free(tok); }; );
   struct json_object *root_json_obj = json_tokener_parse_ex(tok, in_msg->buf, in_msg->len);
+  defer({json_object_put(root_json_obj); }; );
+
   if (root_json_obj == NULL){
     lwsl_err("error json token: %s\n", json_tokener_error_desc(json_tokener_get_error(tok)));
     return false;
@@ -118,7 +130,9 @@ bool ws_json_decode_e2setup (const ws_msg_t *in_msg, global_e2_node_id_t *out)
   out->type = ngran_gNB;
 
   struct json_tokener *tok = json_tokener_new();
+  defer({json_tokener_free(tok); }; );
   struct json_object *json_obj = json_tokener_parse_ex(tok, in_msg->buf, in_msg->len);
+  defer({json_object_put(json_obj); }; );
   struct json_object *key, *plmn, *gnb_id;
   if (!json_object_object_get_ex(json_obj, "global_gnb_id", &key))
     return false;

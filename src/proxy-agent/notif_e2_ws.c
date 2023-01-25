@@ -53,7 +53,8 @@ void fwd_e2_ws_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id)
 {
   lwsl_info("Removing subscription request for SM %d\n", ric_id.ran_func_id);
   int timer_id = ric_id.ran_func_id;
-  bi_map_extract_left(&ran_if->ind_event, &timer_id, sizeof(timer_id));
+  void *right_key = bi_map_extract_left(&ran_if->ind_event, &timer_id, sizeof(timer_id));
+  free(right_key);
 
   lws_set_timer_usecs(ran_if->lws, LWS_SET_TIMER_USEC_CANCEL);
 

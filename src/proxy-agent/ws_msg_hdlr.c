@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "util/alg_ds/alg/defer.h"
 
 // proxy agent specific headers
 #include "ws_msg_hdlr.h"
@@ -49,6 +50,8 @@ e2_agent_msg_t ws_msg_handle(proxy_agent_t *p, const ws_msg_t* msg)
 {
   e2_agent_msg_t ret_msg = {.type_id = WS_E2_NONE};
   ws_msghdr_t msgdec = ws_json_get_msghdr(msg);
+  defer({ws_msghdr_free(msgdec); }; );
+  
   lwsl_info("WS msg hdr: (%s, %d)\n",  msgdec.type, msgdec.msg_id);
   if (ws_associate_valid_msg_type(&msgdec) == false) 
   {
@@ -99,3 +102,4 @@ e2_agent_msg_t ws_msg_handle(proxy_agent_t *p, const ws_msg_t* msg)
   }
   return ret_msg;
 }
+

@@ -4,7 +4,7 @@
 #include <json-c/json.h>
 #include <assert.h>
 
-#include "../util/alg_ds/alg/defer.h"
+#include "util/alg_ds/alg/defer.h"
 #include "util/alg_ds/alg/alg.h"
 #include "util/compare.h"
 

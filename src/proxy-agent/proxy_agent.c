@@ -144,6 +144,7 @@ static void close_proxy_agent (proxy_agent_t *proxy_agent) {
   lwsl_user("Closing all\n");
   proxy_agent->ran_if.free(ws_get_global_ctx());
   stop_e2_agent_api();
+  bi_map_free(&proxy_agent->ran_if.ind_event);
   free (proxy_agent);
 }
 
