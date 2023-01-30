@@ -296,8 +296,10 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
   // after which an event will be generated
   pending_event_xapp_t ev = {.ev = E42_RIC_CONTROL_REQUEST_PENDING_EVENT, .id = rv.val.id };
 
+
   // Stop the timer
   rm_pending_event_xapp(xapp, &ev);
+
 
   // Unblock UI thread  
   signal_sync_ui(&xapp->sync);
@@ -475,19 +477,19 @@ e2ap_msg_t e2ap_handle_e42_setup_request_xapp(struct e42_xapp_s* xapp, const str
   assert(sr.len_rf > 0);
   assert(sr.ran_func_item != NULL);
 
+    // A pending event is created along with a timer of 3000 ms,
+  // after which an event will be triggered
+  pending_event_xapp_t x_ev = {.ev = E42_SETUP_REQUEST_PENDING_EVENT,
+                                .wait_ms = 3000,
+                               .id = {0} }; 
+  add_pending_event_xapp(xapp, &x_ev);
+
   byte_array_t ba = e2ap_enc_e42_setup_request_xapp(&xapp->ap, &sr); 
   defer({free_byte_array(ba); } ); 
 
   e2ap_send_bytes_xapp(&xapp->ep, ba);
 
   printf("[xApp]: E42 SETUP-REQUEST sent\n");
-
-  // A pending event is created along with a timer of 3000 ms,
-  // after which an event will be triggered
-  pending_event_xapp_t x_ev = {.ev = E42_SETUP_REQUEST_PENDING_EVENT,
-                                .wait_ms = 3000,
-                               .id = {0} }; 
-  add_pending_event_xapp(xapp, &x_ev);
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE };
   return ans;
@@ -501,19 +503,19 @@ e2ap_msg_t e2ap_handle_e42_ric_subscription_request_xapp(struct e42_xapp_s* xapp
 
   e42_ric_subscription_request_t const* e42_sr = &msg->u_msgs.e42_ric_sub_req; 
 
+    // A pending event is created along with a timer of 5000 ms,
+  // after which an event will be triggered
+  pending_event_xapp_t ev = {.ev = E42_RIC_SUBSCRIPTION_REQUEST_PENDING_EVENT, 
+                              .id = e42_sr->sr.ric_id,
+                              .wait_ms = 5000};
+  add_pending_event_xapp(xapp, &ev);
+
   byte_array_t ba_msg = e2ap_enc_e42_subscription_request_xapp(&xapp->ap,(e42_ric_subscription_request_t*)e42_sr);
   defer({ free_byte_array(ba_msg) ;}; );
 
   e2ap_send_bytes_xapp(&xapp->ep, ba_msg);
 
   printf("[xApp]: RIC SUBSCRIPTION REQUEST sent\n");
-
-  // A pending event is created along with a timer of 5000 ms,
-  // after which an event will be triggered
-  pending_event_xapp_t ev = {.ev = E42_RIC_SUBSCRIPTION_REQUEST_PENDING_EVENT, 
-                              .id = e42_sr->sr.ric_id,
-                              .wait_ms = 5000};
-  add_pending_event_xapp(xapp, &ev);
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans;
@@ -530,20 +532,19 @@ e2ap_msg_t  e2ap_handle_e42_subscription_delete_request_xapp(e42_xapp_t* xapp, c
   const e42_ric_subscription_delete_request_t* e42_sdr = &msg->u_msgs.e42_ric_sub_del_req;
   printf("E42 RIC_SUBSCRIPTION_DELETE_REQUEST  sdr->ric_id.ran_func_id %d  sdr->ric_id.ric_req_id %d \n", e42_sdr->sdr.ric_id.ran_func_id, e42_sdr->sdr.ric_id.ric_req_id);
 
-  byte_array_t ba_msg = e2ap_enc_e42_ric_subscription_delete_xapp(&xapp->ap,( e42_ric_subscription_delete_request_t* ) e42_sdr);
-  defer({ free_byte_array(ba_msg) ;}; );
-
-  e2ap_send_bytes_xapp(&xapp->ep, ba_msg);
-
-  printf("[xApp]: E42 SUBSCRIPTION-DELETE sent \n");
-
-  // A pending event is created along with a timer of 5000 ms,
+    // A pending event is created along with a timer of 5000 ms,
   // after which an event will be generated
   pending_event_xapp_t ev = {.ev = E42_RIC_SUBSCRIPTION_DELETE_REQUEST_PENDING_EVENT, 
                               .id = e42_sdr->sdr.ric_id,
                               .wait_ms = 5000};
   add_pending_event_xapp(xapp, &ev);
 
+  byte_array_t ba_msg = e2ap_enc_e42_ric_subscription_delete_xapp(&xapp->ap,( e42_ric_subscription_delete_request_t* ) e42_sdr);
+  defer({ free_byte_array(ba_msg) ;}; );
+
+  e2ap_send_bytes_xapp(&xapp->ep, ba_msg);
+
+  printf("[xApp]: E42 SUBSCRIPTION-DELETE sent \n");
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans; 
@@ -557,18 +558,18 @@ e2ap_msg_t e2ap_handle_e42_ric_control_request_xapp(e42_xapp_t* xapp, const e2ap
 
   const e42_ric_control_request_t* cr = &msg->u_msgs.e42_ric_ctrl_req;
 
-    byte_array_t ba_msg = e2ap_enc_e42_control_request_xapp(&xapp->ap,(  e42_ric_control_request_t* ) cr);
+  pending_event_xapp_t ev = {.ev = E42_RIC_CONTROL_REQUEST_PENDING_EVENT,
+    .id = cr->ctrl_req.ric_id,
+    .wait_ms = 5000};
+
+  add_pending_event_xapp(xapp, &ev);
+
+  byte_array_t ba_msg = e2ap_enc_e42_control_request_xapp(&xapp->ap,(  e42_ric_control_request_t* ) cr);
   defer({ free_byte_array(ba_msg) ;}; );
 
   e2ap_send_bytes_xapp(&xapp->ep, ba_msg);
 
   printf("[xApp]: CONTROL-REQUEST sent \n");
-
-  pending_event_xapp_t ev = {.ev = E42_RIC_CONTROL_REQUEST_PENDING_EVENT,
-                              .id = cr->ctrl_req.ric_id,
-                               .wait_ms = 5000};
-  add_pending_event_xapp(xapp, &ev);
-
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans;
