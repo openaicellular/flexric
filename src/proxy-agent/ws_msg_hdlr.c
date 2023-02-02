@@ -89,6 +89,7 @@ e2_agent_msg_t ws_msg_handle(proxy_agent_t *p, const ws_msg_t* msg)
     case WS_INDICATION_RECV:
       lwsl_info("[WS] Received indication data\n");
       ws_ind_t ind = {0};
+      p->ran_if.ind_timer_ready = true;
       if (ws_json_decode_indication (msg, &ind)  == true)
         put_ringbuffer_data(ind);
       else 

@@ -26,7 +26,7 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
           data->type == PDCP_STATS_V0   ||
           data->type == KPM_STATS_V0);
   
-  lwsl_user("[E2 Agent]: reading data from ringbuffer\n");
+  lwsl_debug("[E2 Agent]: reading data from ringbuffer\n");
   ws_ind_t temp = get_ringbuffer_data();
 
   if (data->type == MAC_STATS_V0) {

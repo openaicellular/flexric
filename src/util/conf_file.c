@@ -487,7 +487,7 @@ char* get_conf_db_name(fr_args_t const* args)
 
   defer({fclose(fp); } );
 
-  char db_name[24] = {0};
+  char db_name[NAME_MAX] = {0};
   while ((read = getline(&line, &len, fp)) != -1) {
     const char* needle = "DB_NAME =";
     char* ans = strstr(line, needle);
@@ -495,7 +495,7 @@ char* get_conf_db_name(fr_args_t const* args)
       ans += strlen(needle);
       ans = ltrim(ans);
       ans = rtrim(ans);
-      assert(strlen(ans) <= sizeof(db_name));
+      assert(strlen(ans) + 1 <= sizeof(db_name));
       memcpy(db_name, ans , strlen(ans)); // \n character
       break;
     }

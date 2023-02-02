@@ -212,7 +212,6 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     // XXX-INVESTIGATE: for some reasons, the first time I set the timer in fwd_e2_ws_subscription_timer() it takes almost one second to arrive here
     // To circumvent, I put a flag in the global directory when for example you are ready to read indication from E2 interface.
     assert (user != NULL && "should not happen. Loop internal datastructure is null\n");
-    p_agent->ran_if.ind_timer_ready = true;
     ind_event_t *ev = NULL;
     if (ind_event_search(&p_agent->ran_if.ind_event, shared_msg->timer_id, &ev) == false)
       assert ( 0!=0 && "missing indication event from the bi_map: should not happen\n");
@@ -224,7 +223,7 @@ static int loop_callback(struct lws *wsi, enum lws_callback_reasons reason, void
     ws_set_sendmode();
     
     // re-set timer for the same event
-    lwsl_info("[WS]: set indication timer (id=%d, %ld ms)\n", shared_msg->timer_id, shared_msg->timer_ms);
+    lwsl_info("[WS]: reset indication timer (id=%d, %ld ms)\n", shared_msg->timer_id, shared_msg->timer_ms);
     lws_set_timer_usecs(wsi, shared_msg->timer_ms * 1000);
     // no need to insert again as we did not remove the event
     // bi_map_insert(&p_agent->ran_if.ind_event, &shared_msg->timer_id, sizeof(shared_msg->timer_id), ev, sizeof(ind_event_t));
