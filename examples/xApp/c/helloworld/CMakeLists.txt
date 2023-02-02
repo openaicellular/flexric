@@ -18,5 +18,7 @@ target_link_libraries(xapp_hw
 						-pthread
 						-lsctp
 						-ldl
+						-I/usr/local/mysql/include
+						-L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
 						)
 

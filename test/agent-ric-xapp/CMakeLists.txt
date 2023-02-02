@@ -22,6 +22,8 @@ target_link_libraries(test_ag_ric_xapp
                       -lsctp
                       -ldl
                       #-lnng
+                      -I/usr/local/mysql/include
+                      -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                       )
 
 if(FALSE) # fake a block comment

@@ -25,6 +25,8 @@
 #include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
 #include "../../sm/agent_if/read/sm_ag_if_rd.h"
 #include "../../util/alg_ds/ds/ts_queue/ts_queue.h"
+#include "mysql/mysql.h"
+#include "sqlite3/sqlite3_wrapper.h"
 
 #include <pthread.h>
 
@@ -40,6 +42,7 @@ typedef struct{
   static_assert(0!=0, "Unknown DB selected for the xApp"); 
 #endif
 
+  MYSQL* h;
   pthread_t p;
   tsq_t q;
 } db_xapp_t;
@@ -50,5 +53,6 @@ void close_db_xapp(db_xapp_t* db);
 
 void write_db_xapp(db_xapp_t* db, global_e2_node_id_t const* id, sm_ag_if_rd_t const* rd);
 
+void mysql_finish_with_error(MYSQL *conn);
 #endif
 

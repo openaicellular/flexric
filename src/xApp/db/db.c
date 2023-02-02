@@ -18,7 +18,7 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
-
+#include "mysql/mysql.h"
 #include "db.h"
 #include "db_generic.h"
 #include "../../util/time_now_us.h"
@@ -115,6 +115,7 @@ void* worker_thread(void* arg)
 
     for(size_t i = 0; i < sz; ++i){
       write_db_gen(db->handler, &data[i].id, &data[i].rd);
+      write_db_mysql(db->h, &data[i].id, &data[i].rd);
       free_global_e2_node_id(&data[i].id);
       free_sm_ag_if_rd(&data[i].rd);
     }
@@ -124,12 +125,39 @@ void* worker_thread(void* arg)
   return NULL;
 }
 
+void mysql_finish_with_error(MYSQL *conn)
+{
+  fprintf(stderr, "%s\n", mysql_error(conn));
+  mysql_close(conn);
+  exit(1);
+}
+
+// Mysql
+static char* host = "localhost";
+static char* user = "root";
+static char* pass = "eurecom";
+//static char* dbname = "TESTmysql";
+//unsigned int port = 3306;
+//static char* unix_socket = NULL;
+//unsigned int flag = 0;
+
 void init_db_xapp(db_xapp_t* db, char const* db_filename)
 {
   assert(db != NULL);
   assert(db_filename != NULL);
 
   init_db_gen(&db->handler, db_filename);
+
+  //MYSQL* conn = mysql_init(NULL);
+  db->h = mysql_init(NULL);
+  // check init
+  if (db->h == NULL)
+    mysql_finish_with_error(db->h);
+  // check connection with server
+  if(mysql_real_connect(db->h, host, user, pass, NULL, 0, NULL, 0) == NULL)
+    mysql_finish_with_error(db->h);
+  printf("MySQL Connection Successful\n");
+  init_db_mysql(db->h, "testdb");
 
   init_tsq(&db->q, sizeof(e2_node_ag_if_t));
 
@@ -154,7 +182,9 @@ void close_db_xapp(db_xapp_t* db)
   
   free_tsq(&db->q, free_e2_node_ag_if_wrapper);
   pthread_join(db->p, NULL);
-  close_db_gen(db->handler);  
+  close_db_gen(db->handler);
+
+  mysql_close(db->h);
 }
 
 void write_db_xapp(db_xapp_t* db, global_e2_node_id_t const* id, sm_ag_if_rd_t const* rd)

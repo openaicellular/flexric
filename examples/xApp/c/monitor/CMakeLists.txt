@@ -53,7 +53,7 @@ target_link_libraries(xapp_kpm_moni
                       -lsctp
                       -ldl
                       )
-add_executable(xapp_kpm_moni_infinity 
+add_executable(xapp_kpm_moni_infinity
                       xapp_kpm_moni_infinity.c
                       ../../../../src/util/alg_ds/alg/defer.c
                       ../../../../src/sm/mac_sm/ie/mac_data_ie.c
@@ -64,9 +64,9 @@ add_executable(xapp_kpm_moni_infinity
                       ../../../../src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
                       ../../../../src/sm/gtp_sm/ie/gtp_data_ie.c
                       )
-      
-      
-      
+
+
+
 target_link_libraries(xapp_kpm_moni_infinity
                             PUBLIC
                             e42_xapp
@@ -102,4 +102,6 @@ target_link_libraries(xapp_moni
 		-pthread
 		-lsctp
 		-ldl
+		-I/usr/local/mysql/include
+		-L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
 		)
