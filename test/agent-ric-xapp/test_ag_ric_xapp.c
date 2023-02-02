@@ -222,56 +222,56 @@ int main(int argc, char *argv[])
   for(size_t i = 0; i < n->len_rf; ++i)
     printf("Registered ran func id = %d \n ", n->ack_rf[i].id );
 
-  inter_xapp_e i = ms_1;
-  // returns a handle for KPM
-  sm_ans_xapp_t h = report_sm_xapp_api(&nodes.n[0].id, SM_KPM_ID, i, sm_cb_kpm);
-  assert(h.success == true);
-  sleep(2);
+//  inter_xapp_e i = ms_1;
+//  // returns a handle for KPM
+//  sm_ans_xapp_t h = report_sm_xapp_api(&nodes.n[0].id, SM_KPM_ID, i, sm_cb_kpm);
+//  assert(h.success == true);
+//  sleep(1);
 
   inter_xapp_e i_1 = ms_1;
   // returns a handle
   sm_ans_xapp_t h_1 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[0].id, i_1, sm_cb_mac);
   assert(h_1.success == true);
   sleep(2);
-
-  inter_xapp_e i_2 = ms_1;
-  // returns a handle
-  sm_ans_xapp_t h_2 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[1].id, i_2, sm_cb_rlc);
-  assert(h_2.success == true);
-  sleep(2);
-
-  inter_xapp_e i_3 = ms_1;
-  // returns a handle
-  sm_ans_xapp_t h_3 = report_sm_xapp_api(&nodes.n[0].id, SM_GTP_ID, i_3, sm_cb_gtp);
-  assert(h_3.success == true);
-  sleep(2);
-
-  // Control ADD slice
-  sm_ag_if_wr_t ctrl_msg_add = create_add_slice();
-  control_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, &ctrl_msg_add);
-  free(ctrl_msg_add.slice_req_ctrl.msg.u.add_mod_slice.dl.slices); 
-  free(ctrl_msg_add.slice_req_ctrl.msg.u.add_mod_slice.dl.sched_name);
-
-  sleep(1);
-
-  // Control ASSOC slice
-  sm_ag_if_wr_t ctrl_msg_assoc = create_assoc_slice();
-  control_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, &ctrl_msg_assoc);
-  free(ctrl_msg_assoc.slice_req_ctrl.msg.u.ue_slice.ues); 
-
-  sleep(1);
-
-  // Remove the handle previously returned
-  rm_report_sm_xapp_api(h.u.handle);
+//
+//  inter_xapp_e i_2 = ms_1;
+//  // returns a handle
+//  sm_ans_xapp_t h_2 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[1].id, i_2, sm_cb_rlc);
+//  assert(h_2.success == true);
+//  sleep(2);
+//
+//  inter_xapp_e i_3 = ms_1;
+//  // returns a handle
+//  sm_ans_xapp_t h_3 = report_sm_xapp_api(&nodes.n[0].id, SM_GTP_ID, i_3, sm_cb_gtp);
+//  assert(h_3.success == true);
+//  sleep(2);
+//
+//  // Control ADD slice
+//  sm_ag_if_wr_t ctrl_msg_add = create_add_slice();
+//  control_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, &ctrl_msg_add);
+//  free(ctrl_msg_add.slice_req_ctrl.msg.u.add_mod_slice.dl.slices);
+//  free(ctrl_msg_add.slice_req_ctrl.msg.u.add_mod_slice.dl.sched_name);
+//
+//  sleep(1);
+//
+//  // Control ASSOC slice
+//  sm_ag_if_wr_t ctrl_msg_assoc = create_assoc_slice();
+//  control_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, &ctrl_msg_assoc);
+//  free(ctrl_msg_assoc.slice_req_ctrl.msg.u.ue_slice.ues);
+//
+//  sleep(1);
+//
+//  // Remove the handle previously returned
+//  rm_report_sm_xapp_api(h.u.handle);
 
   // Remove the handle previously returned
   rm_report_sm_xapp_api(h_1.u.handle);
-
-  // Remove the handle previously returned
-  rm_report_sm_xapp_api(h_2.u.handle);
-
-  // Remove the handle previously returned
-  rm_report_sm_xapp_api(h_3.u.handle);
+//
+//  // Remove the handle previously returned
+//  rm_report_sm_xapp_api(h_2.u.handle);
+//
+//  // Remove the handle previously returned
+//  rm_report_sm_xapp_api(h_3.u.handle);
 
   sleep(1);
 
