@@ -27,6 +27,7 @@
 #include "../../util/alg_ds/ds/ts_queue/ts_queue.h"
 #include "mysql/mysql.h"
 #include "sqlite3/sqlite3_wrapper.h"
+#include "mysql/mysql_wrapper.h"
 
 #include <pthread.h>
 

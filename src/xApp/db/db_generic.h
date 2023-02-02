@@ -25,7 +25,7 @@
 
 
 #include "sqlite3/sqlite3_wrapper.h"
-
+#include "mysql/mysql_wrapper.h"
 
 
 #define init_db_gen(T,U) _Generic ((T), \

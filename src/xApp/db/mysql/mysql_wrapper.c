@@ -300,11 +300,11 @@ void init_db_mysql(MYSQL* conn, char const* db_filename)
 
   if(mysql_query(conn, "DROP DATABASE IF EXISTS testdb"))
     mysql_finish_with_error(conn);
-  printf("MySQL Drop Exist DB Successful\n");
+  printf("[MySQL]: Drop Exist DB Successful\n");
   // create db in server
   if(mysql_query(conn, "CREATE DATABASE IF NOT EXISTS testdb"))
     mysql_finish_with_error(conn);
-  printf("MySQL Create New DB Successful\n");
+  printf("[MySQL]: Create New DB Successful\n");
 
   //////
   // MAC

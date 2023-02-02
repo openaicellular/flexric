@@ -114,8 +114,14 @@ void* worker_thread(void* arg)
         break;
 
     for(size_t i = 0; i < sz; ++i){
-      write_db_gen(db->handler, &data[i].id, &data[i].rd);
+//      printf("i = %ld\n", i);
+//      if(data[i].rd.type == MAC_STATS_V0)
+//        printf("Try to write mac data in db\n");
+//      else if(data[i].rd.type == RLC_STATS_V0)
+//        printf("Try to write rlc data in db\n");
+      //write_db_gen(db->handler, &data[i].id, &data[i].rd);
       write_db_mysql(db->h, &data[i].id, &data[i].rd);
+
       free_global_e2_node_id(&data[i].id);
       free_sm_ag_if_rd(&data[i].rd);
     }
@@ -146,7 +152,7 @@ void init_db_xapp(db_xapp_t* db, char const* db_filename)
   assert(db != NULL);
   assert(db_filename != NULL);
 
-  init_db_gen(&db->handler, db_filename);
+  //init_db_gen(&db->handler, db_filename);
 
   //MYSQL* conn = mysql_init(NULL);
   db->h = mysql_init(NULL);
@@ -156,7 +162,7 @@ void init_db_xapp(db_xapp_t* db, char const* db_filename)
   // check connection with server
   if(mysql_real_connect(db->h, host, user, pass, NULL, 0, NULL, 0) == NULL)
     mysql_finish_with_error(db->h);
-  printf("MySQL Connection Successful\n");
+  printf("[MySQL]: Connection Successful\n");
   init_db_mysql(db->h, "testdb");
 
   init_tsq(&db->q, sizeof(e2_node_ag_if_t));
@@ -182,7 +188,7 @@ void close_db_xapp(db_xapp_t* db)
   
   free_tsq(&db->q, free_e2_node_ag_if_wrapper);
   pthread_join(db->p, NULL);
-  close_db_gen(db->handler);
+  //close_db_gen(db->handler);
 
   mysql_close(db->h);
 }
@@ -195,7 +201,10 @@ void write_db_xapp(db_xapp_t* db, global_e2_node_id_t const* id, sm_ag_if_rd_t c
 
   e2_node_ag_if_t d = { .rd = cp_sm_ag_if_rd(rd) ,
                         .id = cp_global_e2_node_id(id) };
-
+  //size_t sz = size_tsq(&db->q);
+  //printf("Before push: Current size of the db = %ld \n", sz);
   push_tsq(&db->q, &d, sizeof(d) );
+  //size_t sz2 = size_tsq(&db->q);
+  //printf("After push: Current size of the db = %ld \n", sz2);
 }
 
