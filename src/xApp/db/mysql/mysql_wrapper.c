@@ -386,6 +386,60 @@ int to_mysql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_
   return rc;
 }
 
+int mac_count = 0;
+int mac_stat_max = 10;
+char mac_buffer[2048] = "INSERT INTO MAC_UE "
+                        "("
+                        "tstamp,"
+                        "ngran_node,"
+                        "mcc,"
+                        "mnc,"
+                        "mnc_digit_len,"
+                        "nb_id,"
+                        "cu_du_id,"
+                        "frame,"
+                        "slot,"
+                        "dl_aggr_tbs,"
+                        "ul_aggr_tbs,"
+                        "dl_aggr_bytes_sdus,"
+                        "ul_aggr_bytes_sdus,"
+                        "dl_curr_tbs,"
+                        "ul_curr_tbs,"
+                        "dl_sched_rb,"
+                        "ul_sched_rb,"
+                        "pusch_snr,"
+                        "pucch_snr,"
+                        "rnti,"
+                        "dl_aggr_prb,"
+                        "ul_aggr_prb,"
+                        "dl_aggr_sdus,"
+                        "ul_aggr_sdus,"
+                        "dl_aggr_retx_prb,"
+                        "ul_aggr_retx_prb,"
+                        "wb_cqi,"
+                        "dl_mcs1,"
+                        "ul_mcs1,"
+                        "dl_mcs2,"
+                        "ul_mcs2,"
+                        "phr,"
+                        "bsr,"
+                        "dl_bler,"
+                        "ul_bler,"
+                        "dl_num_harq,"
+                        "dl_harq_round0,"
+                        "dl_harq_round1,"
+                        "dl_harq_round2,"
+                        "dl_harq_round3,"
+                        "dlsch_errors,"
+                        "ul_num_harq,"
+                        "ul_harq_round0,"
+                        "ul_harq_round1,"
+                        "ul_harq_round2,"
+                        "ul_harq_round3,"
+                        "ulsch_errors"
+                        ") "
+                        "VALUES";
+char mac_temp[8192] = "";
 static
 void write_mac_stats(MYSQL* conn, global_e2_node_id_t const* id, mac_ind_data_t const* ind) {
   assert(conn != NULL);
@@ -393,76 +447,99 @@ void write_mac_stats(MYSQL* conn, global_e2_node_id_t const* id, mac_ind_data_t 
 
   mac_ind_msg_t const *ind_msg_mac = &ind->msg;
 
-  char buffer[2048] = "INSERT INTO MAC_UE "
-                      "("
-                      "tstamp,"
-                      "ngran_node,"
-                      "mcc,"
-                      "mnc,"
-                      "mnc_digit_len,"
-                      "nb_id,"
-                      "cu_du_id,"
-                      "frame,"
-                      "slot,"
-                      "dl_aggr_tbs,"
-                      "ul_aggr_tbs,"
-                      "dl_aggr_bytes_sdus,"
-                      "ul_aggr_bytes_sdus,"
-                      "dl_curr_tbs,"
-                      "ul_curr_tbs,"
-                      "dl_sched_rb,"
-                      "ul_sched_rb,"
-                      "pusch_snr,"
-                      "pucch_snr,"
-                      "rnti,"
-                      "dl_aggr_prb,"
-                      "ul_aggr_prb,"
-                      "dl_aggr_sdus,"
-                      "ul_aggr_sdus,"
-                      "dl_aggr_retx_prb,"
-                      "ul_aggr_retx_prb,"
-                      "wb_cqi,"
-                      "dl_mcs1,"
-                      "ul_mcs1,"
-                      "dl_mcs2,"
-                      "ul_mcs2,"
-                      "phr,"
-                      "bsr,"
-                      "dl_bler,"
-                      "ul_bler,"
-                      "dl_num_harq,"
-                      "dl_harq_round0,"
-                      "dl_harq_round1,"
-                      "dl_harq_round2,"
-                      "dl_harq_round3,"
-                      "dlsch_errors,"
-                      "ul_num_harq,"
-                      "ul_harq_round0,"
-                      "ul_harq_round1,"
-                      "ul_harq_round2,"
-                      "ul_harq_round3,"
-                      "ulsch_errors"
-                      ") "
-                      "VALUES";
-  int pos = strlen(buffer);
+//  char buffer[2048] = "";
+//  int pos = strlen(buffer);
 
   for (size_t i = 0; i < ind_msg_mac->len_ue_stats; ++i) {
+//    pos += to_mysql_string_mac_ue(id, &ind_msg_mac->ue_stats[i], ind_msg_mac->tstamp, buffer + pos, 2048 - pos);
+//    if (i + 1 < ind_msg_mac->len_ue_stats) {
+//      strcat(buffer, ",");
+//      pos +=1;
+//    }
+    char buffer[2048] = "";
+    int pos = strlen(buffer);
+    if (mac_count == 0)
+      strcat(mac_temp, mac_buffer);
+    mac_count += 1;
     pos += to_mysql_string_mac_ue(id, &ind_msg_mac->ue_stats[i], ind_msg_mac->tstamp, buffer + pos, 2048 - pos);
-    if (i + 1 < ind_msg_mac->len_ue_stats) {
-      strncat(buffer, ",", 1);
+    if (mac_count < mac_stat_max) {
+      printf("%d add ,\n", mac_count);
+      strcat(buffer, ",");
       pos +=1;
+      strcat(mac_temp, buffer);
+    } else {
+      printf("%d add ;\n", mac_count);
+      mac_count = 0;
+      strcat(mac_temp, buffer);
+      strcat(mac_temp, ";");
+      for(size_t i = 0; i < strlen(mac_temp); i++)
+        printf("%c", mac_temp[i]);
+      printf("\n");
+      int64_t st = time_now_us();
+      if (mysql_query(conn, mac_temp))
+        mysql_finish_with_error(conn);
+      printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+      strcpy(mac_temp,"");
     }
   }
-  strncat(buffer, ";", 1);
+//  strcat(buffer, ";");
 
-  for(int i = 0; i < strlen(buffer); i++)
-    printf("%c", buffer[i]);
-  printf("\n");
-  if (mysql_query(conn, buffer))
-    mysql_finish_with_error(conn);
+//  for(size_t i = 0; i < strlen(buffer); i++)
+//    printf("%c", buffer[i]);
+//  printf("\n");
+//  if (mysql_query(conn, buffer))
+//    mysql_finish_with_error(conn);
   //printf("[MySQL]: Insert MAC data Successful\n");
 }
 
+int rlc_count = 0;
+int rlc_stat_max = 10;
+char rlc_buffer[2048] = "INSERT INTO RLC_bearer "
+                    "("
+                    "tstamp,"
+                    "ngran_node,"
+                    "mcc,"
+                    "mnc,"
+                    "mnc_digit_len,"
+                    "nb_id,"
+                    "cu_du_id,"
+                    "txpdu_pkts,"
+                    "txpdu_bytes,"
+                    "txpdu_wt_ms,"
+                    "txpdu_dd_pkts,"
+                    "txpdu_dd_bytes,"
+                    "txpdu_retx_pkts,"
+                    "txpdu_retx_bytes,"
+                    "txpdu_segmented,"
+                    "txpdu_status_pkts,"
+                    "txpdu_status_bytes,"
+                    "txbuf_occ_bytes,"
+                    "txbuf_occ_pkts,"
+                    "rxpdu_pkts,"
+                    "rxpdu_bytes,"
+                    "rxpdu_dup_pkts,"
+                    "rxpdu_dup_bytes,"
+                    "rxpdu_dd_pkts,"
+                    "rxpdu_dd_bytes,"
+                    "rxpdu_ow_pkts,"
+                    "rxpdu_ow_bytes,"
+                    "rxpdu_status_pkts,"
+                    "rxpdu_status_bytes,"
+                    "rxbuf_occ_bytes,"
+                    "rxbuf_occ_pkts,"
+                    "txsdu_pkts,"
+                    "txsdu_bytes,"
+                    "rxsdu_pkts,"
+                    "rxsdu_bytes,"
+                    "rxsdu_dd_pkts,"
+                    "rxsdu_dd_bytes,"
+                    "rnti,"
+                    "mode,"
+                    "rbid"
+                    ") "
+                    "VALUES";
+int rlc_pos = 0;
+char rlc_temp[8192] = "";
 static
 void write_rlc_stats(MYSQL* conn, global_e2_node_id_t const* id, rlc_ind_data_t const* ind)
 {
@@ -471,67 +548,44 @@ void write_rlc_stats(MYSQL* conn, global_e2_node_id_t const* id, rlc_ind_data_t 
 
   rlc_ind_msg_t const* ind_msg_rlc = &ind->msg;
 
-  char buffer[2048] = "INSERT INTO RLC_bearer "
-                      "("
-                      "tstamp,"
-                      "ngran_node,"
-                      "mcc,"
-                      "mnc,"
-                      "mnc_digit_len,"
-                      "nb_id,"
-                      "cu_du_id,"
-                      "txpdu_pkts,"
-                      "txpdu_bytes,"
-                      "txpdu_wt_ms,"
-                      "txpdu_dd_pkts,"
-                      "txpdu_dd_bytes,"
-                      "txpdu_retx_pkts,"
-                      "txpdu_retx_bytes,"
-                      "txpdu_segmented,"
-                      "txpdu_status_pkts,"
-                      "txpdu_status_bytes,"
-                      "txbuf_occ_bytes,"
-                      "txbuf_occ_pkts,"
-                      "rxpdu_pkts,"
-                      "rxpdu_bytes,"
-                      "rxpdu_dup_pkts,"
-                      "rxpdu_dup_bytes,"
-                      "rxpdu_dd_pkts,"
-                      "rxpdu_dd_bytes,"
-                      "rxpdu_ow_pkts,"
-                      "rxpdu_ow_bytes,"
-                      "rxpdu_status_pkts,"
-                      "rxpdu_status_bytes,"
-                      "rxbuf_occ_bytes,"
-                      "rxbuf_occ_pkts,"
-                      "txsdu_pkts,"
-                      "txsdu_bytes,"
-                      "rxsdu_pkts,"
-                      "rxsdu_bytes,"
-                      "rxsdu_dd_pkts,"
-                      "rxsdu_dd_bytes,"
-                      "rnti,"
-                      "mode,"
-                      "rbid"
-                      ") "
-                      "VALUES";
-  int pos = strlen(buffer);
-
   for(size_t i = 0; i < ind_msg_rlc->len; ++i){
+    char buffer[2048] = "";
+    int pos = strlen(buffer);
+    if (rlc_count == 0)
+      strcat(rlc_temp, rlc_buffer);
+    rlc_count += 1;
     pos += to_mysql_string_rlc_rb(id, &ind_msg_rlc->rb[i], ind_msg_rlc->tstamp, buffer + pos, 2048 - pos);
-    if (i + 1 < ind_msg_rlc->len) {
-      strncat(buffer, ",", 1);
+    if (rlc_count < rlc_stat_max) {
+      printf("%d add ,\n", rlc_count);
+      strcat(buffer, ",");
       pos +=1;
+      strcat(rlc_temp, buffer);
+    } else {
+      printf("%d add ;\n", rlc_count);
+      rlc_count = 0;
+      strcat(rlc_temp, buffer);
+      strcat(rlc_temp, ";");
+      for(size_t i = 0; i < strlen(rlc_temp); i++)
+        printf("%c", rlc_temp[i]);
+      printf("\n");
+      int64_t st = time_now_us();
+      if (mysql_query(conn, rlc_temp))
+        mysql_finish_with_error(conn);
+      printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+      strcpy(rlc_temp,"");
     }
   }
-  strncat(buffer, ";", 1);
 
-  for(int i = 0; i < strlen(buffer); i++)
-    printf("%c", buffer[i]);
-  printf("\n");
-  if (mysql_query(conn, buffer))
-    mysql_finish_with_error(conn);
-  printf("[MySQL]: Insert RLC data Successful\n");
+
+
+//  for(int i = 0; i < strlen(buffer); i++)
+//    printf("%c", buffer[i]);
+//  printf("\n");
+//  int64_t st = time_now_us();
+//  if (mysql_query(conn, buffer))
+//    mysql_finish_with_error(conn);
+//  printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+  //printf("[MySQL]: Insert RLC data Successful\n");
 }
 
 void init_db_mysql(MYSQL* conn, char const* db_filename)

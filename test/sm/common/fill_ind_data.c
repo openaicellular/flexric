@@ -202,7 +202,7 @@ void fill_rlc_ind_data(rlc_ind_data_t* ind)
 
   ind_msg->tstamp = time_now_us();
 
-  ind_msg->len = rand()%4;
+  ind_msg->len = 2;
   if(ind_msg->len > 0 ){
     ind_msg->rb = calloc(ind_msg->len, sizeof(rlc_radio_bearer_stats_t) );
     assert(ind_msg->rb != NULL);
