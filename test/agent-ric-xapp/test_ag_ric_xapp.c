@@ -227,18 +227,18 @@ int main(int argc, char *argv[])
 //  sm_ans_xapp_t h = report_sm_xapp_api(&nodes.n[0].id, SM_KPM_ID, i, sm_cb_kpm);
 //  assert(h.success == true);
 //  sleep(1);
-
-  inter_xapp_e i_1 = ms_1;
-  // returns a handle
-  sm_ans_xapp_t h_1 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[0].id, i_1, sm_cb_mac);
-  assert(h_1.success == true);
-  sleep(2);
 //
-//  inter_xapp_e i_2 = ms_1;
+//  inter_xapp_e i_1 = ms_1;
 //  // returns a handle
-//  sm_ans_xapp_t h_2 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[1].id, i_2, sm_cb_rlc);
-//  assert(h_2.success == true);
+//  sm_ans_xapp_t h_1 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[0].id, i_1, sm_cb_mac);
+//  assert(h_1.success == true);
 //  sleep(2);
+//
+  inter_xapp_e i_2 = ms_1;
+  // returns a handle
+  sm_ans_xapp_t h_2 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[1].id, i_2, sm_cb_rlc);
+  assert(h_2.success == true);
+  sleep(2);
 //
 //  inter_xapp_e i_3 = ms_1;
 //  // returns a handle
@@ -264,11 +264,11 @@ int main(int argc, char *argv[])
 //  // Remove the handle previously returned
 //  rm_report_sm_xapp_api(h.u.handle);
 
-  // Remove the handle previously returned
-  rm_report_sm_xapp_api(h_1.u.handle);
-//
 //  // Remove the handle previously returned
-//  rm_report_sm_xapp_api(h_2.u.handle);
+//  rm_report_sm_xapp_api(h_1.u.handle);
+
+  // Remove the handle previously returned
+  rm_report_sm_xapp_api(h_2.u.handle);
 //
 //  // Remove the handle previously returned
 //  rm_report_sm_xapp_api(h_3.u.handle);
