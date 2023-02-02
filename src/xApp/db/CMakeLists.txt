@@ -7,7 +7,7 @@ if(XAPP_DB STREQUAL "SQLITE3_XAPP")
                          sqlite3/sqlite3.c
                          sqlite3/sqlite3_wrapper.c
                          ../../util/time_now_us.c
-                         )
+                         mysql/mysql_wrapper.c)
 
 else()
   message(FATAL_ERROR "Unknown XAPP_DB selected")
