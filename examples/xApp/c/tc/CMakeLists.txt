@@ -17,6 +17,8 @@ target_link_libraries(xapp_tc_all
                       -pthread
                       -lsctp
                       -ldl
+                      -I/usr/local/mysql/include
+                      -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                       )
 
 
@@ -38,6 +40,8 @@ target_link_libraries(xapp_tc_codel
                       -pthread
                       -lsctp
                       -ldl
+                      -I/usr/local/mysql/include
+                      -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                       )
 
 add_executable(xapp_tc_partition 
@@ -58,6 +62,8 @@ target_link_libraries(xapp_tc_partition
                       -pthread
                       -lsctp
                       -ldl
+                      -I/usr/local/mysql/include
+                      -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                       )
 
 
@@ -79,6 +85,8 @@ target_link_libraries(xapp_tc_ecn
                       -pthread
                       -lsctp
                       -ldl
+                      -I/usr/local/mysql/include
+                      -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                       )
 
 
@@ -100,5 +108,7 @@ target_link_libraries(xapp_tc_osi_codel
                       -pthread
                       -lsctp
                       -ldl
+                      -I/usr/local/mysql/include
+                      -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                       )
 

@@ -17,6 +17,8 @@ target_link_libraries(xapp_slice_moni_ctrl
                       -pthread
                       -lsctp
                       -ldl
+                      -I/usr/local/mysql/include
+                      -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                       )
 
 

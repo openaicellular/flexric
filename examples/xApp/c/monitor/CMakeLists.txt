@@ -17,6 +17,8 @@ target_link_libraries(xapp_mac_rlc_pdcp_moni
                       -pthread
                       -lsctp
                       -ldl
+                      -I/usr/local/mysql/include
+                      -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                       )
 
 
@@ -31,7 +33,17 @@ add_executable(xapp_gtp_moni
                 ../../../../src/sm/gtp_sm/ie/gtp_data_ie.c
                 ../../../../src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
                 )
-                
+
+target_link_libraries(xapp_gtp_moni
+		PUBLIC
+		e42_xapp
+		-pthread
+		-lsctp
+		-ldl
+		-I/usr/local/mysql/include
+		-L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
+		)
+
 add_executable(xapp_kpm_moni 
                 xapp_kpm_moni.c
                 ../../../../src/util/alg_ds/alg/defer.c
@@ -44,15 +56,16 @@ add_executable(xapp_kpm_moni
                 ../../../../src/sm/gtp_sm/ie/gtp_data_ie.c
                 )
 
-
-
 target_link_libraries(xapp_kpm_moni
                       PUBLIC
                       e42_xapp
                       -pthread
                       -lsctp
                       -ldl
+                      -I/usr/local/mysql/include
+                      -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                       )
+
 add_executable(xapp_kpm_moni_infinity
                       xapp_kpm_moni_infinity.c
                       ../../../../src/util/alg_ds/alg/defer.c
@@ -65,23 +78,15 @@ add_executable(xapp_kpm_moni_infinity
                       ../../../../src/sm/gtp_sm/ie/gtp_data_ie.c
                       )
 
-
-
 target_link_libraries(xapp_kpm_moni_infinity
                             PUBLIC
                             e42_xapp
                             -pthread
                             -lsctp
                             -ldl
+                            -I/usr/local/mysql/include
+                            -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                             )
-
-target_link_libraries(xapp_gtp_moni
-                      PUBLIC
-                      e42_xapp
-                      -pthread
-                      -lsctp
-                      -ldl
-                      )
 
 add_executable(xapp_moni
 		xapp_moni.c
