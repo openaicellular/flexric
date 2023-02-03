@@ -130,6 +130,16 @@ void sm_cb_rlc(sm_ag_if_rd_t const* rd)
   printf("RLC ind_msg latency = %ld μs\n", now - rd->rlc_stats.msg.tstamp);
 }
 
+void sm_cb_pdcp(sm_ag_if_rd_t const* rd)
+{
+  assert(rd != NULL);
+  assert(rd->type == PDCP_STATS_V0);
+
+  int64_t now = time_now_us();
+
+  printf("PDCP ind_msg latency = %ld μs\n", now - rd->pdcp_stats.msg.tstamp);
+}
+
 static
 void sm_cb_gtp(sm_ag_if_rd_t const* rd)
 {
@@ -261,6 +271,12 @@ int main(int argc, char *argv[])
   sm_ans_xapp_t h_4 = report_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, i_4, sm_cb_slice);
   assert(h_4.success == true);
   sleep(2);
+
+  inter_xapp_e i_5 = ms_10;
+  // returns a handle
+  sm_ans_xapp_t h_5 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[2].id, i_5, sm_cb_pdcp);
+  assert(h_5.success == true);
+  sleep(2);
 //
 //  // Control ADD slice
 //  sm_ag_if_wr_t ctrl_msg_add = create_add_slice();
@@ -291,6 +307,9 @@ int main(int argc, char *argv[])
 
   // Remove the handle previously returned
   rm_report_sm_xapp_api(h_4.u.handle);
+
+  // Remove the handle previously returned
+  rm_report_sm_xapp_api(h_5.u.handle);
 
   sleep(1);
 
