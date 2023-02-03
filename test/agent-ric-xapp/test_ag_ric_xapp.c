@@ -242,12 +242,12 @@ int main(int argc, char *argv[])
   for(size_t i = 0; i < n->len_rf; ++i)
     printf("Registered ran func id = %d \n ", n->ack_rf[i].id );
 
-//  inter_xapp_e i = ms_1;
-//  // returns a handle for KPM
-//  sm_ans_xapp_t h = report_sm_xapp_api(&nodes.n[0].id, SM_KPM_ID, i, sm_cb_kpm);
-//  assert(h.success == true);
-//  sleep(1);
-//
+  inter_xapp_e i = ms_10;
+  // returns a handle for KPM
+  sm_ans_xapp_t h = report_sm_xapp_api(&nodes.n[0].id, SM_KPM_ID, i, sm_cb_kpm);
+  assert(h.success == true);
+  sleep(1);
+
   inter_xapp_e i_1 = ms_10;
   // returns a handle
   sm_ans_xapp_t h_1 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[0].id, i_1, sm_cb_mac);
@@ -293,8 +293,8 @@ int main(int argc, char *argv[])
 //
 //  sleep(1);
 //
-//  // Remove the handle previously returned
-//  rm_report_sm_xapp_api(h.u.handle);
+  // Remove the handle previously returned
+  rm_report_sm_xapp_api(h.u.handle);
 
   // Remove the handle previously returned
   rm_report_sm_xapp_api(h_1.u.handle);
