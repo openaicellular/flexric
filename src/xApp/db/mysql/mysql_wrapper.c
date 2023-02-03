@@ -387,7 +387,7 @@ int to_mysql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_
 }
 
 int mac_count = 0;
-int mac_stat_max = 10;
+int mac_stat_max = 50;
 char mac_buffer[2048] = "INSERT INTO MAC_UE "
                         "("
                         "tstamp,"
@@ -439,7 +439,7 @@ char mac_buffer[2048] = "INSERT INTO MAC_UE "
                         "ulsch_errors"
                         ") "
                         "VALUES";
-char mac_temp[8192] = "";
+char mac_temp[16384] = "";
 static
 void write_mac_stats(MYSQL* conn, global_e2_node_id_t const* id, mac_ind_data_t const* ind) {
   assert(conn != NULL);
@@ -447,15 +447,7 @@ void write_mac_stats(MYSQL* conn, global_e2_node_id_t const* id, mac_ind_data_t 
 
   mac_ind_msg_t const *ind_msg_mac = &ind->msg;
 
-//  char buffer[2048] = "";
-//  int pos = strlen(buffer);
-
   for (size_t i = 0; i < ind_msg_mac->len_ue_stats; ++i) {
-//    pos += to_mysql_string_mac_ue(id, &ind_msg_mac->ue_stats[i], ind_msg_mac->tstamp, buffer + pos, 2048 - pos);
-//    if (i + 1 < ind_msg_mac->len_ue_stats) {
-//      strcat(buffer, ",");
-//      pos +=1;
-//    }
     char buffer[2048] = "";
     int pos = strlen(buffer);
     if (mac_count == 0)
@@ -463,37 +455,29 @@ void write_mac_stats(MYSQL* conn, global_e2_node_id_t const* id, mac_ind_data_t 
     mac_count += 1;
     pos += to_mysql_string_mac_ue(id, &ind_msg_mac->ue_stats[i], ind_msg_mac->tstamp, buffer + pos, 2048 - pos);
     if (mac_count < mac_stat_max) {
-      printf("%d add ,\n", mac_count);
+      //printf("%d add ,\n", mac_count);
       strcat(buffer, ",");
-      pos +=1;
       strcat(mac_temp, buffer);
     } else {
-      printf("%d add ;\n", mac_count);
+      //printf("%d add ;\n", mac_count);
       mac_count = 0;
       strcat(mac_temp, buffer);
       strcat(mac_temp, ";");
-      for(size_t i = 0; i < strlen(mac_temp); i++)
-        printf("%c", mac_temp[i]);
-      printf("\n");
-      int64_t st = time_now_us();
+      //for(size_t i = 0; i < strlen(mac_temp); i++)
+      //  printf("%c", mac_temp[i]);
+      //printf("\n");
+      //int64_t st = time_now_us();
       if (mysql_query(conn, mac_temp))
         mysql_finish_with_error(conn);
-      printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+      //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
       strcpy(mac_temp,"");
     }
   }
-//  strcat(buffer, ";");
 
-//  for(size_t i = 0; i < strlen(buffer); i++)
-//    printf("%c", buffer[i]);
-//  printf("\n");
-//  if (mysql_query(conn, buffer))
-//    mysql_finish_with_error(conn);
-  //printf("[MySQL]: Insert MAC data Successful\n");
 }
 
 int rlc_count = 0;
-int rlc_stat_max = 10;
+int rlc_stat_max = 50;
 char rlc_buffer[2048] = "INSERT INTO RLC_bearer "
                     "("
                     "tstamp,"
@@ -538,8 +522,7 @@ char rlc_buffer[2048] = "INSERT INTO RLC_bearer "
                     "rbid"
                     ") "
                     "VALUES";
-int rlc_pos = 0;
-char rlc_temp[8192] = "";
+char rlc_temp[16384] = "";
 static
 void write_rlc_stats(MYSQL* conn, global_e2_node_id_t const* id, rlc_ind_data_t const* ind)
 {
@@ -556,36 +539,25 @@ void write_rlc_stats(MYSQL* conn, global_e2_node_id_t const* id, rlc_ind_data_t 
     rlc_count += 1;
     pos += to_mysql_string_rlc_rb(id, &ind_msg_rlc->rb[i], ind_msg_rlc->tstamp, buffer + pos, 2048 - pos);
     if (rlc_count < rlc_stat_max) {
-      printf("%d add ,\n", rlc_count);
+      //printf("%d add ,\n", rlc_count);
       strcat(buffer, ",");
-      pos +=1;
       strcat(rlc_temp, buffer);
     } else {
-      printf("%d add ;\n", rlc_count);
+      //printf("%d add ;\n", rlc_count);
       rlc_count = 0;
       strcat(rlc_temp, buffer);
       strcat(rlc_temp, ";");
-      for(size_t i = 0; i < strlen(rlc_temp); i++)
-        printf("%c", rlc_temp[i]);
-      printf("\n");
-      int64_t st = time_now_us();
+      //for(size_t i = 0; i < strlen(rlc_temp); i++)
+      //  printf("%c", rlc_temp[i]);
+      //printf("\n");
+      //int64_t st = time_now_us();
       if (mysql_query(conn, rlc_temp))
         mysql_finish_with_error(conn);
-      printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+      //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
       strcpy(rlc_temp,"");
     }
   }
 
-
-
-//  for(int i = 0; i < strlen(buffer); i++)
-//    printf("%c", buffer[i]);
-//  printf("\n");
-//  int64_t st = time_now_us();
-//  if (mysql_query(conn, buffer))
-//    mysql_finish_with_error(conn);
-//  printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
-  //printf("[MySQL]: Insert RLC data Successful\n");
 }
 
 void init_db_mysql(MYSQL* conn, char const* db_filename)
@@ -633,7 +605,6 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
   if(rd->type == MAC_STATS_V0){
     write_mac_stats(conn, id, &rd->mac_stats);
   } else if(rd->type == RLC_STATS_V0 ){
-    printf("[MYSQL]: Try to write rlc data in mysql db\n");
     write_rlc_stats(conn, id, &rd->rlc_stats);
 //  } else if( rd->type == PDCP_STATS_V0) {
 //    write_pdcp_stats(db, id, &rd->pdcp_stats);
