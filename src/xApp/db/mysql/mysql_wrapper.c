@@ -156,6 +156,47 @@ void create_rlc_bearer_table(MYSQL* conn)
 }
 
 static
+void create_pdcp_bearer_table(MYSQL* conn)
+{
+  assert(conn != NULL);
+
+  // ToDo: PRIMARY KEY UNIQUE
+  if(mysql_query(conn, "DROP TABLE IF EXISTS PDCP_bearer"))
+    mysql_finish_with_error(conn);
+  char* sql_pdcp = "CREATE TABLE PDCP_bearer("
+                   "tstamp BIGINT CHECK(tstamp > 0),"
+                   "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                   "mcc INT,"
+                   "mnc INT,"
+                   "mnc_digit_len INT,"
+                   "nb_id INT,"
+                   "cu_du_id TEXT,"
+                   "txpdu_pkts BIGINT CHECK(txpdu_pkts >= 0 AND txpdu_pkts < 4294967296),"
+                   "txpdu_bytes BIGINT CHECK(txpdu_bytes >=0 AND txpdu_bytes < 4294967296),"
+                   "txpdu_sn BIGINT CHECK(txpdu_sn >=0 AND txpdu_sn < 4294967296),"
+                   "rxpdu_pkts BIGINT CHECK(rxpdu_pkts >=0 AND rxpdu_pkts < 4294967296),"
+                   "rxpdu_bytes BIGINT CHECK(rxpdu_bytes >=0 AND rxpdu_bytes < 4294967296),"
+                   "rxpdu_sn BIGINT CHECK(rxpdu_sn >= 0 AND rxpdu_sn < 4294967296) ,"
+                   "rxpdu_oo_pkts BIGINT CHECK(rxpdu_oo_pkts >= 0 AND rxpdu_oo_pkts < 4294967296),"
+                   "rxpdu_oo_bytes BIGINT CHECK(rxpdu_oo_bytes >= 0 AND rxpdu_oo_bytes < 4294967296),"
+                   "rxpdu_dd_pkts BIGINT CHECK(rxpdu_dd_pkts >= 0 AND rxpdu_dd_pkts < 4294967296),"
+                   "rxpdu_dd_bytes BIGINT CHECK(rxpdu_dd_bytes >= 0 AND rxpdu_dd_bytes < 4294967296),"
+                   "rxpdu_ro_count BIGINT CHECK(rxpdu_ro_count >= 0 AND rxpdu_ro_count < 4294967296),"
+                   "txsdu_pkts BIGINT CHECK(txsdu_pkts >= 0 AND txsdu_pkts < 4294967296),"
+                   "txsdu_bytes BIGINT CHECK(txsdu_bytes >= 0 AND txsdu_bytes < 4294967296),"
+                   "rxsdu_pkts BIGINT CHECK(rxsdu_pkts >= 0 AND rxsdu_pkts < 4294967296),"
+                   "rxsdu_bytes BIGINT CHECK(rxsdu_bytes >= 0 AND rxsdu_bytes < 4294967296),"
+                   "rnti BIGINT CHECK(rnti >= 0 AND rnti <4294967296),"
+                   "mode BIGINT CHECK(mode >= 0 AND mode < 4294967296),"
+                   "rbid BIGINT CHECK(rbid >= 0 AND rbid < 4294967296)"
+                   ");";
+
+  if(mysql_query(conn, sql_pdcp))
+    mysql_finish_with_error(conn);
+
+}
+
+static
 void create_slice_table(MYSQL* conn)
 {
   assert(conn != NULL);
@@ -440,6 +481,78 @@ int to_mysql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_
                                     rlc->mode,
                                     rlc->rbid);
 
+  assert(rc < (int)max && "Not enough space in the char array to write all the data");
+  return rc;
+}
+
+static
+int to_mysql_string_pdcp_rb(global_e2_node_id_t const* id, pdcp_radio_bearer_stats_t* pdcp, int64_t tstamp, char* out, size_t out_len)
+{
+  assert(pdcp != NULL);
+  assert(out != NULL);
+  const size_t max = 512;
+  assert(out_len >= max);
+
+  char* c_null = NULL;
+  char c_cu_du_id[26];
+  if (id->cu_du_id) {
+    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  int rc = snprintf(out, out_len,
+                    "("
+                    "%ld," //tstamp
+                    "%d," //ngran_node
+                    "%d," //mcc
+                    "%d," //mnc
+                    "%d," //mnc_digit_len
+                    "%d," //nb_id
+                    "'%s'," //cu_du_id
+                    "%u," //txpdu_pkts
+                    "%u," //txpdu_bytes
+                    "%u," // txpdu_sn
+                    "%u," //rxpdu_pkts
+                    "%u," //rxpdu_bytes
+                    "%u,"     //rxpdu_sn
+                    "%u," //rxpdu_oo_pkts
+                    "%u," //rxpdu_oo_bytes
+                    "%u,"   //rxpdu_dd_pkts
+                    "%u,"  //rxpdu_dd_bytes
+                    "%u," //rxpdu_ro_count
+                    "%u,"//txsdu_pkts
+                    "%u," //txsdu_bytes
+                    "%u,"//rxsdu_pkts
+                    "%u," //rxsdu_bytes
+                    "%u," //rnti
+                    "%u," //mode
+                    "%u" //rbid
+                    ")",
+                    tstamp,
+                    id->type,
+                    id->plmn.mcc,
+                    id->plmn.mnc,
+                    id->plmn.mnc_digit_len,
+                    id->nb_id,
+                    id->cu_du_id ? c_cu_du_id : c_null,
+                    pdcp->txpdu_pkts,
+                    pdcp->txpdu_bytes,
+                    pdcp->txpdu_sn,
+                    pdcp->rxpdu_pkts,
+                    pdcp->rxpdu_bytes,
+                    pdcp->rxpdu_sn,
+                    pdcp->rxpdu_oo_pkts,
+                    pdcp->rxpdu_oo_bytes,
+                    pdcp->rxpdu_dd_pkts,
+                    pdcp->rxpdu_dd_bytes,
+                    pdcp->rxpdu_ro_count,
+                    pdcp->txsdu_pkts,
+                    pdcp->txsdu_bytes,
+                    pdcp->rxsdu_pkts,
+                    pdcp->rxsdu_bytes,
+                    pdcp->rnti,
+                    pdcp->mode,
+                    pdcp->rbid);
   assert(rc < (int)max && "Not enough space in the char array to write all the data");
   return rc;
 }
@@ -851,6 +964,75 @@ void write_rlc_stats(MYSQL* conn, global_e2_node_id_t const* id, rlc_ind_data_t 
 
 }
 
+int pdcp_count = 0;
+int pdcp_stat_max = 50;
+char pdcp_buffer[2048] = "INSERT INTO PDCP_bearer "
+                        "("
+                        "tstamp,"
+                        "ngran_node,"
+                        "mcc,"
+                        "mnc,"
+                        "mnc_digit_len,"
+                        "nb_id,"
+                        "cu_du_id,"
+                        "txpdu_pkts,"
+                        "txpdu_bytes,"
+                        "txpdu_sn,"
+                        "rxpdu_pkts,"
+                        "rxpdu_bytes,"
+                        "rxpdu_sn,"
+                        "rxpdu_oo_pkts,"
+                        "rxpdu_oo_bytes,"
+                        "rxpdu_dd_pkts,"
+                        "rxpdu_dd_bytes,"
+                        "rxpdu_ro_count,"
+                        "txsdu_pkts,"
+                        "txsdu_bytes,"
+                        "rxsdu_pkts,"
+                        "rxsdu_bytes,"
+                        "rnti,"
+                        "mode,"
+                        "rbid"
+                        ") "
+                        "VALUES";
+char pdcp_temp[16384] = "";
+static
+void write_pdcp_stats(MYSQL* conn, global_e2_node_id_t const* id, pdcp_ind_data_t const* ind)
+{
+  assert(conn != NULL);
+  assert(ind != NULL);
+
+  pdcp_ind_msg_t const* ind_msg_pdcp = &ind->msg;
+
+  for(size_t i = 0; i < ind_msg_pdcp->len; ++i){
+    char buffer[2048] = "";
+    int pos = strlen(buffer);
+    if (pdcp_count == 0)
+      strcat(pdcp_temp, pdcp_buffer);
+    pdcp_count += 1;
+    pos += to_mysql_string_pdcp_rb(id, &ind_msg_pdcp->rb[i], ind_msg_pdcp->tstamp, buffer + pos, 2048 - pos);
+    if (pdcp_count < pdcp_stat_max) {
+      //printf("%d add ,\n", pdcp_count);
+      strcat(buffer, ",");
+      strcat(pdcp_temp, buffer);
+    } else {
+      //printf("%d add ;\n", pdcp_count);
+      pdcp_count = 0;
+      strcat(pdcp_temp, buffer);
+      strcat(pdcp_temp, ";");
+      //for(size_t i = 0; i < strlen(pdcp_temp); i++)
+      //  printf("%c", pdcp_temp[i]);
+      //printf("\n");
+      //int64_t st = time_now_us();
+      if (mysql_query(conn, pdcp_temp))
+        mysql_finish_with_error(conn);
+      //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+      strcpy(pdcp_temp,"");
+    }
+  }
+
+}
+
 int slice_count = 0;
 int slice_stat_max = 20;
 char slice_buffer[2048] = "INSERT INTO SLICE "
@@ -1062,6 +1244,13 @@ void init_db_mysql(MYSQL* conn, char const* db_filename)
   printf("[MySQL]: Create New RLC_bearer Table Successful\n");
 
   //////
+  // PDCP
+  //////
+  mysql_query(conn, "USE testdb");
+  create_pdcp_bearer_table(conn);
+  printf("[MySQL]: Create New PDCP_bearer Table Successful\n");
+
+  //////
   // SLICE
   //////
   mysql_query(conn, "USE testdb");
@@ -1070,6 +1259,7 @@ void init_db_mysql(MYSQL* conn, char const* db_filename)
   mysql_query(conn, "USE testdb");
   create_ue_slice_table(conn);
   printf("[MySQL]: Create New UE_SLICE Table Successful\n");
+
 }
 
 //void close_db_sqlite3(sqlite3* db)
@@ -1083,14 +1273,14 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
 {
   assert(conn != NULL);
   assert(rd != NULL);
-  assert(rd->type == MAC_STATS_V0 || rd->type == RLC_STATS_V0 || rd->type == SLICE_STATS_V0);
+  assert(rd->type == MAC_STATS_V0 || rd->type == RLC_STATS_V0 || rd->type == PDCP_STATS_V0 || rd->type == SLICE_STATS_V0);
 
   if(rd->type == MAC_STATS_V0){
     write_mac_stats(conn, id, &rd->mac_stats);
   } else if(rd->type == RLC_STATS_V0 ){
     write_rlc_stats(conn, id, &rd->rlc_stats);
-//  } else if( rd->type == PDCP_STATS_V0) {
-//    write_pdcp_stats(db, id, &rd->pdcp_stats);
+  } else if(rd->type == PDCP_STATS_V0) {
+    write_pdcp_stats(conn, id, &rd->pdcp_stats);
   } else if (rd->type == SLICE_STATS_V0) {
     write_slice_stats(conn, id, &rd->slice_stats);
 //  } else if (rd->type == GTP_STATS_V0) {
