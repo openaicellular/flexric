@@ -152,8 +152,11 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
 
   inter_xapp_e tti = ms_10;
   if (n->id.type == ngran_gNB) {
-    num_sm = 3;
-    uint16_t sm_id_arr[3] = {SM_MAC_ID, SM_RLC_ID, SM_PDCP_ID};
+    //TODO: not implement the pdcp sm in mysql
+    //num_sm = 3;
+    //uint16_t sm_id_arr[3] = {SM_MAC_ID, SM_RLC_ID, SM_PDCP_ID};
+    num_sm = 2;
+    uint16_t sm_id_arr[2] = {SM_MAC_ID, SM_RLC_ID};
     for(size_t j = c_handle; j < c_handle+num_sm; j++){
       uint16_t ran_func_id = sm_id_arr[num_sm-=1];
       printf("xApp subscribes RAN Func ID %d in E2 node idx %d, ngran_gNB\n", ran_func_id, n_idx);
@@ -162,15 +165,17 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
       c_handle+=1;
     }
   } else if (n->id.type == ngran_gNB_CU) {
-    num_sm = 1;
-    uint16_t sm_id_arr[1] = {SM_PDCP_ID};
-    for(size_t j = c_handle; j < c_handle+num_sm; j++){
-      uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, ngran_gNB_CU\n", ran_func_id, n_idx);
-      handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
-      assert(handle[j].success == true);
-      c_handle+=1;
-    }
+    //TODO: not implement the pdcp sm in mysql
+    printf("not implement the pdcp sm in mysql, do not send the sub request to pdcp rf\n");
+//    num_sm = 1;
+//    uint16_t sm_id_arr[1] = {SM_PDCP_ID};
+//    for(size_t j = c_handle; j < c_handle+num_sm; j++){
+//      uint16_t ran_func_id = sm_id_arr[num_sm-=1];
+//      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, ngran_gNB_CU\n", ran_func_id, n_idx);
+//      handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
+//      assert(handle[j].success == true);
+//      c_handle+=1;
+//    }
   } else if (n->id.type == ngran_gNB_DU) {
     num_sm = 2;
     uint16_t sm_id_arr[2] = {SM_MAC_ID, SM_RLC_ID};
