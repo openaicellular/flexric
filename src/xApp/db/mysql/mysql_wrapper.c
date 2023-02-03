@@ -155,6 +155,64 @@ void create_rlc_bearer_table(MYSQL* conn)
 
 }
 
+static
+void create_slice_table(MYSQL* conn)
+{
+  assert(conn != NULL);
+
+  // ToDo: PRIMARY KEY UNIQUE
+  if(mysql_query(conn, "DROP TABLE IF EXISTS SLICE"))
+    mysql_finish_with_error(conn);
+  char* sql_slice = "CREATE TABLE SLICE("
+                    "tstamp BIGINT CHECK(tstamp > 0),"
+                    "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                    "mcc INT,"
+                    "mnc INT,"
+                    "mnc_digit_len INT,"
+                    "nb_id INT,"
+                    "cu_du_id TEXT,"
+                    "len_slices INT CHECK(len_slices  >= 0 AND len_slices < 4),"
+                    "sched_name TEXT,"
+                    "id INT CHECK(id >=0 AND id < 4294967296),"
+                    "label TEXT,"
+                    "type TEXT,"
+                    "type_conf TEXT,"
+                    "sched TEXT,"
+                    "type_param0 REAL CHECK(type_param0 is NULL OR (type_param0 >= 0 AND type_param0 < 4294967296)),"
+                    "type_param1 REAL CHECK(type_param1 is NULL OR (type_param1 >= 0 AND type_param1 < 4294967296)),"
+                    "type_param2 REAL CHECK(type_param2 is NULL OR (type_param2 >= 0 AND type_param2 < 4294967296))"
+                    ");";
+
+  if(mysql_query(conn, sql_slice))
+    mysql_finish_with_error(conn);
+
+}
+
+static
+void create_ue_slice_table(MYSQL* conn)
+{
+  assert(conn != NULL);
+
+  // ToDo: PRIMARY KEY UNIQUE
+  if(mysql_query(conn, "DROP TABLE IF EXISTS UE_SLICE"))
+    mysql_finish_with_error(conn);
+  char* sql_ue_slice = "CREATE TABLE UE_SLICE("
+                       "tstamp BIGINT CHECK(tstamp > 0),"
+                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                       "mcc INT,"
+                       "mnc INT,"
+                       "mnc_digit_len INT,"
+                       "nb_id INT,"
+                       "cu_du_id TEXT,"
+                       "len_ue_slice BIGINT CHECK(len_ue_slice >= 0 AND len_ue_slice < 4294967296),"
+                       "rnti INT CHECK(rnti >= -1 AND rnti < 65535),"
+                       "dl_id BIGINT CHECK(dl_id >= -1 AND dl_id < 4294967296)"
+                       ");";
+
+  if(mysql_query(conn, sql_ue_slice))
+    mysql_finish_with_error(conn);
+}
+
 //static
 //void insert_db(sqlite3* db, char const* sql)
 //{
@@ -386,6 +444,239 @@ int to_mysql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_
   return rc;
 }
 
+static
+int to_mysql_string_slice_rb(global_e2_node_id_t const* id, ul_dl_slice_conf_t const* slices, fr_slice_t const* s, int64_t tstamp, char* out, size_t out_len)
+{
+  assert(slices != NULL);
+  assert(out != NULL);
+  const size_t max = 2048;
+  assert(out_len >= max);
+
+  char* c_null = NULL;
+  char sched_name[50];
+  sched_name[0] = '\0';
+  strncat(sched_name, slices->sched_name, slices->len_sched_name);
+
+  char c_cu_du_id[26];
+  if (id->cu_du_id) {
+    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  int rc = 0;
+  if (s == NULL) {
+    rc = snprintf(out, out_len,
+                  "("
+                  "%ld,"   // tstamp
+                  "%d,"    // ngran_node
+                  "%d,"    // mcc
+                  "%d,"    // mnc
+                  "%d,"    // mnc_digit_len
+                  "%d,"    // nb_id
+                  "'%s',"  // cu_du_id
+                  "%d,"    // dl->len_slices
+                  "'%s',"  // dl->sched_name
+                  "%u,"    // dl->slice[i].id
+                  "'%s',"  // dl->slice[i].label
+                  "'%s',"  // dl->slice[i]->params.type
+                  "'%s',"  // dl->slice[i]->params.u.nvs.conf
+                  "'%s',"  // dl->slice[i].sched
+                  "%.2f,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u1.mbps_required/nvs.u.capacity.u.pct_reserved/edf.deadline
+                  "%.2f,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u2.mbps_reference/edf.guaranteed_prbs
+                  "%.2f"  // dl->slice[i]->params.u.edf.max_replenish
+                  ")",
+                  tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                  id->cu_du_id ? c_cu_du_id : c_null,
+                  0, sched_name, 0, c_null, c_null, c_null, c_null, 0.00, 0.00, 0.00);
+    assert(rc < (int)max && "Not enough space in the char array to write all the data");
+    return rc;
+  }
+
+  char label[50];
+  label[0] = '\0';
+  strncat(label, s->label, s->len_label);
+  char params_type[10];
+  params_type[0] = '\0';
+  char params_type_conf[10];
+  params_type_conf[0] = '\0';
+  char sched[50];
+  sched[0] = '\0';
+  strncat(sched, s->sched, s->len_sched);
+  if (s->params.type == SLICE_ALG_SM_V0_STATIC) {
+    strcat(params_type, "STATIC");
+    rc = snprintf(out, out_len,
+                  "("
+                  "%ld,"   // tstamp
+                  "%d,"    // ngran_node
+                  "%d,"    // mcc
+                  "%d,"    // mnc
+                  "%d,"    // mnc_digit_len
+                  "%d,"    // nb_id
+                  "'%s',"  // cu_du_id
+                  "%d,"    // dl->len_slices
+                  "'%s',"  // dl->sched_name
+                  "%u,"    // dl->slice[i].id
+                  "'%s',"  // dl->slice[i].label
+                  "'%s',"  // dl->slice[i]->params.type
+                  "'%s',"  // dl->slice[i]->params.u.nvs.conf
+                  "'%s',"  // dl->slice[i].sched
+                  "%d,"    // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u1.mbps_required/nvs.u.capacity.u.pct_reserved/edf.deadline
+                  "%d,"    // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u2.mbps_reference/edf.guaranteed_prbs
+                  "%.2f"  // dl->slice[i]->params.u.edf.max_replenish
+                  ")"
+                  ,tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                  id->cu_du_id ? c_cu_du_id : c_null,
+                  slices->len_slices, c_null,
+                  s->id, label, params_type, c_null, sched,
+                  s->params.u.sta.pos_low, s->params.u.sta.pos_high, 0.00);
+  } else if (s->params.type == SLICE_ALG_SM_V0_NVS) {
+    strcat(params_type, "NVS");
+    if (s->params.u.nvs.conf == SLICE_SM_NVS_V0_RATE) {
+      strcat(params_type_conf, "RATE");
+      rc = snprintf(out, out_len,
+                    "("
+                    "%ld,"   // tstamp
+                    "%d,"    // ngran_node
+                    "%d,"    // mcc
+                    "%d,"    // mnc
+                    "%d,"    // mnc_digit_len
+                    "%d,"    // nb_id
+                    "'%s',"  // cu_du_id
+                    "%d,"    // dl->len_slices
+                    "'%s',"  // dl->sched_name
+                    "%u,"    // dl->slice[i].id
+                    "'%s',"  // dl->slice[i].label
+                    "'%s',"  // dl->slice[i]->params.type
+                    "'%s',"  // dl->slice[i]->params.u.nvs.conf
+                    "'%s',"  // dl->slice[i].sched
+                    "%.2f,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u1.mbps_required/nvs.u.capacity.u.pct_reserved/edf.deadline
+                    "%.2f,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u2.mbps_reference/edf.guaranteed_prbs
+                    "%.2f"  // dl->slice[i]->params.u.edf.max_replenish
+                    ")",
+                    tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                    id->cu_du_id ? c_cu_du_id : c_null,
+                    slices->len_slices, c_null,
+                    s->id, label, params_type, params_type_conf, sched,
+                    s->params.u.nvs.u.rate.u1.mbps_required, s->params.u.nvs.u.rate.u2.mbps_reference, 0.00);
+    } else if (s->params.u.nvs.conf == SLICE_SM_NVS_V0_CAPACITY) {
+      strcat(params_type_conf, "CAPACITY");
+      rc = snprintf(out, out_len,
+                    "("
+                    "%ld,"   // tstamp
+                    "%d,"    // ngran_node
+                    "%d,"    // mcc
+                    "%d,"    // mnc
+                    "%d,"    // mnc_digit_len
+                    "%d,"    // nb_id
+                    "'%s',"  // cu_du_id
+                    "%d,"    // dl->len_slices
+                    "'%s',"  // dl->sched_name
+                    "%u,"    // dl->slice[i].id
+                    "'%s',"  // dl->slice[i].label
+                    "'%s',"  // dl->slice[i]->params.type
+                    "'%s',"  // dl->slice[i]->params.u.nvs.conf
+                    "'%s',"  // dl->slice[i].sched
+                    "%.2f,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u1.mbps_required/nvs.u.capacity.u.pct_reserved/edf.deadline
+                    "%.2f,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u2.mbps_reference/edf.guaranteed_prbs
+                    "%.2f"  // dl->slice[i]->params.u.edf.max_replenish
+                    ")",
+                    tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                    id->cu_du_id ? c_cu_du_id : c_null,
+                    slices->len_slices, c_null,
+                    s->id, label, params_type, params_type_conf, sched,
+                    s->params.u.nvs.u.capacity.u.pct_reserved, 0.00, 0.00);
+    }
+  } else if (s->params.type == SLICE_ALG_SM_V0_EDF) {
+    strcat(params_type, "EDF");
+    rc = snprintf(out, out_len,
+                  "("
+                  "%ld,"   // tstamp
+                  "%d,"    // ngran_node
+                  "%d,"    // mcc
+                  "%d,"    // mnc
+                  "%d,"    // mnc_digit_len
+                  "%d,"    // nb_id
+                  "'%s',"  // cu_du_id
+                  "%d,"    // dl->len_slices
+                  "'%s',"  // dl->sched_name
+                  "%u,"    // dl->slice[i].id
+                  "'%s',"  // dl->slice[i].label
+                  "'%s',"  // dl->slice[i]->params.type
+                  "'%s',"  // dl->slice[i]->params.u.nvs.conf
+                  "'%s',"  // dl->slice[i].sched
+                  "%d,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u1.mbps_required/nvs.u.capacity.u.pct_reserved/edf.deadline
+                  "%d,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u2.mbps_reference/edf.guaranteed_prbs
+                  "%d"  // dl->slice[i]->params.u.edf.max_replenish
+                  ")",
+                  tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                  id->cu_du_id ? c_cu_du_id : c_null,
+                  slices->len_slices, c_null,
+                  s->id, label, params_type, c_null, sched,
+                  s->params.u.edf.deadline,
+                  s->params.u.edf.guaranteed_prbs,
+                  s->params.u.edf.max_replenish);
+  }
+  assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  return rc;
+}
+
+static
+int to_mysql_string_ue_slice_rb(global_e2_node_id_t const* id, ue_slice_conf_t const* ues, ue_slice_assoc_t const* u, int64_t tstamp, char* out, size_t out_len)
+{
+  assert(ues != NULL);
+  assert(out != NULL);
+  const size_t max = 512;
+  assert(out_len >= max);
+
+  char* c_null = NULL;
+  char c_cu_du_id[26];
+  if (id->cu_du_id) {
+    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  int rc = 0;
+  if (u == NULL) {
+    rc = snprintf(out, out_len,
+                  "("
+                  "%ld,"   // tstamp
+                  "%d,"    // ngran_node
+                  "%d,"    // mcc
+                  "%d,"    // mnc
+                  "%d,"    // mnc_digit_len
+                  "%d,"    // nb_id
+                  "'%s',"  // cu_du_id
+                  "%d,"    // dl->len_ue_slices
+                  "%d,"    // ues[i]->rnti
+                  "%d"     // ues[i]->dl_id
+                  ")",
+                  tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                  id->cu_du_id ? c_cu_du_id : c_null,
+                  ues->len_ue_slice, -1, -1);
+    assert(rc < (int)max && "Not enough space in the char array to write all the data");
+    return rc;
+  }
+
+  rc = snprintf(out, out_len,
+                "("
+                "%ld,"   // tstamp
+                "%d,"    // ngran_node
+                "%d,"    // mcc
+                "%d,"    // mnc
+                "%d,"    // mnc_digit_len
+                "%d,"    // nb_id
+                "'%s',"  // cu_du_id
+                "%d,"    // dl->len_ue_slices
+                "%d,"    // ues[i]->rnti
+                "%d"     // ues[i]->dl_id
+                ")",
+                tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                id->cu_du_id ? c_cu_du_id : c_null,
+                ues->len_ue_slice, u->rnti, u->dl_id);
+  assert(rc < (int)max && "Not enough space in the char array to write all the data");
+  return rc;
+}
+
 int mac_count = 0;
 int mac_stat_max = 50;
 char mac_buffer[2048] = "INSERT INTO MAC_UE "
@@ -560,6 +851,189 @@ void write_rlc_stats(MYSQL* conn, global_e2_node_id_t const* id, rlc_ind_data_t 
 
 }
 
+int slice_count = 0;
+int slice_stat_max = 20;
+char slice_buffer[2048] = "INSERT INTO SLICE "
+                          "("
+                          "tstamp,"
+                          "ngran_node,"
+                          "mcc,"
+                          "mnc,"
+                          "mnc_digit_len,"
+                          "nb_id,"
+                          "cu_du_id,"
+                          "len_slices,"
+                          "sched_name,"
+                          "id,"
+                          "label,"
+                          "type,"
+                          "type_conf,"
+                          "sched,"
+                          "type_param0,"
+                          "type_param1,"
+                          "type_param2"
+                          ") "
+                          "VALUES";
+char slice_temp[16384] = "";
+static
+void write_slice_conf_stats(MYSQL* conn, global_e2_node_id_t const* id, int64_t tstamp, slice_conf_t const* slice_conf)
+{
+
+  ul_dl_slice_conf_t const* dlslices = &slice_conf->dl;
+  if (dlslices->len_slices > 0) {
+    for(size_t i = 0; i < dlslices->len_slices; ++i) {
+      fr_slice_t const* s = &dlslices->slices[i];
+      char buffer[4096] = {0};
+      int pos = strlen(buffer);
+      if (slice_count == 0)
+        strcat(slice_temp, slice_buffer);
+      slice_count += 1;
+      pos += to_mysql_string_slice_rb(id, dlslices, s, tstamp, buffer + pos, 4096 - pos);
+      if (slice_count < slice_stat_max) {
+        //printf("len_slice > 0: %d add ,\n", slice_count);
+        strcat(buffer, ",");
+        strcat(slice_temp, buffer);
+      } else {
+        //printf("len_slice > 0: %d add ;\n", slice_count);
+        slice_count = 0;
+        strcat(slice_temp, buffer);
+        strcat(slice_temp, ";");
+        //printf("len_slice > 0: ");
+        //for(size_t i = 0; i < strlen(slice_temp); i++)
+        //  printf("%c", slice_temp[i]);
+        //printf("\n");
+        //int64_t st = time_now_us();
+        if (mysql_query(conn, slice_temp))
+          mysql_finish_with_error(conn);
+        //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+        strcpy(slice_temp,"");
+      }
+    }
+  } else {
+    char buffer[4096] = {0};
+    int pos = strlen(buffer);
+    if (slice_count == 0)
+      strcat(slice_temp, slice_buffer);
+    slice_count += 1;
+    pos += to_mysql_string_slice_rb(id, dlslices, NULL, tstamp, buffer + pos, 4096 - pos);
+    if (slice_count < slice_stat_max) {
+      //printf("len_slice = 0: %d add ,\n", slice_count);
+      strcat(buffer, ",");
+      strcat(slice_temp, buffer);
+    } else {
+      //printf("len_slice = 0: %d add ;\n", slice_count);
+      slice_count = 0;
+      strcat(slice_temp, buffer);
+      strcat(slice_temp, ";");
+      //printf("len_slice = 0: ");
+      //for(size_t i = 0; i < strlen(slice_temp); i++)
+      //  printf("%c", slice_temp[i]);
+      //printf("\n");
+      //int64_t st = time_now_us();
+      if (mysql_query(conn, slice_temp))
+        mysql_finish_with_error(conn);
+      //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+      strcpy(slice_temp,"");
+    }
+  }
+
+  // TODO: Process uplink slice stats
+
+}
+
+int ue_slice_count = 0;
+int ue_slice_stat_max = 20;
+char ue_slice_buffer[2048] = "INSERT INTO UE_SLICE "
+                             "("
+                             "tstamp,"
+                             "ngran_node,"
+                             "mcc,"
+                             "mnc,"
+                             "mnc_digit_len,"
+                             "nb_id,"
+                             "cu_du_id,"
+                             "len_ue_slice,"
+                             "rnti,"
+                             "dl_id"
+                             ") "
+                             "VALUES";
+char ue_slice_temp[16384] = "";
+static
+void write_ue_slice_conf_stats(MYSQL* conn, global_e2_node_id_t const* id, int64_t tstamp, ue_slice_conf_t const* ue_slice_conf)
+{
+
+  if (ue_slice_conf->len_ue_slice > 0) {
+    for(uint32_t j = 0; j < ue_slice_conf->len_ue_slice; ++j) {
+      ue_slice_assoc_t *u = &ue_slice_conf->ues[j];
+      char buffer[4096] = {0};
+      int pos = strlen(buffer);
+      if (ue_slice_count == 0)
+        strcat(ue_slice_temp, ue_slice_buffer);
+      ue_slice_count += 1;
+      pos += to_mysql_string_ue_slice_rb(id, ue_slice_conf, u, tstamp, buffer + pos, 2048 - pos);
+      if (ue_slice_count < ue_slice_stat_max) {
+        //printf("len_ue_slice > 0: %d add ,\n", ue_slice_count);
+        strcat(buffer, ",");
+        strcat(ue_slice_temp, buffer);
+      } else {
+        //printf("len_ue_slice > 0: %d add ;\n", ue_slice_count);
+        ue_slice_count = 0;
+        strcat(ue_slice_temp, buffer);
+        strcat(ue_slice_temp, ";");
+        //printf("len_ue_slice > 0: ");
+        //for(size_t i = 0; i < strlen(ue_slice_temp); i++)
+        //  printf("%c", ue_slice_temp[i]);
+        //printf("\n");
+        //int64_t st = time_now_us();
+        if (mysql_query(conn, ue_slice_temp))
+          mysql_finish_with_error(conn);
+        //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+        strcpy(ue_slice_temp,"");
+      }
+    }
+  } else {
+    char buffer[4096] = {0};
+    int pos = strlen(buffer);
+    if (ue_slice_count == 0)
+      strcat(ue_slice_temp, ue_slice_buffer);
+    ue_slice_count += 1;
+    pos += to_mysql_string_ue_slice_rb(id, ue_slice_conf, NULL, tstamp, buffer + pos, 2048 - pos);
+    if (ue_slice_count < ue_slice_stat_max) {
+      //printf("len_ue_slice = 0: %d add ,\n", ue_slice_count);
+      strcat(buffer, ",");
+      strcat(ue_slice_temp, buffer);
+    } else {
+      //printf("len_ue_slice = 0: %d add ;\n", ue_slice_count);
+      ue_slice_count = 0;
+      strcat(ue_slice_temp, buffer);
+      strcat(ue_slice_temp, ";");
+      //printf("len_ue_slice = 0: ");
+      //for(size_t i = 0; i < strlen(ue_slice_temp); i++)
+      //  printf("%c", ue_slice_temp[i]);
+      //printf("\n");
+      //int64_t st = time_now_us();
+      if (mysql_query(conn, ue_slice_temp))
+        mysql_finish_with_error(conn);
+      //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+      strcpy(ue_slice_temp,"");
+    }
+  }
+
+}
+
+static
+void write_slice_stats(MYSQL* conn, global_e2_node_id_t const* id, slice_ind_data_t const* ind)
+{
+  assert(conn != NULL);
+  assert(ind != NULL);
+
+  slice_ind_msg_t const* ind_msg_slice = &ind->msg;
+
+  write_slice_conf_stats(conn, id, ind_msg_slice->tstamp, &ind_msg_slice->slice_conf);
+  write_ue_slice_conf_stats(conn, id, ind_msg_slice->tstamp, &ind_msg_slice->ue_slice_conf);
+
+}
+
 void init_db_mysql(MYSQL* conn, char const* db_filename)
 {
   assert(conn != NULL);
@@ -587,6 +1061,15 @@ void init_db_mysql(MYSQL* conn, char const* db_filename)
   create_rlc_bearer_table(conn);
   printf("[MySQL]: Create New RLC_bearer Table Successful\n");
 
+  //////
+  // SLICE
+  //////
+  mysql_query(conn, "USE testdb");
+  create_slice_table(conn);
+  printf("[MySQL]: Create New Slice Table Successful\n");
+  mysql_query(conn, "USE testdb");
+  create_ue_slice_table(conn);
+  printf("[MySQL]: Create New UE_SLICE Table Successful\n");
 }
 
 //void close_db_sqlite3(sqlite3* db)
@@ -600,7 +1083,7 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
 {
   assert(conn != NULL);
   assert(rd != NULL);
-  assert(rd->type == MAC_STATS_V0 || rd->type == RLC_STATS_V0);
+  assert(rd->type == MAC_STATS_V0 || rd->type == RLC_STATS_V0 || rd->type == SLICE_STATS_V0);
 
   if(rd->type == MAC_STATS_V0){
     write_mac_stats(conn, id, &rd->mac_stats);
@@ -608,8 +1091,8 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
     write_rlc_stats(conn, id, &rd->rlc_stats);
 //  } else if( rd->type == PDCP_STATS_V0) {
 //    write_pdcp_stats(db, id, &rd->pdcp_stats);
-//  } else if (rd->type == SLICE_STATS_V0) {
-//    write_slice_stats(db, id, &rd->slice_stats);
+  } else if (rd->type == SLICE_STATS_V0) {
+    write_slice_stats(conn, id, &rd->slice_stats);
 //  } else if (rd->type == GTP_STATS_V0) {
 //    write_gtp_stats(db, id, &rd->gtp_stats);
 //  } else if (rd->type == KPM_STATS_V0) {
