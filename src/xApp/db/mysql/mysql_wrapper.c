@@ -254,6 +254,71 @@ void create_ue_slice_table(MYSQL* conn)
     mysql_finish_with_error(conn);
 }
 
+static
+void create_kpm_table(MYSQL* conn)
+{
+  assert(conn != NULL);
+
+  // ToDo: PRIMARY KEY UNIQUE
+  if(mysql_query(conn, "DROP TABLE IF EXISTS KPM_MeasRecord"))
+    mysql_finish_with_error(conn);
+  char* sql_kpm_measRecord = "CREATE TABLE KPM_MeasRecord("
+                             "tstamp BIGINT CHECK(tstamp > 0),"
+                             "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                             "mcc INT,"
+                             "mnc INT,"
+                             "mnc_digit_len INT,"
+                             "nb_id INT,"
+                             "cu_du_id TEXT,"
+                             "incompleteFlag INT,"
+                             "name TEXT," //measRecord name
+                             "val REAL CHECK(val >=0 AND val < 4294967296)"
+                             ");";
+
+  if(mysql_query(conn, sql_kpm_measRecord))
+    mysql_finish_with_error(conn);
+
+  // ToDo: PRIMARY KEY UNIQUE
+//  if(mysql_query(conn, "DROP TABLE IF EXISTS KPM_LabelInfo"))
+//    mysql_finish_with_error(conn);
+//  char* sql_kpm_labelInfo = "CREATE TABLE KPM_LabelInfo("
+//                            "tstamp BIGINT CHECK(tstamp > 0),"
+//                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+//                            "mcc INT,"
+//                            "mnc INT,"
+//                            "mnc_digit_len INT,"
+//                            "nb_id INT,"
+//                            "cu_du_id TEXT,"
+//                            "MeasType TEXT,"
+//                            "noLabel BIGINT CHECK(noLabel >=0 AND noLabel < 4294967296),"
+//                            "plmnID TEXT,"
+//                            "sST TEXT,"
+//                            "sD TEXT,"
+//                            "fiveQI BIGINT CHECK(fiveQI >= 0 AND fiveQI < 4294967296),"
+//                            "qFI BIGINT CHECK(qFI >= 0 AND qFI < 4294967296),"
+//                            "qCI BIGINT CHECK(qCI >= 0 AND qCI < 4294967296),"
+//                            "qCImax BIGINT CHECK(qCImax >= 0 AND qCImax < 4294967296),"
+//                            "qCImin BIGINT CHECK(qCImin >= 0 AND qCImin < 4294967296),"
+//                            "aRPmax BIGINT CHECK(aRPmax >= 0 AND aRPmax < 4294967296),"
+//                            "aRPmin BIGINT CHECK(aRPmin >= 0 AND aRPmin < 4294967296),"
+//                            "bitrateRange BIGINT CHECK(bitrateRange >= 0 AND bitrateRange < 4294967296),"
+//                            "layerMU_MIMO BIGINT CHECK(layerMU_MIMO >= 0 AND layerMU_MIMO < 4294967296),"
+//                            "sUM BIGINT CHECK(sUM >= 0 AND sUM < 4294967296),"
+//                            "distBinX BIGINT CHECK(distBinX >= 0 AND distBinX < 4294967296),"
+//                            "distBinY BIGINT CHECK(distBinY >= 0 AND distBinY < 4294967296),"
+//                            "distBinZ BIGINT CHECK(distBinZ >= 0 AND distBinZ < 4294967296),"
+//                            "preLabelOverride BIGINT CHECK(preLabelOverride >= 0 AND preLabelOverride < 4294967296),"
+//                            "startEndInd BIGINT CHECK(startEndInd >= 0 AND startEndInd < 4294967296),"
+//                            "min BIGINT CHECK(min >= 0 AND min < 4294967296),"
+//                            "max BIGINT CHECK(max >= 0 AND max < 4294967296),"
+//                            "avg BIGINT CHECK(avg >= 0 AND avg < 4294967296)"
+//                            ");";
+
+  //TODO: need to implement the function to write data of labelinfo
+  //if(mysql_query(conn, sql_kpm_labelInfo))
+  //  mysql_finish_with_error(conn);
+}
+
 //static
 //void insert_db(sqlite3* db, char const* sql)
 //{
@@ -790,6 +855,140 @@ int to_mysql_string_ue_slice_rb(global_e2_node_id_t const* id, ue_slice_conf_t c
   return rc;
 }
 
+static
+void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
+                                    adapter_MeasDataItem_t* kpm_measData,
+                                    adapter_MeasRecord_t* kpm_measRecord,
+                                    MeasInfo_t* kpm_measInfo,
+                                    adapter_TimeStamp_t tstamp,
+                                    char* out,
+                                    size_t out_len)
+{
+  assert(kpm_measData != NULL);
+  assert(out != NULL);
+  const size_t max = 512;
+  assert(out_len >= max);
+
+  char* c_null = NULL;
+  char c_cu_du_id[26];
+  if (id->cu_du_id) {
+    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  if (kpm_measRecord == NULL){
+    int const rc = snprintf(out, max,
+                            "("
+                            "%u,"// tstamp
+                            "%d," //ngran_node
+                            "%d," //mcc
+                            "%d," //mnc
+                            "%d," //mnc_digit_len
+                            "%d," //nb_id
+                            "'%s'," //cu_du_id
+                            "%ld,"  //kpm_measData->incompleteFlag
+                            "'%s'," //kpm_measName
+                            "'%s'"  //kpm_measRecord->int_val
+                            ")",
+                            tstamp,
+                            id->type,
+                            id->plmn.mcc,
+                            id->plmn.mnc,
+                            id->plmn.mnc_digit_len,
+                            id->nb_id,
+                            id->cu_du_id ? c_cu_du_id : c_null,
+                            kpm_measData->incompleteFlag,
+                            kpm_measInfo ? kpm_measInfo->measName.buf : NULL,
+                            c_null
+                            );
+    assert(rc < (int)max && "Not enough space in the char array to write all the data");
+    return ;
+  } else {
+    if(kpm_measRecord->type == MeasRecord_int){
+      int const rc = snprintf(out, max,
+                              "("
+                              "%u,"// tstamp
+                              "%d," //ngran_node
+                              "%d," //mcc
+                              "%d," //mnc
+                              "%d," //mnc_digit_len
+                              "%d," //nb_id
+                              "'%s'," //cu_du_id
+                              "%ld,"  //kpm_measData->incompleteFlag
+                              "'%s'," //kpm_measName
+                              "%ld"  //kpm_measRecord->int_val
+                              ")",
+                              tstamp,
+                              id->type,
+                              id->plmn.mcc,
+                              id->plmn.mnc,
+                              id->plmn.mnc_digit_len,
+                              id->nb_id,
+                              id->cu_du_id ? c_cu_du_id : c_null,
+                              kpm_measData->incompleteFlag,
+                              kpm_measInfo ? kpm_measInfo->measName.buf : NULL,
+                              kpm_measRecord->int_val
+                              );
+      assert(rc < (int)max && "Not enough space in the char array to write all the data");
+      return;
+    }else if (kpm_measRecord->type == MeasRecord_real){
+      int const rc = snprintf(out, max,
+                              "("
+                              "%u,"// tstamp
+                              "%d," //ngran_node
+                              "%d," //mcc
+                              "%d," //mnc
+                              "%d," //mnc_digit_len
+                              "%d," //nb_id
+                              "'%s'," //cu_du_id
+                              "%ld,"  //kpm_measData->incompleteFlag
+                              "'%s'," //kpm_measName
+                              "%f"  //kpm_measRecord->real_val
+                              ")",
+                              tstamp,
+                              id->type,
+                              id->plmn.mcc,
+                              id->plmn.mnc,
+                              id->plmn.mnc_digit_len,
+                              id->nb_id,
+                              id->cu_du_id ? c_cu_du_id : c_null,
+                              kpm_measData->incompleteFlag,
+                              kpm_measInfo ? kpm_measInfo->measName.buf : NULL,
+                              kpm_measRecord->real_val
+                              );
+      assert(rc < (int)max && "Not enough space in the char array to write all the data");
+      return;
+    }else if (kpm_measRecord->type == MeasRecord_noval){
+      int const rc = snprintf(out, max,
+                              "("
+                              "%u,"// tstamp
+                              "%d," //ngran_node
+                              "%d," //mcc
+                              "%d," //mnc
+                              "%d," //mnc_digit_len
+                              "%d," //nb_id
+                              "'%s'," //cu_du_id
+                              "%ld,"  //kpm_measData->incompleteFlag
+                              "'%s'," //kpm_measName
+                              "-1"  //kpm_measRecord->noVal
+                              ")",
+                              tstamp,
+                              id->type,
+                              id->plmn.mcc,
+                              id->plmn.mnc,
+                              id->plmn.mnc_digit_len,
+                              id->nb_id,
+                              id->cu_du_id ? c_cu_du_id : c_null,
+                              kpm_measData->incompleteFlag,
+                              kpm_measInfo ? kpm_measInfo->measName.buf : NULL
+                              );
+      assert(rc < (int)max && "Not enough space in the char array to write all the data");
+      return;
+    }
+  }
+  assert(0!=0 && "Bad input data. Nothing for SQL to be created");
+}
+
 int mac_count = 0;
 int mac_stat_max = 50;
 char mac_buffer[2048] = "INSERT INTO MAC_UE "
@@ -1216,6 +1415,94 @@ void write_slice_stats(MYSQL* conn, global_e2_node_id_t const* id, slice_ind_dat
 
 }
 
+int kpm_count = 0;
+int kpm_stat_max = 50;
+char kpm_buffer[2048] = "INSERT INTO KPM_MeasRecord "
+                        "("
+                        "tstamp,"
+                        "ngran_node,"
+                        "mcc,"
+                        "mnc,"
+                        "mnc_digit_len,"
+                        "nb_id,"
+                        "cu_du_id,"
+                        "incompleteFlag,"
+                        "name,"
+                        "val"
+                        ") "
+                        "VALUES";
+char kpm_temp[16384] = "";
+static
+void write_kpm_stats(MYSQL* conn, global_e2_node_id_t const* id, kpm_ind_data_t const* ind)
+{
+  // TODO: Add granulPeriod into database
+  // TODO: Add MeasInfo and LabelInfo into database
+
+  assert(conn != NULL);
+  assert(ind != NULL);
+
+  kpm_ind_msg_t const* ind_msg_kpm = &ind->msg;
+
+  for(size_t i = 0; i < ind_msg_kpm->MeasData_len; i++){
+    adapter_MeasDataItem_t* curMeasData = &ind_msg_kpm->MeasData[i];
+    if (curMeasData->measRecord_len > 0){
+      for (size_t j = 0; j < curMeasData->measRecord_len; j++){
+        adapter_MeasRecord_t* curMeasRecord = &curMeasData->measRecord[j];
+        MeasInfo_t* curMeasInfo = &ind_msg_kpm->MeasInfo[j];
+        char buffer[2048] = "";
+        if (kpm_count == 0)
+          strcat(kpm_temp, kpm_buffer);
+        kpm_count += 1;
+        to_mysql_string_kpm_measRecord(id, curMeasData, curMeasRecord, curMeasInfo, ind->hdr.collectStartTime,
+                                       buffer, 512);
+        if (kpm_count < kpm_stat_max) {
+          //printf("%d add ,\n", kpm_count);
+          strcat(buffer, ",");
+          strcat(kpm_temp, buffer);
+        } else {
+          //printf("%d add ;\n", kpm_temp);
+          kpm_count = 0;
+          strcat(kpm_temp, buffer);
+          strcat(kpm_temp, ";");
+          //for(size_t i = 0; i < strlen(kpm_temp); i++)
+          //  printf("%c", kpm_temp[i]);
+          //printf("\n");
+          //int64_t st = time_now_us();
+          if (mysql_query(conn, kpm_temp))
+            mysql_finish_with_error(conn);
+          //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+          strcpy(kpm_temp,"");
+        }
+      }
+    } else {
+      char buffer[2048] = "";
+      if (kpm_count == 0)
+        strcat(kpm_temp, kpm_buffer);
+      kpm_count += 1;
+      to_mysql_string_kpm_measRecord(id, curMeasData, NULL, NULL, ind->hdr.collectStartTime,
+                                     buffer, 512);
+      if (kpm_count < kpm_stat_max) {
+        //printf("%d add ,\n", kpm_count);
+        strcat(buffer, ",");
+        strcat(kpm_temp, buffer);
+      } else {
+        //printf("%d add ;\n", kpm_temp);
+        kpm_count = 0;
+        strcat(kpm_temp, buffer);
+        strcat(kpm_temp, ";");
+        //for(size_t i = 0; i < strlen(kpm_temp); i++)
+        //  printf("%c", kpm_temp[i]);
+        //printf("\n");
+        //int64_t st = time_now_us();
+        if (mysql_query(conn, kpm_temp))
+          mysql_finish_with_error(conn);
+        //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+        strcpy(kpm_temp,"");
+      }
+    }
+  }
+}
+
 void init_db_mysql(MYSQL* conn, char const* db_filename)
 {
   assert(conn != NULL);
@@ -1260,6 +1547,12 @@ void init_db_mysql(MYSQL* conn, char const* db_filename)
   create_ue_slice_table(conn);
   printf("[MySQL]: Create New UE_SLICE Table Successful\n");
 
+  //////
+  // KPM
+  //////
+  mysql_query(conn, "USE testdb");
+  create_kpm_table(conn);
+  printf("[MySQL]: Create New KPM Table Successful\n");
 }
 
 //void close_db_sqlite3(sqlite3* db)
@@ -1273,7 +1566,7 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
 {
   assert(conn != NULL);
   assert(rd != NULL);
-  assert(rd->type == MAC_STATS_V0 || rd->type == RLC_STATS_V0 || rd->type == PDCP_STATS_V0 || rd->type == SLICE_STATS_V0);
+  assert(rd->type == MAC_STATS_V0 || rd->type == RLC_STATS_V0 || rd->type == PDCP_STATS_V0 || rd->type == SLICE_STATS_V0 || rd->type == KPM_STATS_V0);
 
   if(rd->type == MAC_STATS_V0){
     write_mac_stats(conn, id, &rd->mac_stats);
@@ -1285,8 +1578,8 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
     write_slice_stats(conn, id, &rd->slice_stats);
 //  } else if (rd->type == GTP_STATS_V0) {
 //    write_gtp_stats(db, id, &rd->gtp_stats);
-//  } else if (rd->type == KPM_STATS_V0) {
-//    write_kpm_stats(db, id, &rd->kpm_stats);
+  } else if (rd->type == KPM_STATS_V0) {
+    write_kpm_stats(conn, id, &rd->kpm_stats);
   } else {
     assert(0!=0 && "Unknown statistics type received ");
   }
