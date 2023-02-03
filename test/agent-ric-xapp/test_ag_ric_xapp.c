@@ -141,6 +141,16 @@ void sm_cb_gtp(sm_ag_if_rd_t const* rd)
 }
 
 static
+void sm_cb_slice(sm_ag_if_rd_t const* rd)
+{
+  assert(rd != NULL);
+  assert(rd->type == SLICE_STATS_V0);
+
+  int64_t now = time_now_us();
+  printf("SLICE ind_msg latency = %ld μs\n", now - rd->slice_stats.msg.tstamp);
+}
+
+static
 sm_ag_if_wr_t create_add_slice(void)
 {
   sm_ag_if_wr_t ctrl_msg = {.type = SLICE_CTRL_REQ_V0 };
@@ -245,6 +255,12 @@ int main(int argc, char *argv[])
 //  sm_ans_xapp_t h_3 = report_sm_xapp_api(&nodes.n[0].id, SM_GTP_ID, i_3, sm_cb_gtp);
 //  assert(h_3.success == true);
 //  sleep(2);
+
+  inter_xapp_e i_4 = ms_10;
+  // returns a handle
+  sm_ans_xapp_t h_4 = report_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, i_4, sm_cb_slice);
+  assert(h_4.success == true);
+  sleep(2);
 //
 //  // Control ADD slice
 //  sm_ag_if_wr_t ctrl_msg_add = create_add_slice();
@@ -272,6 +288,9 @@ int main(int argc, char *argv[])
 //
 //  // Remove the handle previously returned
 //  rm_report_sm_xapp_api(h_3.u.handle);
+
+  // Remove the handle previously returned
+  rm_report_sm_xapp_api(h_4.u.handle);
 
   sleep(1);
 
