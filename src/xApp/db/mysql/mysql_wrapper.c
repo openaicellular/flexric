@@ -1629,61 +1629,74 @@ void write_kpm_stats(MYSQL* conn, global_e2_node_id_t const* id, kpm_ind_data_t 
   }
 }
 
-void init_db_mysql(MYSQL* conn, char const* db_filename)
+void init_db_mysql(MYSQL* conn, char const* db_name)
 {
   assert(conn != NULL);
-  assert(db_filename != NULL);
+  assert(db_name != NULL);
 
-  if(mysql_query(conn, "DROP DATABASE IF EXISTS testdb"))
+  // drop exists db in server
+  char cmd_drop_db[512] = "DROP DATABASE IF EXISTS ";
+  strcat(cmd_drop_db, db_name);
+  printf("[MySQL]: %s\n", cmd_drop_db);
+  if(mysql_query(conn, cmd_drop_db))
     mysql_finish_with_error(conn);
   printf("[MySQL]: Drop Exist DB Successful\n");
+
   // create db in server
-  if(mysql_query(conn, "CREATE DATABASE IF NOT EXISTS testdb"))
+  char cmd_create_db[512] = "CREATE DATABASE IF NOT EXISTS ";
+  strcat(cmd_create_db, db_name);
+  printf("[MySQL]: %s\n", cmd_create_db);
+  if(mysql_query(conn, cmd_create_db))
     mysql_finish_with_error(conn);
   printf("[MySQL]: Create New DB Successful\n");
+
+  // use db created db
+  char cmd_use_db[512] = "USE ";
+  strcat(cmd_use_db, db_name);
+  printf("[MySQL]: %s\n", cmd_use_db);
 
   //////
   // MAC
   //////
-  mysql_query(conn, "USE testdb");
+  mysql_query(conn, cmd_use_db);
   create_mac_ue_table(conn);
   printf("[MySQL]: Create New MAC_UE Table Successful\n");
 
   //////
   // RLC
   //////
-  mysql_query(conn, "USE testdb");
+  mysql_query(conn, cmd_use_db);
   create_rlc_bearer_table(conn);
   printf("[MySQL]: Create New RLC_bearer Table Successful\n");
 
   //////
   // PDCP
   //////
-  mysql_query(conn, "USE testdb");
+  mysql_query(conn, cmd_use_db);
   create_pdcp_bearer_table(conn);
   printf("[MySQL]: Create New PDCP_bearer Table Successful\n");
 
   //////
   // SLICE
   //////
-  mysql_query(conn, "USE testdb");
+  mysql_query(conn, cmd_use_db);
   create_slice_table(conn);
   printf("[MySQL]: Create New Slice Table Successful\n");
-  mysql_query(conn, "USE testdb");
+  mysql_query(conn, cmd_use_db);
   create_ue_slice_table(conn);
   printf("[MySQL]: Create New UE_SLICE Table Successful\n");
 
   //////
   // GTP
   //////
-  mysql_query(conn, "USE testdb");
+  mysql_query(conn, cmd_use_db);
   create_gtp_table(conn);
   printf("[MySQL]: Create New GTP Table Successful\n");
 
   //////
   // KPM
   //////
-  mysql_query(conn, "USE testdb");
+  mysql_query(conn, cmd_use_db);
   create_kpm_table(conn);
   printf("[MySQL]: Create New KPM Table Successful\n");
 }

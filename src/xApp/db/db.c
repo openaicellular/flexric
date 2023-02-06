@@ -147,13 +147,13 @@ static char* pass = "eurecom";
 //static char* unix_socket = NULL;
 //unsigned int flag = 0;
 
-void init_db_xapp(db_xapp_t* db, char const* db_filename)
+void init_db_xapp(db_xapp_t* db, char const* dir, char const* db_name)
 {
   assert(db != NULL);
-  assert(db_filename != NULL);
+  assert(dir != NULL);
+  assert(db_name != NULL);
 
-  //init_db_gen(&db->handler, db_filename);
-
+  // MYSQL
   //MYSQL* conn = mysql_init(NULL);
   db->h = mysql_init(NULL);
   // check init
@@ -163,7 +163,16 @@ void init_db_xapp(db_xapp_t* db, char const* db_filename)
   if(mysql_real_connect(db->h, host, user, pass, NULL, 0, NULL, 0) == NULL)
     mysql_finish_with_error(db->h);
   printf("[MySQL]: Connection Successful\n");
-  init_db_mysql(db->h, "testdb");
+  init_db_mysql(db->h, db_name);
+
+  //SQLite3
+  char filename[256] = {0};
+  if (strlen(dir) && strlen(db_name)) {
+    int n = snprintf(filename, 255, "%s%s", dir, db_name);
+    assert(n < 256 && "Overflow");
+  }
+  printf("Filename = %s \n ", filename);
+  //init_db_gen(&db->handler, filename);
 
   init_tsq(&db->q, sizeof(e2_node_ag_if_t));
 
