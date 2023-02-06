@@ -35,8 +35,8 @@ message(STATUS "Selected LIBRARY TYPE: ${BUILDING_LIBRARY}")
 ### xApp 
 ########
 
-set(XAPP_DB "SQLITE3_XAPP" CACHE STRING "xApp DB")
-set_property(CACHE XAPP_DB PROPERTY STRINGS "SQLITE3_XAPP" "NONE_XAPP")
+set(XAPP_DB "MYSQL_XAPP" CACHE STRING "xApp DB")
+set_property(CACHE XAPP_DB PROPERTY STRINGS "MYSQL_XAPP" "SQLITE3_XAPP" "NONE_XAPP")
 message(STATUS "Selected xApp DB : ${XAPP_DB}")
 
 set(XAPP_DB_DIR "/tmp/" CACHE STRING "The xApp DB write directory")

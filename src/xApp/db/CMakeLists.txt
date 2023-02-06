@@ -9,6 +9,11 @@ if(XAPP_DB STREQUAL "SQLITE3_XAPP")
                          ../../util/time_now_us.c
                          mysql/mysql_wrapper.c)
 
+elseif(XAPP_DB STREQUAL "MYSQL_XAPP")
+  add_library(e42_xapp_db_obj OBJECT
+          db.c
+          ../../util/time_now_us.c
+          mysql/mysql_wrapper.c)
 else()
   message(FATAL_ERROR "Unknown XAPP_DB selected")
 endif()

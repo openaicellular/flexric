@@ -19,7 +19,6 @@
  *      contact@openairinterface.org
  */
 
-#include "mysql/mysql.h"
 #include "../db.h"
 #include "mysql_wrapper.h"
 #include "../../../util/time_now_us.h"
@@ -1701,12 +1700,12 @@ void init_db_mysql(MYSQL* conn, char const* db_name)
   printf("[MySQL]: Create New KPM Table Successful\n");
 }
 
-//void close_db_sqlite3(sqlite3* db)
-//{
-//  assert(db != NULL);
-//  int const rc = sqlite3_close(db);
-//  assert(rc == SQLITE_OK && "Error while closing the DB");
-//}
+void close_db_mysql(MYSQL* conn)
+{
+  assert(conn != NULL);
+  mysql_close(conn);
+
+}
 
 void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t const* rd)
 {

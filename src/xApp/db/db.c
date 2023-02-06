@@ -119,8 +119,7 @@ void* worker_thread(void* arg)
 //        printf("Try to write mac data in db\n");
 //      else if(data[i].rd.type == RLC_STATS_V0)
 //        printf("Try to write rlc data in db\n");
-      //write_db_gen(db->handler, &data[i].id, &data[i].rd);
-      write_db_mysql(db->h, &data[i].id, &data[i].rd);
+      write_db_mysql(db->handler, &data[i].id, &data[i].rd);
 
       free_global_e2_node_id(&data[i].id);
       free_sm_ag_if_rd(&data[i].rd);
@@ -138,33 +137,28 @@ void mysql_finish_with_error(MYSQL *conn)
   exit(1);
 }
 
-// Mysql
-static char* host = "localhost";
-static char* user = "root";
-static char* pass = "eurecom";
-//static char* dbname = "TESTmysql";
-//unsigned int port = 3306;
-//static char* unix_socket = NULL;
-//unsigned int flag = 0;
-
 void init_db_xapp(db_xapp_t* db, char const* dir, char const* db_name)
 {
   assert(db != NULL);
   assert(dir != NULL);
   assert(db_name != NULL);
 
+#ifdef MYSQL_XAPP
   // MYSQL
   //MYSQL* conn = mysql_init(NULL);
-  db->h = mysql_init(NULL);
+  db->handler = mysql_init(NULL);
   // check init
-  if (db->h == NULL)
-    mysql_finish_with_error(db->h);
+  if (db->handler == NULL)
+    mysql_finish_with_error(db->handler);
   // check connection with server
-  if(mysql_real_connect(db->h, host, user, pass, NULL, 0, NULL, 0) == NULL)
-    mysql_finish_with_error(db->h);
+  static char* host = "localhost";
+  static char* user = "root";
+  static char* pass = "eurecom";
+  if(mysql_real_connect(db->handler, host, user, pass, NULL, 0, NULL, 0) == NULL)
+    mysql_finish_with_error(db->handler);
   printf("[MySQL]: Connection Successful\n");
-  init_db_mysql(db->h, db_name);
-
+  init_db_gen(db->handler, db_name);
+#elif defined(SQLITE3_XAPP)
   //SQLite3
   char filename[256] = {0};
   if (strlen(dir) && strlen(db_name)) {
@@ -172,7 +166,8 @@ void init_db_xapp(db_xapp_t* db, char const* dir, char const* db_name)
     assert(n < 256 && "Overflow");
   }
   printf("Filename = %s \n ", filename);
-  //init_db_gen(&db->handler, filename);
+  init_db_gen(&db->handler, filename);
+#endif
 
   init_tsq(&db->q, sizeof(e2_node_ag_if_t));
 
@@ -197,9 +192,7 @@ void close_db_xapp(db_xapp_t* db)
   
   free_tsq(&db->q, free_e2_node_ag_if_wrapper);
   pthread_join(db->p, NULL);
-  //close_db_gen(db->handler);
-
-  mysql_close(db->h);
+  close_db_gen(db->handler);
 }
 
 void write_db_xapp(db_xapp_t* db, global_e2_node_id_t const* id, sm_ag_if_rd_t const* rd)

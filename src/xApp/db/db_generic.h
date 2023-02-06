@@ -30,15 +30,18 @@
 
 #define init_db_gen(T,U) _Generic ((T), \
                                     sqlite3*:  init_db_sqlite3, \
+                                    MYSQL*:    init_db_mysql, \
                                     default:   init_db_sqlite3) (T,U)
 
 #define close_db_gen(T) _Generic ((T),\
                                     sqlite3*: close_db_sqlite3, \
+                                    MYSQL*:   close_db_mysql, \
                                     default:  close_db_sqlite3) (T)
 
 
 #define write_db_gen(T,U,V) _Generic ((T),\
                                     sqlite3*:   write_db_sqlite3, \
+                                    MYSQL*:     write_db_mysql, \
                                     default:    write_db_sqlite3) (T,U,V)
 
 #endif
