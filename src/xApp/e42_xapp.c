@@ -176,7 +176,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   // SQLite3
   char* dir = get_conf_db_dir(args);
   char dir2[1024] = {0};
-  assert(strlen(dir) < 128 && "String too large");
+  assert(strlen(dir) < 1024 && "String too large");
   if (!strlen(dir)) {
     sprintf(dir, XAPP_DB_DIR);
   } else {
@@ -187,7 +187,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   // SQLite3 & MYSQL
   char* db_name = get_conf_db_name(args);
   char dbname2[1024] = {0};
-  assert(strlen(db_name) < 128 && "String too large");
+  assert(strlen(db_name) < 1024 && "String too large");
   if (!strlen(db_name)) {
     int64_t const now = time_now_us();
     sprintf(dbname2, "xapp_db_%ld", now);
@@ -196,8 +196,18 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   }
   //printf("db_name = %s\n", db_name);
 
-  init_db_xapp(&xapp->db, dir2, dbname2);
+  char* db_ip = get_near_ric_ip(args);
+  char dbip2[24] = {0};
+  assert(strlen(db_ip) < 24 && "String too large");
+  if (!strlen(db_ip)) {
+    sprintf(dbip2, "localhost");
+  } else {
+    strcpy(dbip2, db_ip);
+  }
 
+  init_db_xapp(&xapp->db, dbip2, dir2, dbname2);
+
+  free(db_ip);
   free(dir);
   free(db_name);
 

@@ -50,7 +50,7 @@ typedef struct{
   tsq_t q;
 } db_xapp_t;
 
-void init_db_xapp(db_xapp_t* db, char const* dir, char const* dbname);
+void init_db_xapp(db_xapp_t* db, char const* ip, char const* dir, char const* dbname);
 
 void close_db_xapp(db_xapp_t* db);
 

@@ -137,7 +137,10 @@ void mysql_finish_with_error(MYSQL *conn)
   exit(1);
 }
 
-void init_db_xapp(db_xapp_t* db, char const* dir, char const* db_name)
+void init_db_xapp(db_xapp_t* db,
+                  char const* ip,
+                  char const* dir,
+                  char const* db_name)
 {
   assert(db != NULL);
   assert(dir != NULL);
@@ -151,10 +154,10 @@ void init_db_xapp(db_xapp_t* db, char const* dir, char const* db_name)
   if (db->handler == NULL)
     mysql_finish_with_error(db->handler);
   // check connection with server
-  static char* host = "localhost";
-  static char* user = "root";
+  //static char* host = "localhost";
+  static char* user = "xapp";
   static char* pass = "eurecom";
-  if(mysql_real_connect(db->handler, host, user, pass, NULL, 0, NULL, 0) == NULL)
+  if(mysql_real_connect(db->handler, ip, user, pass, NULL, 0, NULL, 0) == NULL)
     mysql_finish_with_error(db->handler);
   printf("[MySQL]: Connection Successful\n");
   init_db_gen(db->handler, db_name);
