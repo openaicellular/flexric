@@ -255,6 +255,32 @@ void create_ue_slice_table(MYSQL* conn)
 }
 
 static
+void create_gtp_table(MYSQL* conn)
+{
+  assert(conn != NULL);
+
+  // ToDo: PRIMARY KEY UNIQUE
+  if(mysql_query(conn, "DROP TABLE IF EXISTS GTP_NGUT"))
+    mysql_finish_with_error(conn);
+  char* sql_gtp = "CREATE TABLE GTP_NGUT("
+                  "tstamp BIGINT CHECK(tstamp > 0),"
+                  "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                  "mcc INT,"
+                  "mnc INT,"
+                  "mnc_digit_len INT,"
+                  "nb_id INT,"
+                  "cu_du_id TEXT,"
+                  "teidgnb INT,"
+                  "rnti INT CHECK(rnti >= -1 AND rnti < 65535),"
+                  "qfi INT,"
+                  "teidupf INT"
+                  ");";
+
+  if(mysql_query(conn, sql_gtp))
+    mysql_finish_with_error(conn);
+}
+
+static
 void create_kpm_table(MYSQL* conn)
 {
   assert(conn != NULL);
@@ -856,6 +882,51 @@ int to_mysql_string_ue_slice_rb(global_e2_node_id_t const* id, ue_slice_conf_t c
 }
 
 static
+int to_mysql_string_gtp_NGUT(global_e2_node_id_t const* id,gtp_ngu_t_stats_t* gtp, int64_t tstamp, char* out, size_t out_len)
+{
+  assert(gtp != NULL);
+  assert(out != NULL);
+  const size_t max = 1024;
+  assert(out_len >= max);
+
+  char* c_null = NULL;
+  char c_cu_du_id[26];
+  if (id->cu_du_id) {
+    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  int const rc = snprintf(out, max,
+                          "("
+                          "%ld," //tstamp
+                          "%d," //ngran_node
+                          "%d," //mcc
+                          "%d," //mnc
+                          "%d," //mnc_digit_len
+                          "%d," //nb_id
+                          "'%s'," //cu_du_id
+                          "%u," //teidgnb
+                          "%u," //rnti
+                          "%u," //qfi
+                          "%u" //teidupf
+                          ")",
+                          tstamp,
+                          id->type,
+                          id->plmn.mcc,
+                          id->plmn.mnc,
+                          id->plmn.mnc_digit_len,
+                          id->nb_id,
+                          id->cu_du_id ? c_cu_du_id : c_null,
+                          gtp->teidgnb,
+                          gtp->rnti,
+                          gtp->qfi,
+                          gtp->teidupf
+                          );
+  assert(rc < (int)max && "Not enough space in the char array to write all the data");
+  return rc;
+}
+
+static
 void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                                     adapter_MeasDataItem_t* kpm_measData,
                                     adapter_MeasRecord_t* kpm_measRecord,
@@ -1415,6 +1486,61 @@ void write_slice_stats(MYSQL* conn, global_e2_node_id_t const* id, slice_ind_dat
 
 }
 
+int gtp_count = 0;
+int gtp_stat_max = 50;
+char gtp_buffer[2048] = "INSERT INTO GTP_NGUT "
+                         "("
+                         "tstamp,"
+                         "ngran_node,"
+                         "mcc,"
+                         "mnc,"
+                         "mnc_digit_len,"
+                         "nb_id,"
+                         "cu_du_id,"
+                         "teidgnb,"
+                         "rnti,"
+                         "qfi,"
+                         "teidupf"
+                         ") "
+                         "VALUES";
+char gtp_temp[16384] = "";
+static
+void write_gtp_stats(MYSQL* conn, global_e2_node_id_t const* id, gtp_ind_data_t const* ind)
+{
+  assert(conn != NULL);
+  assert(ind != NULL);
+
+  gtp_ind_msg_t const* ind_msg_gtp = &ind->msg;
+
+  for(size_t i = 0; i < ind_msg_gtp->len; ++i){
+    char buffer[2048] = "";
+    int pos = strlen(buffer);
+    if (gtp_count == 0)
+      strcat(gtp_temp, gtp_buffer);
+    gtp_count += 1;
+    pos += to_mysql_string_gtp_NGUT(id, &ind_msg_gtp->ngut[i], ind_msg_gtp->tstamp, buffer + pos, 2048 - pos);
+    if (gtp_count < gtp_stat_max) {
+      //printf("%d add ,\n", gtp_count);
+      strcat(buffer, ",");
+      strcat(gtp_temp, buffer);
+    } else {
+      //printf("%d add ;\n", gtp_count);
+      gtp_count = 0;
+      strcat(gtp_temp, buffer);
+      strcat(gtp_temp, ";");
+      //for(size_t i = 0; i < strlen(gtp_temp); i++)
+      //  printf("%c", gtp_temp[i]);
+      //printf("\n");
+      //int64_t st = time_now_us();
+      if (mysql_query(conn, gtp_temp))
+        mysql_finish_with_error(conn);
+      //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
+      strcpy(gtp_temp,"");
+    }
+  }
+
+}
+
 int kpm_count = 0;
 int kpm_stat_max = 50;
 char kpm_buffer[2048] = "INSERT INTO KPM_MeasRecord "
@@ -1548,6 +1674,13 @@ void init_db_mysql(MYSQL* conn, char const* db_filename)
   printf("[MySQL]: Create New UE_SLICE Table Successful\n");
 
   //////
+  // GTP
+  //////
+  mysql_query(conn, "USE testdb");
+  create_gtp_table(conn);
+  printf("[MySQL]: Create New GTP Table Successful\n");
+
+  //////
   // KPM
   //////
   mysql_query(conn, "USE testdb");
@@ -1566,7 +1699,12 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
 {
   assert(conn != NULL);
   assert(rd != NULL);
-  assert(rd->type == MAC_STATS_V0 || rd->type == RLC_STATS_V0 || rd->type == PDCP_STATS_V0 || rd->type == SLICE_STATS_V0 || rd->type == KPM_STATS_V0);
+  assert(rd->type == MAC_STATS_V0 ||
+        rd->type == RLC_STATS_V0 ||
+        rd->type == PDCP_STATS_V0 ||
+        rd->type == SLICE_STATS_V0 ||
+        rd->type == GTP_STATS_V0 ||
+        rd->type == KPM_STATS_V0);
 
   if(rd->type == MAC_STATS_V0){
     write_mac_stats(conn, id, &rd->mac_stats);
@@ -1576,8 +1714,8 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
     write_pdcp_stats(conn, id, &rd->pdcp_stats);
   } else if (rd->type == SLICE_STATS_V0) {
     write_slice_stats(conn, id, &rd->slice_stats);
-//  } else if (rd->type == GTP_STATS_V0) {
-//    write_gtp_stats(db, id, &rd->gtp_stats);
+  } else if (rd->type == GTP_STATS_V0) {
+    write_gtp_stats(conn, id, &rd->gtp_stats);
   } else if (rd->type == KPM_STATS_V0) {
     write_kpm_stats(conn, id, &rd->kpm_stats);
   } else {
