@@ -8,6 +8,7 @@ add_executable(test_bimap
               # ../../src/proxy-agent/notif_e2_ws.c
               )
 target_compile_definitions(test_bimap PRIVATE ${E2AP_ENCODING})
+add_dependencies(test_bimap pending_events_obj e2ap_alg_obj e2ap_types_obj e2ap_ds_obj)
 target_link_libraries(test_bimap 
               PUBLIC
               # $<TARGET_OBJECTS:e2ap_ap_obj>
