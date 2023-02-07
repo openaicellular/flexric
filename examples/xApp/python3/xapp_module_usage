@@ -1,0 +1,29 @@
+# TODO: only support one e2 nodes and one handler function currently
+
+
+### Initial
+>>> import xapp
+>>> xapp.init()
+
+### Get connected E2 nodes info
+>>> e2nodes = xapp.update_e2_nodes()
+>>> len(e2nodes)
+>>> xapp.print_e2_node(e2nodes[0])
+
+### Get slice conf
+>>> xapp.get_slice_conf(e2nodes[0])
+
+### Send slice ctrl msg
+# send_slice_ctrl_msg(e2node, cmd, conf)
+# cmd = "ADD", "MOD", "DEL", "ASSOC_UE"
+# conf = conf_static/nvs/edf/_slices, conf_nvs_slices_rate1/2, conf_nvs_slices_cap
+# conf = conf_delete_slices
+# conf = conf_assoc_ue_slice
+# conf = conf_reset_slices
+>>> xapp.conf_nvs_slices_rate2
+>>> xapp.send_slice_ctrl_msg(e2nodes[0], "MOD", xapp.conf_nvs_slices_rate2)
+>>> xapp.send_slice_ctrl_msg(e2nodes[0], "DEL", xapp.conf_delete_slices)
+>>> xapp.send_slice_ctrl_msg(e2nodes[0], "ASSOC_UE", xapp.conf_assoc_ue_slice)
+
+### Finish
+>>> xapp.end()
