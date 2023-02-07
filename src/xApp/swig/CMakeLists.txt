@@ -66,6 +66,7 @@ SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE ${XAPP_LANG} SOURCES
                                                  ../../sm/gtp_sm/ie/gtp_data_ie.c
                                                  ../../util/byte_array.c
                                                  ../../util/alg_ds/alg/eq_float.c
+                                                 ../../util/ngran_type.c
                                                  )
 
 
