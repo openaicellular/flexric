@@ -121,7 +121,10 @@ SWIG_LINK_LIBRARIES(xapp_sdk
                     e42_xapp_shared
                     -ldl
                     -lsctp
-                    -lpthread)
+                    -lpthread
+                    -I/usr/local/mysql/include
+                    -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
+                    )
 
 
 
