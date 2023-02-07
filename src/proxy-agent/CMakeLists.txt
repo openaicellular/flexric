@@ -27,16 +27,16 @@
 set(E2_AGENT_BLD_LIB  "STATIC")
 
 set(E2_PROXY_AGENT_SRC 
-            ../agent/asio_agent.c
-            ../agent/e2ap_agent.c
-            ../agent/e2_agent.c
-            ../agent/e2_agent_api.c
-            ../agent/endpoint_agent.c
-            ../agent/msg_handler_agent.c
-            ../agent/e2_agent_api.c
-            ../agent/plugin_agent.c
-            ../agent/not_handler_agent.c
-            ../sm/sm_proc_data.c
+    ${CMAKE_SOURCE_DIR}/src/agent/asio_agent.c
+    ${CMAKE_SOURCE_DIR}/src/agent/e2ap_agent.c
+    ${CMAKE_SOURCE_DIR}/src/agent/e2_agent.c
+    ${CMAKE_SOURCE_DIR}/src/agent/e2_agent_api.c
+    ${CMAKE_SOURCE_DIR}/src/agent/endpoint_agent.c
+    ${CMAKE_SOURCE_DIR}/src/agent/msg_handler_agent.c
+    ${CMAKE_SOURCE_DIR}/src/agent/e2_agent_api.c
+    ${CMAKE_SOURCE_DIR}/src/agent/plugin_agent.c
+    ${CMAKE_SOURCE_DIR}/src/agent/not_handler_agent.c
+    ${CMAKE_SOURCE_DIR}/src/sm/sm_proc_data.c
   )
 if(E2AP_ENCODING STREQUAL "ASN")
   add_library(e2_proxy_agent 
@@ -57,8 +57,8 @@ add_executable(proxy_agent_ws
               msg_json_ws.c
               ringbuffer.c
               notif_e2_ws.c
-              ../../src/util/time_now_us.c
-              ../../../test/sm/common/fill_ind_data.c # this is for emulating indication data. XXX: To be removed
+              ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
+              ${CMAKE_SOURCE_DIR}/test/sm/common/fill_ind_data.c # this is for emulating indication data. XXX: To be removed
               )
 
 target_compile_definitions(proxy_agent_ws PRIVATE ${E2AP_ENCODING})
