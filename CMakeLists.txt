@@ -232,14 +232,14 @@ endif ()
 # Install Emulator Agent
 ###
 if (EMU_AGENT_INSTALL)
-  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb proxy_agent_ws DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
 ###
 # Install Emulator Agent
 ###
 if (XAPP_C_INSTALL)
-  install(TARGETS xapp_mac_rlc_pdcp_moni xapp_slice_moni_ctrl xapp_kpm_moni xapp_gtp_moni xapp_hw xapp_moni DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS xapp_mac_rlc_pdcp_moni xapp_slice_moni_ctrl xapp_kpm_moni xapp_gtp_moni xapp_hw xapp_moni xapp_kpm_moni_infinity DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
 
