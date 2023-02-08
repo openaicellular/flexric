@@ -119,8 +119,8 @@ byte_array_t e2ap_enc_subscription_request_fb(const ric_subscription_request_t* 
   for(size_t i = 0; i < sr->len_action; ++i){
     const ric_action_t* src = &sr->action[i]; 
     e2ap_Action_start(B);
-    if (src->definition)
-      e2ap_Action_definition_create(B, src->definition->buf, src->definition->len);
+    if (src->definitioninition)
+      e2ap_Action_definition_create(B, src->definitioninition->buf, src->definitioninition->len);
     if (src->subseq_action) {
       e2ap_RicSubsequentAction_start(B);
       e2ap_RicSubsequentAction_type_force_add(B, src->subseq_action->type);
@@ -601,7 +601,7 @@ byte_array_t e2ap_enc_setup_request_fb(const e2_setup_request_t* sr)
   for (size_t i = 0; i < sr->len_rf; ++i) {
     const ran_function_t* rf = &sr->ran_func_item[i];
     e2ap_RanFunction_start(B);
-    e2ap_RanFunction_definition_create(B, rf->def.buf, rf->def.len);
+    e2ap_RanFunction_definition_create(B, rf->definition.buf, rf->definition.len);
     if (rf->oid)
       e2ap_RanFunction_oid_create(B, (const char*) rf->oid->buf, rf->oid->len);
     e2ap_RanFunction_id_force_add(B, rf->id);

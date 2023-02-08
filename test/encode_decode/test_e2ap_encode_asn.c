@@ -288,9 +288,9 @@ void test_e2_setup_request()
   ran_func_item[0].id = 32;
   ran_func_item[0].rev = 0;
   const char* def = "This is the possible deficniotn";
-  ran_func_item[0].def.buf = malloc(strlen(def));
-  memcpy(ran_func_item[0].def.buf, def, strlen(def)); 
-  ran_func_item[0].def.len = strlen(def); 
+  ran_func_item[0].definition.buf = malloc(strlen(def));
+  memcpy(ran_func_item[0].definition.buf, def, strlen(def)); 
+  ran_func_item[0].definition.len = strlen(def); 
 
 
   e2_node_component_config_update_t* comp_conf_update = NULL;
@@ -546,7 +546,7 @@ void test_ric_service_update()
   ran_function_t* added = calloc(len_added, sizeof(ran_function_t ));
   added->id = 42;
   added->rev = 0;
-  added->def = ba;
+  added->definition = ba;
 
   ran_function_t* modified = NULL;
   const size_t len_modified = 0;

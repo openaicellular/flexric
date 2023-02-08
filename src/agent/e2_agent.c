@@ -65,7 +65,7 @@ e2_setup_request_t generate_setup_request(e2_agent_t* ag)
 
     sm_e2_setup_t def = sm->proc.on_e2_setup(sm);
     byte_array_t ba = {.len = def.len_rfd, .buf = def.ran_fun_def};
-    ran_func[i].def = ba; 
+    ran_func[i].definition = ba; 
 
     it = assoc_next(&ag->plugin.sm_ds ,it);
   }
