@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.15)
-
-project (TEST_KPM_SM)
-set(CMAKE_BUILD_TYPE Debug)
+# cmake_minimum_required(VERSION 3.15)
+# project (TEST_KPM_SM)
+# set(CMAKE_BUILD_TYPE Debug)
 set (CMAKE_C_FLAGS "-Wall -Wextra --std=gnu11 -g -fno-omit-frame-pointer") 
 set(SM_ENCODING_KPM "PLAIN" CACHE STRING "The SM encoding to use")
 set_property(CACHE SM_ENCODING_KPM PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
@@ -10,7 +9,7 @@ message(STATUS "Selected SM_ENCODING_KPM: ${SM_ENCODING_KPM} for tests")
 if(SM_ENCODING_KPM STREQUAL "ASN")
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}../ie/asn/ )
   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-  file(GLOB asn_sources "${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/asn/*.c")
+  file(GLOB asn_sources ${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/asn/*.c)
   add_executable(test_kpm_sm 
                       main.c 
                       ${CMAKE_SOURCE_DIR}/src/sm/sm_proc_data.c 

@@ -41,7 +41,21 @@ set(E2_PROXY_AGENT_SRC
 if(E2AP_ENCODING STREQUAL "ASN")
   add_library(e2_proxy_agent 
               STATIC  
-              ${E2_PROXY_AGENT_SRC} $<TARGET_OBJECTS:e2ap_ie_obj> $<TARGET_OBJECTS:e2ap_asn1_obj>)
+              ${E2_PROXY_AGENT_SRC} 
+              $<TARGET_OBJECTS:e2ap_ie_obj> 
+              $<TARGET_OBJECTS:e2ap_asn1_obj>
+              $<TARGET_OBJECTS:e2ap_ap_obj>
+              $<TARGET_OBJECTS:e2ap_ep_obj>
+              $<TARGET_OBJECTS:e2ap_ds_obj>
+              $<TARGET_OBJECTS:e2ap_alg_obj>
+              $<TARGET_OBJECTS:e2_conf_obj>
+              $<TARGET_OBJECTS:pending_events_obj>
+              $<TARGET_OBJECTS:e2ap_types_obj>
+              $<TARGET_OBJECTS:e2ap_msg_enc_obj>
+              $<TARGET_OBJECTS:e2ap_msg_dec_obj>
+              $<TARGET_OBJECTS:e2ap_msg_free_obj>
+              $<TARGET_OBJECTS:e2_ngran_obj>    
+              )
 else()
   message(FATAL_ERROR "Error, while compiling the agent" )
 endif()
@@ -58,24 +72,10 @@ add_executable(proxy_agent_ws
               ringbuffer.c
               notif_e2_ws.c
               ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
-              ${CMAKE_SOURCE_DIR}/test/sm/common/fill_ind_data.c # this is for emulating indication data. XXX: To be removed
               )
 
 target_compile_definitions(proxy_agent_ws PRIVATE ${E2AP_ENCODING})
 target_link_libraries(proxy_agent_ws  
                       PUBLIC
-                      $<TARGET_OBJECTS:e2ap_ap_obj>
-                      $<TARGET_OBJECTS:e2ap_ep_obj>
-                      $<TARGET_OBJECTS:e2ap_ds_obj>
-                      $<TARGET_OBJECTS:e2ap_alg_obj>
-                      $<TARGET_OBJECTS:e2_conf_obj>
-                      $<TARGET_OBJECTS:pending_events_obj>
-                      $<TARGET_OBJECTS:e2ap_types_obj>
-                      $<TARGET_OBJECTS:e2ap_msg_enc_obj>
-                      $<TARGET_OBJECTS:e2ap_msg_dec_obj>
-                      $<TARGET_OBJECTS:e2ap_msg_free_obj>
-                      $<TARGET_OBJECTS:e2_ngran_obj>
-                      $<TARGET_OBJECTS:e2ap_ie_obj>
-                      $<TARGET_OBJECTS:e2ap_asn1_obj>
                       e2_proxy_agent 
                       -pthread -lsctp -ldl -lwebsockets -ljson-c)
