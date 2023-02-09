@@ -11,7 +11,7 @@ add_executable(test_ag_ric_xapp
                 ../../src/sm/gtp_sm/ie/gtp_data_ie.c
                 ../../src/util/alg_ds/alg/defer.c
                 )
-
+target_compile_options(test_ag_ric_xapp PUBLIC -DASN_EMIT_DEBUG=1)
 target_link_libraries(test_ag_ric_xapp
                       PUBLIC
                       e2_agent

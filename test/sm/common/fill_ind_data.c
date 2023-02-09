@@ -139,30 +139,36 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
   } else {
 
     adapter_MeasDataItem_t *KPMData = calloc(1, sizeof(adapter_MeasDataItem_t));
-    KPMData[0].measRecord_len = 2;
-    KPMData[0].incompleteFlag =  -1;
+    
+    KPMData[0].measRecord_len = 3;
+    KPMData[0].incompleteFlag = -1;
     
     adapter_MeasRecord_t * KPMRecord = calloc(KPMData[0].measRecord_len, sizeof(adapter_MeasRecord_t));
     KPMData[0].measRecord = KPMRecord;
-    for (size_t i=0; i<KPMData[0].measRecord_len ; i++){
+    // convention: timestamp will be the first record.
+
+    // XXX-tofix: it is wrong by design to fit a 64 bit integer in a real value; an idea will be to fit the microseconds only
+    KPMRecord[0].type = MeasRecord_int;
+    KPMRecord[0].int_val = t % 1000000;
+
+    for (size_t i=1; i<KPMData[0].measRecord_len ; i++){
       KPMRecord[i].type = MeasRecord_int;
-      KPMRecord[i].int_val = rand();
+      KPMRecord[i].int_val = 3; // BUG if you put rand() as there is a limit here on the max_int you can be accepted by ASN. you ned to check
     }
     
-
     ind->msg.MeasData = KPMData;
     ind->msg.MeasData_len = 1;
 
     ind->msg.granulPeriod = NULL;
     
-    ind->msg.MeasInfo_len = 2;
+    ind->msg.MeasInfo_len = 3;
     ind->msg.MeasInfo = calloc(ind->msg.MeasInfo_len, sizeof(MeasInfo_t));
     assert(ind->msg.MeasInfo != NULL && "Memory exhausted" );
     
     MeasInfo_t* info1 = &ind->msg.MeasInfo[0];
     assert(info1 != NULL && "memory exhausted");
     info1->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
-    char* measName = "PrbDlUsage";
+    char* measName = "timestamp_ms";
     info1->measName.len = strlen(measName) + 1;
     info1->measName.buf = malloc(strlen(measName)+1) ;
     assert(info1->measName.buf != NULL && "memory exhausted");
@@ -187,6 +193,24 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
     label2->noLabel = calloc(1, sizeof(long));
     assert(label2->noLabel != NULL && "memory exhausted");
     *(label2->noLabel) = 0;
+
+    MeasInfo_t* info3 = &ind->msg.MeasInfo[2];
+    assert(info3 != NULL && "memory exhausted");
+    info3->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+    
+    char* measName3 = "PrbDlUsage";
+    info3->measName.len = strlen(measName3) + 1;
+    info3->measName.buf = malloc(strlen(measName3) + 1);
+    assert(info3->measName.buf != NULL && "memory exhausted");
+    memcpy(info3->measName.buf, measName3, strlen(measName3));
+    info3->measName.buf[strlen(measName3)] = '\0';
+    info3->labelInfo_len = 1;
+    info3->labelInfo = calloc(info3->labelInfo_len, sizeof(adapter_LabelInfoItem_t));    
+    assert(info3->labelInfo != NULL && "memory exhausted");
+    adapter_LabelInfoItem_t* label3 = &info3->labelInfo[0];
+    label3->noLabel = calloc(1, sizeof(long));
+    assert(label3->noLabel != NULL && "memory exhausted");
+    *(label3->noLabel) = 0;
   }
 }
 

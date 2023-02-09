@@ -25,8 +25,9 @@ if(SM_ENCODING_KPM STREQUAL "ASN")
                       ${asn_sources}
                       )
   add_dependencies(test_kpm_sm pending_events_obj e2ap_msg_enc_obj e2ap_msg_dec_obj)
-  # XXX-IMPROVE: maybe we can avoid recompiling objects like asn_sources. 
-  target_compile_options(test_kpm_sm PUBLIC "-DASN_DISABLE_OER_SUPPORT")
+  # add ASN_EMIT_DEBUG = 1 for debugging asn related problems. I.e.  target_compile_options(test_kpm_sm PUBLIC -DASN_EMIT_DEBUG=1)
+  target_compile_options(test_kpm_sm PUBLIC -DASN_DISABLE_OER_SUPPORT)
+  target_compile_options(test_kpm_sm PUBLIC -DASN_EMIT_DEBUG=1)
   target_compile_options(test_kpm_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
   target_include_directories(test_kpm_sm PRIVATE "${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/asn")
 else()

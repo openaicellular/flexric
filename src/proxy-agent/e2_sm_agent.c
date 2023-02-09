@@ -28,7 +28,7 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
   
   lwsl_debug("[E2 Agent]: reading data from ringbuffer\n");
   ws_ind_t temp = get_ringbuffer_data();
-
+  #warning "To complete with the new data extracted for MWC\n"
   if (data->type == MAC_STATS_V0) {
     lwsl_user("[E2 Agent]: filling MAC SM indication message\n");
 
@@ -86,6 +86,7 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
 
     kpm_ind_msg_t* ind_msg = &data->kpm_stats.msg;
     // TODO: need to get ue_count(from amr ws) to define num_ue
+    // Convention: high resolution (microseconds) timestamp is encapsulated as first measurement record to ease extraction at xapp level
     const size_t num_ue = 1;
     ind_msg->MeasData_len = num_ue;
     if(num_ue <= 0) {
@@ -93,14 +94,16 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
       ind_msg->MeasData = calloc(1, sizeof(adapter_MeasDataItem_t));
       assert(ind_msg->MeasData != NULL && "memory exhausted");
 
-      ind_msg->MeasData[0].measRecord_len = 1;
+      ind_msg->MeasData[0].measRecord_len = 2;
       ind_msg->MeasData[0].incompleteFlag = 0;
 
       ind_msg->MeasData[0].measRecord = calloc(1, sizeof(adapter_MeasRecord_t));
       assert(ind_msg->MeasData[0].measRecord != NULL && "memory exhausted");
 
       ind_msg->MeasData[0].measRecord[0].type = MeasRecord_int;
-      ind_msg->MeasData[0].measRecord[0].int_val = 0;
+      ind_msg->MeasData[0].measRecord[0].int_val = t % 1000000;
+      ind_msg->MeasData[0].measRecord[1].type = MeasRecord_int;
+      ind_msg->MeasData[0].measRecord[1].int_val = 0;
 
       ind_msg->MeasInfo_len = 0;
       ind_msg->MeasInfo = NULL;
@@ -109,7 +112,7 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
       ind_msg->MeasData = calloc(num_ue, sizeof(adapter_MeasDataItem_t));
       assert(ind_msg->MeasData != NULL && "memory exhausted");
 
-      const int num_ms = 2;
+      const int num_ms = 3;
       for (size_t i = 0; i < num_ue; ++i) {
         ind_msg->MeasData[i].measRecord_len = num_ms;
         ind_msg->MeasData[i].incompleteFlag = -1;
@@ -118,10 +121,12 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
           ind_msg->MeasData[i].measRecord = calloc(num_ms, sizeof(adapter_MeasRecord_t));
           assert(ind_msg->MeasData[i].measRecord != NULL && "memory exhausted");
 
-          ind_msg->MeasData[i].measRecord[0].type = MeasRecord_real;
-          ind_msg->MeasData[i].measRecord[0].real_val = temp.cells_stats[0].dl_bitrate;
+          ind_msg->MeasData[i].measRecord[0].type = MeasRecord_int;
+          ind_msg->MeasData[i].measRecord[0].int_val = t % 1000000;
           ind_msg->MeasData[i].measRecord[1].type = MeasRecord_real;
           ind_msg->MeasData[i].measRecord[1].real_val = temp.cells_stats[0].ul_bitrate;
+          ind_msg->MeasData[i].measRecord[2].type = MeasRecord_real;
+          ind_msg->MeasData[i].measRecord[2].real_val = temp.cells_stats[0].dl_bitrate;
         }
       }
       ind_msg->granulPeriod = NULL;
@@ -133,7 +138,7 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
 
         // measinfo 1
         ind_msg->MeasInfo[0].meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
-        char* measName1 = "DL_BITRATE";
+        char* measName1 = "timestamp_ms";
         ind_msg->MeasInfo[0].measName.len = strlen(measName1) + 1;
         ind_msg->MeasInfo[0].measName.buf = malloc(strlen(measName1) + 1) ;
         assert(ind_msg->MeasInfo[0].measName.buf != NULL && "memory exhausted");
@@ -162,6 +167,23 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
         ind_msg->MeasInfo[1].labelInfo[0].noLabel = calloc(1, sizeof(long));
         assert( ind_msg->MeasInfo[1].labelInfo[0].noLabel != NULL && "memory exhausted");
         *(ind_msg->MeasInfo[1].labelInfo[0].noLabel) = 0;
+
+        // measinfo 3
+        ind_msg->MeasInfo[2].meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+        char* measName3 = "DL_BITRATE";
+        ind_msg->MeasInfo[2].measName.len = strlen(measName3) + 1;
+        ind_msg->MeasInfo[2].measName.buf = malloc(strlen(measName3) + 1) ;
+        assert(ind_msg->MeasInfo[2].measName.buf != NULL && "memory exhausted");
+        memcpy(ind_msg->MeasInfo[2].measName.buf, measName3, strlen(measName3));
+        ind_msg->MeasInfo[2].measName.buf[strlen(measName3)] = '\0';
+
+        ind_msg->MeasInfo[2].labelInfo_len = 1;
+        ind_msg->MeasInfo[2].labelInfo = calloc(ind_msg->MeasInfo[2].labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+        assert(ind_msg->MeasInfo[2].labelInfo != NULL && "memory exhausted");
+        ind_msg->MeasInfo[2].labelInfo[0].noLabel = calloc(1, sizeof(long));
+        assert( ind_msg->MeasInfo[2].labelInfo[0].noLabel != NULL && "memory exhausted");
+        *(ind_msg->MeasInfo[2].labelInfo[0].noLabel) = 0;
+
       }
     }
   }

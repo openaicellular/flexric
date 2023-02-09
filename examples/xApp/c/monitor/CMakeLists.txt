@@ -65,6 +65,7 @@ target_link_libraries(xapp_kpm_moni
                       -I/usr/local/mysql/include
                       -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
                       )
+target_compile_options(xapp_kpm_moni PUBLIC -DASN_EMIT_DEBUG=1)
 
 add_executable(xapp_kpm_moni_infinity
                       xapp_kpm_moni_infinity.c

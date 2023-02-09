@@ -41,7 +41,7 @@ ws_msghdr_t ws_json_get_msghdr(const ws_msg_t *msg)
   return ret_msg;
 }
 
-bool ws_json_decode_indication (const ws_msg_t *in_msg, ws_ind_t *out) 
+bool ws_json_decode_indication_gnb(const ws_msg_t *in_msg, ws_ind_t *out) 
 {
   assert ((out != NULL || in_msg != NULL) && "programming error\n");
   
@@ -107,15 +107,144 @@ bool ws_json_decode_indication (const ws_msg_t *in_msg, ws_ind_t *out)
       out->cells_stats[idx].ul_retx = json_object_get_int(ul_retx);
 
     idx++;
-    if (idx > AMARISOFT_UE_MAX_CELL) {
+    if (idx > AMARISOFT_MAX_CELL_NUM) {
       lwsl_err("hit hard limit on internal buffer\n");
       return false;
     }
   }
   
-  // // XXX-TODO: missing free of the memory 
   return true;
 }
+
+bool ws_json_decode_indication_ue (const ws_msg_t *in_msg, ws_ind_t *out) 
+{
+  assert ((out != NULL || in_msg != NULL) && "programming error\n");
+  
+  struct json_tokener *tok = json_tokener_new();
+  defer({json_tokener_free(tok); }; );
+  struct json_object *root_json_obj = json_tokener_parse_ex(tok, in_msg->buf, in_msg->len);
+  defer({json_object_put(root_json_obj); }; );
+
+  if (root_json_obj == NULL){
+    lwsl_err("error json token: %s\n", json_tokener_error_desc(json_tokener_get_error(tok)));
+    return false;
+  }
+    
+  /* example of 1 ue connected.
+      "ue_list": [                                                                                                                                                
+        {                                                                                                                                                       
+            "ran_ue_id": 2,                                                                                                                                     
+            "amf_ue_id": 139,
+            "rnti": 17925,
+            "cells": [
+                {
+                    "cell_id": 1,
+                    "dl_bitrate": 148,
+                    "ul_bitrate": 35,
+                    "dl_tx": 88,
+                    "ul_tx": 17,
+                    "dl_retx": 0,
+                    "ul_retx": 6,
+                    "pusch_snr": 35.4,
+                    "epre": -95.5,
+                    "ul_phr": 38,
+                    "ul_path_loss": 55.2,
+                    "dl_mcs": 26,
+                    "ul_mcs": 25.5,
+                    "turbo_decoder_min": 1,
+                    "turbo_decoder_avg": 2.696,
+                    "turbo_decoder_max": 5,
+                    "cqi": 15,
+                    "ri": 1,
+                    "initial_ta": 5
+                }
+              ]                                                                                                                           
+        }                                                                                                                                                       
+    ],      
+  */
+  struct json_object *ue_list;
+  if (!json_object_object_get_ex(root_json_obj, "ue_list", &ue_list))
+    return false;
+
+  int n = json_object_array_length(ue_list);
+  out->n_connected_ue = n;
+
+  for (int idx=0; idx<n; idx++)
+  {
+    struct json_object *rnti;
+    if (!json_object_object_get_ex(json_object_array_get_idx(ue_list, idx), "rnti", &rnti))
+      lwsl_debug("WS: indication from cell n.%d rnti not found\n", idx);
+    else 
+      out->ue_stats[idx].rnti = json_object_get_int(rnti);
+
+    struct json_object *cells;
+    if (!json_object_object_get_ex(json_object_array_get_idx(ue_list, idx), "cells", &cells))
+      return false;
+    int cells_n = json_object_array_length(cells);
+    for (int j = 0; j<cells_n; j++)
+    {
+      // XXX: not sure about above assignment like 'out->ue_stats[idx].cqi = json_object_get_int(cqi)' below.
+      // it is not clear the association between cells in UE and cells in gnb (1 cell and 1 ue ?) 
+      struct json_object *cqi;
+      if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "cqi", &cqi))
+        lwsl_debug("WS: indication from cell n.%d cqi not found\n", j);
+      else 
+        out->ue_stats[idx].cqi = json_object_get_int(cqi); 
+      
+      struct json_object *phr;
+      if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "ul_phr", &phr))
+        lwsl_debug("WS: indication from cell n.%d ul_phr not found\n", j);
+      else 
+        out->ue_stats[idx].phr = json_object_get_int(phr); 
+
+      struct json_object *dl_bitrate;
+      if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "dl_bitrate", &dl_bitrate))
+        lwsl_debug("WS: indication from cell n.%d dl_bitrate not found\n", j);
+      else 
+        out->ue_stats[idx].dl_bitrate = json_object_get_int(dl_bitrate); 
+      
+      struct json_object *ul_bitrate;
+      if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "ul_bitrate", &ul_bitrate))
+        lwsl_debug("WS: indication from cell n.%d ul_bitrate not found\n", j);
+      else 
+        out->ue_stats[idx].ul_bitrate = json_object_get_int(ul_bitrate); 
+
+      struct json_object *dl_tx;
+      if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "dl_tx", &dl_tx))
+        lwsl_debug("WS: indication from cell n.%d dl_tx not found\n", j);
+      else 
+        out->ue_stats[idx].dl_tx = json_object_get_int(dl_tx); 
+
+      struct json_object *ul_tx;
+      if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "ul_tx", &ul_tx))
+        lwsl_debug("WS: indication from cell n.%d ul_tx not found\n", j);
+      else 
+        out->ue_stats[idx].ul_tx = json_object_get_int(ul_tx); 
+
+      struct json_object *dl_mcs;
+      if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "dl_mcs", &dl_mcs))
+        lwsl_debug("WS: indication from cell n.%d dl_mcs not found\n", j);
+      else 
+        out->ue_stats[idx].dl_mcs = json_object_get_int(dl_mcs); 
+
+      struct json_object *ul_mcs;
+      if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "ul_mcs", &ul_mcs))
+        lwsl_debug("WS: indication from cell n.%d ul_mcs not found\n", j);
+      else 
+        out->ue_stats[idx].ul_mcs = json_object_get_int(ul_mcs); 
+    }
+    
+    if (idx > AMARISOFT_MAX_UE_NUM) {
+      lwsl_err("hit hard limit on internal buffer\n");
+      return false;
+    }
+  }
+
+  
+  return true;
+}
+
+
 
 
 bool ws_json_decode_e2setup (const ws_msg_t *in_msg, global_e2_node_id_t *out) 
@@ -167,7 +296,11 @@ bool ws_json_decode_e2setup (const ws_msg_t *in_msg, global_e2_node_id_t *out)
 const char * ws_json_encode_indication (int msg_id, int sm_id) 
 { 
   (void)sm_id;
-  snprintf(global_buff, sizeof(global_buff), "{\"message\":\"stats\",\"message_id\":\"%d\"}", msg_id);
+  // snprintf(global_buff, sizeof(global_buff), "{\"message\":\"stats\",\"message_id\":\"%d\"}", msg_id);
+  snprintf(global_buff, 
+          sizeof(global_buff), 
+          "[{\"message\":\"stats\",\"message_id\":\"%d\"},{\"message\":\"ue_get\",\"message_id\":\"%d\",\"stats\":1}]", 
+          msg_id, msg_id);
   return global_buff;
 }
 

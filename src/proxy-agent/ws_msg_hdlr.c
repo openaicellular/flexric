@@ -33,6 +33,8 @@ static bool ws_associate_valid_msg_type(ws_msghdr_t *hdr)
      hdr->typeid = WS_CONFIG_RECV;
   else if (!strcmp(hdr->type, "stats"))
     hdr->typeid = WS_INDICATION_RECV;
+  else if (!strcmp(hdr->type, "ue_get"))
+    hdr->typeid = WS_INDICATION_RECV;
   else 
     ret = false;
   //  XXX: to be implemented the handling of WS_CTRL_ACK (i.e. could be from a config_set reply)
@@ -90,11 +92,17 @@ e2_agent_msg_t ws_msg_handle(proxy_agent_t *p, const ws_msg_t* msg)
       lwsl_info("[WS] Received indication data\n");
       ws_ind_t ind = {0};
       p->ran_if.ind_timer_ready = true;
-      if (ws_json_decode_indication (msg, &ind)  == true)
-        put_ringbuffer_data(ind);
-      else 
-        lwsl_err("[WS] Error parsing json message for indication message from RAN. Discarding msg \n");
-      
+      if (strcmp(msgdec.type, "ue_get") == 0){
+        if (ws_json_decode_indication_ue(msg, &ind)  == true)
+          put_ringbuffer_data(ind);
+        else 
+          lwsl_err("[WS] Error parsing json message for indication message from RAN. Discarding msg \n");
+      } else {
+        if (ws_json_decode_indication_gnb (msg, &ind)  == true)
+          put_ringbuffer_data(ind);
+        else 
+          lwsl_err("[WS] Error parsing json message for indication message from RAN. Discarding msg \n");
+      }
       ret_msg.type_id = WS_E2_NONE; // no reply to be sent to E2 interface as it will read indipendently the indication data with its own timer
       break;
     case WS_CTRL_ACK:
