@@ -72,6 +72,7 @@ add_executable(proxy_agent_ws
               ringbuffer.c
               notif_e2_ws.c
               ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
+              ${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
               )
 
 target_compile_definitions(proxy_agent_ws PRIVATE ${E2AP_ENCODING})

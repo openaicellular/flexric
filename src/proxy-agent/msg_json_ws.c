@@ -130,7 +130,7 @@ bool ws_json_decode_indication_ue (const ws_msg_t *in_msg, ws_ind_t *out)
     return false;
   }
     
-  /* example of 1 ue connected.
+  /* example of 1 ue connected json to be parsed
       "ue_list": [                                                                                                                                                
         {                                                                                                                                                       
             "ran_ue_id": 2,                                                                                                                                     
@@ -215,11 +215,11 @@ bool ws_json_decode_indication_ue (const ws_msg_t *in_msg, ws_ind_t *out)
       else 
         out->ue_stats[idx].dl_tx = json_object_get_int(dl_tx); 
 
-      struct json_object *ul_tx;
-      if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "ul_tx", &ul_tx))
-        lwsl_debug("WS: indication from cell n.%d ul_tx not found\n", j);
+      struct json_object *dl_retx;
+      if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "dl_retx", &dl_retx))
+        lwsl_debug("WS: indication from cell n.%d dl_retx not found\n", j);
       else 
-        out->ue_stats[idx].ul_tx = json_object_get_int(ul_tx); 
+        out->ue_stats[idx].dl_retx = json_object_get_int(dl_retx); 
 
       struct json_object *dl_mcs;
       if (!json_object_object_get_ex(json_object_array_get_idx(cells, j), "dl_mcs", &dl_mcs))

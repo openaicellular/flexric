@@ -54,11 +54,11 @@ typedef struct amarisoft_cell_t {
 typedef struct amarisoft_uestats_t 
 {
   // XXX: I doubt on some datatypes below where spec of Amarisoft says it is float. To me should be integer/to be tested
-  int    rnti;
+  int    rnti; // RNTI will identify each UE
   double dl_bitrate;
   double ul_bitrate;
   int    dl_tx;
-  int    ul_tx;
+  int    dl_retx;
   double dl_mcs;
   double ul_mcs; 
   int    phr;

@@ -930,7 +930,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                                     adapter_MeasDataItem_t* kpm_measData,
                                     adapter_MeasRecord_t* kpm_measRecord,
                                     MeasInfo_t* kpm_measInfo,
-                                    adapter_TimeStamp_t tstamp,
+                                    uint64_t tstamp,
                                     char* out,
                                     size_t out_len)
 {
@@ -949,7 +949,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
   if (kpm_measRecord == NULL){
     int const rc = snprintf(out, max,
                             "("
-                            "%u,"// tstamp
+                            "%ld,"// tstamp
                             "%d," //ngran_node
                             "%d," //mcc
                             "%d," //mnc
@@ -977,7 +977,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
     if(kpm_measRecord->type == MeasRecord_int){
       int const rc = snprintf(out, max,
                               "("
-                              "%u,"// tstamp
+                              "%ld,"// tstamp
                               "%d," //ngran_node
                               "%d," //mcc
                               "%d," //mnc
@@ -1004,7 +1004,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
     }else if (kpm_measRecord->type == MeasRecord_real){
       int const rc = snprintf(out, max,
                               "("
-                              "%u,"// tstamp
+                              "%ld,"// tstamp
                               "%d," //ngran_node
                               "%d," //mcc
                               "%d," //mnc
@@ -1031,7 +1031,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
     }else if (kpm_measRecord->type == MeasRecord_noval){
       int const rc = snprintf(out, max,
                               "("
-                              "%u,"// tstamp
+                              "%ld,"// tstamp
                               "%d," //ngran_node
                               "%d," //mcc
                               "%d," //mnc
@@ -1540,6 +1540,11 @@ void write_gtp_stats(MYSQL* conn, global_e2_node_id_t const* id, gtp_ind_data_t 
 
 }
 
+long extract_kpm_ts_us_val (const kpm_ind_msg_t *ind_msg, size_t report_num)
+{
+  return ind_msg->MeasData[report_num].measRecord[0].int_val;
+}
+
 int kpm_count = 0;
 int kpm_stat_max = 50;
 char kpm_buffer[2048] = "INSERT INTO KPM_MeasRecord "
@@ -1570,15 +1575,19 @@ void write_kpm_stats(MYSQL* conn, global_e2_node_id_t const* id, kpm_ind_data_t 
 
   for(size_t i = 0; i < ind_msg_kpm->MeasData_len; i++){
     adapter_MeasDataItem_t* curMeasData = &ind_msg_kpm->MeasData[i];
+    long ts = extract_kpm_ts_us_val(ind_msg_kpm, i);
     if (curMeasData->measRecord_len > 0){
       for (size_t j = 0; j < curMeasData->measRecord_len; j++){
         adapter_MeasRecord_t* curMeasRecord = &curMeasData->measRecord[j];
         MeasInfo_t* curMeasInfo = &ind_msg_kpm->MeasInfo[j];
+        
         char buffer[2048] = "";
         if (kpm_count == 0)
           strcat(kpm_temp, kpm_buffer);
         kpm_count += 1;
-        to_mysql_string_kpm_measRecord(id, curMeasData, curMeasRecord, curMeasInfo, ind->hdr.collectStartTime,
+        // TODO: by our convention, the first record contains "timestamp_us". Add that value to collectStartTime that is microseconds to be able to have a
+        // consistent high resolution timestamp in microseconds.
+        to_mysql_string_kpm_measRecord(id, curMeasData, curMeasRecord, curMeasInfo, (long)ind->hdr.collectStartTime * 1000000 + ts,
                                        buffer, 512);
         if (kpm_count < kpm_stat_max) {
           //printf("%d add ,\n", kpm_count);
@@ -1604,7 +1613,7 @@ void write_kpm_stats(MYSQL* conn, global_e2_node_id_t const* id, kpm_ind_data_t 
       if (kpm_count == 0)
         strcat(kpm_temp, kpm_buffer);
       kpm_count += 1;
-      to_mysql_string_kpm_measRecord(id, curMeasData, NULL, NULL, ind->hdr.collectStartTime,
+      to_mysql_string_kpm_measRecord(id, curMeasData, NULL, NULL, (long)ind->hdr.collectStartTime * 1000000 + ts,
                                      buffer, 512);
       if (kpm_count < kpm_stat_max) {
         //printf("%d add ,\n", kpm_count);
