@@ -157,6 +157,7 @@ void init_db_xapp(db_xapp_t* db,
   //static char* host = "localhost";
   static char* user = "xapp";
   static char* pass = "eurecom";
+  printf("[MySQL]: try to connect server ip %s\n", ip);
   if(mysql_real_connect(db->handler, ip, user, pass, NULL, 0, NULL, 0) == NULL)
     mysql_finish_with_error(db->handler);
   printf("[MySQL]: Connection Successful\n");

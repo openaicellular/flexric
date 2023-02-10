@@ -196,7 +196,8 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   }
   //printf("db_name = %s\n", db_name);
 
-  char* db_ip = get_near_ric_ip(args);
+  char* db_ip = get_conf_db_ip(args);
+  printf("[MySQL]: get server ip %s from conf\n", db_ip);
   char dbip2[24] = {0};
   assert(strlen(db_ip) < 24 && "String too large");
   if (!strlen(db_ip)) {
