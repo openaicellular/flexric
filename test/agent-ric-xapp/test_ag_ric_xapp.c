@@ -105,7 +105,11 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
   
   // Note that KPM has 1 second resolution in its indication header, while `now` is in microseconds. 
   // Only reasonable latency value to print is a rounded one to seconds.
-  printf("KPM ind_msg latency > %ld s\n", now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime);
+  // printf("KPM ind_msg latency > %ld s\n", now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime);
+  if (rd->kpm_stats.msg.MeasData_len > 0)
+    if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0)
+      printf("KPM ind_msg latency = %ld μs\n", now - (int64_t)rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val);
+
 }
 
 
