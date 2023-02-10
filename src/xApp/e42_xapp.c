@@ -137,7 +137,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 {
   assert(args != NULL);
 
-  printf("[xAapp]: Initializing ... \n");
+  printf("[xAap]: Initializing ... \n");
 
   e42_xapp_t* xapp = calloc(1, sizeof(*xapp));
   assert(xapp != NULL && "Memory exhausted");
