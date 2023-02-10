@@ -174,6 +174,8 @@ set(EMU_AGENT_INSTALL "FALSE" CACHE STRING "emulator of E2 agent")
 set_property(CACHE EMU_AGENT_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
 set(XAPP_C_INSTALL "FALSE" CACHE STRING "XAPP in C install selection")
 set_property(CACHE XAPP_C_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
+set(XAPP_PYTHON_INSTALL "FALSE" CACHE STRING "XAPP in Python install selection")
+set_property(CACHE XAPP_PYTHON_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
 set(UNIT_TEST "TRUE" CACHE STRING "build test cases")
 set_property(CACHE UNIT_TEST PROPERTY STRINGS "TRUE" "FALSE")
 
@@ -236,12 +238,22 @@ if (EMU_AGENT_INSTALL)
 endif ()
 
 ###
-# Install Emulator Agent
+# Install xApps
 ###
 if (XAPP_C_INSTALL)
   install(TARGETS xapp_mac_rlc_pdcp_moni xapp_slice_moni_ctrl xapp_kpm_moni xapp_gtp_moni xapp_hw xapp_moni xapp_kpm_moni_infinity DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
+if (XAPP_PYTHON_INSTALL)
+  install(FILES
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp.py
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk.py
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/_xapp_sdk.so
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_gtp_moni.py
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages)
+endif ()
 
 # make uninstall
 add_custom_target("uninstall" COMMENT "Uninstall installed files")
@@ -252,4 +264,3 @@ add_custom_command(
         COMMAND xargs rm -vf < install_manifest.txt || echo Nothing in
         install_manifest.txt to be uninstalled!
 )
-
