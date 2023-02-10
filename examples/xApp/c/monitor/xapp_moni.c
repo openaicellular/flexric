@@ -35,10 +35,11 @@
 #include <unistd.h>
 #include <signal.h>
 
-static volatile int keepRunning = 1;
-
-void intHandler() {
-  keepRunning = 0;
+static bool exit_flag = false;
+static void sigint_handler(int sig)
+{
+  printf("signal %d received !\n", sig);
+  exit_flag = true;
 }
 
 uint64_t count_max = 100;
@@ -48,6 +49,8 @@ uint64_t count_rlc = 0;
 uint64_t aggr_tstamp_rlc = 0;
 uint64_t count_pdcp = 0;
 uint64_t aggr_tstamp_pdcp = 0;
+uint64_t count_kpm = 0;
+uint64_t aggr_tstamp_kpm = 0;
 static
 void sm_cb_all(sm_ag_if_rd_t const* rd)
 {
@@ -78,15 +81,21 @@ void sm_cb_all(sm_ag_if_rd_t const* rd)
       count_pdcp = 0;
       aggr_tstamp_pdcp = 0;
     }
-  }
-  else if (rd->type == GTP_STATS_V0)
+  } else if (rd->type == GTP_STATS_V0) {
     printf("GTP ind_msg latency = %ld\n", now - rd->gtp_stats.msg.tstamp);
-  else if (rd->type == KPM_STATS_V0) {
-    int64_t diff = now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime;
-    if (diff > 1)
-      printf("KPM ind_msg latency = %lu seconds\n", diff);
-    else
-      printf("KPM ind_msg latency < 1 seconds\n");
+  } else if (rd->type == KPM_STATS_V0) {
+    // int64_t diff = now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime;
+    if (rd->kpm_stats.msg.MeasData_len > 0) {
+      if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0) {
+        count_kpm += 1;
+        aggr_tstamp_kpm += now - rd->kpm_stats.msg.MeasData[0].measRecord[0].int_val;
+        if (count_kpm == count_max) {
+          printf("KPM ind_msg latency = %ld\n", aggr_tstamp_kpm/count_max);
+          count_kpm = 0;
+          aggr_tstamp_kpm = 0;
+        }
+      }
+    }
   }
   else
     assert(0!=0&&"Unknown SM\n");
@@ -152,8 +161,8 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
 
   inter_xapp_e tti = ms_10;
   if (n->id.type == ngran_gNB) {
-    num_sm = 3;
-    uint16_t sm_id_arr[3] = {SM_MAC_ID, SM_RLC_ID, SM_PDCP_ID};
+    num_sm = 4;
+    uint16_t sm_id_arr[4] = {SM_MAC_ID, SM_RLC_ID, SM_PDCP_ID, SM_KPM_ID};
     for(size_t j = c_handle; j < c_handle+num_sm; j++){
       uint16_t ran_func_id = sm_id_arr[num_sm-=1];
       printf("xApp subscribes RAN Func ID %d in E2 node idx %d, ngran_gNB\n", ran_func_id, n_idx);
@@ -210,6 +219,8 @@ int main(int argc, char *argv[])
 
   //Init the xApp
   init_xapp_api(&args);
+  signal(SIGINT, sigint_handler); // we override the signal mask set in init_xapp_api()
+  signal(SIGTERM, sigint_handler);
   sleep(1);
 
 
@@ -221,9 +232,6 @@ int main(int argc, char *argv[])
     handle = calloc(max_handle, sizeof(sm_ans_xapp_t *));
     assert(handle != NULL);
   }
-
-  signal(SIGINT, intHandler);
-  signal(SIGTERM, intHandler);
 
   size_t nodes_len = e2_nodes_len_xapp_api();
   // start the xApp subscription procedure until detect connected E2 nodes
@@ -248,7 +256,7 @@ int main(int argc, char *argv[])
   }
 
   // case2: send subscription req to the new connected e2 node
-  while(keepRunning) {
+  while(!exit_flag) {
     size_t cur_nodes_len = e2_nodes_len_xapp_api();
     if (cur_nodes_len - nodes_len > 0) {
       printf("//////////////// detect E2 nodes len update ////////////////\n");
