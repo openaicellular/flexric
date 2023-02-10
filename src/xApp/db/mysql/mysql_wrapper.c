@@ -297,7 +297,7 @@ void create_kpm_table(MYSQL* conn)
                              "cu_du_id TEXT,"
                              "incompleteFlag INT,"
                              "name TEXT," //measRecord name
-                             "val REAL CHECK(val >=0 AND val < 4294967296)"
+                             "val BIGINT CHECK(val >=0 AND val < 4294967296)"
                              ");";
 
   if(mysql_query(conn, sql_kpm_measRecord))
