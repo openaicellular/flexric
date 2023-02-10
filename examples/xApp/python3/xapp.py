@@ -502,6 +502,10 @@ def get_slice_conf(e2node):
 def end():
     global hndlr
     ric.rm_report_slice_sm(hndlr)
+
+    with open("rt_slice_stats.json", "w") as outfile:
+        outfile.write(json.dumps({}))
+
     while ric.try_stop == 0:
         time.sleep(1)
     print('Test finished')
