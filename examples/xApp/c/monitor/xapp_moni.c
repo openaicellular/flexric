@@ -88,7 +88,7 @@ void sm_cb_all(sm_ag_if_rd_t const* rd)
     if (rd->kpm_stats.msg.MeasData_len > 0) {
       if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0) {
         count_kpm += 1;
-        aggr_tstamp_kpm += now - rd->kpm_stats.msg.MeasData[0].measRecord[0].int_val;
+        aggr_tstamp_kpm += now - rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
         if (count_kpm == count_max) {
           printf("KPM ind_msg latency = %ld\n", aggr_tstamp_kpm/count_max);
           count_kpm = 0;

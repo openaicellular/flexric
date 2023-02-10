@@ -116,7 +116,8 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
   ind->hdr.senderType = NULL;
   ind->hdr.vendorName = NULL;
 
-  if (rand()%100 == 0)
+  size_t num_ues = rand()%100;
+  if (num_ues == 0)
   {
     adapter_MeasDataItem_t *KPMData = calloc(1, sizeof(adapter_MeasDataItem_t));
     KPMData[0].measRecord_len = 1;
@@ -137,80 +138,59 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
     ind->msg.granulPeriod = NULL;
 
   } else {
+    // TODO: only can support one ue currently
+    num_ues = 1;
+    adapter_MeasDataItem_t *KPMData = calloc(num_ues, sizeof(adapter_MeasDataItem_t));
 
-    adapter_MeasDataItem_t *KPMData = calloc(1, sizeof(adapter_MeasDataItem_t));
-    
-    KPMData[0].measRecord_len = 3;
-    KPMData[0].incompleteFlag = -1;
-    
-    adapter_MeasRecord_t * KPMRecord = calloc(KPMData[0].measRecord_len, sizeof(adapter_MeasRecord_t));
-    KPMData[0].measRecord = KPMRecord;
-    // convention: timestamp will be the first record.
-
-    // XXX-tofix: it is wrong by design to fit a 64 bit integer in a real value; an idea will be to fit the microseconds only
-    KPMRecord[0].type = MeasRecord_int;
-    KPMRecord[0].int_val = t % 1000000;
-
-    for (size_t i=1; i<KPMData[0].measRecord_len ; i++){
-      KPMRecord[i].type = MeasRecord_int;
-      KPMRecord[i].int_val = 3; // BUG if you put rand() as there is a limit here on the max_int you can be accepted by ASN. you ned to check
+    size_t num_data = 10;
+    for (size_t i = 0; i < num_ues; i++) {
+      KPMData[i].measRecord_len = num_data;
+      adapter_MeasRecord_t* KPMRecord = calloc(KPMData[i].measRecord_len, sizeof(adapter_MeasRecord_t));
+      KPMData[i].measRecord = KPMRecord;
+      for (size_t j = 0; j < num_data; j++) {
+        if (j == 0) {
+          KPMRecord[j].type = MeasRecord_real;
+          KPMRecord[j].real_val = t;
+        } else {
+          KPMRecord[j].type = MeasRecord_int;
+          KPMRecord[j].int_val = rand()%2048; // BUG if you put rand() as there is a limit here on the max_int you can be accepted by ASN. you ned to check
+        }
+      }
+      KPMData[i].incompleteFlag = -1;
     }
     
     ind->msg.MeasData = KPMData;
-    ind->msg.MeasData_len = 1;
-
+    ind->msg.MeasData_len = num_ues;
     ind->msg.granulPeriod = NULL;
-    
-    ind->msg.MeasInfo_len = 3;
-    ind->msg.MeasInfo = calloc(ind->msg.MeasInfo_len, sizeof(MeasInfo_t));
-    assert(ind->msg.MeasInfo != NULL && "Memory exhausted" );
-    
-    MeasInfo_t* info1 = &ind->msg.MeasInfo[0];
-    assert(info1 != NULL && "memory exhausted");
-    info1->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
-    char* measName = "timestamp_ms";
-    info1->measName.len = strlen(measName) + 1;
-    info1->measName.buf = malloc(strlen(measName)+1) ;
-    assert(info1->measName.buf != NULL && "memory exhausted");
-    memcpy(info1->measName.buf, measName, strlen(measName) );
-    info1->measName.buf[strlen(measName)] = '\0';
-    info1->labelInfo_len = 1;
-    info1->labelInfo = calloc(info1->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
-    assert(info1->labelInfo != NULL && "memory exhausted");
-    adapter_LabelInfoItem_t* label1 = &info1->labelInfo[0];
-    label1->noLabel = calloc(1, sizeof(long));
-    assert(label1->noLabel != NULL && "memory exhausted");
-    *(label1->noLabel) = 0;
 
-    MeasInfo_t* info2 = &ind->msg.MeasInfo[1];
-    assert(info2 != NULL && "memory exhausted");
-    info2->meas_type = KPM_V2_MEASUREMENT_TYPE_ID;
-    info2->measID = 1L;
-    info2->labelInfo_len = 1;
-    info2->labelInfo = calloc(info2->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
-    assert(info2->labelInfo != NULL && "memory exhausted");
-    adapter_LabelInfoItem_t* label2 = &info2->labelInfo[0];
-    label2->noLabel = calloc(1, sizeof(long));
-    assert(label2->noLabel != NULL && "memory exhausted");
-    *(label2->noLabel) = 0;
+    ind->msg.MeasInfo_len = num_data;
+    if (ind->msg.MeasInfo_len > 0) {
+      ind->msg.MeasInfo = calloc(ind->msg.MeasInfo_len, sizeof(MeasInfo_t));
+      assert(ind->msg.MeasInfo != NULL && "Memory exhausted");
 
-    MeasInfo_t* info3 = &ind->msg.MeasInfo[2];
-    assert(info3 != NULL && "memory exhausted");
-    info3->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
-    
-    char* measName3 = "PrbDlUsage";
-    info3->measName.len = strlen(measName3) + 1;
-    info3->measName.buf = malloc(strlen(measName3) + 1);
-    assert(info3->measName.buf != NULL && "memory exhausted");
-    memcpy(info3->measName.buf, measName3, strlen(measName3));
-    info3->measName.buf[strlen(measName3)] = '\0';
-    info3->labelInfo_len = 1;
-    info3->labelInfo = calloc(info3->labelInfo_len, sizeof(adapter_LabelInfoItem_t));    
-    assert(info3->labelInfo != NULL && "memory exhausted");
-    adapter_LabelInfoItem_t* label3 = &info3->labelInfo[0];
-    label3->noLabel = calloc(1, sizeof(long));
-    assert(label3->noLabel != NULL && "memory exhausted");
-    *(label3->noLabel) = 0;
+      char *measName_arr[] = {"timestamp", "dl_thr", "ul_thr", "dl_tx", "ul_tx",
+                              "phr", "dl_bler", "dl_mcs", "dl_cqi", "rnti"};
+      for (size_t i = 0; i < ind->msg.MeasInfo_len; i++) {
+        MeasInfo_t* info = &ind->msg.MeasInfo[i];
+        assert(info != NULL && "memory exhausted");
+        info->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+        char *measName = measName_arr[i];
+        info->measName.len = strlen(measName) + 1;
+        info->measName.buf = malloc(strlen(measName) + 1);
+        assert(info->measName.buf != NULL && "memory exhausted");
+        memcpy(info->measName.buf, measName, strlen(measName));
+        info->measName.buf[strlen(measName)] = '\0';
+
+        // TODO: assign labelInfo_len according to the action definition (?)
+        info->labelInfo_len = 1;
+        info->labelInfo = calloc(info->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+        assert(info->labelInfo != NULL && "memory exhausted");
+        adapter_LabelInfoItem_t *label = &info->labelInfo[0];
+        label->noLabel = calloc(1, sizeof(long));
+        assert(label->noLabel != NULL && "memory exhausted");
+        *(label->noLabel) = 0;
+      }
+    }
   }
 }
 
