@@ -525,6 +525,8 @@ def get_slice_conf(e2node):
 def end():
     global hndlr
     ric.rm_report_slice_sm(hndlr)
+    global mac_hndlr
+    ric.rm_report_slice_sm(mac_hndlr)
 
     with open("rt_slice_stats.json", "w") as outfile:
         outfile.write(json.dumps({}))
