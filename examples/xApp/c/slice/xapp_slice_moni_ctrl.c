@@ -30,6 +30,14 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include <signal.h>
+
+static bool exit_flag = false;
+static void sigint_handler(int sig)
+{
+  printf("signal %d received !\n", sig);
+  exit_flag = true;
+}
 
 _Atomic
 uint16_t assoc_rnti = 0;
@@ -237,6 +245,8 @@ int main(int argc, char *argv[])
 
   //Init the xApp
   init_xapp_api(&args);
+  signal(SIGINT, sigint_handler); // we override the signal mask set in init_xapp_api()
+  signal(SIGTERM, sigint_handler);
   sleep(1);
 
   e2_node_arr_t nodes = e2_nodes_xapp_api();
@@ -285,6 +295,9 @@ int main(int argc, char *argv[])
     sleep(20);
   }
 
+  while(!exit_flag) {
+    sleep(1);
+  }
   // Remove the handle previously returned
   for(int i = 0; i < nodes.len; ++i)
     rm_report_sm_xapp_api(slice_handle[i].u.handle);
