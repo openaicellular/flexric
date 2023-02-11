@@ -3,6 +3,22 @@ import time
 import pdb
 import json
 
+####################
+#### MAC INDICATION CALLBACK
+####################
+class MACCallback(ric.mac_cb):
+    # Define Python class 'constructor'
+    def __init__(self):
+        # Call C++ base class constructor
+        ric.mac_cb.__init__(self)
+    # Override C++ method: virtual void handle(swig_mac_ind_msg_t a) = 0;
+    def handle(self, ind):
+        # Print swig_mac_ind_msg_t
+        if len(ind.ue_stats) > 0:
+            t_now = time.time_ns() / 1000.0
+            t_mac = ind.tstamp / 1.0
+            t_diff = t_now - t_mac
+            # print('MAC Indication tstamp = ' + str(t_mac) + ' diff = ' + str(t_diff))
 
 ####################
 ####  SLICE INDICATION MSG TO JSON
@@ -433,7 +449,9 @@ def print_e2_node(e2node):
 
 e2nodes = 0
 hndlr = 0
+mac_hndlr = 0
 slice_cb = 0
+mac_cb = 0
 ####################
 ####  xAPP INIT
 ####################
@@ -467,12 +485,17 @@ def init():
     # TODO: need to process multi e2 nodes
     e2node = e2nodes[0]
 
-    # 3. subscribe slice sm
+    # 3. subscribe slice sm and mac sm
     global slice_cb
     slice_cb = SLICECallback()
     global hndlr
     hndlr = ric.report_slice_sm(e2node.id, ric.Interval_ms_10, slice_cb)
-    time.sleep(5)
+
+    global mac_cb
+    mac_cb = MACCallback()
+    global mac_hndlr
+    mac_hndlr = ric.report_mac_sm(e2node.id, ric.Interval_ms_10, mac_cb)
+    time.sleep(2)
 
     # 4. create slices, adding nvs_slices_rate1 by default
     msg = fill_slice_ctrl_msg("ADD", conf_nvs_slices_rate1)
