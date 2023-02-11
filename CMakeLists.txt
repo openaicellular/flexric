@@ -176,7 +176,7 @@ set(XAPP_C_INSTALL "FALSE" CACHE STRING "XAPP in C install selection")
 set_property(CACHE XAPP_C_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
 set(XAPP_PYTHON_INSTALL "FALSE" CACHE STRING "XAPP in Python install selection")
 set_property(CACHE XAPP_PYTHON_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(UNIT_TEST "TRUE" CACHE STRING "build test cases")
+set(UNIT_TEST "FALSE" CACHE STRING "build test cases")
 set_property(CACHE UNIT_TEST PROPERTY STRINGS "TRUE" "FALSE")
 
 include_directories(src)
