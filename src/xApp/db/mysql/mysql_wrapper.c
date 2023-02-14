@@ -958,7 +958,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                             "%d," //mnc_digit_len
                             "%d," //nb_id
                             "'%s'," //cu_du_id
-                            "%u," //rnti
+                            "%d," //rnti
                             "%ld,"  //kpm_measData->incompleteFlag
                             "'%s'," //kpm_measName
                             "'%s'"  //kpm_measRecord->int_val
@@ -988,7 +988,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                               "%d," //mnc_digit_len
                               "%d," //nb_id
                               "'%s'," //cu_du_id
-                              "%u," //rnti
+                              "%d," //rnti
                               "%ld,"  //kpm_measData->incompleteFlag
                               "'%s'," //kpm_measName
                               "%ld"  //kpm_measRecord->int_val
@@ -1017,7 +1017,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                               "%d," //mnc_digit_len
                               "%d," //nb_id
                               "'%s'," //cu_du_id
-                              "%u," //rnti
+                              "%d," //rnti
                               "%ld,"  //kpm_measData->incompleteFlag
                               "'%s'," //kpm_measName
                               "%f"  //kpm_measRecord->real_val
@@ -1046,7 +1046,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                               "%d," //mnc_digit_len
                               "%d," //nb_id
                               "'%s'," //cu_du_id
-                              "%u," //rnti
+                              "%d," //rnti
                               "%ld,"  //kpm_measData->incompleteFlag
                               "'%s'," //kpm_measName
                               "-1"  //kpm_measRecord->noVal
