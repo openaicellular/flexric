@@ -295,6 +295,7 @@ void create_kpm_table(MYSQL* conn)
                              "mnc_digit_len INT,"
                              "nb_id INT,"
                              "cu_du_id TEXT,"
+                             "rnti INT CHECK(rnti >= -1 AND rnti < 65535),"
                              "incompleteFlag INT,"
                              "name TEXT," //measRecord name
                              "val REAL"
@@ -931,6 +932,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                                     adapter_MeasRecord_t* kpm_measRecord,
                                     MeasInfo_t* kpm_measInfo,
                                     int64_t tstamp,
+                                    uint32_t rnti,
                                     char* out,
                                     size_t out_len)
 {
@@ -956,6 +958,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                             "%d," //mnc_digit_len
                             "%d," //nb_id
                             "'%s'," //cu_du_id
+                            "%u," //rnti
                             "%ld,"  //kpm_measData->incompleteFlag
                             "'%s'," //kpm_measName
                             "'%s'"  //kpm_measRecord->int_val
@@ -967,6 +970,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                             id->plmn.mnc_digit_len,
                             id->nb_id,
                             id->cu_du_id ? c_cu_du_id : c_null,
+                            rnti,
                             kpm_measData->incompleteFlag,
                             kpm_measInfo ? kpm_measInfo->measName.buf : NULL,
                             c_null
@@ -984,6 +988,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                               "%d," //mnc_digit_len
                               "%d," //nb_id
                               "'%s'," //cu_du_id
+                              "%u," //rnti
                               "%ld,"  //kpm_measData->incompleteFlag
                               "'%s'," //kpm_measName
                               "%ld"  //kpm_measRecord->int_val
@@ -995,6 +1000,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                               id->plmn.mnc_digit_len,
                               id->nb_id,
                               id->cu_du_id ? c_cu_du_id : c_null,
+                              rnti,
                               kpm_measData->incompleteFlag,
                               kpm_measInfo ? kpm_measInfo->measName.buf : NULL,
                               kpm_measRecord->int_val
@@ -1011,6 +1017,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                               "%d," //mnc_digit_len
                               "%d," //nb_id
                               "'%s'," //cu_du_id
+                              "%u," //rnti
                               "%ld,"  //kpm_measData->incompleteFlag
                               "'%s'," //kpm_measName
                               "%f"  //kpm_measRecord->real_val
@@ -1022,6 +1029,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                               id->plmn.mnc_digit_len,
                               id->nb_id,
                               id->cu_du_id ? c_cu_du_id : c_null,
+                              rnti,
                               kpm_measData->incompleteFlag,
                               kpm_measInfo ? kpm_measInfo->measName.buf : NULL,
                               kpm_measRecord->real_val
@@ -1038,6 +1046,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                               "%d," //mnc_digit_len
                               "%d," //nb_id
                               "'%s'," //cu_du_id
+                              "%u," //rnti
                               "%ld,"  //kpm_measData->incompleteFlag
                               "'%s'," //kpm_measName
                               "-1"  //kpm_measRecord->noVal
@@ -1049,6 +1058,7 @@ void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
                               id->plmn.mnc_digit_len,
                               id->nb_id,
                               id->cu_du_id ? c_cu_du_id : c_null,
+                              rnti,
                               kpm_measData->incompleteFlag,
                               kpm_measInfo ? kpm_measInfo->measName.buf : NULL
                               );
@@ -1540,9 +1550,18 @@ void write_gtp_stats(MYSQL* conn, global_e2_node_id_t const* id, gtp_ind_data_t 
 
 }
 
-long extract_kpm_ts_us_val (const kpm_ind_msg_t *ind_msg, size_t report_num)
+static uint32_t extract_kpm_rnti_val(const kpm_ind_msg_t* ind_msg, const adapter_MeasDataItem_t* measData)
 {
-  return ind_msg->MeasData[report_num].measRecord[0].int_val;
+  uint32_t rnti = -1; // -1 means not found.
+  for (size_t j = 0; j < ind_msg->MeasInfo_len; j++) {
+    if ((ind_msg->MeasInfo[j].meas_type == KPM_V2_MEASUREMENT_TYPE_NAME) &&
+        (strcmp((char*)ind_msg->MeasInfo[j].measName.buf, "rnti") == 0)) {
+          rnti = measData->measRecord[j].real_val;
+          // printf("find rnti column, measRecord[%lu].real_val = %d\n", j, rnti);
+          break;
+    }
+  }
+  return rnti;
 }
 
 int kpm_count = 0;
@@ -1556,6 +1575,7 @@ char kpm_buffer[2048] = "INSERT INTO KPM_MeasRecord "
                         "mnc_digit_len,"
                         "nb_id,"
                         "cu_du_id,"
+                        "rnti,"
                         "incompleteFlag,"
                         "name,"
                         "val"
@@ -1579,17 +1599,21 @@ void write_kpm_stats(MYSQL* conn, global_e2_node_id_t const* id, kpm_ind_data_t 
       timestamp_us = ind->msg.MeasData[0].measRecord[0].real_val;
   for(size_t i = 0; i < ind_msg_kpm->MeasData_len; i++){
     adapter_MeasDataItem_t* curMeasData = &ind_msg_kpm->MeasData[i];
-    // long ts = extract_kpm_ts_us_val(ind_msg_kpm, i);
     if (curMeasData->measRecord_len > 0){
+      uint32_t rnti = extract_kpm_rnti_val(ind_msg_kpm, curMeasData);
       for (size_t j = 1; j < curMeasData->measRecord_len; j++){
         adapter_MeasRecord_t* curMeasRecord = &curMeasData->measRecord[j];
         MeasInfo_t* curMeasInfo = &ind_msg_kpm->MeasInfo[j];
-        
+
+        if ((curMeasInfo->meas_type == KPM_V2_MEASUREMENT_TYPE_NAME) &&
+                (strcmp((char*)curMeasInfo->measName.buf, "rnti") == 0))
+          continue;
+
         char buffer[2048] = "";
         if (kpm_count == 0)
           strcat(kpm_temp, kpm_buffer);
         kpm_count += 1;
-        to_mysql_string_kpm_measRecord(id, curMeasData, curMeasRecord, curMeasInfo, timestamp_us,
+        to_mysql_string_kpm_measRecord(id, curMeasData, curMeasRecord, curMeasInfo, timestamp_us, rnti,
                                        buffer, 512);
         // TODO: by our convention, the first record contains "timestamp_us". Add that value to collectStartTime that is microseconds to be able to have a
         // consistent high resolution timestamp in microseconds.
@@ -1619,7 +1643,7 @@ void write_kpm_stats(MYSQL* conn, global_e2_node_id_t const* id, kpm_ind_data_t 
       if (kpm_count == 0)
         strcat(kpm_temp, kpm_buffer);
       kpm_count += 1;
-      to_mysql_string_kpm_measRecord(id, curMeasData, NULL, NULL, timestamp_us,
+      to_mysql_string_kpm_measRecord(id, curMeasData, NULL, NULL, timestamp_us, -1,
       // to_mysql_string_kpm_measRecord(id, curMeasData, NULL, NULL, (long)ind->hdr.collectStartTime * 1000000 + ts,
                                       buffer, 512);
       if (kpm_count < kpm_stat_max) {

@@ -39,13 +39,14 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
   assert(rd->type == KPM_STATS_V0);
 
   int64_t now = time_now_us();
-      
+  int64_t ts =  0;
+  if (rd->kpm_stats.msg.MeasData_len > 0)
+    if (rd->kpm_stats.msg.MeasData[0].measRecord_len >0)
+      ts = rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
   // KPM has 1 second resolution in its indication header, while 'now' is in microseconds
-  int64_t diff = now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime;
-  if (diff > 1)
-    printf("KPM ind_msg latency = %lu seconds\n", diff);
-  else
-    printf("KPM ind_msg latency < 1 seconds\n");
+  // int64_t diff = now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime;
+  // int64_t diff = now - ts;
+  printf("KPM ind_msg latency = %lu us\n", ts ? now - ts : ts);
 }
 static void sigint_handler(int sig)
 {  
