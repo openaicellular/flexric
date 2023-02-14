@@ -126,8 +126,8 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
     adapter_MeasRecord_t * KPMRecord = calloc(KPMData[0].measRecord_len, sizeof(adapter_MeasRecord_t));
     KPMData[0].measRecord = KPMRecord;
     for (size_t i=0; i<KPMData[0].measRecord_len ; i++){
-      KPMRecord[i].type = MeasRecord_int;
-      KPMRecord[i].int_val = 0;
+      KPMRecord[i].type = MeasRecord_real;
+      KPMRecord[i].real_val = time_now_us();
     }
 
     ind->msg.MeasData = KPMData;
