@@ -10,7 +10,9 @@ bool ws_initconf(struct proxy_conf_t * conf, int argc, char *argv[])
   conf->retry_count = 0;
 
   conf->port = default_host_port;
-  strncpy(conf->address, "localhost", sizeof(conf->address));
+  char* amr_ip = get_conf_amr_ip(&conf->e2args);
+  strncpy(conf->address, amr_ip, strlen(amr_ip));
+  printf("[E2 Agent]: get amr-ran ip %s from conf\n", amr_ip);
   char *envar = getenv("WS_RAN_HOST");
   if (envar)
   {

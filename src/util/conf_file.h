@@ -18,5 +18,7 @@ char* get_conf_db_name(fr_args_t const*);
 
 char* get_conf_db_ip(fr_args_t const*);
 
+char* get_conf_amr_ip(fr_args_t const*);
+
 #endif
 
