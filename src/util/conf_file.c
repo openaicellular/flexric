@@ -562,7 +562,7 @@ char* get_conf_amr_ip(fr_args_t const* args)
 
   char ip_addr[24] = {0};
   while ((read = getline(&line, &len, fp)) != -1) {
-    const char* needle = "AMR_IP =";
+    const char* needle = "RAN_IP =";
     char* ans = strstr(line, needle);
     if(ans != NULL){
       ans += strlen(needle);
