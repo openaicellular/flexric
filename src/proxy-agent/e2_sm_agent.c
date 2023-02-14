@@ -117,8 +117,8 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
       ind_msg->MeasData[0].measRecord = calloc(2, sizeof(adapter_MeasRecord_t));
       assert(ind_msg->MeasData[0].measRecord != NULL && "memory exhausted");
 
-      ind_msg->MeasData[0].measRecord[0].type = MeasRecord_int;
-      ind_msg->MeasData[0].measRecord[0].int_val = t % 1000000;
+      ind_msg->MeasData[0].measRecord[0].type = MeasRecord_real;
+      ind_msg->MeasData[0].measRecord[0].real_val = t;
       ind_msg->MeasData[0].measRecord[1].type = MeasRecord_int;
       ind_msg->MeasData[0].measRecord[1].int_val = 0;
       
@@ -168,8 +168,8 @@ void e2_read_RAN(sm_ag_if_rd_t *data)
           ind_msg->MeasData[i].measRecord = calloc(num_ms_per_ue, sizeof(adapter_MeasRecord_t));
           assert(ind_msg->MeasData[i].measRecord != NULL && "memory exhausted");
 
-          ind_msg->MeasData[i].measRecord[0].type = MeasRecord_int;
-          ind_msg->MeasData[i].measRecord[0].int_val = t % 1000000;
+          ind_msg->MeasData[i].measRecord[0].type = MeasRecord_real;
+          ind_msg->MeasData[i].measRecord[0].real_val = t;
           ind_msg->MeasData[i].measRecord[1].type = MeasRecord_int;
           ind_msg->MeasData[i].measRecord[1].int_val = temp.ue_stats[i].rnti;
           ind_msg->MeasData[i].measRecord[2].type = MeasRecord_real;
