@@ -11,7 +11,7 @@
 #include "../../sm/rlc_sm/rlc_sm_id.h"
 #include "../../sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../sm/gtp_sm/gtp_sm_id.h"
-
+#include "../../sm/kpm_sm_v2.02/kpm_sm_id.h"
 #include "../../sm/slice_sm/slice_sm_id.h"
 
 #include "../../util/conf_file.h"
@@ -538,6 +538,104 @@ int report_gtp_sm(global_e2_node_id_t* id, Interval inter_arg, gtp_cb* handler)
 }
 
 void rm_report_gtp_sm(int handler)
+{
+
+#ifdef XAPP_LANG_PYTHON
+    PyGILState_STATE gstate;
+    gstate = PyGILState_Ensure();
+#endif
+
+  rm_report_sm_xapp_api(handler);
+
+#ifdef XAPP_LANG_PYTHON
+    PyGILState_Release(gstate);
+#endif
+
+}
+
+//////////////////////////////////////
+// KPM
+/////////////////////////////////////
+
+static
+kpm_cb* hndlr_kpm_cb;
+
+static
+
+void sm_cb_kpm(sm_ag_if_rd_t const* rd)
+{
+  assert(rd != NULL);
+  assert(rd->type == KPM_STATS_V0);
+  assert(hndlr_kpm_cb != NULL);
+
+  kpm_ind_data_t const* data = &rd->kpm_stats;
+  swig_kpm_ind_md_t ind;
+  ind.tstamp.collectStartTime = data->hdr.collectStartTime;
+  ind.kpm_stats.MeasData.measRecord_len=data->msg.MeasData->measRecord_len;
+  ind.kpm_stats.MeasInfo_len=data->msg.MeasInfo_len;
+
+
+ 
+for(size_t i = 0; i <data->msg.MeasInfo_len; i++){
+  
+
+    char str1[sizeof(data->msg.MeasInfo[i].measName.buf)+1];
+    char str2[15];
+    size_t bt = sizeof(data->msg.MeasInfo[i].measName);
+    memcpy(str1,data->msg.MeasInfo[i].measName.buf, bt);
+    strcpy(str2, str1);
+    ind.kpm_stats.MeasInfo.measName.append(str2);
+    ind.kpm_stats.MeasInfo.measName.append(" ");
+
+} 
+
+ for(uint32_t i = 0; i < data->msg.MeasData->measRecord_len; ++i){
+    adapter_MeasRecord_t tmp = data->msg.MeasData->measRecord[i];
+    ind.kpm_stats.MeasData.MeasRecord.push_back(tmp);
+  }
+
+
+
+#ifdef XAPP_LANG_PYTHON
+    PyGILState_STATE gstate;
+    gstate = PyGILState_Ensure();
+#endif
+
+    hndlr_kpm_cb->handle(&ind);
+
+#ifdef XAPP_LANG_PYTHON
+    PyGILState_Release(gstate);
+#endif
+}
+
+int report_kpm_sm(global_e2_node_id_t* id, Interval inter_arg, kpm_cb* handler)
+{
+
+  assert(id != NULL);
+  assert(handler != NULL);
+
+  hndlr_kpm_cb = handler;
+
+  inter_xapp_e i;
+  if(inter_arg == Interval::ms_1 ){
+    i = ms_1;
+  } else if (inter_arg == Interval::ms_2) {
+    i = ms_2;
+  } else if(inter_arg == Interval::ms_5) {
+    i = ms_5;
+  } else if(inter_arg == Interval::ms_10) {
+    i = ms_10;
+  } else {
+    assert(0 != 0 && "Unknown type");
+  }
+
+  sm_ans_xapp_t ans = report_sm_xapp_api(id , SM_KPM_ID, i, sm_cb_kpm);
+  assert(ans.success == true);
+  return ans.u.handle;
+
+}
+
+void rm_report_kpm_sm(int handler)
 {
 
 #ifdef XAPP_LANG_PYTHON

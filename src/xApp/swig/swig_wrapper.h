@@ -15,6 +15,7 @@
 #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
 #include "../../sm/slice_sm/ie/slice_data_ie.h"
 #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
+#include "../../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"
 
 //////////////////////////////////////
 // General    
@@ -106,7 +107,7 @@ typedef struct{
     std::vector<std::string> sched;
 
     slice_params_t params;
-} swig_fr_slice_t ;
+} swig_fr_slice_t;
 
 typedef struct{
     uint32_t len_slices;
@@ -160,6 +161,45 @@ struct gtp_cb {
 int report_gtp_sm(global_e2_node_id_t* id, Interval inter, gtp_cb* handler);
 
 void rm_report_gtp_sm(int);
+
+//////////////////////////////////////
+// KPM   
+/////////////////////////////////////
+
+typedef struct{
+  uint32_t measRecord_len;
+  std::vector<adapter_MeasRecord_t> MeasRecord;
+}swig_MeasDataItem_t;
+
+
+typedef struct{
+  std::string measName;
+  char* meas;
+}swig_MeasInfo_t;
+
+typedef struct{
+  swig_MeasDataItem_t MeasData;
+  swig_MeasInfo_t MeasInfo;
+  uint32_t MeasInfo_len;
+}swig_kpm_ind_msg_t;
+
+typedef struct{
+  int64_t collectStartTime;
+}swig_kpm_ind_hdr_t;
+
+struct swig_kpm_ind_md_t{
+  swig_kpm_ind_hdr_t tstamp;
+  swig_kpm_ind_msg_t kpm_stats;
+};
+
+struct kpm_cb {
+    virtual void handle(swig_kpm_ind_md_t* a) = 0;
+    virtual ~kpm_cb() {}
+};
+
+int report_kpm_sm(global_e2_node_id_t* id, Interval inter, kpm_cb* handler);
+
+void rm_report_kpm_sm(int);
 
 #endif
 
