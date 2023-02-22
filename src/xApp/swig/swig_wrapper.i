@@ -17,6 +17,7 @@
   #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
   #include "../../sm/slice_sm/ie/slice_data_ie.h"
   #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
+  #include "../../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"
 %}
 
 #ifdef SWIGPYTHON
@@ -76,6 +77,7 @@
     $result = PyInt_FromLong((long) $1);
 }
 
+
 #endif
 
 %feature("director") mac_cb;
@@ -83,6 +85,7 @@
 %feature("director") pdcp_cb;
 %feature("director") slice_cb;
 %feature("director") gtp_cb;
+%feature("director") kpm_cb;
 
 namespace std {
   %template(IntVector) vector<int>;
@@ -95,6 +98,7 @@ namespace std {
   %template(SLICE_slicesStatsVector) vector<swig_fr_slice_t>;
   %template(SLICE_UEsStatsVector) vector<ue_slice_assoc_t>;
   %template(GTP_NGUTStatsVector) vector<gtp_ngu_t_stats_t>;
+  %template(KPMStatsVector) vector<adapter_MeasRecord_t>;
 }
 
 
@@ -113,4 +117,5 @@ namespace std {
 %include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
 %include "../../sm/slice_sm/ie/slice_data_ie.h"
 %include "../../sm/gtp_sm/ie/gtp_data_ie.h"
+%include "../../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"
 

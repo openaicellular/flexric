@@ -222,12 +222,117 @@ void cp_label_info(adapter_LabelInfoItem_t *dst, adapter_LabelInfoItem_t const *
     *(dst->noLabel) = *(src->noLabel);
     return;
   }
+
   if (src->plmnID != NULL) {
     dst->plmnID = malloc(sizeof(*(dst->plmnID)));
     *dst->plmnID = copy_byte_array(*(src->plmnID));
-  } else {
-    assert (0!=0 && "Programming error: should be null as the remaining fileds have not been implemented yet");
+  } 
+
+  if (src->sliceID != NULL){
+    dst->sliceID = malloc(sizeof(*(dst->sliceID)));
+    *dst->sliceID = (*(src->sliceID));
+
   }
+
+   if (src->fiveQI != NULL){
+    dst->fiveQI = malloc(sizeof(*(dst->fiveQI)));
+    *dst->fiveQI = (*(src->fiveQI));
+  }
+
+  if (src->qFI != NULL){
+    dst->qFI= malloc(sizeof(*(dst->qFI)));
+    *dst->qFI =(*(src->qFI));
+  }
+
+  if (src->qCI != NULL){
+    dst->qCI = malloc(sizeof(*(dst->qCI)));
+    *dst->qCI = (*(src->qCI));
+  }
+  
+  if (src->qCImax != NULL){
+    dst->qCImax = malloc(sizeof(*(dst->qCImax)));
+    *dst->qCImax = (*(src->qCImax));
+  }
+
+  if (src->qCImin != NULL){
+    dst->qCImin = malloc(sizeof(*(dst->qCImin)));
+    *dst->qCImin = (*(src->qCImin));
+  }
+
+  
+  if (src->aRPmax != NULL){
+    dst->aRPmax = malloc(sizeof(*(dst->aRPmax)));
+    *dst->aRPmax = (*(src->aRPmax));
+  }
+
+
+  if (src->aRPmin != NULL){
+    dst->aRPmin = malloc(sizeof(*(dst->aRPmin)));
+    *dst->aRPmin = (*(src->aRPmin));
+  }
+
+  if (src->bitrateRange != NULL){
+    dst->bitrateRange = malloc(sizeof(*(dst->bitrateRange)));
+    *dst->bitrateRange = (*(src->bitrateRange));
+  }
+
+  if (src->layerMU_MIMO != NULL){
+    dst->layerMU_MIMO = malloc(sizeof(*(dst->layerMU_MIMO)));
+    *dst->layerMU_MIMO = (*(src->layerMU_MIMO));
+  }
+
+  if (src->sUM != NULL){
+    dst->sUM = malloc(sizeof(*(dst->sUM)));
+    *dst->sUM = (*(src->sUM));
+  }
+
+  if (src->distBinX != NULL){
+    dst->distBinX = malloc(sizeof(*(dst->distBinX)));
+    *dst->distBinX = (*(src->distBinX));
+  }
+
+  if (src->distBinY != NULL){
+    dst->distBinY = malloc(sizeof(*(dst->distBinY)));
+    *dst->distBinY = (*(src->distBinY));
+  }
+
+  if (src->distBinZ != NULL){
+    dst->distBinZ = malloc(sizeof(*(dst->distBinZ)));
+    *dst->distBinZ = (*(src->distBinZ));
+  }
+
+  if (src->preLabelOverride != NULL){
+    dst->preLabelOverride = malloc(sizeof(*(dst->preLabelOverride)));
+    *dst->preLabelOverride = (*(src->preLabelOverride));
+  }
+
+  if (src->startEndInd != NULL){
+    dst->startEndInd = malloc(sizeof(*(dst->startEndInd)));
+    *dst->startEndInd = (*(src->startEndInd));
+  }
+
+  if (src->min) {
+    dst->min = malloc(sizeof(*(dst->min)));
+    assert (dst->min != NULL && "Memory exhausted");
+    *(dst->min) = *(src->min);
+  }
+
+  if (src->max) {
+    dst->max = malloc(sizeof(*(dst->max)));
+    assert (dst->max != NULL && "Memory exhausted");
+    *(dst->max) = *(src->max);
+  }
+   
+  if (src->avg) {
+    dst->avg = malloc(sizeof(*(dst->avg)));
+    assert (dst->avg != NULL && "Memory exhausted");
+    *(dst->avg) = *(src->avg);
+  }
+
+  //else {
+    //assert (0!=0 && "Programming error: should be null as the remaining fileds have not been implemented yet");
+  //}
+  return;
   // TO BE COMPLETED with the other fields
 }
 
@@ -239,25 +344,42 @@ void free_label_info(adapter_LabelInfoItem_t *l)
     free (l->noLabel);
   if (l->plmnID)
     free_byte_array(*(l->plmnID));
- 
-  // TO BE COMPLETED
-  // adapter_S_NSSAI_t	            *sliceID;	/* OPTIONAL */
-	// adapter_FiveQI_t	            *fiveQI;	/* OPTIONAL */
-	// adapter_QosFlowIdentifier_t	  *qFI;	    /* OPTIONAL */
-	// adapter_QCI_t	                *qCI;	    /* OPTIONAL */
-	// adapter_QCI_t	                *qCImax;	/* OPTIONAL */
-	// adapter_QCI_t	                *qCImin;	/* OPTIONAL */
-	// long	                        *aRPmax;	/* OPTIONAL */
-	// long	                        *aRPmin;	/* OPTIONAL */
-	// long	                        *bitrateRange;/* OPTIONAL */
-	// long	                        *layerMU_MIMO;/* OPTIONAL */
-	// long	                        *sUM;	    /* OPTIONAL */
-	// long	                        *distBinX;/* OPTIONAL */
-	// long	                        *distBinY;/* OPTIONAL */
-	// long	                        *distBinZ;/* OPTIONAL */
-	// long	                        *preLabelOverride;/* OPTIONAL */
-	// long	                        *startEndInd;	/* OPTIONAL */
-	// long	                        *min;	    /* OPTIONAL */
-	// long	                        *max;	    /* OPTIONAL */
-	// long	                        *avg;	    /* OPTIONAL */
+  if (l->sliceID)
+    free (l->sliceID);
+  if (l->fiveQI)
+    free (l->fiveQI);
+  if (l->qFI)
+    free (l->qFI);
+  if (l->qCI)
+    free (l->qCI);
+  if (l->qCImax)
+    free (l->qCImax);
+  if (l->qCImin)
+    free (l->qCImin);
+  if (l->aRPmax)
+    free (l->aRPmax);
+  if (l->aRPmin)
+    free (l->aRPmin);
+  if (l->bitrateRange)
+    free (l->bitrateRange);
+  if (l->layerMU_MIMO)
+    free (l->layerMU_MIMO);
+  if (l->sUM)
+    free (l->sUM);
+  if (l->distBinX)
+    free (l->distBinX);
+  if (l->distBinY)
+    free (l->distBinY);
+  if (l->distBinZ)
+    free (l->distBinZ);
+  if (l->preLabelOverride)
+    free (l->preLabelOverride);
+  if (l->startEndInd)
+    free (l->startEndInd);
+  if (l->min)
+    free(l->min);
+  if (l->max)
+    free(l->max);
+  if (l->avg)
+    free(l->avg); 
 }

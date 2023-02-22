@@ -316,9 +316,147 @@ static void cp_label_info_item_from_asn(adapter_LabelInfoItem_t *dst, LabelInfoI
      */
     return;
   }
- 
+
   if (src->measLabel.plmnID != NULL)
+  {
     BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING_POINTERS (dst->plmnID, src->measLabel.plmnID);
+  }
+
+
+  if (src->measLabel.sliceID != NULL)
+  {
+    dst->sliceID = malloc(sizeof(*(dst->sliceID)));
+    assert (dst->sliceID != NULL && "Memory exhausted");        
+    *(dst->sliceID) = *(src->measLabel.sliceID);
+  }
+
+  if (src->measLabel.fiveQI != NULL)
+  {
+    dst->fiveQI = malloc(sizeof(*(dst->fiveQI)));
+    assert (dst->fiveQI != NULL && "Memory exhausted");        
+    *(dst->fiveQI) = *(src->measLabel.fiveQI);
+  }
+
+  if (src->measLabel.qFI != NULL)
+  {
+    dst->qFI = malloc(sizeof(*(dst->noLabel)));
+    assert (dst->qFI != NULL && "Memory exhausted");        
+    *(dst->qFI) = *(src->measLabel.qFI);
+  }
+
+  if (src->measLabel.qCI != NULL)
+  {
+    dst->qCI = malloc(sizeof(*(dst->qCI)));
+    assert (dst->qCI != NULL && "Memory exhausted");        
+    *(dst->qCI) = *(src->measLabel.qCI);
+  }
+
+  if (src->measLabel.qCImax != NULL)
+  {
+    dst->qCImax = malloc(sizeof(*(dst->qCImax)));
+    assert (dst->qCImax != NULL && "Memory exhausted");        
+    *(dst->qCImax) = *(src->measLabel.qCImax);
+  }
+
+  if (src->measLabel.qCImin != NULL)
+  {
+    dst->qCImin = malloc(sizeof(*(dst->qCImin)));
+    assert (dst->qCImin != NULL && "Memory exhausted");        
+    *(dst->qCImin) = *(src->measLabel.qCImin);
+  }
+
+  if (src->measLabel.aRPmax)
+  {
+    dst->min = malloc(sizeof(*(dst->aRPmax)));
+    assert (dst->aRPmax != NULL && "Memory exhausted");
+    *(dst->aRPmax) = *(src->measLabel.aRPmax);
+  }
+
+  if (src->measLabel.aRPmin)
+  {
+    dst->aRPmin = malloc(sizeof(*(dst->aRPmin)));
+    assert (dst->aRPmin != NULL && "Memory exhausted");
+    *(dst->aRPmin) = *(src->measLabel.aRPmin);
+  }
+ 
+  if (src->measLabel.bitrateRange)
+  {
+    dst->bitrateRange = malloc(sizeof(*(dst->bitrateRange)));
+    assert (dst->bitrateRange != NULL && "Memory exhausted");
+    *(dst->bitrateRange) = *(src->measLabel.bitrateRange);
+  }
+
+  if (src->measLabel.layerMU_MIMO)
+  {
+    dst->layerMU_MIMO = malloc(sizeof(*(dst->layerMU_MIMO)));
+    assert (dst->layerMU_MIMO != NULL && "Memory exhausted");
+    *(dst->layerMU_MIMO) = *(src->measLabel.layerMU_MIMO);
+  }
+
+  if (src->measLabel.sUM)
+  {
+    dst->sUM = malloc(sizeof(*(dst->sUM)));
+    assert (dst->sUM != NULL && "Memory exhausted");
+    *(dst->sUM) = *(src->measLabel.sUM);
+  }
+ 
+  if (src->measLabel.distBinX)
+  {
+    dst->distBinX = malloc(sizeof(*(dst->distBinX)));
+    assert (dst->distBinX != NULL && "Memory exhausted");
+    *(dst->distBinX) = *(src->measLabel.distBinX);
+  }
+ 
+  if (src->measLabel.distBinY)
+  {
+    dst->distBinY = malloc(sizeof(*(dst->distBinY)));
+    assert (dst->distBinY != NULL && "Memory exhausted");
+    *(dst->distBinY) = *(src->measLabel.distBinY);
+  }
+ 
+  if (src->measLabel.distBinZ)
+  {
+    dst->distBinZ = malloc(sizeof(*(dst->distBinZ)));
+    assert (dst->distBinZ != NULL && "Memory exhausted");
+    *(dst->distBinZ) = *(src->measLabel.distBinZ);
+  }
+ 
+  if (src->measLabel.preLabelOverride)
+  {
+    dst->preLabelOverride = malloc(sizeof(*(dst->preLabelOverride)));
+    assert (dst->preLabelOverride != NULL && "Memory exhausted");
+    *(dst->preLabelOverride) = *(src->measLabel.preLabelOverride);
+  }
+ 
+  if (src->measLabel.startEndInd)
+  {
+    dst->startEndInd = malloc(sizeof(*(dst->startEndInd)));
+    assert (dst->startEndInd != NULL && "Memory exhausted");
+    *(dst->startEndInd) = *(src->measLabel.startEndInd);
+  }
+
+  if (src->measLabel.min)
+  {
+    dst->min = malloc(sizeof(*(dst->min)));
+    assert (dst->min != NULL && "Memory exhausted");
+    *(dst->min) = *(src->measLabel.min);
+  }
+
+  if (src->measLabel.max)
+  {
+    dst->max= malloc(sizeof(*(dst->max)));
+    assert (dst->max != NULL && "Memory exhausted");
+    *(dst->max) = *(src->measLabel.max);
+  }
+ 
+  if (src->measLabel.avg)
+  {
+    dst->avg= malloc(sizeof(*(dst->avg)));
+    assert (dst->avg != NULL && "Memory exhausted");
+    *(dst->avg) = *(src->measLabel.avg);
+  }
+ 
+ return; 
 
   // To complete with below fields.
   // internal_S_NSSAI_t	          *sliceID;	/* OPTIONAL */
