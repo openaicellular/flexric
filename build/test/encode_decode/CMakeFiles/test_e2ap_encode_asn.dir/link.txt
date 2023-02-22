@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/test_e2ap_encode_asn.dir/test_e2ap_encode_asn.c.o -o test_e2ap_encode_asn  ../../src/agent/libe2_agent.a 

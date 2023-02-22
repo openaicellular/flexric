@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/test_near_ric.dir/test_near_ric.c.o CMakeFiles/test_near_ric.dir/__/sm/common/fill_ind_data.c.o -o test_near_ric  ../../src/agent/libe2_agent.a ../../src/ric/libnear_ric_test.a -pthread -lsctp -ldl 

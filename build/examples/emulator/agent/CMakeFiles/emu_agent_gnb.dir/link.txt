@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/emu_agent_gnb.dir/test_agent.c.o CMakeFiles/emu_agent_gnb.dir/__/__/__/test/sm/common/fill_ind_data.c.o -o emu_agent_gnb  ../../../src/agent/libe2_agent.a -pthread -lsctp -ldl 

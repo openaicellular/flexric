@@ -1,0 +1,8 @@
+/usr/local/lib/flexric/libmac_sm.so
+/usr/local/lib/flexric/librlc_sm.so
+/usr/local/lib/flexric/libpdcp_sm.so
+/usr/local/lib/flexric/libslice_sm.so
+/usr/local/lib/flexric/libtc_sm.so
+/usr/local/lib/flexric/libgtp_sm.so
+/usr/local/lib/flexric/libkpm_sm.so
+/usr/local/etc/flexric/flexric.conf

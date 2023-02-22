@@ -1,0 +1,1 @@
+/usr/bin/cc -g "CMakeFiles/nearRT-RIC.dir/near_ric.c.o" -o nearRT-RIC  ../../src/ric/libnear_ric.a -pthread -lsctp -ldl 
