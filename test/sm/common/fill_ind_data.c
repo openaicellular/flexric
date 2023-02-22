@@ -132,14 +132,14 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
     ind->msg.MeasData = KPMData;
     ind->msg.MeasData_len = 1;
 
-    ind->msg.MeasInfo_len = 0;
+    ind->msg.MeasInfo_len = 1;
     ind->msg.MeasInfo = NULL;
     ind->msg.granulPeriod = NULL;
 
   } else {
 
     adapter_MeasDataItem_t *KPMData = calloc(1, sizeof(adapter_MeasDataItem_t));
-    KPMData[0].measRecord_len = rand()%100 + 1;
+    KPMData[0].measRecord_len =  12; //%100
     KPMData[0].incompleteFlag =  -1;
     
     adapter_MeasRecord_t * KPMRecord = calloc(KPMData[0].measRecord_len, sizeof(adapter_MeasRecord_t));
@@ -155,28 +155,318 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
 
     ind->msg.granulPeriod = NULL;
     
-    ind->msg.MeasInfo_len = 2;
+    ind->msg.MeasInfo_len = 12;
     ind->msg.MeasInfo = calloc(ind->msg.MeasInfo_len, sizeof(MeasInfo_t));
     assert(ind->msg.MeasInfo != NULL && "Memory exhausted" );
+   
     
-    MeasInfo_t* info1 = &ind->msg.MeasInfo[0];
-    assert(info1 != NULL && "memory exhausted");
-    info1->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
-    char* measName = "PrbDlUsage";
-    info1->measName.len = strlen(measName) + 1;
-    info1->measName.buf = malloc(strlen(measName)+1) ;
-    assert(info1->measName.buf != NULL && "memory exhausted");
-    memcpy(info1->measName.buf, measName, strlen(measName) );
-    info1->measName.buf[strlen(measName)] = '\0';
-    info1->labelInfo_len = 1;
-    info1->labelInfo = calloc(info1->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
-    assert(info1->labelInfo != NULL && "memory exhausted");
-    adapter_LabelInfoItem_t* label1 = &info1->labelInfo[0];
-    label1->noLabel = calloc(1, sizeof(long));
-    assert(label1->noLabel != NULL && "memory exhausted");
-    *(label1->noLabel) = 0;
+           MeasInfo_t* rlcinfo = &ind->msg.MeasInfo[0];
+           rlcinfo->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* rlctxwt = "rlctxpduwt";
+           rlcinfo->measName.len = strlen(rlctxwt);
+           rlcinfo->measName.buf = malloc(strlen(rlctxwt));
+           assert(rlcinfo->measName.buf != NULL && "memory exhausted");
+           memcpy(rlcinfo->measName.buf, rlctxwt, ind->msg.MeasInfo[0].measName.len);
+      
+           rlcinfo->labelInfo_len = 1;
+           rlcinfo->labelInfo = calloc(rlcinfo->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(rlcinfo->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* rlclabel = &rlcinfo->labelInfo[0];
+           rlclabel->min = calloc(1, sizeof(long));
+           assert(rlclabel->min != NULL && "memory exhausted");
+           *(rlclabel->min) = 0;
+           rlclabel->distBinX = calloc(1, sizeof(long));
+           assert(rlclabel->distBinX != NULL && "memory exhausted");
+           *(rlclabel->distBinX) = 100;
+           rlclabel->distBinY = calloc(1, sizeof(long));
+           assert(rlclabel->distBinY != NULL && "memory exhausted");
+           *(rlclabel->distBinY) = 100;
+           rlclabel->distBinZ = calloc(1, sizeof(long));
+           assert(rlclabel->distBinZ != NULL && "memory exhausted");
+           *(rlclabel->distBinZ) = 100;
 
-    MeasInfo_t* info2 = &ind->msg.MeasInfo[1];
+           MeasInfo_t* rlcinfo1 = &ind->msg.MeasInfo[1];
+           rlcinfo1->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* rlctxpdu = "rlctxpdu";
+           rlcinfo1->measName.len = strlen(rlctxpdu);
+           rlcinfo1->measName.buf = malloc(strlen(rlctxpdu));
+           assert(rlcinfo1->measName.buf != NULL && "memory exhausted");
+           memcpy(rlcinfo1->measName.buf, rlctxpdu, ind->msg.MeasInfo[1].measName.len);
+      
+           rlcinfo1->labelInfo_len = 1;
+           rlcinfo1->labelInfo = calloc(rlcinfo->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(rlcinfo1->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* rlclabel1 = &rlcinfo1->labelInfo[0];
+           rlclabel1->min = calloc(1, sizeof(long));
+           assert(rlclabel1->min != NULL && "memory exhausted");
+           *(rlclabel1->min) = 0;
+           rlclabel1->distBinX = calloc(1, sizeof(long));
+           assert(rlclabel1->distBinX != NULL && "memory exhausted");
+           *(rlclabel1->distBinX) = 100;
+           rlclabel1->distBinY = calloc(1, sizeof(long));
+           assert(rlclabel1->distBinY != NULL && "memory exhausted");
+           *(rlclabel1->distBinY) = 100;
+           rlclabel1->distBinZ = calloc(1, sizeof(long));
+           assert(rlclabel1->distBinZ != NULL && "memory exhausted");
+           *(rlclabel1->distBinZ) = 100;
+           
+
+
+           MeasInfo_t* rlcinfo2 = &ind->msg.MeasInfo[2];
+           rlcinfo2->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* rlcrxpdu = "rlcrxpdu";
+           rlcinfo2->measName.len = strlen(rlcrxpdu);
+           rlcinfo2->measName.buf = malloc(strlen(rlcrxpdu));
+           assert(rlcinfo2->measName.buf != NULL && "memory exhausted");
+           memcpy(rlcinfo2->measName.buf, rlcrxpdu, ind->msg.MeasInfo[2].measName.len);
+      
+           rlcinfo2->labelInfo_len = 1;
+           rlcinfo2->labelInfo = calloc(rlcinfo2->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(rlcinfo2->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* rlclabel2 = &rlcinfo2->labelInfo[0];
+           rlclabel2->min = calloc(1, sizeof(long));
+           assert(rlclabel2->min != NULL && "memory exhausted");
+           *(rlclabel2->min) = 0;
+           rlclabel2->distBinX = calloc(1, sizeof(long));
+           assert(rlclabel2->distBinX != NULL && "memory exhausted");
+           *(rlclabel2->distBinX) = 100;
+           rlclabel2->distBinY = calloc(1, sizeof(long));
+           assert(rlclabel2->distBinY != NULL && "memory exhausted");
+           *(rlclabel2->distBinY) = 100;
+           rlclabel2->distBinZ = calloc(1, sizeof(long));
+           assert(rlclabel2->distBinZ != NULL && "memory exhausted");
+           *(rlclabel2->distBinZ) = 100;
+           
+           
+
+           MeasInfo_t* pdcpinfo = &ind->msg.MeasInfo[3];
+           pdcpinfo->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* pdcptxpdu = "pdcptxpdu";
+           pdcpinfo->measName.len = strlen(pdcptxpdu);
+           pdcpinfo->measName.buf = malloc(strlen(pdcptxpdu));
+           assert(pdcpinfo->measName.buf != NULL && "memory exhausted");
+           memcpy(pdcpinfo->measName.buf, pdcptxpdu, ind->msg.MeasInfo[3].measName.len);
+      
+           pdcpinfo->labelInfo_len = 1;
+           pdcpinfo->labelInfo = calloc(pdcpinfo->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(pdcpinfo->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* pdcplabel = &pdcpinfo->labelInfo[0];
+           pdcplabel->min = calloc(1, sizeof(long));
+           assert(pdcplabel->min != NULL && "memory exhausted");
+           *(pdcplabel->min) = 0;
+           pdcplabel->distBinX = calloc(1, sizeof(long));
+           assert(pdcplabel->distBinX != NULL && "memory exhausted");
+           *(pdcplabel->distBinX) = 100;
+           pdcplabel->distBinY = calloc(1, sizeof(long));
+           assert(pdcplabel->distBinY != NULL && "memory exhausted");
+           *(pdcplabel->distBinY) = 100;
+           pdcplabel->distBinZ = calloc(1, sizeof(long));
+           assert(pdcplabel->distBinZ != NULL && "memory exhausted");
+           *(pdcplabel->distBinZ) = 100;
+
+           MeasInfo_t* pdcpinfo1 = &ind->msg.MeasInfo[4];
+           pdcpinfo1->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* pdcprxpdu = "pdcprxpdu";
+           pdcpinfo1->measName.len = strlen(pdcprxpdu);
+           pdcpinfo1->measName.buf = malloc(strlen(pdcprxpdu));
+           assert(pdcpinfo1->measName.buf != NULL && "memory exhausted");
+           memcpy(pdcpinfo1->measName.buf, pdcprxpdu, ind->msg.MeasInfo[4].measName.len);
+      
+           pdcpinfo1->labelInfo_len = 1;
+           pdcpinfo1->labelInfo = calloc(pdcpinfo1->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(pdcpinfo1->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* pdcplabel1 = &pdcpinfo1->labelInfo[0];
+           pdcplabel1->min = calloc(1, sizeof(long));
+           assert(pdcplabel1->min != NULL && "memory exhausted");
+           *(pdcplabel1->min) = 0;
+           pdcplabel1->distBinX = calloc(1, sizeof(long));
+           assert(pdcplabel1->distBinX != NULL && "memory exhausted");
+           *(pdcplabel1->distBinX) = 100;
+           pdcplabel1->distBinY = calloc(1, sizeof(long));
+           assert(pdcplabel1->distBinY != NULL && "memory exhausted");
+           *(pdcplabel1->distBinY) = 100;
+           pdcplabel1->distBinZ = calloc(1, sizeof(long));
+           assert(pdcplabel1->distBinZ != NULL && "memory exhausted");
+           *(pdcplabel1->distBinZ) = 100;
+
+           MeasInfo_t* info = &ind->msg.MeasInfo[5];
+           info->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* prbusage = "prbusage";
+           info->measName.len = strlen(prbusage);
+           info->measName.buf = malloc(strlen(prbusage));
+           assert(info->measName.buf != NULL && "memory exhausted");
+           memcpy(info->measName.buf, prbusage, ind->msg.MeasInfo[5].measName.len);
+      
+           info->labelInfo_len = 1;
+           info->labelInfo = calloc(info->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(info->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* label = &info->labelInfo[0];
+           label->min = calloc(1, sizeof(long));
+           assert(label->min != NULL && "memory exhausted");
+           *(label->min) = 0;
+           label->distBinX = calloc(1, sizeof(long));
+           assert(label->distBinX != NULL && "memory exhausted");
+           *(label->distBinX) = 100;
+           label->distBinY = calloc(1, sizeof(long));
+           assert(label->distBinY != NULL && "memory exhausted");
+           *(label->distBinY) = 100;
+           label->distBinZ = calloc(1, sizeof(long));
+           assert(label->distBinZ != NULL && "memory exhausted");
+           *(label->distBinZ) = 100;
+           
+           MeasInfo_t* info2 = &ind->msg.MeasInfo[6];
+           info2->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* rntiidentifier = "rntiidentifier";
+           info2->measName.len = strlen(rntiidentifier);
+           info2->measName.buf = malloc(strlen(rntiidentifier));
+           assert(info2->measName.buf != NULL && "memory exhausted");
+           memcpy(info2->measName.buf, rntiidentifier, ind->msg.MeasInfo[6].measName.len);
+
+           info2->labelInfo_len = 1;
+           info2->labelInfo = calloc(info2->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(info2->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* label1 = &info2->labelInfo[0];
+           label1->min = calloc(1, sizeof(long));
+           assert(label1->min != NULL && "memory exhausted");
+           *(label1->min) = 0;
+           label1->distBinX = calloc(1, sizeof(long));
+           assert(label1->distBinX != NULL && "memory exhausted");
+           *(label1->distBinX) = 100;
+           label1->distBinY = calloc(1, sizeof(long));
+           assert(label1->distBinY != NULL && "memory exhausted");
+           *(label1->distBinY) = 100;
+           label1->distBinZ = calloc(1, sizeof(long));
+           assert(label1->distBinZ != NULL && "memory exhausted");
+           *(label1->distBinZ) = 100;
+          
+           MeasInfo_t* info3 = &ind->msg.MeasInfo[7];
+           info3->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* wbcqi = "wbcqi";
+           info3->measName.len = strlen(wbcqi);
+           info3->measName.buf = malloc(strlen(wbcqi));
+           assert(info3->measName.buf != NULL && "memory exhausted");
+           memcpy(info3->measName.buf, wbcqi, ind->msg.MeasInfo[7].measName.len);
+
+           info3->labelInfo_len = 1;
+           info3->labelInfo = calloc(info3->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(info3->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* label2 = &info3->labelInfo[0];
+           label2->min = calloc(1, sizeof(long));
+           assert(label2->min != NULL && "memory exhausted");
+           *(label2->min) = 0;
+           label2->distBinX = calloc(1, sizeof(long));
+           assert(label2->distBinX != NULL && "memory exhausted");
+           *(label2->distBinX) = 100;
+           label2->distBinY = calloc(1, sizeof(long));
+           assert(label2->distBinY != NULL && "memory exhausted");
+           *(label2->distBinY) = 100;
+           label2->distBinZ = calloc(1, sizeof(long));
+           assert(label2->distBinZ != NULL && "memory exhausted");
+           *(label2->distBinZ) = 100;
+
+
+           MeasInfo_t* info4 = &ind->msg.MeasInfo[8];
+           info4->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* dl = "dlaggr";
+           info4->measName.len = strlen(dl);
+           info4->measName.buf = malloc(strlen(dl));
+           assert(info4->measName.buf != NULL && "memory exhausted");
+           memcpy(info4->measName.buf, dl, ind->msg.MeasInfo[8].measName.len);
+
+           info4->labelInfo_len = 1;
+           info4->labelInfo = calloc(info4->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(info4->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* label3 = &info4->labelInfo[0];
+           label3->min = calloc(1, sizeof(long));
+           assert(label3->min != NULL && "memory exhausted");
+           *(label3->min) = 0;
+            label3->distBinX = calloc(1, sizeof(long));
+           assert(label3->distBinX != NULL && "memory exhausted");
+           *(label3->distBinX) = 100;
+           label3->distBinY = calloc(1, sizeof(long));
+           assert(label3->distBinY != NULL && "memory exhausted");
+           *(label3->distBinY) = 100;
+           label3->distBinZ = calloc(1, sizeof(long));
+           assert(label3->distBinZ != NULL && "memory exhausted");
+           *(label3->distBinZ) = 100;
+
+            MeasInfo_t* info5 = &ind->msg.MeasInfo[9];
+           info5->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* ulbler1 = "ulbler";
+           info5->measName.len = strlen(ulbler1);
+           info5->measName.buf = malloc(strlen(ulbler1));
+           assert(info5->measName.buf != NULL && "memory exhausted");
+           memcpy(info5->measName.buf, ulbler1, ind->msg.MeasInfo[9].measName.len);
+
+           info5->labelInfo_len = 1;
+           info5->labelInfo = calloc(info5->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(info5->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* label4 = &info5->labelInfo[0];
+           label4->min = calloc(1, sizeof(long));
+           assert(label4->min != NULL && "memory exhausted");
+           *(label4->min) = 0;
+           label4->distBinX = calloc(1, sizeof(long));
+           assert(label4->distBinX != NULL && "memory exhausted");
+           *(label4->distBinX) = 100;
+           label4->distBinY = calloc(1, sizeof(long));
+           assert(label4->distBinY != NULL && "memory exhausted");
+           *(label4->distBinY) = 100;
+           label4->distBinZ = calloc(1, sizeof(long));
+           assert(label4->distBinZ != NULL && "memory exhausted");
+           *(label4->distBinZ) = 100;
+
+
+           MeasInfo_t* info6 = &ind->msg.MeasInfo[10];
+           info6->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* dlbler1 = "dlbler";
+           info6->measName.len = strlen(dlbler1);
+           info6->measName.buf = malloc(strlen(dlbler1));
+           assert(info6->measName.buf != NULL && "memory exhausted");
+           memcpy(info6->measName.buf, dlbler1, ind->msg.MeasInfo[10].measName.len);
+
+           info6->labelInfo_len = 1;
+           info6->labelInfo = calloc(info6->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(info6->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* label5 = &info6->labelInfo[0];
+           label5->min = calloc(1, sizeof(long));
+           assert(label5->min != NULL && "memory exhausted");
+           *(label5->min) = 0;
+           label5->distBinX = calloc(1, sizeof(long));
+           assert(label5->distBinX != NULL && "memory exhausted");
+           *(label5->distBinX) = 100;
+           label5->distBinY = calloc(1, sizeof(long));
+           assert(label5->distBinY != NULL && "memory exhausted");
+           *(label5->distBinY) = 100;
+           label5->distBinZ = calloc(1, sizeof(long));
+           assert(label5->distBinZ != NULL && "memory exhausted");
+           *(label5->distBinZ) = 100;
+
+           MeasInfo_t* info7 = &ind->msg.MeasInfo[11];
+           info7->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+           char* rsrpval = "avgrsrp";
+           info7->measName.len = strlen(rsrpval);
+           info7->measName.buf = malloc(strlen(rsrpval));
+           assert(info7->measName.buf != NULL && "memory exhausted");
+           memcpy(info7->measName.buf, rsrpval, ind->msg.MeasInfo[11].measName.len);
+
+           info7->labelInfo_len = 1;
+           info7->labelInfo = calloc(info7->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+           assert(info7->labelInfo != NULL && "memory exhausted");
+           adapter_LabelInfoItem_t* label6 = &info7->labelInfo[0];
+           label6->min = calloc(1, sizeof(long));
+           assert(label6->min != NULL && "memory exhausted");
+           *(label6->min) = 0;
+           label6->distBinX = calloc(1, sizeof(long));
+           assert(label6->distBinX != NULL && "memory exhausted");
+           *(label6->distBinX) = 100;
+           label6->distBinY = calloc(1, sizeof(long));
+           assert(label6->distBinY != NULL && "memory exhausted");
+           *(label6->distBinY) = 100;
+           label6->distBinZ = calloc(1, sizeof(long));
+           assert(label6->distBinZ != NULL && "memory exhausted");
+           *(label6->distBinZ) = 100;
+
+    /*MeasInfo_t* info2 = &ind->msg.MeasInfo[1];
     assert(info2 != NULL && "memory exhausted");
     info2->meas_type = KPM_V2_MEASUREMENT_TYPE_ID;
     info2->measID = 1L;
@@ -186,7 +476,7 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
     adapter_LabelInfoItem_t* label2 = &info2->labelInfo[0];
     label2->noLabel = calloc(1, sizeof(long));
     assert(label2->noLabel != NULL && "memory exhausted");
-    *(label2->noLabel) = 0;
+    *(label2->noLabel) = 0;*/
   }
 }
 
