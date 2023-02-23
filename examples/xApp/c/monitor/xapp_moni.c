@@ -258,31 +258,34 @@ int main(int argc, char *argv[])
   // case2: send subscription req to the new connected e2 node
   while(!exit_flag) {
     size_t cur_nodes_len = e2_nodes_len_xapp_api();
-    if (cur_nodes_len - nodes_len > 0) {
-      printf("//////////////// detect E2 nodes len update ////////////////\n");
-      sleep(1);
-      // get the new e2 nodes info
-      e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
-      defer({ free_e2_node_arr(&cur_nodes); });
 
-      // TODO: send subscription request to new e2 node
-      for (size_t i = 0; i < cur_nodes_len; i++) {
-        //printf("/////////////// new E2 node list, idx %ld, nb_id %d, type %s //////////////\n", i,
-        //       cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
-        ngran_node_t cur_type = cur_nodes.n[i].id.type;
-        uint32_t cur_nb_id = cur_nodes.n[i].id.nb_id;
-        bool new_type = 1;
-        bool new_nb_id = 1;
-        // compare the type between old and new e2 nodes list
-        for (size_t j = 0; j < nodes_len; j++) {
-          //printf("/////////////// old E2 node list, idx %ld, nb_id %d, type %s //////////////\n", j,
-          //       nodes.n[j].id.nb_id, get_ngran_name(nodes.n[j].id.type));
-          if (nodes.n[j].id.type == cur_type) new_type = 0;
-          if (nodes.n[j].id.nb_id == cur_nb_id) new_nb_id = 0;
-        }
-        if (new_type || new_nb_id) {
-          printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
-          send_subscription_req(&cur_nodes.n[i], i, handle, num_sm);
+    if (cur_nodes_len != nodes_len) {
+      printf("/////// detect E2 nodes len update, new len = %ld, old len = %ld ///////\n", cur_nodes_len, nodes_len);
+
+      if (cur_nodes_len != 0) {
+        // get the new e2 nodes info
+        e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
+        defer({ free_e2_node_arr(&cur_nodes); });
+
+        // TODO: send subscription request to new e2 node
+        for (size_t i = 0; i < cur_nodes_len; i++) {
+          //printf("/////////////// new E2 node list, idx %ld, nb_id %d, type %s //////////////\n", i,
+          //       cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
+          ngran_node_t cur_type = cur_nodes.n[i].id.type;
+          uint32_t cur_nb_id = cur_nodes.n[i].id.nb_id;
+          bool new_type = 1;
+          bool new_nb_id = 1;
+          // compare the type between old and new e2 nodes list
+          for (size_t j = 0; j < nodes_len; j++) {
+            //printf("/////////////// old E2 node list, idx %ld, nb_id %d, type %s //////////////\n", j,
+            //       nodes.n[j].id.nb_id, get_ngran_name(nodes.n[j].id.type));
+            if (nodes.n[j].id.type == cur_type) new_type = 0;
+            if (nodes.n[j].id.nb_id == cur_nb_id) new_nb_id = 0;
+          }
+          if (new_type || new_nb_id) {
+            printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
+            send_subscription_req(&cur_nodes.n[i], i, handle, num_sm);
+          }
         }
       }
       nodes_len = cur_nodes_len;
