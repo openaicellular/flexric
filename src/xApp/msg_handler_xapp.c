@@ -606,9 +606,9 @@ e2ap_msg_t e2ap_handle_e42_update_e2_node_xapp(e42_xapp_t* xapp, const e2ap_msg_
       ran_function_t* rf = sr->nodes[i].ack_rf;
       add_reg_e2_node(&xapp->e2_nodes, &id, len, rf);
       printf("[xApp]: Registered E2 Nodes = %ld \n",   sz_reg_e2_node(&xapp->e2_nodes) );
-    } //else {
-      //printf("[xApp]: have registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id);
-    //}
+    } else {
+      printf("[xApp]: Already registered E2 Node, nb_id = %d\n", sr->nodes[i].id.nb_id);
+    }
   }
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
