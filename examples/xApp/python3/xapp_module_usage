@@ -11,7 +11,10 @@
 >>> xapp.print_e2_node(e2nodes[0])
 
 ### Get slice conf
->>> xapp.get_slice_conf(e2nodes[0])
+>>> xapp.get_slice_conf()
+>>> xapp.slice_stats['UE']["ues"]
+>>> xapp.slice_stats["RAN"]["dl"]["slices"][1]
+
 
 ### Send slice ctrl msg
 # send_slice_ctrl_msg(e2node, cmd, conf)
