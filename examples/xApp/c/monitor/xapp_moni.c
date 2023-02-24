@@ -290,6 +290,9 @@ int main(int argc, char *argv[])
       }
       nodes_len = cur_nodes_len;
       nodes = e2_nodes_xapp_api();
+
+      if (nodes_len == 0)
+        c_handle = 0;
     }
   }
 

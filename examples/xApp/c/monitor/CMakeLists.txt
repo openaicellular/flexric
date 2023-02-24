@@ -54,6 +54,7 @@ add_executable(xapp_kpm_moni
                 ../../../../src/sm/tc_sm/ie/tc_data_ie.c
                 ../../../../src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
                 ../../../../src/sm/gtp_sm/ie/gtp_data_ie.c
+                ../../../../src/util/ngran_type.c
                 )
 
 target_link_libraries(xapp_kpm_moni
