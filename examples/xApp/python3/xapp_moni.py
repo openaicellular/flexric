@@ -33,7 +33,7 @@ class MACCallback(ric.mac_cb):
             t_diff = t_now - t_mac
             aggr_tstamp_mac += t_diff
             if count_mac == count_max:
-                print('MAC Indication time diff = ' + str(t_diff))
+                print('MAC Indication avg time diff = ' + str(aggr_tstamp_mac/count_max))
                 count_mac = 0
                 aggr_tstamp_mac = 0
             # print('MAC rnti = ' + str(ind.ue_stats[0].rnti))
@@ -59,7 +59,7 @@ class RLCCallback(ric.rlc_cb):
             t_diff = t_now - t_rlc
             aggr_tstamp_rlc += t_diff
             if count_rlc == count_max:
-                print('RLC Indication time diff = ' + str(t_diff))
+                print('RLC Indication avg time diff = ' + str(aggr_tstamp_rlc/count_max))
                 count_rlc = 0
                 aggr_tstamp_rlc = 0
             # print('RLC rnti = '+ str(ind.rb_stats[0].rnti))
@@ -85,7 +85,7 @@ class PDCPCallback(ric.pdcp_cb):
             t_diff = t_now - t_pdcp
             aggr_tstamp_pdcp += t_diff
             if count_pdcp == count_max:
-                print('PDCP Indication time diff = ' + str(t_diff))
+                print('PDCP Indication avg time diff = ' + str(aggr_tstamp_pdcp/count_max))
                 count_pdcp = 0
                 aggr_tstamp_pdcp = 0
             # print('PDCP rnti = '+ str(ind.rb_stats[0].rnti))
