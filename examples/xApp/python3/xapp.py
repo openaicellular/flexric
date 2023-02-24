@@ -2,6 +2,7 @@ import xapp_sdk as ric
 import time
 import pdb
 import json
+from tabulate import tabulate
 
 ####################
 #### MAC INDICATION CALLBACK
@@ -435,17 +436,33 @@ def get_ngran_name(ran_type):
 ####################
 #### UPDATE CONNECTED E2 NODES
 ####################
-def update_e2_nodes():
+def get_e2_nodes():
     return ric.conn_e2_nodes()
 
-def print_e2_node(e2node):
-    print("E2 node : "
-          "nb_id " + str(e2node.id.nb_id) + ",",
-          "mcc " + str(e2node.id.plmn.mcc) + ",",
-          "mnc " + str(e2node.id.plmn.mnc) + ",",
-          "mnc_digit_len " + str(e2node.id.plmn.mnc_digit_len) + ",",
-          "ran_type " + get_ngran_name(e2node.id.type) + ',',
-          "cu_du_id " + str(e2node.id.cu_du_id if e2node.id.cu_du_id else -1))
+e2nodes_col_names = ["nb_id", "mcc", "mnc", "ran_type"]
+def print_e2_nodes():
+    e2nodes_data = []
+    conn = ric.conn_e2_nodes()
+    for i in range(0, len(conn)):
+        # TODO: need to fix cu_du_id in swig
+        # cu_du_id = -1
+        # if conn[i].id.cu_du_id:
+        #     cu_du_id = conn[i].id.cu_du_id
+        info = [conn[i].id.nb_id,
+                conn[i].id.plmn.mcc,
+                conn[i].id.plmn.mnc,
+                conn[i].id.plmn.mnc_digit_len,
+                get_ngran_name(conn[i].id.type)]
+        # print(info)
+        e2nodes_data.append(info)
+    print(tabulate(e2nodes_data, headers=e2nodes_col_names))
+    # print("E2 node : "
+    #       "nb_id " + str(e2node.id.nb_id) + ",",
+    #       "mcc " + str(e2node.id.plmn.mcc) + ",",
+    #       "mnc " + str(e2node.id.plmn.mnc) + ",",
+    #       "mnc_digit_len " + str(e2node.id.plmn.mnc_digit_len) + ",",
+    #       "ran_type " + get_ngran_name(e2node.id.type) + ',',
+    #       "cu_du_id " + str(e2node.id.cu_du_id if e2node.id.cu_du_id else -1))
 
 e2nodes = 0
 hndlr = 0
@@ -460,10 +477,10 @@ def init():
     ric.init()
     # 1. get the length of connected e2 nodes
     global e2nodes
-    e2nodes = update_e2_nodes()
+    e2nodes = get_e2_nodes()
     e2nodes_len = len(e2nodes)
     while e2nodes_len <= 0:
-        temp_e2nodes = update_e2_nodes()
+        temp_e2nodes = get_e2_nodes()
         if e2nodes != temp_e2nodes:
             print("Update connected E2 nodes")
             e2nodes = temp_e2nodes
@@ -473,14 +490,7 @@ def init():
             time.sleep(1)
     assert(len(e2nodes) > 0)
 
-    for i in range(0, len(e2nodes)):
-        print("E2 node idx " + str(i) + ": "
-              "nb_id " + str(e2nodes[i].id.nb_id) + ",",
-              "mcc " + str(e2nodes[i].id.plmn.mcc) + ",",
-              "mnc " + str(e2nodes[i].id.plmn.mnc) + ",",
-              "mnc_digit_len " + str(e2nodes[i].id.plmn.mnc_digit_len) + ",",
-              "ran_type " + get_ngran_name(e2nodes[i].id.type) + ',',
-              "cu_du_id " + str(e2nodes[i].id.cu_du_id if e2nodes[i].id.cu_du_id else -1))
+    print_e2_nodes()
 
     # TODO: need to process multi e2 nodes
     e2node = e2nodes[0]
