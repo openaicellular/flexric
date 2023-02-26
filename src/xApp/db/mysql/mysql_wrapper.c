@@ -1556,9 +1556,14 @@ static uint32_t extract_kpm_rnti_val(const kpm_ind_msg_t* ind_msg, const adapter
   for (size_t j = 0; j < ind_msg->MeasInfo_len; j++) {
     if ((ind_msg->MeasInfo[j].meas_type == KPM_V2_MEASUREMENT_TYPE_NAME) &&
         (strcmp((char*)ind_msg->MeasInfo[j].measName.buf, "rnti") == 0)) {
-          rnti = measData->measRecord[j].real_val;
-          // printf("find rnti column, measRecord[%lu].real_val = %d\n", j, rnti);
-          break;
+      if (measData->measRecord[j].type == MeasRecord_int)
+        rnti = measData->measRecord[j].int_val;
+      else if (measData->measRecord[j].type == MeasRecord_real)
+        rnti = measData->measRecord[j].real_val;
+      else
+        printf("unknow measRecord type, cannot extract rnti\n");
+      // printf("find rnti column, measRecord[%lu].real_val = %d\n", j, rnti);
+      break;
     }
   }
   return rnti;
