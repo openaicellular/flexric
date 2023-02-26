@@ -148,13 +148,8 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
       adapter_MeasRecord_t* KPMRecord = calloc(KPMData[i].measRecord_len, sizeof(adapter_MeasRecord_t));
       KPMData[i].measRecord = KPMRecord;
       for (size_t j = 0; j < num_data; j++) {
-        if (j == 9){ // RNTI is integer
-          KPMRecord[j].type = MeasRecord_int;
-          KPMRecord[j].int_val = j == 0 ? t : abs(rand()%1024);
-        }else{
-          KPMRecord[j].type = MeasRecord_real;
-          KPMRecord[j].real_val = j == 0 ? t : abs(rand()%1024);
-        }
+        KPMRecord[j].type = MeasRecord_real;
+        KPMRecord[j].real_val = j == 0 ? t : abs(rand()%1024);
         // printf("fill kpm real value %f\n", KPMRecord[j].real_val);
       }
       KPMData[i].incompleteFlag = -1;
