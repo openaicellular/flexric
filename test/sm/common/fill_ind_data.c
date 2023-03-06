@@ -428,7 +428,7 @@ void fill_ul_dl_slice(ul_dl_slice_conf_t* slice)
 
     uint32_t type = abs(rand()% SLICE_ALG_SM_V0_END);
 
-    if(type == SLICE_ALG_SM_V0_NONE || SLICE_ALG_SM_V0_SCN19)
+    if(type == SLICE_ALG_SM_V0_NONE || type == SLICE_ALG_SM_V0_SCN19)
       type = SLICE_ALG_SM_V0_STATIC; 
 
 
