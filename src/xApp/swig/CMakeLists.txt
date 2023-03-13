@@ -30,7 +30,7 @@ endif()
 SET_PROPERTY(SOURCE swig_wrapper.i PROPERTY CPLUSPLUS ON)
 
 
-SET(XAPP_TARGET_LANGUAGE "PYTHON_LANG" CACHE STRING "xApp target language.")
+SET(XAPP_TARGET_LANGUAGE "GO_LANG" CACHE STRING "xApp target language.")
 SET_PROPERTY(CACHE XAPP_TARGET_LANGUAGE PROPERTY STRINGS "PYTHON_LANG" "GO_LANG" "JAVA_LANG" "JAVASCRIPT_LANG")
 MESSAGE(STATUS "Selected xApp target language: ${XAPP_TARGET_LANGUAGE}")
 
@@ -108,7 +108,38 @@ target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unu
 #GOLANG compilation
 elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
   ADD_COMPILE_DEFINITIONS(XAPP_LANG_GO)
-  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64)
+  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk.so)
+
+  if(EXISTS "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod")
+    MESSAGE(STATUS "go.mod already exists")
+  else()
+    execute_process(COMMAND go mod init final.com/xapp_sdk
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/examples/xApp/go/
+      RESULT_VARIABLE go_mod_init_result
+      OUTPUT_VARIABLE go_mod_init_output
+      ERROR_VARIABLE go_mod_init_error)
+    if(NOT go_mod_init_result EQUAL 0)
+    message(FATAL_ERROR "Failed to run 'go mod init': ${go_mod_init_error}")
+    endif()
+  endif()
+  
+  
+
+  SWIG_LINK_LIBRARIES(xapp_sdk ${GO_LIBRARIES})
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod" "${CMAKE_BINARY_DIR}/examples/xApp/go/go.mod" )
+
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.so" "${CMAKE_CURRENT_BINARY_DIR}/libxapp_sdk.so" )
+
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/go/libxapp_sdk.so" )
+
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk.go" )
+
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+     "${CMAKE_SOURCE_DIR}/examples/xApp/go/helloworld/helloworld.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/helloworld.go" )
+
+     add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+     "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slice.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slice.go" )
+
 
 #JAVA compilation
 elseif(XAPP_TARGET_LANGUAGE STREQUAL "JAVA_LANG")

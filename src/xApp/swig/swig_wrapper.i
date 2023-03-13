@@ -4,6 +4,7 @@
 %include "std_vector.i"
 %include "carrays.i"
 %include <typemaps.i>
+%include "stdint.i"
 
 %{
   #include "swig_wrapper.h"
@@ -80,6 +81,67 @@
 
 #endif
 
+#ifdef SWIGGO
+%insert(cgo_comment_typedefs) %{
+#cgo LDFLAGS: -L. -lxapp_sdk -Wl,-rpath=${SRCDIR}
+%}
+
+%typemap(in) uint8_t {
+    $1 = (long)$input;
+}
+%typemap(in) uint16_t {
+    $1 = (long)$input;
+}
+%typemap(in) uint32_t {
+    $1 = (long)$input;
+}
+%typemap(in) uint64_t {
+    $1 = (long)$input;
+}
+
+/* intXX_t mapping: GO -> C */
+%typemap(in) int8_t {
+    $1 = (long)$input;
+}
+%typemap(in) int16_t {
+    $1 = (long)$input;
+}
+%typemap(in) int32_t {
+    $1 = (long)$input;
+}
+%typemap(in) int64_t {
+    $1 = (long)$input;
+}
+
+/* uintXX_t mapping: C -> GO */
+%typemap(out) uint8_t {
+    $result = (long) $1;
+}
+%typemap(out) uint16_t {
+    $result = (long) $1;
+}
+%typemap(out) uint32_t {
+    $result = (long) $1;
+}
+%typemap(out) uint64_t {
+    $result = (long) $1;
+}
+
+/* intXX_t mapping: C -> GO */
+%typemap(out) int8_t {
+    $result = (long) $1;
+}
+%typemap(out) int16_t {
+    $result = (long) $1;
+}
+%typemap(out) int32_t {
+    $result = (long) $1;
+}
+%typemap(out) int64_t {
+    $result = (long) $1;
+}
+#endif
+
 %feature("director") mac_cb;
 %feature("director") rlc_cb;
 %feature("director") pdcp_cb;
@@ -89,7 +151,7 @@
 namespace std {
   %template(IntVector) vector<int>;
   %template(E2NodeVector) vector<E2Node>;
-  %template(RANVector) vector<ran_function_t>;
+  //%template(RANVector) vector<ran_function_t>;
   %template(MACStatsVector) vector<mac_ue_stats_impl_t>;
   %template(RLC_RBStatsVector) vector<rlc_radio_bearer_stats_t>;
   %template(PDCP_RBStatsVector) vector<pdcp_radio_bearer_stats_t>;
@@ -116,5 +178,4 @@ namespace std {
 %include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
 %include "../../sm/slice_sm/ie/slice_data_ie.h"
 %include "../../sm/gtp_sm/ie/gtp_data_ie.h"
-
 
