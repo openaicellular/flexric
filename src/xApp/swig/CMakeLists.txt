@@ -126,9 +126,7 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
   
 
   SWIG_LINK_LIBRARIES(xapp_sdk ${GO_LIBRARIES})
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod" "${CMAKE_BINARY_DIR}/examples/xApp/go/go.mod" )
-
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.so" "${CMAKE_CURRENT_BINARY_DIR}/libxapp_sdk.so" )
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod" "${CMAKE_BINARY_DIR}/examples/xApp/go/go.mod" )
 
    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/go/libxapp_sdk.so" )
 
@@ -137,8 +135,11 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
      "${CMAKE_SOURCE_DIR}/examples/xApp/go/helloworld/helloworld.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/helloworld.go" )
 
-     add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-     "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slice.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slice.go" )
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+     "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" )
+
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+     "${CMAKE_SOURCE_DIR}/examples/xApp/go/ranstate/ranstate.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/ranstate/ranstate.go" )
 
 
 #JAVA compilation
