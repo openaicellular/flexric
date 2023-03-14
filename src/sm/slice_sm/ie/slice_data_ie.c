@@ -502,6 +502,10 @@ slice_params_t cp_slice_params(slice_params_t const* src)
       dst.u.edf.guaranteed_prbs = src->u.edf.guaranteed_prbs;
       dst.u.edf.max_replenish = src->u.edf.max_replenish;
       dst.u.edf.len_over = src->u.edf.len_over;
+      if(dst.u.edf.len_over > 0){
+        dst.u.edf.over = calloc(dst.u.edf.len_over, sizeof(uint32_t));
+        assert(dst.u.edf.over != NULL && "Memory exhausted");
+      }
       for(size_t i = 0; i < src->u.edf.len_over; ++i)
         dst.u.edf.over[i] = src->u.edf.over[i];
   } else {
