@@ -179,6 +179,9 @@ set_property(CACHE XAPP_PYTHON_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
 set(UNIT_TEST "FALSE" CACHE STRING "build test cases")
 set_property(CACHE UNIT_TEST PROPERTY STRINGS "TRUE" "FALSE")
 
+option(RAN_WITH_WS "Include support for RAN having a websocket interface" OFF)
+message(STATUS "Include support for RAN with a websocket interface: ${RAN_WITH_WS}")
+
 include_directories(src)
 add_subdirectory(src)
 add_subdirectory(examples)
@@ -233,9 +236,14 @@ endif ()
 ###
 # Install Emulator Agent
 ###
+
 if (EMU_AGENT_INSTALL)
-  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb proxy_agent_ws DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR})
+  if (RAN_WITH_WS)
+    install(TARGETS proxy_agent_ws DESTINATION ${CMAKE_INSTALL_BINDIR})
+  endif()
 endif ()
+
 
 ###
 # Install xApps

@@ -1,29 +1,25 @@
 # proxy agent for Websocket RAN interface
 # 
-# E2 agent library rebuilding with conditional compilation to enable specific communication mechanisms that we use just in WS interface                        
-# PROXY_AGENT variable will be used as conditional compilation mechanism in the E2 agent library code
+# E2 agent library has been rebuilt with conditional compilation to enable specific communication mechanisms that we use just in WS 
+# interface. PROXY_AGENT variable will be used as conditional compilation mechanism in the E2 agent library code
 #
 # Dependencies
 # 
 # 1. libwebsockets
 # 
-# For installing on Ubuntu, type 'sudo apt install libwebsockets-dev'.
 # Integration has been tested with version 3.2.1-3 on Ubuntu 20 that is sensibly different from the latest 
 # one (version 4.3) available at current time in master branch.
-# 
-# Good example of integration here:
-# https://libwebsockets.org/git/libwebsockets/tree/minimal-examples-lowlevel/ws-client/minimal-ws-client/minimal-ws-client.c
-# or with another API named Secure Streams/SS: https://libwebsockets.org/git/libwebsockets/tree/minimal-examples/client/hello_world/hello_world-ss.c
-# The version 3.2.1 used in my Ubuntu20.04 examples are in: (no SS available)
-# https://libwebsockets.org/git/libwebsockets/tree/minimal-examples/ws-client/minimal-ws-client-rx/minimal-ws-client.c?h=v3.2-stable
-# Data need to be sent in JSON format with a special content that amarisoft understands; see lteenb.html file for details of the content accepted.
+# Manual: https://libwebsockets.org/git/libwebsockets/tree/minimal-examples/ws-client/minimal-ws-client-rx/minimal-ws-client.c?h=v3.2-stable
 # 
 # 2. Json-c 
 # 
-# For installing on Ubuntu, type 'sudo apt install libjson-c-dev'.
 # Integration tested with version 0.13.1 on Ubuntu 20.
 # Manuals: API https://github.com/json-c/json-c/wiki, examples: https://github.com/rbtylee/tutorial-jsonc/blob/master/tutorial/index.md 
-# 
+
+find_package(PkgConfig)
+pkg_check_modules(LIB_WEBSOCKETS REQUIRED libwebsockets>3.0.0 libwebsockets<4.0.0)
+pkg_check_modules(LIB_JSON-C REQUIRED json-c<1.0.0 json-c>0.13.0)
+
 set(E2_AGENT_BLD_LIB  "STATIC")
 
 set(E2_PROXY_AGENT_SRC 
