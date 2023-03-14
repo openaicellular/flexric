@@ -174,4 +174,3 @@ SWIG_LINK_LIBRARIES(xapp_sdk
                     )
 
 
-
