@@ -4,7 +4,6 @@
 %include "std_vector.i"
 %include "carrays.i"
 %include <typemaps.i>
-%include "stdint.i"
 
 %{
   #include "swig_wrapper.h"
@@ -82,6 +81,13 @@
 #endif
 
 #ifdef SWIGGO
+
+%include "stdint.i"
+
+%{
+    #include "../../util/ngran_types.h"
+%}
+
 %insert(cgo_comment_typedefs) %{
 #cgo LDFLAGS: -L. -lxapp_sdk -Wl,-rpath=${SRCDIR}
 %}
@@ -140,6 +146,8 @@
 %typemap(out) int64_t {
     $result = (long) $1;
 }
+
+%include "../../util/ngran_types.h"
 #endif
 
 %feature("director") mac_cb;
