@@ -410,6 +410,11 @@ void fill_ul_dl_slice(ul_dl_slice_conf_t* slice)
     assert(slice->slices != NULL && "memory exhausted");
   }
 
+  uint32_t type = abs(rand()% SLICE_ALG_SM_V0_END);
+
+  if(type == SLICE_ALG_SM_V0_NONE || type == SLICE_ALG_SM_V0_SCN19)
+    type = SLICE_ALG_SM_V0_STATIC;
+
   for(uint32_t i = 0; i < slice->len_slices; ++i){
     slice->slices[i].id = abs(rand()%1024);
     fr_slice_t* s = &slice->slices[i];
@@ -425,11 +430,6 @@ void fill_ul_dl_slice(ul_dl_slice_conf_t* slice)
     s->sched = malloc(s->len_sched);
     assert(s->sched != NULL && "Memory exhausted");
     memcpy(s->sched, sched_str, s->len_sched);
-
-    uint32_t type = abs(rand()% SLICE_ALG_SM_V0_END);
-
-    if(type == SLICE_ALG_SM_V0_NONE || type == SLICE_ALG_SM_V0_SCN19)
-      type = SLICE_ALG_SM_V0_STATIC; 
 
 
     if(type == SLICE_ALG_SM_V0_NONE ){

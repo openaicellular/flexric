@@ -262,7 +262,7 @@ bool eq_nvs_slice(nvs_slice_t const* m0, nvs_slice_t const* m1)
   } else if (m0->conf == SLICE_SM_NVS_V0_CAPACITY){
     ret = eq_nvs_cap(&m0->u.capacity, &m1->u.capacity);
   } else {
-    assert("Unknown type");
+    assert(0!=0 && "Unknown type");
   }
 
   return ret;

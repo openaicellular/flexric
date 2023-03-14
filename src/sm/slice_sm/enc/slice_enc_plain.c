@@ -339,11 +339,6 @@ size_t fill_edf(uint8_t* it, edf_slice_t* edf)
   it += sizeof(edf->len_over);
   sz += sizeof(edf->len_over);
 
-  if(edf->len_over > 0){
-    edf->over = calloc(edf->len_over, sizeof(uint32_t));
-    assert(edf->over != NULL && "Memory exhausted");
-  }
-
   for(size_t i = 0; i < edf->len_over; ++i){
     memcpy(it, &edf->over[i], sizeof(uint32_t));
     it += sizeof(edf->over[i]);
