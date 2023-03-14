@@ -10,6 +10,8 @@ if(XAPP_DB STREQUAL "SQLITE3_XAPP")
                          mysql/mysql_wrapper.c)
 
 elseif(XAPP_DB STREQUAL "MYSQL_XAPP")
+  find_package(PkgConfig) 
+  pkg_check_modules(LIB_WEBSOCKETS REQUIRED mysqlclient)
   add_library(e42_xapp_db_obj OBJECT
           db.c
           ../../util/time_now_us.c
