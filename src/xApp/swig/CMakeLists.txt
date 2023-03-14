@@ -30,7 +30,7 @@ endif()
 SET_PROPERTY(SOURCE swig_wrapper.i PROPERTY CPLUSPLUS ON)
 
 
-SET(XAPP_TARGET_LANGUAGE "GO_LANG" CACHE STRING "xApp target language.")
+SET(XAPP_TARGET_LANGUAGE "PYTHON_LANG" CACHE STRING "xApp target language.")
 SET_PROPERTY(CACHE XAPP_TARGET_LANGUAGE PROPERTY STRINGS "PYTHON_LANG" "GO_LANG" "JAVA_LANG" "JAVASCRIPT_LANG")
 MESSAGE(STATUS "Selected xApp target language: ${XAPP_TARGET_LANGUAGE}")
 
@@ -108,8 +108,10 @@ target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unu
 #GOLANG compilation
 elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
   ADD_COMPILE_DEFINITIONS(XAPP_LANG_GO)
+  # Compile the Swig wrapper for Go
   SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk.so)
 
+  # Check if go.mod exists
   if(EXISTS "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod")
     MESSAGE(STATUS "go.mod already exists")
   else()
@@ -124,14 +126,17 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
   endif()
   
   
-
+  # Copy the necessary files to the build directory
   SWIG_LINK_LIBRARIES(xapp_sdk ${GO_LIBRARIES})
+   # Copy go.mod, xapp_sdk.go and libxapp_sdk.so to the build directory
+   # These 3 files are necessary to build the xApp
    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod" "${CMAKE_BINARY_DIR}/examples/xApp/go/go.mod" )
 
    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/go/libxapp_sdk.so" )
 
    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk.go" )
-
+   
+   # Copy the Go xApps to the build directory
    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
      "${CMAKE_SOURCE_DIR}/examples/xApp/go/helloworld/helloworld.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/helloworld.go" )
 
