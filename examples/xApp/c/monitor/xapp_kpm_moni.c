@@ -63,10 +63,9 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
   }
 }
 
-size_t max_handle = 256;
-size_t c_handle = 0;
+
 static
-void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* handle)
+void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t handle)
 {
   // send subscription request to each e2 nodes
   // for(size_t j = 0; j < n->len_rf; j++)
@@ -74,9 +73,9 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* han
   inter_xapp_e tti = ms_10;
   uint16_t ran_func_id = SM_KPM_ID;
   printf("xApp subscribes RAN Func ID %d in E2 node idx %d\n", ran_func_id, n_idx);
-  handle[c_handle] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_kpm);
-  assert(handle[c_handle].success == true);
-  c_handle+=1;
+  handle = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_kpm);
+  assert(handle.success == true);
+
 }
 
 int main(int argc, char *argv[])
@@ -90,6 +89,8 @@ int main(int argc, char *argv[])
   sleep(1);
 
   // init num of sm and handle
+  size_t max_handle = 256;
+  size_t c_handle = 0;
   // TODO: give the num of sm randomly  //abs(rand()%5)+1;
   sm_ans_xapp_t *handle = NULL;
   if (max_handle > 0) {
@@ -116,8 +117,10 @@ int main(int argc, char *argv[])
   e2_node_arr_t nodes = e2_nodes_xapp_api();
   defer({ free_e2_node_arr(&nodes); });
   for (size_t i = 0; i < nodes.len; i++) {
-    if (nodes.n[i].id.type == 2 || nodes.n[i].id.type == 7)
-      send_subscription_req(&nodes.n[i], i, handle);
+    if (nodes.n[i].id.type == 2 || nodes.n[i].id.type == 7) {
+      send_subscription_req(&nodes.n[i], i, handle[c_handle]);
+      c_handle += 1;
+    }
   }
 
   // case2: send subscription req to the new connected e2 node
@@ -151,7 +154,8 @@ int main(int argc, char *argv[])
           if (new_type || new_nb_id) {
             if (cur_type == 2 || cur_type == 7) {
               printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
-              send_subscription_req(&cur_nodes.n[i], i, handle);
+              send_subscription_req(&cur_nodes.n[i], i, handle[c_handle]);
+              c_handle += 1;
             }
           }
         }
