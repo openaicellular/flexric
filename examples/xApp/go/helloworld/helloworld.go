@@ -40,22 +40,24 @@ func main() {
 	// Initial of xApp
 	xapp.Init()
 
-	// Connection of E2 Nodes
-	var conn xapp.E2NodeVector = xapp.Conn_e2_nodes()
+	// Connect to E2 node
+	// Use Conn_e2_nodes_GO() instead of Conn_e2_nodes() when you need 
+	// to access the RAN Functions.
+	var nodes xapp.E2NodeGOVector = xapp.Conn_e2_nodes_GO()
 
-	var nodes_len int64 = conn.Size()
-
-	if nodes_len <= 0 {
+	if nodes.Size() <= 0 {
 		panic(fmt.Sprintf("panic"))
 	}
 
-	fmt.Printf("Connected E2 nodes = %d\n", nodes_len)
+	fmt.Printf("Connected E2 nodes = %d\n", nodes.Size())
+
 
 	var i int64 = 0
-	for ; i <= nodes_len-1; i++ {
-		var e2Node xapp.E2Node = conn.Get(int(i))
-		// TODO: Add condition if node is monolothic
+	for ; i <= nodes.Size()-1; i++ {
+		var e2Node xapp.E2NodeGO = nodes.Get(int(i))
+		
 		var ranTypeName string = xapp.Get_ngran_name(e2Node.GetId().GetXtype())
+	
 		// if Node is monolithic
 		if xapp.Ngran_eNB == RanNametoInt(ranTypeName) ||
 			xapp.Ngran_ng_eNB == RanNametoInt(ranTypeName) ||
@@ -80,12 +82,20 @@ func main() {
 			)
 		}
 		fmt.Printf("E2 node %d supported RAN function's IDs: \n", i)
-		// TODO: print all the RAN function
+
+		var j int64 = 0
+		for ; j <= nodes.Get(int(i)).GetRan_func().Size()-1; j++ {
+			fmt.Printf(", %d", int(nodes.Get(int(i)).GetRan_func().Get(int(j)).GetId()))
+		}
+		fmt.Printf("\n")
 	}
 
 	// ----------------------- END ----------------------- //
 	fmt.Printf("Hello World\n")
 	// --------------------------------------------------------- //
+	
+
+
 	// Stop the xApp. Avoid deadlock.
 	for xapp.Try_stop() == false {
 		time.Sleep(1 * time.Second)

@@ -46,6 +46,55 @@ bool try_stop()
   return try_stop_xapp_api();
 }
 
+/* 
+    IMPORTANT:
+    In GO, vector<ran_function_t> is not compiling with SWIG so far.
+    Thus, we redefine RanFunction struct and E2NodeGO struct. 
+    The latter is the same as E2Node but using RanFunction.
+
+    For this reason, we define the conn_e2_nodes_GO(void) function that does
+    the same as conn_e2_nodes(void) but using E2NodeGO and RanFunction.
+
+    Conclusion: For Go xApps, use conn_e2_nodes_GO(void) instead of conn_e2_nodes(void)
+    if you need to access the RAN functions.
+*/
+std::vector<E2NodeGO> conn_e2_nodes_GO(void)
+{
+  e2_node_arr_t arr = e2_nodes_xapp_api();
+   
+
+  std::vector<E2NodeGO> x;
+
+  for(int i = 0; i < arr.len; ++i){
+
+    E2NodeGO tmp;
+
+    e2_node_connected_t const* src = &arr.n[i];
+    tmp.id = cp_global_e2_node_id(&src->id); 
+
+    std::vector<RanFunction> ran_func;//(src->len_rf);
+
+    for(size_t j = 0; j < src->len_rf; ++j){
+      ran_function_t rf = cp_ran_function(&src->ack_rf[j]);
+
+      RanFunction tmp_ran;
+
+      tmp_ran.id = rf.id;
+      tmp_ran.rev = rf.rev;
+      tmp_ran.def = rf.def;
+      // TODO: oid
+
+      ran_func.push_back(tmp_ran);// [j] = rf;
+    }
+    tmp.ran_func = ran_func;
+    x.push_back(tmp);//[i] = tmp;
+  }
+
+  free_e2_node_arr(&arr);
+
+  return x;
+}
+
 std::vector<E2Node> conn_e2_nodes(void)
 {
   e2_node_arr_t arr = e2_nodes_xapp_api();
