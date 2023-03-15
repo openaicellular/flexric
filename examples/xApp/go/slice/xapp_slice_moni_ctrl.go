@@ -467,7 +467,7 @@ func main() {
 
 	// AddStaticSlices
 	AddStaticSlices := Request{
-		NumSlices:      1,
+		NumSlices:      3,
 		SliceSchedAlgo: "STATIC",
 		Slices:         []Slices{s1, s2, s3},
 	}
