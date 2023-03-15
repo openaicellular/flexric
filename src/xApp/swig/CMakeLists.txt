@@ -22,6 +22,14 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 #SET(CMAKE BUILD TYPE Debug)
 
+# mysql db
+include(FindPkgConfig)
+pkg_check_modules(LIBMYSQLCLIENT REQUIRED mysqlclient)
+foreach(FLAG ${LIBMYSQLCLIENT_CFLAGS_OTHER})
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAG}")
+endforeach()
+link_directories(${LIBMYSQLCLIENT_LIBRARY_DIRS})
+
 SET_PROPERTY(SOURCE swig_wrapper.i PROPERTY CPLUSPLUS ON)
 
 
@@ -125,13 +133,14 @@ endif()
 #Comment this line to build it from the directory
 ADD_DEPENDENCIES(xapp_sdk e42_xapp_shared)
 
+target_include_directories(xapp_sdk PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
+
 SWIG_LINK_LIBRARIES(xapp_sdk
                     e42_xapp_shared
                     -ldl
                     -lsctp
                     -lpthread
-                    -I/usr/local/mysql/include
-                    -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
+                    ${LIBMYSQLCLIENT_LIBRARIES}
                     )
 
 

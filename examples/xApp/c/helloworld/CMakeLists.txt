@@ -1,4 +1,13 @@
 
+include(FindPkgConfig)
+pkg_check_modules(LIBMYSQLCLIENT REQUIRED mysqlclient)
+
+foreach(FLAG ${LIBMYSQLCLIENT_CFLAGS_OTHER})
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAG}")
+endforeach()
+
+link_directories(${LIBMYSQLCLIENT_LIBRARY_DIRS})
+
 add_executable(xapp_hw
 				hw.c
 				../../../../src/util/alg_ds/alg/defer.c
@@ -12,13 +21,14 @@ add_executable(xapp_hw
 				../../../../src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
 				)
 
+target_include_directories(xapp_hw PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
+
 target_link_libraries(xapp_hw
 						PUBLIC
 						e42_xapp
 						-pthread
 						-lsctp
 						-ldl
-						-I/usr/local/mysql/include
-						-L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
+						${LIBMYSQLCLIENT_LIBRARIES}
 						)
 

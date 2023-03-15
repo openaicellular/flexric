@@ -1,5 +1,15 @@
+
+include(FindPkgConfig)
+pkg_check_modules(LIBMYSQLCLIENT REQUIRED mysqlclient)
+
+foreach(FLAG ${LIBMYSQLCLIENT_CFLAGS_OTHER})
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAG}")
+endforeach()
+
+link_directories(${LIBMYSQLCLIENT_LIBRARY_DIRS})
+
 if(E2AP_ENCODING STREQUAL "ASN")
-add_executable(test_ag_ric_xapp 
+add_executable(test_ag_ric_xapp
                 test_ag_ric_xapp.c
                 ../sm/common/fill_ind_data.c
                 ../../src/sm/mac_sm/ie/mac_data_ie.c
@@ -11,6 +21,8 @@ add_executable(test_ag_ric_xapp
                 ../../src/sm/gtp_sm/ie/gtp_data_ie.c
                 ../../src/util/alg_ds/alg/defer.c
                 )
+
+target_include_directories(test_ag_ric_xapp PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
 target_compile_options(test_ag_ric_xapp PUBLIC -DASN_EMIT_DEBUG=1)
 target_link_libraries(test_ag_ric_xapp
                       PUBLIC
@@ -22,8 +34,7 @@ target_link_libraries(test_ag_ric_xapp
                       -lsctp
                       -ldl
                       #-lnng
-                      -I/usr/local/mysql/include
-                      -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -ldl -lssl -lcrypto -lresolv -lm -lrt
+                      ${LIBMYSQLCLIENT_LIBRARIES}
                       )
 
 if(FALSE) # fake a block comment
