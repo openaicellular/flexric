@@ -281,58 +281,6 @@ type Request struct {
 	Ues    []Ues `json:"ues,omitempty"`
 }
 
-//type AddStaticSlices struct {
-//	NumSlices      int      `json:"num_slices"`
-//	SliceSchedAlgo string   `json:"slice_sched_algo"`
-//	Slices         []Slices `json:"slices"`
-//}
-//
-//type Add_nvs_slices_rate struct {
-//	NumSlices      int      `json:"num_slices"`
-//	SliceSchedAlgo string   `json:"slice_sched_algo"`
-//	Slices         []Slices `json:"slices"`
-//}
-//
-//type add_nvs_slices_cap struct {
-//	NumSlices      int      `json:"num_slices"`
-//	SliceSchedAlgo string   `json:"slice_sched_algo"`
-//	Slices         []Slices `json:"slices"`
-//}
-//
-//type add_nvs_slices struct {
-//	NumSlices      int      `json:"num_slices"`
-//	SliceSchedAlgo string   `json:"slice_sched_algo"`
-//	Slices         []Slices `json:"slices"`
-//}
-//
-//type add_edf_slices struct {
-//	NumSlices      int      `json:"num_slices"`
-//	SliceSchedAlgo string   `json:"slice_sched_algo"`
-//	Slices         []Slices `json:"slices"`
-//}
-//
-//type reset_slices struct {
-//	NumSlices int `json:"num_slices"`
-//}
-
-// ------------------------------------------------------------------------ //
-//  SLICE CONTROL PARAMETER EXAMPLE - DELETE SLICE
-// ------------------------------------------------------------------------ //
-
-//type delete_slices struct {
-//	NumDlSlices     int   `json:"num_dl_slices"`
-//	DeleteDlSliceId []int `json:"delete_dl_slice_id"`
-//}
-
-// ------------------------------------------------------------------------ //
-//  SLICE CONTROL PARAMETER EXAMPLE - ASSOC UE SLICE
-// ------------------------------------------------------------------------ //
-
-//type assoc_ue_slice struct {
-//	NumUes int   `json:"num_ues"`
-//	Ues    []Ues `json:"ues"`
-//}
-
 func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 	msg := xapp.NewSlice_ctrl_msg_t()
 
