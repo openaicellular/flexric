@@ -1,6 +1,3 @@
-# XXX: add dependency on json-c library in Cmakefiles in root src directory
-# XXX: fix the versioning of libwebsocket in main Cmakefiles in root src directory, i.e. with `FIND_PACKAGE(libwebsocket 3.2.1 REQUIRED)` directive
-
 cmake_minimum_required(VERSION 3.15)
 
 project(Flexric VERSION 0.0.1 LANGUAGES C)
