@@ -271,7 +271,7 @@ void create_kpm_table(sqlite3* db)
                        "cu_du_id TEXT,"
                        "incompleteFlag INT,"
                        "name TEXT,"  //measRecord name 
-                       "val REAL CHECK(val >=0 AND val < 4294967296 )"
+                       "val REAL"
                        ");";
   create_table(db, sql_kpm_measRecord);
 
@@ -319,7 +319,10 @@ void insert_db(sqlite3* db, char const* sql)
 
   char* err_msg = NULL;
   int rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
-  assert(rc == SQLITE_OK && "Error while inserting into the DB. Check the err_msg string for further info");
+  if (rc != SQLITE_OK){
+    printf("Error while inserting into the DB: %s\n", err_msg);
+    assert(1!=1);
+  }
 }
 
 

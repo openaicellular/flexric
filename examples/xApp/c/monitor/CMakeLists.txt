@@ -1,27 +1,20 @@
-
-include(FindPkgConfig)
-pkg_check_modules(LIBMYSQLCLIENT REQUIRED mysqlclient)
-
-foreach(FLAG ${LIBMYSQLCLIENT_CFLAGS_OTHER})
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAG}")
-endforeach()
-
-link_directories(${LIBMYSQLCLIENT_LIBRARY_DIRS})
+if(XAPP_DB STREQUAL "MYSQL_XAPP")
+	include_directories(${LIBMYSQLCLIENT_INCLUDE_DIRS})
+	link_libraries(${LIBMYSQLCLIENT_LIBRARIES})
+endif()
 
 # xapp_mac_rlc_pdcp_moni
 add_executable(xapp_mac_rlc_pdcp_moni
 								xapp_mac_rlc_pdcp_moni.c
-								../../../../src/util/alg_ds/alg/defer.c
-								../../../../src/sm/mac_sm/ie/mac_data_ie.c
-								../../../../src/sm/rlc_sm/ie/rlc_data_ie.c
-								../../../../src/sm/pdcp_sm/ie/pdcp_data_ie.c
-								../../../../src/sm/slice_sm/ie/slice_data_ie.c
-								../../../../src/sm/tc_sm/ie/tc_data_ie.c
-								../../../../src/sm/gtp_sm/ie/gtp_data_ie.c
-								../../../../src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
+								${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/rlc_sm/ie/rlc_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/pdcp_sm/ie/pdcp_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/slice_sm/ie/slice_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/tc_sm/ie/tc_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/gtp_sm/ie/gtp_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
 								)
-
-target_include_directories(xapp_mac_rlc_pdcp_moni PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
 
 target_link_libraries(xapp_mac_rlc_pdcp_moni
 											PUBLIC
@@ -29,23 +22,22 @@ target_link_libraries(xapp_mac_rlc_pdcp_moni
 											-pthread
 											-lsctp
 											-ldl
-											${LIBMYSQLCLIENT_LIBRARIES}
 											)
 
 # xapp_gtp_moni
 add_executable(xapp_gtp_moni
 								xapp_gtp_moni.c
-								../../../../src/util/alg_ds/alg/defer.c
-								../../../../src/sm/mac_sm/ie/mac_data_ie.c
-								../../../../src/sm/rlc_sm/ie/rlc_data_ie.c
-								../../../../src/sm/pdcp_sm/ie/pdcp_data_ie.c
-								../../../../src/sm/slice_sm/ie/slice_data_ie.c
-								../../../../src/sm/tc_sm/ie/tc_data_ie.c
-								../../../../src/sm/gtp_sm/ie/gtp_data_ie.c
-								../../../../src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
+								${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/rlc_sm/ie/rlc_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/pdcp_sm/ie/pdcp_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/slice_sm/ie/slice_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/tc_sm/ie/tc_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/gtp_sm/ie/gtp_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
 								)
 
-target_include_directories(xapp_gtp_moni PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
+
 
 target_link_libraries(xapp_gtp_moni
 											PUBLIC
@@ -53,24 +45,23 @@ target_link_libraries(xapp_gtp_moni
 											-pthread
 											-lsctp
 											-ldl
-											${LIBMYSQLCLIENT_LIBRARIES}
 											)
 
 # xapp_kpm_moni
 add_executable(xapp_kpm_moni
 								xapp_kpm_moni.c
-								../../../../src/util/alg_ds/alg/defer.c
-								../../../../src/sm/mac_sm/ie/mac_data_ie.c
-								../../../../src/sm/rlc_sm/ie/rlc_data_ie.c
-								../../../../src/sm/pdcp_sm/ie/pdcp_data_ie.c
-								../../../../src/sm/slice_sm/ie/slice_data_ie.c
-								../../../../src/sm/tc_sm/ie/tc_data_ie.c
-								../../../../src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
-								../../../../src/sm/gtp_sm/ie/gtp_data_ie.c
-								../../../../src/util/ngran_type.c
+								${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
+								${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/rlc_sm/ie/rlc_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/pdcp_sm/ie/pdcp_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/slice_sm/ie/slice_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/tc_sm/ie/tc_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/gtp_sm/ie/gtp_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/util/ngran_type.c
 								)
 
-target_include_directories(xapp_kpm_moni PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
+# target_include_directories(xapp_kpm_moni PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
 
 target_link_libraries(xapp_kpm_moni
 											PUBLIC
@@ -78,25 +69,22 @@ target_link_libraries(xapp_kpm_moni
 											-pthread
 											-lsctp
 											-ldl
-											${LIBMYSQLCLIENT_LIBRARIES}
 											)
-
-target_compile_options(xapp_kpm_moni PUBLIC -DASN_EMIT_DEBUG=1)
+# enable below directive if you need to debug asn code
+# target_compile_options(xapp_kpm_moni PUBLIC -DASN_EMIT_DEBUG=1)
 
 # xapp_kpm_moni_infinity
 add_executable(xapp_kpm_moni_infinity
 								xapp_kpm_moni_infinity.c
-								../../../../src/util/alg_ds/alg/defer.c
-								../../../../src/sm/mac_sm/ie/mac_data_ie.c
-								../../../../src/sm/rlc_sm/ie/rlc_data_ie.c
-								../../../../src/sm/pdcp_sm/ie/pdcp_data_ie.c
-								../../../../src/sm/slice_sm/ie/slice_data_ie.c
-								../../../../src/sm/tc_sm/ie/tc_data_ie.c
-								../../../../src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
-								../../../../src/sm/gtp_sm/ie/gtp_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
+								${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/rlc_sm/ie/rlc_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/pdcp_sm/ie/pdcp_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/slice_sm/ie/slice_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/tc_sm/ie/tc_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/gtp_sm/ie/gtp_data_ie.c
 								)
-
-target_include_directories(xapp_kpm_moni_infinity PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
 
 target_link_libraries(xapp_kpm_moni_infinity
 											PUBLIC
@@ -104,24 +92,21 @@ target_link_libraries(xapp_kpm_moni_infinity
 											-pthread
 											-lsctp
 											-ldl
-											${LIBMYSQLCLIENT_LIBRARIES}
 											)
 
 # xapp_moni
 add_executable(xapp_moni
 								xapp_moni.c
-								../../../../src/util/alg_ds/alg/defer.c
-								../../../../src/sm/mac_sm/ie/mac_data_ie.c
-								../../../../src/sm/rlc_sm/ie/rlc_data_ie.c
-								../../../../src/sm/pdcp_sm/ie/pdcp_data_ie.c
-								../../../../src/sm/slice_sm/ie/slice_data_ie.c
-								../../../../src/sm/tc_sm/ie/tc_data_ie.c
-								../../../../src/sm/gtp_sm/ie/gtp_data_ie.c
-								../../../../src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
-								../../../../src/util/ngran_type.c
+								${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
+								${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/rlc_sm/ie/rlc_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/pdcp_sm/ie/pdcp_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/slice_sm/ie/slice_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/tc_sm/ie/tc_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/gtp_sm/ie/gtp_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
+								${CMAKE_SOURCE_DIR}/src/util/ngran_type.c
 								)
-
-target_include_directories(xapp_moni PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
 
 target_link_libraries(xapp_moni
 											PUBLIC
@@ -129,5 +114,4 @@ target_link_libraries(xapp_moni
 											-pthread
 											-lsctp
 											-ldl
-											${LIBMYSQLCLIENT_LIBRARIES}
 											)

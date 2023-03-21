@@ -22,7 +22,7 @@
 #ifndef MUSQL_WRAPPER_XAPP_H
 #define MUSQL_WRAPPER_XAPP_H
 
-#include "mysql/mysql.h"
+#include <mysql/mysql.h>
 #include "../../../sm/agent_if/read/sm_ag_if_rd.h"
 #include "../../../lib/ap/e2ap_types/common/e2ap_global_node_id.h" 
 

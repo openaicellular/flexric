@@ -29,13 +29,13 @@
 #include <stdio.h>
 #include "string.h"
 
-//static
-//void create_table_mysql(MYSQL* db, char* sql)
-//{
-//  char* err_msg = NULL;
-//  int rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
-//  assert(rc == SQLITE_OK && "Error while creating the DB. Check the err_msg string for further info" );
-//}
+
+static void mysql_finish_with_error(MYSQL *conn)
+{
+  fprintf(stderr, "%s\n", mysql_error(conn));
+  mysql_close(conn);
+  exit(1);
+}
 
 static
 void create_mac_ue_table(MYSQL* conn)

@@ -1,4 +1,2 @@
 
-add_library(mysql_obj OBJECT
-                         mysql_wrapper.c
-                         )
+add_library(mysql_obj OBJECT mysql_wrapper.c)

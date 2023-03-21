@@ -23,12 +23,9 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 #SET(CMAKE BUILD TYPE Debug)
 
 # mysql db
-include(FindPkgConfig)
-pkg_check_modules(LIBMYSQLCLIENT REQUIRED mysqlclient)
-foreach(FLAG ${LIBMYSQLCLIENT_CFLAGS_OTHER})
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAG}")
-endforeach()
-link_directories(${LIBMYSQLCLIENT_LIBRARY_DIRS})
+if(XAPP_DB STREQUAL "MYSQL_XAPP")
+  link_directories(${LIBMYSQLCLIENT_LIBRARY_DIRS})
+endif()
 
 SET_PROPERTY(SOURCE swig_wrapper.i PROPERTY CPLUSPLUS ON)
 

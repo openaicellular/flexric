@@ -18,15 +18,14 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
-#include "mysql/mysql.h"
-#include "db.h"
-#include "db_generic.h"
-#include "../../util/time_now_us.h"
-
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "db.h"
+#include "db_generic.h"
+#include "util/time_now_us.h"
 
 typedef struct{
   global_e2_node_id_t id;
@@ -96,7 +95,7 @@ void* worker_thread(void* arg)
   while(true){
     e2_node_ag_if_t* data = NULL; 
     size_t sz = size_tsq(&db->q);
-    //printf("Current size of the db = %ld \n", sz);
+    
     if(sz > 100){
       sz = 100;
       val_100 = 0;
@@ -114,12 +113,7 @@ void* worker_thread(void* arg)
         break;
 
     for(size_t i = 0; i < sz; ++i){
-//      printf("i = %ld\n", i);
-//      if(data[i].rd.type == MAC_STATS_V0)
-//        printf("Try to write mac data in db\n");
-//      else if(data[i].rd.type == RLC_STATS_V0)
-//        printf("Try to write rlc data in db\n");
-      write_db_mysql(db->handler, &data[i].id, &data[i].rd);
+      write_db_gen(db->handler, &data[i].id, &data[i].rd);
 
       free_global_e2_node_id(&data[i].id);
       free_sm_ag_if_rd(&data[i].rd);
@@ -130,40 +124,36 @@ void* worker_thread(void* arg)
   return NULL;
 }
 
-void mysql_finish_with_error(MYSQL *conn)
-{
-  fprintf(stderr, "%s\n", mysql_error(conn));
-  mysql_close(conn);
-  exit(1);
-}
-
-void init_db_xapp(db_xapp_t* db,
+bool init_db_xapp(db_xapp_t* db,
                   char const* ip,
                   char const* dir,
                   char const* db_name)
 {
   assert(db != NULL);
-  assert(dir != NULL);
   assert(db_name != NULL);
-
+  
+  // XXX-IMPROVE: encapsulate db specific logic into its respective function init_db_gen(). 
+  // Further, init_db_xapp() should have a var_args approach for its arguments
 #ifdef MYSQL_XAPP
-  // MYSQL
-  //MYSQL* conn = mysql_init(NULL);
+  (void)dir;
+  assert(ip != NULL);
   db->handler = mysql_init(NULL);
-  // check init
-  if (db->handler == NULL)
-    mysql_finish_with_error(db->handler);
-  // check connection with server
-  //static char* host = "localhost";
-  static char* user = "xapp";
-  static char* pass = "eurecom";
+  assert((db->handler != NULL) && "Error initialializing mySQL\n");
+
+  const char* user = "xapp";
+  const char* pass = "eurecom";
   printf("[MySQL]: try to connect server ip %s\n", ip);
   if(mysql_real_connect(db->handler, ip, user, pass, NULL, 0, NULL, 0) == NULL)
-    mysql_finish_with_error(db->handler);
+  {
+    fprintf(stderr, "Fatal: connecting to mySQL: %s\n", mysql_error(db->handler));
+    mysql_close(db->handler);
+    return false;
+  }
   printf("[MySQL]: Connection Successful\n");
   init_db_gen(db->handler, db_name);
 #elif defined(SQLITE3_XAPP)
-  //SQLite3
+  (void)ip;
+  assert(dir != NULL);
   char filename[256] = {0};
   if (strlen(dir) && strlen(db_name)) {
     int n = snprintf(filename, 255, "%s%s", dir, db_name);
@@ -176,7 +166,7 @@ void init_db_xapp(db_xapp_t* db,
   init_tsq(&db->q, sizeof(e2_node_ag_if_t));
 
   int rc = pthread_create(&db->p, NULL, worker_thread, db);
-  assert(rc == 0);
+  return (rc == 0);
 }
 
 static
@@ -207,10 +197,7 @@ void write_db_xapp(db_xapp_t* db, global_e2_node_id_t const* id, sm_ag_if_rd_t c
 
   e2_node_ag_if_t d = { .rd = cp_sm_ag_if_rd(rd) ,
                         .id = cp_global_e2_node_id(id) };
-  //size_t sz = size_tsq(&db->q);
-  //printf("Before push: Current size of the db = %ld \n", sz);
+  
   push_tsq(&db->q, &d, sizeof(d) );
-  //size_t sz2 = size_tsq(&db->q);
-  //printf("After push: Current size of the db = %ld \n", sz2);
 }
 
