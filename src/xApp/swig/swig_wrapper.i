@@ -156,32 +156,9 @@
 %feature("director") slice_cb;
 %feature("director") gtp_cb;
 
-#ifdef SWIGPYTHON
 namespace std {
   %template(IntVector) vector<int>;
   %template(E2NodeVector) vector<E2Node>;
-  %template(RANVector) vector<ran_function_t>;
-  %template(MACStatsVector) vector<mac_ue_stats_impl_t>;
-  %template(RLC_RBStatsVector) vector<rlc_radio_bearer_stats_t>;
-  %template(PDCP_RBStatsVector) vector<pdcp_radio_bearer_stats_t>;
-  %template(StringVector) vector<std::string>;
-  %template(SLICE_slicesStatsVector) vector<swig_fr_slice_t>;
-  %template(SLICE_UEsStatsVector) vector<ue_slice_assoc_t>;
-  %template(GTP_NGUTStatsVector) vector<gtp_ngu_t_stats_t>;
-}
-#endif
-
-#ifdef SWIGGO
-/* 
-    In GO, vector<ran_function_t> is not compiling with SWIG so far.
-    Thus, in swig_wrapper.cpp we redefine RanFunction struct and E2NodeGO struct. 
-    The latter is the same as E2Node but using RanFunction.
-    We also keep E2Node that could be used when RAN functions are not extracted.
-*/
-namespace std {
-  %template(IntVector) vector<int>;
-  %template(E2NodeVector) vector<E2Node>;
-  %template(E2NodeGOVector) vector<E2NodeGO>;
   %template(RANVector) vector<RanFunction>;
   %template(MACStatsVector) vector<mac_ue_stats_impl_t>;
   %template(RLC_RBStatsVector) vector<rlc_radio_bearer_stats_t>;
@@ -191,10 +168,6 @@ namespace std {
   %template(SLICE_UEsStatsVector) vector<ue_slice_assoc_t>;
   %template(GTP_NGUTStatsVector) vector<gtp_ngu_t_stats_t>;
 }
-
-#endif
-
-
 
 
 %array_class(ue_slice_assoc_t, ue_slice_assoc_array);

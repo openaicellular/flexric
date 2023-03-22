@@ -40,10 +40,7 @@ func main() {
 	// Initial of xApp
 	xapp.Init()
 
-	// Connect to E2 node
-	// Use Conn_e2_nodes_GO() instead of Conn_e2_nodes() when you need 
-	// to access the RAN Functions.
-	var nodes xapp.E2NodeGOVector = xapp.Conn_e2_nodes_GO()
+	var nodes xapp.E2NodeVector = xapp.Conn_e2_nodes()
 
 	if nodes.Size() <= 0 {
 		panic(fmt.Sprintf("panic"))
@@ -54,7 +51,7 @@ func main() {
 
 	var i int64 = 0
 	for ; i <= nodes.Size()-1; i++ {
-		var e2Node xapp.E2NodeGO = nodes.Get(int(i))
+		var e2Node xapp.E2Node = nodes.Get(int(i))
 		
 		var ranTypeName string = xapp.Get_ngran_name(e2Node.GetId().GetXtype())
 	
