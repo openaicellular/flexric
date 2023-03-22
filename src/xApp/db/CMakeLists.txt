@@ -3,8 +3,8 @@ if(XAPP_DB STREQUAL "SQLITE3_XAPP")
                                     db.c
                                     sqlite3/sqlite3.c
                                     sqlite3/sqlite3_wrapper.c
-                                    ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c)
-
+                                    $<TARGET_OBJECTS:e2_time_obj>)
+  target_compile_definitions(e42_xapp_db_obj PRIVATE ${XAPP_DB})
 elseif(XAPP_DB STREQUAL "MYSQL_XAPP")
   find_package(PkgConfig) 
   pkg_check_modules(LIBMYSQLCLIENT REQUIRED mysqlclient)
@@ -13,13 +13,14 @@ elseif(XAPP_DB STREQUAL "MYSQL_XAPP")
   endforeach()
   add_library(e42_xapp_db_obj OBJECT
                                     db.c
-                                    ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
-                                    mysql/mysql_wrapper.c)
+                                    mysql/mysql_wrapper.c
+                                    $<TARGET_OBJECTS:e2_time_obj>)
   target_link_libraries(e42_xapp_db_obj PRIVATE ${LIBMYSQLCLIENT_LINK_LIBRARIES})
-
+  target_compile_definitions(e42_xapp_db_obj PRIVATE ${XAPP_DB})
 else()
-  message(FATAL_ERROR "Unknown XAPP_DB selected")
+  message(STATUS "skipping DB component for xapp.")
+  
 endif()
 
-target_compile_definitions(e42_xapp_db_obj PRIVATE ${XAPP_DB})
+
 

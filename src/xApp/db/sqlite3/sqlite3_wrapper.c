@@ -1062,8 +1062,6 @@ void write_rlc_stats(sqlite3* db, global_e2_node_id_t const* id, rlc_ind_data_t 
   }
   int64_t st = time_now_us();
   insert_db(db, buffer);
-  printf("[SQLITE3]: write db consuming time: %ld\n", time_now_us() - st);
-
 }
 
 static

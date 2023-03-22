@@ -161,6 +161,8 @@ bool init_db_xapp(db_xapp_t* db,
   }
   printf("Filename = %s \n ", filename);
   init_db_gen(&db->handler, filename);
+#else 
+
 #endif
 
   init_tsq(&db->q, sizeof(e2_node_ag_if_t));

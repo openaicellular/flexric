@@ -34,7 +34,9 @@
 #include "util/alg_ds/ds/ts_queue/ts_queue.h"
 
 #include "../lib/msg_hand/reg_e2_nodes.h"
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
 #include "db/db.h"
+#endif
 #include "e42_xapp_api.h"
 #include "pending_event_xapp.h"
 
@@ -81,7 +83,9 @@ typedef struct e42_xapp_s
   msg_dispatcher_xapp_t msg_disp; 
 
   // DB handler
+  #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
   db_xapp_t db;
+  #endif
 
   atomic_bool connected;
   atomic_bool stopped;

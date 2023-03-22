@@ -173,6 +173,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 
   init_msg_dispatcher(&xapp->msg_disp);
 
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
   // SQLite3
   char* dir = get_conf_db_dir(args);
   char dir2[1024] = {0};
@@ -211,7 +212,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   free(db_ip);
   free(dir);
   free(db_name);
-
+#endif
   xapp->connected = false;
   xapp->stop_token = false;
   xapp->stopped = false;
@@ -317,7 +318,9 @@ void free_e42_xapp(e42_xapp_t* xapp)
 
   free_msg_dispatcher(&xapp->msg_disp);
 
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
   close_db_xapp(&xapp->db);
+#endif
 
   free(xapp);
 }

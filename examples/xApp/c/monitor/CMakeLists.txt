@@ -19,6 +19,7 @@ add_executable(xapp_mac_rlc_pdcp_moni
 target_link_libraries(xapp_mac_rlc_pdcp_moni
 											PUBLIC
 											e42_xapp
+											$<TARGET_OBJECTS:e2_time_obj>
 											-pthread
 											-lsctp
 											-ldl
@@ -42,6 +43,7 @@ add_executable(xapp_gtp_moni
 target_link_libraries(xapp_gtp_moni
 											PUBLIC
 											e42_xapp
+											$<TARGET_OBJECTS:e2_time_obj>
 											-pthread
 											-lsctp
 											-ldl
@@ -66,6 +68,7 @@ add_executable(xapp_kpm_moni
 target_link_libraries(xapp_kpm_moni
 											PUBLIC
 											e42_xapp
+											$<TARGET_OBJECTS:e2_time_obj>
 											-pthread
 											-lsctp
 											-ldl
@@ -89,6 +92,7 @@ add_executable(xapp_kpm_moni_infinity
 target_link_libraries(xapp_kpm_moni_infinity
 											PUBLIC
 											e42_xapp
+											$<TARGET_OBJECTS:e2_time_obj>
 											-pthread
 											-lsctp
 											-ldl
@@ -111,6 +115,7 @@ add_executable(xapp_moni
 target_link_libraries(xapp_moni
 											PUBLIC
 											e42_xapp
+											$<TARGET_OBJECTS:e2_time_obj>
 											-pthread
 											-lsctp
 											-ldl

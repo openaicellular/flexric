@@ -18,6 +18,7 @@ add_executable(xapp_tc_all
 target_link_libraries(xapp_tc_all
                       PUBLIC
                       e42_xapp
+                      $<TARGET_OBJECTS:e2_time_obj>
                       -pthread
                       -lsctp
                       -ldl
@@ -38,6 +39,7 @@ add_executable(xapp_tc_codel
 target_link_libraries(xapp_tc_codel
                       PUBLIC
                       e42_xapp
+                      $<TARGET_OBJECTS:e2_time_obj>
                       -pthread
                       -lsctp
                       -ldl
@@ -58,6 +60,7 @@ add_executable(xapp_tc_partition
 target_link_libraries(xapp_tc_partition
                       PUBLIC
                       e42_xapp
+                      $<TARGET_OBJECTS:e2_time_obj>
                       -pthread
                       -lsctp
                       -ldl
@@ -78,6 +81,7 @@ add_executable(xapp_tc_ecn
 target_link_libraries(xapp_tc_ecn
                       PUBLIC
                       e42_xapp
+                      $<TARGET_OBJECTS:e2_time_obj>
                       -pthread
                       -lsctp
                       -ldl
@@ -98,6 +102,7 @@ add_executable(xapp_tc_osi_codel
 target_link_libraries(xapp_tc_osi_codel
                       PUBLIC
                       e42_xapp
+                      $<TARGET_OBJECTS:e2_time_obj>
                       -pthread
                       -lsctp
                       -ldl

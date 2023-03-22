@@ -18,6 +18,7 @@ add_executable(xapp_slice_moni_ctrl
 target_link_libraries(xapp_slice_moni_ctrl
                       PUBLIC
                       e42_xapp
+                      $<TARGET_OBJECTS:e2_time_obj>
                       -pthread
                       -lsctp
                       -ldl

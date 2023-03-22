@@ -264,9 +264,10 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
     printf("ric_req_id = %d not in the registry. Spuriosly can happen.\n",  src->ric_id.ric_req_id);
     free_sm_ag_if_rd(&msg_disp.rd);
   } else {
-   
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
    // Write to SQL DB
    write_db_xapp(&xapp->db, &ans.val.e2_node ,&msg_disp.rd);
+#endif
 
     // Write to the callback. Should I send the E2 Node info to the cb??
     msg_disp.sm_cb = ans.val.sm_cb;

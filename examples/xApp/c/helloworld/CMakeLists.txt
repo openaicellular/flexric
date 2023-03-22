@@ -19,6 +19,7 @@ add_executable(xapp_hw
 target_link_libraries(xapp_hw
 						PUBLIC
 						e42_xapp
+						$<TARGET_OBJECTS:e2_time_obj>
 						-pthread
 						-lsctp
 						-ldl
