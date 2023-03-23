@@ -105,7 +105,11 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
   
   // Note that KPM has 1 second resolution in its indication header, while `now` is in microseconds. 
   // Only reasonable latency value to print is a rounded one to seconds.
-  printf("KPM ind_msg latency > %ld s\n", now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime);
+  // printf("KPM ind_msg latency > %ld s\n", now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime);
+  if (rd->kpm_stats.msg.MeasData_len > 0)
+    if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0)
+      printf("KPM ind_msg latency = %ld μs\n", now - (int64_t)rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val);
+
 }
 
 
@@ -130,6 +134,16 @@ void sm_cb_rlc(sm_ag_if_rd_t const* rd)
   printf("RLC ind_msg latency = %ld μs\n", now - rd->rlc_stats.msg.tstamp);
 }
 
+void sm_cb_pdcp(sm_ag_if_rd_t const* rd)
+{
+  assert(rd != NULL);
+  assert(rd->type == PDCP_STATS_V0);
+
+  int64_t now = time_now_us();
+
+  printf("PDCP ind_msg latency = %ld μs\n", now - rd->pdcp_stats.msg.tstamp);
+}
+
 static
 void sm_cb_gtp(sm_ag_if_rd_t const* rd)
 {
@@ -138,6 +152,16 @@ void sm_cb_gtp(sm_ag_if_rd_t const* rd)
 
   int64_t now = time_now_us();
   printf("GTP ind_msg latency = %ld μs\n", now - rd->gtp_stats.msg.tstamp);
+}
+
+static
+void sm_cb_slice(sm_ag_if_rd_t const* rd)
+{
+  assert(rd != NULL);
+  assert(rd->type == SLICE_STATS_V0);
+
+  int64_t now = time_now_us();
+  printf("SLICE ind_msg latency = %ld μs\n", now - rd->slice_stats.msg.tstamp);
 }
 
 static
@@ -222,34 +246,46 @@ int main(int argc, char *argv[])
   for(size_t i = 0; i < n->len_rf; ++i)
     printf("Registered ran func id = %d \n ", n->ack_rf[i].id );
 
-  inter_xapp_e i = ms_1;
+  inter_xapp_e i = ms_10;
   // returns a handle for KPM
   sm_ans_xapp_t h = report_sm_xapp_api(&nodes.n[0].id, SM_KPM_ID, i, sm_cb_kpm);
   assert(h.success == true);
-  sleep(2);
+  sleep(1);
 
-  inter_xapp_e i_1 = ms_1;
+  inter_xapp_e i_1 = ms_10;
   // returns a handle
   sm_ans_xapp_t h_1 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[0].id, i_1, sm_cb_mac);
   assert(h_1.success == true);
   sleep(2);
 
-  inter_xapp_e i_2 = ms_1;
+  inter_xapp_e i_2 = ms_10;
   // returns a handle
   sm_ans_xapp_t h_2 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[1].id, i_2, sm_cb_rlc);
   assert(h_2.success == true);
   sleep(2);
 
-  inter_xapp_e i_3 = ms_1;
+  inter_xapp_e i_3 = ms_10;
   // returns a handle
   sm_ans_xapp_t h_3 = report_sm_xapp_api(&nodes.n[0].id, SM_GTP_ID, i_3, sm_cb_gtp);
   assert(h_3.success == true);
   sleep(2);
 
+  inter_xapp_e i_4 = ms_10;
+  // returns a handle
+  sm_ans_xapp_t h_4 = report_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, i_4, sm_cb_slice);
+  assert(h_4.success == true);
+  sleep(2);
+
+  inter_xapp_e i_5 = ms_10;
+  // returns a handle
+  sm_ans_xapp_t h_5 = report_sm_xapp_api(&nodes.n[0].id, n->ack_rf[2].id, i_5, sm_cb_pdcp);
+  assert(h_5.success == true);
+  sleep(2);
+
   // Control ADD slice
   sm_ag_if_wr_t ctrl_msg_add = create_add_slice();
   control_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, &ctrl_msg_add);
-  free(ctrl_msg_add.slice_req_ctrl.msg.u.add_mod_slice.dl.slices); 
+  free(ctrl_msg_add.slice_req_ctrl.msg.u.add_mod_slice.dl.slices);
   free(ctrl_msg_add.slice_req_ctrl.msg.u.add_mod_slice.dl.sched_name);
 
   sleep(1);
@@ -257,10 +293,10 @@ int main(int argc, char *argv[])
   // Control ASSOC slice
   sm_ag_if_wr_t ctrl_msg_assoc = create_assoc_slice();
   control_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, &ctrl_msg_assoc);
-  free(ctrl_msg_assoc.slice_req_ctrl.msg.u.ue_slice.ues); 
+  free(ctrl_msg_assoc.slice_req_ctrl.msg.u.ue_slice.ues);
 
   sleep(1);
-
+//
   // Remove the handle previously returned
   rm_report_sm_xapp_api(h.u.handle);
 
@@ -272,6 +308,12 @@ int main(int argc, char *argv[])
 
   // Remove the handle previously returned
   rm_report_sm_xapp_api(h_3.u.handle);
+
+  // Remove the handle previously returned
+  rm_report_sm_xapp_api(h_4.u.handle);
+
+  // Remove the handle previously returned
+  rm_report_sm_xapp_api(h_5.u.handle);
 
   sleep(1);
 

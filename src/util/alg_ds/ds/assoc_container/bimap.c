@@ -84,7 +84,7 @@ void* bi_map_extract_left(bi_map_t* map, void* key1, size_t key1_sz)
   void* key3 = assoc_extract(&map->right, key2);
 
   // I do not like this trick. The memory should also be the same
-  int cmp = map->left.comp(key2, key3);
+  int cmp = map->left.comp(key1, key3);
   //int cmp = memcmp(key1, key3, map->right.key_sz);
   assert(cmp == 0 );
   free(key3);

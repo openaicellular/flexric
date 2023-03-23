@@ -19,6 +19,7 @@
  *      contact@openairinterface.org
  */
 
+#include "../db.h"
 #include "sqlite3_wrapper.h"
 #include "../../../util/time_now_us.h"
 
@@ -26,7 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "string.h"
+#include <string.h>
 
 static
 void create_table(sqlite3* db, char* sql)
@@ -269,7 +270,8 @@ void create_kpm_table(sqlite3* db)
                        "nb_id INT,"
                        "cu_du_id TEXT,"
                        "incompleteFlag INT,"
-                       "val REAL CHECK(val >=0 AND val < 4294967296 )"
+                       "name TEXT,"  //measRecord name 
+                       "val REAL"
                        ");";
   create_table(db, sql_kpm_measRecord);
 
@@ -317,7 +319,10 @@ void insert_db(sqlite3* db, char const* sql)
 
   char* err_msg = NULL;
   int rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
-  assert(rc == SQLITE_OK && "Error while inserting into the DB. Check the err_msg string for further info");
+  if (rc != SQLITE_OK){
+    printf("Error while inserting into the DB: %s\n", err_msg);
+    assert(1!=1);
+  }
 }
 
 
@@ -437,7 +442,6 @@ int to_sql_string_mac_ue(global_e2_node_id_t const* id, mac_ue_stats_impl_t* sta
   assert(rc < (int)max && "Not enough space in the char array to write all the data");
   return rc;
 }
-
 
 static
 int to_sql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_t* rlc, int64_t tstamp, char* out, size_t out_len)
@@ -897,8 +901,9 @@ int to_sql_string_gtp_NGUT(global_e2_node_id_t const* id,gtp_ngu_t_stats_t* gtp,
 static
 void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,  
                                  adapter_MeasDataItem_t* kpm_measData, 
-                                 adapter_MeasRecord_t* kpm_measRecord, 
-                                 adapter_TimeStamp_t tstamp, 
+                                 adapter_MeasRecord_t* kpm_measRecord,
+                                 MeasInfo_t* inf, 
+                                 adapter_TimeStamp_t tstamp,
                                  char* out, 
                                  size_t out_len)
 {
@@ -951,6 +956,7 @@ void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
           "%d," //nb_id
           "'%s'," //cu_du_id
           "%ld,"  //kpm_measData->incompleteFlag
+          "'%s'," //kpm_measName
           "%ld"  //kpm_measRecord->int_val
           ");" 
           , tstamp
@@ -961,6 +967,7 @@ void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
           , id->nb_id
           , id->cu_du_id ? c_cu_du_id : c_null
           , kpm_measData->incompleteFlag
+          , inf ? inf->measName.buf : NULL
           , kpm_measRecord->int_val
           );
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
@@ -976,6 +983,7 @@ void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
           "%d," //nb_id 
           "'%s'," //cu_du_id
           "%ld,"  //kpm_measData->incompleteFlag
+          "'%s'," //Kpm_measData
           "%f"  //kpm_measRecord->real_val
           ");" 
           , tstamp
@@ -986,6 +994,7 @@ void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
           , id->nb_id
           , id->cu_du_id ? c_cu_du_id : c_null
           , kpm_measData->incompleteFlag
+          , inf ? inf->measName.buf : NULL
           , kpm_measRecord->real_val
           );
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
@@ -1051,9 +1060,7 @@ void write_rlc_stats(sqlite3* db, global_e2_node_id_t const* id, rlc_ind_data_t 
   for(size_t i = 0; i < ind_msg_rlc->len; ++i){
     pos += to_sql_string_rlc_rb(id, &ind_msg_rlc->rb[i], ind_msg_rlc->tstamp, buffer + pos, 2048 - pos);
   }
-
   insert_db(db, buffer);
-
 }
 
 static
@@ -1157,17 +1164,21 @@ void write_kpm_stats(sqlite3* db, global_e2_node_id_t const* id, kpm_ind_data_t 
 
   for(size_t i = 0; i < ind_msg_kpm->MeasData_len; i++){
     adapter_MeasDataItem_t* curMeasData = &ind_msg_kpm->MeasData[i];
+   
+
     if (curMeasData->measRecord_len > 0){
       for (size_t j = 0; j < curMeasData->measRecord_len; j++){
         adapter_MeasRecord_t* curMeasRecord = &curMeasData->measRecord[j];
+        MeasInfo_t* info = &ind_msg_kpm->MeasInfo[j];
+        
         memset(buffer, 0, sizeof(buffer));
-        to_sql_string_kpm_measRecord(id, curMeasData, curMeasRecord, ind->hdr.collectStartTime, 
-                                     buffer, 512);
+        to_sql_string_kpm_measRecord(id, curMeasData, curMeasRecord, info, ind->hdr.collectStartTime,
+                                   buffer, 512);
         insert_db(db, buffer);
       }
     } else {
       memset(buffer, 0, sizeof(buffer));
-      to_sql_string_kpm_measRecord(id, curMeasData, NULL, ind->hdr.collectStartTime, 
+      to_sql_string_kpm_measRecord(id, curMeasData, NULL, NULL, ind->hdr.collectStartTime, 
                                    buffer, 512);
       insert_db(db, buffer);
     }

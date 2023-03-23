@@ -487,7 +487,7 @@ char* get_conf_db_name(fr_args_t const* args)
 
   defer({fclose(fp); } );
 
-  char db_name[24] = {0};
+  char db_name[NAME_MAX] = {0};
   while ((read = getline(&line, &len, fp)) != -1) {
     const char* needle = "DB_NAME =";
     char* ans = strstr(line, needle);
@@ -495,7 +495,7 @@ char* get_conf_db_name(fr_args_t const* args)
       ans += strlen(needle);
       ans = ltrim(ans);
       ans = rtrim(ans);
-      assert(strlen(ans) <= sizeof(db_name));
+      assert(strlen(ans) + 1 <= sizeof(db_name));
       memcpy(db_name, ans , strlen(ans)); // \n character
       break;
     }
@@ -504,4 +504,80 @@ char* get_conf_db_name(fr_args_t const* args)
   // TODO: valid_db_name()
 
   return strdup(db_name);
+}
+
+char* get_conf_db_ip(fr_args_t const* args)
+{
+  char* line = NULL;
+  defer({free(line);});
+  size_t len = 0;
+  ssize_t read;
+
+  FILE * fp = fopen(args->conf_file, "r");
+
+  if (fp == NULL){
+    printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
+    exit(EXIT_FAILURE);
+  }
+
+  defer({fclose(fp); } );
+
+  char ip_addr[24] = {0};
+  while ((read = getline(&line, &len, fp)) != -1) {
+    const char* needle = "DB_IP =";
+    char* ans = strstr(line, needle);
+    if(ans != NULL){
+      ans += strlen(needle);
+      ans = ltrim(ans);
+      ans = rtrim(ans);
+      assert(strlen(ans) <= sizeof(ip_addr));
+      memcpy(ip_addr, ans , strlen(ans)); // \n character
+      break;
+    }
+  }
+
+  if(valid_ip(ip_addr) == false){
+    printf("IP address string invalid = %s Check the config file\n",ip_addr);
+    exit(EXIT_FAILURE);
+  }
+
+  return strdup(ip_addr);
+}
+
+char* get_conf_amr_ip(fr_args_t const* args)
+{
+  char* line = NULL;
+  defer({free(line);});
+  size_t len = 0;
+  ssize_t read;
+
+  FILE * fp = fopen(args->conf_file, "r");
+
+  if (fp == NULL){
+    printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
+    exit(EXIT_FAILURE);
+  }
+
+  defer({fclose(fp); } );
+
+  char ip_addr[24] = {0};
+  while ((read = getline(&line, &len, fp)) != -1) {
+    const char* needle = "RAN_IP =";
+    char* ans = strstr(line, needle);
+    if(ans != NULL){
+      ans += strlen(needle);
+      ans = ltrim(ans);
+      ans = rtrim(ans);
+      assert(strlen(ans) <= sizeof(ip_addr));
+      memcpy(ip_addr, ans , strlen(ans)); // \n character
+      break;
+    }
+  }
+
+  if(valid_ip(ip_addr) == false){
+    printf("IP address string invalid = %s Check the config file\n",ip_addr);
+    exit(EXIT_FAILURE);
+  }
+
+  return strdup(ip_addr);
 }

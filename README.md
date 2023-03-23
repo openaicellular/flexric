@@ -50,10 +50,21 @@ Below is the list of features available in this version divided per component an
 
 1.2 Download the required dependencies. 
 
-Below an example of how to install it in ubuntu
+Below an example of how to install common dependencies in ubuntu:
 ```bash
 sudo apt install libsctp-dev python3.8 cmake-curses-gui libpcre2-dev python3-dev
 ```
+
+If you are using mysql as a storage for xapps you may need to install it via
+```bash
+sudo apt install libmysqlclient-dev mysql-server
+```
+
+If you are using the option in cmake -DRAN_WITH_WS=True, you need to also install the following packages:
+```bash
+sudo apt install libwebsockets-dev libjson-c-dev
+```
+software has been tested with specific version of libwebsockets-dev and libjson-c-dev; cmake will check for that and promt an error in case the version you are trying to install is not compatible.
 
 1.3 Clone the FlexRIC project, build and install it. 
 

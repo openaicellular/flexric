@@ -65,7 +65,7 @@ e2_setup_request_t generate_setup_request(e2_agent_t* ag)
 
     sm_e2_setup_t def = sm->proc.on_e2_setup(sm);
     byte_array_t ba = {.len = def.len_rfd, .buf = def.ran_fun_def};
-    ran_func[i].def = ba; 
+    ran_func[i].definition = ba; 
 
     it = assoc_next(&ag->plugin.sm_ds ,it);
   }
@@ -324,6 +324,13 @@ void e2_event_loop_agent(e2_agent_t* ag)
         }
       case INDICATION_EVENT:
         {
+          #ifdef PROXY_AGENT
+          if (ag->ran_if->ind_timer_ready == false){
+            consume_fd(e.fd);
+            break;
+          }
+          #endif
+          
           sm_agent_t* sm = e.i_ev->sm;
           sm_ind_data_t data = sm->proc.on_indication(sm);
 

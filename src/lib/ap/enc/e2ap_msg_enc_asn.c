@@ -182,7 +182,7 @@ RANfunction_Item_t copy_ran_function(const ran_function_t* src)
   memset(&dst,0, sizeof(RANfunction_Item_t));
   dst.ranFunctionID = src->id;
   dst.ranFunctionRevision = src->rev;
-  dst.ranFunctionDefinition = copy_ba_to_ostring(src->def);
+  dst.ranFunctionDefinition = copy_ba_to_ostring(src->definition);
   if(src->oid != NULL){
     dst.ranFunctionOID = malloc(sizeof(RANfunctionOID_t));
     *dst.ranFunctionOID = copy_ba_to_ostring(*src->oid);
@@ -3155,3 +3155,4 @@ struct E2AP_PDU* e2ap_enc_e42_update_e2_node_asn_pdu(const e42_update_e2_node_t*
 
   return pdu;
 }
+

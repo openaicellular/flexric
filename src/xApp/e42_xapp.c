@@ -137,7 +137,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 {
   assert(args != NULL);
 
-  printf("[xAapp]: Initializing ... \n");
+  printf("[xAap]: Initializing ... \n");
 
   e42_xapp_t* xapp = calloc(1, sizeof(*xapp));
   assert(xapp != NULL && "Memory exhausted");
@@ -173,32 +173,46 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 
   init_msg_dispatcher(&xapp->msg_disp);
 
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
+  // SQLite3
   char* dir = get_conf_db_dir(args);
-  assert(strlen(dir) < 128 && "String too large");
-  char* db_name = get_conf_db_name(args);
-  assert(strlen(db_name) < 128 && "String too large");
-  const char* default_dir = XAPP_DB_DIR;
-  assert(strlen(default_dir) < 128 && "String too large");
-  char filename[256] = {0};
-  int n = 0;
-  int64_t const now = time_now_us();
-  if (strlen(dir)) {
-    if (strlen(db_name))
-      n = snprintf(filename, 255, "%s%s", dir, db_name);
-    else
-      n = snprintf(filename, 255, "%sxapp_db_%ld", dir, now);
+  char dir2[1024] = {0};
+  assert(strlen(dir) < 1024 && "String too large");
+  if (!strlen(dir)) {
+    sprintf(dir, XAPP_DB_DIR);
   } else {
-    n = snprintf(filename, 255, "%sxapp_db_%ld", default_dir, now);
+    strcpy(dir2, dir);
   }
-  assert(n < 256 && "Overflow");
+  //printf("dir = %s\n", dir);
 
-  printf("Filename = %s \n ", filename );
+  // SQLite3 & MYSQL
+  char* db_name = get_conf_db_name(args);
+  char dbname2[1024] = {0};
+  assert(strlen(db_name) < 1024 && "String too large");
+  if (!strlen(db_name)) {
+    int64_t const now = time_now_us();
+    sprintf(dbname2, "xapp_db_%ld", now);
+  } else {
+    strcpy(dbname2, db_name);
+  }
+  //printf("db_name = %s\n", db_name);
 
-  init_db_xapp(&xapp->db, filename);
+  char* db_ip = get_conf_db_ip(args);
+  printf("[MySQL]: get server ip %s from conf\n", db_ip);
+  char dbip2[24] = {0};
+  assert(strlen(db_ip) < 24 && "String too large");
+  if (!strlen(db_ip)) {
+    sprintf(dbip2, "localhost");
+  } else {
+    strcpy(dbip2, db_ip);
+  }
 
+  init_db_xapp(&xapp->db, dbip2, dir2, dbname2);
+
+  free(db_ip);
   free(dir);
   free(db_name);
-
+#endif
   xapp->connected = false;
   xapp->stop_token = false;
   xapp->stopped = false;
@@ -304,7 +318,9 @@ void free_e42_xapp(e42_xapp_t* xapp)
 
   free_msg_dispatcher(&xapp->msg_disp);
 
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
   close_db_xapp(&xapp->db);
+#endif
 
   free(xapp);
 }

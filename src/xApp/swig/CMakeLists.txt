@@ -22,6 +22,11 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 #SET(CMAKE BUILD TYPE Debug)
 
+# mysql db
+if(XAPP_DB STREQUAL "MYSQL_XAPP")
+  link_directories(${LIBMYSQLCLIENT_LIBRARY_DIRS})
+endif()
+
 SET_PROPERTY(SOURCE swig_wrapper.i PROPERTY CPLUSPLUS ON)
 
 
@@ -66,6 +71,7 @@ SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE ${XAPP_LANG} SOURCES
                                                  ../../sm/gtp_sm/ie/gtp_data_ie.c
                                                  ../../util/byte_array.c
                                                  ../../util/alg_ds/alg/eq_float.c
+                                                 ../../util/ngran_type.c
                                                  )
 
 
@@ -89,6 +95,13 @@ if(XAPP_TARGET_LANGUAGE STREQUAL "PYTHON_LANG")
 
    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_gtp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_gtp_moni.py" )
+
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp.py" )
+
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_moni.py" )
+
 # I do not like this solution at all but it is not my code ...
 target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter )
 
@@ -117,11 +130,16 @@ endif()
 #Comment this line to build it from the directory
 ADD_DEPENDENCIES(xapp_sdk e42_xapp_shared)
 
+target_include_directories(xapp_sdk PRIVATE 
+                          $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_INCLUDE_DIRS}>)
+
 SWIG_LINK_LIBRARIES(xapp_sdk
                     e42_xapp_shared
                     -ldl
                     -lsctp
-                    -lpthread)
+                    -lpthread
+                    $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
+                    )
 
 
 

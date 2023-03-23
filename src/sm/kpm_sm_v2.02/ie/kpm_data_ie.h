@@ -123,6 +123,8 @@ typedef struct MeasInfo_t {
   size_t                         labelInfo_len;// length of the array labelInfo
 } MeasInfo_t; 
 
+void set_kpm_measName(MeasInfo_t *dst, char * measName);
+
 /*******************************************************
  * SEC 1. RIC Event Trigger Definition as per $8.2.1.1
  *******************************************************/

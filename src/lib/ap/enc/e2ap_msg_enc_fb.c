@@ -601,7 +601,7 @@ byte_array_t e2ap_enc_setup_request_fb(const e2_setup_request_t* sr)
   for (size_t i = 0; i < sr->len_rf; ++i) {
     const ran_function_t* rf = &sr->ran_func_item[i];
     e2ap_RanFunction_start(B);
-    e2ap_RanFunction_definition_create(B, rf->def.buf, rf->def.len);
+    e2ap_RanFunction_definition_create(B, rf->definition.buf, rf->definition.len);
     if (rf->oid)
       e2ap_RanFunction_oid_create(B, (const char*) rf->oid->buf, rf->oid->len);
     e2ap_RanFunction_id_force_add(B, rf->id);

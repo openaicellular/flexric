@@ -246,6 +246,9 @@ void rm_e2_node_iapp(e42_iapp_t* i, global_e2_node_id_t* id)
   assert(id != NULL);
 
   rm_reg_e2_node(&i->e2_nodes,id);
+
+  e2ap_msg_t msg = {.type = E2_SETUP_RESPONSE};
+  notify_msg_iapp(i, &msg);
 }
 
 /*

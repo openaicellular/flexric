@@ -261,3 +261,21 @@ void free_label_info(adapter_LabelInfoItem_t *l)
 	// long	                        *max;	    /* OPTIONAL */
 	// long	                        *avg;	    /* OPTIONAL */
 }
+
+// with noLabel info
+void set_kpm_measName(MeasInfo_t *dst, char * measName)
+{
+  dst->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+  dst->measName.len = strlen(measName) + 1;
+  dst->measName.buf = malloc(strlen(measName) + 1) ;
+  assert(dst->measName.buf != NULL && "memory exhausted");
+  memcpy(dst->measName.buf, measName, strlen(measName));
+  dst->measName.buf[strlen(measName)] = '\0';
+
+  dst->labelInfo_len = 1;
+  dst->labelInfo = calloc(dst->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+  assert(dst->labelInfo != NULL && "memory exhausted");
+  dst->labelInfo[0].noLabel = calloc(1, sizeof(long));
+  assert( dst->labelInfo[0].noLabel != NULL && "memory exhausted");
+  *(dst->labelInfo[0].noLabel) = 0;
+}

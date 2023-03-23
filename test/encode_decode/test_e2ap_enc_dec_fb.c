@@ -278,8 +278,8 @@ void test_setup_request()
   memset(&r, 0, sizeof(r));
   r[0].id = 1;
   r[0].rev = 0;
-  r[0].def.buf = (uint8_t*) func_def;
-  r[0].def.len = strlen(func_def);
+  r[0].definition.buf = (uint8_t*) func_def;
+  r[0].definition.len = strlen(func_def);
 
   e2_setup_request_t sr_begin = {
     .id = ge2ni,

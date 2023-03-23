@@ -32,8 +32,8 @@ message(STATUS "Selected LIBRARY TYPE: ${BUILDING_LIBRARY}")
 ### xApp 
 ########
 
-set(XAPP_DB "SQLITE3_XAPP" CACHE STRING "xApp DB")
-set_property(CACHE XAPP_DB PROPERTY STRINGS "SQLITE3_XAPP" "NONE_XAPP")
+set(XAPP_DB "MYSQL_XAPP" CACHE STRING "xApp DB")
+set_property(CACHE XAPP_DB PROPERTY STRINGS "MYSQL_XAPP" "SQLITE3_XAPP" "NONE_XAPP")
 message(STATUS "Selected xApp DB : ${XAPP_DB}")
 
 set(XAPP_DB_DIR "/tmp/" CACHE STRING "The xApp DB write directory")
@@ -171,8 +171,13 @@ set(EMU_AGENT_INSTALL "FALSE" CACHE STRING "emulator of E2 agent")
 set_property(CACHE EMU_AGENT_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
 set(XAPP_C_INSTALL "FALSE" CACHE STRING "XAPP in C install selection")
 set_property(CACHE XAPP_C_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(UNIT_TEST "TRUE" CACHE STRING "build test cases")
+set(XAPP_PYTHON_INSTALL "FALSE" CACHE STRING "XAPP in Python install selection")
+set_property(CACHE XAPP_PYTHON_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
+set(UNIT_TEST "FALSE" CACHE STRING "build test cases")
 set_property(CACHE UNIT_TEST PROPERTY STRINGS "TRUE" "FALSE")
+
+option(RAN_WITH_WS "Include support for RAN having a websocket interface" OFF)
+message(STATUS "Include support for RAN with a websocket interface: ${RAN_WITH_WS}")
 
 include_directories(src)
 add_subdirectory(src)
@@ -228,17 +233,32 @@ endif ()
 ###
 # Install Emulator Agent
 ###
+
 if (EMU_AGENT_INSTALL)
   install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR})
+  if (RAN_WITH_WS)
+    install(TARGETS proxy_agent_ws DESTINATION ${CMAKE_INSTALL_BINDIR})
+  endif()
 endif ()
 
+
 ###
-# Install Emulator Agent
+# Install xApps
 ###
 if (XAPP_C_INSTALL)
-  install(TARGETS xapp_mac_rlc_pdcp_moni xapp_slice_moni_ctrl xapp_kpm_moni xapp_gtp_moni xapp_hw xapp_moni DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS xapp_mac_rlc_pdcp_moni xapp_slice_moni_ctrl xapp_kpm_moni xapp_gtp_moni xapp_hw xapp_moni xapp_kpm_moni_infinity DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
+if (XAPP_PYTHON_INSTALL)
+  install(FILES
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp.py
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk.py
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/_xapp_sdk.so
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_gtp_moni.py
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py
+    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages)
+endif ()
 
 # make uninstall
 add_custom_target("uninstall" COMMENT "Uninstall installed files")
@@ -249,4 +269,3 @@ add_custom_command(
         COMMAND xargs rm -vf < install_manifest.txt || echo Nothing in
         install_manifest.txt to be uninstalled!
 )
-

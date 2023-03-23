@@ -25,17 +25,23 @@
 #include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
 #include "../../sm/agent_if/read/sm_ag_if_rd.h"
 #include "../../util/alg_ds/ds/ts_queue/ts_queue.h"
+#include "sqlite3/sqlite3_wrapper.h"
+#include "mysql/mysql_wrapper.h"
 
 #include <pthread.h>
 
 #ifdef SQLITE3_XAPP
   #include "sqlite3/sqlite3.h"
+#elif defined(MYSQL_XAPP)
+  #include "mysql/mysql.h"
 #endif
 
 typedef struct{
 
 #ifdef SQLITE3_XAPP
   sqlite3* handler;
+#elif defined(MYSQL_XAPP)
+  MYSQL* handler;
 #else
   static_assert(0!=0, "Unknown DB selected for the xApp"); 
 #endif
@@ -44,7 +50,8 @@ typedef struct{
   tsq_t q;
 } db_xapp_t;
 
-void init_db_xapp(db_xapp_t* db, char const* db_filename);
+/* return: true(successfully connected to the DB), false(otherwise)*/
+bool init_db_xapp(db_xapp_t* db, char const* ip, char const* dir, char const* dbname);
 
 void close_db_xapp(db_xapp_t* db);
 

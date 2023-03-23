@@ -11,6 +11,8 @@
   #include "../../lib/ap/e2ap_types/common/e2ap_plmn.h"
   #include "../../lib/ap/e2ap_types/common/e2ap_ran_function.h"
   #include "../../util/byte_array.h"
+  #include "../../util/ngran_types.h"
+
 
   #include "../../sm/mac_sm/ie/mac_data_ie.h"
   #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
@@ -105,6 +107,7 @@ namespace std {
 
 %include "swig_wrapper.h"
 %include "../../util/byte_array.h"
+%include "../../util/ngran_types.h"
 %include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
 %include "../../lib/ap/e2ap_types/common/e2ap_plmn.h"
 %include "../../lib/ap/e2ap_types/common/e2ap_ran_function.h"
@@ -113,4 +116,5 @@ namespace std {
 %include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
 %include "../../sm/slice_sm/ie/slice_data_ie.h"
 %include "../../sm/gtp_sm/ie/gtp_data_ie.h"
+
 

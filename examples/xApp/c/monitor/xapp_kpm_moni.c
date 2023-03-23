@@ -23,13 +23,24 @@
 #include "../../../../src/util/alg_ds/alg/defer.h"
 #include "../../../../src/util/time_now_us.h"
 #include "../../../../src/sm/kpm_sm_v2.02/kpm_sm_id.h"
+#include "../../../../src/util/ngran_types.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include <signal.h>
 
+static bool exit_flag = false;
+static void sigint_handler(int sig)
+{
+  printf("signal %d received !\n", sig);
+  exit_flag = true;
+}
 
+uint64_t count_max = 100;
+uint64_t count_kpm = 0;
+uint64_t aggr_tstamp_kpm = 0;
 static
 void sm_cb_kpm(sm_ag_if_rd_t const* rd)
 {
@@ -37,13 +48,34 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
   assert(rd->type == KPM_STATS_V0);
 
   int64_t now = time_now_us();
-      
-  // KPM has 1 second resolution in its indication header, while 'now' is in microseconds
-  int64_t diff = now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime;
-  if (diff > 1)
-    printf("KPM ind_msg latency = %lu seconds\n", diff);
-  else
-    printf("KPM ind_msg latency < 1 seconds\n");
+  int64_t ts =  0;
+  if (rd->kpm_stats.msg.MeasData_len > 0) {
+    if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0) {
+      count_kpm += 1;
+      ts = rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
+      aggr_tstamp_kpm += now - ts;
+      if (count_kpm == count_max) {
+        printf("[%ld] KPM ind_msg latency (averaged) = %lu us\n", now, aggr_tstamp_kpm/count_max);
+        count_kpm = 0;
+        aggr_tstamp_kpm = 0;
+      }
+    }
+  }
+}
+
+
+static
+void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t handle)
+{
+  // send subscription request to each e2 nodes
+  // for(size_t j = 0; j < n->len_rf; j++)
+  //   printf("Registered E2 node idx %d, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
+  inter_xapp_e tti = ms_10;
+  uint16_t ran_func_id = SM_KPM_ID;
+  printf("xApp subscribes RAN Func ID %d in E2 node idx %d\n", ran_func_id, n_idx);
+  handle = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_kpm);
+  assert(handle.success == true);
+
 }
 
 int main(int argc, char *argv[])
@@ -52,46 +84,100 @@ int main(int argc, char *argv[])
 
   //Init the xApp
   init_xapp_api(&args);
+  signal(SIGINT, sigint_handler); // we override the signal mask set in init_xapp_api()
+  signal(SIGTERM, sigint_handler);
   sleep(1);
 
+  // init num of sm and handle
+  size_t max_handle = 256;
+  size_t c_handle = 0;
+  // TODO: give the num of sm randomly  //abs(rand()%5)+1;
+  sm_ans_xapp_t *handle = NULL;
+  if (max_handle > 0) {
+    handle = calloc(max_handle, sizeof(sm_ans_xapp_t *));
+    assert(handle != NULL);
+  }
+
+  size_t nodes_len = e2_nodes_len_xapp_api();
+  // start the xApp subscription procedure until detect connected E2 nodes
+  while (nodes_len <= 0) {
+    // get the original connected e2 nodes info
+    size_t tmp_len = e2_nodes_len_xapp_api();
+    if (tmp_len > nodes_len) {
+      printf("Update connected E2 nodes len = %ld\n", tmp_len);
+      nodes_len = tmp_len;
+    } else {
+      printf("No E2 node connects\n");
+      sleep(1);
+    }
+  }
+
+  // case1: send subscription req to the original connected e2 node
+  // get original e2 nodes info
   e2_node_arr_t nodes = e2_nodes_xapp_api();
   defer({ free_e2_node_arr(&nodes); });
-
-  assert(nodes.len > 0);
-
-  printf("Connected E2 nodes = %d\n", nodes.len);
-
-  // KPM indication
-  inter_xapp_e i_0 = ms_5;
-  sm_ans_xapp_t* kpm_handle = NULL;
-
-  if(nodes.len > 0){
-    kpm_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) ); 
-    assert(kpm_handle  != NULL);
+  for (size_t i = 0; i < nodes.len; i++) {
+    if (nodes.n[i].id.type == 2 || nodes.n[i].id.type == 7) {
+      send_subscription_req(&nodes.n[i], i, handle[c_handle]);
+      c_handle += 1;
+    }
   }
 
-  for (int i = 0; i < nodes.len; i++) {
-    e2_node_connected_t* n = &nodes.n[i];
-    for (size_t j = 0; j < n->len_rf; j++)
-      printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
+  // case2: send subscription req to the new connected e2 node
+  while(!exit_flag) {
+    size_t cur_nodes_len = e2_nodes_len_xapp_api();
+    (void)usleep(10000); // we choose 10ms as kpm reporting has the same value
+    if (cur_nodes_len != nodes_len) {
+      printf("/////// detect E2 nodes len update, new len = %ld, old len = %ld ///////\n", cur_nodes_len, nodes_len);
+      printf("Updating E2 nodes list ...\n");
+      sleep(1);
+      if (cur_nodes_len != 0) {
+        // get the new e2 nodes info
+        e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
+        defer({ free_e2_node_arr(&cur_nodes); });
 
-    kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_KPM_ID, i_0, sm_cb_kpm);
-    assert(kpm_handle[i].success == true);
+        // TODO: send subscription request to new e2 node
+        for (size_t i = 0; i < cur_nodes_len; i++) {
+          //printf("/////////////// new E2 node list, idx %ld, nb_id %d, type %s //////////////\n", i,
+          //       cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
+          ngran_node_t cur_type = cur_nodes.n[i].id.type;
+          uint32_t cur_nb_id = cur_nodes.n[i].id.nb_id;
+          bool new_type = 1;
+          bool new_nb_id = 1;
+          // compare the type between old and new e2 nodes list
+          for (size_t j = 0; j < nodes_len; j++) {
+            //printf("/////////////// old E2 node list, idx %ld, nb_id %d, type %s //////////////\n", j,
+            //       nodes.n[j].id.nb_id, get_ngran_name(nodes.n[j].id.type));
+            if (nodes.n[j].id.type == cur_type) new_type = 0;
+            if (nodes.n[j].id.nb_id == cur_nb_id) new_nb_id = 0;
+          }
+          if (new_type || new_nb_id) {
+            if (cur_type == 2 || cur_type == 7) {
+              printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
+              send_subscription_req(&cur_nodes.n[i], i, handle[c_handle]);
+              c_handle += 1;
+            }
+          }
+        }
+      }
+      nodes_len = cur_nodes_len;
+      nodes = e2_nodes_xapp_api();
+
+      if (nodes_len == 0)
+        c_handle = 0;
+    }
   }
 
-  sleep(10);
+  printf("CTRL+C detect\n");
+  // TODO: send subscription request delete
+  for(size_t i = 0; i < c_handle; ++i)
+    rm_report_sm_xapp_api(handle[i].u.handle);
 
+  // free sm handel
+  // TODO: free handle
+  free(handle);
 
-  for(int i = 0; i < nodes.len; ++i){
-    // Remove the handle previously returned
-    rm_report_sm_xapp_api(kpm_handle[i].u.handle);
-  }
-
-  if(nodes.len > 0){
-    free(kpm_handle);
-  }
-
-  //Stop the xApp
+  // stop the xApp
   while(try_stop_xapp_api() == false)
     usleep(1000);
 

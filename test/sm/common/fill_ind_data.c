@@ -116,7 +116,8 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
   ind->hdr.senderType = NULL;
   ind->hdr.vendorName = NULL;
 
-  if (rand()%100 == 0)
+  size_t num_ues = rand()%100;
+  if (num_ues == 0)
   {
     adapter_MeasDataItem_t *KPMData = calloc(1, sizeof(adapter_MeasDataItem_t));
     KPMData[0].measRecord_len = 1;
@@ -125,8 +126,8 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
     adapter_MeasRecord_t * KPMRecord = calloc(KPMData[0].measRecord_len, sizeof(adapter_MeasRecord_t));
     KPMData[0].measRecord = KPMRecord;
     for (size_t i=0; i<KPMData[0].measRecord_len ; i++){
-      KPMRecord[i].type = MeasRecord_int;
-      KPMRecord[i].int_val = 0;
+      KPMRecord[i].type = MeasRecord_real;
+      KPMRecord[i].real_val = time_now_us();
     }
 
     ind->msg.MeasData = KPMData;
@@ -137,56 +138,55 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
     ind->msg.granulPeriod = NULL;
 
   } else {
+    // TODO: only can support one ue currently
+    num_ues = 1;
+    adapter_MeasDataItem_t *KPMData = calloc(num_ues, sizeof(adapter_MeasDataItem_t));
 
-    adapter_MeasDataItem_t *KPMData = calloc(1, sizeof(adapter_MeasDataItem_t));
-    KPMData[0].measRecord_len = rand()%100 + 1;
-    KPMData[0].incompleteFlag =  -1;
-    
-    adapter_MeasRecord_t * KPMRecord = calloc(KPMData[0].measRecord_len, sizeof(adapter_MeasRecord_t));
-    KPMData[0].measRecord = KPMRecord;
-    for (size_t i=0; i<KPMData[0].measRecord_len ; i++){
-      KPMRecord[i].type = MeasRecord_int;
-      KPMRecord[i].int_val = rand();
+    size_t num_data = 10;
+    for (size_t i = 0; i < num_ues; i++) {
+      KPMData[i].measRecord_len = num_data;
+      adapter_MeasRecord_t* KPMRecord = calloc(KPMData[i].measRecord_len, sizeof(adapter_MeasRecord_t));
+      KPMData[i].measRecord = KPMRecord;
+      for (size_t j = 0; j < num_data; j++) {
+        KPMRecord[j].type = MeasRecord_real;
+        KPMRecord[j].real_val = j == 0 ? t : abs(rand()%1024);
+        // printf("fill kpm real value %f\n", KPMRecord[j].real_val);
+      }
+      KPMData[i].incompleteFlag = -1;
     }
     
-
     ind->msg.MeasData = KPMData;
-    ind->msg.MeasData_len = 1;
-
+    ind->msg.MeasData_len = num_ues;
     ind->msg.granulPeriod = NULL;
-    
-    ind->msg.MeasInfo_len = 2;
-    ind->msg.MeasInfo = calloc(ind->msg.MeasInfo_len, sizeof(MeasInfo_t));
-    assert(ind->msg.MeasInfo != NULL && "Memory exhausted" );
-    
-    MeasInfo_t* info1 = &ind->msg.MeasInfo[0];
-    assert(info1 != NULL && "memory exhausted");
-    info1->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
-    char* measName = "PrbDlUsage";
-    info1->measName.len = strlen(measName) + 1;
-    info1->measName.buf = malloc(strlen(measName)+1) ;
-    assert(info1->measName.buf != NULL && "memory exhausted");
-    memcpy(info1->measName.buf, measName, strlen(measName) );
-    info1->measName.buf[strlen(measName)] = '\0';
-    info1->labelInfo_len = 1;
-    info1->labelInfo = calloc(info1->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
-    assert(info1->labelInfo != NULL && "memory exhausted");
-    adapter_LabelInfoItem_t* label1 = &info1->labelInfo[0];
-    label1->noLabel = calloc(1, sizeof(long));
-    assert(label1->noLabel != NULL && "memory exhausted");
-    *(label1->noLabel) = 0;
 
-    MeasInfo_t* info2 = &ind->msg.MeasInfo[1];
-    assert(info2 != NULL && "memory exhausted");
-    info2->meas_type = KPM_V2_MEASUREMENT_TYPE_ID;
-    info2->measID = 1L;
-    info2->labelInfo_len = 1;
-    info2->labelInfo = calloc(info2->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
-    assert(info2->labelInfo != NULL && "memory exhausted");
-    adapter_LabelInfoItem_t* label2 = &info2->labelInfo[0];
-    label2->noLabel = calloc(1, sizeof(long));
-    assert(label2->noLabel != NULL && "memory exhausted");
-    *(label2->noLabel) = 0;
+    ind->msg.MeasInfo_len = num_data;
+    if (ind->msg.MeasInfo_len > 0) {
+      ind->msg.MeasInfo = calloc(ind->msg.MeasInfo_len, sizeof(MeasInfo_t));
+      assert(ind->msg.MeasInfo != NULL && "Memory exhausted");
+
+      char *measName_arr[] = {"timestamp", "dl_thr", "ul_thr", "dl_tx", "ul_tx",
+                              "phr", "dl_bler", "dl_mcs", "dl_cqi", "rnti"};
+      for (size_t i = 0; i < ind->msg.MeasInfo_len; i++) {
+        MeasInfo_t* info = &ind->msg.MeasInfo[i];
+        assert(info != NULL && "memory exhausted");
+        info->meas_type = KPM_V2_MEASUREMENT_TYPE_NAME;
+        char *measName = measName_arr[i];
+        info->measName.len = strlen(measName) + 1;
+        info->measName.buf = malloc(strlen(measName) + 1);
+        assert(info->measName.buf != NULL && "memory exhausted");
+        memcpy(info->measName.buf, measName, strlen(measName));
+        info->measName.buf[strlen(measName)] = '\0';
+
+        // TODO: assign labelInfo_len according to the action definition (?)
+        info->labelInfo_len = 1;
+        info->labelInfo = calloc(info->labelInfo_len, sizeof(adapter_LabelInfoItem_t));
+        assert(info->labelInfo != NULL && "memory exhausted");
+        adapter_LabelInfoItem_t *label = &info->labelInfo[0];
+        label->noLabel = calloc(1, sizeof(long));
+        assert(label->noLabel != NULL && "memory exhausted");
+        *(label->noLabel) = 0;
+      }
+    }
   }
 }
 
@@ -202,7 +202,7 @@ void fill_rlc_ind_data(rlc_ind_data_t* ind)
 
   ind_msg->tstamp = time_now_us();
 
-  ind_msg->len = rand()%4;
+  ind_msg->len = 2;
   if(ind_msg->len > 0 ){
     ind_msg->rb = calloc(ind_msg->len, sizeof(rlc_radio_bearer_stats_t) );
     assert(ind_msg->rb != NULL);
@@ -410,6 +410,11 @@ void fill_ul_dl_slice(ul_dl_slice_conf_t* slice)
     assert(slice->slices != NULL && "memory exhausted");
   }
 
+  uint32_t type = abs(rand()% SLICE_ALG_SM_V0_END);
+
+  if(type == SLICE_ALG_SM_V0_NONE || type == SLICE_ALG_SM_V0_SCN19)
+    type = SLICE_ALG_SM_V0_STATIC;
+
   for(uint32_t i = 0; i < slice->len_slices; ++i){
     slice->slices[i].id = abs(rand()%1024);
     fr_slice_t* s = &slice->slices[i];
@@ -425,11 +430,6 @@ void fill_ul_dl_slice(ul_dl_slice_conf_t* slice)
     s->sched = malloc(s->len_sched);
     assert(s->sched != NULL && "Memory exhausted");
     memcpy(s->sched, sched_str, s->len_sched);
-
-    uint32_t type = abs(rand()% SLICE_ALG_SM_V0_END);
-
-    if(type == SLICE_ALG_SM_V0_NONE || SLICE_ALG_SM_V0_SCN19)
-      type = SLICE_ALG_SM_V0_STATIC; 
 
 
     if(type == SLICE_ALG_SM_V0_NONE ){

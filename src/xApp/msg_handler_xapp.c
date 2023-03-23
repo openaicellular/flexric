@@ -264,9 +264,10 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
     printf("ric_req_id = %d not in the registry. Spuriosly can happen.\n",  src->ric_id.ric_req_id);
     free_sm_ag_if_rd(&msg_disp.rd);
   } else {
-   
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
    // Write to SQL DB
    write_db_xapp(&xapp->db, &ans.val.e2_node ,&msg_disp.rd);
+#endif
 
     // Write to the callback. Should I send the E2 Node info to the cb??
     msg_disp.sm_cb = ans.val.sm_cb;
@@ -598,18 +599,31 @@ e2ap_msg_t e2ap_handle_e42_update_e2_node_xapp(e42_xapp_t* xapp, const e2ap_msg_
   // The level of abstraction does not belong to this function
   //
 
-  for(size_t i = 0; i < sr->len_e2_nodes_conn; ++i) {
-    if (!find_reg_e2_node(&xapp->e2_nodes, &sr->nodes[i].id)) {
-      global_e2_node_id_t const id = cp_global_e2_node_id(&sr->nodes[i].id);
+  e2_node_arr_t cur_nodes = generate_e2_node_arr(&xapp->e2_nodes);
+  defer( {  free_e2_node_arr(&cur_nodes);  }  );
+
+  size_t cur_nodes_len = cur_nodes.len;
+  size_t update_nodes_len = sr->len_e2_nodes_conn;
+  // 1) remove all the existing e2 nodes from tree
+  for(size_t i = 0; i < cur_nodes_len; ++i) {
+    global_e2_node_id_t const id = cp_global_e2_node_id(&cur_nodes.n[i].id);
+    rm_reg_e2_node(&xapp->e2_nodes, &id);
+  }
+
+  // 2) copy the e2 node info from e42 update msg to xapp
+  for(size_t i = 0; i < update_nodes_len; ++i) {
+    global_e2_node_id_t const id = cp_global_e2_node_id(&sr->nodes[i].id);
+    if (!find_reg_e2_node(&xapp->e2_nodes, &id)) {
       //printf("[xApp]: haven't registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id);
       const size_t len = sr->nodes[i].len_rf;
       ran_function_t* rf = sr->nodes[i].ack_rf;
       add_reg_e2_node(&xapp->e2_nodes, &id, len, rf);
       printf("[xApp]: Registered E2 Nodes = %ld \n",   sz_reg_e2_node(&xapp->e2_nodes) );
-    } //else {
-      //printf("[xApp]: have registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id);
-    //}
+    } else {
+      printf("[xApp]: Already registered E2 Node, nb_id = %d\n", sr->nodes[i].id.nb_id);
+    }
   }
+
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans;
