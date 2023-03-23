@@ -15,10 +15,6 @@ add_executable(test_ag_ric_xapp
                 ${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
                 )
 
-if(XAPP_DB STREQUAL "MYSQL_XAPP")
-  target_link_libraries(test_ag_ric_xapp PUBLIC ${LIBMYSQLCLIENT_LIBRARIES})
-endif()
-
 # enable below directive if you want to debug ASN code: 
 # target_compile_options(test_ag_ric_xapp PUBLIC -DASN_EMIT_DEBUG=1)
 target_link_libraries(test_ag_ric_xapp
@@ -27,6 +23,7 @@ target_link_libraries(test_ag_ric_xapp
                       near_ric
                       e42_iapp
                       e42_xapp
+                      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
                       -pthread
                       -lsctp
                       -ldl

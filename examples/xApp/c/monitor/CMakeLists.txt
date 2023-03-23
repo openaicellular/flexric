@@ -1,6 +1,5 @@
 if(XAPP_DB STREQUAL "MYSQL_XAPP")
 	include_directories(${LIBMYSQLCLIENT_INCLUDE_DIRS})
-	link_libraries(${LIBMYSQLCLIENT_LIBRARIES})
 endif()
 
 # xapp_mac_rlc_pdcp_moni
@@ -20,6 +19,7 @@ target_link_libraries(xapp_mac_rlc_pdcp_moni
 											PUBLIC
 											e42_xapp
 											$<TARGET_OBJECTS:e2_time_obj>
+											$<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
 											-pthread
 											-lsctp
 											-ldl
@@ -44,6 +44,7 @@ target_link_libraries(xapp_gtp_moni
 											PUBLIC
 											e42_xapp
 											$<TARGET_OBJECTS:e2_time_obj>
+											$<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
 											-pthread
 											-lsctp
 											-ldl
@@ -69,6 +70,7 @@ target_link_libraries(xapp_kpm_moni
 											PUBLIC
 											e42_xapp
 											$<TARGET_OBJECTS:e2_time_obj>
+											$<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
 											-pthread
 											-lsctp
 											-ldl
@@ -93,6 +95,7 @@ target_link_libraries(xapp_kpm_moni_infinity
 											PUBLIC
 											e42_xapp
 											$<TARGET_OBJECTS:e2_time_obj>
+											$<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
 											-pthread
 											-lsctp
 											-ldl
@@ -116,6 +119,7 @@ target_link_libraries(xapp_moni
 											PUBLIC
 											e42_xapp
 											$<TARGET_OBJECTS:e2_time_obj>
+											$<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
 											-pthread
 											-lsctp
 											-ldl

@@ -130,14 +130,15 @@ endif()
 #Comment this line to build it from the directory
 ADD_DEPENDENCIES(xapp_sdk e42_xapp_shared)
 
-target_include_directories(xapp_sdk PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
+target_include_directories(xapp_sdk PRIVATE 
+                          $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_INCLUDE_DIRS}>)
 
 SWIG_LINK_LIBRARIES(xapp_sdk
                     e42_xapp_shared
                     -ldl
                     -lsctp
                     -lpthread
-                    ${LIBMYSQLCLIENT_LIBRARIES}
+                    $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
                     )
 
 

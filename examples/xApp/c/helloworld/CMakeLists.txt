@@ -1,8 +1,3 @@
-if(XAPP_DB STREQUAL "MYSQL_XAPP")
-	include_directories(${LIBMYSQLCLIENT_INCLUDE_DIRS})
-	link_libraries(${LIBMYSQLCLIENT_LIBRARIES})
-endif()
-
 add_executable(xapp_hw
 				hw.c
 				${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
@@ -15,13 +10,17 @@ add_executable(xapp_hw
 				${CMAKE_SOURCE_DIR}/src/sm/gtp_sm/ie/gtp_data_ie.c
 				${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
 				)
+if(XAPP_DB STREQUAL "MYSQL_XAPP")
+	include_directories(${LIBMYSQLCLIENT_INCLUDE_DIRS})
+endif()
 
 target_link_libraries(xapp_hw
 						PUBLIC
 						e42_xapp
 						$<TARGET_OBJECTS:e2_time_obj>
+						$<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
 						-pthread
 						-lsctp
 						-ldl
 						)
-
+	

@@ -1,6 +1,5 @@
 if(XAPP_DB STREQUAL "MYSQL_XAPP")
 	include_directories(${LIBMYSQLCLIENT_INCLUDE_DIRS})
-	link_libraries(${LIBMYSQLCLIENT_LIBRARIES})
 endif()
 
 add_executable(xapp_tc_all
@@ -19,6 +18,7 @@ target_link_libraries(xapp_tc_all
                       PUBLIC
                       e42_xapp
                       $<TARGET_OBJECTS:e2_time_obj>
+                      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
                       -pthread
                       -lsctp
                       -ldl
@@ -40,6 +40,7 @@ target_link_libraries(xapp_tc_codel
                       PUBLIC
                       e42_xapp
                       $<TARGET_OBJECTS:e2_time_obj>
+                      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
                       -pthread
                       -lsctp
                       -ldl
@@ -61,6 +62,7 @@ target_link_libraries(xapp_tc_partition
                       PUBLIC
                       e42_xapp
                       $<TARGET_OBJECTS:e2_time_obj>
+                      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
                       -pthread
                       -lsctp
                       -ldl
@@ -82,6 +84,7 @@ target_link_libraries(xapp_tc_ecn
                       PUBLIC
                       e42_xapp
                       $<TARGET_OBJECTS:e2_time_obj>
+                      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
                       -pthread
                       -lsctp
                       -ldl
@@ -103,8 +106,8 @@ target_link_libraries(xapp_tc_osi_codel
                       PUBLIC
                       e42_xapp
                       $<TARGET_OBJECTS:e2_time_obj>
+                      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
                       -pthread
                       -lsctp
                       -ldl
                       )
-
