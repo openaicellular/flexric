@@ -1060,7 +1060,6 @@ void write_rlc_stats(sqlite3* db, global_e2_node_id_t const* id, rlc_ind_data_t 
   for(size_t i = 0; i < ind_msg_rlc->len; ++i){
     pos += to_sql_string_rlc_rb(id, &ind_msg_rlc->rb[i], ind_msg_rlc->tstamp, buffer + pos, 2048 - pos);
   }
-  int64_t st = time_now_us();
   insert_db(db, buffer);
 }
 
