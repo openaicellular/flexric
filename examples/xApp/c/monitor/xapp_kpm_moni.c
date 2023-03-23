@@ -55,7 +55,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
       ts = rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
       aggr_tstamp_kpm += now - ts;
       if (count_kpm == count_max) {
-        printf("KPM ind_msg latency = %lu us\n", aggr_tstamp_kpm/count_max);
+        printf("[%ld] KPM ind_msg latency (averaged) = %lu us\n", now, aggr_tstamp_kpm/count_max);
         count_kpm = 0;
         aggr_tstamp_kpm = 0;
       }
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
   // case2: send subscription req to the new connected e2 node
   while(!exit_flag) {
     size_t cur_nodes_len = e2_nodes_len_xapp_api();
-
+    (void)usleep(10000); // we choose 10ms as kpm reporting has the same value
     if (cur_nodes_len != nodes_len) {
       printf("/////// detect E2 nodes len update, new len = %ld, old len = %ld ///////\n", cur_nodes_len, nodes_len);
       printf("Updating E2 nodes list ...\n");
