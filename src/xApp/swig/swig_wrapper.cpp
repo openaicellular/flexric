@@ -69,7 +69,7 @@ std::vector<E2Node> conn_e2_nodes(void)
 
       tmp_ran.id = rf.id;
       tmp_ran.rev = rf.rev;
-      tmp_ran.def = rf.def;
+      tmp_ran.def = rf.definition;
       // TODO: oid
 
       ran_func.push_back(tmp_ran);// [j] = rf;
