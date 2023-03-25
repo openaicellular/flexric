@@ -109,8 +109,9 @@ target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unu
 elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
   ADD_COMPILE_DEFINITIONS(XAPP_LANG_GO)
   # Compile the Swig wrapper for Go
-  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk.so)
-
+  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk.so -w312 -w314)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
+  
   # Check if go.mod exists
   if(EXISTS "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod")
     MESSAGE(STATUS "go.mod already exists")
