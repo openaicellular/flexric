@@ -84,10 +84,6 @@
 
 %include "stdint.i"
 
-%{
-    #include "../../util/ngran_types.h"
-%}
-
 %insert(cgo_comment_typedefs) %{
 #cgo LDFLAGS: -L. -lxapp_sdk -Wl,-rpath=${SRCDIR}
 %}
@@ -147,7 +143,6 @@
     $result = (long) $1;
 }
 
-%include "../../util/ngran_types.h"
 #endif
 
 %feature("director") mac_cb;
