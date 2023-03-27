@@ -51,7 +51,7 @@ std::vector<E2Node> conn_e2_nodes(void)
   e2_node_arr_t arr = e2_nodes_xapp_api();
    
 
-  std::vector<E2Node> x; //(arr.len);
+  std::vector<E2Node> x;
 
   for(int i = 0; i < arr.len; ++i){
 
@@ -60,11 +60,19 @@ std::vector<E2Node> conn_e2_nodes(void)
     e2_node_connected_t const* src = &arr.n[i];
     tmp.id = cp_global_e2_node_id(&src->id); 
 
-    std::vector<ran_function_t> ran_func;//(src->len_rf);
+    std::vector<RanFunction> ran_func;//(src->len_rf);
 
     for(size_t j = 0; j < src->len_rf; ++j){
       ran_function_t rf = cp_ran_function(&src->ack_rf[j]);
-      ran_func.push_back(rf);// [j] = rf;
+
+      RanFunction tmp_ran;
+
+      tmp_ran.id = rf.id;
+      tmp_ran.rev = rf.rev;
+      tmp_ran.def = rf.definition;
+      // TODO: oid
+
+      ran_func.push_back(tmp_ran);// [j] = rf;
     }
     tmp.ran_func = ran_func;
     x.push_back(tmp);//[i] = tmp;

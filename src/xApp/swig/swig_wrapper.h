@@ -20,9 +20,16 @@
 // General    
 /////////////////////////////////////
 
+struct RanFunction{
+  byte_array_t def;
+  uint16_t id;
+  uint16_t rev;
+  // TODO: std::vector<byte_array_t> oid; // optional
+};
+
 struct E2Node {
   global_e2_node_id_t id;
-  std::vector<ran_function_t> ran_func;
+  std::vector<RanFunction> ran_func;
 };
 
 void init(void); 

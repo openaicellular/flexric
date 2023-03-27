@@ -108,7 +108,42 @@ target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unu
 #GOLANG compilation
 elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
   ADD_COMPILE_DEFINITIONS(XAPP_LANG_GO)
-  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64)
+  # Compile the Swig wrapper for Go
+  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk.so -w312 -w314)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
+  
+  # Check if go.mod exists
+  if(EXISTS "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod")
+    MESSAGE(STATUS "go.mod already exists")
+  else()
+    execute_process(COMMAND go mod init final.com/xapp_sdk
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/examples/xApp/go/
+      RESULT_VARIABLE go_mod_init_result
+      OUTPUT_VARIABLE go_mod_init_output
+      ERROR_VARIABLE go_mod_init_error)
+    if(NOT go_mod_init_result EQUAL 0)
+    message(FATAL_ERROR "Failed to run 'go mod init': ${go_mod_init_error}")
+    endif()
+  endif()
+  
+  
+  # Copy the necessary files to the build directory
+  SWIG_LINK_LIBRARIES(xapp_sdk ${GO_LIBRARIES})
+   # Copy go.mod, xapp_sdk.go and libxapp_sdk.so to the build directory
+   # These 3 files are necessary to build the xApp
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod" "${CMAKE_BINARY_DIR}/examples/xApp/go/go.mod" )
+
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/go/libxapp_sdk.so" )
+
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk.go" )
+   
+   # Copy the Go xApps to the build directory
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+     "${CMAKE_SOURCE_DIR}/examples/xApp/go/helloworld/helloworld.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/helloworld.go" )
+
+   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+     "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" )
+
 
 #JAVA compilation
 elseif(XAPP_TARGET_LANGUAGE STREQUAL "JAVA_LANG")
@@ -140,6 +175,5 @@ SWIG_LINK_LIBRARIES(xapp_sdk
                     -lpthread
                     $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
                     )
-
 
 
