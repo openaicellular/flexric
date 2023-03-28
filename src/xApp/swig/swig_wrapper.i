@@ -87,6 +87,15 @@
     $result = PyInt_FromLong((long) $1);
 }
 
+/* patch 'cu_du_id' as an uint64_t pointer*/
+%typemap(out) uint64_t * {
+    if ($1 == NULL) {
+        $result = PyInt_FromLong((long) 0);
+    } else {
+        $result = PyInt_FromLong((long) *$1);
+    }
+}
+
 /* intXX_t mapping: C -> Python */
 %typemap(out) int8_t {
     $result = PyInt_FromLong((long) $1);
