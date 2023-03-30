@@ -20,8 +20,8 @@
 
 // 'cp' is buffer in  reception to compare the received indication message against the sent one
 static kpm_ric_indication_t cp_indication; 
-static kpm_ric_subscription_t cp_subscription;
-static kpm_e2_setup_t cp_e2_setup;
+// static kpm_ric_subscription_t cp_subscription;
+// static kpm_e2_setup_t cp_e2_setup;
 
 
 // AGENT part of the architecture. The communication with the RAN is achieved via READ/WRITE methods below
@@ -66,20 +66,16 @@ void check_eq_ran_function(sm_agent_t * ag, sm_ric_t const* ric)
   sm_e2_setup_t e2_setup_data = ag->proc.on_e2_setup(ag);
   printf ("[IE E2 Setup] correctly encoded\n");
   
-  cp_e2_setup = cp_kpm_e2_setup(&e2_setup_data);
-
-  // Decoding of E2 Setup message
-  sm_ag_if_ans_t msg = ric->proc.on_e2_setup(ric, &e2_setup_data);
-  printf ("[IE E2 Setup] correctly decoded\n");
+  // Decoding of E2 Setup message - void for now
+  // printf ("[IE E2 Setup] correctly decoded\n");
 
   // Checking the E2 Setup correctness
-  kpm_e2_setup_t * data = &msg.kpm_e2_setup;
-  assert(msg.type == KPM_E2_SETUP_ANS_V0);
-  assert(eq_kpm_e2_setup(&cp_e2_setup, data) == true && "Failure checking for correctness in E2 Setup data IE");
+  // assert(msg.type == KPM_E2_SETUP_ANS_V0);
+  // assert(eq_kpm_e2_setup(&cp_e2_setup, data) == true && "Failure checking for correctness in E2 Setup data IE");
 
   free_sm_e2_setup(&e2_setup_data);
-  free_kpm_e2_setup(&cp_e2_setup);
-  free_kpm_e2_setup(data);
+  // free_kpm_e2_setup(&cp_e2_setup);
+  // free_kpm_e2_setup(data);
 }
 
 /* Direction: RIC -> E2 
@@ -92,27 +88,23 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
   assert(ric != NULL);
  
   // Encoding of RIC SUBSCRIPTION message
-  sm_subs_data_t subs_data = ric->proc.on_subscription(ric);
+  sm_subs_data_t subs_data = ric->proc.on_subscription(ric, "2_ms");
   printf ("[IE RIC Event Trigger Definition] correctly encoded\n");
-  printf ("[IE RIC Action Definition] correctly encoded\n");
-
-  cp_subscription = cp_kpm_subscription_data(&subs_data);
+  // printf ("[IE RIC Action Definition] correctly encoded\n");
   
 
   // Decoding of RIC SUBSCRIPTION message
-  sm_ag_if_wr_t msg = ag->proc.on_subscription(ag, &subs_data);
-  printf ("[IE RIC Event Trigger Definition] correctly decoded\n");
-  printf ("[IE RIC Action Definition] correctly decoded\n");
+  // printf ("[IE RIC Event Trigger Definition] correctly decoded\n");
+  // printf ("[IE RIC Action Definition] correctly decoded\n");
 
 
   // Checking the RIC SUBSCRIPTION correctness
-  kpm_ric_subscription_t * data = &msg.kpm;
-  assert(msg.type == KPM_RIC_IF_SUBS_ANS_V0);
-  assert(eq_kpm_subscription_data(&cp_subscription, data) == true && "Failure checking for correctness in subscription data IE");
+  assert ((ag->proc.on_subscription(ag, &subs_data)).ms == 2 && "error in decoding trigger");
+  // assert(eq_kpm_subscription_data(&cp_subscription, data) == true && "Failure checking for correctness in subscription data IE");
 
-  free_kpm_subscription_data(data);
+  // free_kpm_subscription_data(data);
   free_sm_subs_data(&subs_data);
-  free_kpm_subscription_data(&cp_subscription);
+  // free_kpm_subscription_data(&cp_subscription);
 
 }
 

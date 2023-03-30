@@ -35,7 +35,7 @@ typedef struct sm_agent_s sm_agent_t;
 
 typedef struct{
 
-  sm_ag_if_wr_t (*on_subscription)(sm_agent_t* sm, sm_subs_data_t const* data);
+  subscribe_timer_t (*on_subscription)(sm_agent_t* sm, sm_subs_data_t const* data);
 
   sm_ind_data_t (*on_indication)(sm_agent_t* sm);
 

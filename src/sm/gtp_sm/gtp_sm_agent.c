@@ -54,21 +54,19 @@ typedef struct{
 // E2 Setup and RIC Service Update. 
 //
 static
-sm_ag_if_wr_t  on_subscription_gtp_sm_ag(sm_agent_t* sm_agent, const sm_subs_data_t* data)
+subscribe_timer_t  on_subscription_gtp_sm_ag(sm_agent_t* sm_agent, const sm_subs_data_t* data)
 {
   assert(sm_agent != NULL);
   assert(data != NULL);
 
   sm_gtp_agent_t* sm = (sm_gtp_agent_t*)sm_agent;
  
-  sm_ag_if_wr_t ret = {.type = GTP_RIC_IF_SUBS_ANS_V0};
+  gtp_event_trigger_t ev = gtp_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
 
-  ret.gtp.et = gtp_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
-  ret.gtp.ad = NULL;
-
-
-  return ret;
+  subscribe_timer_t timer = {.ms = ev.ms };
+  return timer;
 }
+
 
 static
 sm_ind_data_t on_indication_gtp_sm_ag(sm_agent_t* sm_agent)

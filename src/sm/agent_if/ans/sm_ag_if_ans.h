@@ -42,14 +42,6 @@ typedef enum{
   TC_AGENT_IF_CTRL_ANS_V0,
   GTP_AGENT_IF_CTRL_ANS_V0,
 
-  MAC_E2_SETUP_ANS_V0,
-  RLC_E2_SETUP_ANS_V0,
-  PDCP_E2_SETUP_ANS_V0,
-  SLICE_E2_SETUP_ANS_V0,
-  TC_E2_SETUP_ANS_V0,
-  GTP_E2_SETUP_ANS_V0,
-  KPM_E2_SETUP_ANS_V0,
-
   SM_AGENT_IF_ANS_V0_END,
 } sm_ag_if_ans_e;
 
@@ -63,15 +55,6 @@ typedef struct{
     slice_ctrl_out_t slice;
     tc_ctrl_out_t tc;
     gtp_ctrl_out_t gtp;
-
-    mac_e2_setup_data_t mac_e2_setup;
-    rlc_e2_setup_data_t rlc_e2_setup;
-    pdcp_e2_setup_data_t pdcp_e2_setup;
-    slice_e2_setup_data_t slice_e2_setup;
-    tc_e2_setup_data_t tc_e2_setup;
-    gtp_e2_setup_data_t gtp_e2_setup;
-    kpm_e2_setup_t kpm_e2_setup;
-
   };
 
 } sm_ag_if_ans_t;

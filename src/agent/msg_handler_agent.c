@@ -142,49 +142,8 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   sm_subs_data_t data = generate_sm_subs_data(sr);
   uint16_t const ran_func_id = sr->ric_id.ran_func_id; 
   sm_agent_t* sm = sm_plugin_ag(&ag->plugin, ran_func_id);
-  sm_ag_if_wr_t subs_data = sm->proc.on_subscription(sm, &data);
-
-  uint32_t time_ms = {0};
-
-  switch (subs_data.type)
-  {
-  case MAC_RIC_IF_SUBS_ANS_V0:
-    time_ms = subs_data.mac.et.ms;
-    break;
-  
-  case RLC_RIC_IF_SUBS_ANS_V0:
-    time_ms = subs_data.rlc.et.ms;
-    break;
-
-  case PDCP_RIC_IF_SUBS_ANS_V0:
-    time_ms = subs_data.pdcp.et.ms;
-    break;
-
-  case SLICE_RIC_IF_SUBS_ANS_V0:
-    time_ms = subs_data.slice.et.ms;
-    break;
-
-  case TC_RIC_IF_SUBS_ANS_V0:
-    time_ms = subs_data.tc.et.ms;
-    break;
-
-  case GTP_RIC_IF_SUBS_ANS_V0:
-    time_ms = subs_data.gtp.et.ms;
-    break;
-
-  case KPM_RIC_IF_SUBS_ANS_V0:
-    assert(subs_data.kpm.kpm_event_trigger_def.type == FORMAT_1_RIC_EVENT_TRIGGER);
-    time_ms = subs_data.kpm.kpm_event_trigger_def.kpm_ric_event_trigger_format_1.report_period_ms;
-    break;
-
-  default:
-    assert(false && "Unknown SM Type");
-  }
-
-
-
-
-  int fd_timer = create_timer_ms_asio_agent(&ag->io, time_ms, time_ms);
+  subscribe_timer_t t = sm->proc.on_subscription(sm, &data);
+  int fd_timer = create_timer_ms_asio_agent(&ag->io, t.ms, t.ms); 
   //printf("fd_timer for subscription value created == %d\n", fd_timer);
 
   // Register the indication event
