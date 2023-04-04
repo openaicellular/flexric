@@ -94,3 +94,4 @@ target_compile_definitions(near_ric PRIVATE ${E2AP_ENCODING})
 
 target_compile_definitions(near_ric_test PRIVATE ${E2AP_ENCODING})
 target_compile_definitions(near_ric_test PRIVATE TEST_AGENT_RIC)
+
