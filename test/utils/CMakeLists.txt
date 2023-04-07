@@ -7,6 +7,6 @@ target_link_libraries(test_bimap
               $<TARGET_OBJECTS:e2ap_alg_obj>
               $<TARGET_OBJECTS:pending_events_obj>
               $<TARGET_OBJECTS:e2ap_types_obj>
-              -pthread -lsctp -ldl -lwebsockets -ljson-c)
+              -pthread -lsctp -ldl)
 enable_testing()
 add_test(Unit_test_bimap test_bimap)
