@@ -27,9 +27,9 @@
 #include "sm/sm_agent.h"
 #include "util/alg_ds/alg/alg.h"
 #include "util/compare.h"
-
+#ifdef PROXY_AGENT
 #include "../proxy-agent/notif_e2_ws.h"
-
+#endif
 #include <stdio.h>
 
 static

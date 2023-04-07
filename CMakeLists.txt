@@ -182,12 +182,7 @@ message(STATUS "Include support for RAN with a websocket interface: ${RAN_WITH_W
 include_directories(src)
 add_subdirectory(src)
 add_subdirectory(examples)
-
-if (UNIT_TEST)
-  add_subdirectory(test)
-endif ()
-
-
+add_subdirectory(test)
 
 # Build SWIG interface
 #add_subdirectory(src/xApp/swig)
