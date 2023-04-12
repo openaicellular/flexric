@@ -1,0 +1,19 @@
+#ifndef O_RRM_POLICY_RATIO_ATTRIBUTE_NAME_H
+#define O_RRM_POLICY_RATIO_ATTRIBUTE_NAME_H
+
+
+//  8.8.1.4  O-RRMPolicyRatio - REPORT & CONTROL services
+
+typedef enum {
+    RESOURCE_TYPE_ATTRIBUTE_NAME,
+    RRM_POLICY_MEMBER_LIST_ATTRIBUTE_NAME,
+    RRM_POLICY_MAX_RATIO_ATTRIBUTE_NAME,
+    RRM_POLICY_MIN_RATIO_ATTRIBUTE_NAME,
+    RRM_POLICY_DEDICATED_RATIO_ATTRIBUTE_NAME,
+
+    END_RRM_POLICY_RATIO_ATTRIBUTE_NAME
+
+} o_rrm_policy_ratio_attribute_name_e;  //  for event trigger and action definition
+
+
+#endif

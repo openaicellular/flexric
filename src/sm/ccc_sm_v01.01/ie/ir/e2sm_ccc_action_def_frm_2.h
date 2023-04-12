@@ -5,7 +5,7 @@
 
 #include "../../../../lib/e2sm_common_ie/sm_common_ie/cell_global_id.h"
 #include "report_type.h"
-#include "cell_level_ran_conf_struct.h"
+#include "cell_level_ran_conf_struct_report_et_ad.h"
 
 typedef struct {
     // Mandatory
@@ -16,7 +16,7 @@ typedef struct {
     // Mandatory
     // Cell-Level RAN Configuration Structures
     // 8.2.2
-    cell_level_ran_conf_struct_t cell_level_ran_conf_struct;
+    cell_level_ran_conf_struct_report_et_ad_t cell_level_ran_conf_struct;
 
 
 } cell_level_conf_list_act_def_frm_2_t;

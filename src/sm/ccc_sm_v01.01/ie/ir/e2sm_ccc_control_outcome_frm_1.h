@@ -3,24 +3,13 @@
 
 #include "../../../../util/byte_array.h"
 
-#include "e2sm_ccc_control_msg_frm_1.h"
+#include "node_level_ran_conf_struct_control.h"
 #include "control_cause_failure.h"
 
 typedef struct {
     // Mandatory
-    // RAN Configuration Structure Name
-    // 9.3.7 => 8.2.1
-    node_level_ran_conf_struct_name_control_e type;
-
-    // Mandatory
-    // Old Values of Attributes
-    // 8.8.1
-    values_of_attributes_node_control_u old_values;
-
-    // Mandatory
-    // Current Values of Attributes
-    // 8.8.1
-    values_of_attributes_node_control_u current_values;
+    // Node Level RAN Configuration Structures CONTROL
+    node_level_ran_conf_struct_control_t ran_conf_struct_list;
 
     // Optional
     // Applied Timestamp
@@ -31,19 +20,8 @@ typedef struct {
 
 typedef struct {
     // Mandatory
-    // RAN Configuration Structure Name
-    // 9.3.7 => 8.2.1
-    node_level_ran_conf_struct_name_control_e type;
-
-    // Mandatory
-    // Old Values of Attributes
-    // 8.8.1
-    values_of_attributes_node_control_u old_values;
-
-    // Mandatory
-    // Requested Values of Attributes
-    // 8.8.1
-    values_of_attributes_node_control_u requested_values;
+    // Node Level RAN Configuration Structures CONTROL
+    node_level_ran_conf_struct_control_t ran_conf_struct_list;
 
     // Mandatory
     // Cause

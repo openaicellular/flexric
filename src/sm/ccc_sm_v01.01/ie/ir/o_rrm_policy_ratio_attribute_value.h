@@ -1,19 +1,7 @@
-#ifndef O_RRM_POLICY_RATIO_NODE_H
-#define O_RRM_POLICY_RATIO_NODE_H
+#ifndef O_RRM_POLICY_RATIO_ATTRIBUTE_VALUE_H
+#define O_RRM_POLICY_RATIO_ATTRIBUTE_VALUE_H
 
 #include "rrm_policy_member_list.h"
-
-typedef enum {
-    RESOURCE_TYPE_ATTRIBUTE_O_RRM_POLICY_RATIO,
-    RRM_POLICY_MEMBER_LIST_ATTRIBUTE_O_RRM_POLICY_RATIO,
-    RRM_POLICY_MAX_RATIO_ATTRIBUTE_O_RRM_POLICY_RATIO,
-    RRM_POLICY_MIN_RATIO_ATTRIBUTE_O_RRM_POLICY_RATIO,
-    RRM_POLICY_DEDICATED_RATIO_ATTRIBUTE_O_RRM_POLICY_RATIO,
-
-    END_ATTRIBUTE_O_RRM_POLICY_RATIO
-
-} o_rrm_policy_ratio_attributes_e;  //  for event trigger and action definition
-
 
 typedef enum {
     PRB_UL_RESOURCE_TYPE,
@@ -37,7 +25,7 @@ typedef union {
     uint8_t rrm_policy_dedicated_ratio:7;  // [1..100] This attribute specifies the percentage of radio resource that dedicatedly used by the associated  rRMPolicyMemberList. The sum of the ‘rRMPolicyDedicatedRatio’ values assigned to all RRMPolicyRatio(s) name-contained by same MangedEntity shall be less or equal 100.
 
 
-} o_rrm_policy_ratio_u;  //  for indication message
+} o_rrm_policy_ratio_attribute_value_u;  //  for indication message
 
 
 #endif

@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include "node_level_ran_conf_struct.h"
+#include "node_level_ran_conf_struct_report_et_ad.h"
 #include "report_type.h"
 
 typedef struct {
@@ -15,7 +15,7 @@ typedef struct {
     // Mandatory
     // Node-Level RAN Configuration Structures
     // 8.2.1
-    node_level_ran_conf_struct_t node_level_ran_conf_struct;
+    node_level_ran_conf_struct_report_et_ad_t node_level_ran_conf_struct;
 
 } node_level_conf_list_act_def_frm_1_t;
 

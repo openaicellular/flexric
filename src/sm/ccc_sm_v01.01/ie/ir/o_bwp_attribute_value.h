@@ -1,5 +1,5 @@
-#ifndef O_BWP_CELL_H
-#define O_BWP_CELL_H
+#ifndef O_BWP_ATTRIBUTE_VALUE_H
+#define O_BWP_ATTRIBUTE_VALUE_H
 
 
 #include <stdint.h>
@@ -42,17 +42,6 @@ typedef enum {
 
 } cyclic_prefix_e;
 
-typedef enum {
-    BWP_CONTEXT_ATTRIBUTE_O_BWP,
-    IS_INITIAL_BWP_ATTRIBUTE_O_BWP,
-    SUB_CARRIER_SPACING_ATTRIBUTE_O_BWP,
-    CYCLIC_PREFIX_ATTRIBUTE_O_BWP,
-    START_RB_ATTRIBUTE_O_BWP,
-    NUMBER_OF_RBS_ATTRIBUTE_O_BWP,
-
-    END_ATTRIBUTE_O_BWP
-
-} o_bwp_attributes_e;  //  for event trigger and action definition
 
 
 // 8.8.2.3  O-BWP - REPORT & CONTROL services
@@ -65,6 +54,6 @@ typedef union {
     uint64_t start_rb;  //  Offset in common resource blocks to common resource block 0 for the applicable subcarrier spacing for a BWP. This corresponds to N_BWP_start, see subclause 4.4.5 in TS 38.211 [32]. 
     uint64_t number_of_rbs;  //  Number of physical resource blocks for a BWP. This corresponds to N_BWP_size, see subclause 4.4.5 in TS 38.211 [32].
 
-} o_bwp_cell_u;  // for indication message
+} o_bwp_attribute_value_u;  // for indication message
 
 #endif

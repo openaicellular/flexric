@@ -1,0 +1,19 @@
+#ifndef O_BWP_ATTRIBUTE_NAME_H
+#define O_BWP_ATTRIBUTE_NAME_H
+
+// 8.8.2.3  O-BWP - REPORT & CONTROL services
+
+typedef enum {
+    BWP_CONTEXT_ATTRIBUTE_NAME,
+    IS_INITIAL_BWP_ATTRIBUTE_NAME,
+    SUB_CARRIER_SPACING_ATTRIBUTE_NAME,
+    CYCLIC_PREFIX_ATTRIBUTE_NAME,
+    START_RB_ATTRIBUTE_NAME,
+    NUMBER_OF_RBS_ATTRIBUTE_NAME,
+
+    END_O_BWP_ATTRIBUTE_NAME
+
+} o_bwp_attribute_name_e;  //  for event trigger and action definition
+
+
+#endif

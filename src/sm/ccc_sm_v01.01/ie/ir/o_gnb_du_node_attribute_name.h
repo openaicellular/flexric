@@ -1,0 +1,19 @@
+#ifndef O_GNB_DU_NODE_ATTRIBUTE_NAME_H
+#define O_GNB_DU_NODE_ATTRIBUTE_NAME_H
+
+
+// 8.8.1.1  O-GNBDUFunction - REPORT service
+
+typedef enum {
+    GNB_DU_ID_NODE_ATTRIBUTE_NAME_O_GNB_DU_FUNCTION,
+    GNB_DU_NAME_NODE_ATTRIBUTE_NAME_O_GNB_DU_FUNCTION,
+    GNB_ID_NODE_ATTRIBUTE_NAME_O_GNB_DU_FUNCTION,
+    GNB_ID_LENGTH_NODE_ATTRIBUTE_NAME_O_GNB_DU_FUNCTION,
+
+    END_NODE_ATTRIBUTE_NAME_O_GNB_DU_FUNCTION
+
+} o_gnb_du_node_attribute_name_e;  // for event trigger and action definition
+
+
+
+#endif

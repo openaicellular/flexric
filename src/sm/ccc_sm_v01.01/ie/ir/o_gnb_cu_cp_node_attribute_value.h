@@ -1,23 +1,10 @@
-#ifndef O_GNB_CU_CP_FUNCTION_NODE_H
-#define O_GNB_CU_CP_FUNCTION_NODE_H
+#ifndef O_GNB_CU_CP_NODE_ATTRIBUTE_VALUE_H
+#define O_GNB_CU_CP_NODE_ATTRIBUTE_VALUE_H
 
 #include <stdint.h>
 
+#include "../../../../util/byte_array.h"
 #include "../../../../lib/e2sm_common_ie/3gpp_derived_ie/plmn_identity.h"
-
-typedef enum {
-    GNB_ID_ATTRIBUTE_O_GNB_CU_CP_FUNCTION_NODE,
-    GNB_ID_LENGTH_ATTRIBUTE_O_GNB_CU_CP_FUNCTION_NODE,
-    GNB_CU_NAME_ATTRIBUTE_O_GNB_CU_CP_FUNCTION_NODE,
-    PLMN_ID_ATTRIBUTE_O_GNB_CU_CP_FUNCTION_NODE,
-    X2_EXCLUDE_LIST_ATTRIBUTE_O_GNB_CU_CP_FUNCTION_NODE,
-    X2_INCLUDE_LIST_ATTRIBUTE_O_GNB_CU_CP_FUNCTION_NODE,
-    XN_EXCLUDE_LIST_ATTRIBUTE_O_GNB_CU_CP_FUNCTION_NODE,
-    XN_INCLUDE_LIST_ATTRIBUTE_O_GNB_CU_CP_FUNCTION_NODE,
-
-    END_ATTRIBUTE_O_GNB_CU_CP_FUNCTION_NODE,
-
-} o_gnb_cu_cp_attributes_e;  //  for event trigger and action definition
 
 
 // 8.8.1.2  O-GNBCUCPFunction - REPORT & CONTROL services
@@ -34,6 +21,6 @@ typedef union {
     // byte_array_t x2_xn_ho_exclude_list;   in spec defined as xnHOBlockList & x2HOBlockList; to be finished
 
 
-} o_gnb_cu_cp_function_node_u;  //  for indication message
+} o_gnb_cu_cp_node_attribute_value_u;  //  for indication message
 
 #endif

@@ -4,24 +4,13 @@
 #include "../../../../util/byte_array.h"
 #include "../../../../lib/e2sm_common_ie/sm_common_ie/cell_global_id.h"
 
-#include "e2sm_ccc_control_msg_frm_2.h"
+#include "cell_level_ran_conf_struct_control.h"
 #include "control_cause_failure.h"
 
 typedef struct {
     // Mandatory
-    // RAN Configuration Structure Name
-    // 9.3.7 => 8.2.2
-    cell_level_ran_conf_struct_name_control_e type;
-
-    // Mandatory
-    // Old Values of Attributes
-    // 8.8.2
-    values_of_attributes_cell_control_u old_values;
-
-    // Mandatory
-    // Current Values of Attributes
-    // 8.8.2
-    values_of_attributes_cell_control_u current_values;
+    // Cell Level RAN Configuration Structures CONTROL
+    cell_level_ran_conf_struct_control_t ran_conf_struct_list;
 
     // Optional
     // Applied Timestamp
@@ -34,19 +23,8 @@ typedef struct {
 
 typedef struct {
     // Mandatory
-    // RAN Configuration Structure Name
-    // 9.3.7 => 8.2.2
-    cell_level_ran_conf_struct_name_control_e type;
-
-    // Mandatory
-    // Old Values of Attributes
-    // 8.8.2
-    values_of_attributes_cell_control_u old_values;
-
-    // Mandatory
-    // Requested Values of Attributes
-    // 8.8.2
-    values_of_attributes_cell_control_u requested_values;
+    // Cell Level RAN Configuration Structures CONTROL
+    cell_level_ran_conf_struct_control_t ran_conf_struct_list;
 
     // Mandatory
     // Cause

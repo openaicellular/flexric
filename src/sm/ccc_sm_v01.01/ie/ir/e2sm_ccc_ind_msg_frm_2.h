@@ -5,16 +5,7 @@
 
 #include "../../../../lib/e2sm_common_ie/sm_common_ie/cell_global_id.h"
 #include "change_type.h"
-#include "cell_level_ran_conf_struct.h"
-
-
-typedef union {
-    o_nr_cell_cu_cell_level_u *o_nr_cell_cu_cell;  //  8.8.2.1
-    o_nr_cell_du_cell_u *o_nr_cell_du_cell;  //  8.8.2.2
-    o_bwp_cell_u *o_bwp_cell;  //  8.8.2.3
-    o_rrm_policy_ratio_u *o_rrm_policy_ratio_cell;  //  8.8.2.4
-
-} values_of_attributes_cell_u;
+#include "cell_level_ran_conf_struct_report_ind_msg.h"
 
 
 typedef struct {
@@ -23,22 +14,9 @@ typedef struct {
     change_type_e change_type;
 
     // Mandatory
-    // RAN Configuration Structure Name
-    // 9.3.7 => 8.2.2
-    cell_level_ran_conf_struct_name_e type;
-
-    // Mandatory
-    // Values of Attributes
-    // 8.8.2
-    size_t values_list_len;  // [1..65535] allocation within the union
-    values_of_attributes_cell_u values;  //  OCTET STRING
-
-    // Optional
-    // Old Values of Attributes
-    // 8.8.2
-    size_t old_values_list_len;  // [1..65535] allocation within the union
-    values_of_attributes_cell_u *old_values;  //  OCTET STRING
-
+    // List of attribute values
+    cell_level_ran_conf_struct_report_ind_msg_t cell_level_item;
+    
 
 } cell_level_conf_list_ind_msg_frm_2_t;
 

@@ -1,5 +1,5 @@
-#ifndef O_NR_CELL_DU_CELL_H
-#define O_NR_CELL_DU_CELL_H
+#ifndef O_NR_CELL_DU_ATTRIBUTE_VALUE_H
+#define O_NR_CELL_DU_ATTRIBUTE_VALUE_H
 
 #include <stdint.h>
 
@@ -66,32 +66,6 @@ typedef enum {
 } ssb_duration_e;
 
 
-typedef enum {
-    CELL_LOCAL_ID_ATTRIBUTE_O_NR_CELL_DU,
-    OPERATIONAL_STATE_ATTRIBUTE_O_NR_CELL_DU,
-    ADMINISTRATIVE_STATE_ATTRIBUTE_O_NR_CELL_DU,
-    CELL_STATE_ATTRIBUTE_O_NR_CELL_DU,
-    PLMN_INFO_LIST_ATTRIBUTE_O_NR_CELL_DU,
-    N_RPCI_ATTRIBUTE_O_NR_CELL_DU,
-    N_RTAC_ATTRIBUTE_O_NR_CELL_DU,
-    ARFCN_DL_ATTRIBUTE_O_NR_CELL_DU,
-    ARFCN_UL_ATTRIBUTE_O_NR_CELL_DU,
-    ARFCN_SUL_ATTRIBUTE_O_NR_CELL_DU,
-    BS_CHANNEL_BW_DL_ATTRIBUTE_O_NR_CELL_DU,
-    SSB_FREQUENCY_ATTRIBUTE_O_NR_CELL_DU,
-    SSB_PERIODICITY_ATTRIBUTE_O_NR_CELL_DU,
-    SSB_SUB_CARRIER_SPACING_ATTRIBUTE_O_NR_CELL_DU,
-    SSB_OFFSET_ATTRIBUTE_O_NR_CELL_DU,
-    SSB_DURATION_ATTRIBUTE_O_NR_CELL_DU,
-    BS_CHANNEL_BW_UL_ATTRIBUTE_O_NR_CELL_DU,
-    BS_CHANNEL_BW_SUL_ATTRIBUTE_O_NR_CELL_DU,
-    BWP_LIST_ATTRIBUTE_O_NR_CELL_DU,
-
-    END_ATTRIBUTE_O_NR_CELL_DU
-
-} o_nr_cell_du_attributes_e;  //  for event trigger and action definition
-
-
 //  8.8.2.2  O-NRCellDU - REPORT service
 
 typedef union {
@@ -122,7 +96,7 @@ typedef union {
     uint64_t bs_channel_bw_sul;  //  BS Channel BW in MHz.for supplementary uplink
     bwp_list_t bwp_list;  //  9.3.18
 
-} o_nr_cell_du_cell_u;  //  for indication message
+} o_nr_cell_du_attribute_value_u;  //  for indication message
 
 
 

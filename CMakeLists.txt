@@ -27,6 +27,8 @@ set(BUILDING_LIBRARY "STATIC" CACHE STRING "Static or dynamic library")
 set_property(CACHE BUILDING_LIBRARY PROPERTY STRINGS "STATIC" "DYNAMIC")
 message(STATUS "Selected LIBRARY TYPE: ${BUILDING_LIBRARY}")
 
+find_package(json-c CONFIG)
+target_link_libraries(${Flexric} PRIVATE json-c::json-c)
 
 ########
 ### xApp 
