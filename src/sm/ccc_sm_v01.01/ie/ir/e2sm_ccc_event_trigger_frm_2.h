@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include "../../../../../util/byte_array.h"
+#include "../../../../util/byte_array.h"
 #include "../../../../lib/e2sm_common_ie/sm_common_ie/cell_global_id.h"
 #include "cell_level_ran_conf_struct_report_et_ad.h"
 

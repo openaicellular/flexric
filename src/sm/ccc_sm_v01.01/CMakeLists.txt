@@ -4,18 +4,16 @@ project(ccc_sm)            # this sets the project name
 add_subdirectory(dec)
 add_subdirectory(enc)
 add_subdirectory(ie)
-# CCC Service Model
-#set(SM_ENCODING_CCC "ASN" CACHE STRING "The CCC SM encoding to use")
-#set_property(CACHE SM_ENCODING_CCC PROPERTY STRINGS "ASN")
-#message(STATUS "Selected CCC SM_ENCODING: ${SM_ENCODING_CCC}")
+add_subdirectory(test)
 
+
+# CCC Service Model
 
 set(SM_ENCODING_CCC_SRC
                       ../sm_proc_data.c 
                     #   ccc_sm_ric.c 
                     #   ccc_sm_agent.c 
                       ../../util/byte_array.c 
-                      ../../util/conversions.c
                       ../../util/alg_ds/alg/defer.c 
                       ../../util/alg_ds/alg/eq_float.c 
                       ../../util/alg_ds/ds/seq_container/seq_arr.c 
@@ -30,12 +28,13 @@ if(SM_ENCODING_CCC STREQUAL "PLAIN")
                     #   enc/ccc_enc_plain.c 
                     #   dec/ccc_dec_plain.c 
                       )
-elseif(SM_ENCODING_CCC STREQUAL "ASN")
+elseif(SM_ENCODING_CCC STREQUAL "JSON")
   
-  add_subdirectory(ie/asn)
+  
   add_library(ccc_sm SHARED
                       ${SM_ENCODING_CCC_SRC}
-                    #   enc/ccc_enc_asn.c 
+                      enc/ccc_enc_json.c 
+                      enc/enc_ccc_json/enc_ccc_ric_event_trigger_frm_1.c
                     #   dec/ccc_dec_asn.c 
                     #   $<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
                     #   $<TARGET_OBJECTS:kpm_ric_info_common_obj>
@@ -61,9 +60,11 @@ elseif(SM_ENCODING_CCC STREQUAL "ASN")
                       )
 
 
-  target_link_libraries(ccc_sm PUBLIC -lm)
-
-  target_include_directories(ccc_sm PRIVATE "ie/asn")
+  target_link_libraries(ccc_sm PUBLIC
+                              cjson
+                              -lm)
+  
+  target_include_directories(ccc_sm PRIVATE "ie/json")
   target_compile_options(ccc_sm PUBLIC "-DASN_DISABLE_OER_SUPPORT" -fPIC)
   target_compile_options(ccc_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC)
 

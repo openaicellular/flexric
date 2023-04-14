@@ -27,9 +27,6 @@ set(BUILDING_LIBRARY "STATIC" CACHE STRING "Static or dynamic library")
 set_property(CACHE BUILDING_LIBRARY PROPERTY STRINGS "STATIC" "DYNAMIC")
 message(STATUS "Selected LIBRARY TYPE: ${BUILDING_LIBRARY}")
 
-find_package(json-c CONFIG)
-target_link_libraries(${Flexric} PRIVATE json-c::json-c)
-
 ########
 ### xApp 
 ########
@@ -119,6 +116,11 @@ message(STATUS "Selected E2AP_ENCODING: ${E2AP_ENCODING}")
 #######
 
 add_definitions(-DSERVICE_MODEL_DIR_PATH="${SM_DIR_PATH}/")
+
+# CCC service Model encoding definitions
+set(SM_ENCODING_CCC "JSON" CACHE STRING "The CCC SM encoding to use")
+set_property(CACHE SM_ENCODING_CCC PROPERTY STRINGS "PLAIN" "JSON" "FLATBUFFERS")
+message(STATUS "Selected CCC SM_ENCODING: ${SM_ENCODING_CCC}")
 
 # KPM service Model encoding definitions
 set(SM_ENCODING_KPM "ASN" CACHE STRING "The KPM SM encoding to use")

@@ -4,7 +4,7 @@
 #include <cjson/cJSON.h>
 #include "../../ie/ir/e2sm_ccc_event_trigger_frm_1.h"
 
-cJSON enc_ccc_event_trigger_frm_1(const e2sm_ccc_ev_trg_frm_1_t * ev_trg);
+cJSON * enc_ccc_event_trigger_frm_1(const e2sm_ccc_ev_trg_frm_1_t * ev_trg);
 
 
 #endif

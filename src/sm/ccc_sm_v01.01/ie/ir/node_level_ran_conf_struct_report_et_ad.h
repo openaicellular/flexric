@@ -30,7 +30,7 @@ typedef struct {
     // List of Attributes
     // 8.8.1
     size_t attribute_name_list_len;  // [0..65535]  allocation within the union
-    node_attribute_name_list_report_u *attribute_name_list;
+    node_attribute_name_list_report_u attribute_name_list;
 
 } node_level_ran_conf_struct_report_et_ad_t;
 
