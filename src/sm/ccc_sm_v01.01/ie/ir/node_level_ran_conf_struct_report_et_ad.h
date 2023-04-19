@@ -34,4 +34,6 @@ typedef struct {
 
 } node_level_ran_conf_struct_report_et_ad_t;
 
+void free_ccc_node_level_ran_conf_struct_report_et_ad(node_level_ran_conf_struct_report_et_ad_t *src);
+
 #endif

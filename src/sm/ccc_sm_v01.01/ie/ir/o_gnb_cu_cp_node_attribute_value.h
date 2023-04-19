@@ -18,8 +18,8 @@ typedef union {
     byte_array_t x2_include_list;  //  x2AllowList; This is a list of GeNBIds. 
     byte_array_t xn_exclude_list;  //  xnBlockList; This is a list of GgNBIds. 
     byte_array_t xn_include_list;  //  xnAllowList; This is a list of GgNBIds. 
-    // byte_array_t x2_xn_ho_exclude_list;   in spec defined as xnHOBlockList & x2HOBlockList; to be finished
-
+    byte_array_t x2_ho_exclude_list;  //  x2HOBlockList
+    byte_array_t xn_ho_exclude_list;  //  xnHOBlockList
 
 } o_gnb_cu_cp_node_attribute_value_u;  //  for indication message
 

@@ -19,6 +19,6 @@ typedef struct {
 
 } e2sm_ccc_ev_trg_frm_1_t;
 
-
+void free_ccc_event_trigger_frm_1(e2sm_ccc_ev_trg_frm_1_t *src);
 
 #endif

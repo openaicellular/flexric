@@ -14,7 +14,7 @@ extern "C" {
 
 typedef struct{
   plmn_t plmn_id;  // 6.2.3.1
-  uint64_t nr_cell_id:36; // bit string of 36 bits
+  uint64_t nr_cell_id; // bit string of 36 bits
 
 } nr_cgi_t;
 

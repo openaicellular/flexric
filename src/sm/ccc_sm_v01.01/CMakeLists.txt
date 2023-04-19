@@ -33,18 +33,18 @@ elseif(SM_ENCODING_CCC STREQUAL "JSON")
   
   add_library(ccc_sm SHARED
                       ${SM_ENCODING_CCC_SRC}
-                      enc/ccc_enc_json.c 
-                      enc/enc_ccc_json/enc_ccc_ric_event_trigger_frm_1.c
+                      enc/ccc_enc_json.c
+                      dec/ccc_dec_json.c
                     #   dec/ccc_dec_asn.c 
                     #   $<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
                     #   $<TARGET_OBJECTS:kpm_ric_info_common_obj>
-                    #   $<TARGET_OBJECTS:kpm_ric_info_obj>
+                      $<TARGET_OBJECTS:ccc_ric_info_obj>
 
                     #   $<TARGET_OBJECTS:kpm_dec_common_asn_obj>
-                    #   $<TARGET_OBJECTS:kpm_dec_ie_asn_obj>
+                      $<TARGET_OBJECTS:ccc_dec_ie_json_obj>
 
                     #   $<TARGET_OBJECTS:kpm_enc_common_asn_obj>
-                    #   $<TARGET_OBJECTS:kpm_enc_ie_asn_obj>
+                      $<TARGET_OBJECTS:ccc_enc_ie_json_obj>
 
                     #   $<TARGET_OBJECTS:3gpp_derived_ie_obj>
                     #   $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>

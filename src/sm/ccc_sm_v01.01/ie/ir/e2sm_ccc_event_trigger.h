@@ -28,6 +28,7 @@ typedef struct {
 
 } e2sm_ccc_event_trigger_t;
 
+void free_ccc_event_trigger_def(e2sm_ccc_event_trigger_t *src);
 
 #endif
 
