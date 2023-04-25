@@ -31,5 +31,8 @@ typedef struct {
 
 } e2sm_ccc_action_def_frm_1_t;
 
+void free_ccc_action_def_frm_1(e2sm_ccc_action_def_frm_1_t *src);
+
+bool eq_ccc_action_def_frm_1(e2sm_ccc_action_def_frm_1_t const* m0,  e2sm_ccc_action_def_frm_1_t const* m1);
 
 #endif

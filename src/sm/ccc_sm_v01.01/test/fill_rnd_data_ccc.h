@@ -5,5 +5,7 @@
 
 e2sm_ccc_event_trigger_t fill_ccc_event_trigger_def(void);
 
+e2sm_ccc_action_def_t fill_ccc_action_def(void);
+
 
 #endif

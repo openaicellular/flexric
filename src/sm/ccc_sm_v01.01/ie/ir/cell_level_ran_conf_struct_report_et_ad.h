@@ -2,6 +2,7 @@
 #define CELL_LEVEL_RAN_CONFIGURATION_STRUCTURES_REPORT_EVENT_TRIGGER_AND_ACTION_DEFINITION_H
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "o_nr_cell_cu_attribute_name.h"
 #include "o_nr_cell_du_attribute_name.h"
@@ -40,5 +41,7 @@ typedef struct {
 } cell_level_ran_conf_struct_report_et_ad_t;
 
 void free_ccc_cell_level_ran_conf_struct_report_et_ad(cell_level_ran_conf_struct_report_et_ad_t *src);
+
+bool eq_ccc_cell_level_ran_conf_struct_report_et_ad(cell_level_ran_conf_struct_report_et_ad_t const *m0, cell_level_ran_conf_struct_report_et_ad_t const *m1);
 
 #endif

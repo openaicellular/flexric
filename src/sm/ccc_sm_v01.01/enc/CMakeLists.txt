@@ -1,2 +1,2 @@
 add_subdirectory(enc_ccc_json)
-
+add_subdirectory(enc_ccc_common_json)

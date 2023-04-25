@@ -1,2 +1,2 @@
 add_subdirectory(dec_ccc_json)
-
+add_subdirectory(dec_ccc_common_json)

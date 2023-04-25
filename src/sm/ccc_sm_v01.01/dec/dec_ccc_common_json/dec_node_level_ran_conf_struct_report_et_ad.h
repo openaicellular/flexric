@@ -1,0 +1,10 @@
+#ifndef DECRYPTION_NODE_LEVEL_RAN_CONFIGURATION_STRUCTURES_REPORT_EVENT_TRIGGER_AND_ACTION_DEFINITION_H
+#define DECRYPTION_NODE_LEVEL_RAN_CONFIGURATION_STRUCTURES_REPORT_EVENT_TRIGGER_AND_ACTION_DEFINITION_H
+
+#include <cjson/cJSON.h>
+#include "../../ie/ir/node_level_ran_conf_struct_report_et_ad.h"
+
+node_level_ran_conf_struct_report_et_ad_t dec_ccc_node_level_ran_conf_struct_report_et_ad(const cJSON * node_struct_json);
+
+
+#endif

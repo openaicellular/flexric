@@ -1,0 +1,10 @@
+#ifndef DECRYPTION_CELL_LEVEL_RAN_CONFIGURATION_STRUCTURES_REPORT_EVENT_TRIGGER_AND_ACTION_DEFINITION_H
+#define DECRYPTION_CELL_LEVEL_RAN_CONFIGURATION_STRUCTURES_REPORT_EVENT_TRIGGER_AND_ACTION_DEFINITION_H
+
+#include <cjson/cJSON.h>
+#include "../../ie/ir/cell_level_ran_conf_struct_report_et_ad.h"
+
+cell_level_ran_conf_struct_report_et_ad_t dec_ccc_cell_level_ran_conf_struct_report_et_ad(const cJSON * ran_conf_item_json);
+
+
+#endif

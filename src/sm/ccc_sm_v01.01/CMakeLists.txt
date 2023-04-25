@@ -40,18 +40,22 @@ elseif(SM_ENCODING_CCC STREQUAL "JSON")
                     #   $<TARGET_OBJECTS:kpm_ric_info_common_obj>
                       $<TARGET_OBJECTS:ccc_ric_info_obj>
 
-                    #   $<TARGET_OBJECTS:kpm_dec_common_asn_obj>
                       $<TARGET_OBJECTS:ccc_dec_ie_json_obj>
+                      $<TARGET_OBJECTS:ccc_dec_common_ie_json_obj>
 
-                    #   $<TARGET_OBJECTS:kpm_enc_common_asn_obj>
                       $<TARGET_OBJECTS:ccc_enc_ie_json_obj>
+                      $<TARGET_OBJECTS:ccc_enc_common_ie_json_obj>
 
-                    #   $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-                    #   $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-                    #   $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
-                    #   $<TARGET_OBJECTS:sm_common_ie_obj>
-                    #   $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-                    #   $<TARGET_OBJECTS:sm_common_enc_asn_obj>
+                      ../../lib/e2sm_common_ie/sm_common_ie/cell_global_id.c
+                      ../../lib/e2sm_common_ie/3gpp_derived_ie/nr_cgi.c
+                      ../../lib/e2sm_common_ie/3gpp_derived_ie/eutra_cgi.c
+                      ../../lib/e2sm_common_ie/3gpp_derived_ie/plmn_identity.c
+                      # $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+                      # $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
+                      # $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
+                      # $<TARGET_OBJECTS:sm_common_ie_obj>
+                      # $<TARGET_OBJECTS:sm_common_dec_asn_obj>
+                      # $<TARGET_OBJECTS:sm_common_enc_asn_obj>
                       # $<TARGET_OBJECTS:e2sm_common_asn1_obj>   # to be included when KPM ie/asn folder doesn't contain both KPM and E2SM asn1 types
 
                     #   ../../../test/encode_decode/sm_test/kpm_test/fill_rnd_data_kpm.c
@@ -62,6 +66,7 @@ elseif(SM_ENCODING_CCC STREQUAL "JSON")
 
   target_link_libraries(ccc_sm PUBLIC
                               cjson
+                              cjson_utils
                               -lm)
   
   target_include_directories(ccc_sm PRIVATE "ie/json")

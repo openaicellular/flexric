@@ -7,4 +7,6 @@ typedef struct { } ccc_dec_json_t;
 
 e2sm_ccc_event_trigger_t ccc_dec_event_trigger_json(size_t len, uint8_t const ev_trg[len]);
 
+e2sm_ccc_action_def_t ccc_dec_action_def_json(size_t len, uint8_t const ev_trg[len]);
+
 #endif

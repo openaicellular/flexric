@@ -35,4 +35,6 @@ typedef struct {
 
 void free_ccc_event_trigger_frm_2(e2sm_ccc_ev_trg_frm_2_t *src);
 
+bool eq_ccc_event_trigger_frm_2(e2sm_ccc_ev_trg_frm_2_t const* m0,  e2sm_ccc_ev_trg_frm_2_t const* m1);
+
 #endif

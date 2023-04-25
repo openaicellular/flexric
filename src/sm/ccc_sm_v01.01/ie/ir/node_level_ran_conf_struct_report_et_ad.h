@@ -1,6 +1,8 @@
 #ifndef NODE_LEVEL_RAN_CONFIGURATION_STRUCTURES_REPORT_EVENT_TRIGGER_AND_ACTION_DEFINITION_H
 #define NODE_LEVEL_RAN_CONFIGURATION_STRUCTURES_REPORT_EVENT_TRIGGER_AND_ACTION_DEFINITION_H
 
+#include <stdbool.h>
+
 #include "o_gnb_du_node_attribute_name.h"
 #include "o_gnb_cu_cp_node_attribute_name.h"
 #include "o_gnb_cu_up_node_attribute_name.h"
@@ -35,5 +37,7 @@ typedef struct {
 } node_level_ran_conf_struct_report_et_ad_t;
 
 void free_ccc_node_level_ran_conf_struct_report_et_ad(node_level_ran_conf_struct_report_et_ad_t *src);
+
+bool eq_ccc_node_level_ran_conf_struct_report_et_ad(node_level_ran_conf_struct_report_et_ad_t const *m0, node_level_ran_conf_struct_report_et_ad_t const *m1);
 
 #endif

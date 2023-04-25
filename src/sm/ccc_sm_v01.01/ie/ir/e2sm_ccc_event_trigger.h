@@ -30,6 +30,8 @@ typedef struct {
 
 void free_ccc_event_trigger_def(e2sm_ccc_event_trigger_t *src);
 
+bool eq_ccc_event_trigger_def(e2sm_ccc_event_trigger_t const* m0,  e2sm_ccc_event_trigger_t const* m1);
+
 #endif
 
 // to be finished; add ric styles...
