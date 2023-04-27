@@ -19,31 +19,64 @@ class MACCallback(ric.mac_cb):
             t_now = time.time_ns() / 1000.0
             t_mac = ind.tstamp / 1.0
             t_diff = t_now - t_mac
-            # print('MAC Indication tstamp = ' + str(t_mac) + ' diff = ' + str(t_diff))
+            # print(f"MAC Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id}")
+            # print('MAC rnti = ' + str(ind.ue_stats[0].rnti))
 
 ####################
 ####  SLICE INDICATION MSG TO JSON
 ####################
-global slice_stats
-slice_stats = {
+slice_stats_struct = {
     "RAN" : {
+        "nb_id" : {},
+        "ran_type" : {},
         "dl" : {}
         # TODO: handle the ul slice stats, currently there is no ul slice stats in database(SLICE table)
         # "ul" : {}
     },
     "UE" : {}
 }
-def slice_ind_to_dict_json(ind):
-    global slice_stats
-    slice_stats = {
+
+####################
+####  GLOBAL VALUE
+####################
+e2nodes = 0
+MAX_E2_NODES = 10
+slice_hndlr = []
+mac_hndlr = []
+slice_cb = [0 for i in range(0, MAX_E2_NODES)]
+mac_cb = [0 for i in range(0, MAX_E2_NODES)]
+global global_slice_stats
+global_slice_stats = [slice_stats_struct for i in range(0, MAX_E2_NODES)]
+
+def slice_ind_to_dict_json(ind, id):
+    global e2nodes
+    # find e2 node idx
+    n_idx = -1
+    for n in e2nodes:
+        if n.id.nb_id == id.nb_id:
+            if n.id.type == id.type:
+                n_idx = e2nodes.index(n)
+                break
+    if n_idx == -1:
+        print("cannot find e2 node idx")
+        return
+
+    global global_slice_stats
+    global_slice_stats[n_idx] = {
         "RAN" : {
+            "nb_id" : {},
+            "ran_type" : {},
             "dl" : {}
             # TODO: handle the ul slice stats, currently there is no ul slice stats in database(SLICE table)
             # "ul" : {}
         },
         "UE" : {}
     }
+    slice_stats = global_slice_stats[n_idx]
 
+    # RAN - e2 node id
+    slice_stats["RAN"]["nb_id"] = id.nb_id
+    slice_stats["RAN"]["ran_type"] = get_ngran_name(id.type)
     # RAN - dl
     dl_dict = slice_stats["RAN"]["dl"]
     if ind.slice_stats.dl.len_slices <= 0:
@@ -131,7 +164,8 @@ def slice_ind_to_dict_json(ind):
     ind_dict = slice_stats
     ind_json = json.dumps(ind_dict)
 
-    with open("rt_slice_stats.json", "w") as outfile:
+    json_fname = "rt_slice_stats_nb_id" + str(id.nb_id)+ ".json"
+    with open(json_fname, "w") as outfile:
         outfile.write(ind_json)
     # print(ind_dict)
 
@@ -154,14 +188,14 @@ class SLICECallback(ric.slice_cb):
         #     print('SLICE STATE: sched_name = ' + str(ind.slice_stats.dl.sched_name[0]))
         #if (ind.ue_slice_stats.len_ue_slice > 0):
         #    print('UE ASSOC SLICE STATE: len_ue_slice = ' + str(ind.ue_slice_stats.len_ue_slice))
-        slice_ind_to_dict_json(ind)
+        slice_ind_to_dict_json(ind, ind.id)
 
 ####################
 ####  SLICE CONTROL FUNCS
 ####################
 def fill_slice_conf(slice_params, slice_sched_algo):
     s = ric.fr_slice_t()
-    s.id = slice_params["id"]
+    s.id = slice_params["index"]
     s.label = slice_params["label"]
     s.len_label = len(slice_params["label"])
     s.sched = slice_params["ue_sched_algo"]
@@ -172,7 +206,7 @@ def fill_slice_conf(slice_params, slice_sched_algo):
         s.params.u.sta.pos_high = slice_params["slice_algo_params"]["pos_high"]
     elif slice_sched_algo == "NVS":
         s.params.type = ric.SLICE_ALG_SM_V0_NVS
-        if slice_params["type"] == "SLICE_SM_NVS_V0_RATE":
+        if slice_params["slice_algo_params"]["type"] == "RATE":
             s.params.u.nvs.conf = ric.SLICE_SM_NVS_V0_RATE
             s.params.u.nvs.u.rate.u1.mbps_required = slice_params["slice_algo_params"]["mbps_rsvd"]
             s.params.u.nvs.u.rate.u2.mbps_reference = slice_params["slice_algo_params"]["mbps_ref"]
@@ -180,7 +214,7 @@ def fill_slice_conf(slice_params, slice_sched_algo):
             # ", conf", s.params.u.nvs.conf,
             # ", mbps_rsrv", s.params.u.nvs.u.rate.u1.mbps_required,
             # ", mbps_ref", s.params.u.nvs.u.rate.u2.mbps_reference)
-        elif slice_params["type"] == "SLICE_SM_NVS_V0_CAPACITY":
+        elif slice_params["slice_algo_params"]["type"] == "CAPACITY":
             s.params.u.nvs.conf = ric.SLICE_SM_NVS_V0_CAPACITY
             s.params.u.nvs.u.capacity.u.pct_reserved = slice_params["slice_algo_params"]["pct_rsvd"]
             # print("ADD NVS DL SLCIE: id", s.id,
@@ -203,23 +237,23 @@ def fill_slice_conf(slice_params, slice_sched_algo):
 ####  SLICE CONTROL PARAMETER EXAMPLE - ADD/MOD SLICE
 ####################
 conf_static_slices = {
-    "num_slices" : 3,
+    "num_of_slices" : 3,
     "slice_sched_algo" : "STATIC",
     "slices" : [
         {
-            "id" : 0,
+            "index" : 0,
             "label" : "s1",
             "ue_sched_algo" : "PF",
             "slice_algo_params" : {"pos_low" : 0, "pos_high" : 2},
         },
         {
-            "id" : 2,
+            "index" : 2,
             "label" : "s2",
             "ue_sched_algo" : "PF",
             "slice_algo_params" : {"pos_low" : 3, "pos_high" : 10},
         },
         {
-            "id" : 5,
+            "index" : 5,
             "label" : "s3",
             "ue_sched_algo" : "PF",
             "slice_algo_params" : {"pos_low" : 11, "pos_high" : 13},
@@ -228,121 +262,135 @@ conf_static_slices = {
 }
 
 conf_nvs_slices_rate1 = {
-    "num_slices" : 2,
+    "num_of_slices" : 2,
     "slice_sched_algo" : "NVS",
     "slices" : [
         {
-            "id" : 0,
+            "index" : 0,
             "label" : "s1",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"mbps_rsvd" : 60, "mbps_ref" : 120},
-        },
-        {
-            "id" : 2,
-            "label" : "s2",
-            "ue_sched_algo" : "PF",
-            "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"mbps_rsvd" : 60, "mbps_ref" : 120},
+            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 60, "mbps_ref" : 120},
         }
     ]
 }
 
 conf_nvs_slices_rate2 = {
-    "num_slices" : 2,
+    "num_of_slices" : 2,
     "slice_sched_algo" : "NVS",
     "slices" : [
         {
-            "id" : 0,
+            "index" : 0,
             "label" : "s1",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"mbps_rsvd" : 20, "mbps_ref" : 120},
+            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 20, "mbps_ref" : 120},
         },
         {
-            "id" : 2,
+            "index" : 2,
             "label" : "s2",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"mbps_rsvd" : 100, "mbps_ref" : 120},
+            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 100, "mbps_ref" : 120},
         }
     ]
 }
 
-conf_nvs_slices_cap = {
-    "num_slices" : 3,
+conf_nvs_slices_cap2 = {
+    "num_of_slices" : 2,
     "slice_sched_algo" : "NVS",
     "slices" : [
         {
-            "id" : 0,
+            "index" : 0,
             "label" : "s1",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_CAPACITY",
-            "slice_algo_params" : {"pct_rsvd" : 0.5},
+            "slice_algo_params" : {"type": "CAPACITY", "pct_rsvd" : 0.7},
         },
         {
-            "id" : 2,
+            "index" : 2,
             "label" : "s2",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_CAPACITY",
-            "slice_algo_params" : {"pct_rsvd" : 0.3},
+            "slice_algo_params" : {"type": "CAPACITY", "pct_rsvd" : 0.29},
+        }
+    ]
+}
+
+conf_nvs_slices_cap3 = {
+    "num_of_slices" : 3,
+    "slice_sched_algo" : "NVS",
+    "slices" : [
+        {
+            "index" : 0,
+            "label" : "s1",
+            "ue_sched_algo" : "PF",
+            "type" : "SLICE_SM_NVS_V0_CAPACITY",
+            "slice_algo_params" : {"type": "CAPACITY", "pct_rsvd" : 0.5},
         },
         {
-            "id" : 5,
+            "index" : 2,
+            "label" : "s2",
+            "ue_sched_algo" : "PF",
+            "type" : "SLICE_SM_NVS_V0_CAPACITY",
+            "slice_algo_params" : {"type": "CAPACITY", "pct_rsvd" : 0.3},
+        },
+        {
+            "index" : 5,
             "label" : "s3",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_CAPACITY",
-            "slice_algo_params" : {"pct_rsvd" : 0.2},
+            "slice_algo_params" : {"type": "CAPACITY", "pct_rsvd" : 0.2},
         }
     ]
 }
 
 conf_nvs_slices = {
-    "num_slices" : 3,
+    "num_of_slices" : 3,
     "slice_sched_algo" : "NVS",
     "slices" : [
         {
-            "id" : 0,
+            "index" : 0,
             "label" : "s1",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_CAPACITY",
-            "slice_algo_params" : {"pct_rsvd" : 0.5},
+            "slice_algo_params" : {"type": "CAPACITY", "pct_rsvd" : 0.5},
         },
         {
-            "id" : 2,
+            "index" : 2,
             "label" : "s2",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"mbps_rsvd" : 50, "mbps_ref" : 120},
+            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 50, "mbps_ref" : 120},
         },
         {
-            "id" : 5,
+            "index" : 5,
             "label" : "s3",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"mbps_rsvd" : 5, "mbps_ref" : 120},
+            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 5, "mbps_ref" : 120},
         }
     ]
 }
 
 conf_edf_slices = {
-    "num_slices" : 3,
+    "num_of_slices" : 3,
     "slice_sched_algo" : "EDF",
     "slices" : [
         {
-            "id" : 0,
+            "index" : 0,
             "label" : "s1",
             "ue_sched_algo" : "PF",
             "slice_algo_params" : {"deadline" : 10, "guaranteed_prbs" : 20, "max_replenish" : 0},
         },
         {
-            "id" : 2,
+            "index" : 2,
             "label" : "s2",
             "ue_sched_algo" : "RR",
             "slice_algo_params" : {"deadline" : 20, "guaranteed_prbs" : 20, "max_replenish" : 0},
         },
         {
-            "id" : 5,
+            "index" : 5,
             "label" : "s3",
             "ue_sched_algo" : "MT",
             "slice_algo_params" : {"deadline" : 40, "guaranteed_prbs" : 10, "max_replenish" : 0},
@@ -351,14 +399,14 @@ conf_edf_slices = {
 }
 
 conf_reset_slices = {
-    "num_slices" : 0
+    "num_of_slices" : 0
 }
 
 ####################
 ####  SLICE CONTROL PARAMETER EXAMPLE - DELETE SLICE
 ####################
 conf_delete_slices = {
-    "num_dl_slices" : 1,
+    "num_of_slices" : 1,
     "delete_dl_slice_id" : [5]
 }
 
@@ -366,7 +414,7 @@ conf_delete_slices = {
 ####  SLICE CONTROL PARAMETER EXAMPLE - ASSOC UE SLICE
 ####################
 conf_assoc_ue_slice = {
-    "num_ues" : 1,
+    "num_of_ues" : 1,
     "ues" : [
         {
             "rnti" : 0, # TODO: get rnti from slice_ind_to_dict_json()
@@ -377,7 +425,7 @@ conf_assoc_ue_slice = {
 
 def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
     msg = ric.slice_ctrl_msg_t()
-    if ctrl_type == "MOD" or ctrl_type == "ADD" :
+    if ctrl_type == "ADDMOD":
         msg.type = ric.SLICE_CTRL_SM_V0_ADD
         dl = ric.ul_dl_slice_conf_t()
         # TODO: UL SLICE CTRL ADD
@@ -388,9 +436,9 @@ def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
         dl.sched_name = ue_sched_algo
         dl.len_sched_name = len(ue_sched_algo)
 
-        dl.len_slices = ctrl_msg["num_slices"]
-        slices = ric.slice_array(ctrl_msg["num_slices"])
-        for i in range(0, ctrl_msg["num_slices"]):
+        dl.len_slices = ctrl_msg["num_of_slices"]
+        slices = ric.slice_array(ctrl_msg["num_of_slices"])
+        for i in range(0, ctrl_msg["num_of_slices"]):
             slices[i] = fill_slice_conf(ctrl_msg["slices"][i], ctrl_msg["slice_sched_algo"])
 
         dl.slices = slices
@@ -400,9 +448,9 @@ def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
     elif ctrl_type == "DEL":
         msg.type = ric.SLICE_CTRL_SM_V0_DEL
 
-        msg.u.del_slice.len_dl = ctrl_msg["num_dl_slices"]
-        del_dl_id = ric.del_dl_array(ctrl_msg["num_dl_slices"])
-        for i in range(ctrl_msg["num_dl_slices"]):
+        msg.u.del_slice.len_dl = ctrl_msg["num_of_slices"]
+        del_dl_id = ric.del_dl_array(ctrl_msg["num_of_slices"])
+        for i in range(ctrl_msg["num_of_slices"]):
             del_dl_id[i] = ctrl_msg["delete_dl_slice_id"][i]
         # print("DEL DL SLICE: id", del_dl_id)
 
@@ -411,9 +459,9 @@ def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
     elif ctrl_type == "ASSOC_UE":
         msg.type = ric.SLICE_CTRL_SM_V0_UE_SLICE_ASSOC
 
-        msg.u.ue_slice.len_ue_slice = ctrl_msg["num_ues"]
-        assoc = ric.ue_slice_assoc_array(ctrl_msg["num_ues"])
-        for i in range(ctrl_msg["num_ues"]):
+        msg.u.ue_slice.len_ue_slice = ctrl_msg["num_of_ues"]
+        assoc = ric.ue_slice_assoc_array(ctrl_msg["num_of_ues"])
+        for i in range(ctrl_msg["num_of_ues"]):
             a = ric.ue_slice_assoc_t()
             a.rnti = ctrl_msg["ues"][i]["rnti"] # TODO: assign the rnti after get the indication msg from slice_ind_to_dict_json()
             a.dl_id = ctrl_msg["ues"][i]["assoc_dl_slice_id"]
@@ -446,7 +494,7 @@ def get_ngran_name(ran_type):
 def get_e2_nodes():
     return ric.conn_e2_nodes()
 
-e2nodes_col_names = ["nb_id", "mcc", "mnc", "ran_type"]
+e2nodes_col_names = ["idx", "nb_id", "mcc", "mnc", "ran_type"]
 def print_e2_nodes():
     e2nodes_data = []
     conn = ric.conn_e2_nodes()
@@ -455,14 +503,14 @@ def print_e2_nodes():
         # cu_du_id = -1
         # if conn[i].id.cu_du_id:
         #     cu_du_id = conn[i].id.cu_du_id
-        info = [conn[i].id.nb_id,
+        info = [i,
+                conn[i].id.nb_id,
                 conn[i].id.plmn.mcc,
                 conn[i].id.plmn.mnc,
-                conn[i].id.plmn.mnc_digit_len,
                 get_ngran_name(conn[i].id.type)]
         # print(info)
         e2nodes_data.append(info)
-    print(tabulate(e2nodes_data, headers=e2nodes_col_names))
+    print(tabulate(e2nodes_data, headers=e2nodes_col_names, tablefmt="grid"))
     # print("E2 node : "
     #       "nb_id " + str(e2node.id.nb_id) + ",",
     #       "mcc " + str(e2node.id.plmn.mcc) + ",",
@@ -471,80 +519,160 @@ def print_e2_nodes():
     #       "ran_type " + get_ngran_name(e2node.id.type) + ',',
     #       "cu_du_id " + str(e2node.id.cu_du_id if e2node.id.cu_du_id else -1))
 
-slice_col_names = ["slice_id", "label", "slice_sched_algo", "slice_algo_param1", "slice_algo_param2", "slice_algo_param3", "ue_sched_algo"]
-ue_col_names = ["rnti", "assoc_slice_id"]
-def print_slice_conf():
-    global slice_stats
-
+slice_stats_col_names = ["nb_id", "ran_type", "slice_id", "label", "slice_sched_algo", "slice_algo_param1", "slice_algo_param2", "slice_algo_param3", "ue_sched_algo"]
+ue_stats_col_names = ["rnti", "assoc_slice_id"]
+def print_slice_stats(n_idx):
+    global global_slice_stats
+    s = global_slice_stats[n_idx]
     # RAN
-    slice_conf_table = []
-    len_slices = slice_stats["RAN"]["dl"]["num_of_slices"]
+    slice_stats_table = []
+    nb_id = s["RAN"]["nb_id"]
+    ran_type = s["RAN"]["ran_type"]
+    len_slices = s["RAN"]["dl"]["num_of_slices"]
     for i in range(0, len_slices):
         param = []
-        for key in slice_stats["RAN"]["dl"]["slices"][i]["slice_algo_params"].keys():
+        for key in s["RAN"]["dl"]["slices"][i]["slice_algo_params"].keys():
             param.append(key)
 
-        slice_algo = slice_stats["RAN"]["dl"]["slice_sched_algo"]
+        slice_algo = s["RAN"]["dl"]["slice_sched_algo"]
         info = []
         if slice_algo == "STATIC":
-            info = [slice_stats["RAN"]["dl"]["slices"][i]["index"],
-                    slice_stats["RAN"]["dl"]["slices"][i]["label"],
+            info = [nb_id,
+                    ran_type,
+                    s["RAN"]["dl"]["slices"][i]["index"],
+                    s["RAN"]["dl"]["slices"][i]["label"],
                     slice_algo,
-                    str(param[0]) + ":" + str(slice_stats["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[0]]),
-                    str(param[1]) + ":" + str(slice_stats["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[1]]),
+                    str(param[0]) + ":" + str(s["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[0]]),
+                    str(param[1]) + ":" + str(s["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[1]]),
                     "null",
-                    slice_stats["RAN"]["dl"]["slices"][i]["ue_sched_algo"]]
+                    s["RAN"]["dl"]["slices"][i]["ue_sched_algo"]]
         elif slice_algo == "NVS":
-            nvs_type = slice_stats["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[0]]
+            nvs_type = s["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[0]]
             if nvs_type == "RATE":
-                mbps_rsvd = float("{:.2f}".format(slice_stats["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[1]]))
-                mbps_ref = float("{:.2f}".format(slice_stats["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[2]]))
-                info = [slice_stats["RAN"]["dl"]["slices"][i]["index"],
-                        slice_stats["RAN"]["dl"]["slices"][i]["label"],
+                mbps_rsvd = float("{:.2f}".format(s["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[1]]))
+                mbps_ref = float("{:.2f}".format(s["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[2]]))
+                info = [nb_id,
+                        ran_type,
+                        s["RAN"]["dl"]["slices"][i]["index"],
+                        s["RAN"]["dl"]["slices"][i]["label"],
                         str(slice_algo) + "-" + str(nvs_type),
                         str(param[1]) + ":" + str(mbps_rsvd),
                         str(param[2]) + ":" + str(mbps_ref),
                         "null",
-                        slice_stats["RAN"]["dl"]["slices"][i]["ue_sched_algo"]]
+                        s["RAN"]["dl"]["slices"][i]["ue_sched_algo"]]
             elif nvs_type == "CAPACITY":
-                pct_rsvd = float("{:.2f}".format(slice_stats["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[1]]))
-                info = [slice_stats["RAN"]["dl"]["slices"][i]["index"],
-                        slice_stats["RAN"]["dl"]["slices"][i]["label"],
+                pct_rsvd = float("{:.2f}".format(s["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[1]]))
+                info = [nb_id,
+                        ran_type,
+                        s["RAN"]["dl"]["slices"][i]["index"],
+                        s["RAN"]["dl"]["slices"][i]["label"],
                         str(slice_algo) + "-" + str(nvs_type),
                         str(param[1]) + ":" + str(pct_rsvd),
                         "null",
                         "null",
-                        slice_stats["RAN"]["dl"]["slices"][i]["ue_sched_algo"]]
+                        s["RAN"]["dl"]["slices"][i]["ue_sched_algo"]]
         elif slice_algo == "EDF":
-            info = [slice_stats["RAN"]["dl"]["slices"][i]["index"],
-                    slice_stats["RAN"]["dl"]["slices"][i]["label"],
-                    str(slice_algo) + str(nvs_type),
-                    str(param[0]) + ":" + str(slice_stats["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[0]]),
-                    str(param[1]) + ":" + str(slice_stats["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[1]]),
-                    str(param[2]) + ":" + str(slice_stats["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[2]]),
-                    slice_stats["RAN"]["dl"]["slices"][i]["ue_sched_algo"]]
+            info = [nb_id,
+                    ran_type,
+                    s["RAN"]["dl"]["slices"][i]["index"],
+                    s["RAN"]["dl"]["slices"][i]["label"],
+                    str(slice_algo),
+                    str(param[0]) + ":" + str(s["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[0]]),
+                    str(param[1]) + ":" + str(s["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[1]]),
+                    str(param[2]) + ":" + str(s["RAN"]["dl"]["slices"][i]["slice_algo_params"][param[2]]),
+                    s["RAN"]["dl"]["slices"][i]["ue_sched_algo"]]
         if len(info) > 0:
-            slice_conf_table.append(info)
+            slice_stats_table.append(info)
+    if len_slices == 0:
+        info = [nb_id, ran_type]
+        slice_stats_table.append(info)
 
     # UE
-    ue_slice_conf_table = []
-    len_ues = slice_stats['UE']["num_of_ues"]
+    ue_slice_stats_table = []
+    len_ues = s['UE']["num_of_ues"]
     for i in range(0, len_ues):
-        info = [slice_stats['UE']["ues"][i]["rnti"],
-                slice_stats['UE']["ues"][i]["assoc_dl_slice_id"]]
+        info = [s['UE']["ues"][i]["rnti"],
+                s['UE']["ues"][i]["assoc_dl_slice_id"]]
         if len(info) > 0:
-            ue_slice_conf_table.append(info)
+            ue_slice_stats_table.append(info)
 
-    print(tabulate(slice_conf_table, headers=slice_col_names, tablefmt="grid"))
-    print(tabulate(ue_slice_conf_table, headers=ue_col_names, tablefmt="grid"))
+    print(tabulate(slice_stats_table, headers=slice_stats_col_names, tablefmt="grid"))
+    print(tabulate(ue_slice_stats_table, headers=ue_stats_col_names, tablefmt="grid"))
 
+mod_slice_conf_col_names = ["slice_id", "label", "slice_sched_algo", "slice_algo_param1", "slice_algo_param2", "slice_algo_param3", "ue_sched_algo"]
+del_slice_conf_col_names = ["slice_id"]
+assoc_ue_conf_col_names = ["rnti", "assoc_slice_id"]
+def print_slice_conf(type, conf):
+    if type == "ADDMOD":
+        # RAN
+        mod_slice_conf_table = []
+        len_slices = conf["num_of_slices"]
+        for i in range(0, len_slices):
+            param = []
+            for key in conf["slices"][i]["slice_algo_params"].keys():
+                param.append(key)
 
+            slice_algo = conf["slice_sched_algo"]
+            info = []
+            if slice_algo == "STATIC":
+                info = [conf["slices"][i]["index"],
+                        conf["slices"][i]["label"],
+                        slice_algo,
+                        str(param[0]) + ":" + str(conf["slices"][i]["slice_algo_params"][param[0]]),
+                        str(param[1]) + ":" + str(conf["slices"][i]["slice_algo_params"][param[1]]),
+                        "null",
+                        conf["slices"][i]["ue_sched_algo"]]
+            elif slice_algo == "NVS":
+                nvs_type = conf["slices"][i]["slice_algo_params"][param[0]]
+                if nvs_type == "RATE":
+                    mbps_rsvd = float("{:.2f}".format(conf["slices"][i]["slice_algo_params"][param[1]]))
+                    mbps_ref = float("{:.2f}".format(conf["slices"][i]["slice_algo_params"][param[2]]))
+                    info = [conf["slices"][i]["index"],
+                            conf["slices"][i]["label"],
+                            str(slice_algo) + "-" + str(nvs_type),
+                            str(param[1]) + ":" + str(mbps_rsvd),
+                            str(param[2]) + ":" + str(mbps_ref),
+                            "null",
+                            conf["slices"][i]["ue_sched_algo"]]
+                elif nvs_type == "CAPACITY":
+                    pct_rsvd = float("{:.2f}".format(conf["slices"][i]["slice_algo_params"][param[1]]))
+                    info = [conf["slices"][i]["index"],
+                            conf["slices"][i]["label"],
+                            str(slice_algo) + "-" + str(nvs_type),
+                            str(param[1]) + ":" + str(pct_rsvd),
+                            "null",
+                            "null",
+                            conf["slices"][i]["ue_sched_algo"]]
+            elif slice_algo == "EDF":
+                info = [conf["slices"][i]["index"],
+                        conf["slices"][i]["label"],
+                        str(slice_algo),
+                        str(param[0]) + ":" + str(conf["slices"][i]["slice_algo_params"][param[0]]),
+                        str(param[1]) + ":" + str(conf["slices"][i]["slice_algo_params"][param[1]]),
+                        str(param[2]) + ":" + str(conf["slices"][i]["slice_algo_params"][param[2]]),
+                        conf["slices"][i]["ue_sched_algo"]]
+            if len(info) > 0:
+                mod_slice_conf_table.append(info)
+        print(tabulate(mod_slice_conf_table, headers=mod_slice_conf_col_names))
+    elif type == "DEL":
+        del_slice_conf_table = []
+        len_slices = conf["num_of_slices"]
+        for i in range(0, len_slices):
+            info = [conf["delete_dl_slice_id"][i]]
+            if len(info) > 0:
+                del_slice_conf_table.append(info)
+        print(tabulate(del_slice_conf_table, headers=del_slice_conf_col_names))
+    elif type == "ASSOC_UE":
+        # UE
+        assoc_ue_slice_conf_table = []
+        len_ues = conf["num_of_ues"]
+        for i in range(0, len_ues):
+            info = [conf["ues"][i]["rnti"],
+                    conf["ues"][i]["assoc_dl_slice_id"]]
+            if len(info) > 0:
+                assoc_ue_slice_conf_table.append(info)
+        print(tabulate(assoc_ue_slice_conf_table, headers=assoc_ue_conf_col_names))
 
-e2nodes = 0
-hndlr = 0
-mac_hndlr = 0
-slice_cb = 0
-mac_cb = 0
 ####################
 ####  xAPP INIT
 ####################
@@ -569,32 +697,36 @@ def init():
     print_e2_nodes()
 
     # TODO: need to process multi e2 nodes
-    e2node = e2nodes[0]
+    # e2node = e2nodes[0]
+    for n in e2nodes:
+        # 3. subscribe slice sm and mac sm
+        n_idx = e2nodes.index(n)
+        global slice_cb
+        slice_cb[n_idx] = SLICECallback()
+        global slice_hndlr
+        hndlr = ric.report_slice_sm(n.id, ric.Interval_ms_10, slice_cb[n_idx])
+        slice_hndlr.append(hndlr)
 
-    # 3. subscribe slice sm and mac sm
-    global slice_cb
-    slice_cb = SLICECallback()
-    global hndlr
-    hndlr = ric.report_slice_sm(e2node.id, ric.Interval_ms_10, slice_cb)
+        global mac_cb
+        mac_cb[n_idx] = MACCallback()
+        global mac_hndlr
+        hndlr = ric.report_mac_sm(n.id, ric.Interval_ms_10, mac_cb[n_idx])
+        mac_hndlr.append(hndlr)
+        time.sleep(2)
 
-    global mac_cb
-    mac_cb = MACCallback()
-    global mac_hndlr
-    mac_hndlr = ric.report_mac_sm(e2node.id, ric.Interval_ms_10, mac_cb)
-    time.sleep(2)
-
-    # 4. create slices, adding nvs_slices_rate1 by default
-    msg = fill_slice_ctrl_msg("ADD", conf_nvs_slices_rate1)
-    ric.control_slice_sm(e2node.id, msg)
+        # 4. create slices, adding nvs_slices_rate1 by default
+        msg = fill_slice_ctrl_msg("ADDMOD", conf_nvs_slices_cap2)
+        ric.control_slice_sm(n.id, msg)
 
 ####################
 ####  SEND SLICE CONTROL MSG
 ####################
-# cmd = "ADD", "MOD", "DEL", "ASSOC_UE"
+# cmd = "ADDMOD", "DEL", "ASSOC_UE"
 # conf = conf_nvs_slices, conf_delete_slices, conf_assoc_ue_slice
-def send_slice_ctrl_msg(e2node, cmd, conf):
+def send_slice_ctrl_msg(n_idx, cmd, conf):
     msg = fill_slice_ctrl_msg(cmd, conf)
-    ric.control_slice_sm(e2node.id, msg)
+    global e2nodes
+    ric.control_slice_sm(e2nodes[n_idx].id, msg)
 
 
 ####################
@@ -609,13 +741,17 @@ def get_slice_conf():
 ####  END
 ####################
 def end():
-    global hndlr
-    ric.rm_report_slice_sm(hndlr)
+    global slice_hndlr
+    for i in range(0, len(slice_hndlr)):
+        ric.rm_report_slice_sm(slice_hndlr[i])
     global mac_hndlr
-    ric.rm_report_slice_sm(mac_hndlr)
+    for i in range(0, len(mac_hndlr)):
+        ric.rm_report_mac_sm(mac_hndlr[i])
 
-    with open("rt_slice_stats.json", "w") as outfile:
-        outfile.write(json.dumps({}))
+    for n in e2nodes:
+        json_fname = "rt_slice_stats_nb_id" + str(n.id.nb_id)+ ".json"
+        with open(json_fname, "w") as outfile:
+            outfile.write(json.dumps({}))
 
     while ric.try_stop == 0:
         time.sleep(1)

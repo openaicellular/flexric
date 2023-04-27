@@ -271,6 +271,7 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
 
     // Write to the callback. Should I send the E2 Node info to the cb??
     msg_disp.sm_cb = ans.val.sm_cb;
+    msg_disp.e2_node = cp_global_e2_node_id(&ans.val.e2_node);
     send_msg_dispatcher(&xapp->msg_disp, &msg_disp );
   }
   

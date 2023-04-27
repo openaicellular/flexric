@@ -51,6 +51,7 @@ enum class Interval {
 
 struct swig_mac_ind_msg_t{
   std::vector<mac_ue_stats_impl_t> ue_stats;
+  global_e2_node_id_t id;
   int64_t tstamp;
 };
 
@@ -68,7 +69,8 @@ void rm_report_mac_sm(int);
 /////////////////////////////////////
 
 struct swig_rlc_ind_msg_t{
-  std::vector<rlc_radio_bearer_stats_t> rb_stats; 
+  std::vector<rlc_radio_bearer_stats_t> rb_stats;
+  global_e2_node_id_t id;
   int64_t tstamp;
 };
 
@@ -87,6 +89,7 @@ void rm_report_rlc_sm(int);
 
 struct swig_pdcp_ind_msg_t{
   std::vector<pdcp_radio_bearer_stats_t> rb_stats;
+  global_e2_node_id_t id;
   int64_t tstamp;
 };
 
@@ -136,6 +139,7 @@ typedef struct{
 struct swig_slice_ind_msg_t{
   swig_slice_conf_t slice_stats;
   swig_ue_slice_conf_t ue_slice_stats;
+  global_e2_node_id_t id;
   int64_t tstamp;
 };
 
@@ -155,7 +159,8 @@ void control_slice_sm(global_e2_node_id_t* id, slice_ctrl_msg_t* ctrl);
 /////////////////////////////////////
 
 struct swig_gtp_ind_msg_t{
-  std::vector<gtp_ngu_t_stats_t> gtp_stats; 
+  std::vector<gtp_ngu_t_stats_t> gtp_stats;
+  global_e2_node_id_t id;
   int64_t tstamp;
 };
 

@@ -45,7 +45,7 @@ e2_node_arr_t e2_nodes_xapp_api(void);
 
 size_t e2_nodes_len_xapp_api(void);
 
-typedef void (*sm_cb)(sm_ag_if_rd_t const*);
+typedef void (*sm_cb)(sm_ag_if_rd_t const*, global_e2_node_id_t const*);
 
 typedef union{
   char* reason;

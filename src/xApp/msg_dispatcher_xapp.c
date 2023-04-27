@@ -36,8 +36,9 @@ void* worker_thread(void* arg)
     if(msg == NULL)
       break;
 
-    msg->sm_cb(&msg->rd);
+    msg->sm_cb(&msg->rd, &msg->e2_node);
     free_sm_ag_if_rd(&msg->rd);
+    free_global_e2_node_id(&msg->e2_node);
   }
   q->stopped = true;
 

@@ -1,32 +1,65 @@
-# TODO: only support one e2 nodes and one handler function currently
 
-
-### Initial
+1. Initial
+```
 >>> import xapp
->>> xapp.init()
+>>> xapp.init()  -> subscribe slice and mac sm for each e2 node by default
+```
 
-### Get connected E2 nodes info
->>> e2nodes = xapp.update_e2_nodes()
->>> len(e2nodes)
->>> xapp.print_e2_node(e2nodes[0])
+2. Get connected E2 nodes info
+```
+>>> xapp.print_e2_nodes()
++-------+---------+-------+-------+------------+
+|   idx |   nb_id |   mcc |   mnc | ran_type   |
++=======+=========+=======+=======+============+
+|     0 |       1 |   505 |     1 | ngran_gNB  |
++-------+---------+-------+-------+------------+
+|     1 |       4 |   208 |    94 | ngran_eNB  |
++-------+---------+-------+-------+------------+
+```
 
-### Get slice conf
->>> xapp.get_slice_conf()
->>> xapp.slice_stats['UE']["ues"]
->>> xapp.slice_stats["RAN"]["dl"]["slices"][1]
+3. Get slice conf by giving e2 node idx
+```
+>>> xapp.print_slice_stats(0)
++---------+------------+------------+------------------+--------------------+---------------------+---------------------+---------------------+------------------+
+|   nb_id | ran_type   |   slice_id | label            | slice_sched_algo   | slice_algo_param1   | slice_algo_param2   | slice_algo_param3   | ue_sched_algo    |
++=========+============+============+==================+====================+=====================+=====================+=====================+==================+
+|       1 | ngran_gNB  |        277 | This is my label | STATIC             | pos_low:17          | pos_high:21         | null                | Scheduler string |
++---------+------------+------------+------------------+--------------------+---------------------+---------------------+---------------------+------------------+
+|       1 | ngran_gNB  |        730 | This is my label | STATIC             | pos_low:11          | pos_high:14         | null                | Scheduler string |
++---------+------------+------------+------------------+--------------------+---------------------+---------------------+---------------------+------------------++--------+------------------+
+| rnti   | assoc_slice_id   |
++========+==================+
+| 0xdf   | null             |
++--------+------------------+
+| 0x8    | null             |
++--------+------------------+
+```
 
+4. Send slice control msg
+use function send_slice_ctrl_msg(e2node_idx, cmd, conf)
+- e2node_idx: the index of connected e2 nodes
+- cmd, conf: the command and config of control message
+  - "ADDMOD", xapp.conf_static_slices
+  - "ADDMOD", xapp.conf_nvs_slices
+  - "ADDMOD", xapp.conf_nvs_slices_rate1
+  - "ADDMOD", xapp.conf_nvs_slices_rate2
+  - "ADDMOD", xapp.conf_nvs_slices_cap2
+  - "ADDMOD", xapp.conf_nvs_slices_cap3
+  - "ADDMOD", xapp.conf_edf_slices
+  - "ADDMOD", xapp.conf_reset_slices
+  - "DEL", xapp.conf_delete_slices
+  - "ASSOC_UE", xapp.conf_assoc_ue_slice
+```
+>>> xapp.print_slice_conf("ADDMOD", xapp.conf_nvs_slices_cap2)
+  slice_id  label    slice_sched_algo    slice_algo_param1    slice_algo_param2    slice_algo_param3    ue_sched_algo
+----------  -------  ------------------  -------------------  -------------------  -------------------  ---------------
+         0  s1       NVS-CAPACITY        pct_rsvd:0.7         null                 null                 PF
+         2  s2       NVS-CAPACITY        pct_rsvd:0.29        null                 null                 PF
 
-### Send slice ctrl msg
-# send_slice_ctrl_msg(e2node, cmd, conf)
-# cmd = "ADD", "MOD", "DEL", "ASSOC_UE"
-# conf = conf_static/nvs/edf/_slices, conf_nvs_slices_rate1/2, conf_nvs_slices_cap
-# conf = conf_delete_slices
-# conf = conf_assoc_ue_slice
-# conf = conf_reset_slices
->>> xapp.conf_nvs_slices_rate2
->>> xapp.send_slice_ctrl_msg(e2nodes[0], "MOD", xapp.conf_nvs_slices_rate2)
->>> xapp.send_slice_ctrl_msg(e2nodes[0], "DEL", xapp.conf_delete_slices)
->>> xapp.send_slice_ctrl_msg(e2nodes[0], "ASSOC_UE", xapp.conf_assoc_ue_slice)
+>>> xapp.send_slice_ctrl_msg(0, "ADDMOD", xapp.conf_nvs_slices_cap2)
+```
 
-### Finish
->>> xapp.end()
+5. Finish
+```
+>>> xapp.end() -> delete subscription of slice and mac sm for each e2 node
+```

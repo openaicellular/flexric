@@ -27,6 +27,7 @@
 
 #include "../util/alg_ds/ds/ts_queue/ts_queue.h"
 #include "../sm/agent_if/read/sm_ag_if_rd.h"
+#include "../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
 
 #include <pthread.h>
 
@@ -37,8 +38,9 @@ typedef struct{
 } msg_dispatcher_xapp_t;
 
 typedef struct{
-  sm_ag_if_rd_t rd; 
-  void (*sm_cb)(sm_ag_if_rd_t const*);
+  sm_ag_if_rd_t rd;
+  global_e2_node_id_t e2_node;
+  void (*sm_cb)(sm_ag_if_rd_t const*,  const global_e2_node_id_t*);
 } msg_dispatch_t ;
 
 void init_msg_dispatcher( msg_dispatcher_xapp_t* d);

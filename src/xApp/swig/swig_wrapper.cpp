@@ -87,7 +87,7 @@ static
 mac_cb* hndlr_mac_cb; 
 
 static
-void sm_cb_mac(sm_ag_if_rd_t const* rd)
+void sm_cb_mac(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == MAC_STATS_V0);
@@ -97,6 +97,7 @@ void sm_cb_mac(sm_ag_if_rd_t const* rd)
 
   swig_mac_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
+  ind.id = cp_global_e2_node_id(e2_node);
 
   for(uint32_t i = 0; i < data->msg.len_ue_stats; ++i){
       mac_ue_stats_impl_t tmp = cp_mac_ue_stats_impl(&data->msg.ue_stats[i]) ;
@@ -107,7 +108,6 @@ void sm_cb_mac(sm_ag_if_rd_t const* rd)
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
 #endif
-
     hndlr_mac_cb->handle(&ind);
 
 #ifdef XAPP_LANG_PYTHON
@@ -171,7 +171,7 @@ static
 rlc_cb* hndlr_rlc_cb; 
 
 static
-void sm_cb_rlc(sm_ag_if_rd_t const* rd)
+void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == RLC_STATS_V0);
@@ -181,6 +181,7 @@ void sm_cb_rlc(sm_ag_if_rd_t const* rd)
 
   swig_rlc_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
+  ind.id = cp_global_e2_node_id(e2_node);
 
   for(uint32_t i = 0; i < data->msg.len; ++i){
     rlc_radio_bearer_stats_t tmp = data->msg.rb[i];
@@ -252,7 +253,7 @@ static
 pdcp_cb* hndlr_pdcp_cb; 
 
 static
-void sm_cb_pdcp(sm_ag_if_rd_t const* rd)
+void sm_cb_pdcp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == PDCP_STATS_V0);
@@ -262,6 +263,7 @@ void sm_cb_pdcp(sm_ag_if_rd_t const* rd)
 
   swig_pdcp_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
+  ind.id = cp_global_e2_node_id(e2_node);
 
   for(uint32_t i = 0; i < data->msg.len; ++i){
     pdcp_radio_bearer_stats_t tmp = data->msg.rb[i];
@@ -330,7 +332,7 @@ static
 slice_cb* hndlr_slice_cb;
 
 static
-void sm_cb_slice(sm_ag_if_rd_t const* rd)
+void sm_cb_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == SLICE_STATS_V0);
@@ -340,6 +342,7 @@ void sm_cb_slice(sm_ag_if_rd_t const* rd)
 
   swig_slice_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
+  ind.id = cp_global_e2_node_id(e2_node);
 
 
   ind.slice_stats.dl.len_slices = data->msg.slice_conf.dl.len_slices;
@@ -491,7 +494,7 @@ static
 gtp_cb* hndlr_gtp_cb; 
 
 static
-void sm_cb_gtp(sm_ag_if_rd_t const* rd)
+void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == GTP_STATS_V0);
@@ -501,6 +504,7 @@ void sm_cb_gtp(sm_ag_if_rd_t const* rd)
 
   swig_gtp_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
+  ind.id = cp_global_e2_node_id(e2_node);
 
   for(uint32_t i = 0; i < data->msg.len; ++i){
     gtp_ngu_t_stats_t tmp = data->msg.ngut[i];

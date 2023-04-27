@@ -20,7 +20,7 @@ class MACCallback(ric.mac_cb):
             t_now = time.time_ns() / 1000.0
             t_mac = ind.tstamp / 1.0
             t_diff = t_now - t_mac
-            print('MAC Indication tstamp = ' + str(t_mac) + ' diff = ' + str(t_diff))
+            print(f"MAC Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id}")
             # print('MAC rnti = ' + str(ind.ue_stats[0].rnti))
 
 ####################
@@ -39,7 +39,7 @@ class RLCCallback(ric.rlc_cb):
             t_now = time.time_ns() / 1000.0
             t_rlc = ind.tstamp / 1.0
             t_diff = t_now - t_rlc
-            print('RLC Indication tstamp = ' + str(ind.tstamp) + ' diff = ' + str(t_diff))
+            print(f"RLC Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id}")
             # print('RLC rnti = '+ str(ind.rb_stats[0].rnti))
 
 ####################
@@ -58,7 +58,7 @@ class PDCPCallback(ric.pdcp_cb):
             t_now = time.time_ns() / 1000.0
             t_pdcp = ind.tstamp / 1.0
             t_diff = t_now - t_pdcp
-            print('PDCP Indication tstamp = ' + str(ind.tstamp) + ' diff = ' + str(t_diff))
+            print(f"PDCP Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id}")
             # print('PDCP rnti = '+ str(ind.rb_stats[0].rnti))
 
 
@@ -93,7 +93,7 @@ rlc_hndlr = []
 for i in range(0, len(conn)):
     rlc_cb = RLCCallback()
     hndlr = ric.report_rlc_sm(conn[i].id, ric.Interval_ms_1, rlc_cb)
-    rlc_hndlr.append(hndlr) 
+    rlc_hndlr.append(hndlr)
     time.sleep(1)
 
 ####################
@@ -104,7 +104,7 @@ pdcp_hndlr = []
 for i in range(0, len(conn)):
     pdcp_cb = PDCPCallback()
     hndlr = ric.report_pdcp_sm(conn[i].id, ric.Interval_ms_1, pdcp_cb)
-    pdcp_hndlr.append(hndlr) 
+    pdcp_hndlr.append(hndlr)
     time.sleep(1)
 
 time.sleep(10)
