@@ -155,7 +155,7 @@ def subscriber(test_checkpoint=0):
                 maxcycle_ms = 0
 
     # When exiting, unsubscribe all existing handlers
-    print('[Ctrl+C] Stopping the xApp...')
+    print('[Ctrl+C] Unsubscribing...')
     for _, e2_sub in e2_nodes_book.items():
         e2_sub['is_on'] = False
 
@@ -185,7 +185,7 @@ def publish(idx, session, labelset, msgs_df):
                        for ts in ts_df.iter_rows(named=True)])
     snappy_payload = snappy.compress(payload.encode('utf-8'))
 
-    # FREE the "_df" & "payload", explicitly
+    # FREE the "ts_df" & "payload", explicitly
     del ts_df
     del payload
 
@@ -204,8 +204,8 @@ def publish(idx, session, labelset, msgs_df):
 
 def stats_writer(msg_queue, is_test=False):
     # Set #threads, batch_size, and msg_dtype
-    num_threads = 2
-    batch_size = 256
+    num_threads = 4
+    batch_size = 128
     msg_dtype = [('__name__', pl.Utf8), ('rnti', pl.Utf8), ('nb_id', pl.Utf8), 
                  ('cu_du_id', pl.Utf8), ('mcc', pl.Utf8), ('mnc', pl.Utf8), 
                  ('timestamp', pl.UInt64), ('value', pl.Float32)]
@@ -216,39 +216,44 @@ def stats_writer(msg_queue, is_test=False):
                   pool_connections=1, pool_maxsize=num_threads))
     session.headers.update({'Content-Type': 'application/json', 'Content-Encoding': 'snappy'})
 
-    while True:
-        try:
-            if msg_queue.qsize() >= num_threads*batch_size:
-                try:
-                    msgs_df = pl.DataFrame({}, schema=msg_dtype)
-                    for idx in range(num_threads*batch_size):
-                        cur_msg = msg_queue.get(timeout=1)
-                        msgs_df.extend(pl.DataFrame(cur_msg, schema=msg_dtype))
-                except queue.Empty:
-                    print("[Ctrl+C?] Not enough messages!!!")
-                    break
+    # Handling Ctrl+C in the "spawned" Writer process
+    def writer_sighandler(signal, frame):
+        global is_running
+        is_running = False
+    signal.signal(signal.SIGINT, writer_sighandler)
 
-                if is_test:
-                    begint_ms = msgs_df['timestamp'][0]
+    global is_running
+    is_running = True
+    while is_running:
+        if msg_queue.qsize() >= num_threads*batch_size:
+            try:
+                msgs_df = pl.DataFrame({}, schema=msg_dtype)
+                for idx in range(num_threads*batch_size):
+                    cur_msg = msg_queue.get(timeout=1)
+                    msgs_df.extend(pl.DataFrame(cur_msg, schema=msg_dtype))
+            except queue.Empty:
+                print("[Ctrl+C?] Not enough messages!!!")
+                break
 
-                with ThreadPoolExecutor(num_threads) as executor:
-                    # SPLIT before Map-Shuffle
-                    for idx in range(num_threads):
-                        executor.submit(publish, idx, session, 
-                                        {'__name__', 'rnti', 'nb_id', 'cu_du_id', 'mcc', 'mnc'},
-                                        msgs_df[idx*batch_size : (idx+1)*batch_size])
+            if is_test:
+                begint_ms = msgs_df['timestamp'][0]
 
-                # FREE the "messages" dataframe, explicitly
-                del msgs_df
+            with ThreadPoolExecutor(num_threads) as executor:
+                # SPLIT before Map-Shuffle
+                for idx in range(num_threads):
+                    executor.submit(publish, idx, session, 
+                                    {'__name__', 'rnti', 'nb_id', 'cu_du_id', 'mcc', 'mnc'},
+                                    msgs_df[idx*batch_size : (idx+1)*batch_size])
 
-                if is_test:
-                    endt_ms = time.time_ns() // 1_000_000
-                    print(f"[RICMon] Max-delay of {num_threads*batch_size} messages: \
-                        {endt_ms-begint_ms} (ms).")
-        except KeyboardInterrupt:
-            print("[Ctrl+C] Clearing the shared queues...")
-            break
+            # FREE the "msgs_df" dataframe, explicitly
+            del msgs_df
 
+            if is_test:
+                endt_ms = time.time_ns() // 1_000_000
+                print(f"[RICMon] Max-delay of {num_threads*batch_size} messages: \
+                      {endt_ms-begint_ms} (ms).")
+
+    print("[Ctrl+C] Clearing the shared queues...")
     while not msg_queue.empty():
         msg_queue.get()
 
