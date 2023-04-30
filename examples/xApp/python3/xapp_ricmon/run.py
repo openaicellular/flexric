@@ -5,7 +5,6 @@ from helpers import SubscriptionHelper, TimeSeriesEncoder, ts_grouping
 
 import polars as pl
 import json, snappy, requests, traceback, queue
-from concurrent.futures import ThreadPoolExecutor
 
 import signal
 from multiprocessing import set_start_method, Manager, Process
@@ -26,6 +25,7 @@ class MACCallback(ric.mac_cb, SubscriptionHelper):
     # Override C++ method: virtual void handle(swig_mac_ind_msg_t a) = 0;
     def handle(self, ind):
         if len(ind.ue_stats) > 0:
+            ricmont_ms = time.time_ns()//1_000_000
             tstamp_ms = ind.tstamp // 1000
 
             try:
@@ -36,7 +36,8 @@ class MACCallback(ric.mac_cb, SubscriptionHelper):
                             '__name__': metric, 'rnti': f"{ue_stat.rnti}", 
                             'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}", 
                             'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}", 
-                            'timestamp': tstamp_ms, 'value': getattr(ue_stat, metric)
+                            'ricmonstamp': ricmont_ms, 'timestamp': tstamp_ms, 
+                            'value': getattr(ue_stat, metric)
                         })
 
                 # Report the latencies
@@ -56,6 +57,7 @@ class PDCPCallback(ric.pdcp_cb, SubscriptionHelper):
     # Override C++ method: virtual void handle(swig_pdcp_ind_msg_t a) = 0;
     def handle(self, ind):
         if len(ind.rb_stats) > 0:
+            ricmont_ms = time.time_ns() // 1_000_000
             tstamp_ms = ind.tstamp // 1000
 
             try:
@@ -66,7 +68,8 @@ class PDCPCallback(ric.pdcp_cb, SubscriptionHelper):
                             '__name__': f"pdcp_{metric}", 'rnti': f"{rb_stat.rnti}", 
                             'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}", 
                             'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}", 
-                            'timestamp': tstamp_ms, 'value': getattr(rb_stat, metric)
+                            'ricmonstamp': ricmont_ms, 'timestamp': tstamp_ms, 
+                            'value': getattr(rb_stat, metric)
                         })
 
                 # Report the latencies
@@ -78,10 +81,10 @@ def subscriber(test_checkpoint=0):
     # Targeted metrics and intervals for each Service Model
     sm_book = {
         'PDCP': {'metrics': ['rxsdu_bytes', 'txsdu_bytes'], 
-                 'interval': 'Interval_ms_10'},
+                 'interval': 'Interval_ms_5'},
         'MAC':  {'metrics': ['dl_curr_tbs', 'ul_curr_tbs', 'dl_bler', 'ul_bler', 
                              'dl_mcs1', 'ul_mcs1', 'phr', 'wb_cqi'], 
-                 'interval': 'Interval_ms_10'}
+                 'interval': 'Interval_ms_5'}
     }
 
     # E2-Node dictionary for status, subscriptions, and callback-handlers:
@@ -185,10 +188,6 @@ def publish(idx, session, labelset, msgs_df):
                        for ts in ts_df.iter_rows(named=True)])
     snappy_payload = snappy.compress(payload.encode('utf-8'))
 
-    # FREE the "ts_df" & "payload", explicitly
-    del ts_df
-    del payload
-
     # POST to Promscale (exception-prone)
     promscale_url = 'http://172.21.13.12:9201/write'
     try:
@@ -203,60 +202,59 @@ def publish(idx, session, labelset, msgs_df):
         response.close()
 
 def stats_writer(msg_queue, is_test=False):
-    # Set #threads, batch_size, and msg_dtype
-    num_threads = 4
-    batch_size = 128
-    msg_dtype = [('__name__', pl.Utf8), ('rnti', pl.Utf8), ('nb_id', pl.Utf8), 
-                 ('cu_du_id', pl.Utf8), ('mcc', pl.Utf8), ('mnc', pl.Utf8), 
-                 ('timestamp', pl.UInt64), ('value', pl.Float32)]
+    # Set the min_batch_size before pushing
+    min_batch_size = 16
 
     # Session (connection pool) sharing between threads
     session = requests.Session()
     session.mount('http://', requests.adapters.HTTPAdapter(max_retries=0, pool_block=True,
-                  pool_connections=1, pool_maxsize=num_threads))
+                  pool_connections=1, pool_maxsize=3))
     session.headers.update({'Content-Type': 'application/json', 'Content-Encoding': 'snappy'})
 
     # Handling Ctrl+C in the "spawned" Writer process
     def writer_sighandler(signal, frame):
-        global is_running
+        nonlocal is_running
         is_running = False
     signal.signal(signal.SIGINT, writer_sighandler)
 
-    global is_running
+    # Set the DataFrame schema
+    msg_dtype = [('__name__', pl.Utf8), ('rnti', pl.Utf8), ('nb_id', pl.Utf8), 
+                 ('cu_du_id', pl.Utf8), ('mcc', pl.Utf8), ('mnc', pl.Utf8), 
+                 ('ricmonstamp', pl.UInt64), ('timestamp', pl.UInt64), ('value', pl.Float32)]
+
+    # For reporting Througput & HOL-delay when exiting
+    pushes_count, total_samples, total_delay = 0, 0, 0
+
     is_running = True
+    msgs_df = pl.DataFrame({}, schema=msg_dtype)
     while is_running:
-        if msg_queue.qsize() >= num_threads*batch_size:
-            try:
-                msgs_df = pl.DataFrame({}, schema=msg_dtype)
-                for idx in range(num_threads*batch_size):
-                    cur_msg = msg_queue.get(timeout=1)
-                    msgs_df.extend(pl.DataFrame(cur_msg, schema=msg_dtype))
-            except queue.Empty:
-                print("[Ctrl+C?] Not enough messages!!!")
-                break
+        try:
+            cur_size = msg_queue.qsize()
+            msgs = [msg_queue.get(timeout=1) for _ in range(cur_size)]
+            msgs_df.vstack(pl.DataFrame(msgs, schema=msg_dtype), in_place=True)
+        except queue.Empty:
+            print("[Ctrl+C?] Not enough messages!!!")
+            break
 
+        if msgs_df.height >= min_batch_size:
+            msgs_df.rechunk()
+            publish(0, session, {'__name__', 'rnti', 'nb_id', 'cu_du_id', 'mcc', 'mnc'}, msgs_df)
+
+            ricmont_ms = msgs_df['ricmonstamp'][0]
+            endt_ms = time.time_ns()//1_000_000
+
+            pushes_count += 1
+            total_samples += msgs_df.height
+            total_delay += (endt_ms-ricmont_ms)
             if is_test:
-                begint_ms = msgs_df['timestamp'][0]
-
-            with ThreadPoolExecutor(num_threads) as executor:
-                # SPLIT before Map-Shuffle
-                for idx in range(num_threads):
-                    executor.submit(publish, idx, session, 
-                                    {'__name__', 'rnti', 'nb_id', 'cu_du_id', 'mcc', 'mnc'},
-                                    msgs_df[idx*batch_size : (idx+1)*batch_size])
-
-            # FREE the "msgs_df" dataframe, explicitly
-            del msgs_df
-
-            if is_test:
-                endt_ms = time.time_ns() // 1_000_000
-                print(f"[RICMon] Max-delay of {num_threads*batch_size} messages: \
-                      {endt_ms-begint_ms} (ms).")
+                print(f"[RICMon] HOL-delay of {msgs_df.height} messages: {endt_ms-ricmont_ms} (ms).")
+            msgs_df = pl.DataFrame({}, schema=msg_dtype)
 
     print("[Ctrl+C] Clearing the shared queues...")
     while not msg_queue.empty():
         msg_queue.get()
 
+    print(f"[RICMon] {total_samples} records with AVG(HOL-delay) = {total_delay//pushes_count} (ms).")
     session.close()
 
 
