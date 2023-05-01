@@ -1,13 +1,16 @@
 import xapp_sdk as ric
 
 import time
-from helpers import SubscriptionHelper, TimeSeriesEncoder, ts_grouping
+from helpers import SubscriptionHelper, ts_grouping, promscale_jsonize
 
 import polars as pl
 import json, snappy, requests, traceback, queue
 
 import signal
 from multiprocessing import set_start_method, Manager, Process
+
+# import faulthandler
+# faulthandler.enable()
 
 
 ##############
@@ -33,17 +36,18 @@ class MACCallback(ric.mac_cb, SubscriptionHelper):
                 for ue_stat in ind.ue_stats:
                     for metric in self.target_metrics:
                         msg_queue.put_nowait({
-                            '__name__': metric, 'rnti': f"{ue_stat.rnti}", 
-                            'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}", 
-                            'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}", 
-                            'ricmonstamp': ricmont_ms, 'timestamp': tstamp_ms, 
-                            'value': getattr(ue_stat, metric)
+                            '__name__': metric, 'rnti': f"{ue_stat.rnti}",
+                            'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}",
+                            'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}",
+                            'timestamp': tstamp_ms, 'value': getattr(ue_stat, metric),
+                            'ricmonstamp': ricmont_ms
                         })
 
                 # Report the latencies
-                self.report_latency('MAC', tstamp_ms)
+                self.report_latency('MAC', tstamp_ms, ricmont_ms)
             except Exception as e:
                 print("[MAC-callback] Exception caught:", e)
+                return
 
 class PDCPCallback(ric.pdcp_cb, SubscriptionHelper):
     # Define Python class 'constructor'
@@ -57,7 +61,7 @@ class PDCPCallback(ric.pdcp_cb, SubscriptionHelper):
     # Override C++ method: virtual void handle(swig_pdcp_ind_msg_t a) = 0;
     def handle(self, ind):
         if len(ind.rb_stats) > 0:
-            ricmont_ms = time.time_ns() // 1_000_000
+            ricmont_ms = time.time_ns()//1_000_000
             tstamp_ms = ind.tstamp // 1000
 
             try:
@@ -65,26 +69,27 @@ class PDCPCallback(ric.pdcp_cb, SubscriptionHelper):
                 for rb_stat in ind.rb_stats:
                     for metric in self.target_metrics:
                         msg_queue.put_nowait({
-                            '__name__': f"pdcp_{metric}", 'rnti': f"{rb_stat.rnti}", 
-                            'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}", 
-                            'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}", 
-                            'ricmonstamp': ricmont_ms, 'timestamp': tstamp_ms, 
-                            'value': getattr(rb_stat, metric)
+                            '__name__': f"pdcp_{metric}", 'rnti': f"{rb_stat.rnti}",
+                            'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}",
+                            'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}",
+                            'timestamp': tstamp_ms, 'value': getattr(rb_stat, metric),
+                            'ricmonstamp': ricmont_ms
                         })
 
                 # Report the latencies
-                self.report_latency('PDCP', tstamp_ms)
+                self.report_latency('PDCP', tstamp_ms, ricmont_ms)
             except Exception as e:
                 print("[PDCP-callback] Exception caught:", e)
+                return
 
 def subscriber(test_checkpoint=0):
     # Targeted metrics and intervals for each Service Model
     sm_book = {
-        'PDCP': {'metrics': ['rxsdu_bytes', 'txsdu_bytes'], 
-                 'interval': 'Interval_ms_5'},
+        'PDCP': {'metrics': ['rxsdu_bytes', 'rxsdu_pkts', 'txsdu_bytes', 'txsdu_pkts'], 
+                 'interval': 'Interval_ms_10'},
         'MAC':  {'metrics': ['dl_curr_tbs', 'ul_curr_tbs', 'dl_bler', 'ul_bler', 
                              'dl_mcs1', 'ul_mcs1', 'phr', 'wb_cqi'], 
-                 'interval': 'Interval_ms_5'}
+                 'interval': 'Interval_ms_10'}
     }
 
     # E2-Node dictionary for status, subscriptions, and callback-handlers:
@@ -105,7 +110,7 @@ def subscriber(test_checkpoint=0):
 
     ric.init()
     global is_running
-    while is_running.value:
+    while True:
         conns = ric.conn_e2_nodes()
         conns_ids = {
             (conn.id.plmn.mcc, conn.id.plmn.mnc, conn.id.nb_id, conn.id.cu_du_id): conn.id
@@ -149,13 +154,19 @@ def subscriber(test_checkpoint=0):
                 maxcycle_ms = max(maxcycle_ms, time.time_ns()//1_000_000 - lastcycle_ms)
             lastcycle_ms = time.time_ns()//1_000_000
 
-            if test_counter < test_checkpoint*1000:
+            if test_counter < test_checkpoint*100:
                 test_counter += 1
             else:
                 print(f"[RICMon] conn_e2_nodes(): {list(conns_ids.keys())};")
                 print(f"\tmax-cycled every: {maxcycle_ms} (ms).")
                 test_counter = 0
                 maxcycle_ms = 0
+
+        try:
+            if not is_running.value:
+                break
+        except EOFError:
+            break
 
     # When exiting, unsubscribe all existing handlers
     print('[Ctrl+C] Unsubscribing...')
@@ -179,13 +190,12 @@ def subscriber(test_checkpoint=0):
 ##########
 # WRITER #
 ##########
-def publish(idx, session, labelset, msgs_df):
-    # GROUP into TimeSeries via a labelset
-    ts_df = ts_grouping(labelset, msgs_df)
+def publish(idx, session, labels_list, msgs_df):
+    # GROUP into TimeSeries by a labels_list
+    ts_df = ts_grouping(labels_list, msgs_df)
 
     # SNAPPY Compression
-    payload = "".join([json.dumps(ts, cls=TimeSeriesEncoder) 
-                       for ts in ts_df.iter_rows(named=True)])
+    payload = "".join([json.dumps(promscale_jsonize(ts)) for ts in ts_df.iter_rows(named=True)])
     snappy_payload = snappy.compress(payload.encode('utf-8'))
 
     # POST to Promscale (exception-prone)
@@ -217,13 +227,14 @@ def stats_writer(msg_queue, is_test=False):
         is_running = False
     signal.signal(signal.SIGINT, writer_sighandler)
 
-    # Set the DataFrame schema
+    # Set the DataFrame schema & target labels for GROUP BY
     msg_dtype = [('__name__', pl.Utf8), ('rnti', pl.Utf8), ('nb_id', pl.Utf8), 
                  ('cu_du_id', pl.Utf8), ('mcc', pl.Utf8), ('mnc', pl.Utf8), 
-                 ('ricmonstamp', pl.UInt64), ('timestamp', pl.UInt64), ('value', pl.Float32)]
+                 ('timestamp', pl.UInt64), ('value', pl.Float32), ('ricmonstamp', pl.UInt64)]
+    labels_list = ['__name__', 'rnti', 'nb_id', 'cu_du_id', 'mcc', 'mnc']
 
-    # For reporting Througput & HOL-delay when exiting
-    pushes_count, total_samples, total_delay = 0, 0, 0
+    # For reporting Througput & HOL-sojourn when exiting
+    pushes_count, total_samples, total_sojourn = 0, 0, 0
 
     is_running = True
     msgs_df = pl.DataFrame({}, schema=msg_dtype)
@@ -235,27 +246,34 @@ def stats_writer(msg_queue, is_test=False):
         except queue.Empty:
             print("[Ctrl+C?] Not enough messages!!!")
             break
+        except Exception as e:
+            print("[StatsWriter] Exception caught:", e)
+            break
 
         if msgs_df.height >= min_batch_size:
             msgs_df.rechunk()
-            publish(0, session, {'__name__', 'rnti', 'nb_id', 'cu_du_id', 'mcc', 'mnc'}, msgs_df)
-
             ricmont_ms = msgs_df['ricmonstamp'][0]
+
+            publish(0, session, labels_list, msgs_df)
             endt_ms = time.time_ns()//1_000_000
 
             pushes_count += 1
             total_samples += msgs_df.height
-            total_delay += (endt_ms-ricmont_ms)
+            total_sojourn += (endt_ms-ricmont_ms)
             if is_test:
-                print(f"[RICMon] HOL-delay of {msgs_df.height} messages: {endt_ms-ricmont_ms} (ms).")
+                print(f"[RICMon] HOL-sojourn of {msgs_df.height} messages: {endt_ms-ricmont_ms} (ms).")
+
             msgs_df = pl.DataFrame({}, schema=msg_dtype)
 
-    print("[Ctrl+C] Clearing the shared queues...")
-    while not msg_queue.empty():
-        msg_queue.get()
-
-    print(f"[RICMon] {total_samples} records with AVG(HOL-delay) = {total_delay//pushes_count} (ms).")
-    session.close()
+    try:
+        print("[Ctrl+C] Clearing the shared queues...")
+        while not msg_queue.empty():
+            msg_queue.get()
+    except Exception as e:
+        print("[StatsWriter] Exception caught:", e)
+    finally:
+        session.close()
+        print(f"[RICMon] {total_samples} records with AVG(HOL-sojourn) = {total_sojourn//pushes_count} (ms).")
 
 
 ########
@@ -278,6 +296,6 @@ if __name__ == '__main__':
                                 args=(msg_queue,), kwargs={'is_test': False})
 
     stats_writer_proc.start()
-    subscriber(test_checkpoint=0)
+    subscriber(test_checkpoint=100)
 
     stats_writer_proc.join()
