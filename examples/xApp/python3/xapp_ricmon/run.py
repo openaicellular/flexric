@@ -5,9 +5,11 @@ from helpers import SubscriptionHelper, ts_grouping, promscale_jsonize
 
 import polars as pl
 import json, snappy, requests, traceback, queue
+from concurrent.futures import ThreadPoolExecutor
 
 import signal
 from multiprocessing import set_start_method, Manager, Process
+from configs import CONFIGS
 
 # import faulthandler
 # faulthandler.enable()
@@ -190,53 +192,18 @@ def subscriber(test_checkpoint=0):
 ##########
 # WRITER #
 ##########
-def publish(idx, session, labels_list, msgs_df):
-    # GROUP into TimeSeries by a labels_list
-    ts_df = ts_grouping(labels_list, msgs_df)
+def publish(idx, msg_queue, session, min_batch_size=16,
+            promscale_url='http://localhost:9201/write', is_test=False):
+    # For reporting Througput & HOL-sojourn when exiting
+    pushes_count, total_samples, total_sojourn = 0, 0, 0
 
-    # SNAPPY Compression
-    payload = "".join([json.dumps(promscale_jsonize(ts)) for ts in ts_df.iter_rows(named=True)])
-    snappy_payload = snappy.compress(payload.encode('utf-8'))
-
-    # POST to Promscale (exception-prone)
-    promscale_url = 'http://172.21.13.12:9201/write'
-    try:
-        response = session.post(promscale_url, data=snappy_payload, timeout=1)
-        if response.status_code != 200:
-            print(f"\n\t[PUSHER-{idx}] ERROR returned by Promscale!!!\n")
-    except requests.exceptions.Timeout:
-        print(f"\n\t[PUSHER-{idx}] Pushing to Promscale takes too long!!!\n")
-    except Exception:
-        traceback.print_exc()
-    finally:
-        response.close()
-
-def stats_writer(msg_queue, is_test=False):
-    # Set the min_batch_size before pushing
-    min_batch_size = 16
-
-    # Session (connection pool) sharing between threads
-    session = requests.Session()
-    session.mount('http://', requests.adapters.HTTPAdapter(max_retries=0, pool_block=True,
-                  pool_connections=1, pool_maxsize=3))
-    session.headers.update({'Content-Type': 'application/json', 'Content-Encoding': 'snappy'})
-
-    # Handling Ctrl+C in the "spawned" Writer process
-    def writer_sighandler(signal, frame):
-        nonlocal is_running
-        is_running = False
-    signal.signal(signal.SIGINT, writer_sighandler)
-
-    # Set the DataFrame schema & target labels for GROUP BY
+    # Set the DataFrame schema & pick labels for GROUP BY
     msg_dtype = [('__name__', pl.Utf8), ('rnti', pl.Utf8), ('nb_id', pl.Utf8), 
                  ('cu_du_id', pl.Utf8), ('mcc', pl.Utf8), ('mnc', pl.Utf8), 
                  ('timestamp', pl.UInt64), ('value', pl.Float32), ('ricmonstamp', pl.UInt64)]
     labels_list = ['__name__', 'rnti', 'nb_id', 'cu_du_id', 'mcc', 'mnc']
 
-    # For reporting Througput & HOL-sojourn when exiting
-    pushes_count, total_samples, total_sojourn = 0, 0, 0
-
-    is_running = True
+    global is_running
     msgs_df = pl.DataFrame({}, schema=msg_dtype)
     while is_running:
         try:
@@ -244,26 +211,69 @@ def stats_writer(msg_queue, is_test=False):
             msgs = [msg_queue.get(timeout=1) for _ in range(cur_size)]
             msgs_df.vstack(pl.DataFrame(msgs, schema=msg_dtype), in_place=True)
         except queue.Empty:
-            print("[Ctrl+C?] Not enough messages!!!")
+            print(f"[PUSHER-{idx}] Timeout while dequeuing; Ctrl+C?")
             break
         except Exception as e:
-            print("[StatsWriter] Exception caught:", e)
+            print(f"[PUSHER-{idx}] Exception caught:", e)
             break
 
         if msgs_df.height >= min_batch_size:
+            # GROUP into TimeSeries using the picked labels
             msgs_df.rechunk()
-            ricmont_ms = msgs_df['ricmonstamp'][0]
+            ts_df = ts_grouping(labels_list, msgs_df)
 
-            publish(0, session, labels_list, msgs_df)
+            # SNAPPY Compression
+            payload = "".join([json.dumps(promscale_jsonize(ts))
+                               for ts in ts_df.iter_rows(named=True)])
+            snappy_payload = snappy.compress(payload.encode('utf-8'))
+
+            # POST to a Promscale (exception-prone)
+            try:
+                response = session.post(promscale_url, data=snappy_payload, timeout=1)
+                if response.status_code != 200:
+                    print(f"\n\t[PUSHER-{idx}] ERROR returned by Promscale!!!\n")
+            except requests.exceptions.Timeout:
+                print(f"\n\t[PUSHER-{idx}] Pushing to Promscale takes too long!!!\n")
+            except Exception:
+                traceback.print_exc()
+            finally:
+                response.close()
+
+            # BENCHMARK
             endt_ms = time.time_ns()//1_000_000
+            ricmont_ms = msgs_df['ricmonstamp'][0]
+            total_sojourn += (endt_ms-ricmont_ms)
 
             pushes_count += 1
             total_samples += msgs_df.height
-            total_sojourn += (endt_ms-ricmont_ms)
             if is_test:
-                print(f"[RICMon] HOL-sojourn of {msgs_df.height} messages: {endt_ms-ricmont_ms} (ms).")
+                print(f"[PUSHER-{idx}] HOL-sojourn of {msgs_df.height} messages: \
+                      {endt_ms-ricmont_ms} (ms).")
 
             msgs_df = pl.DataFrame({}, schema=msg_dtype)
+
+    print(f"[PUSHER-{idx}] {total_samples} records \
+          with AVG(HOL-sojourn) = {total_sojourn//pushes_count} (ms).")
+
+def stats_writer(msg_queue, promscale_url, is_test, num_threads=2):
+    # Session (connection pool) sharing between threads
+    session = requests.Session()
+    session.mount('http://', requests.adapters.HTTPAdapter(max_retries=0, pool_block=True,
+                  pool_connections=1, pool_maxsize=num_threads*2))
+    session.headers.update({'Content-Type': 'application/json', 'Content-Encoding': 'snappy'})
+
+    # Handling Ctrl+C in the "spawned" Writer process
+    def writer_sighandler(signal, frame):
+        global is_running
+        is_running = False
+    signal.signal(signal.SIGINT, writer_sighandler)
+
+    global is_running
+    is_running = True
+    with ThreadPoolExecutor(num_threads) as executor:
+        for idx in range(num_threads):
+            executor.submit(publish, idx, msg_queue, session,
+                            promscale_url=promscale_url, is_test=is_test)
 
     try:
         print("[Ctrl+C] Clearing the shared queues...")
@@ -273,7 +283,6 @@ def stats_writer(msg_queue, is_test=False):
         print("[StatsWriter] Exception caught:", e)
     finally:
         session.close()
-        print(f"[RICMon] {total_samples} records with AVG(HOL-sojourn) = {total_sojourn//pushes_count} (ms).")
 
 
 ########
@@ -293,7 +302,7 @@ if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, subscriber_sighandler)
     stats_writer_proc = Process(target=stats_writer, 
-                                args=(msg_queue,), kwargs={'is_test': False})
+                                args=(msg_queue, CONFIGS['promscale_url'], False))
 
     stats_writer_proc.start()
     subscriber(test_checkpoint=0)
