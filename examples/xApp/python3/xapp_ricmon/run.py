@@ -296,6 +296,6 @@ if __name__ == '__main__':
                                 args=(msg_queue,), kwargs={'is_test': False})
 
     stats_writer_proc.start()
-    subscriber(test_checkpoint=100)
+    subscriber(test_checkpoint=0)
 
     stats_writer_proc.join()
