@@ -43,6 +43,7 @@ CONFIGS = {
         }
     },
     'promscale_url': 'http://172.21.13.12:9201/write',
+    'database_mode': True,
     'subscriber_report_cycles': 0,
     'stats_writer_report': False
 }

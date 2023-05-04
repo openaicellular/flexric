@@ -54,11 +54,11 @@ def ts_grouping(labels_list, msgs_df):
 
 
 # Promscale JSON encoder for TimeSeries
-def promscale_jsonize(ts_row):
+def promscale_jsonize(ts_row, labels_key):
     if (len(ts_row.keys()) == 2) and ('samples' in ts_row):
         labels_str = [k for k in ts_row.keys() if k != 'samples'][0]
 
-        ts_row['labels'] = {
+        ts_row[labels_key] = {
             label: value for label, value
             in zip(labels_str.split(';'), ts_row[labels_str].split(';'))
         }

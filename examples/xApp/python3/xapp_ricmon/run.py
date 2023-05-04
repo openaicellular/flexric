@@ -168,7 +168,7 @@ def subscriber(e2_nodes_configs, test_checkpoint=0):
 # WRITER #
 ##########
 def publish(idx, msg_queue, session, min_batch_size=16,
-            promscale_url='http://localhost:9201/write', is_test=False):
+            promscale_url='http://localhost:9201/write', labels_key='labels', is_test=False):
     # For reporting Througput & HOL-sojourn when exiting
     pushes_count, total_samples, total_sojourn = 0, 0, 0
 
@@ -198,7 +198,7 @@ def publish(idx, msg_queue, session, min_batch_size=16,
             ts_df = ts_grouping(labels_list, msgs_df)
 
             # SNAPPY Compression
-            payload = "".join([json.dumps(promscale_jsonize(ts))
+            payload = "".join([json.dumps(promscale_jsonize(ts, labels_key))
                                for ts in ts_df.iter_rows(named=True)])
             snappy_payload = snappy.compress(payload.encode('utf-8'))
 
@@ -230,7 +230,7 @@ def publish(idx, msg_queue, session, min_batch_size=16,
     print(f"[PUSHER-{idx}] {total_samples} records \
           with AVG(HOL-sojourn) = {total_sojourn//pushes_count} (ms).")
 
-def stats_writer(msg_queue, promscale_url, is_test, num_threads=2):
+def stats_writer(msg_queue, promscale_url, is_db, is_test, num_threads=2):
     # Session (connection pool) sharing between threads
     session = requests.Session()
     session.mount('http://', requests.adapters.HTTPAdapter(max_retries=0, pool_block=True,
@@ -245,10 +245,11 @@ def stats_writer(msg_queue, promscale_url, is_test, num_threads=2):
 
     global is_running
     is_running = True
+    labels_key = 'labels' if is_db else 'tests'
     with ThreadPoolExecutor(num_threads) as executor:
         for idx in range(num_threads):
-            executor.submit(publish, idx, msg_queue, session,
-                            promscale_url=promscale_url, is_test=is_test)
+            executor.submit(publish, idx, msg_queue, session, promscale_url=promscale_url,
+                            labels_key=labels_key, is_test=is_test)
 
     try:
         print("[Ctrl+C] Clearing the shared queues...")
@@ -278,6 +279,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, subscriber_sighandler)
     stats_writer_proc = Process(target=stats_writer,args=(msg_queue,
                                                           CONFIGS['promscale_url'],
+                                                          CONFIGS['database_mode'],
                                                           CONFIGS['stats_writer_report']))
 
     stats_writer_proc.start()
