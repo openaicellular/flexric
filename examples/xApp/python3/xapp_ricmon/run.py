@@ -1,7 +1,8 @@
 import xapp_sdk as ric
 
-import time
+import time, copy
 from helpers import SubscriptionHelper, ts_grouping, promscale_jsonize
+from configs import CONFIGS
 
 import polars as pl
 import json, snappy, requests, traceback, queue
@@ -9,7 +10,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 import signal
 from multiprocessing import set_start_method, Manager, Process
-from configs import CONFIGS
 
 # import faulthandler
 # faulthandler.enable()
@@ -34,19 +34,14 @@ class MACCallback(ric.mac_cb, SubscriptionHelper):
             tstamp_ms = ind.tstamp // 1000
 
             try:
+                # Process and enqueue messages
                 global msg_queue
-                for ue_stat in ind.ue_stats:
-                    for metric in self.target_metrics:
-                        msg_queue.put_nowait({
-                            '__name__': metric, 'rnti': f"{ue_stat.rnti}",
-                            'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}",
-                            'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}",
-                            'timestamp': tstamp_ms, 'value': getattr(ue_stat, metric),
-                            'ricmonstamp': ricmont_ms
-                        })
+                self.process_indication(ind.ue_stats, msg_queue,
+                                        tstamp_ms=tstamp_ms, ricmont_ms=ricmont_ms)
 
                 # Report the latencies
-                self.report_latency('MAC', tstamp_ms, ricmont_ms)
+                if self.test_checkpoint > 0:
+                    self.report_latency('MAC', tstamp_ms, ricmont_ms)
             except Exception as e:
                 print("[MAC-callback] Exception caught:", e)
                 return
@@ -67,48 +62,31 @@ class PDCPCallback(ric.pdcp_cb, SubscriptionHelper):
             tstamp_ms = ind.tstamp // 1000
 
             try:
+                # Process and enqueue messages
                 global msg_queue
-                for rb_stat in ind.rb_stats:
-                    for metric in self.target_metrics:
-                        msg_queue.put_nowait({
-                            '__name__': f"pdcp_{metric}", 'rnti': f"{rb_stat.rnti}",
-                            'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}",
-                            'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}",
-                            'timestamp': tstamp_ms, 'value': getattr(rb_stat, metric),
-                            'ricmonstamp': ricmont_ms
-                        })
+                self.process_indication(ind.rb_stats, msg_queue,
+                                        tstamp_ms=tstamp_ms, ricmont_ms=ricmont_ms)
 
                 # Report the latencies
-                self.report_latency('PDCP', tstamp_ms, ricmont_ms)
+                if self.test_checkpoint > 0:
+                    self.report_latency('PDCP', tstamp_ms, ricmont_ms)
             except Exception as e:
                 print("[PDCP-callback] Exception caught:", e)
                 return
 
-def subscriber(test_checkpoint=0):
-    # Targeted metrics and intervals for each Service Model
-    sm_book = {
-        'PDCP': {'metrics': ['rxsdu_bytes', 'rxsdu_pkts', 'txsdu_bytes', 'txsdu_pkts'], 
-                 'interval': 'Interval_ms_10'},
-        'MAC':  {'metrics': ['dl_curr_tbs', 'ul_curr_tbs', 'dl_bler', 'ul_bler', 
-                             'dl_mcs1', 'ul_mcs1', 'phr', 'wb_cqi'], 
-                 'interval': 'Interval_ms_10'}
-    }
-
-    # E2-Node dictionary for status, subscriptions, and callback-handlers:
-    e2_nodes_book = {
-        (505, 1, 1, 0):     {'is_on': False,
-                             'PDCP': [True, None, None], 'MAC': [True, None, None]},
-        (505, 1, 2, 21):    {'is_on': False,
-                             'PDCP': [True, None, None], 'MAC': [False]},
-        (505, 1, 2, 22):    {'is_on': False,
-                             'PDCP': [False],            'MAC': [True, None, None]},
-        (505, 1, 3584, 0):  {'is_on': False,
-                             'PDCP': [True, None, None], 'MAC': [True, None, None]}
-    }
-
+def subscriber(e2_nodes_configs, test_checkpoint=0):
     # For reporting cycle times during testing
     lastcycle_ms, maxcycle_ms = 0, 0
     test_counter = 0
+
+    # Bookeeping the status of each E2-Node
+    e2_nodes_book = copy.deepcopy(e2_nodes_configs)
+    for _, configs in e2_nodes_book.items():
+        configs['is_on'] = False
+        for _, sm_configs in configs.items():
+            if isinstance(sm_configs, dict):
+                sm_configs['callback'] = None
+                sm_configs['handler'] = None
 
     ric.init()
     global is_running
@@ -121,33 +99,32 @@ def subscriber(test_checkpoint=0):
 
         # [REMARK] ignore E2-Node that is NOT in the book!
         for e2_id, e2_sub in e2_nodes_book.items():
+            # Case-1: E2-Node is marked as "on" but has been DOWN
             if e2_sub['is_on'] and (not e2_id in conns_ids):
                 e2_sub['is_on'] = False
-
-                for sm in ['PDCP', 'MAC']:
-                    if e2_sub[sm][0]:
-                        # Cannot unsubscribe from a dead E2-Node:
-                        # => TODO: Fix at FlexRIC
-                        e2_sub[sm][2] = None
-
+                for _, sm_configs in e2_sub.items():
+                    if isinstance(sm_configs, dict):
+                        # Cannot unsubscribe from a dead E2-Node
+                        # => drop the handler instead
+                        # => TODO: fix this at FlexRIC
+                        sm_configs['handler'] = None
                 print(f"[RICMon] Drop handlers of E2-Node: {e2_id}!")
 
+            # Case-2: E2-Node is marked as "off" but is now UP
             if (not e2_sub['is_on']) and (e2_id in conns_ids):
                 e2_sub['is_on'] = True
-
-                for sm in ['PDCP', 'MAC']:
-                    if e2_sub[sm][0]:
-                        if e2_sub[sm][1] is None:
-                            e2_sub[sm][1] = globals()[f"{sm}Callback"](
-                                                e2_id, target_metrics=sm_book[sm]['metrics'], 
+                for sm, sm_configs in e2_sub.items():
+                    if isinstance(sm_configs, dict):
+                        if sm_configs['callback'] is None:
+                            sm_configs['callback'] = globals()[f"{sm}Callback"](
+                                                e2_id, target_metrics=sm_configs['metrics'],
                                                 test_checkpoint=test_checkpoint
                                             )
-                        e2_sub[sm][2] = getattr(ric, f"report_{sm.lower()}_sm")(
+                        sm_configs['handler'] = getattr(ric, f"report_{sm.lower()}_sm")(
                                             conns_ids[e2_id], 
-                                            getattr(ric, sm_book[sm]['interval']), 
-                                            e2_sub[sm][1]
+                                            getattr(ric, sm_configs['interval']),
+                                            sm_configs['callback']
                                         )
-
                 print(f"[RICMon] Subscribed to E2-Node: {e2_id}!")
 
         # Report the cycle times
@@ -174,14 +151,12 @@ def subscriber(test_checkpoint=0):
     print('[Ctrl+C] Unsubscribing...')
     for _, e2_sub in e2_nodes_book.items():
         e2_sub['is_on'] = False
-
-        for sm in ['PDCP', 'MAC']:
-            if e2_sub[sm][0]:
-                e2_sub[sm][1] = None
-
-                if e2_sub[sm][2]:
-                    getattr(ric, f"rm_report_{sm.lower()}_sm")(e2_sub[sm][2])
-                    e2_sub[sm][2] = None
+        for sm, sm_configs in e2_sub.items():
+            if isinstance(sm_configs, dict):
+                sm_configs['callback'] = None
+                if sm_configs['handler']:
+                    getattr(ric, f"rm_report_{sm.lower()}_sm")(sm_configs['handler'])
+                    sm_configs['handler'] = None
 
     # Stopping the SDK...
     print('[Ctrl+C] Stopping the SDK...')
@@ -301,10 +276,12 @@ if __name__ == '__main__':
     msg_queue = manager.Queue()
 
     signal.signal(signal.SIGINT, subscriber_sighandler)
-    stats_writer_proc = Process(target=stats_writer, 
-                                args=(msg_queue, CONFIGS['promscale_url'], False))
+    stats_writer_proc = Process(target=stats_writer,args=(msg_queue,
+                                                          CONFIGS['promscale_url'],
+                                                          CONFIGS['stats_writer_report']))
 
     stats_writer_proc.start()
-    subscriber(test_checkpoint=0)
+    subscriber(CONFIGS['e2_nodes_configs'],
+               test_checkpoint=CONFIGS['subscriber_report_cycles'])
 
     stats_writer_proc.join()
