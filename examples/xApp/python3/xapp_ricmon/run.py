@@ -36,8 +36,15 @@ class MACCallback(ric.mac_cb, SubscriptionHelper):
             try:
                 # Process and enqueue messages
                 global msg_queue
-                self.process_indication(ind.ue_stats, msg_queue,
-                                        tstamp_ms=tstamp_ms, ricmont_ms=ricmont_ms)
+                for ue_stat in ind.ue_stats:
+                    for metric in self.target_metrics:
+                        msg_queue.put_nowait({
+                            '__name__': metric, 'rnti': f"{ue_stat.rnti}",
+                            'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}",
+                            'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}",
+                            'timestamp': tstamp_ms, 'value': getattr(ue_stat, metric),
+                            'ricmonstamp': ricmont_ms
+                        })
 
                 # Report the latencies
                 if self.test_checkpoint > 0:
@@ -64,8 +71,15 @@ class PDCPCallback(ric.pdcp_cb, SubscriptionHelper):
             try:
                 # Process and enqueue messages
                 global msg_queue
-                self.process_indication(ind.rb_stats, msg_queue,
-                                        tstamp_ms=tstamp_ms, ricmont_ms=ricmont_ms)
+                for rb_stat in ind.rb_stats:
+                    for metric in self.target_metrics:
+                        msg_queue.put_nowait({
+                            '__name__': f"pdcp_{metric}", 'rnti': f"{rb_stat.rnti}",
+                            'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}",
+                            'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}",
+                            'timestamp': tstamp_ms, 'value': getattr(rb_stat, metric),
+                            'ricmonstamp': ricmont_ms
+                        })
 
                 # Report the latencies
                 if self.test_checkpoint > 0:

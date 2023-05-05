@@ -18,17 +18,6 @@ class SubscriptionHelper:
         self.test_counter = 0
         self.maxdiff_ms = 0
 
-    def process_indication(self, ind_stats, msg_queue, tstamp_ms=0, ricmont_ms=0):
-        for stat in ind_stats:
-            for metric in self.target_metrics:
-                msg_queue.put_nowait({
-                    '__name__': metric, 'rnti': f"{stat.rnti}",
-                    'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}",
-                    'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}",
-                    'timestamp': tstamp_ms, 'value': getattr(stat, metric),
-                    'ricmonstamp': ricmont_ms
-                })
-
     def report_latency(self, sm_name, tstamp_ms, ricmont_ms):
         if self.test_counter < self.test_checkpoint:
             self.maxdiff_ms = max(self.maxdiff_ms, ricmont_ms-tstamp_ms)
