@@ -46,6 +46,6 @@ The usual `Ctrl+C` is used to close RICMon, however, at the end, you may observe
 1. `Segmentation Fault`, which only happens after `Ctrl+C`, is due to a combination of incompabilities: SWIG-based `handle()` callbacks, Python's Proxy Objects, and RICMon's spawn-based (not fork-based) design.
 2. `pure virtual method called...`, which is related to SWIG.
 
-Rest assured that RICMon will always exit gracefully, leaving no zombies on the RIC plus the xApp itself; in fact, all handlers will be unsubscribed and all processes/threads will run until their ends. We just need to manually kill the leftover `spawn_main()` process.
+Rest assured that RICMon will always exit gracefully, leaving no zombies on the RIC plus the xApp itself; in fact, all handlers will be unsubscribed and all processes/threads will run until their ends. We just need to manually kill the leftover `spawn_main()` process. In the mid-term, #1 can be fixed by upgrading the version of Python.
 
 Finally, remember to stop port-forwarding Promscale on `ayo`.
