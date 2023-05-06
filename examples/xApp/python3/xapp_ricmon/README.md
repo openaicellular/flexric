@@ -35,7 +35,7 @@ Then, simply set `database_mode: False` and `'stats_writer_report': True` in `co
 
 **TEST 3**. _In "database" mode, RICMon can process up to 9K records with the average HOL-sojourn of ~300ms_.
 
-You can follow the steps of **TEST 2**, but set `database_mode: True` in `configs.py`.
+You can follow the steps of **TEST 2**, but set `database_mode: True` in `configs.py`. Note that this can be improved by tuning the number of threads, or using `asyncio`.
 
 **Remark 1**. You can use any profiling tool to check that RICMon consumes *~2.5 modern CPU cores* and *< 150MiB of RAM*.
 
