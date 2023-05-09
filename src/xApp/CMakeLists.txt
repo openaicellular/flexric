@@ -66,6 +66,7 @@ else()
             $<TARGET_OBJECTS:pending_events_obj>)
 endif()
 
+
 if(E2AP_ENCODING STREQUAL "ASN")
   add_library(e42_xapp ${XAPP_BLD_LIB}# STATIC or SHARED
             ${XAPP_SRC}
@@ -76,7 +77,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
             ${XAPP_SRC}
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             )
-
+          target_link_libraries(e42_xapp_shared $<TARGET_OBJECTS:e2_time_obj>)
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
   add_library(e42_xapp ${XAPP_BLD_LIB} # STATIC or SHARED
@@ -86,6 +87,7 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
   add_library(e42_xapp_shared ${XAPP_BLD_LIB} # STATIC or SHARED
             ${XAPP_SRC}
             )
+  target_link_libraries(e42_xapp_shared $<TARGET_OBJECTS:e2_time_obj>)
 
 endif()
 
