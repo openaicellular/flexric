@@ -96,7 +96,7 @@ sm_ag_if_ans_t write_RAN(sm_ag_if_wr_t const* data)
 
 
 static
-void sm_cb_kpm(sm_ag_if_rd_t const* rd)
+void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 {
   assert(rd != NULL);
   assert(rd->type == KPM_STATS_V0); 
@@ -108,60 +108,62 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
   // printf("KPM ind_msg latency > %ld s\n", now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime);
   if (rd->kpm_stats.msg.MeasData_len > 0)
     if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0)
-      printf("KPM ind_msg latency = %ld μs\n", now - (int64_t)rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val);
+      printf("KPM ind_msg latency = %ld μs from nb_id %d\n",
+             now - (int64_t)rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val,
+             id->nb_id);
 
 }
 
 
 static
-void sm_cb_mac(sm_ag_if_rd_t const* rd)
+void sm_cb_mac(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 {
   assert(rd != NULL);
   assert(rd->type == MAC_STATS_V0); 
 
   int64_t now = time_now_us();
-  printf("MAC ind_msg latency = %ld μs\n", now - rd->mac_stats.msg.tstamp);
+  printf("MAC ind_msg latency = %ld μs from nb_id %d\n", now - rd->mac_stats.msg.tstamp, id->nb_id);
 }
 
 static
-void sm_cb_rlc(sm_ag_if_rd_t const* rd)
+void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 {
   assert(rd != NULL);
   assert(rd->type == RLC_STATS_V0); 
 
   int64_t now = time_now_us();
 
-  printf("RLC ind_msg latency = %ld μs\n", now - rd->rlc_stats.msg.tstamp);
+  printf("RLC ind_msg latency = %ld μs from nb_id %d\n", now - rd->rlc_stats.msg.tstamp, id->nb_id);
 }
 
-void sm_cb_pdcp(sm_ag_if_rd_t const* rd)
+void sm_cb_pdcp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 {
   assert(rd != NULL);
   assert(rd->type == PDCP_STATS_V0);
 
   int64_t now = time_now_us();
 
-  printf("PDCP ind_msg latency = %ld μs\n", now - rd->pdcp_stats.msg.tstamp);
+  printf("PDCP ind_msg latency = %ld μs from nb_id %d\n", now - rd->pdcp_stats.msg.tstamp, id->nb_id);
 }
 
 static
-void sm_cb_gtp(sm_ag_if_rd_t const* rd)
+void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 {
   assert(rd != NULL);
   assert(rd->type == GTP_STATS_V0); 
 
   int64_t now = time_now_us();
-  printf("GTP ind_msg latency = %ld μs\n", now - rd->gtp_stats.msg.tstamp);
+  printf("GTP ind_msg latency = %ld μs from nb_id %d\n", now - rd->gtp_stats.msg.tstamp, id->nb_id);
 }
 
 static
-void sm_cb_slice(sm_ag_if_rd_t const* rd)
+void sm_cb_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 {
   assert(rd != NULL);
   assert(rd->type == SLICE_STATS_V0);
 
   int64_t now = time_now_us();
-  printf("SLICE ind_msg latency = %ld μs\n", now - rd->slice_stats.msg.tstamp);
+  printf("SLICE ind_msg latency = %ld μs from nb_id %d\n", now - rd->slice_stats.msg.tstamp, id->nb_id);
 }
 
 static
