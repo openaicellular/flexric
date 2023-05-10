@@ -88,13 +88,13 @@ typedef struct {
   // ngu tunnel stats
   uint32_t rnti; // user id
   uint32_t teidgnb; // tunnel id from gnb
+  uint32_t teidupf; // tunnel id from upf
   uint8_t qfi; // QoS flow indicator
-  uint8_t teidupf; // tunnel id from upf
-} gtp_ngu_t_stats_t; 
+} gtp_ngu_t_stats_t;
 
 typedef struct {
-  gtp_ngu_t_stats_t* ngut; 
   uint32_t len;
+  gtp_ngu_t_stats_t* ngut;
 
   int64_t tstamp;
 } gtp_ind_msg_t;
