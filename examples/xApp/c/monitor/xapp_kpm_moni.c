@@ -42,11 +42,10 @@ uint64_t count_max = 100;
 uint64_t count_kpm = 0;
 uint64_t aggr_tstamp_kpm = 0;
 static
-void sm_cb_kpm(sm_ag_if_rd_t const* rd)
+void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == KPM_STATS_V0);
-
   int64_t now = time_now_us();
   int64_t ts =  0;
   if (rd->kpm_stats.msg.MeasData_len > 0) {
@@ -55,7 +54,8 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
       ts = rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
       aggr_tstamp_kpm += now - ts;
       if (count_kpm == count_max) {
-        printf("[%ld] KPM ind_msg latency (averaged) = %lu us\n", now, aggr_tstamp_kpm/count_max);
+        printf("[%ld] KPM ind_msg latency (averaged) = %lu us from E2-node type %d ID %d\n",
+               now, aggr_tstamp_kpm/count_max, e2_node->type, e2_node->nb_id);
         count_kpm = 0;
         aggr_tstamp_kpm = 0;
       }

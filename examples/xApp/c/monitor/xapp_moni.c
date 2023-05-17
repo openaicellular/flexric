@@ -52,7 +52,7 @@ uint64_t aggr_tstamp_pdcp = 0;
 uint64_t count_kpm = 0;
 uint64_t aggr_tstamp_kpm = 0;
 static
-void sm_cb_all(sm_ag_if_rd_t const* rd)
+void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
 
@@ -61,7 +61,8 @@ void sm_cb_all(sm_ag_if_rd_t const* rd)
     count_mac += 1;
     aggr_tstamp_mac += now - rd->mac_stats.msg.tstamp;
     if (count_mac == count_max) {
-      printf("MAC avg ind_msg latency = %ld\n", aggr_tstamp_mac/count_max);
+      printf("MAC ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
+             aggr_tstamp_mac/count_max, e2_node->type, e2_node->nb_id);
       count_mac = 0;
       aggr_tstamp_mac = 0;
     }
@@ -69,7 +70,8 @@ void sm_cb_all(sm_ag_if_rd_t const* rd)
     count_rlc += 1;
     aggr_tstamp_rlc += now - rd->rlc_stats.msg.tstamp;
     if (count_rlc == count_max) {
-      printf("RLC avg ind_msg latency = %ld\n", aggr_tstamp_rlc/count_max);
+      printf("RLC ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
+             aggr_tstamp_rlc/count_max, e2_node->type, e2_node->nb_id);
       count_rlc = 0;
       aggr_tstamp_rlc = 0;
     }
@@ -77,12 +79,14 @@ void sm_cb_all(sm_ag_if_rd_t const* rd)
     count_pdcp += 1;
     aggr_tstamp_pdcp += now - rd->pdcp_stats.msg.tstamp;
     if (count_pdcp == count_max) {
-      printf("PDCP avg ind_msg latency = %ld\n", aggr_tstamp_pdcp/count_max);
+      printf("PDCP ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
+             aggr_tstamp_pdcp/count_max, e2_node->type, e2_node->nb_id);
       count_pdcp = 0;
       aggr_tstamp_pdcp = 0;
     }
   } else if (rd->type == GTP_STATS_V0) {
-    printf("GTP ind_msg latency = %ld\n", now - rd->gtp_stats.msg.tstamp);
+    printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
+           now - rd->gtp_stats.msg.tstamp, e2_node->type, e2_node->nb_id);
   } else if (rd->type == KPM_STATS_V0) {
     // int64_t diff = now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime;
     if (rd->kpm_stats.msg.MeasData_len > 0) {
@@ -90,7 +94,8 @@ void sm_cb_all(sm_ag_if_rd_t const* rd)
         count_kpm += 1;
         aggr_tstamp_kpm += now - rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
         if (count_kpm == count_max) {
-          printf("KPM ind_msg latency = %ld\n", aggr_tstamp_kpm/count_max);
+          printf("KPM ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
+                 aggr_tstamp_kpm/count_max, e2_node->type, e2_node->nb_id);
           count_kpm = 0;
           aggr_tstamp_kpm = 0;
         }

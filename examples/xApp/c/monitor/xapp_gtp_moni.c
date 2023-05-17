@@ -30,14 +30,14 @@
 #include <unistd.h>
 
 static
-void sm_cb_gtp(sm_ag_if_rd_t const* rd)
+void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == GTP_STATS_V0);
 
   int64_t now = time_now_us();
-
-  printf("GTP ind_msg latency = %ld \n", now - rd->gtp_stats.msg.tstamp);
+  printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
+         now - rd->gtp_stats.msg.tstamp, e2_node->type, e2_node->nb_id);
 }
 
 int main(int argc, char *argv[])
