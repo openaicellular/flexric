@@ -683,24 +683,22 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
 
     ind.MeasData.push_back(item);
   }
-
-  // TODO: Continue Implementation for the rest of the fields
   
-  // ind.MeasInfo_len = data->msg.MeasInfo_len;
+  ind.MeasInfo_len = data->msg.MeasInfo_len;
 
-  // if (data->msg.MeasInfo_len > 0) {
-  //   // ind.MeasInfo = new MeasInfo_t[data->MeasInfo_len];
-    
-  //   // for (size_t i = 0; i < data->MeasInfo_len; ++i) {
-  //   //   ind.MeasInfo[i].meas_type = data->MeasInfo[i].meas_type;
-  //   //   ind.MeasInfo[i].measName = data->MeasInfo[i].measName;
-  //   //   ind.MeasInfo[i].measID = data->MeasInfo[i].measID;
-  //   //   ind.MeasInfo[i].labelInfo = data->MeasInfo[i].labelInfo;
-  //   //   ind.MeasInfo[i].labelInfo_len = data->MeasInfo[i].labelInfo_len;
-  //   // }
-  // }
+  if (data->msg.MeasInfo_len > 0) {
+    for (size_t i = 0; i < data->msg.MeasInfo_len; ++i) {
+      swig_MeasInfo_t info;
+      info.meas_type = data->msg.MeasInfo[i].meas_type;
+      info.measName = data->msg.MeasInfo[i].measName;
+      info.measID = data->msg.MeasInfo[i].measID;
+      //info.labelInfo = data->msg.MeasInfo[i].labelInfo;
+      info.labelInfo_len = data->msg.MeasInfo[i].labelInfo_len;
+      ind.MeasInfo.push_back(info);
+    }
+  }
 
-  // ind.granulPeriod = data->msg.granulPeriod;
+  //ind.granulPeriod = data->msg.granulPeriod;
 
 
 #ifdef XAPP_LANG_PYTHON

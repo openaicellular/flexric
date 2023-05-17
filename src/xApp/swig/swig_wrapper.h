@@ -207,7 +207,7 @@ struct swig_MeasInfo_t {
     meas_type_e meas_type;
     adapter_MeasurementTypeName_t measName;
     adapter_MeasurementTypeID_t measID;
-    std::vector<adapter_LabelInfoItem_t> labelInfo; // Replaced with std::vector
+    //std::vector<adapter_LabelInfoItem_t> labelInfo; // Replaced with std::vector
     size_t labelInfo_len;
 };
 
