@@ -14,6 +14,8 @@
 
 #include "../../sm/slice_sm/slice_sm_id.h"
 
+#include "../../sm/kpm_sm_v2.02/kpm_sm_id.h"
+
 #include "../../util/conf_file.h"
 
 
@@ -641,4 +643,113 @@ void rm_report_gtp_sm(int handler)
     PyGILState_Release(gstate);
 #endif
 
+}
+
+/////////////////////////////////////
+// KPM SM
+/////////////////////////////////////
+
+static
+kpm_cb* hndlr_kpm_cb;
+
+static
+void sm_cb_kpm(sm_ag_if_rd_t const* rd)
+{
+  assert(rd != NULL);
+  assert(rd->type == KPM_STATS_V0);
+  assert(hndlr_kpm_cb != NULL);
+
+  kpm_ind_data_t const* data = &rd->kpm_stats;
+
+  swig_kpm_ind_msg_t ind;
+  ind.MeasData_len = data->msg.MeasData_len;
+
+  for (size_t i = 0; i < data->msg.MeasData_len; ++i) {
+    swig_adapter_MeasDataItem_t item;
+    item.measRecord_len = data->msg.MeasData[i].measRecord_len;
+    item.incompleteFlag = data->msg.MeasData[i].incompleteFlag;
+
+    for (size_t j = 0; j < data->msg.MeasData[i].measRecord_len; ++j) {
+      swig_adapter_MeasRecord_t record;
+
+      // swig_MeasRecordType type;
+      // type.
+
+      // record.type = data->msg.MeasData[i].measRecord[j].type;
+      record.int_val = data->msg.MeasData[i].measRecord[j].int_val;
+      record.real_val = data->msg.MeasData[i].measRecord[j].real_val;
+      item.measRecord.push_back(record);
+    }
+
+    ind.MeasData.push_back(item);
+  }
+
+  // TODO: Continue Implementation for the rest of the fields
+  
+  // ind.MeasInfo_len = data->msg.MeasInfo_len;
+
+  // if (data->msg.MeasInfo_len > 0) {
+  //   // ind.MeasInfo = new MeasInfo_t[data->MeasInfo_len];
+    
+  //   // for (size_t i = 0; i < data->MeasInfo_len; ++i) {
+  //   //   ind.MeasInfo[i].meas_type = data->MeasInfo[i].meas_type;
+  //   //   ind.MeasInfo[i].measName = data->MeasInfo[i].measName;
+  //   //   ind.MeasInfo[i].measID = data->MeasInfo[i].measID;
+  //   //   ind.MeasInfo[i].labelInfo = data->MeasInfo[i].labelInfo;
+  //   //   ind.MeasInfo[i].labelInfo_len = data->MeasInfo[i].labelInfo_len;
+  //   // }
+  // }
+
+  // ind.granulPeriod = data->msg.granulPeriod;
+
+
+#ifdef XAPP_LANG_PYTHON
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+#endif
+
+  hndlr_kpm_cb->handle(&ind);
+
+#ifdef XAPP_LANG_PYTHON
+  PyGILState_Release(gstate);
+#endif
+}
+
+int report_kpm_sm(global_e2_node_id_t* id, Interval inter_arg, kpm_cb* handler)
+{
+  assert(id != NULL);
+  assert(handler != NULL);
+
+  hndlr_kpm_cb = handler;
+
+  inter_xapp_e i;
+  if (inter_arg == Interval::ms_1) {
+    i = ms_1;
+  } else if (inter_arg == Interval::ms_2) {
+    i = ms_2;
+  } else if (inter_arg == Interval::ms_5) {
+    i = ms_5;
+  } else if (inter_arg == Interval::ms_10) {
+    i = ms_10;
+  } else {
+    assert(0 != 0 && "Unknown type");
+  }
+
+  sm_ans_xapp_t ans = report_sm_xapp_api(id, SM_KPM_ID, i, sm_cb_kpm);
+  assert(ans.success == true);
+  return ans.u.handle;
+}
+
+void rm_report_kpm_sm(int handler)
+{
+#ifdef XAPP_LANG_PYTHON
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+#endif
+
+  rm_report_sm_xapp_api(handler);
+
+#ifdef XAPP_LANG_PYTHON
+  PyGILState_Release(gstate);
+#endif
 }
