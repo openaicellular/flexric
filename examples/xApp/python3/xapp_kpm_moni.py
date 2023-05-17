@@ -21,11 +21,17 @@ class KPMCallback(ric.kpm_cb):
     def handle(self, ind):
         now = int(time.time() * 1000000)
         ts = 0
+        # MeasData
         if len(ind.MeasData) > 0:
             if len(ind.MeasData[0].measRecord) > 0:
                 ts = ind.MeasData[0].measRecord[0].real_val
-        
-        print(f"KPM ind_msg latency = {now - ts} us")
+
+        # MeasInfo
+        if len(ind.MeasInfo) > 0:
+            meas_type = ind.MeasInfo[0].meas_type
+            measName = ind.MeasInfo[0].measName
+            measID = ind.MeasInfo[0].measID
+        print(f"KPM ind_msg latency = {now - ts} us, meas_type = {meas_type}, measName = {measName}, measID = {measID}")
 
 
 ####################

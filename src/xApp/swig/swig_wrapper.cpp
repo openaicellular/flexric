@@ -690,7 +690,13 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
     for (size_t i = 0; i < data->msg.MeasInfo_len; ++i) {
       swig_MeasInfo_t info;
       info.meas_type = data->msg.MeasInfo[i].meas_type;
-      info.measName = data->msg.MeasInfo[i].measName;
+      
+      byte_array_t measName;
+      measName = data->msg.MeasInfo[i].measName;
+
+      std::string name(measName.buf, measName.buf + measName.len);
+
+      info.measName = name;
       info.measID = data->msg.MeasInfo[i].measID;
       //info.labelInfo = data->msg.MeasInfo[i].labelInfo;
       info.labelInfo_len = data->msg.MeasInfo[i].labelInfo_len;
