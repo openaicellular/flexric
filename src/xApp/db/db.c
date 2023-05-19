@@ -167,11 +167,20 @@ bool init_db_xapp(db_xapp_t* db,
 #else
 
 #endif
+  assert(db->handler != NULL && "db->handler == NULL");
 
   init_tsnq(&db->q, sizeof(e2_node_ag_if_t));
 
   int rc = pthread_create(&db->p, NULL, worker_thread, db);
   return (rc == 0);
+//  if (db->handler != NULL) {
+//    init_tsq(&db->q, sizeof(e2_node_ag_if_t));
+//
+//    int rc = pthread_create(&db->p, NULL, worker_thread, db);
+//    return (rc == 0);
+//  } else {
+//    return true;
+//  }
 }
 
 static
