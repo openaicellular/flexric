@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #define FR_CONF_FILE_LEN 128
+#define XAPP_DB_LEN 128
 
 typedef struct {
   // Option 1: directly pass IP argument 
@@ -11,6 +12,7 @@ typedef struct {
   // Option 2: read from file
   char conf_file[FR_CONF_FILE_LEN];
   char libs_dir[FR_CONF_FILE_LEN];
+  char xapp_db_name[XAPP_DB_LEN];
 } fr_args_t;
 
 fr_args_t init_fr_args(int argc, char* argv[]);
@@ -20,6 +22,10 @@ char* get_near_ric_ip(fr_args_t const*);
 char* get_conf_db_dir(fr_args_t const*);
 
 char* get_conf_db_name(fr_args_t const*);
+
+char* get_conf_db_user(fr_args_t const*);
+
+char* get_conf_db_pass(fr_args_t const*);
 
 char* get_conf_db_ip(fr_args_t const*);
 

@@ -510,6 +510,76 @@ char* get_conf_db_name(fr_args_t const* args)
   return strdup(db_name);
 }
 
+char* get_conf_db_user(fr_args_t const* args)
+{
+  char* line = NULL;
+  defer({free(line);});
+  size_t len = 0;
+  ssize_t read;
+
+  FILE * fp = fopen(args->conf_file, "r");
+
+  if (fp == NULL){
+    printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
+    exit(EXIT_FAILURE);
+  }
+
+  defer({fclose(fp); } );
+
+  char db_user[XAPP_DB_LEN] = {0};
+  while ((read = getline(&line, &len, fp)) != -1) {
+    const char* needle = "DB_USERNAME =";
+    char* ans = strstr(line, needle);
+    if(ans != NULL){
+      ans += strlen(needle);
+      ans = ltrim(ans);
+      ans = rtrim(ans);
+      assert(strlen(ans) + 1 <= sizeof(db_user));
+      memcpy(db_user, ans , strlen(ans)); // \n character
+      break;
+    }
+  }
+
+  // TODO: valid_db_user()
+
+  return strdup(db_user);
+}
+
+char* get_conf_db_pass(fr_args_t const* args)
+{
+  char* line = NULL;
+  defer({free(line);});
+  size_t len = 0;
+  ssize_t read;
+
+  FILE * fp = fopen(args->conf_file, "r");
+
+  if (fp == NULL){
+    printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
+    exit(EXIT_FAILURE);
+  }
+
+  defer({fclose(fp); } );
+
+  char db_pass[XAPP_DB_LEN] = {0};
+  while ((read = getline(&line, &len, fp)) != -1) {
+    const char* needle = "DB_PASSWORD =";
+    char* ans = strstr(line, needle);
+    if(ans != NULL){
+      ans += strlen(needle);
+      ans = ltrim(ans);
+      ans = rtrim(ans);
+      assert(strlen(ans) + 1 <= sizeof(db_pass));
+      memcpy(db_pass, ans , strlen(ans)); // \n character
+      break;
+    }
+  }
+
+  // TODO: valid_db_pass()
+
+  return strdup(db_pass);
+}
+
 char* get_conf_db_ip(fr_args_t const* args)
 {
   char* line = NULL;

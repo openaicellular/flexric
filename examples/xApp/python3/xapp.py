@@ -1055,7 +1055,7 @@ def subscribe_sm(n_idx, enum_sm, tti_enum):
 ####################
 def init():
     # 0. init
-    ric.init()
+    ric.init("testdb")
     # 1. get the length of connected e2 nodes
     global e2nodes
     e2nodes = get_e2_nodes()

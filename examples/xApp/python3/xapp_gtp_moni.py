@@ -24,7 +24,7 @@ class GTPCallback(ric.gtp_cb):
 ####  GENERAL 
 ####################
 
-ric.init()
+ric.init("testdb")
 
 conn = ric.conn_e2_nodes()
 assert(len(conn) > 0)

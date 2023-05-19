@@ -192,7 +192,7 @@ def get_e2_nodes_in_tuple_list():
 ####  GENERAL
 ####################
 
-ric.init()
+ric.init("testdb")
 signal.signal(signal.SIGINT, sig_handler)
 
 e2nodes = 0

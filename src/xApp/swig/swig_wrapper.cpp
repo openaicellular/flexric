@@ -51,13 +51,15 @@ const char* convert_period(Interval  inter_arg)
 
 
 
-void init()
+void init(const char* xapp_db_name)
 {
   assert(initialized == false && "Already initialized!");
+  assert(strlen(xapp_db_name) < XAPP_DB_LEN && "DB name too long");
 
   int const argc = 1;
   char** argv = NULL;
   fr_args_t args = init_fr_args(argc, argv);
+  strncpy(args.xapp_db_name, xapp_db_name, XAPP_DB_LEN);
 
   initialized = true; 
 

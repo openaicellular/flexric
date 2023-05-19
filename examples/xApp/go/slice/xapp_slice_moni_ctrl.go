@@ -24,7 +24,8 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 //  MAIN
 // ------------------------------------------------------------------------ //
 func main() {
-
+	// Initial of xApp
+	// [remark] is broken under the new API that specifies db_name
 	xapp.Init()
 
 	// Connect

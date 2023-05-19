@@ -173,7 +173,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 {
   assert(args != NULL);
 
-  printf("[xAap]: Initializing ... \n");
+  printf("[xApp]: Initializing ... \n");
 
   e42_xapp_t* xapp = calloc(1, sizeof(*xapp));
   assert(xapp != NULL && "Memory exhausted");
@@ -223,30 +223,63 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   //printf("dir = %s\n", dir);
 
   // SQLite3 & MYSQL
-  char* db_name = get_conf_db_name(args);
-  char dbname2[1024] = {0};
-  assert(strlen(db_name) < 1024 && "String too large");
-  if (!strlen(db_name)) {
-    int64_t const now = time_now_us();
-    sprintf(dbname2, "xapp_db_%ld", now);
+  char* db_name;
+  if (strlen(args->xapp_db_name) == 0) {
+    // Avoid breaking the native C-API
+    db_name = strdup("testdb");
   } else {
+    db_name = strdup(args->xapp_db_name);
+  }
+
+  if (strcmp(db_name, "nodb") == 0) {
+    printf("Do not use the DB\n");
+  } else {
+    char dbname2[XAPP_DB_LEN] = {0};
     strcpy(dbname2, db_name);
+    printf("Use DB named: %s\n", dbname2);
+
+    char* db_ip = get_conf_db_ip(args);
+    printf("[MySQL]: get server ip %s from conf\n", db_ip);
+    char dbip2[24] = {0};
+    assert(strlen(db_ip) < 24 && "String too large");
+    if (!strlen(db_ip)) {
+      sprintf(dbip2, "localhost");
+    } else {
+      strcpy(dbip2, db_ip);
+    }
+
+    char* db_user = get_conf_db_user(args);
+    char dbusr2[XAPP_DB_LEN] = {0};
+    assert(strlen(db_user) < XAPP_DB_LEN && "DB-username too long");
+    if (!strlen(db_user)) {
+      printf("[MySQL]: use default username\n");
+      sprintf(dbusr2, "xapp");
+    } else {
+      printf("[MySQL]: get username from conf\n");
+      strcpy(dbusr2, db_user);
+    }
+
+    char* db_pass = get_conf_db_pass(args);
+    char dbpass2[XAPP_DB_LEN] = {0};
+    assert(strlen(db_pass) < XAPP_DB_LEN && "DB-password too long");
+    if (!strlen(db_pass)) {
+      printf("[MySQL]: use default password\n");
+      sprintf(dbpass2, "eurecom");
+    } else {
+      printf("[MySQL]: get password from conf\n");
+      strcpy(dbpass2, db_pass);
+    }
+
+    // Uncomment to test
+    // printf("user = %s\n", dbusr2);
+    // printf("pass = %s\n", dbpass2);
+
+    init_db_xapp(&xapp->db, dbip2, dir2, dbusr2, dbpass2, dbname2);
+    free(db_ip);
+    free(db_user);
+    free(db_pass);
   }
-  //printf("db_name = %s\n", db_name);
 
-  char* db_ip = get_conf_db_ip(args);
-  printf("[MySQL]: get server ip %s from conf\n", db_ip);
-  char dbip2[24] = {0};
-  assert(strlen(db_ip) < 24 && "String too large");
-  if (!strlen(db_ip)) {
-    sprintf(dbip2, "localhost");
-  } else {
-    strcpy(dbip2, db_ip);
-  }
-
-  init_db_xapp(&xapp->db, dbip2, dir2, dbname2);
-
-  free(db_ip);
   free(dir);
   free(db_name);
 #endif
@@ -356,7 +389,9 @@ void free_e42_xapp(e42_xapp_t* xapp)
   free_msg_dispatcher(&xapp->msg_disp);
 
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
-  close_db_xapp(&xapp->db);
+  if(xapp->db.handler != NULL){
+    close_db_xapp(&xapp->db);
+  }
 #endif
 
   free(xapp);

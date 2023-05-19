@@ -40,7 +40,7 @@ struct E2Node {
   std::vector<RanFunction> ran_func;
 };
 
-void init(void); 
+void init(const char* xapp_db_name);
 
 bool try_stop(void);
 

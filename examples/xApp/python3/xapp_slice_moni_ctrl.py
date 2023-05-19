@@ -387,7 +387,7 @@ def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
 ####  GENERAL
 ####################
 
-ric.init()
+ric.init("testdb")
 
 conn = ric.conn_e2_nodes()
 assert(len(conn) > 0)

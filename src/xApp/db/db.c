@@ -128,6 +128,8 @@ void* worker_thread(void* arg)
 bool init_db_xapp(db_xapp_t* db,
                   char const* ip,
                   char const* dir,
+                  char const* user,
+                  char const* pass,
                   char const* db_name)
 {
   assert(db != NULL);
@@ -138,11 +140,11 @@ bool init_db_xapp(db_xapp_t* db,
 #ifdef MYSQL_XAPP
   (void)dir;
   assert(ip != NULL);
+  assert(user != NULL);
+  assert(pass != NULL);
   db->handler = mysql_init(NULL);
   assert((db->handler != NULL) && "Error initialializing mySQL\n");
 
-  const char* user = "xapp";
-  const char* pass = "eurecom";
   printf("[MySQL]: try to connect server ip %s\n", ip);
   if(mysql_real_connect(db->handler, ip, user, pass, NULL, 0, NULL, 0) == NULL)
   {

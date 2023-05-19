@@ -17,6 +17,7 @@ import (
 // ------------------------------------------------------------------------ //
 func main() {
 	// Initial of xApp
+	// [remark] is broken under the new API that specifies db_name
 	xapp.Init()
 
 	var nodes xapp.E2NodeVector = xapp.Conn_e2_nodes()
