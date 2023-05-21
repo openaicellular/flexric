@@ -27,11 +27,13 @@ class KPMCallback(ric.kpm_cb):
                 ts = ind.MeasData[0].measRecord[0].real_val
 
         # MeasInfo
-        if len(ind.MeasInfo) > 0:
-            meas_type = ind.MeasInfo[0].meas_type
-            measName = ind.MeasInfo[0].measName
-            measID = ind.MeasInfo[0].measID
-        print(f"KPM ind_msg latency = {now - ts} us, meas_type = {meas_type}, measName = {measName}, measID = {measID}")
+        for i in range(0, ind.MeasInfo_len):
+            meas_infotype = ind.MeasInfo[i].meas_type
+            measName = ind.MeasInfo[i].measName
+            measID = ind.MeasInfo[i].measID
+            measRecord = ind.MeasData[0].measRecord[i].real_val
+            meas_recordtype = ind.MeasData[0].measRecord[i].type # need to check why type is equal to 0 when is real
+            print(f"KPM ind_msg latency = {now - ts} us, meas_infotype = {meas_infotype}, measName = {measName}, measRecord = {measRecord}, meas_recordtype = {meas_recordtype}")
 
 
 ####################

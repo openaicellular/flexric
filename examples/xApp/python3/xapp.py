@@ -7,6 +7,102 @@ from tabulate import tabulate
 ####################
 #### MAC INDICATION CALLBACK
 ####################
+# Create a callback for KPM which derived it from C++ class kpm_cb
+class KPMCallback(ric.kpm_cb):
+    def __init__(self):
+        # Inherit C++ kpm_cb class
+        ric.kpm_cb.__init__(self)
+    # Create an override C++ method
+    def handle(self, ind):
+        t_now = int(time.time() * 1000000)
+        # ts = 0
+        # # MeasData
+        # if len(ind.MeasData) > 0:
+        #     if len(ind.MeasData[0].measRecord) > 0:
+        #         ts = ind.MeasData[0].measRecord[0].real_val
+        #
+        # # MeasInfo
+        # if len(ind.MeasInfo) > 0:
+        #     meas_type = ind.MeasInfo[0].meas_type
+        #     measName = ind.MeasInfo[0].measName
+        #     measID = ind.MeasInfo[0].measID
+        # print(f"KPM ind_msg latency = {now - ts} us, meas_type = {meas_type}, measName = {measName}, measID = {measID}")
+        kpm_ind_to_dict_json(ind, t_now)
+
+####################
+####  KPM INDICATION MSG TO JSON
+####################
+global kpm_stats
+kpm_stats = {
+    "KPM_IND_MSG" : {
+        "Latency" : {},
+        "num_of_meas" : {},
+        "Measurement" : {}
+    }
+}
+def kpm_ind_to_dict_json(ind, t_now):
+    global kpm_stats
+    kpm_stats = {
+        "KPM_IND_MSG" : {
+        }
+    }
+
+    # RAN - dl
+    kpm_dict = kpm_stats["KPM_IND_MSG"]
+    kpm_dict["Latency"] = "null"
+    kpm_dict["num_of_meas"] = 0
+    kpm_dict["Measurement"] = []
+    meas_record_arr = []
+    if ind.MeasData_len > 0:
+        num_of_meas_record = ind.MeasData[0].measRecord_len
+        kpm_dict.update({"num_of_meas" : num_of_meas_record})
+        for i in range(0, num_of_meas_record):
+            if i == 0:
+                t_diff = t_now - ind.MeasData[0].measRecord[i].real_val
+                kpm_dict.update({"Latency" :  t_diff})
+                continue
+
+            value = "null"
+            if ind.MeasData[0].measRecord[i].type == 0:
+                value = ind.MeasData[0].measRecord[i].real_val
+            elif ind.MeasData[0].measRecord[i].type == 1:
+                value = ind.MeasData[0].measRecord[i].int_val
+            else:
+                value = "null"
+            meas_record_arr.append(value)
+    meas_name_arr = []
+    if ind.MeasInfo_len > 0:
+        num_of_meas_info = ind.MeasInfo_len
+        for i in range(0, num_of_meas_info):
+            name = ind.MeasInfo[i].measName
+            if name == "timestamp":
+                continue
+            meas_name_arr.append(name)
+    for mrecord, mname in zip(meas_record_arr, meas_name_arr):
+        meas_dict = {
+            "name": mname,
+            "value": mrecord
+        }
+        kpm_dict["Measurement"].append(meas_dict)
+
+kpm_ind_col_names = ["latency", "measName", "measData"]
+def print_kpm_stats():
+    global kpm_stats
+    # RAN
+    kpm_stats_table = []
+    lat = kpm_stats["KPM_IND_MSG"]["Latency"]
+    len_meas = kpm_stats["KPM_IND_MSG"]["num_of_meas"]
+    for i in range(0, len_meas-1):
+        info = [lat,
+                kpm_stats["KPM_IND_MSG"]["Measurement"][i]["name"],
+                kpm_stats["KPM_IND_MSG"]["Measurement"][i]["value"]]
+        if len(info) > 0:
+            kpm_stats_table.append(info)
+    print(tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid"))
+
+####################
+#### MAC INDICATION CALLBACK
+####################
 class MACCallback(ric.mac_cb):
     # Define Python class 'constructor'
     def __init__(self):
@@ -43,8 +139,11 @@ e2nodes = 0
 MAX_E2_NODES = 10
 slice_hndlr = []
 mac_hndlr = []
+kpm_hndlr = []
 slice_cb = [0 for i in range(0, MAX_E2_NODES)]
 mac_cb = [0 for i in range(0, MAX_E2_NODES)]
+kpm_cb = [0 for i in range(0, MAX_E2_NODES)]
+
 global global_slice_stats
 global_slice_stats = [slice_stats_struct for i in range(0, MAX_E2_NODES)]
 
@@ -673,6 +772,44 @@ def print_slice_conf(type, conf):
                 assoc_ue_slice_conf_table.append(info)
         print(tabulate(assoc_ue_slice_conf_table, headers=assoc_ue_conf_col_names))
 
+
+def subscribe_sm(n, sub_sm_str, tti_str):
+    global e2nodes
+    n_idx = e2nodes.index(n)
+    # default tti is 10 ms
+    tti = ric.Interval_ms_10
+    if tti_str == "1_ms":
+        tti = ric.Interval_ms_1
+    elif tti_str == "2_ms":
+        tti = ric.Interval_ms_2
+    elif tti_str == "5_ms":
+        tti = ric.Interval_ms_5
+    elif tti_str == "10_ms":
+        tti = ric.Interval_ms_10
+    else:
+        print("unknown tti")
+
+    if sub_sm_str == "mac_sm":
+        global mac_cb
+        mac_cb[n_idx] = MACCallback()
+        global mac_hndlr
+        hndlr = ric.report_mac_sm(e2nodes[n_idx].id, tti, mac_cb[n_idx])
+        mac_hndlr.append(hndlr)
+    elif sub_sm_str == "slice_sm":
+        global slice_cb
+        slice_cb[n_idx] = SLICECallback()
+        global slice_hndlr
+        hndlr = ric.report_slice_sm(e2nodes[n_idx].id, tti, slice_cb[n_idx])
+        slice_hndlr.append(hndlr)
+    elif sub_sm_str == "kpm_sm":
+        global kpm_cb
+        kpm_cb[n_idx] = KPMCallback()
+        global kpm_hndlr
+        hndlr = ric.report_kpm_sm(e2nodes[n_idx].id, tti, kpm_cb[n_idx])
+        kpm_hndlr.append(hndlr)
+    else:
+        print("unknown sm")
+
 ####################
 ####  xAPP INIT
 ####################
@@ -698,25 +835,25 @@ def init():
 
     # TODO: need to process multi e2 nodes
     # e2node = e2nodes[0]
-    for n in e2nodes:
-        # 3. subscribe slice sm and mac sm
-        n_idx = e2nodes.index(n)
-        global slice_cb
-        slice_cb[n_idx] = SLICECallback()
-        global slice_hndlr
-        hndlr = ric.report_slice_sm(n.id, ric.Interval_ms_10, slice_cb[n_idx])
-        slice_hndlr.append(hndlr)
-
-        global mac_cb
-        mac_cb[n_idx] = MACCallback()
-        global mac_hndlr
-        hndlr = ric.report_mac_sm(n.id, ric.Interval_ms_10, mac_cb[n_idx])
-        mac_hndlr.append(hndlr)
-        time.sleep(2)
-
-        # 4. create slices, adding nvs_slices_rate1 by default
-        msg = fill_slice_ctrl_msg("ADDMOD", conf_nvs_slices_cap2)
-        ric.control_slice_sm(n.id, msg)
+    # for n in e2nodes:
+    #     # 3. subscribe slice sm and mac sm
+    #     n_idx = e2nodes.index(n)
+    #     global slice_cb
+    #     slice_cb[n_idx] = SLICECallback()
+    #     global slice_hndlr
+    #     hndlr = ric.report_slice_sm(n.id, ric.Interval_ms_10, slice_cb[n_idx])
+    #     slice_hndlr.append(hndlr)
+    #
+    #     global mac_cb
+    #     mac_cb[n_idx] = MACCallback()
+    #     global mac_hndlr
+    #     hndlr = ric.report_mac_sm(n.id, ric.Interval_ms_10, mac_cb[n_idx])
+    #     mac_hndlr.append(hndlr)
+    #     time.sleep(2)
+    #
+    #     # 4. create slices, adding nvs_slices_rate1 by default
+    #     msg = fill_slice_ctrl_msg("ADDMOD", conf_nvs_slices_cap2)
+    #     ric.control_slice_sm(n.id, msg)
 
 ####################
 ####  SEND SLICE CONTROL MSG
@@ -747,6 +884,9 @@ def end():
     global mac_hndlr
     for i in range(0, len(mac_hndlr)):
         ric.rm_report_mac_sm(mac_hndlr[i])
+    global kpm_hndlr
+    for i in range(0, len(kpm_hndlr)):
+        ric.rm_report_kpm_sm(kpm_hndlr)
 
     for n in e2nodes:
         json_fname = "rt_slice_stats_nb_id" + str(n.id.nb_id)+ ".json"
