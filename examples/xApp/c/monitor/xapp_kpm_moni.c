@@ -54,8 +54,13 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
       ts = rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
       aggr_tstamp_kpm += now - ts;
       if (count_kpm == count_max) {
-        printf("[%ld] KPM ind_msg latency (averaged) = %lu us from E2-node type %d ID %d\n",
-               now, aggr_tstamp_kpm/count_max, e2_node->type, e2_node->nb_id);
+        printf("[%ld] KPM ind_msg latency (averaged) = %lu us, rnti = %.0f, dl_thr = %.2f Mbps, dl_mcs = %.0f, dl_cqi = %.0f from E2-node type %d ID %d\n",
+               now, aggr_tstamp_kpm/count_max,
+               rd->kpm_stats.msg.MeasData[0].measRecord[9].real_val,
+               rd->kpm_stats.msg.MeasData[0].measRecord[1].real_val,
+               rd->kpm_stats.msg.MeasData[0].measRecord[7].real_val,
+               rd->kpm_stats.msg.MeasData[0].measRecord[8].real_val,
+               e2_node->type, e2_node->nb_id);
         count_kpm = 0;
         aggr_tstamp_kpm = 0;
       }
