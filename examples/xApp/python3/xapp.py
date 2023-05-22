@@ -85,16 +85,21 @@ def kpm_ind_to_dict_json(ind, t_now):
         }
         kpm_dict["Measurement"].append(meas_dict)
 
-kpm_ind_col_names = ["latency", "measName", "measData"]
+kpm_ind_col_names = ["latency (us)", "measName (unit)", "measData"]
 def print_kpm_stats():
     global kpm_stats
     # RAN
     kpm_stats_table = []
     lat = kpm_stats["KPM_IND_MSG"]["Latency"]
     len_meas = kpm_stats["KPM_IND_MSG"]["num_of_meas"]
+    units = [" (us)" ," (Mbps)", " (Mbps)", " (bytes)", " (bytes)",
+             "", " (%)", "", "", ""]
     for i in range(0, len_meas-1):
+        measName_unit = str(kpm_stats["KPM_IND_MSG"]["Measurement"][i]["name"])
+        if len(units[i]) > 0:
+            measName_unit = str(measName_unit) + str(units[i])
         info = [lat,
-                kpm_stats["KPM_IND_MSG"]["Measurement"][i]["name"],
+                measName_unit,
                 kpm_stats["KPM_IND_MSG"]["Measurement"][i]["value"]]
         if len(info) > 0:
             kpm_stats_table.append(info)
