@@ -253,6 +253,7 @@ if (XAPP_PYTHON_INSTALL)
     ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py
     ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages)
+  install(TARGETS e42_xapp_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif ()
 
 # make uninstall
