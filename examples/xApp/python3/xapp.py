@@ -57,13 +57,15 @@ kpm_cb_idx = 0
 ####################
 
 kpm_stats_struct = {
-    "E2node" : {
+    "Latency" : {},
+    "RAN" : {
         "nb_id" : {},
         "ran_type" : {},
     },
-    "Latency" : {},
-    "num_of_meas" : {},
-    "Measurement" : {}
+    "UE" : {
+        "num_of_meas" : {},
+        "Measurement" : {}
+    }
 }
 
 global global_kpm_stats
@@ -93,80 +95,105 @@ def kpm_ind_to_dict_json(ind, t_now, id):
 
     global global_kpm_stats
     global_kpm_stats[n_idx] = {
-        "E2node" : {
+        "Latency" : {},
+        "RAN" : {
             "nb_id" : {},
             "ran_type" : {},
-        }
+        },
+        "UEs" : []
     }
 
     kpm_stats = global_kpm_stats[n_idx]
 
     # e2 node id
-    kpm_stats["E2node"]["nb_id"] = id.nb_id
-    kpm_stats["E2node"]["ran_type"] = get_ngran_name(id.type)
+    kpm_stats["RAN"]["nb_id"] = id.nb_id
+    kpm_stats["RAN"]["ran_type"] = get_ngran_name(id.type)
 
     # initial
     kpm_dict = kpm_stats
-    kpm_dict["Latency"] = "null"
-    kpm_dict["num_of_meas"] = 0
-    kpm_dict["Measurement"] = []
 
-    # get measurement value
-    meas_record_arr = []
+    # latency
     if ind.MeasData_len > 0:
-        num_of_meas_record = ind.MeasData[0].measRecord_len
-        kpm_dict.update({"num_of_meas" : num_of_meas_record})
+        if ind.MeasData[0].measRecord_len > 0:
+            t_diff = t_now - ind.MeasData[0].measRecord[0].real_val
+            kpm_dict.update({"Latency" :  t_diff})
+
+    # measurement data for each UE
+    for ue in range(0, ind.MeasData_len):
+        ue_dict = {
+            "num_of_meas" : 0,
+            "Measurement" : [],
+        }
+
+        # get measurement value
+        meas_record_arr = []
+        num_of_meas_record = ind.MeasData[ue].measRecord_len
+        ue_dict.update({"num_of_meas" : num_of_meas_record})
         for i in range(0, num_of_meas_record):
-            if i == 0:
-                t_diff = t_now - ind.MeasData[0].measRecord[i].real_val
-                kpm_dict.update({"Latency" :  t_diff})
+            value = "null"
+            if ind.MeasData[ue].measRecord[i].type == 0:
+                value = ind.MeasData[ue].measRecord[i].real_val
+            elif ind.MeasData[ue].measRecord[i].type == 1:
+                value = ind.MeasData[ue].measRecord[i].int_val
             else:
                 value = "null"
-                if ind.MeasData[0].measRecord[i].type == 0:
-                    value = ind.MeasData[0].measRecord[i].real_val
-                elif ind.MeasData[0].measRecord[i].type == 1:
-                    value = ind.MeasData[0].measRecord[i].int_val
-                else:
-                    value = "null"
-                meas_record_arr.append(value)
+            meas_record_arr.append(value)
 
-    # get measurement name
-    meas_name_arr = []
-    if ind.MeasInfo_len > 0:
-        num_of_meas_info = ind.MeasInfo_len
-        for i in range(0, num_of_meas_info):
-            name = ind.MeasInfo[i].measName
-            if i != 0:
+        # get measurement name
+        meas_name_arr = []
+        if ind.MeasInfo_len > 0:
+            num_of_meas_info = ind.MeasInfo_len
+            for i in range(0, num_of_meas_info):
+                name = ind.MeasInfo[i].measName
                 meas_name_arr.append(name)
 
-    # store measurement name and value to global_kpm_stats
-    for mrecord, mname in zip(meas_record_arr, meas_name_arr):
-        meas_dict = {
-            "name": mname,
-            "value": mrecord
-        }
-        kpm_dict["Measurement"].append(meas_dict)
+        # store measurement name and value to global_kpm_stats
+        for mrecord, mname in zip(meas_record_arr, meas_name_arr):
+            meas_dict = {
+                "name": mname,
+                "value": mrecord
+            }
+            ue_dict["Measurement"].append(meas_dict)
+        kpm_dict["UEs"].append(ue_dict)
 
-kpm_ind_col_names = ["latency (us)", "measName (unit)", "measData"]
+kpm_ind_col_names = ["Latency (us)", "UE",
+                     "measName (unit)", "measData",
+                     "measName (unit)", "measData",
+                     "measName (unit)", "measData",
+                     "measName (unit)", "measData",
+                     "measName (unit)", "measData",
+                     "measName (unit)", "measData",
+                     "measName (unit)", "measData"]
 def print_kpm_stats(n_idx):
     global global_kpm_stats
     kpm_stats = global_kpm_stats[n_idx]
     # RAN
     kpm_stats_table = []
     lat = kpm_stats["Latency"]
-    len_meas = int(kpm_stats["num_of_meas"])
     units = [" (Mbps)", " (Mbps)", " (bytes)", " (bytes)",
-             "", " (%)", "", "", ""]
-    for i in range(0, len_meas-1):
-        measName_unit = str(kpm_stats["Measurement"][i]["name"]) + str(units[i])
-        print_value = kpm_stats["Measurement"][i]["value"]
-        if i == 0 or i == 1: # dl_thr, ul_thr
-            print_value = round(float(kpm_stats["Measurement"][i]["value"])/1000000, 2)
-        info = [lat,
-                measName_unit,
-                print_value]
+             "", " (%)", "", ""]
+    if len(kpm_stats["UEs"]) > 0:
+        len_meas = int(kpm_stats["UEs"][0]["num_of_meas"])
+        rnti_str = kpm_stats["UEs"][0]["Measurement"][len_meas-1]["name"]
+        info = ["", rnti_str]
+        for i in range(1, len_meas-2):
+            measName_unit = str(kpm_stats["UEs"][0]["Measurement"][i]["name"]) + str(units[i])
+            info.append(measName_unit)
+    if len(info) > 0:
+        kpm_stats_table.append(info)
+
+    for ue in range(0, len(kpm_stats["UEs"])):
+        len_meas = int(kpm_stats["UEs"][ue]["num_of_meas"])
+        rnti = kpm_stats["UEs"][0]["Measurement"][len_meas-1]["value"]
+        info = [lat, rnti]
+        for i in range(1, len_meas-2):
+            print_value = kpm_stats["UEs"][ue]["Measurement"][i]["value"]
+            if i == 1 or i == 2: # dl_thr, ul_thr
+                print_value = round(float(kpm_stats["UEs"][ue]["Measurement"][i]["value"])/1000000, 2)
+            info.append(print_value)
         if len(info) > 0:
             kpm_stats_table.append(info)
+
     print(tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid"))
 
 ####################

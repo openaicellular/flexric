@@ -139,7 +139,7 @@ void fill_kpm_ind_data(kpm_ind_data_t* ind)
 
   } else {
     // TODO: only can support one ue currently
-    num_ues = 1;
+    num_ues = 2;
     adapter_MeasDataItem_t *KPMData = calloc(num_ues, sizeof(adapter_MeasDataItem_t));
 
     size_t num_data = 10;
