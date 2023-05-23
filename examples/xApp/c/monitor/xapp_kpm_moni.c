@@ -38,9 +38,12 @@ static void sigint_handler(int sig)
   exit_flag = true;
 }
 
-uint64_t count_max = 100;
-uint64_t count_kpm = 0;
-uint64_t aggr_tstamp_kpm = 0;
+uint64_t count_max_e2nodetype2 = 100;
+uint64_t count_kpm_e2nodetype2 = 0;
+uint64_t aggr_tstamp_kpm_e2nodetype2 = 0;
+uint64_t count_max_e2nodetype7 = 100;
+uint64_t count_kpm_e2nodetype7 = 0;
+uint64_t aggr_tstamp_kpm_e2nodetype7 = 0;
 static
 void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
@@ -48,29 +51,52 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   assert(rd->type == KPM_STATS_V0);
   int64_t now = time_now_us();
   int64_t ts =  0;
-  if (rd->kpm_stats.msg.MeasData_len > 0) {
-    if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0) {
-      count_kpm += 1;
-      ts = rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
-      aggr_tstamp_kpm += now - ts;
-      if (count_kpm == count_max) {
-        printf("[%ld] KPM ind_msg latency (averaged) = %lu us, rnti = %.0f, dl_thr = %.2f Mbps, dl_mcs = %.0f, dl_cqi = %.0f from E2-node type %d ID %d\n",
-               now, aggr_tstamp_kpm/count_max,
-               rd->kpm_stats.msg.MeasData[0].measRecord[9].real_val,
-               rd->kpm_stats.msg.MeasData[0].measRecord[1].real_val,
-               rd->kpm_stats.msg.MeasData[0].measRecord[7].real_val,
-               rd->kpm_stats.msg.MeasData[0].measRecord[8].real_val,
-               e2_node->type, e2_node->nb_id);
-        count_kpm = 0;
-        aggr_tstamp_kpm = 0;
+  if (e2_node->type == 2) {
+    if (rd->kpm_stats.msg.MeasData_len > 0) {
+      if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0) {
+        count_kpm_e2nodetype2 += 1;
+        ts = rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
+        aggr_tstamp_kpm_e2nodetype2 += now - ts;
+        if (count_kpm_e2nodetype2 == count_max_e2nodetype2) {
+          printf("[%ld] KPM ind_msg latency (averaged) = %lu us, rnti = %.0f, dl_thr = %.2f Mbps, dl_mcs = %.0f, dl_cqi = %.0f from E2-node type %d ID %d\n",
+                 now, aggr_tstamp_kpm_e2nodetype2/count_max_e2nodetype2,
+                 rd->kpm_stats.msg.MeasData[0].measRecord[9].real_val,
+                 rd->kpm_stats.msg.MeasData[0].measRecord[1].real_val,
+                 rd->kpm_stats.msg.MeasData[0].measRecord[7].real_val,
+                 rd->kpm_stats.msg.MeasData[0].measRecord[8].real_val,
+                 e2_node->type, e2_node->nb_id);
+          count_kpm_e2nodetype2 = 0;
+          aggr_tstamp_kpm_e2nodetype2 = 0;
+        }
       }
     }
-  }
+  } else if (e2_node->type == 7) {
+    if (rd->kpm_stats.msg.MeasData_len > 0) {
+      if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0) {
+        count_kpm_e2nodetype7 += 1;
+        ts = rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
+        aggr_tstamp_kpm_e2nodetype7 += now - ts;
+        if (count_kpm_e2nodetype7 == count_max_e2nodetype7) {
+          printf("[%ld] KPM ind_msg latency (averaged) = %lu us, rnti = %.0f, dl_thr = %.2f Mbps, dl_mcs = %.0f, dl_cqi = %.0f from E2-node type %d ID %d\n",
+                 now, aggr_tstamp_kpm_e2nodetype7/count_max_e2nodetype7,
+                 rd->kpm_stats.msg.MeasData[0].measRecord[9].real_val,
+                 rd->kpm_stats.msg.MeasData[0].measRecord[1].real_val,
+                 rd->kpm_stats.msg.MeasData[0].measRecord[7].real_val,
+                 rd->kpm_stats.msg.MeasData[0].measRecord[8].real_val,
+                 e2_node->type, e2_node->nb_id);
+          count_kpm_e2nodetype7 = 0;
+          aggr_tstamp_kpm_e2nodetype7 = 0;
+        }
+      }
+    }
+  } else
+    printf("unknown e2 node type");
 }
 
-
+size_t max_handle = 256;
+size_t c_handle = 0;
 static
-void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t handle)
+void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* handle)
 {
   // send subscription request to each e2 nodes
   // for(size_t j = 0; j < n->len_rf; j++)
@@ -78,8 +104,9 @@ void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t hand
   inter_xapp_e tti = ms_10;
   uint16_t ran_func_id = SM_KPM_ID;
   printf("xApp subscribes RAN Func ID %d in E2 node idx %d\n", ran_func_id, n_idx);
-  handle = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_kpm);
-  assert(handle.success == true);
+  handle[c_handle] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_kpm);
+  assert(handle[c_handle].success == true);
+  c_handle+=1;
 
 }
 
@@ -94,8 +121,6 @@ int main(int argc, char *argv[])
   sleep(1);
 
   // init num of sm and handle
-  size_t max_handle = 256;
-  size_t c_handle = 0;
   // TODO: give the num of sm randomly  //abs(rand()%5)+1;
   sm_ans_xapp_t *handle = NULL;
   if (max_handle > 0) {
@@ -123,8 +148,7 @@ int main(int argc, char *argv[])
   defer({ free_e2_node_arr(&nodes); });
   for (size_t i = 0; i < nodes.len; i++) {
     if (nodes.n[i].id.type == 2 || nodes.n[i].id.type == 7) {
-      send_subscription_req(&nodes.n[i], i, handle[c_handle]);
-      c_handle += 1;
+      send_subscription_req(&nodes.n[i], i, handle);
     }
   }
 
@@ -159,8 +183,7 @@ int main(int argc, char *argv[])
           if (new_type || new_nb_id) {
             if (cur_type == 2 || cur_type == 7) {
               printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
-              send_subscription_req(&cur_nodes.n[i], i, handle[c_handle]);
-              c_handle += 1;
+              send_subscription_req(&cur_nodes.n[i], i, handle);
             }
           }
         }
