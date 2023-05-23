@@ -160,7 +160,7 @@ def print_kpm_stats(n_idx):
     for i in range(0, len_meas-1):
         measName_unit = str(kpm_stats["Measurement"][i]["name"]) + str(units[i])
         print_value = kpm_stats["Measurement"][i]["value"]
-        if i == 1 or i == 2: # dl_thr, ul_thr
+        if i == 0 or i == 1: # dl_thr, ul_thr
             print_value = round(float(kpm_stats["Measurement"][i]["value"])/1000000, 2)
         info = [lat,
                 measName_unit,
