@@ -120,16 +120,15 @@ def kpm_ind_to_dict_json(ind, t_now, id):
             if i == 0:
                 t_diff = t_now - ind.MeasData[0].measRecord[i].real_val
                 kpm_dict.update({"Latency" :  t_diff})
-                continue
-
-            value = "null"
-            if ind.MeasData[0].measRecord[i].type == 0:
-                value = ind.MeasData[0].measRecord[i].real_val
-            elif ind.MeasData[0].measRecord[i].type == 1:
-                value = ind.MeasData[0].measRecord[i].int_val
             else:
                 value = "null"
-            meas_record_arr.append(value)
+                if ind.MeasData[0].measRecord[i].type == 0:
+                    value = ind.MeasData[0].measRecord[i].real_val
+                elif ind.MeasData[0].measRecord[i].type == 1:
+                    value = ind.MeasData[0].measRecord[i].int_val
+                else:
+                    value = "null"
+                meas_record_arr.append(value)
 
     # get measurement name
     meas_name_arr = []
@@ -137,9 +136,8 @@ def kpm_ind_to_dict_json(ind, t_now, id):
         num_of_meas_info = ind.MeasInfo_len
         for i in range(0, num_of_meas_info):
             name = ind.MeasInfo[i].measName
-            if name == "timestamp":
-                continue
-            meas_name_arr.append(name)
+            if i != 0:
+                meas_name_arr.append(name)
 
     # store measurement name and value to global_kpm_stats
     for mrecord, mname in zip(meas_record_arr, meas_name_arr):
@@ -157,15 +155,16 @@ def print_kpm_stats(n_idx):
     kpm_stats_table = []
     lat = kpm_stats["Latency"]
     len_meas = int(kpm_stats["num_of_meas"])
-    units = [" (us)" ," (Mbps)", " (Mbps)", " (bytes)", " (bytes)",
+    units = [" (Mbps)", " (Mbps)", " (bytes)", " (bytes)",
              "", " (%)", "", "", ""]
     for i in range(0, len_meas-1):
-        measName_unit = str(kpm_stats["Measurement"][i]["name"])
-        if len(units[i]) > 0:
-            measName_unit = str(measName_unit) + str(units[i])
+        measName_unit = str(kpm_stats["Measurement"][i]["name"]) + str(units[i])
+        print_value = kpm_stats["Measurement"][i]["value"]
+        if i == 1 or i == 2: # dl_thr, ul_thr
+            print_value = round(float(kpm_stats["Measurement"][i]["value"])/1000000, 2)
         info = [lat,
                 measName_unit,
-                kpm_stats["Measurement"][i]["value"]]
+                print_value]
         if len(info) > 0:
             kpm_stats_table.append(info)
     print(tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid"))
