@@ -33,7 +33,7 @@ class MACCallback(ric.mac_cb):
             t_diff = t_now - t_mac
             aggr_tstamp_mac += t_diff
             if count_mac == count_max:
-                print('MAC Indication avg time diff = ' + str(aggr_tstamp_mac/count_max))
+                print(f"MAC Indication avg time diff {aggr_tstamp_mac/count_max} e2 node type {ind.id.type} nb_id {ind.id.nb_id}")
                 count_mac = 0
                 aggr_tstamp_mac = 0
             # print('MAC rnti = ' + str(ind.ue_stats[0].rnti))
@@ -140,7 +140,7 @@ def get_ngran_name(ran_type):
 ####################
 #### PRINT E2 NODES IN TABLE
 ####################
-e2nodes_col_names = ["nb_id", "mcc", "mnc", "ran_type"]
+e2nodes_col_names = ["idx", "nb_id", "mcc", "mnc", "ran_type"]
 def print_e2_nodes():
     e2nodes_data = []
     conn = ric.conn_e2_nodes()
@@ -149,14 +149,21 @@ def print_e2_nodes():
         # cu_du_id = -1
         # if conn[i].id.cu_du_id:
         #     cu_du_id = conn[i].id.cu_du_id
-        info = [conn[i].id.nb_id,
+        info = [i,
+                conn[i].id.nb_id,
                 conn[i].id.plmn.mcc,
                 conn[i].id.plmn.mnc,
-                conn[i].id.plmn.mnc_digit_len,
                 get_ngran_name(conn[i].id.type)]
         # print(info)
         e2nodes_data.append(info)
-    print(tabulate(e2nodes_data, headers=e2nodes_col_names))
+    print(tabulate(e2nodes_data, headers=e2nodes_col_names, tablefmt="grid"))
+    # print("E2 node : "
+    #       "nb_id " + str(e2node.id.nb_id) + ",",
+    #       "mcc " + str(e2node.id.plmn.mcc) + ",",
+    #       "mnc " + str(e2node.id.plmn.mnc) + ",",
+    #       "mnc_digit_len " + str(e2node.id.plmn.mnc_digit_len) + ",",
+    #       "ran_type " + get_ngran_name(e2node.id.type) + ',',
+    #       "cu_du_id " + str(e2node.id.cu_du_id if e2node.id.cu_du_id else -1))
 
 ####################
 #### TUPLE LIST E2 NODES

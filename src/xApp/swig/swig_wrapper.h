@@ -27,8 +27,15 @@ struct RanFunction{
   // TODO: std::vector<byte_array_t> oid; // optional
 };
 
+struct swig_global_e2_node_id_t {
+  ngran_node_t type;
+  plmn_t plmn;
+  uint32_t nb_id;
+  std::vector<long unsigned int> cu_du_id;
+};
+
 struct E2Node {
-  global_e2_node_id_t id;
+  swig_global_e2_node_id_t id;
   std::vector<RanFunction> ran_func;
 };
 
@@ -51,6 +58,7 @@ enum class Interval {
 
 struct swig_mac_ind_msg_t{
   std::vector<mac_ue_stats_impl_t> ue_stats;
+  swig_global_e2_node_id_t id;
   int64_t tstamp;
 };
 
@@ -59,7 +67,7 @@ struct mac_cb {
     virtual ~mac_cb() {}
 };
 
-int report_mac_sm(global_e2_node_id_t* id, Interval inter, mac_cb* handler);
+int report_mac_sm(swig_global_e2_node_id_t* id, Interval inter, mac_cb* handler);
 
 void rm_report_mac_sm(int);
 
@@ -68,7 +76,8 @@ void rm_report_mac_sm(int);
 /////////////////////////////////////
 
 struct swig_rlc_ind_msg_t{
-  std::vector<rlc_radio_bearer_stats_t> rb_stats; 
+  std::vector<rlc_radio_bearer_stats_t> rb_stats;
+  swig_global_e2_node_id_t id;
   int64_t tstamp;
 };
 
@@ -77,7 +86,7 @@ struct rlc_cb {
     virtual ~rlc_cb() {}
 };
 
-int report_rlc_sm(global_e2_node_id_t* id, Interval inter, rlc_cb* handler);
+int report_rlc_sm(swig_global_e2_node_id_t* id, Interval inter, rlc_cb* handler);
 
 void rm_report_rlc_sm(int);
 
@@ -87,6 +96,7 @@ void rm_report_rlc_sm(int);
 
 struct swig_pdcp_ind_msg_t{
   std::vector<pdcp_radio_bearer_stats_t> rb_stats;
+  swig_global_e2_node_id_t id;
   int64_t tstamp;
 };
 
@@ -95,7 +105,7 @@ struct pdcp_cb {
     virtual ~pdcp_cb() {}
 };
 
-int report_pdcp_sm(global_e2_node_id_t* id, Interval inter, pdcp_cb* handler);
+int report_pdcp_sm(swig_global_e2_node_id_t* id, Interval inter, pdcp_cb* handler);
 
 void rm_report_pdcp_sm(int);
 
@@ -136,6 +146,7 @@ typedef struct{
 struct swig_slice_ind_msg_t{
   swig_slice_conf_t slice_stats;
   swig_ue_slice_conf_t ue_slice_stats;
+  swig_global_e2_node_id_t id;
   int64_t tstamp;
 };
 
@@ -144,18 +155,19 @@ struct slice_cb {
     virtual ~slice_cb() {}
 };
 
-int report_slice_sm(global_e2_node_id_t* id, Interval inter, slice_cb* handler);
+int report_slice_sm(swig_global_e2_node_id_t* id, Interval inter, slice_cb* handler);
 
 void rm_report_slice_sm(int);
 
-void control_slice_sm(global_e2_node_id_t* id, slice_ctrl_msg_t* ctrl);
+void control_slice_sm(swig_global_e2_node_id_t* id, slice_ctrl_msg_t* ctrl);
 
 //////////////////////////////////////
 // GTP SM   
 /////////////////////////////////////
 
 struct swig_gtp_ind_msg_t{
-  std::vector<gtp_ngu_t_stats_t> gtp_stats; 
+  std::vector<gtp_ngu_t_stats_t> gtp_stats;
+  swig_global_e2_node_id_t id;
   int64_t tstamp;
 };
 
@@ -164,7 +176,7 @@ struct gtp_cb {
     virtual ~gtp_cb() {}
 };
 
-int report_gtp_sm(global_e2_node_id_t* id, Interval inter, gtp_cb* handler);
+int report_gtp_sm(swig_global_e2_node_id_t* id, Interval inter, gtp_cb* handler);
 
 void rm_report_gtp_sm(int);
 
