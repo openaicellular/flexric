@@ -225,6 +225,7 @@ struct swig_kpm_ind_msg_t{
 
   std::vector<unsigned long> granulPeriod; /* OPTIONAL */
 
+  swig_global_e2_node_id_t id;
   /*
    * XXX-extensions: add all the info you might find in all the indication format types.
    * Still missing some fields for supporting format_2 and format_3
@@ -236,7 +237,7 @@ struct kpm_cb {
     virtual ~kpm_cb() {}
 };
 
-int report_kpm_sm(global_e2_node_id_t* id, Interval inter, kpm_cb* handler);
+int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter, kpm_cb* handler);
 
 void rm_report_kpm_sm(int);
 

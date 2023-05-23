@@ -653,7 +653,7 @@ static
 kpm_cb* hndlr_kpm_cb;
 
 static
-void sm_cb_kpm(sm_ag_if_rd_t const* rd)
+void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == KPM_STATS_V0);
@@ -662,6 +662,20 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
   kpm_ind_data_t const* data = &rd->kpm_stats;
 
   swig_kpm_ind_msg_t ind;
+
+  ind.id.type = e2_node->type;
+  ind.id.plmn.mcc = e2_node->plmn.mcc;
+  ind.id.plmn.mnc = e2_node->plmn.mnc;
+  ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
+  ind.id.nb_id = e2_node->nb_id;
+  size_t cuduid_idx = 0;
+  if (e2_node->cu_du_id) {
+    while (e2_node->cu_du_id[cuduid_idx]) {
+      ind.id.cu_du_id.push_back(e2_node->cu_du_id[cuduid_idx]);
+      cuduid_idx++;
+    }
+  }
+
   ind.MeasData_len = data->msg.MeasData_len;
 
   for (size_t i = 0; i < data->msg.MeasData_len; ++i) {
@@ -719,7 +733,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
 #endif
 }
 
-int report_kpm_sm(global_e2_node_id_t* id, Interval inter_arg, kpm_cb* handler)
+int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter_arg, kpm_cb* handler)
 {
   assert(id != NULL);
   assert(handler != NULL);
@@ -739,7 +753,8 @@ int report_kpm_sm(global_e2_node_id_t* id, Interval inter_arg, kpm_cb* handler)
     assert(0 != 0 && "Unknown type");
   }
 
-  sm_ans_xapp_t ans = report_sm_xapp_api(id, SM_KPM_ID, i, sm_cb_kpm);
+  global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_KPM_ID, i, sm_cb_kpm);
   assert(ans.success == true);
   return ans.u.handle;
 }
