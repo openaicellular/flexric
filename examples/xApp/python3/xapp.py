@@ -156,41 +156,59 @@ def kpm_ind_to_dict_json(ind, t_now, id):
             ue_dict["Measurement"].append(meas_dict)
         kpm_dict["UEs"].append(ue_dict)
 
-kpm_ind_col_names = ["Latency (us)", "UE",
-                     "measName (unit)", "measData",
-                     "measName (unit)", "measData",
-                     "measName (unit)", "measData",
-                     "measName (unit)", "measData",
-                     "measName (unit)", "measData",
-                     "measName (unit)", "measData",
-                     "measName (unit)", "measData"]
 def print_kpm_stats(n_idx):
     global global_kpm_stats
     kpm_stats = global_kpm_stats[n_idx]
     # RAN
     kpm_stats_table = []
-    lat = kpm_stats["Latency"]
-    units = [" (Mbps)", " (Mbps)", " (bytes)", " (bytes)",
-             "", " (%)", "", ""]
+    kpm_ind_col_names = []
     if len(kpm_stats["UEs"]) > 0:
         len_meas = int(kpm_stats["UEs"][0]["num_of_meas"])
-        rnti_str = kpm_stats["UEs"][0]["Measurement"][len_meas-1]["name"]
-        info = ["", rnti_str]
-        for i in range(1, len_meas-2):
-            measName_unit = str(kpm_stats["UEs"][0]["Measurement"][i]["name"]) + str(units[i])
-            info.append(measName_unit)
-    if len(info) > 0:
-        kpm_stats_table.append(info)
+        kpm_ind_col_names.append("Latency (us)")
+        kpm_ind_col_names.append("UE - rnti")
+        for i in range(0, len_meas):
+            meas_name_str = str(kpm_stats["UEs"][0]["Measurement"][i]["name"]).rstrip('\x00')
+            # print(meas_name_str)
+            if meas_name_str == "timestamp" or meas_name_str == "rnti":
+                continue
 
+            meas_name_unit = ""
+            if meas_name_str == "dl_thr" or meas_name_str == "ul_thr":
+                meas_name_unit = meas_name_str + " (Mbps)"
+            elif meas_name_str == "dl_tx" or meas_name_str == "ul_tx":
+                meas_name_unit = meas_name_str + " (Bytes)"
+            elif meas_name_str == "dl_bler":
+                meas_name_unit = meas_name_str + " (%)"
+            else:
+                meas_name_unit = meas_name_str
+            if len(meas_name_unit) > 0:
+                kpm_ind_col_names.append(meas_name_unit)
+    # print(kpm_ind_col_names)
+
+    lat = kpm_stats["Latency"]
     for ue in range(0, len(kpm_stats["UEs"])):
         len_meas = int(kpm_stats["UEs"][ue]["num_of_meas"])
-        rnti = kpm_stats["UEs"][0]["Measurement"][len_meas-1]["value"]
-        info = [lat, rnti]
-        for i in range(1, len_meas-2):
-            print_value = kpm_stats["UEs"][ue]["Measurement"][i]["value"]
-            if i == 1 or i == 2: # dl_thr, ul_thr
+
+        info = [lat]
+        rnti = -1
+        tmp_value = []
+        for i in range(0, len_meas):
+            meas_name_str = str(kpm_stats["UEs"][ue]["Measurement"][i]["name"]).rstrip('\x00')
+            # print(meas_name_str)
+            if meas_name_str == "timestamp":
+                continue
+            elif meas_name_str == "rnti":
+                rnti = kpm_stats["UEs"][ue]["Measurement"][i]["value"]
+                info.append(rnti)
+            elif meas_name_str == "dl_thr" or meas_name_str == "ul_thr":
                 print_value = round(float(kpm_stats["UEs"][ue]["Measurement"][i]["value"])/1000000, 2)
-            info.append(print_value)
+                tmp_value.append(print_value)
+            else:
+                print_value = kpm_stats["UEs"][ue]["Measurement"][i]["value"]
+                tmp_value.append(print_value)
+
+        for v in tmp_value:
+            info.append(v)
         if len(info) > 0:
             kpm_stats_table.append(info)
 
