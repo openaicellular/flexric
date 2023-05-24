@@ -8,6 +8,7 @@ from curses import wrapper
 from curses.textpad import rectangle, Textbox
 import math
 from enum import Enum
+import os
 
 
 class ServiceModelEnum(Enum):
@@ -24,6 +25,7 @@ class SubTTIEnum(Enum):
     ms10 = ric.Interval_ms_10
 SubTimeInterval: SubTTIEnum
 SubTimeInterval = SubTTIEnum.ms10
+
 
 ####################
 #### MAC INDICATION CALLBACK
@@ -189,6 +191,7 @@ def kpm_ind_to_dict_json(ind, t_now, id):
     graph_add[n_idx] += 1
 
 
+len_table_str = 0
 def print_kpm_stats(n_idx):
     global global_kpm_stats
     kpm_stats = global_kpm_stats[n_idx]
@@ -245,7 +248,12 @@ def print_kpm_stats(n_idx):
         if len(info) > 0:
             kpm_stats_table.append(info)
 
-    print(tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid"))
+    global len_table_str
+    print_table = tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid")
+    table_str = str(print_table).ljust(len(print_table))
+    len_table_str = len(print_table)
+    print(table_str, end="\r")
+    print("\n")
 
 def print_dl_ul_graph(n_idx):
     def main(stdscr):
@@ -1110,6 +1118,13 @@ def print_kpm_stats_json():
     # TODO: need to process multi e2 nodes
     global global_kpm_stats
     print(global_kpm_stats)
+
+def print_kpm_stats_loop(n_idx, n_loop):
+    global len_table_str
+    for i in range(0, n_loop):
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print_kpm_stats(n_idx)
+        time.sleep(1)
 
 ####################
 ####  END
