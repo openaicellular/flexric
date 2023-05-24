@@ -4,6 +4,7 @@ import pdb
 import json
 from tabulate import tabulate
 import curses
+from curses import wrapper
 from curses.textpad import rectangle, Textbox
 import math
 from enum import Enum
@@ -175,9 +176,9 @@ def kpm_ind_to_dict_json(ind, t_now, id):
             }
             ue_dict["Measurement"].append(meas_dict)
             if ue == 0 and str(mname).rstrip('\x00') == "dl_thr":
-                graph_dl_thr_val_cur = mrecord
+                graph_dl_thr_val_cur = round(float(mrecord/1000000), 2)
             if ue == 0 and str(mname).rstrip('\x00') == "ul_thr":
-                graph_ul_thr_val_cur = mrecord
+                graph_ul_thr_val_cur = round(float(mrecord/1000000), 2)
         kpm_dict["UEs"].append(ue_dict)
 
         # add value per 100*sample rate
@@ -185,7 +186,7 @@ def kpm_ind_to_dict_json(ind, t_now, id):
         if ue == 0 and graph_add[n_idx]%10 == 0:
             graph_dl_thr_val_arr[n_idx].append(graph_dl_thr_val_cur)
             graph_ul_thr_val_arr[n_idx].append(graph_ul_thr_val_cur)
-        graph_add[n_idx] += 1
+    graph_add[n_idx] += 1
 
 
 def print_kpm_stats(n_idx):
@@ -247,109 +248,100 @@ def print_kpm_stats(n_idx):
     print(tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid"))
 
 def print_dl_ul_graph(n_idx):
+    def main(stdscr):
+        global graph_ul_thr_val_arr
+        ul_val = graph_ul_thr_val_arr[n_idx]
+        global graph_dl_thr_val_arr
+        dl_val = graph_dl_thr_val_arr[n_idx]
 
-    global graph_ul_thr_val_arr
-    ul_val = graph_ul_thr_val_arr[n_idx]
-    global graph_dl_thr_val_arr
-    dl_val = graph_dl_thr_val_arr[n_idx]
+        MIN_ul = 0
+        MAX_ul = 0
+        MIN_dl = 0
+        MAX_dl = 0
 
-    MIN_ul = 0
-    MAX_ul = 0
-    MIN_dl = 0
-    MAX_dl = 0
-    stdscr = curses.initscr()
+        # run for 10 secs
+        for i in range(100):
+            time.sleep(0.1)
+            scr_maxx, scr_maxy = stdscr.getmaxyx()
 
-    # run for 10 secs
-    for i in range(100):
-        time.sleep(0.1)
-        scr_maxx, scr_maxy = stdscr.getmaxyx()
+            dl_thr_name = "dl_thr"
+            ul_thr_name = "ul_thr"
 
-        dl_thr_name = "dl_thr"
-        ul_thr_name = "ul_thr"
+            stdscr.clear()
+            win_ul = curses.newwin(15, scr_maxy-30, scr_maxx-20, 14)
+            win_dl = curses.newwin(15, scr_maxy-30, scr_maxx-38, 14)
 
-        stdscr.clear()
-        win_ul = curses.newwin(15, scr_maxy-30, scr_maxx-20, 14)
-        win_dl = curses.newwin(15, scr_maxy-30, scr_maxx-38, 14)
+            stdscr.addstr(scr_maxx-22, 30, "{0}: {1} Mbps".format(ul_thr_name.rstrip('\x00'), ul_val[-1]))
+            stdscr.addstr(scr_maxx-40, 30, "{0}: {1} Mbps".format(dl_thr_name.rstrip('\x00'), dl_val[-1]))
 
-        stdscr.addstr(scr_maxx-22, 30, "{0}: {1}".format(ul_thr_name.rstrip('\x00'), ul_val[-1]))
-        stdscr.addstr(scr_maxx-40, 30, "{0}: {1}".format(dl_thr_name.rstrip('\x00'), dl_val[-1]))
+            box_ul = curses.textpad.Textbox(win_ul)
+            box_dl = curses.textpad.Textbox(win_dl)
 
-        box_ul = curses.textpad.Textbox(win_ul)
-        box_dl = curses.textpad.Textbox(win_dl)
+            curses.textpad.rectangle(stdscr, 14, scr_maxx-40, scr_maxx-23, scr_maxy-10)
+            curses.textpad.rectangle(stdscr, 32, scr_maxx-40, scr_maxx-5, scr_maxy-10)
 
-        curses.textpad.rectangle(stdscr, 14, scr_maxx-40, scr_maxx-23, scr_maxy-10)
-        curses.textpad.rectangle(stdscr, 32, scr_maxx-40, scr_maxx-5, scr_maxy-10)
+            filter_ul_val = [x for x in ul_val if x>=0]
+            MIN_ul = min(filter_ul_val)
+            MAX_ul = max(filter_ul_val)
 
-        MIN_ul = min(ul_val)
-        MAX_ul = max(ul_val)
+            filter_dl_val = [x for x in dl_val if x>=0]
+            MIN_dl = min(filter_dl_val)
+            MAX_dl = max(filter_dl_val)
 
-        MIN_dl = min(dl_val)
-        MAX_dl = max(dl_val)
-        # for ul_thr_value in ul_val:
-        #     if ul_thr_value > MAX_ul:
-        #         MAX_ul = ul_thr_value
-        #     if MIN_ul == 0:
-        #         MIN_ul = ul_thr_value
-
-        #     if ul_thr_value < MIN_ul:
-        #         MIN_ul = ul_thr_value
-
-        ul_norm_value = []
-        dl_norm_value = []
-
-        for _ in ul_val:
-            ul_norm_value.append(0)
-            dl_norm_value.append(0)
-
-        for i in range(len(ul_val)):
-            if MAX_ul == MIN_ul:
-                ul_norm_value[i] = 1
-            else:
-                tmp = math.trunc(round((ul_val[i] - MIN_ul) / (MAX_ul - MIN_ul) * 9 + 1))
-                ul_norm_value[i] = tmp
-
-        for i in range(len(dl_val)):
-            if MAX_dl == MIN_dl:
-                dl_norm_value[i] = 1
-            else:
-                tmp = math.trunc(round((dl_val[i] - MIN_dl) / (MAX_dl - MIN_dl) * 9 + 1))
-                dl_norm_value[i] = tmp
-
-        position = 40
-        for i in range(1, 20):
-
-            if len(ul_norm_value) >= i and  len(ul_val) >= 1:
-                win_ul.vline(14-ul_norm_value[-i], scr_maxy-position, '|', ul_norm_value[-i])
-                win_ul.addstr(13-ul_norm_value[-i], scr_maxy-position+1, "{}" .format(ul_val[-i]))
-            else:
-                win_ul.vline(14-0, scr_maxy-position, '|', 0)
-                win_ul.addstr(13-0, scr_maxy-position+1, "{}" .format(0))
-
-            position += 8
+            ul_norm_value = [0 for i in range(0, len(ul_val))]
+            dl_norm_value = [0 for i in range(0, len(ul_val))]
 
 
-        position = 40
-        for i in range(1, 20):
+            for i in range(len(ul_norm_value)):
+                if MAX_ul == MIN_ul:
+                    ul_norm_value[i] = 1
+                else:
+                    tmp = math.trunc(round((ul_val[i] - MIN_ul) / (MAX_ul - MIN_ul) * 9 + 1))
+                    ul_norm_value[i] = tmp
 
-            if len(dl_norm_value) >= i and  len(dl_val) >= 1:
-                win_dl.vline(14-dl_norm_value[-i], scr_maxy-position, '|', dl_norm_value[-i])
-                win_dl.addstr(13-dl_norm_value[-i], scr_maxy-position+1, "{}" .format(dl_val[-i]))
-            else:
-                win_dl.vline(14-0, scr_maxy-position, '|', 0)
-                win_dl.addstr(13-0, scr_maxy-position+1, "{}" .format(0))
+            for i in range(len(dl_norm_value)):
+                if MAX_dl == MIN_dl:
+                    dl_norm_value[i] = 1
+                else:
+                    tmp = math.trunc(round((dl_val[i] - MIN_dl) / (MAX_dl - MIN_dl) * 9 + 1))
+                    dl_norm_value[i] = tmp
 
-            position += 8
+            position = 40
+            for i in range(1, 16):
 
-        stdscr.addstr(scr_maxx-37,2, "MAX:{0}" .format(MAX_dl))
-        stdscr.addstr(scr_maxx-(38-14),2, "MIN:{0}" .format(MIN_dl))
-        stdscr.addstr(scr_maxx-19,2, "MAX:{0}" .format(MAX_ul))
-        stdscr.addstr(scr_maxx-(20-14),2, "MIN:{0}" .format(MIN_ul))
+                if len(ul_norm_value) >= i and  len(ul_val) >= 1:
+                    win_ul.vline(14-ul_norm_value[-i], scr_maxy-position, '|', ul_norm_value[-i])
+                    win_ul.addstr(13-ul_norm_value[-i], scr_maxy-position-1, "{}" .format(ul_val[-i]))
+                else:
+                    win_ul.vline(14-1, scr_maxy-position, '|', 1)
+                    win_ul.addstr(13-1, scr_maxy-position+1, "{}" .format(0))
 
-        stdscr.refresh()
-        win_ul.refresh()
-        win_dl.refresh()
+                position += 10
 
-    curses.endwin()
+
+            position = 40
+            for i in range(1, 16):
+
+                if len(dl_norm_value) >= i and  len(dl_val) >= 1:
+                    win_dl.vline(14-dl_norm_value[-i], scr_maxy-position, '|', dl_norm_value[-i])
+                    win_dl.addstr(13-dl_norm_value[-i], scr_maxy-position-1, "{}" .format(dl_val[-i]))
+                else:
+                    win_dl.vline(14-1, scr_maxy-position, '|', 1)
+                    win_dl.addstr(13-1, scr_maxy-position+1, "{}" .format(0))
+
+                position += 10
+
+            stdscr.addstr(scr_maxx-37,2, "MAX:{0} Mbps" .format(MAX_dl))
+            stdscr.addstr(scr_maxx-(38-14),2, "MIN:{0} Mbps" .format(MIN_dl))
+            stdscr.addstr(scr_maxx-19,2, "MAX:{0} Mbps" .format(MAX_ul))
+            stdscr.addstr(scr_maxx-(20-14),2, "MIN:{0} Mbps" .format(MIN_ul))
+
+            stdscr.refresh()
+            win_ul.refresh()
+            win_dl.refresh()
+
+        curses.endwin()
+    wrapper(main)
 
 ####################
 #### MAC INDICATION CALLBACK
