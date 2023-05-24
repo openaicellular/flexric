@@ -72,13 +72,10 @@ mac_cb_idx = 0
 slice_cb_idx = 0
 kpm_cb_idx = 0
 
-global dl_val
-global ul_val
-dl_val = []
-ul_val = []
-
-global add
-add = 0
+# TODO: only support one UE
+graph_dl_thr_val_arr = [[] for i in range(0, MAX_E2_NODES)]
+graph_ul_thr_val_arr = [[] for i in range(0, MAX_E2_NODES)]
+graph_add = [0 for i in range(0, MAX_E2_NODES)]
 
 ####################
 ####  KPM INDICATION MSG TO JSON
@@ -168,29 +165,27 @@ def kpm_ind_to_dict_json(ind, t_now, id):
                 meas_name_arr.append(name)
 
         # store measurement name and value to global_kpm_stats
+        # store the first UE's current measurement value to graph
+        graph_dl_thr_val_cur = -1
+        graph_ul_thr_val_cur = -1
         for mrecord, mname in zip(meas_record_arr, meas_name_arr):
             meas_dict = {
                 "name": mname,
                 "value": mrecord
             }
             ue_dict["Measurement"].append(meas_dict)
+            if ue == 0 and str(mname).rstrip('\x00') == "dl_thr":
+                graph_dl_thr_val_cur = mrecord
+            if ue == 0 and str(mname).rstrip('\x00') == "ul_thr":
+                graph_ul_thr_val_cur = mrecord
         kpm_dict["UEs"].append(ue_dict)
 
-    # store the kpm_stats in another globle strat
-    dl_thr_value = ind.MeasData[0].measRecord[1].real_val
-    ul_thr_value = ind.MeasData[0].measRecord[2].real_val
-
-    global dl_val, ul_val, add
-
-    # add value per 100*sample rate
-    if add%10 == 0:
-        dl_val.append(dl_thr_value)
-        ul_val.append(ul_thr_value)
-    add += 1
-
-    # if len(dl_val) > 27:
-    #     del dl_val[0]
-    #     del ul_val[0]
+        # add value per 100*sample rate
+        global graph_dl_thr_val_arr, graph_ul_thr_val_arr, graph_add
+        if ue == 0 and graph_add[n_idx]%10 == 0:
+            graph_dl_thr_val_arr[n_idx].append(graph_dl_thr_val_cur)
+            graph_ul_thr_val_arr[n_idx].append(graph_ul_thr_val_cur)
+        graph_add[n_idx] += 1
 
 
 def print_kpm_stats(n_idx):
@@ -251,15 +246,17 @@ def print_kpm_stats(n_idx):
 
     print(tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid"))
 
-def print_dl_ul_graph():
+def print_dl_ul_graph(n_idx):
+
+    global graph_ul_thr_val_arr
+    ul_val = graph_ul_thr_val_arr[n_idx]
+    global graph_dl_thr_val_arr
+    dl_val = graph_dl_thr_val_arr[n_idx]
+
     MIN_ul = 0
     MAX_ul = 0
     MIN_dl = 0
     MAX_dl = 0
-
-    global ul_val
-    global dl_val
-
     stdscr = curses.initscr()
 
     # run for 10 secs
@@ -318,11 +315,6 @@ def print_dl_ul_graph():
                 tmp = math.trunc(round((dl_val[i] - MIN_dl) / (MAX_dl - MIN_dl) * 9 + 1))
                 dl_norm_value[i] = tmp
 
-
-        # for i in range(len(dl_norm_value)):
-        #     dl_norm_value[i] = math.trunc(round((dl_norm_value[i] - MIN_dl) / (MAX_dl - MIN_dl) * 9 + 1))
-
-        #win_dl.addstr(1, 1.5, "values: {}".format(dl_norm_value[-1]))
         position = 40
         for i in range(1, 20):
 
@@ -347,101 +339,6 @@ def print_dl_ul_graph():
                 win_dl.addstr(13-0, scr_maxy-position+1, "{}" .format(0))
 
             position += 8
-        # win_ul.vline(14 - ul_norm_value[-1], scr_maxy-33, '|', ul_norm_value[-1])
-        # win_ul.addstr(13 - ul_norm_value[-1], scr_maxy-34, "{}".format(ul_val[-1]))
-
-        # win_ul.vline(14 - ul_norm_value[-2], scr_maxy-39, '|', ul_norm_value[-2])
-        # win_ul.addstr(13 - ul_norm_value[-2], scr_maxy-40, "{}".format(ul_val[-2]))
-
-        # win_ul.vline(14 - ul_norm_value[-3], scr_maxy-45, '|', ul_norm_value[-3])
-        # win_ul.addstr(13 - ul_norm_value[-3], scr_maxy-46, "{}".format(ul_val[-3]))
-
-        # win_ul.vline(14 - ul_norm_value[-4], scr_maxy-51, '|', ul_norm_value[-4])
-        # win_ul.addstr(13 - ul_norm_value[-4], scr_maxy-52, "{}".format(ul_val[-4]))
-
-        # win_ul.vline(14-ul_norm_value[-5], scr_maxy-57, '|', ul_norm_value[-5])
-        # win_ul.addstr(13-ul_norm_value[-5], scr_maxy-58, "{}" .format(ul_val[-5]))
-
-        # win_ul.vline(14-ul_norm_value[-6], scr_maxy-63, '|', ul_norm_value[-6])
-        # win_ul.addstr(13-ul_norm_value[-6], scr_maxy-64, "{}" .format(ul_val[-6]))
-
-        # win_ul.vline(14-ul_norm_value[-7], scr_maxy-69, '|', ul_norm_value[-7])
-        # win_ul.addstr(13-ul_norm_value[-7], scr_maxy-70, "{}" .format(ul_val[-7]))
-
-        # win_ul.vline(14-ul_norm_value[-8], scr_maxy-75, '|', ul_norm_value[-8])
-        # win_ul.addstr(13-ul_norm_value[-8], scr_maxy-76, "{}" .format(ul_val[-8]))
-
-        # win_ul.vline(14-ul_norm_value[-9], scr_maxy-81, '|', ul_norm_value[-9])
-        # win_ul.addstr(13-ul_norm_value[-9], scr_maxy-82, "{}" .format(ul_val[-9]))
-
-        # win_ul.vline(14-ul_norm_value[-10], scr_maxy-87, '|', ul_norm_value[-10])
-        # win_ul.addstr(13-ul_norm_value[-10], scr_maxy-88, "{}" .format(ul_val[-10]))
-
-        # win_ul.vline(14-ul_norm_value[-11], scr_maxy-93, '|', ul_norm_value[-11])
-        # win_ul.addstr(13-ul_norm_value[-11], scr_maxy-94, "{}" .format(ul_val[-11]))
-
-        # win_ul.vline(14-ul_norm_value[-12], scr_maxy-99, '|', ul_norm_value[-12])
-        # win_ul.addstr(13-ul_norm_value[-12], scr_maxy-100, "{}" .format(ul_val[-12]))
-
-        # win_ul.vline(14-ul_norm_value[-13], scr_maxy-105, '|', ul_norm_value[-13])
-        # win_ul.addstr(13-ul_norm_value[-13], scr_maxy-106, "{}" .format(ul_val[-13]))
-
-        # win_ul.vline(14-ul_norm_value[-14], scr_maxy-111, '|', ul_norm_value[-14])
-        # win_ul.addstr(13-ul_norm_value[-14], scr_maxy-112, "{}" .format(ul_val[-14]))
-
-        # win_ul.vline(14-ul_norm_value[-15], scr_maxy-117, '|', ul_norm_value[-15])
-        # win_ul.addstr(13-ul_norm_value[-15], scr_maxy-118, "{}" .format(ul_val[-15]))
-
-        # win_ul.vline(14-ul_norm_value[-16], scr_maxy-123, '|', ul_norm_value[-16])
-        # win_ul.addstr(13-ul_norm_value[-16], scr_maxy-124, "{}" .format(ul_val[-16]))
-
-        # win_ul.vline(14-ul_norm_value[-17], scr_maxy-129, '|', ul_norm_value[-17])
-        # win_ul.addstr(13-ul_norm_value[-17], scr_maxy-130, "{}" .format(ul_val[-17]))
-
-        # win_ul.vline(14-ul_norm_value[-18], scr_maxy-135, '|', ul_norm_value[-18])
-        # win_ul.addstr(13-ul_norm_value[-18], scr_maxy-136, "{}" .format(ul_val[-18]))
-
-        # win_ul.vline(14-ul_norm_value[-19], scr_maxy-141, '|', ul_norm_value[-19])
-        # win_ul.addstr(13-ul_norm_value[-19], scr_maxy-142, "{}" .format(ul_val[-19]))
-
-        # win_ul.vline(14-ul_norm_value[-20], scr_maxy-147, '|', ul_norm_value[-20])
-        # win_ul.addstr(13-ul_norm_value[-20], scr_maxy-148, "{}" .format(ul_val[-20]))
-
-        # win_ul.vline(14-ul_norm_value[-21], scr_maxy-153, '|', ul_norm_value[21])
-        # win_ul.addstr(13-ul_norm_value[-22], scr_maxy-154, "{}" .format(ul_val[21]))
-
-        # win_ul.vline(14-ul_norm_value[-22], scr_maxy-159, '|', ul_norm_value[22])
-        # win_ul.addstr(13-ul_norm_value[-22], scr_maxy-160, "{}" .format(ul_val[22]))
-
-        # win_ul.vline(14-ul_norm_value[-23], scr_maxy-165, '|', ul_norm_value[23])
-        # win_ul.addstr(13-ul_norm_value[-23], scr_maxy-166, "{}" .format(ul_val[23]))
-
-        # win_ul.vline(14-ul_norm_value[-24], scr_maxy-171, '|', ul_norm_value[24])
-        # win_ul.addstr(13-ul_norm_value[-24], scr_maxy-172, "{}" .format(ul_val[24]))
-
-        # win_ul.vline(14-ul_norm_value[-25], scr_maxy-178, '|', ul_norm_value[25])
-        # win_ul.addstr(13-ul_norm_value[-25], scr_maxy-179, "{}" .format(ul_val[25]))
-
-        # win_ul.vline(14-ul_norm_value[-26], scr_maxy-184, '|', ul_norm_value[26])
-        # win_ul.addstr(13-ul_norm_value[-26], scr_maxy-185, "{}" .format(ul_val[26]))
-
-        # win_ul.vline(14-ul_norm_value[-27], scr_maxy-190, '|', ul_norm_value[27])
-        # win_ul.addstr(13-ul_norm_value[-28], scr_maxy-191, "{}" .format(ul_val[27]))
-
-
-
-
-        # win_dl.vline(14 - dl_norm_value[-1], scr_maxy-33, '|', dl_norm_value[-1])
-        # win_dl.addstr(13 - dl_norm_value[-1], scr_maxy-34, "{}".format(dl_val[-1]))
-
-        # win_dl.vline(14 - dl_norm_value[-2], scr_maxy-39, '|', dl_norm_value[-2])
-        # win_dl.addstr(13 - dl_norm_value[-2], scr_maxy-40, "{}".format(dl_val[-2]))
-
-        # win_dl.vline(14 - dl_norm_value[-3], scr_maxy-45, '|', dl_norm_value[-3])
-        # win_dl.addstr(13 - dl_norm_value[-3], scr_maxy-46, "{}".format(dl_val[-3]))
-
-        # win_dl.vline(14 - dl_norm_value[-4], scr_maxy-51, '|', dl_norm_value[-4])
-        # win_dl.addstr(13 - dl_norm_value[-4], scr_maxy-52, "{}".format(dl_val[-4]))
 
         stdscr.addstr(scr_maxx-37,2, "MAX:{0}" .format(MAX_dl))
         stdscr.addstr(scr_maxx-(38-14),2, "MIN:{0}" .format(MIN_dl))
@@ -452,301 +349,7 @@ def print_dl_ul_graph():
         win_ul.refresh()
         win_dl.refresh()
 
-
-
-
-
     curses.endwin()
-    # MIN_ul = 0
-    # MAX_ul = 0
-    # MIN_dl = 0
-    # MAX_dl = 0
-
-
-    # global ul_val
-    # global dl_val
-
-    # stdscr = curses.initscr()
-    # scr_maxx, scr_maxy = stdscr.getmaxyx()
-    # global kpm_stats
-
-    # dl_thr_name = "dl_thr"
-    # #dl_thr_value = kpm_stats["KPM_IND_MSG"]["Measurement"][1]["value"]
-    # ul_thr_name = "ul_thr"
-    # #ul_thr_value = kpm_stats["KPM_IND_MSG"]["Measurement"][2]["value"]
-
-
-
-
-    # stdscr.clear()
-    # win_ul = curses.newwin(15,scr_maxy-30, scr_maxx-20, 14)
-    # win_dl = curses.newwin(15,scr_maxy-30, scr_maxx-38, 14)
-
-    # stdscr.addstr(scr_maxx-22,30, "{0}: {1}" .format((ul_thr_name).rstrip('\x00'), ul_val[-1]))
-    # stdscr.addstr(scr_maxx-40,30, "{0}: {1}" .format((dl_thr_name).rstrip('\x00'), dl_val[-1]))
-
-    # box_ul = Textbox(win_ul)
-    # box_dl = Textbox(win_dl)
-
-    # rectangle(stdscr, 14, scr_maxx-40, scr_maxx-23, scr_maxy-10)
-    # rectangle(stdscr, 32, scr_maxx-40, scr_maxx-5, scr_maxy-10)
-
-    # #stdscr.addstr(1,1,"values: {}" .format(win_ul_maxx))
-    # #win_ul.addstr(1,1,"values: {}" .format(win_ul_maxx))
-    # #win_dl.addstr(1,1,"values: {}" .format(win_ul_maxx))
-
-    # #normalise the value
-    # for i in range(len(ul_val)):
-    #     ul_thr_value = ul_val[i]
-
-    #     if(ul_thr_value>MAX_ul):
-    #         MAX_ul = ul_thr_value
-    #     if(MIN_ul==0):
-    #         MIN_ul = ul_thr_value
-
-    #     if(ul_thr_value<MIN_ul):
-    #         MIN_ul = ul_thr_value
-
-    # ul_norm_value = []
-    # dl_norm_value = []
-    # for i in range(len(ul_val)):
-    #     ul_norm_value.append(0)
-    #     dl_norm_value.append(0)
-
-    # for i in range(len(ul_val)):
-    #     if(MAX_ul==MIN_ul):
-    #         ul_norm_value[i] = 1
-
-    #     else:
-    #         tmp = math.trunc(round(  (ul_val[i]-MIN_ul)/(MAX_ul-MIN_ul)*9 + 1    ))
-    #         ul_norm_value[i] = tmp
-
-
-    # # if(dl_thr_value>MAX_ul):
-    # #     MAX_dl = dl_thr_value
-    # # if(MIN_ul==0):
-    # #     MIN_dl = dl_thr_value
-
-    # # if(dl_thr_value<MIN_dl):
-    # #     MIN_dl = dl_thr_value
-
-    # # if(MAX_dl==MIN_dl):
-    # #     #dl_norm_value[1] = 1
-    # #     dl_norm_value.append(1)
-    # # else:
-    # #     tmp = math.trunc(round(   (dl_thr_value-MIN_dl)/(MAX_dl-MIN_dl)*9 + 1   ))
-    # #     dl_norm_value.append(tmp)
-
-    # # # refresh
-    # # for i in range(len(dl_norm_value)):
-    # #     dl_norm_value[i] = math.trunc(round(  (dl_norm_value[i]-MIN_dl)/(MAX_dl-MIN_dl)*9 + 1    ))
-
-
-
-    # win_dl.addstr(1,1,"values: {}" .format(dl_norm_value[-1]))
-
-    # # # ul
-    # # position = 33
-    # # for i in range(-27, 0):
-
-
-    # #     win_ul.vline(14-ul_norm_value[i], scr_maxy-position, '|', ul_norm_value[i])
-    # #     win_ul.addstr(13-ul_norm_value[i], scr_maxy-position+1, "{}" .format(ul_val[i]))
-
-    # #     position += 5
-
-    # # # dl
-    # # position = 33
-    # # for i in range(-27, 0):
-
-
-    # #     win_ul.vline(14-dl_norm_value[i], scr_maxy-position, '|', dl_norm_value[i])
-    # #     win_ul.addstr(13-dl_norm_value[i], scr_maxy-position+1, "{}" .format(dl_val[i]))
-
-    # #     position += 5
-
-    # #update downlink graph
-    # win_ul.vline(14-ul_norm_value[-1], scr_maxy-33, '|', ul_norm_value[-1])
-    # win_ul.addstr(13-ul_norm_value[-1], scr_maxy-34, "{}" .format(ul_val[-1]))
-
-    # win_ul.vline(14-ul_norm_value[-2], scr_maxy-39, '|', ul_norm_value[-2])
-    # win_ul.addstr(13-ul_norm_value[-2], scr_maxy-40, "{}" .format(ul_val[-2]))
-
-    # win_ul.vline(14-ul_norm_value[-3], scr_maxy-45, '|', ul_norm_value[-3])
-    # win_ul.addstr(13-ul_norm_value[-3], scr_maxy-46, "{}" .format(ul_val[-3]))
-
-    # win_ul.vline(14-ul_norm_value[-4], scr_maxy-51, '|', ul_norm_value[-4])
-    # win_ul.addstr(13-ul_norm_value[-4], scr_maxy-52, "{}" .format(ul_val[-4]))
-
-    # win_ul.vline(14-ul_norm_value[-5], scr_maxy-57, '|', ul_norm_value[-5])
-    # win_ul.addstr(13-ul_norm_value[-5], scr_maxy-58, "{}" .format(ul_val[-5]))
-
-    # # win_ul.vline(14-ul_norm_value[6], scr_maxy-63, '|', ul_norm_value[6])
-    # # win_ul.addstr(13-ul_norm_value[6], scr_maxy-64, "{}" .format(ul_val[6]))
-
-    # # win_ul.vline(14-ul_norm_value[7], scr_maxy-69, '|', ul_norm_value[7])
-    # # win_ul.addstr(13-ul_norm_value[7], scr_maxy-70, "{}" .format(ul_val[7]))
-
-    # # win_ul.vline(14-ul_norm_value[8], scr_maxy-75, '|', ul_norm_value[8])
-    # # win_ul.addstr(13-ul_norm_value[8], scr_maxy-76, "{}" .format(ul_val[8]))
-
-    # # win_ul.vline(14-ul_norm_value[9], scr_maxy-81, '|', ul_norm_value[9])
-    # # win_ul.addstr(13-ul_norm_value[9], scr_maxy-82, "{}" .format(ul_val[9]))
-
-    # # win_ul.vline(14-ul_norm_value[10], scr_maxy-87, '|', ul_norm_value[10])
-    # # win_ul.addstr(13-ul_norm_value[10], scr_maxy-88, "{}" .format(ul_val[10]))
-
-    # # win_ul.vline(14-ul_norm_value[11], scr_maxy-93, '|', ul_norm_value[11])
-    # # win_ul.addstr(13-ul_norm_value[11], scr_maxy-94, "{}" .format(ul_val[11]))
-
-    # # win_ul.vline(14-ul_norm_value[12], scr_maxy-99, '|', ul_norm_value[12])
-    # # win_ul.addstr(13-ul_norm_value[12], scr_maxy-100, "{}" .format(ul_val[12]))
-
-    # # win_ul.vline(14-ul_norm_value[13], scr_maxy-105, '|', ul_norm_value[13])
-    # # win_ul.addstr(13-ul_norm_value[13], scr_maxy-106, "{}" .format(ul_val[13]))
-
-    # # win_ul.vline(14-ul_norm_value[14], scr_maxy-111, '|', ul_norm_value[14])
-    # # win_ul.addstr(13-ul_norm_value[14], scr_maxy-112, "{}" .format(ul_val[14]))
-
-    # # win_ul.vline(14-ul_norm_value[15], scr_maxy-117, '|', ul_norm_value[15])
-    # # win_ul.addstr(13-ul_norm_value[15], scr_maxy-118, "{}" .format(ul_val[15]))
-
-    # # win_ul.vline(14-ul_norm_value[16], scr_maxy-123, '|', ul_norm_value[16])
-    # # win_ul.addstr(13-ul_norm_value[16], scr_maxy-124, "{}" .format(ul_val[16]))
-
-    # # win_ul.vline(14-ul_norm_value[17], scr_maxy-129, '|', ul_norm_value[17])
-    # # win_ul.addstr(13-ul_norm_value[17], scr_maxy-130, "{}" .format(ul_val[17]))
-
-    # # win_ul.vline(14-ul_norm_value[18], scr_maxy-135, '|', ul_norm_value[18])
-    # # win_ul.addstr(13-ul_norm_value[18], scr_maxy-136, "{}" .format(ul_val[18]))
-
-    # # win_ul.vline(14-ul_norm_value[19], scr_maxy-141, '|', ul_norm_value[19])
-    # # win_ul.addstr(13-ul_norm_value[19], scr_maxy-142, "{}" .format(ul_val[19]))
-
-    # # win_ul.vline(14-ul_norm_value[20], scr_maxy-147, '|', ul_norm_value[20])
-    # # win_ul.addstr(13-ul_norm_value[20], scr_maxy-148, "{}" .format(ul_val[20]))
-
-    # # win_ul.vline(14-ul_norm_value[21], scr_maxy-153, '|', ul_norm_value[21])
-    # # win_ul.addstr(13-ul_norm_value[22], scr_maxy-154, "{}" .format(ul_val[21]))
-
-    # # win_ul.vline(14-ul_norm_value[22], scr_maxy-159, '|', ul_norm_value[22])
-    # # win_ul.addstr(13-ul_norm_value[22], scr_maxy-160, "{}" .format(ul_val[22]))
-
-    # # win_ul.vline(14-ul_norm_value[23], scr_maxy-165, '|', ul_norm_value[23])
-    # # win_ul.addstr(13-ul_norm_value[23], scr_maxy-166, "{}" .format(ul_val[23]))
-
-    # # win_ul.vline(14-ul_norm_value[24], scr_maxy-171, '|', ul_norm_value[24])
-    # # win_ul.addstr(13-ul_norm_value[24], scr_maxy-172, "{}" .format(ul_val[24]))
-
-    # # win_ul.vline(14-ul_norm_value[25], scr_maxy-178, '|', ul_norm_value[25])
-    # # win_ul.addstr(13-ul_norm_value[25], scr_maxy-179, "{}" .format(ul_val[25]))
-
-    # # win_ul.vline(14-ul_norm_value[26], scr_maxy-184, '|', ul_norm_value[26])
-    # # win_ul.addstr(13-ul_norm_value[26], scr_maxy-185, "{}" .format(ul_val[26]))
-
-    # # win_ul.vline(14-ul_norm_value[27], scr_maxy-190, '|', ul_norm_value[27])
-    # # win_ul.addstr(13-ul_norm_value[28], scr_maxy-191, "{}" .format(ul_val[27]))
-
-
-    # #update downlink graph
-
-    # win_dl.vline(14-dl_norm_value[1], scr_maxy-33, '|', dl_norm_value[1])
-    # win_dl.addstr(13-dl_norm_value[1], scr_maxy-34, "{}" .format(dl_val[1]))
-
-    # win_dl.vline(14-dl_norm_value[2], scr_maxy-39, '|', dl_norm_value[2])
-    # win_dl.addstr(13-dl_norm_value[2], scr_maxy-40, "{}" .format(dl_val[2]))
-
-    # win_dl.vline(14-dl_norm_value[3], scr_maxy-45, '|', dl_norm_value[3])
-    # win_dl.addstr(13-dl_norm_value[3], scr_maxy-46, "{}" .format(dl_val[3]))
-
-    # win_dl.vline(14-dl_norm_value[4], scr_maxy-51, '|', dl_norm_value[4])
-    # win_dl.addstr(13-dl_norm_value[4], scr_maxy-52, "{}" .format(dl_val[4]))
-
-    # win_dl.vline(14-dl_norm_value[5], scr_maxy-57, '|', dl_norm_value[5])
-    # win_dl.addstr(13-dl_norm_value[5], scr_maxy-58, "{}" .format(dl_val[5]))
-
-    # # win_dl.vline(14-dl_norm_value[6], scr_maxy-63, '|', dl_norm_value[6])
-    # # win_dl.addstr(13-dl_norm_value[6], scr_maxy-64, "{}" .format(dl_val[6]))
-
-    # # win_dl.vline(14-dl_norm_value[7], scr_maxy-69, '|', dl_norm_value[7])
-    # # win_dl.addstr(13-dl_norm_value[7], scr_maxy-70, "{}" .format(dl_val[7]))
-
-    # # win_dl.vline(14-dl_norm_value[8], scr_maxy-75, '|', dl_norm_value[8])
-    # # win_dl.addstr(13-dl_norm_value[8], scr_maxy-76, "{}" .format(dl_val[8]))
-
-    # # win_dl.vline(14-dl_norm_value[9], scr_maxy-81, '|', dl_norm_value[9])
-    # # win_dl.addstr(13-dl_norm_value[9], scr_maxy-82, "{}" .format(dl_val[9]))
-
-    # # win_dl.vline(14-dl_norm_value[10], scr_maxy-87, '|', dl_norm_value[10])
-    # # win_dl.addstr(13-dl_norm_value[10], scr_maxy-88, "{}" .format(dl_val[10]))
-
-    # # win_dl.vline(14-dl_norm_value[11], scr_maxy-93, '|', dl_norm_value[11])
-    # # win_dl.addstr(13-dl_norm_value[11], scr_maxy-94, "{}" .format(dl_val[11]))
-
-    # # win_dl.vline(14-dl_norm_value[12], scr_maxy-99, '|', dl_norm_value[12])
-    # # win_dl.addstr(13-dl_norm_value[12], scr_maxy-100, "{}" .format(dl_val[12]))
-
-    # # win_dl.vline(14-dl_norm_value[13], scr_maxy-105, '|', dl_norm_value[13])
-    # # win_dl.addstr(13-dl_norm_value[13], scr_maxy-106, "{}" .format(dl_val[13]))
-
-    # # win_dl.vline(14-dl_norm_value[14], scr_maxy-111, '|', dl_norm_value[14])
-    # # win_dl.addstr(13-dl_norm_value[14], scr_maxy-112, "{}" .format(dl_val[14]))
-
-    # # win_dl.vline(14-dl_norm_value[15], scr_maxy-117, '|', dl_norm_value[15])
-    # # win_dl.addstr(13-dl_norm_value[15], scr_maxy-118, "{}" .format(dl_val[15]))
-
-    # # win_dl.vline(14-dl_norm_value[16], scr_maxy-123, '|', dl_norm_value[16])
-    # # win_dl.addstr(13-dl_norm_value[16], scr_maxy-124, "{}" .format(dl_val[16]))
-
-    # # win_dl.vline(14-dl_norm_value[17], scr_maxy-129, '|', dl_norm_value[17])
-    # # win_dl.addstr(13-dl_norm_value[17], scr_maxy-130, "{}" .format(dl_val[17]))
-
-    # # win_dl.vline(14-dl_norm_value[18], scr_maxy-135, '|', dl_norm_value[18])
-    # # win_dl.addstr(13-dl_norm_value[18], scr_maxy-136, "{}" .format(dl_val[18]))
-
-    # # win_dl.vline(14-dl_norm_value[19], scr_maxy-141, '|', dl_norm_value[19])
-    # # win_dl.addstr(13-dl_norm_value[19], scr_maxy-142, "{}" .format(dl_val[19]))
-
-    # # win_dl.vline(14-dl_norm_value[20], scr_maxy-147, '|', dl_norm_value[20])
-    # # win_dl.addstr(13-dl_norm_value[20], scr_maxy-148, "{}" .format(dl_val[20]))
-
-    # # win_dl.vline(14-dl_norm_value[21], scr_maxy-153, '|', dl_norm_value[21])
-    # # win_dl.addstr(13-dl_norm_value[22], scr_maxy-154, "{}" .format(dl_val[21]))
-
-    # # win_dl.vline(14-dl_norm_value[22], scr_maxy-159, '|', dl_norm_value[22])
-    # # win_dl.addstr(13-dl_norm_value[22], scr_maxy-160, "{}" .format(dl_val[22]))
-
-    # # win_dl.vline(14-dl_norm_value[23], scr_maxy-165, '|', dl_norm_value[23])
-    # # win_dl.addstr(13-dl_norm_value[23], scr_maxy-166, "{}" .format(dl_val[23]))
-
-    # # win_dl.vline(14-dl_norm_value[24], scr_maxy-171, '|', dl_norm_value[24])
-    # # win_dl.addstr(13-dl_norm_value[24], scr_maxy-172, "{}" .format(dl_val[24]))
-
-    # # win_dl.vline(14-dl_norm_value[25], scr_maxy-178, '|', dl_norm_value[25])
-    # # win_dl.addstr(13-dl_norm_value[25], scr_maxy-179, "{}" .format(dl_val[25]))
-
-    # # win_dl.vline(14-dl_norm_value[26], scr_maxy-184, '|', dl_norm_value[26])
-    # # win_dl.addstr(13-dl_norm_value[26], scr_maxy-185, "{}" .format(dl_val[26]))
-
-    # # win_dl.vline(14-dl_norm_value[27], scr_maxy-190, '|', dl_norm_value[27])
-    # # win_dl.addstr(13-dl_norm_value[28], scr_maxy-191, "{}" .format(dl_val[27]))
-
-    # #update graph
-
-    # stdscr.addstr(scr_maxx-37,2, "MAX:{0}" .format(MAX_dl))
-    # stdscr.addstr(scr_maxx-(38-14),2, "MIN:{0}" .format(MIN_dl))
-    # stdscr.addstr(scr_maxx-19,2, "MAX:{0}" .format(MAX_ul))
-    # stdscr.addstr(scr_maxx-(20-14),2, "MIN:{0}" .format(MAX_ul))
-
-    # stdscr.refresh()
-
-    # box_ul.edit
-    # box_dl.edit
-
-    # win_ul.refresh()
-    # win_dl.refresh()
-
-    # curses.endwin()
 
 ####################
 #### MAC INDICATION CALLBACK
