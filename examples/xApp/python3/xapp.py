@@ -6,6 +6,23 @@ from tabulate import tabulate
 import curses
 from curses.textpad import rectangle, Textbox
 import math
+from enum import Enum
+
+
+class ServiceModelEnum(Enum):
+    MAC = "mac_sm"
+    SLICE = "slice_sm"
+    KPM = "kpm_sm"
+ServiceModel: ServiceModelEnum
+ServiceModel = ServiceModelEnum.KPM
+
+class SubTTIEnum(Enum):
+    ms1 = ric.Interval_ms_1
+    ms2 = ric.Interval_ms_2
+    ms5 = ric.Interval_ms_5
+    ms10 = ric.Interval_ms_10
+SubTimeInterval: SubTTIEnum
+SubTimeInterval = SubTTIEnum.ms10
 
 ####################
 #### MAC INDICATION CALLBACK
@@ -82,14 +99,6 @@ kpm_stats_struct = {
 global global_kpm_stats
 global_kpm_stats = [kpm_stats_struct for i in range(0, MAX_E2_NODES)]
 
-# global kpm_stats
-# kpm_stats = {
-#     "KPM_IND_MSG" : {
-#         "Latency" : {},
-#         "num_of_meas" : {},
-#         "Measurement" : {}
-#     }
-# }
 def kpm_ind_to_dict_json(ind, t_now, id):
     global e2nodes
     # find e2 node idx
@@ -1401,21 +1410,16 @@ def print_slice_conf(type, conf):
                 assoc_ue_slice_conf_table.append(info)
         print(tabulate(assoc_ue_slice_conf_table, headers=assoc_ue_conf_col_names))
 
-def subscribe_sm(n_idx, sub_sm_str, tti_str):
+def subscribe_sm(n_idx, enum_sm, tti_enum):
     global e2nodes
     # default tti is 10 ms
     tti = ric.Interval_ms_10
-    if tti_str == "1_ms":
-        tti = ric.Interval_ms_1
-    elif tti_str == "2_ms":
-        tti = ric.Interval_ms_2
-    elif tti_str == "5_ms":
-        tti = ric.Interval_ms_5
-    elif tti_str == "10_ms":
-        tti = ric.Interval_ms_10
+    if tti_enum.value:
+        tti = tti_enum.value
     else:
         print("unknown tti")
 
+    sub_sm_str = enum_sm.value
     if sub_sm_str == "mac_sm":
         global mac_cb
         global mac_cb_idx
