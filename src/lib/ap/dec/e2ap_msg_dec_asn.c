@@ -2218,7 +2218,6 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
   return ret;
 }
 
-
 e2ap_msg_t e2ap_dec_e42_subscription_delete_request(const struct E2AP_PDU* pdu)
 {
   assert(pdu != NULL);

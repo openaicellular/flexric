@@ -21,32 +21,33 @@ typedef struct{
 #endif
 } sm_tc_ric_t;
 
-
 static
-sm_subs_data_t on_subscription_tc_sm_ric(sm_ric_t const* sm_ric, const char* cmd)
+sm_subs_data_t on_subscription_tc_sm_ric(sm_ric_t const* sm_ric, void* cmd)
 {
   assert(sm_ric != NULL); 
   assert(cmd != NULL); 
   sm_tc_ric_t* sm = (sm_tc_ric_t*)sm_ric;  
- 
-  tc_event_trigger_t ev = {0};
+
+
+  tc_sub_data_t tc = {0}; 
 
   const int max_str_sz = 10;
   if(strncmp(cmd, "1_ms", max_str_sz) == 0 ){
-    ev.ms = 1;
+    tc.et.ms = 1;
   } else if (strncmp(cmd, "2_ms", max_str_sz) == 0 ) {
-    ev.ms = 2;
+    tc.et.ms = 2;
   } else if (strncmp(cmd, "5_ms", max_str_sz) == 0 ) {
-    ev.ms = 5;
+    tc.et.ms = 5;
   } else if (strncmp(cmd, "10_ms", max_str_sz) == 0 ) {
-    ev.ms = 10;
+    tc.et.ms = 10;
   } else {
     assert(0 != 0 && "Invalid input");
   }
-  const byte_array_t ba = tc_enc_event_trigger(&sm->enc, &ev); 
+
+  const byte_array_t ba = tc_enc_event_trigger(&sm->enc, &tc.et); 
 
   sm_subs_data_t data = {0}; 
-  
+
   // Event trigger IE
   data.event_trigger = ba.buf;
   data.len_et = ba.len;
@@ -60,37 +61,38 @@ sm_subs_data_t on_subscription_tc_sm_ric(sm_ric_t const* sm_ric, const char* cmd
 
 
 static
- sm_ag_if_rd_t on_indication_tc_sm_ric(sm_ric_t const* sm_ric, sm_ind_data_t* data)
+sm_ag_if_rd_ind_t on_indication_tc_sm_ric(sm_ric_t const* sm_ric, sm_ind_data_t const* data)
 {
   assert(sm_ric != NULL); 
   assert(data != NULL); 
   sm_tc_ric_t* sm = (sm_tc_ric_t*)sm_ric;  
 
-  sm_ag_if_rd_t rd_if = {.type =  TC_STATS_V0};
+  sm_ag_if_rd_ind_t rd_if = {.type =  TC_STATS_V0};
 
 //  rd_if.tc_stats.hdr = tc_dec_ind_hdr(&sm->enc, data->len_hdr, data->ind_hdr);
-  rd_if.tc_stats.msg = tc_dec_ind_msg(&sm->enc, data->len_msg, data->ind_msg);
+  rd_if.tc.msg = tc_dec_ind_msg(&sm->enc, data->len_msg, data->ind_msg);
 
   return rd_if;
 }
 
 static
-sm_ctrl_req_data_t ric_on_control_req_tc_sm_ric(sm_ric_t const* sm_ric, const sm_ag_if_wr_t * data)
+sm_ctrl_req_data_t ric_on_control_req_tc_sm_ric(sm_ric_t const* sm_ric, void* ctrl)
 {
   assert(sm_ric != NULL); 
-  assert(data != NULL); 
-  assert(data->type == TC_CTRL_REQ_V0);
+  assert(ctrl != NULL); 
 
   sm_tc_ric_t* sm = (sm_tc_ric_t*)sm_ric;  
 
+  tc_ctrl_req_data_t const* data = ( tc_ctrl_req_data_t const*)ctrl; 
 
-  byte_array_t ba = tc_enc_ctrl_hdr(&sm->enc,  &data->tc_req_ctrl.hdr );
+
+  byte_array_t ba = tc_enc_ctrl_hdr(&sm->enc, &data->hdr );
 
   sm_ctrl_req_data_t ret_data = {0};  
   ret_data.ctrl_hdr = ba.buf;
   ret_data.len_hdr = ba.len;
 
-  ba = tc_enc_ctrl_msg(&sm->enc, &data->tc_req_ctrl.msg);
+  ba = tc_enc_ctrl_msg(&sm->enc, &data->msg);
   ret_data.ctrl_msg = ba.buf;
   ret_data.len_msg = ba.len;
 
@@ -99,15 +101,14 @@ sm_ctrl_req_data_t ric_on_control_req_tc_sm_ric(sm_ric_t const* sm_ric, const sm
 
 
 static
- sm_ag_if_ans_t ric_on_control_out_tc_sm_ric(sm_ric_t const* sm_ric, const sm_ctrl_out_data_t * out)
+sm_ag_if_ans_ctrl_t ric_on_control_out_tc_sm_ric(sm_ric_t const* sm_ric, const sm_ctrl_out_data_t * out)
 {
-
   assert(sm_ric != NULL); 
   assert(out != NULL);
 
   sm_tc_ric_t* sm = (sm_tc_ric_t*)sm_ric;  
 
-  sm_ag_if_ans_t ag_if = {.type = TC_AGENT_IF_CTRL_ANS_V0};  
+  sm_ag_if_ans_ctrl_t ag_if = {.type = TC_AGENT_IF_CTRL_ANS_V0};  
   ag_if.tc = tc_dec_ctrl_out(&sm->enc, out->len_out, out->ctrl_out);
 
   //assert(ag_if.tc.len_diag > 0);
@@ -117,23 +118,28 @@ static
 
 
 static
-void ric_on_e2_setup_tc_sm_ric(sm_ric_t const* sm_ric, sm_e2_setup_t const* setup)
+sm_ag_if_rd_e2setup_t ric_on_e2_setup_tc_sm_ric(sm_ric_t const* sm_ric, sm_e2_setup_data_t const* setup)
 {
   assert(sm_ric != NULL); 
   assert(setup == NULL); 
-//  sm_tc_ric_t* sm = (sm_tc_ric_t*)sm_ric;  
+  //  sm_tc_ric_t* sm = (sm_tc_ric_t*)sm_ric;  
 
   assert(0!=0 && "Not implemented");
+  sm_ag_if_rd_e2setup_t dst = {0}; 
+  return dst;
 }
 
+
 static
-sm_ric_service_update_t on_ric_service_update_tc_sm_ric(sm_ric_t const* sm_ric, const char* data)
+sm_ag_if_rd_rsu_t on_ric_service_update_tc_sm_ric(sm_ric_t const* sm_ric, const  sm_ric_service_update_data_t* data)
 {
   assert(sm_ric != NULL); 
   assert(data != NULL); 
-//  sm_tc_ric_t* sm = (sm_tc_ric_t*)sm_ric;  
 
   assert(0!=0 && "Not implemented");
+
+  sm_ag_if_rd_rsu_t dst = {0}; 
+  return dst;
 }
 
 
@@ -159,7 +165,11 @@ static
 void free_ind_data_tc_sm_ric(void* msg)
 {
   assert(msg != NULL);
-  tc_ind_data_t* ind  = (tc_ind_data_t*)msg;
+  
+  sm_ag_if_rd_ind_t* rd_ind = (sm_ag_if_rd_ind_t*)msg;
+  assert(rd_ind->type == TC_STATS_V0);
+
+  tc_ind_data_t* ind = &rd_ind->tc;
   free_tc_ind_hdr(&ind->hdr); 
   free_tc_ind_msg(&ind->msg); 
 }

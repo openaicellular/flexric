@@ -400,6 +400,10 @@ fr_args_t init_fr_args(int argc, char* argv[])
 
 char* get_near_ric_ip(fr_args_t const* args)
 {
+  // fast path
+  if(args->ip != NULL)
+    return strdup(args->ip);
+
   char* line = NULL;
   defer({free(line);});
   size_t len = 0;

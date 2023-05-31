@@ -26,6 +26,7 @@
 
 #include "util/alg_ds/ds/assoc_container/assoc_generic.h"
 #include "util/alg_ds/ds/assoc_container/bimap.h"
+#include "util/alg_ds/ds/tsq/tsq.h"
 
 #include "util/conf_file.h"
 #include "util/ngran_types.h"
@@ -60,13 +61,17 @@ typedef struct e2_agent_s
   // Registered SMs
   plugin_ag_t plugin;
 
-  // Registered Indication events
-  bi_map_t ind_event; // key1:fd, key2:ind_event_t 
+  // Registered Periodic Indication events
+  pthread_mutex_t mtx_ind_event;
+  bi_map_t ind_event; // key1:int fd, key2:ind_event_t 
 
   // Pending events
   bi_map_t pending;  // left: fd, right: pending_event_t 
 
   global_e2_node_id_t global_e2_node_id;
+
+  // Aperiodic Indication events
+  tsq_t aind; // aind_event_t Events that occurred 
 
   atomic_bool stop_token;
   atomic_bool agent_stopped;
@@ -75,13 +80,14 @@ typedef struct e2_agent_s
   #endif
 } e2_agent_t;
 
-e2_agent_t* e2_init_agent(const char* addr, int port, global_e2_node_id_t ge2nid, sm_io_ag_t io, fr_args_t const* args);
+e2_agent_t* e2_init_agent(const char* addr, int port, global_e2_node_id_t ge2nid, sm_io_ag_ran_t io, char const*  libs_dir);
 
 // Blocking call
 void e2_start_agent(e2_agent_t* ag);
 
 void e2_free_agent(e2_agent_t* ag);
-
+     
+void e2_async_event_agent(e2_agent_t* ag, uint32_t ric_req_id, void* ind_data);
 
 ///////////////////////////////////////////////
 // E2AP AGENT FUNCTIONAL PROCEDURES MESSAGES //

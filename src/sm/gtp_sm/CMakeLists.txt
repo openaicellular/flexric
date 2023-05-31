@@ -19,6 +19,8 @@ set(SM_ENCODING_GTP_SRC
 if(SM_ENCODING_GTP STREQUAL "PLAIN")
   add_library(gtp_sm SHARED
                       ${SM_ENCODING_GTP_SRC}
+                      # This dependency sucks!
+                      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
                       enc/gtp_enc_plain.c 
                       dec/gtp_dec_plain.c 
                       )

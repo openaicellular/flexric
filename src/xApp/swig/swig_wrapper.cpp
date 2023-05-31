@@ -30,6 +30,27 @@
 static
 bool initialized = false;
 
+
+static
+const char* convert_period(Interval  inter_arg)
+{
+  if(inter_arg == Interval::ms_1 ){
+    return "1_ms";
+  } else if (inter_arg == Interval::ms_2) {
+    return "2_ms";
+  } else if(inter_arg == Interval::ms_5) {
+    return "5_ms";
+  } else if(inter_arg == Interval::ms_10) {
+    return "10_ms";
+  } else {
+    assert(0 != 0 && "Unknown type");
+  }
+
+}
+
+
+
+
 void init()
 {
   assert(initialized == false && "Already initialized!");
@@ -104,10 +125,11 @@ static
 void sm_cb_mac(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == MAC_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == MAC_STATS_V0);
   assert(hndlr_mac_cb != NULL);
 
-  mac_ind_data_t const* data = &rd->mac_stats; 
+  mac_ind_data_t const* data = &rd->ind.mac;
 
   swig_mac_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
@@ -149,22 +171,11 @@ int report_mac_sm(swig_global_e2_node_id_t* id, Interval inter_arg, mac_cb* hand
 
   hndlr_mac_cb = handler;
 
-  inter_xapp_e i;
-  if(inter_arg == Interval::ms_1 ){
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if(inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if(inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_MAC_ID, i, sm_cb_mac);
-  assert(ans.success == true); 
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_MAC_ID, (void*)period, sm_cb_mac);
+  assert(ans.success == true);
   return ans.u.handle;
 }
 
@@ -201,10 +212,11 @@ static
 void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == RLC_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == RLC_STATS_V0);
   assert(hndlr_rlc_cb != NULL);
 
-  rlc_ind_data_t const* data = &rd->rlc_stats; 
+  rlc_ind_data_t const* data = &rd->ind.rlc;
 
   swig_rlc_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
@@ -248,21 +260,10 @@ int report_rlc_sm(swig_global_e2_node_id_t* id, Interval inter_arg, rlc_cb* hand
 
   hndlr_rlc_cb = handler;
 
-  inter_xapp_e i;
-  if(inter_arg == Interval::ms_1 ){
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if(inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if(inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_RLC_ID, i, sm_cb_rlc);
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_RLC_ID, (void*)period, sm_cb_rlc);
   assert(ans.success == true); 
   return ans.u.handle;
 }
@@ -296,10 +297,11 @@ static
 void sm_cb_pdcp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == PDCP_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == PDCP_STATS_V0);
   assert(hndlr_pdcp_cb != NULL);
 
-  pdcp_ind_data_t const* data = &rd->pdcp_stats; 
+  pdcp_ind_data_t const* data = &rd->ind.pdcp;
 
   swig_pdcp_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
@@ -342,21 +344,10 @@ int report_pdcp_sm(swig_global_e2_node_id_t* id, Interval inter_arg, pdcp_cb* ha
 
   hndlr_pdcp_cb = handler;
 
-  inter_xapp_e i;
-  if(inter_arg == Interval::ms_1 ){
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if(inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if(inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_PDCP_ID, i, sm_cb_pdcp);
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_PDCP_ID, (void*)period, sm_cb_pdcp);
   assert(ans.success == true); 
   return ans.u.handle;
 }
@@ -388,10 +379,11 @@ static
 void sm_cb_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == SLICE_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == SLICE_STATS_V0);
   assert(hndlr_slice_cb != NULL);
 
-  slice_ind_data_t const* data = &rd->slice_stats;
+  slice_ind_data_t const* data = &rd->ind.slice;
 
   swig_slice_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
@@ -451,21 +443,10 @@ int report_slice_sm(swig_global_e2_node_id_t* id, Interval inter_arg, slice_cb* 
 
   hndlr_slice_cb = handler;
 
-  inter_xapp_e i;
-  if(inter_arg == Interval::ms_1 ){
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if(inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if(inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_SLICE_ID, i, sm_cb_slice);
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_SLICE_ID, (void*)period, sm_cb_slice);
   assert(ans.success == true);
   return ans.u.handle;
 }
@@ -546,8 +527,9 @@ void control_slice_sm(swig_global_e2_node_id_t* id, slice_ctrl_msg_t* ctrl)
   }
 
   sm_ag_if_wr_t wr;
-  wr.type = SLICE_CTRL_REQ_V0;
-  wr.slice_req_ctrl.msg = cp_slice_ctrl_msg(ctrl);
+  wr.type = CONTROL_SM_AG_IF_WR;
+  wr.ctrl.type = SLICE_CTRL_REQ_V0;
+  wr.ctrl.slice_req_ctrl.msg = cp_slice_ctrl_msg(ctrl);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
   control_sm_xapp_api(e2node_id, SM_SLICE_ID,  &wr);
@@ -564,10 +546,11 @@ static
 void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == GTP_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == GTP_STATS_V0);
   assert(hndlr_gtp_cb != NULL);
 
-  gtp_ind_data_t const* data = &rd->gtp_stats; 
+  gtp_ind_data_t const* data = &rd->ind.gtp;
 
   swig_gtp_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
@@ -610,21 +593,10 @@ int report_gtp_sm(swig_global_e2_node_id_t* id, Interval inter_arg, gtp_cb* hand
 
   hndlr_gtp_cb = handler;
 
-  inter_xapp_e i;
-  if(inter_arg == Interval::ms_1 ){
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if(inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if(inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_GTP_ID, i, sm_cb_gtp);
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_GTP_ID, (void*)period, sm_cb_gtp);
   assert(ans.success == true); 
   return ans.u.handle;
 }
@@ -697,14 +669,14 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 
     ind.MeasData.push_back(item);
   }
-  
+
   ind.MeasInfo_len = data->msg.MeasInfo_len;
 
   if (data->msg.MeasInfo_len > 0) {
     for (size_t i = 0; i < data->msg.MeasInfo_len; ++i) {
       swig_MeasInfo_t info;
       info.meas_type = data->msg.MeasInfo[i].meas_type;
-      
+
       byte_array_t measName;
       measName = data->msg.MeasInfo[i].measName;
 
@@ -740,21 +712,10 @@ int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter_arg, kpm_cb* hand
 
   hndlr_kpm_cb = handler;
 
-  inter_xapp_e i;
-  if (inter_arg == Interval::ms_1) {
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if (inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if (inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_KPM_ID, i, sm_cb_kpm);
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_KPM_ID, period, sm_cb_kpm);
   assert(ans.success == true);
   return ans.u.handle;
 }

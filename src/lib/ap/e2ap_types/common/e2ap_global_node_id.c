@@ -38,7 +38,7 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
     if(m0->type != m1->type)
       return false;
 
-    if(eq_plmn(&m0->plmn, &m1->plmn) == false)
+    if(eq_e2ap_plmn(&m0->plmn, &m1->plmn) == false)
       return false;
 
     if(m0->nb_id != m1->nb_id)
@@ -52,7 +52,7 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
     if(m0->type != m1->type)
       return false;
 
-    if(eq_plmn(&m0->plmn, &m1->plmn) == false)
+    if(eq_e2ap_plmn(&m0->plmn, &m1->plmn) == false)
       return false;
 
     if(m0->nb_id != m1->nb_id)
@@ -65,7 +65,7 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
   } else {
     // compare gNB/eNB and gNB/eNB-CU/DU
     // avoid diff type with same plmn/nb_id
-    if(eq_plmn(&m0->plmn, &m1->plmn) == false)
+    if(eq_e2ap_plmn(&m0->plmn, &m1->plmn) == false)
       return false;
 
     if(m0->nb_id != m1->nb_id)
@@ -82,7 +82,7 @@ global_e2_node_id_t cp_global_e2_node_id(global_e2_node_id_t const* src)
   global_e2_node_id_t dst = {0};
 
   dst.type = src->type;
-  dst.plmn = cp_plmn(&src->plmn);
+  dst.plmn = cp_e2ap_plmn(&src->plmn);
   dst.nb_id = src->nb_id;
   if (src->cu_du_id != NULL) {
     dst.cu_du_id = calloc(1, sizeof(uint64_t));
@@ -122,7 +122,7 @@ int cmp_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
     else if(m0->type > m1->type)
       return 1;
 
-    int rc = cmp_plmn(&m0->plmn, &m1->plmn);
+    int rc = cmp_e2ap_plmn(&m0->plmn, &m1->plmn);
     if(rc != 0)
       return rc;
 
@@ -139,7 +139,7 @@ int cmp_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
     else if(m0->type > m1->type)
       return 1;
 
-    int rc = cmp_plmn(&m0->plmn, &m1->plmn);
+    int rc = cmp_e2ap_plmn(&m0->plmn, &m1->plmn);
     if(rc != 0)
       return rc;
 
@@ -157,7 +157,7 @@ int cmp_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
   } else {
     // compare gNB/eNB and gNB/eNB-CU/DU
     // avoid diff type with same plmn/nb_id
-    int rc = cmp_plmn(&m0->plmn, &m1->plmn);
+    int rc = cmp_e2ap_plmn(&m0->plmn, &m1->plmn);
     if(rc != 0)
       return rc;
 

@@ -26,11 +26,11 @@
 #include <stddef.h>
 
 
-plmn_t cp_plmn(const plmn_t* src)
+e2ap_plmn_t cp_e2ap_plmn(const e2ap_plmn_t* src)
 {
   assert(src != NULL);
 
-  plmn_t dst = {0};
+  e2ap_plmn_t dst = {0};
 
   dst.mcc = src->mcc;
   dst.mnc = src->mnc;
@@ -39,7 +39,7 @@ plmn_t cp_plmn(const plmn_t* src)
   return dst;
 }
 
-bool eq_plmn(const plmn_t* m0, const plmn_t* m1)
+bool eq_e2ap_plmn(const e2ap_plmn_t* m0, const e2ap_plmn_t* m1)
 {
   if(m0 == m1) return true;
 
@@ -58,7 +58,7 @@ bool eq_plmn(const plmn_t* m0, const plmn_t* m1)
 }
 
 
-int cmp_plmn(const plmn_t* m0, const plmn_t* m1)
+int cmp_e2ap_plmn(const e2ap_plmn_t* m0, const e2ap_plmn_t* m1)
 {
   assert(m0 != NULL);
   assert(m1 != NULL);

@@ -14,7 +14,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *-------------------------------------------------------------------------------
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
@@ -646,7 +645,7 @@ void e2ap_free_e42_setup_response(e42_setup_response_t* sr)
 
   for(size_t i = 0; i < sr->len_e2_nodes_conn; ++i){
     e2_node_connected_t* n = &sr->nodes[i];
-      free_e2_node_connected(n);
+    free_e2_node_connected(n);
   }
   free(sr->nodes);
 }

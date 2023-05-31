@@ -1234,7 +1234,7 @@ asn_umax2INTEGER(INTEGER_t *st, uintmax_t value) {
 
 int
 asn_imax2INTEGER(INTEGER_t *st, intmax_t value) {
-	uint8_t *buf, *bp;
+  uint8_t *buf, *bp;
 	uint8_t *p;
 	uint8_t *pstart;
 	uint8_t *pend1;
@@ -1276,10 +1276,16 @@ asn_imax2INTEGER(INTEGER_t *st, intmax_t value) {
 		}
 		break;
 	}
-	/* Copy the integer body */
+
+// Bug from asn1c
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+  /* Copy the integer body */
 	for(bp = buf, pend1 += add; p != pend1; p += add)
 		*bp++ = *p;
+#pragma GCC diagnostic pop
 
+  
 	if(st->buf) FREEMEM(st->buf);
 	st->buf = buf;
 	st->size = bp - buf;
@@ -1397,9 +1403,14 @@ asn_int642INTEGER(INTEGER_t *st, int64_t value) {
 		}
 		break;
 	}
-	/* Copy the integer body */
+	
+// Bug from asn1c
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+  /* Copy the integer body */
 	for(pstart = p, bp = buf, pend1 += add; p != pend1; p += add)
 		*bp++ = *p;
+#pragma GCC diagnostic pop 
 
 	if(st->buf) FREEMEM(st->buf);
 	st->buf = buf;

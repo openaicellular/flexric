@@ -61,7 +61,7 @@ if(${SANITIZER} STREQUAL "ADDRESS")
    add_link_options("-fsanitize=address")
 elseif(${SANITIZER} STREQUAL "THREAD")
   add_compile_options("-fsanitize=thread;-g;")
-  add_link_options("-fsanitize=thread")
+  add_link_options("-fsanitize=thread;")
 elseif(${SANITIZER} STREQUAL "STACK")
   add_compile_options("-fstack-protector-all")
   add_link_options("-fstack-protector-all")
@@ -72,6 +72,7 @@ if(CODE_COVERAGE)
   add_compile_options("-fprofile-arcs;-ftest-coverage")
   add_link_options("-lgcov;-coverage")
   message(STATUS "Code Coverage ON. Example usage: lcov --capture --directory . --output-file coverage.info && genhtml coverage.info --output-directory out && cd out && firefox index.html")
+  message(STATUS "To merge different coverages: lcov --add-tracefile coverage1.info -a coverage2.info ...coverageN -o merged.info")
 
 endif()
 
@@ -122,6 +123,11 @@ add_definitions(-DSERVICE_MODEL_DIR_PATH="${SM_DIR_PATH}/")
 set(SM_ENCODING_KPM "ASN" CACHE STRING "The KPM SM encoding to use")
 set_property(CACHE SM_ENCODING_KPM PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
 message(STATUS "Selected KPM SM_ENCODING: ${SM_ENCODING_KPM}")
+
+# RC service Model encoding definitions
+set(SM_ENCODING_RC "ASN" CACHE STRING "The RC SM encoding to use")
+set_property(CACHE SM_ENCODING_RC PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
+message(STATUS "Selected RC SM_ENCODING: ${SM_ENCODING_RC}")
 
 # MAC Service Model
 set(SM_ENCODING_MAC "PLAIN" CACHE STRING "The MAC SM encoding to use")
@@ -210,6 +216,7 @@ install(TARGETS slice_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
 install(TARGETS tc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
 install(TARGETS gtp_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
 install(TARGETS kpm_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+install(TARGETS rc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
 
 ###
 # Install the configuration file

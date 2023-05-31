@@ -23,7 +23,6 @@
 
 #include "asio_agent.h"
 #include <assert.h>                        // for assert
-#include <bits/types/struct_itimerspec.h>  // for itimerspec
 #include <errno.h>                         // for errno
 #include <fcntl.h>                         // for fcntl, F_GETFL, F_SETFL
 #include <stdio.h>                         // for NULL, fprintf, stderr
@@ -32,9 +31,28 @@
 #include <sys/time.h>                      // for CLOCK_MONOTONIC
 #include <sys/timerfd.h>                   // for timerfd_create, timerfd_se...
 #include <sys/types.h>                     // for time_t
-#include <time.h>                          // for timespec
+#include <time.h>                          // for timespec,  itimerspec
 #include <unistd.h>                        // for close
 
+static
+fd_pair_t create_pipe_asio_agent(asio_agent_t* io)
+{
+  assert(io != NULL);
+
+  fd_pair_t fds = {0}; 
+
+  int tmp_fds[2] = {0};
+
+  int rc = pipe(tmp_fds);
+  assert(rc == 0 && "error creating the pipe");
+
+  fds.r = tmp_fds[0];
+  fds.w = tmp_fds[1];
+
+  add_fd_asio_agent(io, fds.r);
+
+  return fds; 
+}
 
 static
 void set_fd_non_blocking(int sfd)
@@ -59,6 +77,8 @@ void init_asio_agent(asio_agent_t* io)
 
   io->efd = init_epoll();
   set_fd_non_blocking(io->efd);
+
+  io->pipe = create_pipe_asio_agent(io);
 }
 
 void add_fd_asio_agent(asio_agent_t* io, int fd)
@@ -138,5 +158,4 @@ int event_asio_agent(asio_agent_t const* io)
   assert((events[0].events & EPOLLERR) == 0);
   return events[0].data.fd; 
 }
-
 

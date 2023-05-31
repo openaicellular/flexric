@@ -270,7 +270,7 @@ void create_kpm_table(sqlite3* db)
                        "nb_id INT,"
                        "cu_du_id TEXT,"
                        "incompleteFlag INT,"
-                       "name TEXT,"  //measRecord name 
+                       "name TEXT,"  //measRecord name
                        "val REAL"
                        ");";
   create_table(db, sql_kpm_measRecord);
@@ -898,135 +898,135 @@ int to_sql_string_gtp_NGUT(global_e2_node_id_t const* id,gtp_ngu_t_stats_t* gtp,
   return rc;
 }
 
-static
-void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,  
-                                 adapter_MeasDataItem_t* kpm_measData, 
-                                 adapter_MeasRecord_t* kpm_measRecord,
-                                 MeasInfo_t* inf, 
-                                 adapter_TimeStamp_t tstamp,
-                                 char* out, 
-                                 size_t out_len)
-{
-  assert(kpm_measData != NULL);
-  assert(out != NULL);
-  const size_t max = 512;
-  assert(out_len >= max);
-
-  char* c_null = NULL;
-  char c_cu_du_id[26];
-  if (id->cu_du_id) {
-    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
-    assert(rc < (int) max && "Not enough space in the char array to write all the data");
-  }
-
-  if (kpm_measRecord == NULL){
-    int const rc = snprintf(out, max,
-        "INSERT INTO KPM_MeasRecord VALUES("
-        "%u,"// tstamp
-        "%d," //ngran_node  
-        "%d," //mcc
-        "%d," //mnc
-        "%d," //mnc_digit_len   
-        "%d," //nb_id 
-        "'%s'," //cu_du_id
-        "%ld,"  //kpm_measData->incompleteFlag
-        "NULL"  //kpm_measRecord->int_val
-        ");" 
-        , tstamp
-        , id->type
-        , id->plmn.mcc
-        , id->plmn.mnc
-        , id->plmn.mnc_digit_len
-        , id->nb_id
-        , id->cu_du_id ? c_cu_du_id : c_null
-        , kpm_measData->incompleteFlag
-        // , granulPeriod
-        );
-    assert(rc < (int)max && "Not enough space in the char array to write all the data");
-    return ;
-  } else {
-    if(kpm_measRecord->type == MeasRecord_int){
-      int const rc = snprintf(out, max,
-          "INSERT INTO KPM_MeasRecord VALUES("
-          "%u,"// tstamp
-          "%d," //ngran_node  
-          "%d," //mcc
-          "%d," //mnc
-          "%d," //mnc_digit_len   
-          "%d," //nb_id
-          "'%s'," //cu_du_id
-          "%ld,"  //kpm_measData->incompleteFlag
-          "'%s'," //kpm_measName
-          "%ld"  //kpm_measRecord->int_val
-          ");" 
-          , tstamp
-          , id->type
-          , id->plmn.mcc
-          , id->plmn.mnc
-          , id->plmn.mnc_digit_len
-          , id->nb_id
-          , id->cu_du_id ? c_cu_du_id : c_null
-          , kpm_measData->incompleteFlag
-          , inf ? inf->measName.buf : NULL
-          , kpm_measRecord->int_val
-          );
-      assert(rc < (int)max && "Not enough space in the char array to write all the data");
-      return;
-    }else if (kpm_measRecord->type == MeasRecord_real){
-      int const rc = snprintf(out, max,
-          "INSERT INTO KPM_MeasRecord VALUES("
-          "%u,"// tstamp
-          "%d," //ngran_node  
-          "%d," //mcc
-          "%d," //mnc
-          "%d," //mnc_digit_len   
-          "%d," //nb_id 
-          "'%s'," //cu_du_id
-          "%ld,"  //kpm_measData->incompleteFlag
-          "'%s'," //Kpm_measData
-          "%f"  //kpm_measRecord->real_val
-          ");" 
-          , tstamp
-          , id->type
-          , id->plmn.mcc
-          , id->plmn.mnc
-          , id->plmn.mnc_digit_len
-          , id->nb_id
-          , id->cu_du_id ? c_cu_du_id : c_null
-          , kpm_measData->incompleteFlag
-          , inf ? inf->measName.buf : NULL
-          , kpm_measRecord->real_val
-          );
-      assert(rc < (int)max && "Not enough space in the char array to write all the data");
-      return;
-    }else if (kpm_measRecord->type == MeasRecord_noval){
-      int const rc = snprintf(out, max,
-          "INSERT INTO KPM_MeasRecord VALUES("
-          "%u,"// tstamp
-          "%d," //ngran_node  
-          "%d," //mcc
-          "%d," //mnc
-          "%d," //mnc_digit_len   
-          "%d," //nb_id 
-          "'%s'," //cu_du_id
-          "%ld,"  //kpm_measData->incompleteFlag
-          "-1"  //kpm_measRecord->noVal
-          ");" 
-          , tstamp
-          , id->type
-          , id->plmn.mcc
-          , id->plmn.mnc
-          , id->plmn.mnc_digit_len
-          , id->nb_id
-          , id->cu_du_id ? c_cu_du_id : c_null
-          , kpm_measData->incompleteFlag
-          );
-      assert(rc < (int)max && "Not enough space in the char array to write all the data");
-      return;
-    }
-  }
-  assert(0!=0 && "Bad input data. Nothing for SQL to be created");
-}
+//static
+//void to_sql_string_kpm_measRecord(global_e2_node_id_t const* id,
+//                                 adapter_MeasDataItem_t* kpm_measData,
+//                                 adapter_MeasRecord_t* kpm_measRecord,
+//                                 MeasInfo_t* inf,
+//                                 adapter_TimeStamp_t tstamp,
+//                                 char* out,
+//                                 size_t out_len)
+//{
+//  assert(kpm_measData != NULL);
+//  assert(out != NULL);
+//  const size_t max = 512;
+//  assert(out_len >= max);
+//
+//  char* c_null = NULL;
+//  char c_cu_du_id[26];
+//  if (id->cu_du_id) {
+//    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+//    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+//  }
+//
+//  if (kpm_measRecord == NULL){
+//    int const rc = snprintf(out, max,
+//        "INSERT INTO KPM_MeasRecord VALUES("
+//        "%u,"// tstamp
+//        "%d," //ngran_node
+//        "%d," //mcc
+//        "%d," //mnc
+//        "%d," //mnc_digit_len
+//        "%d," //nb_id
+//        "'%s'," //cu_du_id
+//        "%ld,"  //kpm_measData->incompleteFlag
+//        "NULL"  //kpm_measRecord->int_val
+//        ");"
+//        , tstamp
+//        , id->type
+//        , id->plmn.mcc
+//        , id->plmn.mnc
+//        , id->plmn.mnc_digit_len
+//        , id->nb_id
+//        , id->cu_du_id ? c_cu_du_id : c_null
+//        , kpm_measData->incompleteFlag
+//        // , granulPeriod
+//        );
+//    assert(rc < (int)max && "Not enough space in the char array to write all the data");
+//    return ;
+//  } else {
+//    if(kpm_measRecord->type == MeasRecord_int){
+//      int const rc = snprintf(out, max,
+//          "INSERT INTO KPM_MeasRecord VALUES("
+//          "%u,"// tstamp
+//          "%d," //ngran_node
+//          "%d," //mcc
+//          "%d," //mnc
+//          "%d," //mnc_digit_len
+//          "%d," //nb_id
+//          "'%s'," //cu_du_id
+//          "%ld,"  //kpm_measData->incompleteFlag
+//          "'%s'," //kpm_measName
+//          "%ld"  //kpm_measRecord->int_val
+//          ");"
+//          , tstamp
+//          , id->type
+//          , id->plmn.mcc
+//          , id->plmn.mnc
+//          , id->plmn.mnc_digit_len
+//          , id->nb_id
+//          , id->cu_du_id ? c_cu_du_id : c_null
+//          , kpm_measData->incompleteFlag
+//          , inf ? inf->measName.buf : NULL
+//          , kpm_measRecord->int_val
+//          );
+//      assert(rc < (int)max && "Not enough space in the char array to write all the data");
+//      return;
+//    }else if (kpm_measRecord->type == MeasRecord_real){
+//      int const rc = snprintf(out, max,
+//          "INSERT INTO KPM_MeasRecord VALUES("
+//          "%u,"// tstamp
+//          "%d," //ngran_node
+//          "%d," //mcc
+//          "%d," //mnc
+//          "%d," //mnc_digit_len
+//          "%d," //nb_id
+//          "'%s'," //cu_du_id
+//          "%ld,"  //kpm_measData->incompleteFlag
+//          "'%s'," //Kpm_measData
+//          "%f"  //kpm_measRecord->real_val
+//          ");"
+//          , tstamp
+//          , id->type
+//          , id->plmn.mcc
+//          , id->plmn.mnc
+//          , id->plmn.mnc_digit_len
+//          , id->nb_id
+//          , id->cu_du_id ? c_cu_du_id : c_null
+//          , kpm_measData->incompleteFlag
+//          , inf ? inf->measName.buf : NULL
+//          , kpm_measRecord->real_val
+//          );
+//      assert(rc < (int)max && "Not enough space in the char array to write all the data");
+//      return;
+//    }else if (kpm_measRecord->type == MeasRecord_noval){
+//      int const rc = snprintf(out, max,
+//          "INSERT INTO KPM_MeasRecord VALUES("
+//          "%u,"// tstamp
+//          "%d," //ngran_node
+//          "%d," //mcc
+//          "%d," //mnc
+//          "%d," //mnc_digit_len
+//          "%d," //nb_id
+//          "'%s'," //cu_du_id
+//          "%ld,"  //kpm_measData->incompleteFlag
+//          "-1"  //kpm_measRecord->noVal
+//          ");"
+//          , tstamp
+//          , id->type
+//          , id->plmn.mcc
+//          , id->plmn.mnc
+//          , id->plmn.mnc_digit_len
+//          , id->nb_id
+//          , id->cu_du_id ? c_cu_du_id : c_null
+//          , kpm_measData->incompleteFlag
+//          );
+//      assert(rc < (int)max && "Not enough space in the char array to write all the data");
+//      return;
+//    }
+//  }
+//  assert(0!=0 && "Bad input data. Nothing for SQL to be created");
+//}
 
 static
 void write_mac_stats(sqlite3* db, global_e2_node_id_t const* id, mac_ind_data_t const* ind )
@@ -1150,40 +1150,40 @@ void write_gtp_stats(sqlite3* db, global_e2_node_id_t const* id, gtp_ind_data_t 
   insert_db(db, buffer);
 }
 
-void write_kpm_stats(sqlite3* db, global_e2_node_id_t const* id, kpm_ind_data_t const* ind)
-{
-  // TODO: Add granulPeriod into database
-  // TODO: Add MeasInfo and LabelInfo into database
-
-  assert(db != NULL);
-  assert(ind != NULL);
-
-  kpm_ind_msg_t const* ind_msg_kpm = &ind->msg;
-  char buffer[512] = {0};
-
-
-  for(size_t i = 0; i < ind_msg_kpm->MeasData_len; i++){
-    adapter_MeasDataItem_t* curMeasData = &ind_msg_kpm->MeasData[i];
-   
-
-    if (curMeasData->measRecord_len > 0){
-      for (size_t j = 0; j < curMeasData->measRecord_len; j++){
-        adapter_MeasRecord_t* curMeasRecord = &curMeasData->measRecord[j];
-        MeasInfo_t* info = &ind_msg_kpm->MeasInfo[j];
-        
-        memset(buffer, 0, sizeof(buffer));
-        to_sql_string_kpm_measRecord(id, curMeasData, curMeasRecord, info, ind->hdr.collectStartTime,
-                                   buffer, 512);
-        insert_db(db, buffer);
-      }
-    } else {
-      memset(buffer, 0, sizeof(buffer));
-      to_sql_string_kpm_measRecord(id, curMeasData, NULL, NULL, ind->hdr.collectStartTime, 
-                                   buffer, 512);
-      insert_db(db, buffer);
-    }
-  }
-}
+//void write_kpm_stats(sqlite3* db, global_e2_node_id_t const* id, kpm_ind_data_t const* ind)
+//{
+//  // TODO: Add granulPeriod into database
+//  // TODO: Add MeasInfo and LabelInfo into database
+//
+//  assert(db != NULL);
+//  assert(ind != NULL);
+//
+//  kpm_ind_msg_t const* ind_msg_kpm = &ind->msg;
+//  char buffer[512] = {0};
+//
+//
+//  for(size_t i = 0; i < ind_msg_kpm->MeasData_len; i++){
+//    adapter_MeasDataItem_t* curMeasData = &ind_msg_kpm->MeasData[i];
+//
+//
+//    if (curMeasData->measRecord_len > 0){
+//      for (size_t j = 0; j < curMeasData->measRecord_len; j++){
+//        adapter_MeasRecord_t* curMeasRecord = &curMeasData->measRecord[j];
+//        MeasInfo_t* info = &ind_msg_kpm->MeasInfo[j];
+//
+//        memset(buffer, 0, sizeof(buffer));
+//        to_sql_string_kpm_measRecord(id, curMeasData, curMeasRecord, info, ind->hdr.collectStartTime,
+//                                   buffer, 512);
+//        insert_db(db, buffer);
+//      }
+//    } else {
+//      memset(buffer, 0, sizeof(buffer));
+//      to_sql_string_kpm_measRecord(id, curMeasData, NULL, NULL, ind->hdr.collectStartTime,
+//                                   buffer, 512);
+//      insert_db(db, buffer);
+//    }
+//  }
+//}
 
 void init_db_sqlite3(sqlite3** db, char const* db_filename)
 {
@@ -1241,24 +1241,46 @@ void close_db_sqlite3(sqlite3* db)
   assert(rc == SQLITE_OK && "Error while closing the DB");
 }
 
-void write_db_sqlite3(sqlite3* db, global_e2_node_id_t const* id, sm_ag_if_rd_t const* rd)
+static
+int kpm_acc = 0;
+static
+int rc_acc = 0;
+
+
+void write_db_sqlite3(sqlite3* db, global_e2_node_id_t const* id, sm_ag_if_rd_t const* ag_rd)
 {
   assert(db != NULL);
-  assert(rd != NULL);
-  assert(rd->type == MAC_STATS_V0 || rd->type == RLC_STATS_V0|| rd->type == PDCP_STATS_V0 || rd->type == SLICE_STATS_V0 ||rd->type ==KPM_STATS_V0 ||rd->type == GTP_STATS_V0);
+  assert(ag_rd != NULL);
+  assert(ag_rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+
+  sm_ag_if_rd_ind_t const* rd = &ag_rd->ind;
+  assert(rd->type == MAC_STATS_V0   || rd->type == RLC_STATS_V0
+      || rd->type == PDCP_STATS_V0  || rd->type == SLICE_STATS_V0
+      || rd->type == KPM_STATS_V3_0 || rd->type == GTP_STATS_V0
+      || rd->type == RAN_CTRL_STATS_V1_03);
 
   if(rd->type == MAC_STATS_V0){
-    write_mac_stats(db, id, &rd->mac_stats);
+    write_mac_stats(db, id, &rd->mac);
   } else if(rd->type == RLC_STATS_V0 ){
-    write_rlc_stats(db, id, &rd->rlc_stats);
+    write_rlc_stats(db, id, &rd->rlc);
   } else if( rd->type == PDCP_STATS_V0) {
-    write_pdcp_stats(db, id, &rd->pdcp_stats);
+    write_pdcp_stats(db, id, &rd->pdcp);
   } else if (rd->type == SLICE_STATS_V0) {
-    write_slice_stats(db, id, &rd->slice_stats);
+    write_slice_stats(db, id, &rd->slice);
   } else if (rd->type == GTP_STATS_V0) {
-    write_gtp_stats(db, id, &rd->gtp_stats);
-  } else if (rd->type == KPM_STATS_V0) {
-    write_kpm_stats(db, id, &rd->kpm_stats);
+    write_gtp_stats(db, id, &rd->gtp);
+  } else if (rd->type == KPM_STATS_V3_0) {
+    kpm_acc++;
+    if(kpm_acc > 2048){
+    printf("KPM sqlite not implemented\n");
+    kpm_acc = 0;
+    }
+  } else if(rd->type ==  RAN_CTRL_STATS_V1_03){
+    rc_acc++;
+    if(rc_acc > 2048){
+      printf("RAN Control sqlite not implemented\n");
+      rc_acc = 0;
+    }
   } else {
     assert(0!=0 && "Unknown statistics type received ");
   }

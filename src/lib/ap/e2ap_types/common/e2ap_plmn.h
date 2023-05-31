@@ -20,8 +20,8 @@
  */
 
 
-#ifndef E2AP_PLMN_H
-#define E2AP_PLMN_H
+#ifndef E2AP_PLMN_IDENTITY_H
+#define E2AP_PLMN_IDENTITY_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,13 +37,13 @@ typedef struct {
   uint16_t mcc;
   uint16_t mnc;
   uint8_t mnc_digit_len;
-} plmn_t;
+} e2ap_plmn_t;
 
-bool eq_plmn(const plmn_t* m0, const plmn_t* m1);
+bool eq_e2ap_plmn(const e2ap_plmn_t* m0, const e2ap_plmn_t* m1);
 
-plmn_t cp_plmn(const plmn_t* src);
+e2ap_plmn_t cp_e2ap_plmn(const e2ap_plmn_t* src);
 
-int cmp_plmn(const plmn_t* m0, const plmn_t* m1);
+int cmp_e2ap_plmn(const e2ap_plmn_t* m0, const e2ap_plmn_t* m1);
 
 #ifdef __cplusplus
 }

@@ -12,7 +12,10 @@ set(SM_ENCODING_MAC_SRC
                      ../../util/alg_ds/ds/seq_container/seq_ring.c 
                      ../../util/alg_ds/ds/assoc_container/assoc_rb_tree.c
                      ../../util/alg_ds/ds/assoc_container/bimap.c
-                      ie/mac_data_ie.c
+                       # This dependency sucks!
+                      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+
+                     ie/mac_data_ie.c
                       )
 
 if(SM_ENCODING_MAC STREQUAL "PLAIN")

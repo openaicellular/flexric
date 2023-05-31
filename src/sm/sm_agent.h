@@ -19,8 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
-
 #ifndef MIR_SM_AGENT_H
 #define MIR_SM_AGENT_H
 
@@ -35,15 +33,16 @@ typedef struct sm_agent_s sm_agent_t;
 
 typedef struct{
 
-  subscribe_timer_t (*on_subscription)(sm_agent_t* sm, sm_subs_data_t const* data);
+  // @return granularity in ms or -1 if no periodic timer needed
+  subscribe_timer_t (*on_subscription)(sm_agent_t const* sm, sm_subs_data_t const* data);
 
-  sm_ind_data_t (*on_indication)(sm_agent_t* sm);
+  sm_ind_data_t (*on_indication)(sm_agent_t const* sm, void* act_def);
 
-  sm_ctrl_out_data_t (*on_control)(sm_agent_t* sm, sm_ctrl_req_data_t const* data);
+  sm_ctrl_out_data_t (*on_control)(sm_agent_t const* sm, sm_ctrl_req_data_t const* data);
 
-  sm_e2_setup_t (*on_e2_setup)(sm_agent_t* sm);
+  sm_e2_setup_data_t (*on_e2_setup)(sm_agent_t const* sm);
 
-  void (*on_ric_service_update)(sm_agent_t* sm, sm_ric_service_update_t const* data);
+  sm_ric_service_update_data_t (*on_ric_service_update)(sm_agent_t const* sm);
 
 } sm_e2ap_procedures_agent_t;
 
@@ -54,10 +53,12 @@ typedef struct sm_agent_s {
   sm_e2ap_procedures_agent_t proc; 
 
   // Functions provided to the SM. Implemented in the RAN.
-  sm_io_ag_t io;
+   sm_io_ag_sm_t io;
 
   // Free function
   void (*free_sm)(sm_agent_t* sm_agent);
+
+  void (*free_act_def)(sm_agent_t* sm_agent, void* act_def);
 
   // Allocation functions
   sm_alloc_t alloc;

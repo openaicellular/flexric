@@ -26,14 +26,42 @@
 #include "agent_if/write/sm_ag_if_wr.h"
 #include "agent_if/ans/sm_ag_if_ans.h"
 
-// The SM agent uses this two functions to communicate with the RAN and with the server.
+// Read
+typedef void (*read_ind_fp)(void* data);
+typedef void (*read_e2_setup_fp)(void* data);
+typedef void (*read_rsu_fp)(void* data);
+
+// Write
+typedef sm_ag_if_ans_t (*write_ctrl_fp)(void const* data);
+typedef sm_ag_if_ans_t (*write_subs_fp)(void const* data);
+
+
+// The SM agent uses these functions to communicate with the RAN and with the server.
 typedef struct{
+ // void (*read)(sm_ag_if_rd_t* data);
+ // sm_ag_if_ans_t (*write)(sm_ag_if_wr_t const* data);
 
-  void (*read)(sm_ag_if_rd_t* data);
+  // Read
+  read_ind_fp read_ind_tbl[SM_AGENT_IF_READ_V0_END];
+  read_e2_setup_fp read_setup_tbl[SM_AGENT_IF_E2_SETUP_ANS_V0_END];
+  read_rsu_fp read_rsu_tbl[0];
 
-  sm_ag_if_ans_t (*write)(sm_ag_if_wr_t const* data);
+  // Write
+  write_ctrl_fp write_ctrl_tbl[SM_AGENT_IF_WRITE_CTRL_V0_END];
+  write_subs_fp write_subs_tbl[SM_AGENT_IF_WRITE_SUBS_V0_END];
+} sm_io_ag_ran_t;
 
-} sm_io_ag_t;
+typedef struct{
+  // Read
+  read_ind_fp read_ind;;
+  read_e2_setup_fp read_setup;
+  read_rsu_fp read_rsu;
+
+  // Write
+  write_ctrl_fp write_ctrl;
+  write_subs_fp write_subs;
+
+} sm_io_ag_sm_t;
 
 #endif
 

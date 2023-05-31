@@ -22,6 +22,8 @@
 #ifndef SM_PROCEDURES_DATA_H
 #define SM_PROCEDURES_DATA_H 
 
+#include "../lib/ap/e2ap_types/common/e2ap_ran_function.h"
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -33,6 +35,7 @@
 
 
 typedef struct{
+  uint32_t ric_req_id;
 
   uint8_t* event_trigger;
   size_t len_et;
@@ -74,14 +77,15 @@ typedef struct{
 } sm_ctrl_out_data_t;
 
 typedef struct{
+  ran_function_t rf;
   uint8_t* ran_fun_def;
   size_t len_rfd;
-} sm_e2_setup_t;
+} sm_e2_setup_data_t;
 
 typedef struct{
   uint8_t* ran_fun_def;
   size_t len_rfd;
-} sm_ric_service_update_t;
+} sm_ric_service_update_data_t;
 
 void free_sm_subs_data(sm_subs_data_t*);
 
@@ -91,9 +95,9 @@ void free_sm_ctrl_req_data(sm_ctrl_req_data_t*);
 
 void free_sm_ctrl_out_data(sm_ctrl_out_data_t*);
 
-void free_sm_e2_setup(sm_e2_setup_t* ); 
+void free_sm_e2_setup(sm_e2_setup_data_t*); 
 
-void free_sm_ric_service_update(sm_ric_service_update_t*);  
+void free_sm_ric_service_update(sm_ric_service_update_data_t*);  
 
 #endif
 

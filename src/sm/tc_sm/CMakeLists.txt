@@ -11,6 +11,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../util)
 
 if(SM_ENCODING_TC STREQUAL "PLAIN")
   add_library(tc_sm SHARED
+                      # This dependency sucks!
+                      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
                       ../sm_proc_data.c 
                       tc_sm_agent.c 
                       tc_sm_ric.c 

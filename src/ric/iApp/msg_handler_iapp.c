@@ -359,10 +359,6 @@ e2ap_msg_t e2ap_handle_e42_ric_control_request_iapp(e42_iapp_t* iapp, const e2ap
   return ans; 
 }
 
-
-
-
-
 e2ap_msg_t e2ap_msg_handle_iapp(e42_iapp_t* iapp, const e2ap_msg_t* msg)
 {
   assert(msg != NULL);
@@ -371,8 +367,6 @@ e2ap_msg_t e2ap_msg_handle_iapp(e42_iapp_t* iapp, const e2ap_msg_t* msg)
   assert(iapp->handle_msg[ msg_type ] != NULL);
   return iapp->handle_msg[msg_type](iapp, msg); 
 }
-
-
 
 e2ap_msg_t e2ap_handle_subscription_delete_request_iapp(e42_iapp_t* iapp, const e2ap_msg_t* msg)
 {
@@ -385,7 +379,6 @@ e2ap_msg_t e2ap_handle_subscription_delete_request_iapp(e42_iapp_t* iapp, const 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans;
 }
-
   
 // The purpose of the RIC Control procedure is to initiate or resume a specific functionality in the E2 Node.
 e2ap_msg_t e2ap_handle_control_request_iapp(e42_iapp_t* iapp, const e2ap_msg_t* msg)

@@ -29,7 +29,7 @@
 
 typedef struct{
   char name[32];
-  void (*fp)(sm_ag_if_rd_t const* data);
+  void (*fp)(sm_ag_if_rd_ind_t const* data);
 } subs_ric_t;
 
 

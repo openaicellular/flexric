@@ -17,7 +17,9 @@ set(SM_ENCODING_PDCP_SRC
 
 if(SM_ENCODING_PDCP STREQUAL "PLAIN")
   add_library(pdcp_sm  SHARED
-                      ${SM_ENCODING_PDCP_SRC}
+                       # This dependency sucks!
+                      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+                     ${SM_ENCODING_PDCP_SRC}
                       enc/pdcp_enc_plain.c 
                       dec/pdcp_dec_plain.c 
                       )
