@@ -54,7 +54,7 @@ static
 pthread_mutex_t mtx;
 
 static
-void sm_cb_kpm(sm_ag_if_rd_t const* rd)
+void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);

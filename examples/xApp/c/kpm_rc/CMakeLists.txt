@@ -6,6 +6,8 @@ add_executable(xapp_kpm_rc
 target_link_libraries(xapp_kpm_rc
                       PUBLIC
                       e42_xapp
+                      $<TARGET_OBJECTS:e2_time_obj>
+                      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
                       -pthread
                       -lsctp
                       -ldl

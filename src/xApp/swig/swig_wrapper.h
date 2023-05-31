@@ -15,7 +15,7 @@
 #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
 #include "../../sm/slice_sm/ie/slice_data_ie.h"
 #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
-#include "../../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"
+//#include "../../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"
 
 //////////////////////////////////////
 // General    
@@ -30,7 +30,7 @@ struct RanFunction{
 
 struct swig_global_e2_node_id_t {
   ngran_node_t type;
-  plmn_t plmn;
+  e2ap_plmn_t plmn;
   uint32_t nb_id;
   std::vector<long unsigned int> cu_du_id;
 };
@@ -182,64 +182,64 @@ int report_gtp_sm(swig_global_e2_node_id_t* id, Interval inter, gtp_cb* handler)
 void rm_report_gtp_sm(int);
 
 //////////////////////////////////////
-// KPM SM   
+// KPM SM
 /////////////////////////////////////
-enum swig_MeasRecordType {
-  MeasRecord_int = 1,
-  MeasRecord_real,
-  MeasRecord_noval
-};
-
-struct swig_adapter_MeasRecord_t {
-  swig_MeasRecordType type;
-  unsigned long int_val;
-  double real_val;
-};
-
-struct swig_adapter_MeasDataItem_t {
-  size_t measRecord_len; // 1..
-  std::vector<swig_adapter_MeasRecord_t> measRecord;
-  long incompleteFlag; // OPTIONAL: true(0) value indicates that the measurements record
-                       // is not reliable, and we pass this info to ASN. -1 means the flag is not present
-};
-
-struct swig_MeasInfo_t {
-    meas_type_e meas_type;
-    std::string measName;
-    adapter_MeasurementTypeID_t measID;
-    //std::vector<adapter_LabelInfoItem_t> labelInfo; // Replaced with std::vector
-    size_t labelInfo_len;
-};
-
-
-struct swig_kpm_ind_msg_t{
-  size_t MeasData_len; // 1..
-  std::vector<swig_adapter_MeasDataItem_t> MeasData;
-
-  /*
-   * list implemented as an array of length 'MeasInfo_len' containing measurement names like 'DL Transmitted Data Volume' or
-   * its corresponding ID. It is the same mechanism used for 'action definition type 1'
-   */
-  size_t MeasInfo_len;
-  std::vector<swig_MeasInfo_t> MeasInfo; // OPTIONAL, MeasInfo_len can be zero
-
-  std::vector<unsigned long> granulPeriod; /* OPTIONAL */
-
-  swig_global_e2_node_id_t id;
-  /*
-   * XXX-extensions: add all the info you might find in all the indication format types.
-   * Still missing some fields for supporting format_2 and format_3
-   */
-};
-
-struct kpm_cb {
-    virtual void handle(swig_kpm_ind_msg_t* a) = 0;
-    virtual ~kpm_cb() {}
-};
-
-int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter, kpm_cb* handler);
-
-void rm_report_kpm_sm(int);
+//enum swig_MeasRecordType {
+//  MeasRecord_int = 1,
+//  MeasRecord_real,
+//  MeasRecord_noval
+//};
+//
+//struct swig_adapter_MeasRecord_t {
+//  swig_MeasRecordType type;
+//  unsigned long int_val;
+//  double real_val;
+//};
+//
+//struct swig_adapter_MeasDataItem_t {
+//  size_t measRecord_len; // 1..
+//  std::vector<swig_adapter_MeasRecord_t> measRecord;
+//  long incompleteFlag; // OPTIONAL: true(0) value indicates that the measurements record
+//                       // is not reliable, and we pass this info to ASN. -1 means the flag is not present
+//};
+//
+//struct swig_MeasInfo_t {
+//    meas_type_e meas_type;
+//    std::string measName;
+//    adapter_MeasurementTypeID_t measID;
+//    //std::vector<adapter_LabelInfoItem_t> labelInfo; // Replaced with std::vector
+//    size_t labelInfo_len;
+//};
+//
+//
+//struct swig_kpm_ind_msg_t{
+//  size_t MeasData_len; // 1..
+//  std::vector<swig_adapter_MeasDataItem_t> MeasData;
+//
+//  /*
+//   * list implemented as an array of length 'MeasInfo_len' containing measurement names like 'DL Transmitted Data Volume' or
+//   * its corresponding ID. It is the same mechanism used for 'action definition type 1'
+//   */
+//  size_t MeasInfo_len;
+//  std::vector<swig_MeasInfo_t> MeasInfo; // OPTIONAL, MeasInfo_len can be zero
+//
+//  std::vector<unsigned long> granulPeriod; /* OPTIONAL */
+//
+//  swig_global_e2_node_id_t id;
+//  /*
+//   * XXX-extensions: add all the info you might find in all the indication format types.
+//   * Still missing some fields for supporting format_2 and format_3
+//   */
+//};
+//
+//struct kpm_cb {
+//    virtual void handle(swig_kpm_ind_msg_t* a) = 0;
+//    virtual ~kpm_cb() {}
+//};
+//
+//int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter, kpm_cb* handler);
+//
+//void rm_report_kpm_sm(int);
 
 #endif
 

@@ -244,7 +244,7 @@ sm_e2_setup_data_t on_e2_setup_rc_sm_ag(sm_agent_t const* sm_agent)
   setup.ran_fun_def = ba.buf;
 
   // RAN Function
-  setup.rf.def = cp_str_to_ba(SM_RAN_CTRL_SHORT_NAME);
+  setup.rf.definition = cp_str_to_ba(SM_RAN_CTRL_SHORT_NAME);
   setup.rf.id = SM_RC_ID;
   setup.rf.rev = SM_RC_REV;
 

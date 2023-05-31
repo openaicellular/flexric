@@ -3104,7 +3104,7 @@ struct E2AP_PDU* e2ap_enc_e42_update_e2_node_asn_pdu(const e42_update_e2_node_t*
         e2gnb->gNB_DU_ID = e2gnb_du_id;
       }
 
-      const plmn_t* plmn = &src_id->plmn;
+      const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
       MACRO_GNB_ID_TO_BIT_STRING(src_id->nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
@@ -3117,7 +3117,7 @@ struct E2AP_PDU* e2ap_enc_e42_update_e2_node_asn_pdu(const e42_update_e2_node_t*
       GlobalE2node_eNB_ID_t *e2enb = calloc(1, sizeof(GlobalE2node_eNB_ID_t));
       assert(e2enb != NULL && "Memory exhasued");
       e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
-      const plmn_t* plmn = &src_id->plmn;
+      const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
       MACRO_ENB_ID_TO_BIT_STRING(src_id->nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
 

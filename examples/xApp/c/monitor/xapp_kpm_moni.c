@@ -72,7 +72,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 
     assert(mi->labelInfo_len == 1);
     if (mi->labelInfo[0].plmn_id != NULL) {
-      const plmn_t* plmn = mi->labelInfo[0].plmn_id;
+      const e2ap_plmn_t* plmn = mi->labelInfo[0].plmn_id;
       printf(" (PLMN %03d.%0*d)",
              plmn->mcc, plmn->mnc_digit_len, plmn->mnc);
     }

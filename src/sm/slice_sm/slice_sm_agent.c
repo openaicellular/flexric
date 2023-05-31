@@ -142,7 +142,7 @@ sm_e2_setup_data_t on_e2_setup_slice_sm_ag(sm_agent_t const* sm_agent)
   memcpy(setup.ran_fun_def, sm->base.ran_func_name, strlen(sm->base.ran_func_name));
 
   // RAN Function
-  setup.rf.def = cp_str_to_ba(SM_SLICE_SHORT_NAME);
+  setup.rf.definition = cp_str_to_ba(SM_SLICE_SHORT_NAME);
   setup.rf.id = SM_SLICE_ID;
   setup.rf.rev = SM_SLICE_REV;
 

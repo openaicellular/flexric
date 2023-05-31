@@ -1005,7 +1005,7 @@ void test_e42_update_e2_node()
   time_t t;
   srand((unsigned) time(&t));
 
-  plmn_t plmn = {
+  e2ap_plmn_t plmn = {
       .mcc = 10,
       .mnc = 15,
       .mnc_digit_len = 2
