@@ -12,14 +12,14 @@ https://bit.ly/3uOXuCV
 Below is the list of features available in this version divided per component and per service model:
 
 |      | OAI-4g |OAI-5g| SRS-4g | E2 Agent emulator | Near RT-RIC | xApp C/C++  | xApp python | O-RAN standardized|
-|:-----|:-------|:-----|:-------|:------------------|:------------|:------------------|:---------------|:--------------|
-| MAC  | Y      | Y    | Y      | Y                 | Y | Y  | Y              | N |
-| RLC  | Y      | Y    | Y      | Y                 | Y | Y  | Y              | N | 
-| PDCP | Y      | Y    | Y      | Y                 | Y | Y  | Y              | N | 
-| SLICE| Y      | N    | Y      | Y                 | Y | Y  | Y              | N |
-| TC   | N      | N    | N      | Y                 | Y | Y  | N              | N |
-| GTP  | N      | Y    | N      | Y                 | Y | Y  | Y              | N |
-| KPM  | N      | Y    | N      | Y                 | Y | Y  | N              | Y, v.2.02 |
+|:-----|:-------|:-----|:-------|:------------------|:------------|:------------------|:------------|:--------------|
+| MAC  | Y      | Y    | Y      | Y                 | Y | Y  | Y           | N |
+| RLC  | Y      | Y    | Y      | Y                 | Y | Y  | Y           | N | 
+| PDCP | Y      | Y    | Y      | Y                 | Y | Y  | Y           | N | 
+| SLICE| Y      | N    | Y      | Y                 | Y | Y  | Y           | N |
+| TC   | N      | N    | N      | Y                 | Y | Y  | N           | N |
+| GTP  | N      | Y    | N      | Y                 | Y | Y  | Y           | N |
+| KPM  | N      | Y    | N      | Y                 | Y | Y  | Y           | Y, v.2.02 |
 
 ## 1. Installation
 
@@ -60,11 +60,11 @@ If you are using mysql as a storage for xapps you may need to install it via
 sudo apt install libmysqlclient-dev mysql-server
 ```
 
-If you are using the option in cmake -DRAN_WITH_WS=True, you need to also install the following packages:
+If you are using the option in cmake `-DRAN_WITH_WS=True`, you need to also install the following packages:
 ```bash
 sudo apt install libwebsockets-dev libjson-c-dev
 ```
-software has been tested with specific version of libwebsockets-dev and libjson-c-dev; cmake will check for that and promt an error in case the version you are trying to install is not compatible.
+software has been tested with specific version of `libwebsockets-dev` and `libjson-c-dev`; cmake will check for that and promt an error in case the version you are trying to install is not compatible.
 
 1.3 Clone the FlexRIC project, build and install it. 
 
@@ -79,14 +79,23 @@ software has been tested with specific version of libwebsockets-dev and libjson-
   # i.e. git checkout v1.0.0
   # There are rolling updates on `dev` branch that we consider unstable before releasing and tagging into master branch.
   # You can play with new features on dev branch checking it out with $git checkout dev instead of the command below
-  $ git checkout <here put the release tag>
+  $ git checkout br-flexric
   
   ```
 
 * Build 
 
   ```bash
-  $ cd flexric && mkdir build && cd build && cmake .. && make 
+  $ cd flexric
+  $ mkdir build
+  $ cd build
+  # to use SQLite DB
+  $ cmake .. -DEMU_AGENT_INSTALL=TRUE -DNEAR_RIC_INSTALL=TRUE -DUNIT_TEST=TRUE -DXAPP_C_INSTALL=TRUE -DXAPP_DB=SQLITE3_XAPP -DXAPP_PYTHON_INSTALL=TRUE
+  # to use MYSQL DB
+  $ cmake .. -DEMU_AGENT_INSTALL=TRUE -DNEAR_RIC_INSTALL=TRUE -DUNIT_TEST=TRUE -DXAPP_C_INSTALL=TRUE -DXAPP_DB=MYSQL_XAPP -DXAPP_PYTHON_INSTALL=TRUE
+  # to not use DB
+  $ cmake .. -DEMU_AGENT_INSTALL=TRUE -DNEAR_RIC_INSTALL=TRUE -DUNIT_TEST=TRUE -DXAPP_C_INSTALL=TRUE -DXAPP_DB=NONE_XAPP -DXAPP_PYTHON_INSTALL=TRUE
+  $ make -j
   ```
 
 * Install
@@ -95,8 +104,8 @@ software has been tested with specific version of libwebsockets-dev and libjson-
   ```bash
   sudo make install
   ```
-  By default the service model libraries will be installed in the path /usr/local/lib/flexric while the
-  configuration file in /usr/local/etc/flexric. 
+  By default the service model libraries will be installed in the path `/usr/local/lib/flexric` while the
+  configuration file in `/usr/local/etc/flexric`. 
 
 1.4 Test (optional step)
 
@@ -108,7 +117,7 @@ There are some tests you can run. Precisely:
     $ ./build/examples/emulator/agent/emu_agent_gnb
     # terminal 2: start nearRT-RIC
     $ ./build/examples/ric/nearRT-RIC
-    # terminal 3: start monitoring app
+    # terminal 3: start monitoring app for MAC, RLC, and PDCP SM
     $ ./build/examples/xApp/c/monitor/xapp_mac_rlc_pdcp_moni
     ```
 * All-in-one test. See directory `build/test/agent-ric-xapp`
@@ -126,17 +135,17 @@ Start the nearRT-RIC with:
 $ ./build/examples/ric/nearRT-RIC
 ```
 
-Start one or multiple E2 node Agent emulators using default configuration
+Start one or multiple E2 node Agent emulators:
 ```bash
 $ ./build/examples/emulator/agent/emu_agent_gnb_cu
 $ ./build/examples/emulator/agent/emu_agent_gnb_du
 ```
-or a customized one, i.e.:
+Start one or multiple xApps using customized configurations, i.e.:
 ```bash
-$ ./build/examples/emulator/agent/emu_agent_gnb_cu -c ~/flexric1.conf &
-$ ./build/examples/emulator/agent/emu_agent_gnb_du -c ~/flexric2.conf &
+$ ./build/examples/xApp/c/monitor/xapp_mac_rlc_pdcp_moni -c ~/xapp1.conf &
+$ ./build/examples/xApp/c/monitor/xapp_gtp_moni -c ~/xapp2.conf &
 ```
-where, for example, flexric1.conf is: 
+where, for example, `xapp1.conf` is: 
 ```
 [NEAR-RIC]
 NEAR_RIC_IP = 127.0.0.1
@@ -145,9 +154,7 @@ NEAR_RIC_IP = 127.0.0.1
 DB_PATH = /tmp/
 DB_NAME = xapp_db1
 ```
-
-flexric2.conf is: 
-
+`xapp2.conf` is:
 ```
 [NEAR-RIC]
 NEAR_RIC_IP = 127.0.0.1
@@ -157,7 +164,12 @@ DB_PATH = /tmp/
 DB_NAME = xapp_db2
 ```
 
-Next, you can fetch some statistics from the E2 Agents using python xApps via `$ python3 build/examples/xApp/python3/xapp_gtp_moni.py`, while in other window you can start a second xApp developed in c `$ build/examples/xApp/c/monitor/xapp_mac_rlc_pdcp_moni`
+[//]: # (Next, you can fetch some statistics from the E2 Agents using python xApps via `$ python3 build/examples/xApp/python3/xapp_gtp_moni.py`, while in other window you can start a second xApp developed in c `$ build/examples/xApp/c/monitor/xapp_mac_rlc_pdcp_moni`)
+Next, to run the xApp in python:
+```bash
+$ cd examples/xApp/python3
+$ python3 xapp_mac_rlc_pdcp.py
+```
 
 You can also start wireshark and see how E2AP messages are flowing.
 
@@ -175,12 +187,15 @@ We will use a patch provided in flexric repository. Below the commands to achiev
 ```bash
 $ git clone https://gitlab.eurecom.fr/oai/openairinterface5g.git oai
 $ cd oai/
-$ git checkout 2022.41
-$ git am <pathtoflexricsrc>/flexric/multiRAT/oai/oai.patch --whitespace=nowarn
+$ git checkout 2023.w19
+$ git am <pathtoflexricsrc>/flexric/multiRAT/oai/oai_2023_w19.patch --whitespace=nowarn
 $ source oaienv
 $ cd cmake_targets
 $ ./build_oai -I -w USRP -i  #For OAI first time installation. it will install some dependencies
+# to test with USRP
 $ ./build_oai --eNB --gNB -c -C -w USRP --ninja
+# to test with 5G RF sim
+$ ./build_oai --gNB --nrUE -c -C -w SIMU --ninja
 ```
 
 The compilation of OAI may take 10 minutes. Example configuration files using a B210 USRP are provided in flexric to facilitate the integration.
