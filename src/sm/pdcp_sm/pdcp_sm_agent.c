@@ -171,10 +171,10 @@ sm_e2_setup_data_t on_e2_setup_pdcp_sm_ag(sm_agent_t const* sm_agent)
   setup.rf.id = SM_PDCP_ID;
   setup.rf.rev = SM_PDCP_REV;
 
-  setup.rf.oid = calloc(1, sizeof(byte_array_t) );
-  assert(setup.rf.oid != NULL && "Memory exhausted");
+  // setup.rf.oid = calloc(1, sizeof(byte_array_t) );
+  // assert(setup.rf.oid != NULL && "Memory exhausted");
 
-  *setup.rf.oid = cp_str_to_ba(SM_PDCP_OID);
+  setup.rf.oid = cp_str_to_ba(SM_PDCP_OID);
 
   return setup;
 }

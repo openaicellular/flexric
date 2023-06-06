@@ -1,335 +1,387 @@
 set(ASN_MODULE_SRCS
-    E2AP-PDU.c
-    InitiatingMessage.c
-    SuccessfulOutcome.c
-    UnsuccessfulOutcome.c
-    RICsubscriptionRequest.c
-    RICsubscriptionDetails.c
-    RICactions-ToBeSetup-List.c
-    RICaction-ToBeSetup-Item.c
-    RICsubscriptionResponse.c
-    RICaction-Admitted-List.c
-    RICaction-Admitted-Item.c
-    RICaction-NotAdmitted-List.c
-    RICaction-NotAdmitted-Item.c
-    RICsubscriptionFailure.c
-    RICsubscriptionDeleteRequest.c
-    RICsubscriptionDeleteResponse.c
-    RICsubscriptionDeleteFailure.c
-    RICindication.c
-    RICcontrolRequest.c
-    RICcontrolAcknowledge.c
-    RICcontrolFailure.c
-    ErrorIndication.c
-    E2setupRequest.c
-    E2setupResponse.c
-    E2setupFailure.c
-    E2connectionUpdate.c
-    E2connectionUpdate-List.c
-    E2connectionUpdate-Item.c
-    E2connectionUpdateRemove-List.c
-    E2connectionUpdateRemove-Item.c
-    E2connectionUpdateAcknowledge.c
-    E2connectionSetupFailed-List.c
-    E2connectionSetupFailed-Item.c
-    E2connectionUpdateFailure.c
-    E2nodeConfigurationUpdate.c
-    E2nodeComponentConfigUpdate-List.c
-    E2nodeComponentConfigUpdate-Item.c
-    E2nodeConfigurationUpdateAcknowledge.c
-    E2nodeComponentConfigUpdateAck-List.c
-    E2nodeComponentConfigUpdateAck-Item.c
-    E2nodeConfigurationUpdateFailure.c
-    ResetRequest.c
-    ResetResponse.c
-    RICserviceUpdate.c
-    RANfunctions-List.c
-    RANfunction-Item.c
-    RANfunctionsID-List.c
-    RANfunctionID-Item.c
-    RICserviceUpdateAcknowledge.c
-    RANfunctionsIDcause-List.c
-    RANfunctionIDcause-Item.c
-    RICserviceUpdateFailure.c
-    RICserviceQuery.c
+    AMFName.c
+    ANY.c
+    asn_application.c
+    asn_bit_data.c
+    asn_codecs_prim.c
+    asn_internal.c
+    asn_random_fill.c
+    asn_SEQUENCE_OF.c
+    asn_SET_OF.c
+    ber_decoder.c
+    ber_tlv_length.c
+    ber_tlv_tag.c
+    BIT_STRING.c
     Cause.c
+    CauseE2node.c
     CauseMisc.c
     CauseProtocol.c
-    CauseRIC.c
+    CauseRICrequest.c
     CauseRICservice.c
     CauseTransport.c
+    constraints.c
+    constr_CHOICE.c
+    constr_SEQUENCE.c
+    constr_SEQUENCE_OF.c
+    constr_SET_OF.c
+    constr_TYPE.c
+    Criticality.c
     CriticalityDiagnostics.c
-    CriticalityDiagnostics-IE-List.c
     CriticalityDiagnostics-IE-Item.c
-    E2nodeComponentConfigUpdate.c
-    E2nodeComponentConfigUpdateGNB.c
-    E2nodeComponentConfigUpdateENgNB.c
-    E2nodeComponentConfigUpdateNGeNB.c
-    E2nodeComponentConfigUpdateENB.c
-    E2nodeComponentConfigUpdateAck.c
-    E2nodeComponentType.c
+    CriticalityDiagnostics-IE-List.c
+    der_encoder.c
+    E2AP-PDU.c
+    E2connectionSetupFailed-Item.c
+    E2connectionSetupFailed-List.c
+    E2connectionUpdateAcknowledge.c
+    E2connectionUpdate.c
+    E2connectionUpdateFailure.c
+    E2connectionUpdate-Item.c
+    E2connectionUpdate-List.c
+    E2connectionUpdateRemove-Item.c
+    E2connectionUpdateRemove-List.c
+    E2nodeComponentConfigAdditionAck-Item.c
+    E2nodeComponentConfigAdditionAck-List.c
+    E2nodeComponentConfigAddition-Item.c
+    E2nodeComponentConfigAddition-List.c
+    E2nodeComponentConfigRemovalAck-Item.c
+    E2nodeComponentConfigRemovalAck-List.c
+    E2nodeComponentConfigRemoval-Item.c
+    E2nodeComponentConfigRemoval-List.c
+    E2nodeComponentConfigUpdateAck-Item.c
+    E2nodeComponentConfigUpdateAck-List.c
+    E2nodeComponentConfigUpdate-Item.c
+    E2nodeComponentConfigUpdate-List.c
+    E2nodeComponentConfigurationAck.c
+    E2nodeComponentConfiguration.c
     E2nodeComponentID.c
-    E2nodeComponentGNB-CU-UP-ID.c
-    E2nodeComponentGNB-DU-ID.c
+    E2nodeComponentInterfaceE1.c
+    E2nodeComponentInterfaceF1.c
+    E2nodeComponentInterfaceNG.c
+    E2nodeComponentInterfaceS1.c
+    E2nodeComponentInterfaceType.c
+    E2nodeComponentInterfaceW1.c
+    E2nodeComponentInterfaceX2.c
+    E2nodeComponentInterfaceXn.c
+    E2nodeConfigurationUpdateAcknowledge.c
+    E2nodeConfigurationUpdate.c
+    E2nodeConfigurationUpdateFailure.c
+    E2nodeConnected-List.c
+    E2nodeTNLassociationRemoval-Item.c
+    E2nodeTNLassociationRemoval-List.c
+    E2RemovalFailure.c
+    E2RemovalRequest.c
+    E2RemovalResponse.c
+    E2setupFailure.c
+    E2setupRequest.c
+    E2setupResponse.c
+    E42RICcontrolRequest.c
+    E42RICsubscriptionDeleteRequest.c
+    E42RICsubscriptionRequest.c
+    E42setupRequest.c
+    E42setupResponse.c
     ENB-ID.c
     ENB-ID-Choice.c
     ENGNB-ID.c
-    GlobalE2node-ID.c
-    GlobalE2node-en-gNB-ID.c
+    ErrorIndication.c
     GlobalE2node-eNB-ID.c
+    GlobalE2node-en-gNB-ID.c
     GlobalE2node-gNB-ID.c
+    GlobalE2node-ID.c
     GlobalE2node-ng-eNB-ID.c
     GlobalENB-ID.c
     GlobalenGNB-ID.c
     GlobalgNB-ID.c
     GlobalngeNB-ID.c
+    GlobalNG-RANNode-ID.c
     GlobalRIC-ID.c
     GNB-CU-UP-ID.c
     GNB-DU-ID.c
     GNB-ID-Choice.c
+    InitiatingMessage.c
+    INTEGER.c
+    MMEname.c
+    NativeEnumerated.c
+    NativeInteger.c
+    NGENB-DU-ID.c
+    OCTET_STRING.c
+    OPEN_TYPE.c
+    per_decoder.c
+    per_encoder.c
+    per_opentype.c
+    per_support.c
     PLMN-Identity.c
+    Presence.c
+    PrintableString.c
+    ProcedureCode.c
+    ProtocolIE-Container.c
+    ProtocolIE-ContainerList.c
+    ProtocolIE-ContainerPair.c
+    ProtocolIE-ContainerPairList.c
+    ProtocolIE-Field.c
+    ProtocolIE-FieldPair.c
+    ProtocolIE-ID.c
+    ProtocolIE-SingleContainer.c
     RANfunctionDefinition.c
     RANfunctionID.c
+    RANfunctionIDcause-Item.c
+    RANfunctionID-Item.c
+    RANfunction-Item.c
     RANfunctionOID.c
     RANfunctionRevision.c
+    RANfunctionsIDcause-List.c
+    RANfunctionsID-List.c
+    RANfunctions-List.c
+    ResetRequest.c
+    ResetResponse.c
+    RICaction-Admitted-Item.c
+    RICaction-Admitted-List.c
     RICactionDefinition.c
     RICactionID.c
+    RICaction-NotAdmitted-Item.c
+    RICaction-NotAdmitted-List.c
+    RICactions-ToBeSetup-List.c
+    RICaction-ToBeSetup-Item.c
     RICactionType.c
     RICcallProcessID.c
+    RICcontrolAcknowledge.c
     RICcontrolAckRequest.c
+    RICcontrolFailure.c
     RICcontrolHeader.c
     RICcontrolMessage.c
     RICcontrolOutcome.c
-    RICcontrolStatus.c
+    RICcontrolRequest.c
     RICeventTriggerDefinition.c
+    RICindication.c
     RICindicationHeader.c
     RICindicationMessage.c
     RICindicationSN.c
     RICindicationType.c
     RICrequestID.c
+    RICserviceQuery.c
+    RICserviceUpdateAcknowledge.c
+    RICserviceUpdate.c
+    RICserviceUpdateFailure.c
+    RICsubscriptionDeleteFailure.c
+    RICsubscriptionDeleteRequest.c
+    RICsubscriptionDeleteRequired.c
+    RICsubscriptionDeleteResponse.c
+    RICsubscriptionDetails.c
+    RICsubscriptionFailure.c
+    RICsubscription-List-withCause.c
+    RICsubscriptionRequest.c
+    RICsubscriptionResponse.c
+    RICsubscription-withCause-Item.c
     RICsubsequentAction.c
     RICsubsequentActionType.c
     RICtimeToWait.c
+    SuccessfulOutcome.c
     TimeToWait.c
     TNLinformation.c
     TNLusage.c
-    TypeOfError.c
-    Criticality.c
-    Presence.c
-    ProcedureCode.c
-    ProtocolIE-ID.c
+    TransactionID.c
     TriggeringMessage.c
-    ProtocolIE-Container.c
-    ProtocolIE-SingleContainer.c
-    ProtocolIE-Field.c
-    ProtocolIE-ContainerPair.c
-    ProtocolIE-FieldPair.c
-    ProtocolIE-ContainerList.c
-    ProtocolIE-ContainerPairList.c
-    ANY.c
-    OPEN_TYPE.c
-    INTEGER.c
-    NativeEnumerated.c
-    NativeInteger.c
-    PrintableString.c
-    asn_SEQUENCE_OF.c
-    asn_SET_OF.c
-    constr_CHOICE.c
-    constr_SEQUENCE.c
-    constr_SEQUENCE_OF.c
-    constr_SET_OF.c
-    asn_application.c
-    asn_internal.c
-    asn_random_fill.c
-    asn_bit_data.c
-    OCTET_STRING.c
-    BIT_STRING.c
-    asn_codecs_prim.c
-    ber_tlv_length.c
-    ber_tlv_tag.c
-    ber_decoder.c
-    der_encoder.c
-    constr_TYPE.c
-    constraints.c
-    xer_support.c
+    TypeOfError.c
+    UnsuccessfulOutcome.c
+    XAPP-ID.c
     xer_decoder.c
     xer_encoder.c
-    per_support.c
-    per_decoder.c
-    per_encoder.c
-    per_opentype.c
-    E42setupRequest.c
-    E42setupResponse.c
-    E42RICsubscriptionRequest.c
-    E42RICsubscriptionDeleteRequest.c
-    E42RICcontrolRequest.c
-    XAPP-ID.c
-    E2nodeConnected-List.c
+    xer_support.c
 )
 
 set(ASN_MODULE_HDRS
-    E2AP-PDU.h
-    InitiatingMessage.h
-    SuccessfulOutcome.h
-    UnsuccessfulOutcome.h
-    RICsubscriptionRequest.h
-    RICsubscriptionDetails.h
-    RICactions-ToBeSetup-List.h
-    RICaction-ToBeSetup-Item.h
-    RICsubscriptionResponse.h
-    RICaction-Admitted-List.h
-    RICaction-Admitted-Item.h
-    RICaction-NotAdmitted-List.h
-    RICaction-NotAdmitted-Item.h
-    RICsubscriptionFailure.h
-    RICsubscriptionDeleteRequest.h
-    RICsubscriptionDeleteResponse.h
-    RICsubscriptionDeleteFailure.h
-    RICindication.h
-    RICcontrolRequest.h
-    RICcontrolAcknowledge.h
-    RICcontrolFailure.h
-    ErrorIndication.h
-    E2setupRequest.h
-    E2setupResponse.h
-    E2setupFailure.h
-    E2connectionUpdate.h
-    E2connectionUpdate-List.h
-    E2connectionUpdate-Item.h
-    E2connectionUpdateRemove-List.h
-    E2connectionUpdateRemove-Item.h
-    E2connectionUpdateAcknowledge.h
-    E2connectionSetupFailed-List.h
-    E2connectionSetupFailed-Item.h
-    E2connectionUpdateFailure.h
-    E2nodeConfigurationUpdate.h
-    E2nodeComponentConfigUpdate-List.h
-    E2nodeComponentConfigUpdate-Item.h
-    E2nodeConfigurationUpdateAcknowledge.h
-    E2nodeComponentConfigUpdateAck-List.h
-    E2nodeComponentConfigUpdateAck-Item.h
-    E2nodeConfigurationUpdateFailure.h
-    ResetRequest.h
-    ResetResponse.h
-    RICserviceUpdate.h
-    RANfunctions-List.h
-    RANfunction-Item.h
-    RANfunctionsID-List.h
-    RANfunctionID-Item.h
-    RICserviceUpdateAcknowledge.h
-    RANfunctionsIDcause-List.h
-    RANfunctionIDcause-Item.h
-    RICserviceUpdateFailure.h
-    RICserviceQuery.h
+    AMFName.h
+    ANY.h
+    asn_application.h
+    asn_bit_data.h
+    asn_codecs.h
+    asn_codecs_prim.h
+    asn_constant.h
+    asn_internal.h
+    asn_ioc.h
+    asn_random_fill.h
+    asn_SEQUENCE_OF.h
+    asn_SET_OF.h
+    asn_system.h
+    ber_decoder.h
+    ber_tlv_length.h
+    ber_tlv_tag.h
+    BIT_STRING.h
+    CauseE2node.h
     Cause.h
     CauseMisc.h
     CauseProtocol.h
-    CauseRIC.h
+    CauseRICrequest.h
     CauseRICservice.h
     CauseTransport.h
+    constraints.h
+    constr_CHOICE.h
+    constr_SEQUENCE.h
+    constr_SEQUENCE_OF.h
+    constr_SET_OF.h
+    constr_TYPE.h
     CriticalityDiagnostics.h
-    CriticalityDiagnostics-IE-List.h
     CriticalityDiagnostics-IE-Item.h
-    E2nodeComponentConfigUpdate.h
-    E2nodeComponentConfigUpdateGNB.h
-    E2nodeComponentConfigUpdateENgNB.h
-    E2nodeComponentConfigUpdateNGeNB.h
-    E2nodeComponentConfigUpdateENB.h
-    E2nodeComponentConfigUpdateAck.h
-    E2nodeComponentType.h
+    CriticalityDiagnostics-IE-List.h
+    Criticality.h
+    der_encoder.h
+    E2AP-PDU.h
+    E2connectionSetupFailed-Item.h
+    E2connectionSetupFailed-List.h
+    E2connectionUpdateAcknowledge.h
+    E2connectionUpdateFailure.h
+    E2connectionUpdate.h
+    E2connectionUpdate-Item.h
+    E2connectionUpdate-List.h
+    E2connectionUpdateRemove-Item.h
+    E2connectionUpdateRemove-List.h
+    E2nodeComponentConfigAdditionAck-Item.h
+    E2nodeComponentConfigAdditionAck-List.h
+    E2nodeComponentConfigAddition-Item.h
+    E2nodeComponentConfigAddition-List.h
+    E2nodeComponentConfigRemovalAck-Item.h
+    E2nodeComponentConfigRemovalAck-List.h
+    E2nodeComponentConfigRemoval-Item.h
+    E2nodeComponentConfigRemoval-List.h
+    E2nodeComponentConfigUpdateAck-Item.h
+    E2nodeComponentConfigUpdateAck-List.h
+    E2nodeComponentConfigUpdate-Item.h
+    E2nodeComponentConfigUpdate-List.h
+    E2nodeComponentConfigurationAck.h
+    E2nodeComponentConfiguration.h
     E2nodeComponentID.h
-    E2nodeComponentGNB-CU-UP-ID.h
-    E2nodeComponentGNB-DU-ID.h
-    ENB-ID.h
+    E2nodeComponentInterfaceE1.h
+    E2nodeComponentInterfaceF1.h
+    E2nodeComponentInterfaceNG.h
+    E2nodeComponentInterfaceS1.h
+    E2nodeComponentInterfaceType.h
+    E2nodeComponentInterfaceW1.h
+    E2nodeComponentInterfaceX2.h
+    E2nodeComponentInterfaceXn.h
+    E2nodeConfigurationUpdateAcknowledge.h
+    E2nodeConfigurationUpdateFailure.h
+    E2nodeConfigurationUpdate.h
+    E2nodeConnected-List.h
+    E2nodeTNLassociationRemoval-Item.h
+    E2nodeTNLassociationRemoval-List.h
+    E2RemovalFailure.h
+    E2RemovalRequest.h
+    E2RemovalResponse.h
+    E2setupFailure.h
+    E2setupRequest.h
+    E2setupResponse.h
+    E42RICcontrolRequest.h
+    E42RICsubscriptionDeleteRequest.h
+    E42RICsubscriptionRequest.h
+    E42setupRequest.h
+    E42setupResponse.h
     ENB-ID-Choice.h
+    ENB-ID.h
     ENGNB-ID.h
-    GlobalE2node-ID.h
-    GlobalE2node-en-gNB-ID.h
+    ErrorIndication.h
     GlobalE2node-eNB-ID.h
+    GlobalE2node-en-gNB-ID.h
     GlobalE2node-gNB-ID.h
+    GlobalE2node-ID.h
     GlobalE2node-ng-eNB-ID.h
     GlobalENB-ID.h
     GlobalenGNB-ID.h
     GlobalgNB-ID.h
     GlobalngeNB-ID.h
+    GlobalNG-RANNode-ID.h
     GlobalRIC-ID.h
     GNB-CU-UP-ID.h
     GNB-DU-ID.h
     GNB-ID-Choice.h
+    InitiatingMessage.h
+    INTEGER.h
+    MMEname.h
+    NativeEnumerated.h
+    NativeInteger.h
+    NGENB-DU-ID.h
+    OCTET_STRING.h
+    OPEN_TYPE.h
+    per_decoder.h
+    per_encoder.h
+    per_opentype.h
+    per_support.h
     PLMN-Identity.h
+    Presence.h
+    PrintableString.h
+    ProcedureCode.h
+    ProtocolIE-Container.h
+    ProtocolIE-ContainerList.h
+    ProtocolIE-ContainerPair.h
+    ProtocolIE-ContainerPairList.h
+    ProtocolIE-Field.h
+    ProtocolIE-FieldPair.h
+    ProtocolIE-ID.h
+    ProtocolIE-SingleContainer.h
     RANfunctionDefinition.h
+    RANfunctionIDcause-Item.h
     RANfunctionID.h
+    RANfunctionID-Item.h
+    RANfunction-Item.h
     RANfunctionOID.h
     RANfunctionRevision.h
+    RANfunctionsIDcause-List.h
+    RANfunctionsID-List.h
+    RANfunctions-List.h
+    ResetRequest.h
+    ResetResponse.h
+    RICaction-Admitted-Item.h
+    RICaction-Admitted-List.h
     RICactionDefinition.h
     RICactionID.h
+    RICaction-NotAdmitted-Item.h
+    RICaction-NotAdmitted-List.h
+    RICactions-ToBeSetup-List.h
+    RICaction-ToBeSetup-Item.h
     RICactionType.h
     RICcallProcessID.h
+    RICcontrolAcknowledge.h
     RICcontrolAckRequest.h
+    RICcontrolFailure.h
     RICcontrolHeader.h
     RICcontrolMessage.h
     RICcontrolOutcome.h
-    RICcontrolStatus.h
+    RICcontrolRequest.h
     RICeventTriggerDefinition.h
+    RICindication.h
     RICindicationHeader.h
     RICindicationMessage.h
     RICindicationSN.h
     RICindicationType.h
     RICrequestID.h
+    RICserviceQuery.h
+    RICserviceUpdateAcknowledge.h
+    RICserviceUpdateFailure.h
+    RICserviceUpdate.h
+    RICsubscriptionDeleteFailure.h
+    RICsubscriptionDeleteRequest.h
+    RICsubscriptionDeleteRequired.h
+    RICsubscriptionDeleteResponse.h
+    RICsubscriptionDetails.h
+    RICsubscriptionFailure.h
+    RICsubscription-List-withCause.h
+    RICsubscriptionRequest.h
+    RICsubscriptionResponse.h
+    RICsubscription-withCause-Item.h
     RICsubsequentAction.h
     RICsubsequentActionType.h
     RICtimeToWait.h
+    SuccessfulOutcome.h
     TimeToWait.h
     TNLinformation.h
     TNLusage.h
-    TypeOfError.h
-    Criticality.h
-    Presence.h
-    ProcedureCode.h
-    ProtocolIE-ID.h
+    TransactionID.h
     TriggeringMessage.h
-    ProtocolIE-Container.h
-    ProtocolIE-SingleContainer.h
-    ProtocolIE-Field.h
-    ProtocolIE-ContainerPair.h
-    ProtocolIE-FieldPair.h
-    ProtocolIE-ContainerList.h
-    ProtocolIE-ContainerPairList.h
-    ANY.h
-    OCTET_STRING.h
-    OPEN_TYPE.h
-    constr_CHOICE.h
-    INTEGER.h
-    NativeEnumerated.h
-    NativeInteger.h
-    PrintableString.h
-    asn_SEQUENCE_OF.h
-    asn_SET_OF.h
-    constr_SEQUENCE.h
-    constr_SEQUENCE_OF.h
-    constr_SET_OF.h
-    asn_application.h
-    asn_ioc.h
-    asn_system.h
-    asn_codecs.h
-    asn_internal.h
-    asn_random_fill.h
-    asn_bit_data.h
-    BIT_STRING.h
-    asn_codecs_prim.h
-    ber_tlv_length.h
-    ber_tlv_tag.h
-    ber_decoder.h
-    der_encoder.h
-    constr_TYPE.h
-    constraints.h
-    xer_support.h
+    TypeOfError.h
+    UnsuccessfulOutcome.h
+    XAPP-ID.h
     xer_decoder.h
     xer_encoder.h
-    per_support.h
-    per_decoder.h
-    per_encoder.h
-    per_opentype.h
+    xer_support.h
 )
 
 add_library(e2ap_asn1_obj OBJECT ${ASN_MODULE_SRCS})

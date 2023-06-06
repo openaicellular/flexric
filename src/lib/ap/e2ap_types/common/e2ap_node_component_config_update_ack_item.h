@@ -34,7 +34,7 @@ typedef struct{
     uint64_t gnb_du_id;
   };
 
- 	long	 update_outcome;
+ 	long	 update_outcome; // delete
 	cause_t *failure_cause;	/* OPTIONAL */
 } e2_node_component_config_update_ack_item_t;
 

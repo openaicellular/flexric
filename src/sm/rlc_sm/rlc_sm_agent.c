@@ -160,10 +160,10 @@ sm_e2_setup_data_t on_e2_setup_rlc_sm_ag(sm_agent_t const* sm_agent)
   setup.rf.id = SM_RLC_ID;
   setup.rf.rev = SM_RLC_REV;
 
-  setup.rf.oid = calloc(1, sizeof(byte_array_t) );
-  assert(setup.rf.oid != NULL && "Memory exhausted");
+  // setup.rf.oid = calloc(1, sizeof(byte_array_t) );
+  // assert(setup.rf.oid != NULL && "Memory exhausted");
 
-  *setup.rf.oid = cp_str_to_ba(SM_RLC_OID);
+  setup.rf.oid = cp_str_to_ba(SM_RLC_OID);
 
   return setup;
 }

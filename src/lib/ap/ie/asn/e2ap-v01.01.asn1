@@ -988,7 +988,6 @@ RICserviceQuery-IEs E2AP-PROTOCOL-IES ::= {
     ...
 }
 END
-
 --   **************************************************************
 E2AP-IEs {
 iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1

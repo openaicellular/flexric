@@ -27,7 +27,7 @@
 #include <stdint.h>
 
 typedef struct{
-  e2ap_plmn_t plmn;
+  plmn_t plmn;
 
   union{
     uint32_t double_word;

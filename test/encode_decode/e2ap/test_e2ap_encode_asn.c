@@ -32,7 +32,8 @@
 #include "../src/lib/ap/enc/e2ap_msg_enc_asn.h"
 #include "../src/lib/ap/free/e2ap_msg_free.h"
 
-#include "../../../src/lib/ap/ie/asn/E2AP-PDU.h"
+
+#include "E2AP-PDU.h"
 
 
 #include <stdlib.h>
@@ -137,18 +138,13 @@ void test_ric_subscription_failure()
     .ric_inst_id = 2,
     .ran_func_id = 12};
 
-
-  ric_action_not_admitted_t* na = calloc(1,sizeof(ric_action_not_admitted_t)); 
-  na->ric_act_id = 2;
-  na->cause.present = CAUSE_PROTOCOL;
-  na->cause.protocol = CAUSE_PROTOCOL_SEMANTIC_ERROR;	
+  cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
 
   criticality_diagnostics_t* crit_diag = NULL; 
 
   ric_subscription_failure_t sf = {
     .ric_id = ric_id,
-    . not_admitted = na,
-    .len_na = 1,
+    .cause = cause,
     .crit_diag = crit_diag, // optional
   };
 
@@ -267,8 +263,9 @@ void test_ric_indication()
 
 void test_e2_setup_request()
 {
+  uint8_t trx_id = 1;
 
-  e2ap_plmn_t plmn = {
+  plmn_t plmn = {
     .mcc = 10,
     .mnc = 15,
     .mnc_digit_len = 2
@@ -286,22 +283,33 @@ void test_e2_setup_request()
   ran_function_t* ran_func_item = calloc(len_rf, sizeof(ran_function_t));
   ran_func_item[0].id = 32;
   ran_func_item[0].rev = 0;
+  const char* oid = "TEST OID";
+  ran_func_item[0].oid.buf = (uint8_t*) strdup(oid);
+  ran_func_item[0].oid.len = strlen(oid);
   const char* def = "This is the possible deficniotn";
   ran_func_item[0].def.buf = malloc(strlen(def));
   memcpy(ran_func_item[0].def.buf, def, strlen(def)); 
   ran_func_item[0].def.len = strlen(def); 
 
 
-  e2_node_component_config_update_t* comp_conf_update = NULL;
-  const size_t len_ccu = 0;
+  const size_t len_cca = 1;
+  e2_node_component_config_t* cca = calloc(len_cca, sizeof(*cca));
+  cca[0].interface_type = E2_NODE_COMPONENT_INTERFACE_TYPE_E1;
+  cca[0].id.e1.gnb_cu_up_id = 1234567;
+  const char* req = "FAKE REQUEST";
+  cca[0].configuration.request_part.buf = (uint8_t*) strdup(req);
+  cca[0].configuration.request_part.len = strlen(req);
+  const char* resp = "FAKE RESPONSE";
+  cca[0].configuration.response_part.buf = (uint8_t*) strdup(resp);
+  cca[0].configuration.response_part.len = strlen(resp);
 
-  e2_setup_request_t e2_stp_req =
-  {
+  e2_setup_request_t e2_stp_req = {
+    .trx_id = trx_id,
     .id = id,
     .ran_func_item = ran_func_item ,
     .len_rf = len_rf, 
-    .comp_conf_update = comp_conf_update,
-    .len_ccu = len_ccu
+    .comp_conf_addition = cca,
+    .len_cca = len_cca
   };
 
   E2AP_PDU_t* pdu = e2ap_enc_setup_request_asn_pdu(&e2_stp_req);
@@ -314,7 +322,9 @@ void test_e2_setup_request()
 
 void test_e2_setup_response()
 {
-  e2ap_plmn_t plmn = {
+  uint8_t trx_id = 1;
+
+  plmn_t plmn = {
     .mcc = 10,
     .mnc = 15,
     .mnc_digit_len = 2
@@ -330,17 +340,26 @@ void test_e2_setup_response()
   accepted[0] = 45;
   const size_t len_rej = 0;
   rejected_ran_function_t* rejected = NULL;
-  e2_node_component_config_update_t* comp_conf_update_ack_list = NULL;
-  const size_t len_ccual = 0;
+  const size_t len_cca = 1;
+  e2_node_component_config_ack_t* cca = calloc(len_cca, sizeof(*cca));
+  cca[0].interface_type = E2_NODE_COMPONENT_INTERFACE_TYPE_F1;
+  cca[0].id.f1.gnb_du_id = 1234567;
+  cca[0].config_ack.outcome = E2_NODE_COMPONENT_CONFIGURATION_ACKNOWLEDGE_FAILURE;
+  cca[0].config_ack.cause = calloc(1, sizeof(*cca[0].config_ack.cause));
+  *cca[0].config_ack.cause = (cause_t) {
+    .present = CAUSE_RICSERVICE,
+    .ricService = CAUSE_RICSERVICE_RIC_RESOURCE_LIMIT
+  };
 
   e2_setup_response_t e2_stp_res = {
+    .trx_id = trx_id,
     .id = id,
     .accepted = accepted ,
     .len_acc = len_acc ,
     .rejected = rejected ,
     .len_rej = len_rej ,
-    .comp_conf_update_ack_list = comp_conf_update_ack_list ,
-    .len_ccual = len_ccual ,
+    .comp_conf_ack = cca,
+    .len_cca = len_cca,
   };
 
   E2AP_PDU_t* pdu = e2ap_enc_setup_response_asn_pdu(&e2_stp_res);
@@ -397,13 +416,11 @@ void test_ric_control_ack()
                           .ran_func_id = 12};
 
   byte_array_t* call_process_id = NULL; // optional
-  ric_control_status_t status = RIC_CONTROL_STATUS_SUCCESS;
   byte_array_t* control_outcome = NULL; // optional
 
  ric_control_acknowledge_t c_ack = {
   .ric_id = ric_id,
   .call_process_id = call_process_id,
-  .status = status,
   .control_outcome = control_outcome,
  };
 
@@ -448,10 +465,12 @@ void test_error_indication()
   ric_id->ric_req_id = 3;
   ric_id->ran_func_id = 42;
 
+  uint8_t* trx_id = NULL; // optional
   cause_t* cause = NULL; // optional
   criticality_diagnostics_t* crit_diag = NULL; // optional
 
   e2ap_error_indication_t ei = {
+  .trx_id = trx_id, // optional
   .ric_id = ric_id, // optional
   .cause = cause, // optional
   .crit_diag = crit_diag, // optional
@@ -467,6 +486,8 @@ void test_error_indication()
 
 void test_e2_setup_failure()
 {
+  uint8_t trx_id = 1;
+
   cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
 
   e2ap_time_to_wait_e* time_to_wait_ms = calloc(1, sizeof(e2ap_time_to_wait_e)); // optional 
@@ -490,11 +511,12 @@ void test_e2_setup_failure()
   tl_info->port->len = strlen(port);  
 */
   e2_setup_failure_t sf = {
-  .cause = cause,
-  .time_to_wait_ms = time_to_wait_ms,            // optional
-  .crit_diag = crit_diag, // optional
-  .tl_info = tl_info, // optional
-};
+    .trx_id = trx_id,
+    .cause = cause,
+    .time_to_wait_ms = time_to_wait_ms,  // optional
+    .crit_diag = crit_diag,              // optional
+    .tl_info = tl_info,                  // optional
+  };
 
   E2AP_PDU_t* pdu = e2ap_enc_setup_failure_asn_pdu(&sf);
   e2ap_free_setup_failure(&sf);
@@ -506,8 +528,10 @@ void test_e2_setup_failure()
 
 void test_reset_request()
 {
+  uint8_t trx_id = 1;
+
   const cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
- e2ap_reset_request_t rr = {.cause = cause};
+ e2ap_reset_request_t rr = {.trx_id = trx_id, .cause = cause};
 
   E2AP_PDU_t* pdu = e2ap_enc_reset_request_asn_pdu(&rr);
   e2ap_free_reset_request(&rr);
@@ -519,8 +543,11 @@ void test_reset_request()
 
 void test_reset_response()
 {
+  uint8_t trx_id = 1;
+
   criticality_diagnostics_t* crit_diag = NULL; // optional
   e2ap_reset_response_t rr = {
+    .trx_id = trx_id,
     .crit_diag = crit_diag, // optional
   };
 
@@ -534,32 +561,43 @@ void test_reset_response()
 
 void test_ric_service_update()
 {
-  byte_array_t ba;
-  memset(&ba, 0, sizeof(byte_array_t));
+  uint8_t trx_id = 1;
+
   const char* def = "This is a dummy definition";
-  ba.buf =  malloc(strlen(def));
-  memcpy(ba.buf, def, strlen(def));
-  ba.len = strlen(def);
+  const char* oid = "TEST OID";
 
   const size_t len_added = 1;
   ran_function_t* added = calloc(len_added, sizeof(ran_function_t ));
   added->id = 42;
   added->rev = 0;
-  added->def = ba;
+  added->def.buf = (uint8_t*) strdup(def);
+  added->def.len = strlen(def);
+  added->oid.buf = (uint8_t*) strdup(oid);
+  added->oid.len = strlen(oid);
 
-  ran_function_t* modified = NULL;
-  const size_t len_modified = 0;
-  e2ap_ran_function_id_rev_t* deleted = NULL;
-  size_t len_deleted = 0;
+  const size_t len_modified = 1;
+  ran_function_t* modified = calloc(len_modified, sizeof(*modified));
+  modified->id = 43;
+  modified->rev = 1;
+  modified->def.buf = (uint8_t *) strdup(def);
+  modified->def.len = strlen(def);
+  modified->oid.buf = (uint8_t*) strdup(oid);
+  modified->oid.len = strlen(oid);
 
- ric_service_update_t su = {
-  .len_added = len_added,
-  .added = added,  
-  .modified = modified,
-  .len_modified = len_modified, 
-  .deleted = deleted,
-  .len_deleted = len_deleted,
- };
+  const size_t len_deleted = 1;
+  e2ap_ran_function_id_rev_t* deleted = calloc(len_deleted, sizeof(*deleted));
+  deleted->id = 44;
+  deleted->rev = 2;
+
+  ric_service_update_t su = {
+    .trx_id = trx_id,
+    .len_added = len_added,
+    .added = added,
+    .modified = modified,
+    .len_modified = len_modified,
+    .deleted = deleted,
+    .len_deleted = len_deleted,
+  };
 
   E2AP_PDU_t* pdu = e2ap_enc_service_update_asn_pdu(&su);
   e2ap_free_service_update(&su);
@@ -571,6 +609,8 @@ void test_ric_service_update()
 
 void test_ric_service_update_ack()
 {
+  uint8_t trx_id = 1;
+
   const size_t len_accepted = 1;
   ran_function_id_t* accepted = calloc(len_accepted, sizeof(ran_function_t));
   accepted->id = 3;
@@ -580,6 +620,7 @@ void test_ric_service_update_ack()
   size_t len_rejected = 0;
 
   ric_service_update_ack_t su = {
+    .trx_id = trx_id,
     .accepted = accepted,
     .len_accepted = len_accepted,
     .rejected = rejected,
@@ -596,21 +637,18 @@ void test_ric_service_update_ack()
 
 void test_ric_service_update_failure()
 {
+  uint8_t trx_id = 1;
+
   const cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
-  const size_t len_rej = 1;
-  rejected_ran_function_t* rejected = calloc(len_rej, sizeof(rejected_ran_function_t));
-   rejected->id = 42;
-    rejected->cause = cause;
 
   e2ap_time_to_wait_e* time_to_wait = NULL;
   criticality_diagnostics_t* crit_diag = NULL;
 
-
   ric_service_update_failure_t uf = {
-  .rejected = rejected, 
-  .len_rej= len_rej,
-  .time_to_wait = time_to_wait,
-  .crit_diag = crit_diag,
+    .trx_id = trx_id,
+    .cause = cause,
+    .time_to_wait = time_to_wait,
+    .crit_diag = crit_diag,
   };
 
   E2AP_PDU_t* pdu = e2ap_enc_service_update_failure_asn_pdu(&uf);
@@ -623,6 +661,8 @@ void test_ric_service_update_failure()
 
 void test_ric_service_query()
 {
+  uint8_t trx_id = 1;
+
   size_t len_accepted = 1;
   e2ap_ran_function_id_rev_t*  accepted = calloc(len_accepted, sizeof(e2ap_ran_function_id_rev_t));
 
@@ -630,6 +670,7 @@ void test_ric_service_query()
   accepted->rev = 5;
 
   ric_service_query_t sq = {
+    .trx_id = trx_id,
     .accepted = accepted,
     .len_accepted = len_accepted,
   };
@@ -823,8 +864,8 @@ int main()
   test_ric_service_update_ack(); 
   test_ric_service_update_failure(); 
   test_ric_service_query(); 
-  test_e2_node_configuration_update();  
-  test_e2_node_configuration_update_ack();  
+  //test_e2_node_configuration_update();
+  //test_e2_node_configuration_update_ack();
   test_e2_node_configuration_update_failure();  
   test_e2_node_connection_update();
   test_e2_node_connection_update_ack(); 

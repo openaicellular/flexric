@@ -29,6 +29,7 @@
 #include "common/e2ap_criticality_diagnostics.h"
 
 typedef struct {
+  uint8_t* trx_id; // optional
   ric_gen_id_t* ric_id; // optional
   cause_t* cause; // optional
   criticality_diagnostics_t* crit_diag; // optional

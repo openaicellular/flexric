@@ -84,8 +84,8 @@ e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_requ
     if(it != end_it){
       assert(id == *(uint16_t*)assoc_key(&ric->plugin.sm_ds, it) );
       accepted[i] = id;
-      char def[128] = {0};
-      assert(req->ran_func_item[i].def.len < 127 );
+      char def[1024] = {0};
+      assert(req->ran_func_item[i].def.len < 1023 );
       memcpy(def, req->ran_func_item[i].def.buf, req->ran_func_item[i].def.len);
       printf("[NEAR-RIC]: Accepting RAN function ID %d with def = %s \n", id, def);
     } else {
@@ -102,6 +102,17 @@ e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_requ
     fflush(stdout);
   }
 
+  // accept any component configuration
+  const size_t len_cca = req->len_cca;
+  e2_node_component_config_ack_t* cca = calloc(len_cca, sizeof(*cca));
+  for (size_t i = 0; i < len_cca; ++i) {
+    e2_node_component_config_t* cc = &req->comp_conf_addition[i];
+    cca[i].interface_type = cp_e2_node_component_interface_type(cc->interface_type);
+    cca[i].id = cp_e2_node_component_id(cc->interface_type, &cc->id);
+    cca[i].config_ack.outcome = E2_NODE_COMPONENT_CONFIGURATION_ACKNOWLEDGE_SUCCESS;
+    printf("[NEAR-RIC]: Accepting interfaceType %d\n", cca[i].interface_type);
+  }
+
   e2_setup_response_t sr = {
       .id.plmn = req->id.plmn, 
       .id.near_ric_id.double_word = 25,
@@ -109,8 +120,8 @@ e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_requ
       .len_acc = len_acc,
       .rejected = NULL,
       .len_rej = 0,
-      .comp_conf_update_ack_list = NULL,
-      .len_ccual = 0
+      .comp_conf_ack = cca,
+      .len_cca = len_cca
   };
 
   return sr;
@@ -300,7 +311,7 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   assert(msg->type == RIC_CONTROL_ACKNOWLEDGE);
 
   ric_control_acknowledge_t const* ack = &msg->u_msgs.ric_ctrl_ack;
-  assert( ack->status == RIC_CONTROL_STATUS_SUCCESS && "Only success supported ") ;
+  // assert( ack->status == RIC_CONTROL_STATUS_SUCCESS && "Only success supported ") ;
 
   pending_event_ric_t ev = {.ev = CONTROL_REQUEST_PENDING_EVENT, .id = ack->ric_id }; 
   stop_pending_event(ric, &ev);
@@ -354,7 +365,7 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   fflush(stdout);
   const e2_setup_request_t* req = &msg->u_msgs.e2_stp_req;
 
-  const e2ap_plmn_t* plmn = &req->id.plmn;
+  const plmn_t* plmn = &req->id.plmn;
   const char* ran_type = get_ngran_name(req->id.type);
   if (NODE_IS_MONOLITHIC(req->id.type))
     printf("[E2AP] Received SETUP-REQUEST from PLMN %3d.%*d Node ID %d RAN type %s\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id, ran_type);

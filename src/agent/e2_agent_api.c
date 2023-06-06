@@ -51,7 +51,7 @@ void* static_start_agent(void* a)
 
                     
 static
-global_e2_node_id_t init_ge2ni(ngran_node_t ran_type, e2ap_plmn_t plmn, int nb_id, int cu_du_id)
+global_e2_node_id_t init_ge2ni(ngran_node_t ran_type, plmn_t plmn, int nb_id, int cu_du_id)
 {
   global_e2_node_id_t ge2ni =  {.type = ran_type, .plmn = plmn, .nb_id = nb_id, .cu_du_id = NULL};
 
@@ -88,7 +88,7 @@ void init_agent_api(int mcc,
 
   char* server_ip_str = get_near_ric_ip(args);
 
-  const e2ap_plmn_t plmn = {.mcc = mcc, .mnc = mnc, .mnc_digit_len = mnc_digit_len};
+  const plmn_t plmn = {.mcc = mcc, .mnc = mnc, .mnc_digit_len = mnc_digit_len};
   global_e2_node_id_t ge2ni = init_ge2ni(ran_type, plmn, nb_id, cu_du_id ); 
 
   const int e2ap_server_port = 36421;

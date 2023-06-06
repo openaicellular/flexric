@@ -13,6 +13,8 @@ extern "C" {
 #define max_val_GNB_CU_UP_ID (68719476735)
 #define min_val_GNB_DU_ID (0)
 #define max_val_GNB_DU_ID (68719476735)
+#define min_val_NGENB_DU_ID (0)
+#define max_val_NGENB_DU_ID (68719476735)
 #define min_val_RANfunctionID (0)
 #define max_val_RANfunctionID (4095)
 #define min_val_RANfunctionRevision (0)
@@ -34,6 +36,7 @@ extern "C" {
 #define maxofConnectedE2Nodes (256)
 #define maxofRICactionID (16)
 #define maxofTNLA (32)
+#define maxofRICrequestID (1024)
 
 
 #ifdef __cplusplus

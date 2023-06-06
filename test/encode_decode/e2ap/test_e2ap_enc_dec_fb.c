@@ -111,7 +111,7 @@ void test_subscription_failure()
   free_byte_array(ba);
   assert(msg.type == RIC_SUBSCRIPTION_FAILURE);
   ric_subscription_failure_t* sf_end = &msg.u_msgs.ric_sub_fail;
-  assert(eq_ric_subscritption_failure(&sf_begin, sf_end));
+  assert(eq_ric_subscription_failure(&sf_begin, sf_end));
   e2ap_free_subscription_failure(sf_end);
 }
 

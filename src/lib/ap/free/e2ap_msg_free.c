@@ -14,6 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *-------------------------------------------------------------------------------
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
@@ -73,6 +74,12 @@ void free_node_config_update(e2_node_component_config_update_t* dst)
   }
 }
 
+static
+void free_node_component_config(e2_node_component_config_t* dst)
+{
+  assert(dst != NULL);
+  free_e2_node_component_config(dst);
+}
 
 // RIC -> E2
 void e2ap_free_subscription_request_msg(e2ap_msg_t* msg)
@@ -125,8 +132,6 @@ void e2ap_free_subscription_failure_msg(e2ap_msg_t* msg)
 void e2ap_free_subscription_failure(ric_subscription_failure_t* sf)
 {
   assert(sf != NULL);
-  assert(sf->not_admitted != NULL);
-  free(sf->not_admitted);
 
   if(sf->crit_diag != NULL){
     assert(0!=0 && "Not implemented");
@@ -295,14 +300,14 @@ void e2ap_free_setup_request(e2_setup_request_t* sr)
   for(size_t i = 0; i < sr->len_rf; ++i){
     ran_function_t* dst = &sr->ran_func_item[i];
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(sr->ran_func_item);
 
-  for(size_t i = 0; i < sr->len_ccu; ++i){
-    free_node_config_update(&sr->comp_conf_update[i]);  
+  for(size_t i = 0; i < sr->len_cca; ++i){
+    free_node_component_config(&sr->comp_conf_addition[i]);
   } 
-  free(sr->comp_conf_update); 
+  free(sr->comp_conf_addition);
 }
 
 
@@ -327,9 +332,9 @@ void e2ap_free_setup_response(e2_setup_response_t* sr)
     assert(0!= 0 && "Not Implemented");
   }
 
-  if(sr->len_ccual > 0){
-    assert(0!= 0 && "Not Implemented");
-  }
+  for (size_t i = 0; i < sr->len_cca; ++i)
+    free_e2_node_component_config_ack(&sr->comp_conf_ack[i]);
+  free(sr->comp_conf_ack);
 
 }
 
@@ -404,14 +409,14 @@ void e2ap_free_service_update(ric_service_update_t* su)
   for(size_t i = 0; i < su->len_added; ++i){
     ran_function_t* dst = &su->added[i]; 
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(su->added);
 
   for(size_t i = 0; i < su->len_modified; ++i){
     ran_function_t* dst = &su->modified[i]; 
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(su->modified);
 
@@ -452,7 +457,6 @@ void e2ap_free_service_update_failure_msg(e2ap_msg_t* msg)
 void e2ap_free_service_update_failure(ric_service_update_failure_t* uf)
 {
   assert(uf != NULL);
-  free(uf->rejected); 
   if(uf->crit_diag != NULL){
     assert(0!=0 && "not implemented");
   }
@@ -626,7 +630,7 @@ void e2ap_free_e42_setup_request(e42_setup_request_t* sr)
   for(size_t i = 0; i < sr->len_rf; ++i){
     ran_function_t* dst = &sr->ran_func_item[i];
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(sr->ran_func_item);
 }
@@ -645,7 +649,7 @@ void e2ap_free_e42_setup_response(e42_setup_response_t* sr)
 
   for(size_t i = 0; i < sr->len_e2_nodes_conn; ++i){
     e2_node_connected_t* n = &sr->nodes[i];
-    free_e2_node_connected(n);
+      free_e2_node_connected(n);
   }
   free(sr->nodes);
 }

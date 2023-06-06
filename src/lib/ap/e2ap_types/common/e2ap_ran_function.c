@@ -31,11 +31,7 @@ ran_function_t cp_ran_function(const ran_function_t* src)
   assert(src != NULL);
   ran_function_t dst = {.id = src->id, .rev = src->rev }; 
   dst.def = copy_byte_array(src->def);
-  if(src->oid != NULL){
-    dst.oid = calloc(1, sizeof(byte_array_t));
-    assert(dst.oid != NULL && "Memory exhausted");
-    *dst.oid = copy_byte_array(*src->oid);
-  }
+  dst.oid = copy_byte_array(src->oid);
   return dst;
 }
 
@@ -43,10 +39,7 @@ void free_ran_function(ran_function_t* src)
 {
   assert(src != NULL);
   free_byte_array(src->def);
-  if(src->oid != NULL){
-    free_byte_array(*src->oid);
-    free(src->oid);
-  }
+  free_byte_array(src->oid);
 }
 
 void free_ran_function_wrapper(void* a)
@@ -73,7 +66,7 @@ bool eq_ran_function(const ran_function_t* m0, const ran_function_t* m1)
   if(m0->rev != m1->rev)
     return false;
 
-  if(eq_byte_array(m0->oid, m1->oid) == false)
+  if(eq_byte_array(&m0->oid, &m1->oid) == false)
     return false;
 
   return true;
