@@ -26,7 +26,7 @@
 #include "../../../../src/sm/rlc_sm/rlc_sm_id.h"
 #include "../../../../src/sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../../../src/sm/gtp_sm/gtp_sm_id.h"
-#include "../../../../src/sm/kpm_sm_v2.02/kpm_sm_id.h"
+#include "../../../../src/sm/kpm_sm_v03.00/kpm_sm_id.h"
 #include "../../../../src/util/ngran_types.h"
 
 #include <stdlib.h>
@@ -42,64 +42,69 @@ static void sigint_handler(int sig)
   exit_flag = true;
 }
 
-uint64_t count_max = 100;
-uint64_t count_mac = 0;
-uint64_t aggr_tstamp_mac = 0;
-uint64_t count_rlc = 0;
-uint64_t aggr_tstamp_rlc = 0;
-uint64_t count_pdcp = 0;
-uint64_t aggr_tstamp_pdcp = 0;
-uint64_t count_kpm = 0;
-uint64_t aggr_tstamp_kpm = 0;
+//uint64_t count_max = 100;
+//uint64_t count_mac = 0;
+//uint64_t aggr_tstamp_mac = 0;
+//uint64_t count_rlc = 0;
+//uint64_t aggr_tstamp_rlc = 0;
+//uint64_t count_pdcp = 0;
+//uint64_t aggr_tstamp_pdcp = 0;
+//uint64_t count_kpm = 0;
+//uint64_t aggr_tstamp_kpm = 0;
 static
 void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
 
   int64_t now = time_now_us();
-  if (rd->type == MAC_STATS_V0) {
-    count_mac += 1;
-    aggr_tstamp_mac += now - rd->mac_stats.msg.tstamp;
-    if (count_mac == count_max) {
-      printf("MAC ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
-             aggr_tstamp_mac/count_max, e2_node->type, e2_node->nb_id);
-      count_mac = 0;
-      aggr_tstamp_mac = 0;
-    }
-  } else if (rd->type == RLC_STATS_V0) {
-    count_rlc += 1;
-    aggr_tstamp_rlc += now - rd->rlc_stats.msg.tstamp;
-    if (count_rlc == count_max) {
-      printf("RLC ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
-             aggr_tstamp_rlc/count_max, e2_node->type, e2_node->nb_id);
-      count_rlc = 0;
-      aggr_tstamp_rlc = 0;
-    }
-  } else if (rd->type == PDCP_STATS_V0) {
-    count_pdcp += 1;
-    aggr_tstamp_pdcp += now - rd->pdcp_stats.msg.tstamp;
-    if (count_pdcp == count_max) {
-      printf("PDCP ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
-             aggr_tstamp_pdcp/count_max, e2_node->type, e2_node->nb_id);
-      count_pdcp = 0;
-      aggr_tstamp_pdcp = 0;
-    }
-  } else if (rd->type == GTP_STATS_V0) {
-    printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
-           now - rd->gtp_stats.msg.tstamp, e2_node->type, e2_node->nb_id);
-  } else if (rd->type == KPM_STATS_V0) {
-    // int64_t diff = now/1000000 - (int64_t)rd->kpm_stats.hdr.collectStartTime;
-    if (rd->kpm_stats.msg.MeasData_len > 0) {
-      if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0) {
-        count_kpm += 1;
-        aggr_tstamp_kpm += now - rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
-        if (count_kpm == count_max) {
-          printf("KPM ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
-                 aggr_tstamp_kpm/count_max, e2_node->type, e2_node->nb_id);
-          count_kpm = 0;
-          aggr_tstamp_kpm = 0;
-        }
-      }
+  if (rd->ind.type == MAC_STATS_V0) {
+//    count_mac += 1;
+//    aggr_tstamp_mac += now - rd->ind.mac.msg.tstamp;
+//    if (count_mac == count_max) {
+//      printf("MAC ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
+//             aggr_tstamp_mac/count_max, e2_node->type, e2_node->nb_id);
+//      count_mac = 0;
+//      aggr_tstamp_mac = 0;
+//    }
+    printf("MAC ind_msg latency = %lu from E2-node type %d ID %d\n",
+           now - rd->ind.mac.msg.tstamp, e2_node->type, e2_node->nb_id);
+  } else if (rd->ind.type == RLC_STATS_V0) {
+//    count_rlc += 1;
+//    aggr_tstamp_rlc += now - rd->ind.rlc.msg.tstamp;
+//    if (count_rlc == count_max) {
+//      printf("RLC ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
+//             aggr_tstamp_rlc/count_max, e2_node->type, e2_node->nb_id);
+//      count_rlc = 0;
+//      aggr_tstamp_rlc = 0;
+//    }
+    printf("RLC ind_msg latency = %lu from E2-node type %d ID %d\n",
+           now - rd->ind.rlc.msg.tstamp, e2_node->type, e2_node->nb_id);
+  } else if (rd->ind.type == PDCP_STATS_V0) {
+//    count_pdcp += 1;
+//    aggr_tstamp_pdcp += now - rd->ind.pdcp.msg.tstamp;
+//    if (count_pdcp == count_max) {
+//      printf("PDCP ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
+//             aggr_tstamp_pdcp/count_max, e2_node->type, e2_node->nb_id);
+//      count_pdcp = 0;
+//      aggr_tstamp_pdcp = 0;
+//    }
+    printf("PDCP ind_msg latency = %lu from E2-node type %d ID %d\n",
+           now - rd->ind.pdcp.msg.tstamp, e2_node->type, e2_node->nb_id);
+//  } else if (rd->ind.type == GTP_STATS_V0) {
+//    printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
+//           now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id);
+  } else if (rd->ind.type == KPM_STATS_V3_0) {
+    if (rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime) {
+//      count_kpm += 1;
+//      aggr_tstamp_kpm += now - rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime;
+//      if (count_kpm == count_max) {
+//        printf("KPM ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
+//               aggr_tstamp_kpm/count_max, e2_node->type, e2_node->nb_id);
+//        count_kpm = 0;
+//        aggr_tstamp_kpm = 0;
+//      }
+      printf("KPM ind_msg latency = %lu from E2-node type %d ID %d\n",
+             now - rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime, e2_node->type, e2_node->nb_id);
     }
   }
   else
@@ -155,67 +160,174 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 //  return sm_id_arr;
 //}
 
+
+static
+byte_array_t copy_str_to_ba(const char* str)
+{
+  assert(str != NULL);
+
+  size_t const sz = strlen(str);
+  byte_array_t dst = {.len = sz };
+  dst.buf = calloc(sz ,sizeof(uint8_t) );
+  assert(dst.buf != NULL);
+
+  memcpy(dst.buf, str, sz);
+
+  return dst;
+}
+
+static
+kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
+{
+  kpm_event_trigger_def_t dst = {0};
+
+  dst.type = FORMAT_1_RIC_EVENT_TRIGGER;
+  dst.kpm_ric_event_trigger_format_1.report_period_ms = period;
+
+  return dst;
+}
+
+static
+meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
+{
+  meas_info_format_1_lst_t dst = {0};
+
+  dst.meas_type.type = NAME_MEAS_TYPE;
+  // ETSI TS 128 552
+  dst.meas_type.name = copy_str_to_ba(  action );
+
+  dst.label_info_lst_len = 1;
+  dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
+  assert(dst.label_info_lst != NULL && "Memory exhausted");
+  dst.label_info_lst[0].noLabel = calloc(1, sizeof(enum_value_e));
+  assert(dst.label_info_lst[0].noLabel != NULL && "Memory exhausted");
+  *dst.label_info_lst[0].noLabel = TRUE_ENUM_VALUE;
+
+  return dst;
+}
+
+static
+kpm_act_def_format_1_t gen_act_def_frmt_1(const char* action)
+{
+  kpm_act_def_format_1_t dst = {0};
+
+  dst.gran_period_ms = 100;
+
+  // [1, 65535]
+  dst.meas_info_lst_len = 1;
+  dst.meas_info_lst = calloc(1, sizeof(meas_info_format_1_lst_t));
+  assert(dst.meas_info_lst != NULL && "Memory exhausted");
+
+  *dst.meas_info_lst = gen_meas_info_format_1_lst(action);
+
+  return dst;
+}
+
+static
+kpm_act_def_format_4_t gen_act_def_frmt_4(const char* action)
+{
+  kpm_act_def_format_4_t dst = {0};
+
+  // [1, 32768]
+  dst.matching_cond_lst_len = 1;
+
+  dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
+  assert(dst.matching_cond_lst != NULL && "Memory exhausted");
+
+  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
+  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
+  dst.matching_cond_lst[0].test_info_lst.int_value = malloc(sizeof(int64_t));
+  assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.int_value = 0;
+
+  // Action definition Format 1
+  dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
+
+  return dst;
+}
+
+static
+kpm_act_def_t gen_act_def(const char* act)
+{
+  kpm_act_def_t dst = {0};
+
+  dst.type = FORMAT_4_ACTION_DEFINITION;
+  dst.frm_4 = gen_act_def_frmt_4(act);
+  return dst;
+}
+
 size_t max_handle = 256;
 size_t c_handle = 0;
 static
-void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* handle, int num_sm)
+void send_report_sm(global_e2_node_id_t* id,
+                    size_t n_idx,
+                    sm_ans_xapp_t* handle,
+                    uint16_t num_sm,
+                    uint16_t* sm_id_arr)
 {
-  // send subscription request to each e2 nodes
-  for(size_t j = 0; j < n->len_rf; j++)
-    printf("Registered E2 node idx %d, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
+  char* tti = "10_ms";
+  size_t sm_idx = 0;
+  size_t end_c_handle = c_handle + num_sm;
+  for(size_t j = c_handle; j < end_c_handle; j++){
+    uint16_t ran_func_id = sm_id_arr[sm_idx];
+    printf("xApp subscribes RAN Func ID %d in E2 node idx %ld, ngran_gNB_CU\n", ran_func_id, n_idx);
+    if (ran_func_id == SM_KPM_ID){
+      kpm_sub_data_t kpm_sub = {0};
+      defer({ free_kpm_sub_data(&kpm_sub); });
 
-  inter_xapp_e tti = ms_10;
+      // KPM Event Trigger
+      uint64_t period_ms = 10;
+      kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
+
+      // KPM Action Definition
+      kpm_sub.sz_ad = 1;
+      kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
+      assert(kpm_sub.ad != NULL && "Memory exhausted");
+      const char act[] = "DRB.RlcSduDelayDl";
+      *kpm_sub.ad = gen_act_def(act);
+
+      handle[j] = report_sm_xapp_api(id, ran_func_id, &kpm_sub, sm_cb_all);
+    } else {
+      handle[j] = report_sm_xapp_api(id, ran_func_id, tti, sm_cb_all);
+    }
+    assert(handle[j].success == true);
+    c_handle+=1;
+    sm_idx+=1;
+  }
+}
+
+static
+void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* handle) {
+  // send subscription request to each e2 nodes
+  for (size_t j = 0; j < n->len_rf; j++)
+    printf("Registered E2 node idx %ld, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
+
   if (n->id.type == ngran_gNB) {
-    num_sm = 4;
+    uint16_t num_sm = 4;
     uint16_t sm_id_arr[4] = {SM_MAC_ID, SM_RLC_ID, SM_PDCP_ID, SM_KPM_ID};
-    for(size_t j = c_handle; j < c_handle+num_sm; j++){
-      uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, ngran_gNB\n", ran_func_id, n_idx);
-      handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
-      assert(handle[j].success == true);
-      c_handle+=1;
-    }
+    send_report_sm(&n->id, n_idx, handle, num_sm, sm_id_arr);
   } else if (n->id.type == ngran_gNB_CU) {
-    num_sm = 1;
+    uint16_t num_sm = 1;
     uint16_t sm_id_arr[1] = {SM_PDCP_ID};
-    for(size_t j = c_handle; j < c_handle+num_sm; j++){
-      uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, ngran_gNB_CU\n", ran_func_id, n_idx);
-      handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
-      assert(handle[j].success == true);
-      c_handle+=1;
-    }
+    send_report_sm(&n->id, n_idx, handle, num_sm, sm_id_arr);
   } else if (n->id.type == ngran_gNB_DU) {
-    num_sm = 2;
-    uint16_t sm_id_arr[2] = {SM_MAC_ID, SM_RLC_ID};
-    for(size_t j = c_handle; j < c_handle+num_sm; j++){
-      uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-      printf("xApp subscribes RAN Func ID %d in E2 node idx %d, ngran_gNB_DU\n", ran_func_id, n_idx);
-      handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
-      assert(handle[j].success == true);
-      c_handle+=1;
-    }
+    uint16_t num_sm = 3;
+    uint16_t sm_id_arr[3] = {SM_MAC_ID, SM_RLC_ID, SM_KPM_ID};
+    send_report_sm(&n->id, n_idx, handle, num_sm, sm_id_arr);
   } else {
     printf("xApp doesn't support RAN type %d, do not send the subscription request\n", n->id.type);
     return;
   }
-//  assert(num_sm == 2);
-//  // give the requested RAN func id
-//  uint16_t sm_id_arr[2] = {SM_MAC_ID, SM_RLC_ID};
-//  // TODO: select the SM from n->ack_rf
-//  // uint16_t* sm_id_arr = get_rand_sm_id(num_sm);
-//  // TODO: select the transmission interval time
-//  inter_xapp_e tti = ms_10;
-//
-//  for(size_t j = c_handle; j < c_handle+num_sm; j++){
-//    uint16_t ran_func_id = sm_id_arr[num_sm-=1];
-//    printf("xApp subscribes RAN Func ID %d in E2 node %d\n", ran_func_id, n_idx);
-//    handle[j] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_all);
-//    assert(handle[j].success == true);
-//    c_handle+=1;
-//  }
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -228,10 +340,6 @@ int main(int argc, char *argv[])
   signal(SIGTERM, sigint_handler);
   sleep(1);
 
-
-  // init num of sm and handle
-  // TODO: give the num of sm randomly  //abs(rand()%5)+1;
-  size_t num_sm = 2;
   sm_ans_xapp_t *handle = NULL;
   if (max_handle > 0) {
     handle = calloc(max_handle, sizeof(sm_ans_xapp_t *));
@@ -257,7 +365,7 @@ int main(int argc, char *argv[])
   e2_node_arr_t nodes = e2_nodes_xapp_api();
   defer({ free_e2_node_arr(&nodes); });
   for (size_t i = 0; i < nodes.len; i++) {
-    send_subscription_req(&nodes.n[i], i, handle, num_sm);
+    send_subscription_req(&nodes.n[i], i, handle);
   }
 
   // case2: send subscription req to the new connected e2 node
@@ -289,7 +397,7 @@ int main(int argc, char *argv[])
           }
           if (new_type || new_nb_id) {
             printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
-            send_subscription_req(&cur_nodes.n[i], i, handle, num_sm);
+            send_subscription_req(&cur_nodes.n[i], i, handle);
           }
         }
       }
@@ -299,6 +407,7 @@ int main(int argc, char *argv[])
       if (nodes_len == 0)
         c_handle = 0;
     }
+    sleep(1);
   }
 
   printf("CTRL+C detect\n");
