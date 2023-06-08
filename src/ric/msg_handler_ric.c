@@ -28,7 +28,7 @@
 #include "msg_handler_ric.h"
 #include "util/alg_ds/alg/alg.h"
 #include "util/compare.h"
-#include "util/ngran_types.h"
+#include "util/e2ap_ngran_types.h"
 //#include "act_req.h"
 #include "e2ap_ric.h"
 #include "near_ric.h"
@@ -355,8 +355,8 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   const e2_setup_request_t* req = &msg->u_msgs.e2_stp_req;
 
   const e2ap_plmn_t* plmn = &req->id.plmn;
-  const char* ran_type = get_ngran_name(req->id.type);
-  if (NODE_IS_MONOLITHIC(req->id.type))
+  const char* ran_type = get_e2ap_ngran_name(req->id.type);
+  if (E2AP_NODE_IS_MONOLITHIC(req->id.type))
     printf("[E2AP] Received SETUP-REQUEST from PLMN %3d.%*d Node ID %d RAN type %s\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id, ran_type);
   else
     printf("[E2AP] Received SETUP-REQUEST from PLMN %3d.%*d Node ID %d RAN type %s CU/DU ID %ld\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id, ran_type, *req->id.cu_du_id);

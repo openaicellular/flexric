@@ -60,8 +60,7 @@ if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
             $<TARGET_OBJECTS:sm_common_ie_obj>
 
 
-
-            ../util/ngran_type.c
+      ../util/e2ap_ngran_type.c
             ../sm/mac_sm/ie/mac_data_ie.c
             ../sm/rlc_sm/ie/rlc_data_ie.c
             ../sm/pdcp_sm/ie/pdcp_data_ie.c
@@ -118,8 +117,7 @@ else()
             $<TARGET_OBJECTS:sm_common_ie_obj>
 
 
-
-            ../util/ngran_type.c
+      ../util/e2ap_ngran_type.c
             ../sm/mac_sm/ie/mac_data_ie.c
             ../sm/rlc_sm/ie/rlc_data_ie.c
             ../sm/pdcp_sm/ie/pdcp_data_ie.c

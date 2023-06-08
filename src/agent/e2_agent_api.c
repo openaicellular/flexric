@@ -30,7 +30,7 @@
 #include "e2_agent.h"                                      // for e2_free_agent
 #include "lib/ap/e2ap_types/common/e2ap_global_node_id.h"  // for global_e2_...
 #include "lib/ap/e2ap_types/common/e2ap_plmn.h"            // for plmn_t
-#include "util/ngran_types.h"                              // for ngran_gNB
+#include "util/e2ap_ngran_types.h"                              // for ngran_gNB
 #include "util/conf_file.h"
 
 
@@ -51,16 +51,16 @@ void* static_start_agent(void* a)
 
 
 static
-global_e2_node_id_t init_ge2ni(ngran_node_t ran_type, e2ap_plmn_t plmn, int nb_id, int cu_du_id)
+global_e2_node_id_t init_ge2ni(e2ap_ngran_node_t ran_type, e2ap_plmn_t plmn, int nb_id, int cu_du_id)
 {
   global_e2_node_id_t ge2ni =  {.type = ran_type, .plmn = plmn, .nb_id = nb_id, .cu_du_id = NULL};
 
-  if (NODE_IS_CU(ran_type) || NODE_IS_DU(ran_type)) {
+  if (E2AP_NODE_IS_CU(ran_type) || E2AP_NODE_IS_DU(ran_type)) {
     assert(cu_du_id > 0);
     ge2ni.cu_du_id = calloc(1, sizeof(uint64_t));
     assert(ge2ni.cu_du_id != NULL && "memory exhausted");
     *ge2ni.cu_du_id = cu_du_id;
-  } else if(NODE_IS_MONOLITHIC(ran_type)){
+  } else if(E2AP_NODE_IS_MONOLITHIC(ran_type)){
   } else {
     assert(0 != 0 && "not support RAN type\n");
   }
@@ -75,7 +75,7 @@ void init_agent_api(int mcc,
                     int mnc_digit_len,
                     int nb_id,
                     int cu_du_id,
-                    ngran_node_t ran_type,
+                    e2ap_ngran_node_t ran_type,
                     sm_io_ag_ran_t io,
 		                fr_args_t const* args)
 {
@@ -93,7 +93,7 @@ void init_agent_api(int mcc,
 
   const int e2ap_server_port = 36421;
 
-  char* ran_type_str = get_ngran_name(ran_type);
+  char* ran_type_str = get_e2ap_ngran_name(ran_type);
   char str[128] = {0};
   int it = sprintf(str, "[E2 AGENT]: nearRT-RIC IP Address = %s, PORT = %d, RAN type = %s, nb_id = %d", server_ip_str, e2ap_server_port, ran_type_str, nb_id);
   assert(it > 0);

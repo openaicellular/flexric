@@ -29,7 +29,7 @@
 #include "../ie/fb/e2ap_builder.h"
 #include "e2ap_verifier.h"
 
-#include "util/ngran_types.h"
+#include "util/e2ap_ngran_types.h"
 #include "lib/ap/type_defs.h"
 
 
@@ -580,7 +580,7 @@ byte_array_t e2ap_enc_error_indication_fb_msg(const e2ap_msg_t* msg)
 
 byte_array_t e2ap_enc_setup_request_fb(const e2_setup_request_t* sr)
 {
-  assert(sr->id.type == ngran_gNB); // only this type supported
+  assert(sr->id.type == e2ap_ngran_gNB); // only this type supported
   assert(sr->len_rf <= (size_t)MAX_NUM_RAN_FUNC_ID);
 
   flatcc_builder_t builder;

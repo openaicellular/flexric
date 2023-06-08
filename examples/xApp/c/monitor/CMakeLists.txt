@@ -55,7 +55,7 @@ target_link_libraries(xapp_kpm_moni
 add_executable(xapp_moni
 								xapp_moni.c
 								${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
-								${CMAKE_SOURCE_DIR}/src/util/ngran_type.c
+								${CMAKE_SOURCE_DIR}/src/util/e2ap_ngran_type.c
 								)
 
 target_link_libraries(xapp_moni

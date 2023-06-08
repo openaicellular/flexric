@@ -34,7 +34,7 @@ add_library(e2_time_obj OBJECT
                         )
 
 add_library(e2_ngran_obj OBJECT
-                         ngran_type.c
+    e2ap_ngran_type.c
                          )
 
 

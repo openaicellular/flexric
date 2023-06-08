@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 
   // Init the Agent
   // Values defined in the CMakeLists.txt file
-  const ngran_node_t ran_type = TEST_AGENT_RAN_TYPE;
+  const e2ap_ngran_node_t ran_type = TEST_AGENT_RAN_TYPE;
   const int mcc = TEST_AGENT_MCC;
   const int mnc = TEST_AGENT_MNC;
   const int mnc_digit_len = TEST_AGENT_MNC_DIG_LEN;
@@ -175,10 +175,10 @@ int main(int argc, char *argv[])
 
   fr_args_t args = init_fr_args(argc, argv);
 
-  if (NODE_IS_MONOLITHIC(ran_type))
-    printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n", nb_id, mcc, mnc, mnc_digit_len, get_ngran_name(ran_type));
+  if (E2AP_NODE_IS_MONOLITHIC(ran_type))
+    printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n", nb_id, mcc, mnc, mnc_digit_len, get_e2ap_ngran_name(ran_type));
   else
-    printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %d\n", nb_id, mcc, mnc, mnc_digit_len, get_ngran_name(ran_type), cu_du_id);
+    printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %d\n", nb_id, mcc, mnc, mnc_digit_len, get_e2ap_ngran_name(ran_type), cu_du_id);
 
   init_agent_api(mcc, mnc, mnc_digit_len, nb_id, cu_du_id, ran_type, io, &args);
 

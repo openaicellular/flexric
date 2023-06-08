@@ -27,7 +27,7 @@
 #include "../../../../src/sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../../../src/sm/gtp_sm/gtp_sm_id.h"
 #include "../../../../src/sm/kpm_sm_v03.00/kpm_sm_id.h"
-#include "../../../../src/util/ngran_types.h"
+#include "../../../../src/util/e2ap_ngran_types.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -311,15 +311,15 @@ void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* 
   for (size_t j = 0; j < n->len_rf; j++)
     printf("Registered E2 node idx %ld, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
 
-  if (n->id.type == ngran_gNB) {
+  if (n->id.type == e2ap_ngran_gNB) {
     uint16_t num_sm = 4;
     uint16_t sm_id_arr[4] = {SM_MAC_ID, SM_RLC_ID, SM_PDCP_ID, SM_KPM_ID};
     send_report_sm(&n->id, n_idx, handle, num_sm, sm_id_arr);
-  } else if (n->id.type == ngran_gNB_CU) {
+  } else if (n->id.type == e2ap_ngran_gNB_CU) {
     uint16_t num_sm = 1;
     uint16_t sm_id_arr[1] = {SM_PDCP_ID};
     send_report_sm(&n->id, n_idx, handle, num_sm, sm_id_arr);
-  } else if (n->id.type == ngran_gNB_DU) {
+  } else if (n->id.type == e2ap_ngran_gNB_DU) {
     uint16_t num_sm = 3;
     uint16_t sm_id_arr[3] = {SM_MAC_ID, SM_RLC_ID, SM_KPM_ID};
     send_report_sm(&n->id, n_idx, handle, num_sm, sm_id_arr);
@@ -383,8 +383,8 @@ int main(int argc, char *argv[])
         // TODO: send subscription request to new e2 node
         for (size_t i = 0; i < cur_nodes_len; i++) {
           //printf("/////////////// new E2 node list, idx %ld, nb_id %d, type %s //////////////\n", i,
-          //       cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
-          ngran_node_t cur_type = cur_nodes.n[i].id.type;
+          //       cur_nodes.n[i].id.nb_id, get_e2ap_ngran_name(cur_nodes.n[i].id.type));
+          e2ap_ngran_node_t cur_type = cur_nodes.n[i].id.type;
           uint32_t cur_nb_id = cur_nodes.n[i].id.nb_id;
           bool new_type = 1;
           bool new_nb_id = 1;
@@ -396,7 +396,7 @@ int main(int argc, char *argv[])
             if (nodes.n[j].id.nb_id == cur_nb_id) new_nb_id = 0;
           }
           if (new_type || new_nb_id) {
-            printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
+            printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_e2ap_ngran_name(cur_nodes.n[i].id.type));
             send_subscription_req(&cur_nodes.n[i], i, handle);
           }
         }

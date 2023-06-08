@@ -29,7 +29,7 @@ struct RanFunction{
 };
 
 struct swig_global_e2_node_id_t {
-  ngran_node_t type;
+  e2ap_ngran_node_t type;
   e2ap_plmn_t plmn;
   uint32_t nb_id;
   std::vector<long unsigned int> cu_du_id;

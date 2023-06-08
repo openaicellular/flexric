@@ -51,7 +51,7 @@
 #include "lib/ap/global_consts.h"
 #include "lib/ap/e2ap_ap.h"
 #include "util/conversions.h"
-#include "util/ngran_types.h"
+#include "util/e2ap_ngran_types.h"
 
 #include "lib/ap/free/e2ap_msg_free.h"
 
@@ -370,13 +370,13 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
   E42RICsubscriptionRequest_IEs_t* node_src = out->protocolIEs.list.array[1];
 
   global_e2_node_id_t* id = &e42_sr->id;
-  // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
+  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
   assert(node_src->id == ProtocolIE_ID_id_GlobalE2node_ID);
   assert(node_src->criticality == Criticality_reject);
   assert(node_src->value.present == E42RICsubscriptionRequest_IEs__value_PR_GlobalE2node_ID);
   if (node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-    id->type = ngran_gNB;
+    id->type = e2ap_ngran_gNB;
 
     GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
     assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
@@ -384,20 +384,20 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, id->nb_id);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      id->type = ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id  != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
     }
     else if (e2gnb->gNB_DU_ID) {
-      id->type = ngran_gNB_DU;
+      id->type = e2ap_ngran_gNB_DU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_DU_ID, id->cu_du_id);
     }
   } else {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-    id->type = ngran_eNB;
+    id->type = e2ap_ngran_eNB;
 
     GlobalE2node_eNB_ID_t *e2enb = node_src->value.choice.GlobalE2node_ID.choice.eNB;
     assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
@@ -992,13 +992,13 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
   E42RICcontrolRequest_IEs_t* node_src = out->protocolIEs.list.array[1];
 
   global_e2_node_id_t* id = &e42_ctrl->id;
-  // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
+  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
   assert(node_src->id == ProtocolIE_ID_id_GlobalE2node_ID);
   assert(node_src->criticality == Criticality_reject);
   assert(node_src->value.present == E42RICcontrolRequest_IEs__value_PR_GlobalE2node_ID);
   if (node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-    id->type = ngran_gNB;
+    id->type = e2ap_ngran_gNB;
 
     GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
     assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
@@ -1006,20 +1006,20 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, id->nb_id);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      id->type = ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
     }
     else if (e2gnb->gNB_DU_ID) {
-      id->type = ngran_gNB_DU;
+      id->type = e2ap_ngran_gNB_DU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_DU_ID, id->cu_du_id);
     }
   } else {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-    id->type = ngran_eNB;
+    id->type = e2ap_ngran_eNB;
 
     GlobalE2node_eNB_ID_t *e2enb = node_src->value.choice.GlobalE2node_ID.choice.eNB;
     assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
@@ -1298,13 +1298,13 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
 
   E2setupRequestIEs_t* setup_rid = out->protocolIEs.list.array[0];
 
-  // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
+  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
   assert(setup_rid->id == ProtocolIE_ID_id_GlobalE2node_ID);
   assert(setup_rid->criticality == Criticality_reject);
   assert(setup_rid->value.present == E2setupRequestIEs__value_PR_GlobalE2node_ID);
   if (setup_rid->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
     assert(setup_rid->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-    sr->id.type = ngran_gNB;
+    sr->id.type = e2ap_ngran_gNB;
 
     GlobalE2node_gNB_ID_t *e2gnb = setup_rid->value.choice.GlobalE2node_ID.choice.gNB;
     assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
@@ -1312,20 +1312,20 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID,sr->id.nb_id);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      sr->id.type = ngran_gNB_CU;
+      sr->id.type = e2ap_ngran_gNB_CU;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, sr->id.cu_du_id);
     }
     else if (e2gnb->gNB_DU_ID) {
-      sr->id.type = ngran_gNB_DU;
+      sr->id.type = e2ap_ngran_gNB_DU;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_DU_ID, sr->id.cu_du_id);
     }
   } else {
     assert(setup_rid->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-    sr->id.type = ngran_eNB;
+    sr->id.type = e2ap_ngran_eNB;
 
     GlobalE2node_eNB_ID_t *e2enb = setup_rid->value.choice.GlobalE2node_ID.choice.eNB;
     assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
@@ -2148,13 +2148,13 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
     E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
 
     e2_node_connected_t* dst = &sr->nodes[i];
-    // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
+    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
     assert(src->id == ProtocolIE_ID_id_GlobalE2node_ID);
     assert(src->criticality == Criticality_reject);
     assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
     if (src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
       assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-      dst->id.type = ngran_gNB;
+      dst->id.type = e2ap_ngran_gNB;
 
       GlobalE2node_gNB_ID_t *e2gnb = src->value.choice.GlobalE2node_ID.choice.gNB;
       assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
@@ -2162,20 +2162,20 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, dst->id.nb_id);
 
       if (e2gnb->gNB_CU_UP_ID) {
-        dst->id.type = ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CU;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
       }
       else if (e2gnb->gNB_DU_ID) {
-        dst->id.type = ngran_gNB_DU;
+        dst->id.type = e2ap_ngran_gNB_DU;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_DU_ID, dst->id.cu_du_id);
       }
     } else {
       assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-      dst->id.type = ngran_eNB;
+      dst->id.type = e2ap_ngran_eNB;
 
       GlobalE2node_eNB_ID_t *e2enb = src->value.choice.GlobalE2node_ID.choice.eNB;
       assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
@@ -2305,13 +2305,13 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
     E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
 
     e2_node_connected_t* dst = &sr->nodes[i];
-    // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
+    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
     assert(src->id == ProtocolIE_ID_id_GlobalE2node_ID);
     assert(src->criticality == Criticality_reject);
     assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
     if (src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
       assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-      dst->id.type = ngran_gNB;
+      dst->id.type = e2ap_ngran_gNB;
 
       GlobalE2node_gNB_ID_t *e2gnb = src->value.choice.GlobalE2node_ID.choice.gNB;
       assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
@@ -2319,20 +2319,20 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, dst->id.nb_id);
 
       if (e2gnb->gNB_CU_UP_ID) {
-        dst->id.type = ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CU;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
       }
       else if (e2gnb->gNB_DU_ID) {
-        dst->id.type = ngran_gNB_DU;
+        dst->id.type = e2ap_ngran_gNB_DU;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_DU_ID, dst->id.cu_du_id);
       }
     } else {
       assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-      dst->id.type = ngran_eNB;
+      dst->id.type = e2ap_ngran_eNB;
 
       GlobalE2node_eNB_ID_t *e2enb = src->value.choice.GlobalE2node_ID.choice.eNB;
       assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);

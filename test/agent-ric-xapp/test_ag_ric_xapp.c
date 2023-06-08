@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
   const int mnc_digit_len = 2;
   const int nb_id = 42;
   const int cu_du_id = 0;
-  ngran_node_t ran_type = ngran_gNB;
+  e2ap_ngran_node_t ran_type = e2ap_ngran_gNB;
   sm_io_ag_ran_t io = init_sm_io_ag_ran(); // {.read = read_RAN, .write = write_RAN};
 
   fr_args_t args = init_fr_args(argc, argv);  // Parse arguments

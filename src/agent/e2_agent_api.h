@@ -24,14 +24,14 @@
 
 #include "../sm/sm_io.h"
 #include "../util/conf_file.h"
-#include "../util/ngran_types.h"
+#include "../util/e2ap_ngran_types.h"
 
 void init_agent_api(int mcc, 
                     int mnc, 
                     int mnc_digit_len,
                     int nb_id,
                     int cu_du_id,
-                    ngran_node_t ran_type,
+                    e2ap_ngran_node_t ran_type,
                     sm_io_ag_ran_t io,
                     fr_args_t const* args);
 

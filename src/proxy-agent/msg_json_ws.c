@@ -256,7 +256,7 @@ bool ws_json_decode_e2setup (const ws_msg_t *in_msg, global_e2_node_id_t *out)
   out->plmn.mcc = 0;
   out->plmn.mnc = 0;
   out->plmn.mnc_digit_len = 0;
-  out->type = ngran_gNB;
+  out->type = e2ap_ngran_gNB;
 
   struct json_tokener *tok = json_tokener_new();
   defer({json_tokener_free(tok); }; );

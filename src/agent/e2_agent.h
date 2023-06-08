@@ -29,7 +29,7 @@
 #include "util/alg_ds/ds/tsq/tsq.h"
 
 #include "util/conf_file.h"
-#include "util/ngran_types.h"
+#include "util/e2ap_ngran_types.h"
 
 #include "lib/ap/global_consts.h"
 #include "lib/ap/type_defs.h"

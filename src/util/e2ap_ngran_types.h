@@ -30,26 +30,26 @@
 * \warning
 */
 
-#ifndef __NGRAN_TYPES_H__
-#define __NGRAN_TYPES_H__
+#ifndef __E2AP_NGRAN_TYPES_H__
+#define __E2AP_NGRAN_TYPES_H__
 
 typedef enum {
-  ngran_eNB       = 0,
-  ngran_ng_eNB    = 1,
-  ngran_gNB       = 2,
-  ngran_eNB_CU    = 3,
-  ngran_ng_eNB_CU = 4,
-  ngran_gNB_CU    = 5,
-  ngran_eNB_DU    = 6,
-  ngran_gNB_DU    = 7,
-  ngran_eNB_MBMS_STA  = 8
-} ngran_node_t;
+  e2ap_ngran_eNB       = 0,
+  e2ap_ngran_ng_eNB    = 1,
+  e2ap_ngran_gNB       = 2,
+  e2ap_ngran_eNB_CU    = 3,
+  e2ap_ngran_ng_eNB_CU = 4,
+  e2ap_ngran_gNB_CU    = 5,
+  e2ap_ngran_eNB_DU    = 6,
+  e2ap_ngran_gNB_DU    = 7,
+  e2ap_ngran_eNB_MBMS_STA  = 8
+} e2ap_ngran_node_t;
 
-#define NODE_IS_MONOLITHIC(nOdE_TyPe) ((nOdE_TyPe) == ngran_eNB    || (nOdE_TyPe) == ngran_ng_eNB    || (nOdE_TyPe) == ngran_gNB)
-#define NODE_IS_CU(nOdE_TyPe)         ((nOdE_TyPe) == ngran_eNB_CU || (nOdE_TyPe) == ngran_ng_eNB_CU || (nOdE_TyPe) == ngran_gNB_CU)
-#define NODE_IS_DU(nOdE_TyPe)         ((nOdE_TyPe) == ngran_eNB_DU || (nOdE_TyPe) == ngran_gNB_DU)
-#define NODE_IS_MBMS(nOdE_TyPe)       ((nOdE_TyPe) == ngran_eNB_MBMS_STA)
+#define E2AP_NODE_IS_MONOLITHIC(nOdE_TyPe) ((nOdE_TyPe) == e2ap_ngran_eNB    || (nOdE_TyPe) == e2ap_ngran_ng_eNB    || (nOdE_TyPe) == e2ap_ngran_gNB)
+#define E2AP_NODE_IS_CU(nOdE_TyPe)         ((nOdE_TyPe) == e2ap_ngran_eNB_CU || (nOdE_TyPe) == e2ap_ngran_ng_eNB_CU || (nOdE_TyPe) == e2ap_ngran_gNB_CU)
+#define E2AP_NODE_IS_DU(nOdE_TyPe)         ((nOdE_TyPe) == e2ap_ngran_eNB_DU || (nOdE_TyPe) == e2ap_ngran_gNB_DU)
+#define E2AP_NODE_IS_MBMS(nOdE_TyPe)       ((nOdE_TyPe) == e2ap_ngran_eNB_MBMS_STA)
 
-char* get_ngran_name(ngran_node_t ran_type);
+char* get_e2ap_ngran_name(e2ap_ngran_node_t ran_type);
 
 #endif
