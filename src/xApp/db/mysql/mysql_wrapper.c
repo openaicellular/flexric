@@ -269,10 +269,10 @@ void create_gtp_table(MYSQL* conn)
                   "mnc_digit_len INT,"
                   "nb_id INT,"
                   "cu_du_id TEXT,"
-                  "teidgnb INT,"
+                  "teidgnb BIGINT,"
                   "rnti INT CHECK(rnti >= -1 AND rnti < 65535),"
                   "qfi INT,"
-                  "teidupf INT"
+                  "teidupf BIGINT"
                   ");";
 
   if(mysql_query(conn, sql_gtp))
