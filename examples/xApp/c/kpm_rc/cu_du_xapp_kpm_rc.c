@@ -1097,8 +1097,13 @@ int main(int argc, char *argv[])
   const int KPM_ran_function = 2;
 
   for(size_t i =0; i < nodes.len; ++i){ 
-    h[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm);
-    assert(h[i].success == true);
+    if(nodes.n[i].id.type ==  ngran_gNB_DU ){
+	printf("Subscribing to KPM RLC in DU \n");
+      h[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm);
+      assert(h[i].success == true);
+    } else {
+	  printf(" nodes.n[i].id.type %d \n ", nodes.n[i].id.type );
+    }
   } 
 
   //////////// 
@@ -1119,13 +1124,16 @@ int main(int argc, char *argv[])
 
       const int RC_ran_function = 3;
 
-      control_sm_xapp_api(&nodes.n[0].id, RC_ran_function, &rc_ctrl);
-
+      for(size_t i =0; i < nodes.len; ++i){ 
+        if(nodes.n[i].id.type == ngran_gNB_CU ){
+          control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
+        }
+      }
       num_drbs++;
       last_us = time_now_us(); 
       printf("Creating bearer\n"); 
     } else if(sojourn_time < 1000 && num_drbs == 2 && (time_now_us() - last_us > 5000000) ){
-      
+
       // RC Control 
       rc_ctrl_req_data_t rc_ctrl = {0};
       defer({ free_rc_ctrl_req_data(&rc_ctrl); });
@@ -1134,8 +1142,11 @@ int main(int argc, char *argv[])
       rc_ctrl.msg = gen_rc_ctrl_msg_release_bearer();
 
       const int RC_ran_function = 3;
-
-      control_sm_xapp_api(&nodes.n[0].id, RC_ran_function, &rc_ctrl);
+      for(size_t i =0; i < nodes.len; ++i){ 
+        if(nodes.n[i].id.type == ngran_gNB_CU ){
+          control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
+        }
+      }
       num_drbs--;
       printf("Releasing bearer\n"); 
     } 
@@ -1191,4 +1202,7 @@ int main(int argc, char *argv[])
 
   printf("Test xApp run SUCCESSFULLY\n");
 }
+
+
+
 
