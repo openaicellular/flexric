@@ -161,9 +161,11 @@ void to_string_rlc_rb(rlc_radio_bearer_stats_t* rlc, int64_t tstamp , char* out,
         "rxbuf_occ_bytes=%u,"
         "rxbuf_occ_pkts=%u,"
         "txsdu_pkts=%u,"
-        "txsdu_bytes=%u,"
+        "txsdu_bytes=%lu,"
+        "txsdu_avg_time_to_tx=%.2f,"
+        "txsdu_wt_us=%u,"
         "rxsdu_pkts=%u,"
-        "rxsdu_bytes=%u,"
+        "rxsdu_bytes=%lu,"
         "rxsdu_dd_pkts=%u,"
         "rxsdu_dd_bytes=%u,"
         "rnti=%u,"
@@ -197,6 +199,8 @@ void to_string_rlc_rb(rlc_radio_bearer_stats_t* rlc, int64_t tstamp , char* out,
         , rlc->rxbuf_occ_pkts
         , rlc->txsdu_pkts
         , rlc->txsdu_bytes
+        , rlc->txsdu_avg_time_to_tx
+        , rlc->txsdu_wt_us
         , rlc->rxsdu_pkts
         , rlc->rxsdu_bytes
         , rlc->rxsdu_dd_pkts

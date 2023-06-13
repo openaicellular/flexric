@@ -140,6 +140,8 @@ void create_rlc_bearer_table(MYSQL* conn)
                   "rxbuf_occ_pkts BIGINT CHECK(rxbuf_occ_pkts >= 0 AND rxbuf_occ_pkts < 4294967296),"
                   "txsdu_pkts BIGINT CHECK(txsdu_pkts >= 0 AND txsdu_pkts < 4294967296),"
                   "txsdu_bytes BIGINT CHECK(txsdu_bytes >= 0 AND txsdu_bytes < 4294967296),"
+                  "txsdu_avg_time_to_tx REAL CHECK(txsdu_avg_time_to_tx >= 0 AND txsdu_avg_time_to_tx < 4294967296),"
+                  "txsdu_wt_us BIGINT CHECK(txsdu_wt_us >= 0 AND txsdu_wt_us < 4294967296),"
                   "rxsdu_pkts BIGINT CHECK(rxsdu_pkts >= 0 AND rxsdu_pkts < 4294967296),"
                   "rxsdu_bytes BIGINT CHECK(rxsdu_bytes >= 0 AND rxsdu_bytes < 4294967296),"
                   "rxsdu_dd_pkts BIGINT CHECK(rxsdu_dd_pkts >= 0 AND rxsdu_dd_pkts < 4294967296),"
@@ -522,9 +524,11 @@ int to_mysql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_
                                     "%u," //rlc->rxbuf_occ_bytes
                                     "%u," //rlc->rxbuf_occ_pkts
                                     "%u," //rlc->txsdu_pkts
-                                    "%u," //rlc->txsdu_bytes
+                                    "%lu," //rlc->txsdu_bytes
+                                    "%.2f," //rlc->txsdu_avg_time_to_tx
+                                    "%u," //rlc->txsdu_wt_us
                                     "%u," //rlc->rxsdu_pkts
-                                    "%u," //rlc->rxsdu_bytes
+                                    "%lu," //rlc->rxsdu_bytes
                                     "%u," //rlc->rxsdu_dd_pkts
                                     "%u," //rlc->rxsdu_dd_bytes
                                     "%u," //rlc->rnti
@@ -564,6 +568,8 @@ int to_mysql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_
                                     rlc->rxbuf_occ_pkts,
                                     rlc->txsdu_pkts,
                                     rlc->txsdu_bytes,
+                                    rlc->txsdu_avg_time_to_tx,
+                                    rlc->txsdu_wt_us,
                                     rlc->rxsdu_pkts,
                                     rlc->rxsdu_bytes,
                                     rlc->rxsdu_dd_pkts,
@@ -1196,6 +1202,8 @@ char rlc_buffer[2048] = "INSERT INTO RLC_bearer "
                     "rxbuf_occ_pkts,"
                     "txsdu_pkts,"
                     "txsdu_bytes,"
+                    "txsdu_avg_time_to_tx,"
+                    "txsdu_wt_us,"
                     "rxsdu_pkts,"
                     "rxsdu_bytes,"
                     "rxsdu_dd_pkts,"

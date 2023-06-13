@@ -136,6 +136,8 @@ void create_rlc_bearer_table(sqlite3* db)
                             "rxbuf_occ_pkts INT CHECK(rxbuf_occ_pkts >= 0 AND  rxbuf_occ_pkts < 4294967296 ),"\
                             "txsdu_pkts INT CHECK(txsdu_pkts >= 0 AND  txsdu_pkts < 4294967296 ),"\
                             "txsdu_bytes INT CHECK(txsdu_bytes >= 0 AND  txsdu_bytes < 4294967296 ),"\
+                            "txsdu_avg_time_to_tx REAL CHECK(txsdu_avg_time_to_tx >= 0 AND  txsdu_avg_time_to_tx < 4294967296 ),"\
+                            "txsdu_wt_us INT CHECK(txsdu_wt_us >= 0 AND  txsdu_wt_us < 4294967296 ),"\
                             "rxsdu_pkts INT CHECK(rxsdu_pkts >= 0 AND  rxsdu_pkts < 4294967296 ),"\
                             "rxsdu_bytes INT CHECK(rxsdu_bytes >= 0 AND  rxsdu_bytes < 4294967296 ),"\
                             "rxsdu_dd_pkts INT CHECK(rxsdu_dd_pkts >= 0 AND  rxsdu_dd_pkts < 4294967296 ),"\
@@ -492,9 +494,11 @@ int to_sql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_t*
         "%u," //rlc->rxbuf_occ_bytes
         "%u," //rlc->rxbuf_occ_pkts
         "%u," //rlc->txsdu_pkts
-        "%u," //rlc->txsdu_bytes
+        "%lu," //rlc->txsdu_bytes
+        "%.2f," //rlc->txsdu_avg_time_to_tx
+        "%u," //rlc->txsdu_wt_us
         "%u," //rlc->rxsdu_pkts
-        "%u," //rlc->rxsdu_bytes
+        "%lu," //rlc->rxsdu_bytes
         "%u," //rlc->rxsdu_dd_pkts
         "%u," //rlc->rxsdu_dd_bytes
         "%u," //rlc->rnti
@@ -534,6 +538,8 @@ int to_sql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_t*
         , rlc->rxbuf_occ_pkts
         , rlc->txsdu_pkts
         , rlc->txsdu_bytes
+        , rlc->txsdu_avg_time_to_tx
+        , rlc->txsdu_wt_us
         , rlc->rxsdu_pkts
         , rlc->rxsdu_bytes
         , rlc->rxsdu_dd_pkts
