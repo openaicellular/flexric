@@ -78,7 +78,10 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
 
 
   sojourn_time = kpm->msg.frm_3.meas_report_per_ue[0].ind_msg_format_1.meas_data_lst[0].meas_record_lst[0].real_val; 
-  printf("UE RNTI %x default DRB sojourn time %lf \n", (uint32_t)ue_id.gnb.amf_ue_ngap_id, sojourn_time);
+  static int counter = 0;
+  printf("%7d UE RNTI %x default DRB sojourn time %9.3lf\r", counter, (uint32_t)ue_id.gnb.amf_ue_ngap_id, sojourn_time);
+  fflush(stdout);
+  counter++;
 
   //printf("UE ID %ld \n ", ue_id.gnb.amf_ue_ngap_id);
 }
@@ -419,6 +422,7 @@ int main(int argc, char *argv[])
       num_drbs++;
       last_us = time_now_us(); 
       printf("Creating second bearer\n"); 
+      sleep(1);
     } else if(sojourn_time < one_ms && num_drbs == 2 && ((time_now_us() - last_us) > three_sec) ){
       // RC Control 
       rc_ctrl_req_data_t rc_ctrl = {0};
@@ -434,7 +438,8 @@ int main(int argc, char *argv[])
       }
       num_drbs--;
       printf("Releasing second bearer\n"); 
-    } 
+      sleep(1);
+    }
   }
 }
 
