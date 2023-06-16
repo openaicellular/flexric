@@ -65,8 +65,8 @@ void fill_add_mod_slice(slice_conf_t* add)
   uint32_t set_slice_id[] = {0, 2, 5};
   char* set_label[] = {"s1", "s2", "s3"};
   /// NVS/EDF slice are only supported by OAI eNB ///
-  slice_algorithm_e set_type = SLICE_ALG_SM_V0_STATIC;
-  //slice_algorithm_e set_type = SLICE_ALG_SM_V0_NVS;
+  //slice_algorithm_e set_type = SLICE_ALG_SM_V0_STATIC;
+  slice_algorithm_e set_type = SLICE_ALG_SM_V0_NVS;
   //slice_algorithm_e set_type = SLICE_ALG_SM_V0_EDF;
   //slice_algorithm_e set_type = SLICE_ALG_SM_V0_NONE;
   assert(set_type >= 0);
@@ -78,9 +78,9 @@ void fill_add_mod_slice(slice_conf_t* add)
   uint32_t set_st_low_high_p[] = {0, 3, 4, 7, 8, 12};
   /// SET DL NVS SLICE PARAMETER///
   nvs_slice_conf_e nvs_conf[] = {SLICE_SM_NVS_V0_RATE, SLICE_SM_NVS_V0_CAPACITY, SLICE_SM_NVS_V0_RATE};
-  float mbps_rsvd = 0.2;
+  float mbps_rsvd = 2;
   float mbps_ref = 10.0;
-  float pct_rsvd = 0.7;
+  float pct_rsvd = 0.5;
   /// SET DL EDF SLICE PARAMETER///
   int deadline[] = {20, 20, 40};
   int guaranteed_prbs[] = {10, 4, 10};
@@ -197,7 +197,6 @@ void fill_assoc_ue_slice(ue_slice_conf_t* assoc)
   for(uint32_t i = 0; i < assoc->len_ue_slice; ++i) {
     /// SET RNTI ///
     assoc->ues[i].rnti = assoc_rnti; // TODO: get rnti from sm_cb_slice()
-    assoc->ues[i].rnti = assoc_rnti; // TODO: get rnti from sm_cb_slice()
     /// SET DL ID ///
     assoc->ues[i].dl_id = 5;
     printf("ASSOC DL SLICE: <rnti>, id %u\n", assoc->ues[i].dl_id);
@@ -270,30 +269,34 @@ int main(int argc, char *argv[])
     for (size_t j = 0; j < n->len_rf; ++j)
       printf("Registered ran func id = %d \n ", n->ack_rf[j].id);
 
-    slice_handle[i] = report_sm_xapp_api(&nodes.n[i].id, n->ack_rf[3].id, (void*)inter_t, sm_cb_slice);
+    slice_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_SLICE_ID, (void*)inter_t, sm_cb_slice);
     assert(slice_handle[i].success == true);
     sleep(2);
+
+    while(assoc_rnti == 0) {
+      sleep(1);
+    }
 
     // Control ADD slice
     sm_ag_if_wr_t ctrl_msg_add = fill_slice_sm_ctrl_req(SM_SLICE_ID, SLICE_CTRL_SM_V0_ADD);
     control_sm_xapp_api(&nodes.n[i].id, SM_SLICE_ID, &ctrl_msg_add);
     free_slice_ctrl_msg(&ctrl_msg_add.ctrl.slice_req_ctrl.msg);
 
-    sleep(10);
+    sleep(5);
 
     // Control DEL slice
     sm_ag_if_wr_t ctrl_msg_del = fill_slice_sm_ctrl_req(SM_SLICE_ID, SLICE_CTRL_SM_V0_DEL);
     control_sm_xapp_api(&nodes.n[i].id, SM_SLICE_ID, &ctrl_msg_del);
     free_slice_ctrl_msg(&ctrl_msg_del.ctrl.slice_req_ctrl.msg);
 
-    sleep(20);
+    sleep(5);
 
     // Control ASSOC slice
     sm_ag_if_wr_t ctrl_msg_assoc = fill_slice_sm_ctrl_req(SM_SLICE_ID, SLICE_CTRL_SM_V0_UE_SLICE_ASSOC);
     control_sm_xapp_api(&nodes.n[i].id, SM_SLICE_ID, &ctrl_msg_assoc);
     free_slice_ctrl_msg(&ctrl_msg_assoc.ctrl.slice_req_ctrl.msg);
 
-    sleep(20);
+    sleep(5);
   }
 
   while(!exit_flag) {

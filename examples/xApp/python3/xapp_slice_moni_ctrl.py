@@ -6,7 +6,7 @@ import json
 ####################
 ####  SLICE INDICATION MSG TO JSON
 ####################
-
+assoc_rnti = 0
 def slice_ind_to_dict_json(ind):
 
     slice_stats = {
@@ -325,7 +325,7 @@ assoc_ue_slice = {
     "num_ues" : 1,
     "ues" : [
         {
-            "rnti" : 0, # TODO: get rnti from slice_ind_to_dict_json()
+            "rnti" : assoc_rnti, # TODO: get rnti from slice_ind_to_dict_json()
             "assoc_dl_slice_id" : 2
         }
     ]
@@ -372,7 +372,7 @@ def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
         assoc = ric.ue_slice_assoc_array(ctrl_msg["num_ues"])
         for i in range(ctrl_msg["num_ues"]):
             a = ric.ue_slice_assoc_t()
-            a.rnti = assoc_rnti # TODO: assign the rnti after get the indication msg from slice_ind_to_dict_json()
+            a.rnti = ctrl_msg["ues"][i]["rnti"] # TODO: assign the rnti after get the indication msg from slice_ind_to_dict_json()
             a.dl_id = ctrl_msg["ues"][i]["assoc_dl_slice_id"]
             # TODO: UL SLICE CTRL ASSOC
             # a.ul_id = 0
@@ -412,17 +412,19 @@ time.sleep(5)
 ####  SLICE CTRL ADD
 ####################
 
-msg = fill_slice_ctrl_msg("ADDMOD", add_static_slices)
+msg = fill_slice_ctrl_msg("ADDMOD", add_nvs_slices)
 ric.control_slice_sm(conn[node_idx].id, msg)
-time.sleep(20)
+time.sleep(5)
 
 ####################
 ####  SLICE CTRL ASSOC
 ####################
-
+while(assoc_rnti == 0):
+    time.sleep(1)
+assoc_ue_slice["ues"][0]["rnti"] = assoc_rnti
 msg = fill_slice_ctrl_msg("ASSOC_UE_SLICE", assoc_ue_slice)
 ric.control_slice_sm(conn[node_idx].id, msg)
-time.sleep(20)
+time.sleep(5)
 
 ####################
 ####  SLICE CTRL DEL
@@ -430,7 +432,7 @@ time.sleep(20)
 
 msg = fill_slice_ctrl_msg("DEL", delete_slices)
 ric.control_slice_sm(conn[node_idx].id, msg)
-time.sleep(10)
+time.sleep(5)
 
 ####################
 ####  SLICE CTRL RESET
