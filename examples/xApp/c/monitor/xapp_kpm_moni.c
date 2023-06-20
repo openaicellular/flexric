@@ -135,12 +135,17 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
   dst.gran_period_ms = 100;
 
   // [1, 65535]
-  dst.meas_info_lst_len = 2; // TODO: action length
-  dst.meas_info_lst = calloc(2, sizeof(meas_info_format_1_lst_t));
+  size_t count = 0;
+  while (action[count] != NULL) {
+    count++;
+  }
+  dst.meas_info_lst_len = count;
+  dst.meas_info_lst = calloc(count, sizeof(meas_info_format_1_lst_t));
   assert(dst.meas_info_lst != NULL && "Memory exhausted");
-
-  dst.meas_info_lst[0] = gen_meas_info_format_1_lst(action[0]);
-  dst.meas_info_lst[1] = gen_meas_info_format_1_lst(action[1]);
+  printf("count %ld\n", count);
+  for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
+    dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action[i]);
+  }
 
   return dst;
 }
@@ -233,7 +238,7 @@ int main(int argc, char *argv[])
     kpm_sub.sz_ad = 1;
     kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
     assert(kpm_sub.ad != NULL && "Memory exhausted");
-    const char *act[] = {"DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI"}; // TS 34.425 clause 4.4.6
+    const char *act[] = {"DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI", NULL}; // TS 34.425 clause 4.4.6
     *kpm_sub.ad = gen_act_def(act);
 
     const int KPM_ran_function = 2;
