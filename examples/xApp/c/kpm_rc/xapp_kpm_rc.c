@@ -63,7 +63,8 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
 
   int64_t now = time_now_us();
-  printf("KPM ind_msg latency = %ld μs\n", now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime);
+  printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+         now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime, e2_node->type, e2_node->nb_id);
   printf("Sojourn time %lf \n",kpm->msg.frm_3.meas_report_per_ue[0].ind_msg_format_1.meas_data_lst[0].meas_record_lst[0].real_val);
 
   {

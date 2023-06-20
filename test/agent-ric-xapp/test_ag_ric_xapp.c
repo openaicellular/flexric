@@ -382,7 +382,8 @@ void sm_cb_mac(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
   assert(rd->ind.type == MAC_STATS_V0);
 
   int64_t now = time_now_us();
-  printf("MAC ind_msg latency = %ld μs from nb_id %d\n", now - rd->ind.mac.msg.tstamp, id->nb_id);
+  printf("MAC ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+         now - rd->ind.mac.msg.tstamp, id->type, id->nb_id);
 }
 
 static
@@ -394,7 +395,8 @@ void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 
   int64_t now = time_now_us();
 
-  printf("RLC ind_msg latency = %ld μs from nb_id %d\n", now - rd->ind.rlc.msg.tstamp, id->nb_id);
+  printf("RLC ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+         now - rd->ind.rlc.msg.tstamp, id->type, id->nb_id);
 }
 
 //void sm_cb_pdcp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
@@ -416,7 +418,8 @@ void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
   assert(rd->ind.type == GTP_STATS_V0);
 
   int64_t now = time_now_us();
-  printf("GTP ind_msg latency = %ld μs\n", now - rd->ind.gtp.msg.tstamp);
+  printf("GTP ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+         now - rd->ind.gtp.msg.tstamp, id->type, id->nb_id);
 }
 //
 //static
@@ -440,7 +443,8 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
   kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
 
   int64_t now = time_now_us();
-  printf("KPM ind_msg latency = %ld μs\n", now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime);
+  printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+         now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime, id->type, id->nb_id);
 }
 
 static
@@ -452,7 +456,7 @@ void sm_cb_rc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 
   rc_rd_ind_data_t const* rc = &rd->ind.rc;
   (void)rc;
-  printf("RAN Control Indication data arrived\n");
+  printf("RAN Control Indication data arrived from E2-node type %d ID %d\n", id->type, id->nb_id);
 }
 
 
