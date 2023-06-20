@@ -89,7 +89,7 @@ kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_sta(void)
 {
   kpm_ind_msg_format_3_t msg_frm_3 = {0};
 
-  uint32_t num_ues = 1;
+  uint32_t num_ues = 3;
   msg_frm_3.ue_meas_report_lst_len = num_ues;  // (rand() % 65535) + 1;
 
   msg_frm_3.meas_report_per_ue = calloc(msg_frm_3.ue_meas_report_lst_len, sizeof(meas_report_per_ue_t));

@@ -70,6 +70,13 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
     printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
            now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime,
            e2_node->type, e2_node->nb_id);
+    for (size_t i = 0; i < kpm->msg.frm_3.ue_meas_report_lst_len; i++) {
+      if (kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type == GNB_UE_ID_E2SM) {
+        printf("UE ID type %d, amf_ue_ngap_id %ld\n",
+               kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type,
+               kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id);
+      }
+    }
     //printf("Sojourn time %lf \n",kpm->msg.frm_3.meas_report_per_ue[0].ind_msg_format_1.meas_data_lst[0].meas_record_lst[0].real_val);
   }
   //printf("UE ID %ld \n ", ue_id.gnb.amf_ue_ngap_id);
