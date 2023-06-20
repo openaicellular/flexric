@@ -49,7 +49,7 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(void)
 
   for (size_t i = 0; i < msg_frm_1.meas_data_lst_len; i++){
     // Measurement Record
-    msg_frm_1.meas_data_lst[i].meas_record_len = 1;  // (rand() % 65535) + 1;
+    msg_frm_1.meas_data_lst[i].meas_record_len = 2;  // (rand() % 65535) + 1;
     msg_frm_1.meas_data_lst[i].meas_record_lst = calloc(msg_frm_1.meas_data_lst[i].meas_record_len, sizeof(meas_record_lst_t));
     assert(msg_frm_1.meas_data_lst[i].meas_record_lst != NULL && "Memory exhausted" );
 
@@ -64,11 +64,19 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(void)
   msg_frm_1.meas_info_lst = calloc(msg_frm_1.meas_info_lst_len, sizeof(meas_info_format_1_lst_t));
   assert(msg_frm_1.meas_info_lst != NULL && "Memory exhausted" );
 
+  char *measName_arr[] = {"DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI"};
   for (size_t i = 0; i < msg_frm_1.meas_info_lst_len; i++) {
     // Measurement Type
-    msg_frm_1.meas_info_lst[i].meas_type.type = ID_MEAS_TYPE; 
+    // msg_frm_1.meas_info_lst[i].meas_type.type = ID_MEAS_TYPE;
+    msg_frm_1.meas_info_lst[i].meas_type.type = NAME_MEAS_TYPE;
     // DRB ID
-    msg_frm_1.meas_info_lst[i].meas_type.id = i;
+    // msg_frm_1.meas_info_lst[i].meas_type.id = i;
+    // Measurement Name
+    char* s = measName_arr[i];
+    msg_frm_1.meas_info_lst[i].meas_type.name.buf = calloc(strlen(s) + 1, sizeof(char));
+    memcpy(msg_frm_1.meas_info_lst[i].meas_type.name.buf, s, strlen(s));
+    msg_frm_1.meas_info_lst[i].meas_type.name.len = strlen(s) + 1;
+    msg_frm_1.meas_info_lst[i].meas_type.name.buf[strlen(s)] = '\0';
 
     // Label Information
     msg_frm_1.meas_info_lst[i].label_info_lst_len = 1;
@@ -156,8 +164,8 @@ void read_kpm_sm(void* data)
         && *kpm->act_def->frm_4.matching_cond_lst[0].test_info_lst.test_cond == GREATERTHAN_TEST_COND){
       printf("Matching condition: UEs with CQI greater than %ld \n", *kpm->act_def->frm_4.matching_cond_lst[0].test_info_lst.int_value );
     }
-
-    printf("Parameter to report: %s \n", kpm->act_def->frm_4.action_def_format_1.meas_info_lst->meas_type.name.buf); 
+    for (size_t i = 0; i < kpm->act_def->frm_4.action_def_format_1.meas_info_lst_len; i++)
+      printf("Parameter to report: %s \n", kpm->act_def->frm_4.action_def_format_1.meas_info_lst[i].meas_type.name.buf);
 
     kpm->ind.hdr = fill_kpm_ind_hdr_sta(); 
     // 7.8 Supported RIC Styles and E2SM IE Formats
