@@ -33,11 +33,13 @@ static
 void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == GTP_STATS_V0);
+  assert(rd->type ==INDICATION_MSG_AGENT_IF_ANS_V0);
+
+  assert(rd->ind.type == GTP_STATS_V0);
 
   int64_t now = time_now_us();
   printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
-         now - rd->gtp_stats.msg.tstamp, e2_node->type, e2_node->nb_id);
+         now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id);
 }
 
 int main(int argc, char *argv[])
@@ -56,7 +58,7 @@ int main(int argc, char *argv[])
   printf("Connected E2 nodes = %d\n", nodes.len);
 
   // gtp indication
-  inter_xapp_e i_2 = ms_1;
+  const char* i_2 = "1_ms";
   sm_ans_xapp_t* gtp_handle = NULL;
 
   if(nodes.len > 0){
@@ -69,7 +71,7 @@ int main(int argc, char *argv[])
     for (size_t j = 0; j < n->len_rf; j++)
       printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
 
-    gtp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_GTP_ID, i_2, sm_cb_gtp);
+    gtp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_GTP_ID, (void*)i_2, sm_cb_gtp);
     assert(gtp_handle[i].success == true);
   }
 

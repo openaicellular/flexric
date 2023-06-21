@@ -37,7 +37,7 @@
 
 typedef struct
 {
-  sm_io_ag_t io;
+  sm_io_ag_ran_t io;
   const char* dir_path;
 
   // Registered SMs
@@ -51,7 +51,7 @@ typedef struct
 } plugin_ag_t;
 
 
-void init_plugin_ag(plugin_ag_t* p, const char* path, sm_io_ag_t io);
+void init_plugin_ag(plugin_ag_t* p, const char* path, sm_io_ag_ran_t io);
 
 void free_plugin_ag(plugin_ag_t* p);
 

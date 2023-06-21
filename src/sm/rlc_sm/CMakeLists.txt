@@ -18,6 +18,9 @@ set(SM_ENCODING_RLC_SRC
 
 if(SM_ENCODING_RLC STREQUAL "PLAIN")
   add_library(rlc_sm SHARED
+                      # This dependency sucks!
+                      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+
                       ${SM_ENCODING_RLC_SRC}
                       enc/rlc_enc_plain.c 
                       dec/rlc_dec_plain.c 

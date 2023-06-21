@@ -17,7 +17,9 @@ set(SM_ENCODING_SLICE_SRC
 
 if(SM_ENCODING_SLICE STREQUAL "PLAIN")
   add_library(slice_sm SHARED
-                      ${SM_ENCODING_SLICE_SRC}
+                       # This dependency sucks!
+                      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+                     ${SM_ENCODING_SLICE_SRC}
                       enc/slice_enc_plain.c 
                       dec/slice_dec_plain.c 
                       )

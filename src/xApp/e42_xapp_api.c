@@ -28,6 +28,7 @@
 #include "../util/alg_ds/alg/alg.h"
 #include "../sm/slice_sm/slice_sm_id.h"
 #include "../sm/tc_sm/tc_sm_id.h"
+#include "../sm/rc_sm/rc_sm_id.h"
 
 #include <signal.h>
 #include <stdio.h>
@@ -113,6 +114,8 @@ bool valid_interval(inter_xapp_e i)
         || i == ms_2
         || i == ms_5
         || i == ms_10
+        || i == ms_100
+        || i == ms_1000
       );
 
   return true;
@@ -141,24 +144,23 @@ bool valid_sm_id(global_e2_node_id_t* id, uint32_t sm_id)
   assert(id != NULL);
 
   // Only for testing purposes
-  assert(sm_id == 142 || sm_id == 143 || sm_id == 144 || sm_id == 145 || sm_id == 146 || sm_id == 147 || sm_id == 148);
+  assert( sm_id == 2 ||  sm_id == 3 ||  sm_id == 142 || sm_id == 143 || sm_id == 144 
+      || sm_id == 145 || sm_id == 146 || sm_id == 147 || sm_id == 148);
 
   return true;
 }
 
 // returns a handle
-sm_ans_xapp_t report_sm_xapp_api(global_e2_node_id_t* id, uint32_t sm_id, inter_xapp_e i, sm_cb handler)
+sm_ans_xapp_t report_sm_xapp_api(global_e2_node_id_t* id, uint32_t rf_id, void* data, sm_cb handler)
 {
   assert(xapp != NULL);
   assert(id != NULL);
-  assert(sm_id > 0);
-  assert(valid_interval(i) == true);
+  assert(data != NULL);
 
   assert(valid_global_e2_node(id, &xapp->e2_nodes) == true);
-  assert(valid_sm_id(id, sm_id)  == true);
-  assert(valid_interval(i) == true);
+  assert(valid_sm_id(id, rf_id)  == true);
 
-  return report_sm_sync_xapp(xapp, id, sm_id, i, handler);
+  return report_sm_sync_xapp(xapp, id, rf_id, data, handler);
 }
 
 // remove the handle previously returned
@@ -171,12 +173,11 @@ void rm_report_sm_xapp_api(int const handle)
   rm_report_sm_sync_xapp(xapp, handle);
 }
 
-sm_ans_xapp_t control_sm_xapp_api(global_e2_node_id_t* id, uint32_t ran_func_id, sm_ag_if_wr_t const* wr)
+sm_ans_xapp_t control_sm_xapp_api(global_e2_node_id_t* id, uint32_t ran_func_id, void* wr)
 {
   assert(xapp != NULL);
   assert(id != NULL);
-  assert(ran_func_id == SM_SLICE_ID ||
-       	 ran_func_id == SM_TC_ID );
+  assert(ran_func_id == SM_SLICE_ID || ran_func_id == SM_TC_ID || ran_func_id == SM_RC_ID);
   assert(wr != NULL);
 
   return control_sm_sync_xapp(xapp, id, ran_func_id, wr);

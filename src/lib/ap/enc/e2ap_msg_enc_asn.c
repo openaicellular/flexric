@@ -111,6 +111,7 @@ OCTET_STRING_t copy_ba_to_ostring(byte_array_t ba)
   memcpy(os.buf, ba.buf, ba.len);
   return os;
 }
+
 static inline
 BIT_STRING_t	copy_ba_to_bit_string(byte_array_t ba)
 {
@@ -374,7 +375,7 @@ E2nodeComponentConfigUpdate_ItemIEs_t* copy_e2_node_component_conf_update(const 
 byte_array_t e2ap_enc_asn_pdu_ba(struct E2AP_PDU* pdu)
 {
   assert(pdu != NULL);
-  byte_array_t ba = {.buf = malloc(16384), .len = 16384};
+  byte_array_t ba = {.buf = malloc(32*1024), .len =32*1024};
   const bool success = encode(&ba, pdu);
   assert(success);
   return ba;
@@ -1317,7 +1318,7 @@ byte_array_t e2ap_enc_setup_request_asn_msg(const e2ap_msg_t* msg)
 
 E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
 {
-  assert(sr->id.type == ngran_gNB || sr->id.type == ngran_gNB_CU || sr->id.type == ngran_gNB_DU || sr->id.type == ngran_eNB);
+  assert(sr->id.type == e2ap_ngran_gNB || sr->id.type == e2ap_ngran_gNB_CU || sr->id.type == e2ap_ngran_gNB_DU || sr->id.type == e2ap_ngran_eNB);
   assert(sr->len_rf <= (size_t)MAX_NUM_RAN_FUNC_ID);
 
   // Message Type. Mandatory
@@ -1337,26 +1338,26 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
   setup_rid->value.present = E2setupRequestIEs__value_PR_GlobalE2node_ID;
 
   int rc = 0;
-  if (sr->id.type != ngran_eNB) {
+  if (sr->id.type != e2ap_ngran_eNB) {
     setup_rid->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_gNB;
 
     GlobalE2node_gNB_ID_t *e2gnb = calloc(1, sizeof(GlobalE2node_gNB_ID_t));
     assert(e2gnb != NULL && "Memory exhasued");
     e2gnb->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
-    if (sr->id.type == ngran_gNB_CU) {
+    if (sr->id.type == e2ap_ngran_gNB_CU) {
       GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
       assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
       asn_uint642INTEGER(e2gnb_cu_up_id, *sr->id.cu_du_id);
       e2gnb->gNB_CU_UP_ID = e2gnb_cu_up_id;
     }
-    else if (sr->id.type == ngran_gNB_DU) {
+    else if (sr->id.type == e2ap_ngran_gNB_DU) {
       GNB_DU_ID_t *e2gnb_du_id = calloc(1, sizeof(GNB_DU_ID_t));
       assert(e2gnb_du_id != NULL && "Memory exhasued");
       asn_uint642INTEGER(e2gnb_du_id, *sr->id.cu_du_id);
       e2gnb->gNB_DU_ID = e2gnb_du_id;
     }
 
-    const plmn_t* plmn = &sr->id.plmn;
+    const e2ap_plmn_t* plmn = &sr->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
     MACRO_GNB_ID_TO_BIT_STRING(sr->id.nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.gNB = e2gnb;
@@ -1367,7 +1368,7 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
     GlobalE2node_eNB_ID_t *e2enb = calloc(1, sizeof(GlobalE2node_eNB_ID_t));
     assert(e2enb != NULL && "Memory exhasued");
     e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
-    const plmn_t* plmn = &sr->id.plmn;
+    const e2ap_plmn_t* plmn = &sr->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
     MACRO_ENB_ID_TO_BIT_STRING(sr->id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.eNB = e2enb;
@@ -2515,27 +2516,27 @@ struct E2AP_PDU* e2ap_enc_e42_subscription_request_asn_pdu(const e42_ric_subscri
   setup_rid->id = ProtocolIE_ID_id_GlobalE2node_ID;
   setup_rid->criticality = Criticality_reject;
   setup_rid->value.present = E42RICsubscriptionRequest_IEs__value_PR_GlobalE2node_ID;
-  assert(e42_sr->id.type == ngran_gNB || e42_sr->id.type == ngran_gNB_CU || e42_sr->id.type == ngran_gNB_DU || e42_sr->id.type == ngran_eNB);
-  if (e42_sr->id.type != ngran_eNB) {
+  assert(e42_sr->id.type == e2ap_ngran_gNB || e42_sr->id.type == e2ap_ngran_gNB_CU || e42_sr->id.type == e2ap_ngran_gNB_DU || e42_sr->id.type == e2ap_ngran_eNB);
+  if (e42_sr->id.type != e2ap_ngran_eNB) {
     setup_rid->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_gNB;
 
     GlobalE2node_gNB_ID_t *e2gnb = calloc(1, sizeof(GlobalE2node_gNB_ID_t));
     assert(e2gnb != NULL && "Memory exhasued");
     e2gnb->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
-    if (e42_sr->id.type == ngran_gNB_CU) {
+    if (e42_sr->id.type == e2ap_ngran_gNB_CU) {
       GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
       assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
       asn_uint642INTEGER(e2gnb_cu_up_id, *e42_sr->id.cu_du_id);
       e2gnb->gNB_CU_UP_ID = e2gnb_cu_up_id;
     }
-    else if (e42_sr->id.type == ngran_gNB_DU) {
+    else if (e42_sr->id.type == e2ap_ngran_gNB_DU) {
       GNB_DU_ID_t *e2gnb_du_id = calloc(1, sizeof(GNB_DU_ID_t));
       assert(e2gnb_du_id != NULL && "Memory exhasued");
       asn_uint642INTEGER(e2gnb_du_id, *e42_sr->id.cu_du_id);
       e2gnb->gNB_DU_ID = e2gnb_du_id;
     }
 
-    const plmn_t *plmn = &e42_sr->id.plmn;
+    const e2ap_plmn_t *plmn = &e42_sr->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
     MACRO_GNB_ID_TO_BIT_STRING(e42_sr->id.nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.gNB = e2gnb;
@@ -2546,7 +2547,7 @@ struct E2AP_PDU* e2ap_enc_e42_subscription_request_asn_pdu(const e42_ric_subscri
     GlobalE2node_eNB_ID_t *e2enb = calloc(1, sizeof(GlobalE2node_eNB_ID_t));
     assert(e2enb != NULL && "Memory exhasued");
     e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
-    const plmn_t* plmn = &e42_sr->id.plmn;
+    const e2ap_plmn_t* plmn = &e42_sr->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
     MACRO_ENB_ID_TO_BIT_STRING(e42_sr->id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.eNB = e2enb;
@@ -2731,25 +2732,25 @@ struct E2AP_PDU* e2ap_enc_e42_setup_response_asn_pdu(const e42_setup_response_t*
     conn_item->value.present = E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID;
 
     global_e2_node_id_t const* src_id = &sr->nodes[i].id;
-    assert(src_id->type == ngran_gNB || src_id->type == ngran_gNB_CU || src_id->type == ngran_gNB_DU || src_id->type == ngran_eNB);
-    if (src_id->type != ngran_eNB) {
+    assert(src_id->type == e2ap_ngran_gNB || src_id->type == e2ap_ngran_gNB_CU || src_id->type == e2ap_ngran_gNB_DU || src_id->type == e2ap_ngran_eNB);
+    if (src_id->type != e2ap_ngran_eNB) {
       GlobalE2node_gNB_ID_t *e2gnb = calloc(1, sizeof(GlobalE2node_gNB_ID_t));
       assert(e2gnb != NULL && "Memory exhasued");
       e2gnb->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
-      if (src_id->type == ngran_gNB_CU) {
+      if (src_id->type == e2ap_ngran_gNB_CU) {
         GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
         assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
         asn_uint642INTEGER(e2gnb_cu_up_id, *src_id->cu_du_id);
         e2gnb->gNB_CU_UP_ID = e2gnb_cu_up_id;
       }
-      else if (src_id->type == ngran_gNB_DU) {
+      else if (src_id->type == e2ap_ngran_gNB_DU) {
         GNB_DU_ID_t *e2gnb_du_id = calloc(1, sizeof(GNB_DU_ID_t));
         assert(e2gnb_du_id != NULL && "Memory exhasued");
         asn_uint642INTEGER(e2gnb_du_id, *src_id->cu_du_id);
         e2gnb->gNB_DU_ID = e2gnb_du_id;
       }
 
-      const plmn_t* plmn = &src_id->plmn;
+      const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
       MACRO_GNB_ID_TO_BIT_STRING(src_id->nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
@@ -2762,7 +2763,7 @@ struct E2AP_PDU* e2ap_enc_e42_setup_response_asn_pdu(const e42_setup_response_t*
       GlobalE2node_eNB_ID_t *e2enb = calloc(1, sizeof(GlobalE2node_eNB_ID_t));
       assert(e2enb != NULL && "Memory exhasued");
       e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
-      const plmn_t* plmn = &src_id->plmn;
+      const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
       MACRO_ENB_ID_TO_BIT_STRING(src_id->nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
 
@@ -2924,26 +2925,26 @@ E2AP_PDU_t* e2ap_enc_e42_control_request_asn_pdu(const e42_ric_control_request_t
   setup_rid->id = ProtocolIE_ID_id_GlobalE2node_ID;
   setup_rid->criticality = Criticality_reject;
   setup_rid->value.present = E42RICcontrolRequest_IEs__value_PR_GlobalE2node_ID;
-  assert(e42_ric_req->id.type == ngran_gNB || e42_ric_req->id.type == ngran_gNB_CU || e42_ric_req->id.type == ngran_gNB_DU || e42_ric_req->id.type == ngran_eNB);
-  if (e42_ric_req->id.type != ngran_eNB) {
+  assert(e42_ric_req->id.type == e2ap_ngran_gNB || e42_ric_req->id.type == e2ap_ngran_gNB_CU || e42_ric_req->id.type == e2ap_ngran_gNB_DU || e42_ric_req->id.type == e2ap_ngran_eNB);
+  if (e42_ric_req->id.type != e2ap_ngran_eNB) {
     setup_rid->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_gNB;
     GlobalE2node_gNB_ID_t *e2gnb = calloc(1, sizeof(GlobalE2node_gNB_ID_t));
     assert(e2gnb != NULL && "Memory exhasued");
     e2gnb->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
-    if (e42_ric_req->id.type == ngran_gNB_CU) {
+    if (e42_ric_req->id.type == e2ap_ngran_gNB_CU) {
       GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
       assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
       asn_uint642INTEGER(e2gnb_cu_up_id, *e42_ric_req->id.cu_du_id);
       e2gnb->gNB_CU_UP_ID = e2gnb_cu_up_id;
     }
-    else if (e42_ric_req->id.type == ngran_gNB_DU) {
+    else if (e42_ric_req->id.type == e2ap_ngran_gNB_DU) {
       GNB_DU_ID_t *e2gnb_du_id = calloc(1, sizeof(GNB_DU_ID_t));
       assert(e2gnb_du_id != NULL && "Memory exhasued");
       asn_uint642INTEGER(e2gnb_du_id, *e42_ric_req->id.cu_du_id);
       e2gnb->gNB_DU_ID = e2gnb_du_id;
     }
 
-    const plmn_t* plmn = &e42_ric_req->id.plmn;
+    const e2ap_plmn_t* plmn = &e42_ric_req->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
     MACRO_GNB_ID_TO_BIT_STRING(e42_ric_req->id.nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.gNB = e2gnb;
@@ -2954,7 +2955,7 @@ E2AP_PDU_t* e2ap_enc_e42_control_request_asn_pdu(const e42_ric_control_request_t
     GlobalE2node_eNB_ID_t *e2enb = calloc(1, sizeof(GlobalE2node_eNB_ID_t));
     assert(e2enb != NULL && "Memory exhasued");
     e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
-    const plmn_t* plmn = &e42_ric_req->id.plmn;
+    const e2ap_plmn_t* plmn = &e42_ric_req->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
     MACRO_ENB_ID_TO_BIT_STRING(e42_ric_req->id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.eNB = e2enb;
@@ -3085,25 +3086,25 @@ struct E2AP_PDU* e2ap_enc_e42_update_e2_node_asn_pdu(const e42_update_e2_node_t*
     conn_item->value.present = E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID;
 
     global_e2_node_id_t const* src_id = &sr->nodes[i].id;
-    assert(src_id->type == ngran_gNB || src_id->type == ngran_gNB_CU || src_id->type == ngran_gNB_DU || src_id->type == ngran_eNB);
-    if (src_id->type != ngran_eNB) {
+    assert(src_id->type == e2ap_ngran_gNB || src_id->type == e2ap_ngran_gNB_CU || src_id->type == e2ap_ngran_gNB_DU || src_id->type == e2ap_ngran_eNB);
+    if (src_id->type != e2ap_ngran_eNB) {
       GlobalE2node_gNB_ID_t *e2gnb = calloc(1, sizeof(GlobalE2node_gNB_ID_t));
       assert(e2gnb != NULL && "Memory exhasued");
       e2gnb->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
-      if (src_id->type == ngran_gNB_CU) {
+      if (src_id->type == e2ap_ngran_gNB_CU) {
         GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
         assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
         asn_uint642INTEGER(e2gnb_cu_up_id, *src_id->cu_du_id);
         e2gnb->gNB_CU_UP_ID = e2gnb_cu_up_id;
       }
-      else if (src_id->type == ngran_gNB_DU) {
+      else if (src_id->type == e2ap_ngran_gNB_DU) {
         GNB_DU_ID_t *e2gnb_du_id = calloc(1, sizeof(GNB_DU_ID_t));
         assert(e2gnb_du_id != NULL && "Memory exhasued");
         asn_uint642INTEGER(e2gnb_du_id, *src_id->cu_du_id);
         e2gnb->gNB_DU_ID = e2gnb_du_id;
       }
 
-      const plmn_t* plmn = &src_id->plmn;
+      const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
       MACRO_GNB_ID_TO_BIT_STRING(src_id->nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
@@ -3116,7 +3117,7 @@ struct E2AP_PDU* e2ap_enc_e42_update_e2_node_asn_pdu(const e42_update_e2_node_t*
       GlobalE2node_eNB_ID_t *e2enb = calloc(1, sizeof(GlobalE2node_eNB_ID_t));
       assert(e2enb != NULL && "Memory exhasued");
       e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
-      const plmn_t* plmn = &src_id->plmn;
+      const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
       MACRO_ENB_ID_TO_BIT_STRING(src_id->nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
 

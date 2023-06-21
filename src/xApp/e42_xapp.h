@@ -31,7 +31,7 @@
 #include "util/alg_ds/ds/seq_container/seq_generic.h"
 #include "util/alg_ds/ds/assoc_container/assoc_generic.h"
 #include "util/alg_ds/ds/assoc_container/bimap.h"
-#include "util/alg_ds/ds/ts_queue/ts_queue.h"
+#include "util/alg_ds/ds/tsn_queue/tsn_queue.h"
 
 #include "../lib/msg_hand/reg_e2_nodes.h"
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
@@ -108,13 +108,13 @@ size_t e2_nodes_len_xapp(e42_xapp_t* xapp);
 size_t not_dispatch_msg(e42_xapp_t* xapp);
 
 // We wait for the message to come back and avoid asyncronous programming
-sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t ran_func_id, inter_xapp_e i, sm_cb cb);
+sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t ran_func_id, void* data, sm_cb cb);
 
 // We wait for the message to come back and avoid asyncronous programming
 void rm_report_sm_sync_xapp(e42_xapp_t* xapp, int handle);
 
 // We wait for the message to come back and avoid asyncronous programming
-sm_ans_xapp_t control_sm_sync_xapp(e42_xapp_t* xapp,  global_e2_node_id_t* id, uint16_t ran_func_id, sm_ag_if_wr_t const* ctrl_msg);
+sm_ans_xapp_t control_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t ran_func_id, void* ctrl_msg);
 
 #endif
 

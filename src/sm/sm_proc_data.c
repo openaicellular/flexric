@@ -87,8 +87,7 @@ void free_sm_ctrl_out_data(sm_ctrl_out_data_t* data)
   }
 }
 
-
-void free_sm_e2_setup(sm_e2_setup_t* data)
+void free_sm_e2_setup(sm_e2_setup_data_t* data)
 {
   assert(data != NULL);
 
@@ -96,9 +95,11 @@ void free_sm_e2_setup(sm_e2_setup_t* data)
     assert(data->len_rfd != 0);
     free(data->ran_fun_def);
   }
+
+  free_ran_function(&data->rf);
 } 
 
-void free_sm_ric_service_update(sm_ric_service_update_t* data)
+void free_sm_ric_service_update(sm_ric_service_update_data_t* data)
 {
   assert(data != NULL);
   

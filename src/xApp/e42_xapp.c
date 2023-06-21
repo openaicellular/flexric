@@ -46,7 +46,11 @@
 #include "../sm/slice_sm/slice_sm_id.h"
 #include "../sm/tc_sm/tc_sm_id.h"
 #include "../sm/gtp_sm/gtp_sm_id.h"
-#include "../sm/kpm_sm_v2.02/kpm_sm_id.h"
+#include "../sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../sm/rc_sm/rc_sm_id.h"
+
+#include "../../test/rnd/fill_rnd_data_rc.h"
+#include "../../test/rnd/fill_rnd_data_kpm.h"
 
 
 #include <assert.h>
@@ -115,23 +119,55 @@ void consume_fd(int fd)
   assert(bytes == sizeof(read_buf));
 }
 
+/*
 static
 void read_xapp(sm_ag_if_rd_t* data)
 {
   assert(data != NULL);
-  assert(0!=0 && "Program should never come here");
-  exit(-1);
+  assert(data->type == E2_SETUP_AGENT_IF_ANS_V0 && "Only E2 Setup. Else program should not come here");
+  sm_ag_if_rd_e2setup_t* e2ap = &data->e2ap;
+
+  assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
+  if(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 ){
+    e2ap->kpm.ran_func_def = fill_kpm_ran_func_def(); 
+  } else if(e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0 ){
+    e2ap->rc.ran_func_def = fill_rc_ran_func_def();
+  } else {
+    assert(0 != 0 && "Unknown type");
+  }
+
+}
+*/
+
+static
+void read_kpm_e2setup_xapp(void* data)
+{
+  assert(data != NULL);
+  kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(data);
+  kpm->ran_func_def = fill_kpm_ran_func_def(); 
+
 }
 
 static
-sm_ag_if_ans_t write_xapp(sm_ag_if_wr_t const* data)
+void read_rc_e2_setup_xapp(void* data)
 {
   assert(data != NULL);
-  assert(0!=0 && "Program should never come here");
-  exit(-1);
-  sm_ag_if_ans_t ans = {0};
-  return ans; 
+//  assert(data->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
+  rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
+  rc->ran_func_def = fill_rc_ran_func_def();
 }
+
+static
+sm_io_ag_ran_t init_io_ag_ran(void)
+{
+  sm_io_ag_ran_t dst = {0};
+
+  dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_kpm_e2setup_xapp;
+  dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_rc_e2_setup_xapp;
+
+  return dst;
+}
+
 
 e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 {
@@ -159,7 +195,8 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 
   init_handle_msg_xapp(&xapp->handle_msg);
 
-  sm_io_ag_t io = {.read = read_xapp, .write = write_xapp };
+  sm_io_ag_ran_t io = init_io_ag_ran();
+
   init_plugin_ag(&xapp->plugin_ag, args->libs_dir, io);
   init_plugin_ric(&xapp->plugin_ric, args->libs_dir);
 
@@ -339,28 +376,15 @@ size_t e2_nodes_len_xapp(e42_xapp_t* xapp)
 }
 
 static
-void send_subscription_request(e42_xapp_t* xapp, global_e2_node_id_t* id, ric_gen_id_t ric_id, inter_xapp_e i)
+void send_subscription_request(e42_xapp_t* xapp, global_e2_node_id_t* id, ric_gen_id_t ric_id, void* data)
 {
   assert(xapp != NULL);
   assert(id != NULL);
   assert(xapp->handle_msg[E42_RIC_SUBSCRIPTION_REQUEST]!= NULL);
 
-  char* cmd = NULL;
-  if(i == ms_1 ){
-    cmd = "1_ms";
-  } else if(i == ms_2){
-    cmd = "2_ms";
-  } else if(i == ms_5 ){
-    cmd = "5_ms";
-  } else if(i == ms_10){
-    cmd = "10_ms";
-  } else {
-    assert(0!=0 && "Unsupported interval type. Check the SM on_subscription for details");
-  }
-
   sm_ric_t* sm = sm_plugin_ric(&xapp->plugin_ric, ric_id.ran_func_id);
 
-  ric_subscription_request_t sr = generate_subscription_request( ric_id, sm, cmd);
+  ric_subscription_request_t sr = generate_subscription_request(ric_id, sm, data);
   e42_ric_subscription_request_t e42_sr = {
     .xapp_id = xapp->id,
     .id = cp_global_e2_node_id(id),
@@ -385,6 +409,7 @@ bool valid_ran_func_id(uint16_t ran_func_id)\
       || ran_func_id == SM_TC_ID
       || ran_func_id == SM_GTP_ID
       || ran_func_id == SM_KPM_ID
+      || ran_func_id == SM_RC_ID
     )
     return true;
 
@@ -408,22 +433,22 @@ ric_gen_id_t generate_ric_gen_id(e42_xapp_t* xapp, act_proc_val_e type, uint16_t
 }
 
 
-sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t ran_func_id, inter_xapp_e i, sm_cb cb)
+sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t rf_id , void* data, sm_cb cb)
 {
   assert(xapp != NULL);
   assert(id != NULL);
 
   // Generate and registry the ric_req_id
-  ric_gen_id_t ric_id = generate_ric_gen_id(xapp, RIC_SUBSCRIPTION_PROCEDURE_ACTIVE ,ran_func_id, id, cb);
+  ric_gen_id_t ric_id = generate_ric_gen_id(xapp, RIC_SUBSCRIPTION_PROCEDURE_ACTIVE , rf_id, id, cb);
 
   // Send message 
-  send_subscription_request(xapp, id, ric_id , i);
+  send_subscription_request(xapp, id, ric_id, data);
 
   // Wait for the answer (it will arrive in the event loop)
   cond_wait_sync_ui(&xapp->sync, xapp->sync.wait_ms);
 
   // Answer arrived
-  printf("[xApp]: Successfully SUBSCRIBED to ran function = %d \n", ran_func_id );
+  printf("[xApp]: Successfully SUBSCRIBED to ran function = %d \n", rf_id);
 
   // The RIC_SUBSCRIPTION_PROCEDURE is still active
 
@@ -476,7 +501,7 @@ void rm_report_sm_sync_xapp(e42_xapp_t* xapp, int ric_req_id)
 
 
 static
-void send_control_request(e42_xapp_t* xapp,  global_e2_node_id_t* id, ric_gen_id_t ric_req, sm_ag_if_wr_t const* ctrl_msg)
+void send_control_request(e42_xapp_t* xapp, global_e2_node_id_t* id, ric_gen_id_t ric_req, void* ctrl_msg)
 {
   assert(xapp != NULL);
   assert(id != NULL);
@@ -500,8 +525,7 @@ void send_control_request(e42_xapp_t* xapp,  global_e2_node_id_t* id, ric_gen_id
   xapp->handle_msg[E42_RIC_CONTROL_REQUEST](xapp, &msg);
 }
 
-
-sm_ans_xapp_t control_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t ran_func_id, sm_ag_if_wr_t const* ctrl_msg)
+sm_ans_xapp_t control_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t ran_func_id, void* ctrl_msg)
 {
   assert(xapp != NULL);
   assert(id != NULL);

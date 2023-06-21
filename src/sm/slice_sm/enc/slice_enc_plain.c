@@ -532,7 +532,7 @@ byte_array_t slice_enc_ctrl_hdr_plain(slice_ctrl_hdr_t const* ctrl_hdr)
   byte_array_t ba = {0};
 
   ba.len = sizeof(slice_ind_hdr_t);
-  ba.buf = malloc(sizeof(slice_ind_msg_t));
+  ba.buf = malloc(sizeof(slice_ind_hdr_t));
   assert(ba.buf != NULL && "memory exhausted");
   memcpy(ba.buf, ctrl_hdr, sizeof(slice_ctrl_hdr_t));
 

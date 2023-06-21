@@ -29,7 +29,7 @@
 
 #include "../sm_agent.h"
 
-sm_agent_t* make_mac_sm_agent(sm_io_ag_t io);
+sm_agent_t* make_mac_sm_agent(sm_io_ag_ran_t io);
 
 #endif
 

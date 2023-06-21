@@ -98,23 +98,26 @@ int main(int argc, char *argv[])
  const int TC_SM_ID_TEST = 146;
 
   // Pacer
-  sm_ag_if_wr_t wr = {.type = TC_CTRL_REQ_V0 };
-  wr.tc_req_ctrl.msg = gen_mod_bdp_pcr();
+  sm_ag_if_wr_t wr = {.type = CONTROL_SM_AG_IF_WR};
+  wr.ctrl.type = TC_CTRL_REQ_V0 ;
+  wr.ctrl.tc_req_ctrl.msg = gen_mod_bdp_pcr();
   control_sm_xapp_api(&nodes.n[0].id, TC_SM_ID_TEST, &wr);
-  free_tc_ctrl_msg(&wr.tc_req_ctrl.msg);
+  free_tc_ctrl_msg(&wr.ctrl.tc_req_ctrl.msg);
   poll(NULL, 0, 10);
 
  // Create second ECN queue
- sm_ag_if_wr_t wr_q = {.type = TC_CTRL_REQ_V0 };
- wr_q.tc_req_ctrl.msg = gen_add_ecn_queue();
+ sm_ag_if_wr_t wr_q = {.type = CONTROL_SM_AG_IF_WR};
+ wr_q.ctrl.type = TC_CTRL_REQ_V0 ;
+ wr_q.ctrl.tc_req_ctrl.msg = gen_add_ecn_queue();
  control_sm_xapp_api(&nodes.n[0].id, TC_SM_ID_TEST, &wr_q);
- free_tc_ctrl_msg(&wr_q.tc_req_ctrl.msg);
+ free_tc_ctrl_msg(&wr_q.ctrl.tc_req_ctrl.msg);
 
  // Rule to segregate on the classifier
- sm_ag_if_wr_t wr_cls = {.type = TC_CTRL_REQ_V0 };
- wr_cls.tc_req_ctrl.msg = gen_add_osi_cls();
+ sm_ag_if_wr_t wr_cls = {.type = CONTROL_SM_AG_IF_WR};
+  wr_cls.ctrl.type = TC_CTRL_REQ_V0 ;
+ wr_cls.ctrl.tc_req_ctrl.msg = gen_add_osi_cls();
  control_sm_xapp_api(&nodes.n[0].id, TC_SM_ID_TEST, &wr_cls);
- free_tc_ctrl_msg(&wr_cls.tc_req_ctrl.msg);
+ free_tc_ctrl_msg(&wr_cls.ctrl.tc_req_ctrl.msg);
 
  
   //Stop the xApp

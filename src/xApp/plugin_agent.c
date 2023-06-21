@@ -205,13 +205,34 @@ void unload_all_pugin_ag(plugin_ag_t* p, const char* path)
   assert(0!=0 && "Not implemented!");
 }
 
-void init_plugin_ag(plugin_ag_t* p, const char* dir_path, sm_io_ag_t io)
+static
+sm_io_ag_ran_t cp_io_ran(sm_io_ag_ran_t const* src)
+{
+  assert(src != NULL);
+  sm_io_ag_ran_t dst = {0}; 
+
+  // Read
+  memcpy(dst.read_ind_tbl, src->read_ind_tbl, sizeof(read_ind_fp)*SM_AGENT_IF_READ_V0_END);
+  memcpy(dst.read_setup_tbl, src->read_setup_tbl, sizeof(read_e2_setup_fp)*SM_AGENT_IF_E2_SETUP_ANS_V0_END);
+  //read_rsu_fp read_rsu_tbl[0];
+  //read_rsu_fp read_rsu_tbl[0];
+
+  // Write
+  memcpy(dst.write_ctrl_tbl, src->write_ctrl_tbl, sizeof(write_ctrl_fp)*SM_AGENT_IF_WRITE_CTRL_V0_END);
+  memcpy(dst.write_subs_tbl, src->write_subs_tbl, sizeof(write_subs_fp)*SM_AGENT_IF_WRITE_SUBS_V0_END);
+
+  return dst;
+}
+
+void init_plugin_ag(plugin_ag_t* p, const char* dir_path, sm_io_ag_ran_t io)
 {
   assert(p != NULL);
   assert(dir_path != NULL);
 
   p->dir_path = (char*)dir_path;
-  p->io = io;
+ 
+  p->io = cp_io_ran(&io);
+
   p->flag_shutdown = false;
 
   pthread_mutexattr_t attr= {0};
@@ -291,7 +312,7 @@ void load_plugin_ag(plugin_ag_t* p, const char* path)
   const char* suffix = "_sm_agent";
   strncat(ptr,suffix, strlen(suffix));
 
-  sm_agent_t* (*fp)(sm_io_ag_t);
+  sm_agent_t* (*fp)(sm_io_ag_ran_t);
   fp = dlsym(handle, symbol_so);
   check_dl_error();
   sm_agent_t* sm = fp(p->io);

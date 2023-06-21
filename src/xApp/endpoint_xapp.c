@@ -74,9 +74,6 @@ byte_array_t e2ap_recv_msg_xapp(e2ap_ep_xapp_t* ep)
 {
   assert(ep != NULL);
 
- // BYTE_ARRAY_STACK(ba, 2048);
-//  byte_array_t ba = {.len = 2048, .buf= malloc(2048)};
-//  assert(ba.buf != NULL && "Memory exhausted");
   sctp_msg_t rcv = e2ap_recv_sctp_msg(&ep->base); //, &ba);
 
 //sctp_msg_t e2ap_recv_sctp_msg(e2ap_ep_t* ep);

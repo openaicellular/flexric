@@ -6,7 +6,8 @@ add_library(e2ap_ds_obj OBJECT
                         alg_ds/ds/assoc_container/assoc_rb_tree.c
                         alg_ds/ds/assoc_container/bimap.c
                         alg_ds/ds/assoc_container/assoc_reg.c
-                        alg_ds/ds/ts_queue/ts_queue.c
+                        alg_ds/ds/tsn_queue/tsn_queue.c
+                        alg_ds/ds/tsq/tsq.c
                         )
 
 add_library(e2ap_alg_obj OBJECT 
@@ -33,7 +34,7 @@ add_library(e2_time_obj OBJECT
                         )
 
 add_library(e2_ngran_obj OBJECT
-                         ngran_type.c
+    e2ap_ngran_type.c
                          )
 
 

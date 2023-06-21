@@ -62,7 +62,7 @@ SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE ${XAPP_LANG} SOURCES
                                                  ../../lib/ap/e2ap_types/common/e2ap_plmn.c
                                                  ../../lib/ap/e2ap_types/common/e2ap_ran_function.c 
                                                  ../../lib/ap/e2ap_types/common/e2ap_global_node_id.c
-                                                 ../../sm/kpm_sm_v2.02/ie/kpm_data_ie.c
+                                                 #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
                                                  ../../sm/mac_sm/ie/mac_data_ie.c 
                                                  ../../sm/rlc_sm/ie/rlc_data_ie.c
                                                  ../../sm/pdcp_sm/ie/pdcp_data_ie.c
@@ -71,7 +71,7 @@ SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE ${XAPP_LANG} SOURCES
                                                  ../../sm/gtp_sm/ie/gtp_data_ie.c
                                                  ../../util/byte_array.c
                                                  ../../util/alg_ds/alg/eq_float.c
-                                                 ../../util/ngran_type.c
+    ../../util/e2ap_ngran_type.c
                                                  )
 
 

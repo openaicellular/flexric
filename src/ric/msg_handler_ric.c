@@ -28,7 +28,7 @@
 #include "msg_handler_ric.h"
 #include "util/alg_ds/alg/alg.h"
 #include "util/compare.h"
-#include "util/ngran_types.h"
+#include "util/e2ap_ngran_types.h"
 //#include "act_req.h"
 #include "e2ap_ric.h"
 #include "near_ric.h"
@@ -142,7 +142,6 @@ e2ap_msg_t e2ap_msg_handle_ric(near_ric_t* ric, const e2ap_msg_t* msg)
   const e2_msg_type_t msg_type = msg->type;
   assert(check_valid_msg_type(msg_type) == true);
 
-
   assert(ric->handle_msg[ msg_type ] != NULL);
   return ric->handle_msg[msg_type](ric, msg);
 }
@@ -228,7 +227,7 @@ e2ap_msg_t e2ap_msg_handle_ric(near_ric_t* ric, const e2ap_msg_t* msg)
 }
 
 static
-void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_t* d)
+void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* d)
 {
 
   // find RIC request ID, pass the data to the assoc. SM
@@ -275,14 +274,14 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_t* d)
     data.len_cpid = ric_ind->call_process_id->len;
   }
 
-  sm_ag_if_rd_t d = sm->proc.on_indication(sm, &data);
+  sm_ag_if_rd_ind_t d = sm->proc.on_indication(sm, &data);
   defer({ sm->alloc.free_ind_data(&d); } );
-  assert(d.type == MAC_STATS_V0 || d.type == RLC_STATS_V0 || d.type == PDCP_STATS_V0 || d.type == SLICE_STATS_V0 || d.type == KPM_STATS_V0 || d.type == GTP_STATS_V0);
+  assert(d.type == MAC_STATS_V0 || d.type == RLC_STATS_V0 
+        || d.type == PDCP_STATS_V0 || d.type == SLICE_STATS_V0 
+        || d.type == KPM_STATS_V3_0 || d.type == RAN_CTRL_STATS_V1_03 
+        || d.type == GTP_STATS_V0 || d.type == TC_STATS_V0 );
 
   publish_ind_msg(ric, ran_func_id, &d);
-
-  if(d.type ==  MAC_STATS_V0 )
-    ((e2ap_msg_t*)msg)->tstamp = d.mac_stats.msg.tstamp;
 
   // Notify the iApp
 #ifndef TEST_AGENT_RIC  
@@ -355,9 +354,9 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_t* d)
   fflush(stdout);
   const e2_setup_request_t* req = &msg->u_msgs.e2_stp_req;
 
-  const plmn_t* plmn = &req->id.plmn;
-  const char* ran_type = get_ngran_name(req->id.type);
-  if (NODE_IS_MONOLITHIC(req->id.type))
+  const e2ap_plmn_t* plmn = &req->id.plmn;
+  const char* ran_type = get_e2ap_ngran_name(req->id.type);
+  if (E2AP_NODE_IS_MONOLITHIC(req->id.type))
     printf("[E2AP] Received SETUP-REQUEST from PLMN %3d.%*d Node ID %d RAN type %s\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id, ran_type);
   else
     printf("[E2AP] Received SETUP-REQUEST from PLMN %3d.%*d Node ID %d RAN type %s CU/DU ID %ld\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id, ran_type, *req->id.cu_du_id);

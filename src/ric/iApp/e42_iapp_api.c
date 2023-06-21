@@ -30,7 +30,7 @@
 #include "e42_iapp.h"
 #include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"  // for global_e2_...
 #include "../../lib/ap/e2ap_types/common/e2ap_plmn.h"            // for plmn_t
-#include "../../util/ngran_types.h"                              // for ngran_gNB                
+#include "../../util/e2ap_ngran_types.h"                              // for ngran_gNB
 #include "../../util/conf_file.h"
 
 static

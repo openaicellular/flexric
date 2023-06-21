@@ -22,92 +22,175 @@
 #include "../../../../src/xApp/e42_xapp_api.h"
 #include "../../../../src/util/alg_ds/alg/defer.h"
 #include "../../../../src/util/time_now_us.h"
-#include "../../../../src/sm/kpm_sm_v2.02/kpm_sm_id.h"
-#include "../../../../src/util/ngran_types.h"
+#include "../../../../src/util/e2ap_ngran_types.h"
+#include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pthread.h>
 
-static bool exit_flag = false;
-static void sigint_handler(int sig)
+static
+byte_array_t copy_str_to_ba(const char* str)
 {
-  printf("signal %d received !\n", sig);
-  exit_flag = true;
+  assert(str != NULL);
+
+  size_t const sz = strlen(str);
+  byte_array_t dst = {.len = sz };
+  dst.buf = calloc(sz ,sizeof(uint8_t) );
+  assert(dst.buf != NULL);
+
+  memcpy(dst.buf, str, sz);
+
+  return dst;
 }
 
-uint64_t count_max_e2nodetype2 = 100;
-uint64_t count_kpm_e2nodetype2 = 0;
-uint64_t aggr_tstamp_kpm_e2nodetype2 = 0;
-uint64_t count_max_e2nodetype7 = 100;
-uint64_t count_kpm_e2nodetype7 = 0;
-uint64_t aggr_tstamp_kpm_e2nodetype7 = 0;
+//static
+//ue_id_e2sm_t ue_id;
+
+static
+pthread_mutex_t mtx;
+
 static
 void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == KPM_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == KPM_STATS_V3_0);
+
+  kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
+
   int64_t now = time_now_us();
-  int64_t ts =  0;
-  if (e2_node->type == 2) {
-    if (rd->kpm_stats.msg.MeasData_len > 0) {
-      if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0) {
-        count_kpm_e2nodetype2 += 1;
-        ts = rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
-        aggr_tstamp_kpm_e2nodetype2 += now - ts;
-        if (count_kpm_e2nodetype2 == count_max_e2nodetype2) {
-          printf("[%ld] KPM ind_msg latency (averaged) = %lu us, rnti = %.0f, dl_thr = %.2f Mbps, dl_mcs = %.0f, dl_cqi = %.0f from E2-node type %d ID %d\n",
-                 now, aggr_tstamp_kpm_e2nodetype2/count_max_e2nodetype2,
-                 rd->kpm_stats.msg.MeasData[0].measRecord[9].real_val,
-                 rd->kpm_stats.msg.MeasData[0].measRecord[1].real_val,
-                 rd->kpm_stats.msg.MeasData[0].measRecord[7].real_val,
-                 rd->kpm_stats.msg.MeasData[0].measRecord[8].real_val,
-                 e2_node->type, e2_node->nb_id);
-          count_kpm_e2nodetype2 = 0;
-          aggr_tstamp_kpm_e2nodetype2 = 0;
+
+  {
+    lock_guard(&mtx);
+    //ue_id = cp_ue_id_e2sm(&kpm->msg.frm_3.meas_report_per_ue[0].ue_meas_report_lst);
+    printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+           now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime,
+           e2_node->type, e2_node->nb_id);
+    for (size_t i = 0; i < kpm->msg.frm_3.ue_meas_report_lst_len; i++) {
+      if (kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type == GNB_UE_ID_E2SM) {
+        printf("UE ID type %d, amf_ue_ngap_id %ld\n",
+               kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type,
+               kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id
+               );
+      }
+      if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst_len > 0) {
+        if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst_len == kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_len) {
+          size_t rec_data_len = kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_len;
+          for (size_t j = 0; j < rec_data_len; j++) {
+            if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst[j].meas_type.type == NAME_MEAS_TYPE &&
+                kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_lst[j].value == REAL_MEAS_VALUE) {
+              printf("MeasName %s, MeasData %lf\n",
+                     kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst[j].meas_type.name.buf,
+                     kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_lst[j].real_val
+                     );
+            }
+          }
         }
       }
     }
-  } else if (e2_node->type == 7) {
-    if (rd->kpm_stats.msg.MeasData_len > 0) {
-      if (rd->kpm_stats.msg.MeasData[0].measRecord_len > 0) {
-        count_kpm_e2nodetype7 += 1;
-        ts = rd->kpm_stats.msg.MeasData[0].measRecord[0].real_val;
-        aggr_tstamp_kpm_e2nodetype7 += now - ts;
-        if (count_kpm_e2nodetype7 == count_max_e2nodetype7) {
-          printf("[%ld] KPM ind_msg latency (averaged) = %lu us, rnti = %.0f, dl_thr = %.2f Mbps, dl_mcs = %.0f, dl_cqi = %.0f from E2-node type %d ID %d\n",
-                 now, aggr_tstamp_kpm_e2nodetype7/count_max_e2nodetype7,
-                 rd->kpm_stats.msg.MeasData[0].measRecord[9].real_val,
-                 rd->kpm_stats.msg.MeasData[0].measRecord[1].real_val,
-                 rd->kpm_stats.msg.MeasData[0].measRecord[7].real_val,
-                 rd->kpm_stats.msg.MeasData[0].measRecord[8].real_val,
-                 e2_node->type, e2_node->nb_id);
-          count_kpm_e2nodetype7 = 0;
-          aggr_tstamp_kpm_e2nodetype7 = 0;
-        }
-      }
-    }
-  } else
-    printf("unknown e2 node type");
+    //printf("Sojourn time %lf \n",kpm->msg.frm_3.meas_report_per_ue[0].ind_msg_format_1.meas_data_lst[0].meas_record_lst[0].real_val);
+  }
+  //printf("UE ID %ld \n ", ue_id.gnb.amf_ue_ngap_id);
 }
 
-size_t max_handle = 256;
-size_t c_handle = 0;
 static
-void send_subscription_req(e2_node_connected_t* n, int n_idx, sm_ans_xapp_t* handle)
+kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
 {
-  // send subscription request to each e2 nodes
-  // for(size_t j = 0; j < n->len_rf; j++)
-  //   printf("Registered E2 node idx %d, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
-  inter_xapp_e tti = ms_10;
-  uint16_t ran_func_id = SM_KPM_ID;
-  printf("xApp subscribes RAN Func ID %d in E2 node idx %d\n", ran_func_id, n_idx);
-  handle[c_handle] = report_sm_xapp_api(&n->id, ran_func_id, tti, sm_cb_kpm);
-  assert(handle[c_handle].success == true);
-  c_handle+=1;
+  kpm_event_trigger_def_t dst = {0};
 
+  dst.type = FORMAT_1_RIC_EVENT_TRIGGER;
+  dst.kpm_ric_event_trigger_format_1.report_period_ms = period;
+
+  return dst;
+}
+
+static
+meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
+{
+  meas_info_format_1_lst_t dst = {0};
+
+  dst.meas_type.type = NAME_MEAS_TYPE;
+  // ETSI TS 128 552
+  dst.meas_type.name = copy_str_to_ba(  action );
+
+  dst.label_info_lst_len = 1;
+  dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
+  assert(dst.label_info_lst != NULL && "Memory exhausted");
+  dst.label_info_lst[0].noLabel = calloc(1, sizeof(enum_value_e));
+  assert(dst.label_info_lst[0].noLabel != NULL && "Memory exhausted");
+  *dst.label_info_lst[0].noLabel = TRUE_ENUM_VALUE;
+
+  return dst;
+}
+
+static
+kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
+{
+  kpm_act_def_format_1_t dst = {0};
+
+  dst.gran_period_ms = 100;
+
+  // [1, 65535]
+  size_t count = 0;
+  while (action[count] != NULL) {
+    count++;
+  }
+  dst.meas_info_lst_len = count;
+  dst.meas_info_lst = calloc(count, sizeof(meas_info_format_1_lst_t));
+  assert(dst.meas_info_lst != NULL && "Memory exhausted");
+  printf("count %ld\n", count);
+  for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
+    dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action[i]);
+  }
+
+  return dst;
+}
+
+static
+kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
+{
+  kpm_act_def_format_4_t dst = {0};
+
+  // [1, 32768]
+  dst.matching_cond_lst_len = 1;
+
+  dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
+  assert(dst.matching_cond_lst != NULL && "Memory exhausted");
+
+  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
+  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
+  dst.matching_cond_lst[0].test_info_lst.int_value = malloc(sizeof(int64_t));
+  assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.int_value = 0;
+
+  // Action definition Format 1
+  dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
+
+  return dst;
+}
+
+
+static
+kpm_act_def_t gen_act_def(const char** act)
+{
+  kpm_act_def_t dst = {0};
+
+  dst.type = FORMAT_4_ACTION_DEFINITION;
+  dst.frm_4 = gen_act_def_frmt_4(act);
+  return dst;
 }
 
 int main(int argc, char *argv[])
@@ -116,96 +199,67 @@ int main(int argc, char *argv[])
 
   //Init the xApp
   init_xapp_api(&args);
-  signal(SIGINT, sigint_handler); // we override the signal mask set in init_xapp_api()
-  signal(SIGTERM, sigint_handler);
   sleep(1);
 
-  // init num of sm and handle
-  // TODO: give the num of sm randomly  //abs(rand()%5)+1;
-  sm_ans_xapp_t *handle = NULL;
-  if (max_handle > 0) {
-    handle = calloc(max_handle, sizeof(sm_ans_xapp_t *));
-    assert(handle != NULL);
-  }
-
-  size_t nodes_len = e2_nodes_len_xapp_api();
-  // start the xApp subscription procedure until detect connected E2 nodes
-  while (nodes_len <= 0) {
-    // get the original connected e2 nodes info
-    size_t tmp_len = e2_nodes_len_xapp_api();
-    if (tmp_len > nodes_len) {
-      printf("Update connected E2 nodes len = %ld\n", tmp_len);
-      nodes_len = tmp_len;
-    } else {
-      printf("No E2 node connects\n");
-      sleep(1);
-    }
-  }
-
-  // case1: send subscription req to the original connected e2 node
-  // get original e2 nodes info
   e2_node_arr_t nodes = e2_nodes_xapp_api();
   defer({ free_e2_node_arr(&nodes); });
-  for (size_t i = 0; i < nodes.len; i++) {
-    if (nodes.n[i].id.type == 2 || nodes.n[i].id.type == 7) {
-      send_subscription_req(&nodes.n[i], i, handle);
-    }
+
+  assert(nodes.len > 0);
+
+  printf("Connected E2 nodes = %d\n", nodes.len);
+
+  pthread_mutexattr_t attr = {0};
+  int rc = pthread_mutex_init(&mtx, &attr);
+  assert(rc == 0);
+
+  // KPM indication
+  sm_ans_xapp_t* kpm_handle = NULL;
+  if(nodes.len > 0){
+    kpm_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) ); 
+    assert(kpm_handle  != NULL);
   }
 
-  // case2: send subscription req to the new connected e2 node
-  while(!exit_flag) {
-    size_t cur_nodes_len = e2_nodes_len_xapp_api();
-    (void)usleep(10000); // we choose 10ms as kpm reporting has the same value
-    if (cur_nodes_len != nodes_len) {
-      printf("/////// detect E2 nodes len update, new len = %ld, old len = %ld ///////\n", cur_nodes_len, nodes_len);
-      printf("Updating E2 nodes list ...\n");
-      sleep(1);
-      if (cur_nodes_len != 0) {
-        // get the new e2 nodes info
-        e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
-        defer({ free_e2_node_arr(&cur_nodes); });
+  for (int i = 0; i < nodes.len; i++) {
+    e2_node_connected_t* n = &nodes.n[i];
+    for (size_t j = 0; j < n->len_rf; j++)
+      printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
 
-        // TODO: send subscription request to new e2 node
-        for (size_t i = 0; i < cur_nodes_len; i++) {
-          //printf("/////////////// new E2 node list, idx %ld, nb_id %d, type %s //////////////\n", i,
-          //       cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
-          ngran_node_t cur_type = cur_nodes.n[i].id.type;
-          uint32_t cur_nb_id = cur_nodes.n[i].id.nb_id;
-          bool new_type = 1;
-          bool new_nb_id = 1;
-          // compare the type between old and new e2 nodes list
-          for (size_t j = 0; j < nodes_len; j++) {
-            //printf("/////////////// old E2 node list, idx %ld, nb_id %d, type %s //////////////\n", j,
-            //       nodes.n[j].id.nb_id, get_ngran_name(nodes.n[j].id.type));
-            if (nodes.n[j].id.type == cur_type) new_type = 0;
-            if (nodes.n[j].id.nb_id == cur_nb_id) new_nb_id = 0;
-          }
-          if (new_type || new_nb_id) {
-            if (cur_type == 2 || cur_type == 7) {
-              printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_ngran_name(cur_nodes.n[i].id.type));
-              send_subscription_req(&cur_nodes.n[i], i, handle);
-            }
-          }
-        }
-      }
-      nodes_len = cur_nodes_len;
-      nodes = e2_nodes_xapp_api();
+    ////////////
+    // START KPM
+    ////////////
+    kpm_sub_data_t kpm_sub = {0};
+    defer({ free_kpm_sub_data(&kpm_sub); });
 
-      if (nodes_len == 0)
-        c_handle = 0;
-    }
+    // KPM Event Trigger
+    uint64_t period_ms = 100;
+    kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
+
+    // KPM Action Definition
+    kpm_sub.sz_ad = 1;
+    kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
+    assert(kpm_sub.ad != NULL && "Memory exhausted");
+    const char *act[] = {"DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI", NULL}; // TS 34.425 clause 4.4.6
+    *kpm_sub.ad = gen_act_def(act);
+
+    const int KPM_ran_function = 2;
+
+    kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm);
+    assert(kpm_handle[i].success == true);
   }
 
-  printf("CTRL+C detect\n");
-  // TODO: send subscription request delete
-  for(size_t i = 0; i < c_handle; ++i)
-    rm_report_sm_xapp_api(handle[i].u.handle);
+  sleep(5);
 
-  // free sm handel
-  // TODO: free handle
-  free(handle);
 
-  // stop the xApp
+  for(int i = 0; i < nodes.len; ++i){
+    // Remove the handle previously returned
+    rm_report_sm_xapp_api(kpm_handle[i].u.handle);
+  }
+
+  if(nodes.len > 0){
+    free(kpm_handle);
+  }
+
+  //Stop the xApp
   while(try_stop_xapp_api() == false)
     usleep(1000);
 

@@ -20,18 +20,19 @@
  */
 
 
-#include "../src/ric/near_ric_api.h"
+#include "../../src/ric/near_ric_api.h"
 
 #include <arpa/inet.h>
 #include <assert.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 #include <poll.h>
 #include <time.h>
 #include <unistd.h>
-#include <signal.h>
 
 const uint16_t MAC_ran_func_id = 142;
 const uint16_t RLC_ran_func_id = 143;
@@ -40,15 +41,26 @@ const uint16_t SLICE_ran_func_id = 145; // Not implemented yet
 const uint16_t KPM_ran_func_id = 147;
 const char* cmd = "5_ms";
 
-static
-void sig_handler(int sig_num)
-{
-  printf("\nEnding the near-RIC with signal number = %d\n", sig_num);
 
+static
+void stop_and_exit()
+{
   // Stop the RIC
   stop_near_ric_api();
 
   exit(EXIT_SUCCESS);
+}
+
+static 
+pthread_once_t once = PTHREAD_ONCE_INIT;
+
+static
+void sig_handler(int sig_num)
+{
+
+  printf("\nEnding the near-RIC with signal number = %d\n", sig_num);
+  // For the impatient, do not break my code
+  pthread_once(&once, stop_and_exit);
 }
 
 

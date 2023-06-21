@@ -50,6 +50,9 @@ e42_setup_request_t cp_e42_setup_request(const e42_setup_request_t* src)
 void free_e42_setup_request(e42_setup_request_t* src)
 {
   assert(src != NULL);
+  for(size_t i = 0; i < src->len_rf; ++i){
+    free_ran_function(&src->ran_func_item[i]);
+  }
   free(src->ran_func_item);
 }
 

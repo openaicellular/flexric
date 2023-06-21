@@ -23,11 +23,13 @@
 
 #include <assert.h>
 
-ric_subscription_request_t generate_subscription_request(ric_gen_id_t ric_id , sm_ric_t const* sm, const char* cmd)
+ric_subscription_request_t generate_subscription_request(ric_gen_id_t ric_id , sm_ric_t const* sm, void* cmd)
 {
   assert(sm != NULL);
+  assert(cmd != NULL);
 
   sm_subs_data_t data = sm->proc.on_subscription(sm, cmd);
+  assert(data.len_ad < 2048);
 
   ric_subscription_request_t sr = {0}; 
   sr.ric_id = ric_id;
@@ -36,8 +38,8 @@ ric_subscription_request_t generate_subscription_request(ric_gen_id_t ric_id , s
 
   // We just support one action per subscription msg
   sr.len_action = 1;  
-  sr.action = calloc(1,sizeof(ric_action_t ) );
-  assert(sr.action != NULL && "Memory exhausted ");
+  sr.action = calloc(1, sizeof(ric_action_t));
+  assert(sr.action != NULL && "Memory exhausted");
 
   sr.action[0].id = 0;
   sr.action[0].type = RIC_ACT_REPORT;
@@ -83,16 +85,16 @@ e42_setup_request_t generate_e42_setup_request(e42_xapp_t* xapp)
 
   void* it = assoc_front(&xapp->plugin_ag.sm_ds);
   for(size_t i = 0; i < len_rf; ++i){
-    sm_agent_t* sm = assoc_value( &xapp->plugin_ag.sm_ds, it);
+    sm_agent_t* sm = assoc_value(&xapp->plugin_ag.sm_ds, it);
     assert(sm->ran_func_id == *(uint16_t*)assoc_key(&xapp->plugin_ag.sm_ds, it) && "RAN function mismatch");
 
-    ran_func[i].id = sm->ran_func_id; 
-    ran_func[i].rev = 0;
-    ran_func[i].oid = NULL;
+    sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
+    assert(sm->ran_func_id == def.rf.id);
 
-    sm_e2_setup_t def = sm->proc.on_e2_setup(sm);
-    byte_array_t ba = {.len = def.len_rfd, .buf = def.ran_fun_def};
-    ran_func[i].definition = ba; 
+    if(def.len_rfd > 0)
+      free(def.ran_fun_def);
+
+    ran_func[i] = def.rf;
 
     it = assoc_next(&xapp->plugin_ag.sm_ds ,it);
   }
@@ -106,12 +108,11 @@ e42_setup_request_t generate_e42_setup_request(e42_xapp_t* xapp)
   return sr;
 }
 
-
-ric_control_request_t generate_ric_control_request(ric_gen_id_t ric_id, sm_ric_t const* sm, sm_ag_if_wr_t const* ctrl_msg)
+ric_control_request_t generate_ric_control_request(ric_gen_id_t ric_id, sm_ric_t const* sm, void* ctrl_msg)
 {
   assert(sm != NULL);
 
-  sm_ctrl_req_data_t const data = sm->proc.on_control_req(sm, ctrl_msg);
+  sm_ctrl_req_data_t const data = sm->proc.on_control_req(sm,  ctrl_msg);
   assert(data.len_hdr < 2049 && "Check that the SM is built with the same flags as FlexRIC ");
   assert(data.len_msg < 2049 && "Check that the SM is built with the same flags as FlexRIC");
 

@@ -14,7 +14,7 @@
 
 #include "../../sm/slice_sm/slice_sm_id.h"
 
-#include "../../sm/kpm_sm_v2.02/kpm_sm_id.h"
+#include "../../sm/kpm_sm_v03.00/kpm_sm_id.h"
 
 #include "../../util/conf_file.h"
 
@@ -29,6 +29,27 @@
 
 static
 bool initialized = false;
+
+
+static
+const char* convert_period(Interval  inter_arg)
+{
+  if(inter_arg == Interval::ms_1 ){
+    return "1_ms";
+  } else if (inter_arg == Interval::ms_2) {
+    return "2_ms";
+  } else if(inter_arg == Interval::ms_5) {
+    return "5_ms";
+  } else if(inter_arg == Interval::ms_10) {
+    return "10_ms";
+  } else {
+    assert(0 != 0 && "Unknown type");
+  }
+
+}
+
+
+
 
 void init()
 {
@@ -104,10 +125,11 @@ static
 void sm_cb_mac(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == MAC_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == MAC_STATS_V0);
   assert(hndlr_mac_cb != NULL);
 
-  mac_ind_data_t const* data = &rd->mac_stats; 
+  mac_ind_data_t const* data = &rd->ind.mac;
 
   swig_mac_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
@@ -149,22 +171,11 @@ int report_mac_sm(swig_global_e2_node_id_t* id, Interval inter_arg, mac_cb* hand
 
   hndlr_mac_cb = handler;
 
-  inter_xapp_e i;
-  if(inter_arg == Interval::ms_1 ){
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if(inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if(inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_MAC_ID, i, sm_cb_mac);
-  assert(ans.success == true); 
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_MAC_ID, (void*)period, sm_cb_mac);
+  assert(ans.success == true);
   return ans.u.handle;
 }
 
@@ -201,10 +212,11 @@ static
 void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == RLC_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == RLC_STATS_V0);
   assert(hndlr_rlc_cb != NULL);
 
-  rlc_ind_data_t const* data = &rd->rlc_stats; 
+  rlc_ind_data_t const* data = &rd->ind.rlc;
 
   swig_rlc_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
@@ -248,21 +260,10 @@ int report_rlc_sm(swig_global_e2_node_id_t* id, Interval inter_arg, rlc_cb* hand
 
   hndlr_rlc_cb = handler;
 
-  inter_xapp_e i;
-  if(inter_arg == Interval::ms_1 ){
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if(inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if(inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_RLC_ID, i, sm_cb_rlc);
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_RLC_ID, (void*)period, sm_cb_rlc);
   assert(ans.success == true); 
   return ans.u.handle;
 }
@@ -296,10 +297,11 @@ static
 void sm_cb_pdcp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == PDCP_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == PDCP_STATS_V0);
   assert(hndlr_pdcp_cb != NULL);
 
-  pdcp_ind_data_t const* data = &rd->pdcp_stats; 
+  pdcp_ind_data_t const* data = &rd->ind.pdcp;
 
   swig_pdcp_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
@@ -342,21 +344,10 @@ int report_pdcp_sm(swig_global_e2_node_id_t* id, Interval inter_arg, pdcp_cb* ha
 
   hndlr_pdcp_cb = handler;
 
-  inter_xapp_e i;
-  if(inter_arg == Interval::ms_1 ){
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if(inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if(inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_PDCP_ID, i, sm_cb_pdcp);
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_PDCP_ID, (void*)period, sm_cb_pdcp);
   assert(ans.success == true); 
   return ans.u.handle;
 }
@@ -388,10 +379,11 @@ static
 void sm_cb_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == SLICE_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == SLICE_STATS_V0);
   assert(hndlr_slice_cb != NULL);
 
-  slice_ind_data_t const* data = &rd->slice_stats;
+  slice_ind_data_t const* data = &rd->ind.slice;
 
   swig_slice_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
@@ -451,21 +443,10 @@ int report_slice_sm(swig_global_e2_node_id_t* id, Interval inter_arg, slice_cb* 
 
   hndlr_slice_cb = handler;
 
-  inter_xapp_e i;
-  if(inter_arg == Interval::ms_1 ){
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if(inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if(inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_SLICE_ID, i, sm_cb_slice);
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_SLICE_ID, (void*)period, sm_cb_slice);
   assert(ans.success == true);
   return ans.u.handle;
 }
@@ -546,8 +527,9 @@ void control_slice_sm(swig_global_e2_node_id_t* id, slice_ctrl_msg_t* ctrl)
   }
 
   sm_ag_if_wr_t wr;
-  wr.type = SLICE_CTRL_REQ_V0;
-  wr.slice_req_ctrl.msg = cp_slice_ctrl_msg(ctrl);
+  wr.type = CONTROL_SM_AG_IF_WR;
+  wr.ctrl.type = SLICE_CTRL_REQ_V0;
+  wr.ctrl.slice_req_ctrl.msg = cp_slice_ctrl_msg(ctrl);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
   control_sm_xapp_api(e2node_id, SM_SLICE_ID,  &wr);
@@ -564,10 +546,11 @@ static
 void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
-  assert(rd->type == GTP_STATS_V0);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == GTP_STATS_V0);
   assert(hndlr_gtp_cb != NULL);
 
-  gtp_ind_data_t const* data = &rd->gtp_stats; 
+  gtp_ind_data_t const* data = &rd->ind.gtp;
 
   swig_gtp_ind_msg_t ind;
   ind.tstamp = data->msg.tstamp;
@@ -610,21 +593,10 @@ int report_gtp_sm(swig_global_e2_node_id_t* id, Interval inter_arg, gtp_cb* hand
 
   hndlr_gtp_cb = handler;
 
-  inter_xapp_e i;
-  if(inter_arg == Interval::ms_1 ){
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if(inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if(inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
+  const char* period = convert_period(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_GTP_ID, i, sm_cb_gtp);
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_GTP_ID, (void*)period, sm_cb_gtp);
   assert(ans.success == true); 
   return ans.u.handle;
 }
@@ -648,127 +620,116 @@ void rm_report_gtp_sm(int handler)
 /////////////////////////////////////
 // KPM SM
 /////////////////////////////////////
-
-static
-kpm_cb* hndlr_kpm_cb;
-
-static
-void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
-{
-  assert(rd != NULL);
-  assert(rd->type == KPM_STATS_V0);
-  assert(hndlr_kpm_cb != NULL);
-
-  kpm_ind_data_t const* data = &rd->kpm_stats;
-
-  swig_kpm_ind_msg_t ind;
-
-  ind.id.type = e2_node->type;
-  ind.id.plmn.mcc = e2_node->plmn.mcc;
-  ind.id.plmn.mnc = e2_node->plmn.mnc;
-  ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
-  ind.id.nb_id = e2_node->nb_id;
-  size_t cuduid_idx = 0;
-  if (e2_node->cu_du_id) {
-    while (e2_node->cu_du_id[cuduid_idx]) {
-      ind.id.cu_du_id.push_back(e2_node->cu_du_id[cuduid_idx]);
-      cuduid_idx++;
-    }
-  }
-
-  ind.MeasData_len = data->msg.MeasData_len;
-
-  for (size_t i = 0; i < data->msg.MeasData_len; ++i) {
-    swig_adapter_MeasDataItem_t item;
-    item.measRecord_len = data->msg.MeasData[i].measRecord_len;
-    item.incompleteFlag = data->msg.MeasData[i].incompleteFlag;
-
-    for (size_t j = 0; j < data->msg.MeasData[i].measRecord_len; ++j) {
-      swig_adapter_MeasRecord_t record;
-
-      // swig_MeasRecordType type;
-      // type.
-
-      // record.type = data->msg.MeasData[i].measRecord[j].type;
-      record.int_val = data->msg.MeasData[i].measRecord[j].int_val;
-      record.real_val = data->msg.MeasData[i].measRecord[j].real_val;
-      item.measRecord.push_back(record);
-    }
-
-    ind.MeasData.push_back(item);
-  }
-  
-  ind.MeasInfo_len = data->msg.MeasInfo_len;
-
-  if (data->msg.MeasInfo_len > 0) {
-    for (size_t i = 0; i < data->msg.MeasInfo_len; ++i) {
-      swig_MeasInfo_t info;
-      info.meas_type = data->msg.MeasInfo[i].meas_type;
-      
-      byte_array_t measName;
-      measName = data->msg.MeasInfo[i].measName;
-
-      std::string name(measName.buf, measName.buf + measName.len);
-
-      info.measName = name;
-      info.measID = data->msg.MeasInfo[i].measID;
-      //info.labelInfo = data->msg.MeasInfo[i].labelInfo;
-      info.labelInfo_len = data->msg.MeasInfo[i].labelInfo_len;
-      ind.MeasInfo.push_back(info);
-    }
-  }
-
-  //ind.granulPeriod = data->msg.granulPeriod;
-
-
-#ifdef XAPP_LANG_PYTHON
-  PyGILState_STATE gstate;
-  gstate = PyGILState_Ensure();
-#endif
-
-  hndlr_kpm_cb->handle(&ind);
-
-#ifdef XAPP_LANG_PYTHON
-  PyGILState_Release(gstate);
-#endif
-}
-
-int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter_arg, kpm_cb* handler)
-{
-  assert(id != NULL);
-  assert(handler != NULL);
-
-  hndlr_kpm_cb = handler;
-
-  inter_xapp_e i;
-  if (inter_arg == Interval::ms_1) {
-    i = ms_1;
-  } else if (inter_arg == Interval::ms_2) {
-    i = ms_2;
-  } else if (inter_arg == Interval::ms_5) {
-    i = ms_5;
-  } else if (inter_arg == Interval::ms_10) {
-    i = ms_10;
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
-
-  global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_KPM_ID, i, sm_cb_kpm);
-  assert(ans.success == true);
-  return ans.u.handle;
-}
-
-void rm_report_kpm_sm(int handler)
-{
-#ifdef XAPP_LANG_PYTHON
-  PyGILState_STATE gstate;
-  gstate = PyGILState_Ensure();
-#endif
-
-  rm_report_sm_xapp_api(handler);
-
-#ifdef XAPP_LANG_PYTHON
-  PyGILState_Release(gstate);
-#endif
-}
+//
+//static
+//kpm_cb* hndlr_kpm_cb;
+//
+//static
+//void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
+//{
+//  assert(rd != NULL);
+//  assert(rd->type == KPM_STATS_V0);
+//  assert(hndlr_kpm_cb != NULL);
+//
+//  kpm_ind_data_t const* data = &rd->kpm_stats;
+//
+//  swig_kpm_ind_msg_t ind;
+//
+//  ind.id.type = e2_node->type;
+//  ind.id.plmn.mcc = e2_node->plmn.mcc;
+//  ind.id.plmn.mnc = e2_node->plmn.mnc;
+//  ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
+//  ind.id.nb_id = e2_node->nb_id;
+//  size_t cuduid_idx = 0;
+//  if (e2_node->cu_du_id) {
+//    while (e2_node->cu_du_id[cuduid_idx]) {
+//      ind.id.cu_du_id.push_back(e2_node->cu_du_id[cuduid_idx]);
+//      cuduid_idx++;
+//    }
+//  }
+//
+//  ind.MeasData_len = data->msg.MeasData_len;
+//
+//  for (size_t i = 0; i < data->msg.MeasData_len; ++i) {
+//    swig_adapter_MeasDataItem_t item;
+//    item.measRecord_len = data->msg.MeasData[i].measRecord_len;
+//    item.incompleteFlag = data->msg.MeasData[i].incompleteFlag;
+//
+//    for (size_t j = 0; j < data->msg.MeasData[i].measRecord_len; ++j) {
+//      swig_adapter_MeasRecord_t record;
+//
+//      // swig_MeasRecordType type;
+//      // type.
+//
+//      // record.type = data->msg.MeasData[i].measRecord[j].type;
+//      record.int_val = data->msg.MeasData[i].measRecord[j].int_val;
+//      record.real_val = data->msg.MeasData[i].measRecord[j].real_val;
+//      item.measRecord.push_back(record);
+//    }
+//
+//    ind.MeasData.push_back(item);
+//  }
+//
+//  ind.MeasInfo_len = data->msg.MeasInfo_len;
+//
+//  if (data->msg.MeasInfo_len > 0) {
+//    for (size_t i = 0; i < data->msg.MeasInfo_len; ++i) {
+//      swig_MeasInfo_t info;
+//      info.meas_type = data->msg.MeasInfo[i].meas_type;
+//
+//      byte_array_t measName;
+//      measName = data->msg.MeasInfo[i].measName;
+//
+//      std::string name(measName.buf, measName.buf + measName.len);
+//
+//      info.measName = name;
+//      info.measID = data->msg.MeasInfo[i].measID;
+//      //info.labelInfo = data->msg.MeasInfo[i].labelInfo;
+//      info.labelInfo_len = data->msg.MeasInfo[i].labelInfo_len;
+//      ind.MeasInfo.push_back(info);
+//    }
+//  }
+//
+//  //ind.granulPeriod = data->msg.granulPeriod;
+//
+//
+//#ifdef XAPP_LANG_PYTHON
+//  PyGILState_STATE gstate;
+//  gstate = PyGILState_Ensure();
+//#endif
+//
+//  hndlr_kpm_cb->handle(&ind);
+//
+//#ifdef XAPP_LANG_PYTHON
+//  PyGILState_Release(gstate);
+//#endif
+//}
+//
+//int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter_arg, kpm_cb* handler)
+//{
+//  assert(id != NULL);
+//  assert(handler != NULL);
+//
+//  hndlr_kpm_cb = handler;
+//
+//  const char* period = convert_period(inter_arg);
+//
+//  global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
+//  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_KPM_ID, period, sm_cb_kpm);
+//  assert(ans.success == true);
+//  return ans.u.handle;
+//}
+//
+//void rm_report_kpm_sm(int handler)
+//{
+//#ifdef XAPP_LANG_PYTHON
+//  PyGILState_STATE gstate;
+//  gstate = PyGILState_Ensure();
+//#endif
+//
+//  rm_report_sm_xapp_api(handler);
+//
+//#ifdef XAPP_LANG_PYTHON
+//  PyGILState_Release(gstate);
+//#endif
+//}

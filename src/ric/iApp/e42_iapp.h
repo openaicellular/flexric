@@ -29,7 +29,7 @@
 
 #include "../../util/alg_ds/ds/assoc_container/assoc_generic.h"
 #include "../../util/alg_ds/ds/assoc_container/bimap.h"
-#include "../../util/ngran_types.h"
+#include "../../util/e2ap_ngran_types.h"
 
 #include "../near_ric.h"
 #include "near_ric_if.h"

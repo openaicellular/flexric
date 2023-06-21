@@ -109,7 +109,11 @@ void* bi_map_extract_right(bi_map_t* map, void* key2, size_t key2_sz)
 
   int cmp = map->right.comp(key2, key3);
 //  int cmp = memcmp(key2, key3, map->right.key_sz);
-  assert(cmp == 0 );
+  assert(cmp == 0);
+
+  assert(map->right.free_func != NULL);
+//  map->right.free_func(key1, key3); 
+
   free(key3);
 
   size_t sz_1 = assoc_size(&map->left);
