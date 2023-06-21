@@ -124,13 +124,16 @@ void check_ctrl(sm_agent_t* ag, sm_ric_t* ric)
   //sm_ag_if_wr_t wr = {.type = CONTROL_SM_AG_IF_WR };
   //wr.ctrl.type = SLICE_CTRL_REQ_V0 ;
 
-  slice_ctrl_req_data_t slice_req_ctrl = {0};
-  fill_slice_ctrl(&slice_req_ctrl);
+  sm_ag_if_wr_t ctrl_msg = {0};
+  ctrl_msg.type = CONTROL_SM_AG_IF_WR;
+  ctrl_msg.ctrl.type = SLICE_CTRL_REQ_V0;
+  slice_ctrl_req_data_t* slice_req_ctrl = &ctrl_msg.ctrl.slice_req_ctrl;
+  fill_slice_ctrl(slice_req_ctrl);
 
-  cp_ctrl.hdr = cp_slice_ctrl_hdr(&slice_req_ctrl.hdr);
-  cp_ctrl.msg = cp_slice_ctrl_msg(&slice_req_ctrl.msg);
+  cp_ctrl.hdr = cp_slice_ctrl_hdr(&slice_req_ctrl->hdr);
+  cp_ctrl.msg = cp_slice_ctrl_msg(&slice_req_ctrl->msg);
 
-  sm_ctrl_req_data_t ctrl_req = ric->proc.on_control_req(ric, &slice_req_ctrl);
+  sm_ctrl_req_data_t ctrl_req = ric->proc.on_control_req(ric, &ctrl_msg);
 
   sm_ctrl_out_data_t out_data = ag->proc.on_control(ag, &ctrl_req);
 
@@ -148,8 +151,8 @@ void check_ctrl(sm_agent_t* ag, sm_ric_t* ric)
 
   free_slice_ctrl_out(&ans.slice);
 
-  free_slice_ctrl_hdr(&slice_req_ctrl.hdr); 
-  free_slice_ctrl_msg(&slice_req_ctrl.msg); 
+  free_slice_ctrl_hdr(&slice_req_ctrl->hdr);
+  free_slice_ctrl_msg(&slice_req_ctrl->msg);
 
   free_slice_ctrl_hdr(&cp_ctrl.hdr);
   free_slice_ctrl_msg(&cp_ctrl.msg);

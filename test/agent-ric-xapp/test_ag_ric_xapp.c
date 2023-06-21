@@ -461,13 +461,14 @@ void sm_cb_rc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 
 
 static
-slice_ctrl_req_data_t create_add_slice(void)
+sm_ag_if_wr_t create_add_slice(void)
 {
-  slice_ctrl_req_data_t ctrl_msg = {0};
+  sm_ag_if_wr_t ctrl_msg = {0};
+  ctrl_msg.type = CONTROL_SM_AG_IF_WR;
+  ctrl_msg.ctrl.type = SLICE_CTRL_REQ_V0;
+  ctrl_msg.ctrl.slice_req_ctrl.hdr.dummy = 2;
+  slice_ctrl_msg_t* sl_ctrl_msg = &ctrl_msg.ctrl.slice_req_ctrl.msg;
 
-  ctrl_msg.hdr.dummy = 2;
- 
-  slice_ctrl_msg_t* sl_ctrl_msg = &ctrl_msg.msg;
   sl_ctrl_msg->type = SLICE_CTRL_SM_V0_ADD;
   char sched_name[] = "My scheduler";
   size_t const sz = strlen(sched_name);
@@ -486,13 +487,14 @@ slice_ctrl_req_data_t create_add_slice(void)
 }
 
 static
-slice_ctrl_req_data_t create_assoc_slice(void)
+sm_ag_if_wr_t create_assoc_slice(void)
 {
-  slice_ctrl_req_data_t ctrl_msg = {0};
-
-  ctrl_msg.hdr.dummy = 2;
+  sm_ag_if_wr_t ctrl_msg = {0};
+  ctrl_msg.type = CONTROL_SM_AG_IF_WR;
+  ctrl_msg.ctrl.type = SLICE_CTRL_REQ_V0;
+  ctrl_msg.ctrl.slice_req_ctrl.hdr.dummy = 2;
+  slice_ctrl_msg_t* sl_ctrl_msg = &ctrl_msg.ctrl.slice_req_ctrl.msg;
  
-  slice_ctrl_msg_t* sl_ctrl_msg = &ctrl_msg.msg;
   sl_ctrl_msg->type = SLICE_CTRL_SM_V0_UE_SLICE_ASSOC;
 
   ue_slice_conf_t* ue_slice = &sl_ctrl_msg->u.ue_slice;
@@ -592,17 +594,16 @@ int main(int argc, char *argv[])
   assert(h_3.success == true);
 
   // Control ADD slice
-  slice_ctrl_req_data_t ctrl_msg_add = create_add_slice();
-
+  sm_ag_if_wr_t ctrl_msg_add = create_add_slice();
   control_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, &ctrl_msg_add);
-  free(ctrl_msg_add.msg.u.add_mod_slice.dl.slices);
-  free(ctrl_msg_add.msg.u.add_mod_slice.dl.sched_name);
+  free(ctrl_msg_add.ctrl.slice_req_ctrl.msg.u.add_mod_slice.dl.slices);
+  free(ctrl_msg_add.ctrl.slice_req_ctrl.msg.u.add_mod_slice.dl.sched_name);
 
 
   // Control ASSOC slice
-  slice_ctrl_req_data_t ctrl_msg_assoc = create_assoc_slice();
+  sm_ag_if_wr_t ctrl_msg_assoc = create_assoc_slice();
   control_sm_xapp_api(&nodes.n[0].id, SM_SLICE_ID, &ctrl_msg_assoc);
-  free(ctrl_msg_assoc.msg.u.ue_slice.ues);
+  free(ctrl_msg_assoc.ctrl.slice_req_ctrl.msg.u.ue_slice.ues);
 
   // KPM
   kpm_sub_data_t kpm_sub = {0};
