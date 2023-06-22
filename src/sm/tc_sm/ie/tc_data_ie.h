@@ -54,7 +54,7 @@ bool eq_tc_event_trigger(tc_event_trigger_t* m0, tc_event_trigger_t* m1);
 /////////////////////////////////////
 
 typedef struct {
-
+  uint32_t dummy;
 } tc_action_def_t;
 
 void free_tc_action_def(tc_action_def_t* src); 
@@ -115,6 +115,7 @@ L4_filter_t cp_L4_filter(L4_filter_t const*);
 // OSI L7 filter
 typedef struct{
   //TODO: Add the OSI Layer 7 
+  uint32_t dummy;
 } L7_filter_t;
 
 void free_L7_filter(L7_filter_t*);
@@ -789,6 +790,7 @@ bool eq_tc_ctrl_out(tc_ctrl_out_t* m0, tc_ctrl_out_t* m1);
 /////////////////////////////////////
 
 typedef struct {
+  uint32_t dummy;
 //  uint32_t len_supported_alg;
 //  tc_algorithm_e* supported_alg;
 } tc_func_def_t;
@@ -870,7 +872,4 @@ typedef struct{
   tc_func_def_t func_def;
 } tc_ric_service_update_t;
 
-
-
 #endif
-

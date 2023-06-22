@@ -22,7 +22,6 @@
 #include "../../../../src/xApp/e42_xapp_api.h"
 #include "../../../../src/sm/rc_sm/ie/ir/ran_param_struct.h"
 #include "../../../../src/sm/rc_sm/ie/ir/ran_param_list.h"
-#include "../../../../src/util/alg_ds/alg/defer.h"
 #include "../../../../src/util/time_now_us.h"
 #include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
 #include <stdlib.h>
@@ -46,7 +45,6 @@ byte_array_t copy_str_to_ba(const char* str)
   return dst;
 }
 
-
 static
 ue_id_e2sm_t ue_id;
 
@@ -68,12 +66,12 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   printf("Sojourn time %lf \n",kpm->msg.frm_3.meas_report_per_ue[0].ind_msg_format_1.meas_data_lst[0].meas_record_lst[0].real_val);
 
   {
-  lock_guard(&mtx);
-  ue_id = cp_ue_id_e2sm(&kpm->msg.frm_3.meas_report_per_ue[0].ue_meas_report_lst);
+    lock_guard(&mtx);
+    free_ue_id_e2sm(&ue_id); 
+    ue_id = cp_ue_id_e2sm(&kpm->msg.frm_3.meas_report_per_ue[0].ue_meas_report_lst);
   }
   printf("UE ID %ld \n ", ue_id.gnb.amf_ue_ngap_id);
 }
-
 
 static
 kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
@@ -1041,7 +1039,6 @@ int main(int argc, char *argv[])
   sleep(1);
 
   e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
   assert(nodes.len > 0);
 
   printf("Connected E2 nodes = %d\n", nodes.len);
@@ -1059,7 +1056,6 @@ int main(int argc, char *argv[])
   // START KPM 
   //////////// 
   kpm_sub_data_t kpm_sub = {0};
-  defer({ free_kpm_sub_data(&kpm_sub); });
 
   // KPM Event Trigger
   uint64_t period_ms = 100;
@@ -1078,6 +1074,7 @@ int main(int argc, char *argv[])
     h[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm);
     assert(h[i].success == true);
   } 
+  free_kpm_sub_data(&kpm_sub); 
 
   //////////// 
   // END KPM 
@@ -1096,9 +1093,9 @@ int main(int argc, char *argv[])
   //  assert(h_2.success == true);
 
 
+  
   // RC Control 
   rc_ctrl_req_data_t rc_ctrl = {0};
-  defer({ free_rc_ctrl_req_data(&rc_ctrl); });
 
   rc_ctrl.hdr = gen_rc_ctrl_hdr();
   rc_ctrl.msg = gen_rc_ctrl_msg();
@@ -1108,7 +1105,10 @@ int main(int argc, char *argv[])
   for(size_t i =0; i < nodes.len; ++i){ 
     control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
   }
+  free_rc_ctrl_req_data(&rc_ctrl);
 
+  // free_rc_ctrl_req_data(&rc_ctrl); 
+//
   //////////// 
   // END RC 
   //////////// 
@@ -1127,9 +1127,12 @@ int main(int argc, char *argv[])
 
   free(h);
 
+  free_e2_node_arr(&nodes); 
+
   rc = pthread_mutex_destroy(&mtx);
   assert(rc == 0);
 
   printf("Test xApp run SUCCESSFULLY\n");
+
 }
 

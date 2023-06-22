@@ -1,4 +1,8 @@
-## 1. ASN.1 types - v03.00
+## 1. Command used to generate the C structs from the ASN.1 types 
+
+/opt/asn1c/bin/asn1c -gen-APER -no-gen-OER -fcompound-names -no-gen-example -findirect-choice -fno-include-deps e2sm_kpm_v03.00_modified.asn1 
+
+## 2. ASN.1 types - v03.00
 
 1.1 Before
 The ASN.1 file "e2sm_kpm_v03.00_standard.asn1" is taken from the O-RAN specification "O-RAN.WG3.E2SM-KPM-R003-v03.00".

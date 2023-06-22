@@ -1,4 +1,247 @@
 set(ASN_MODULE_SRCS
+  ANY_aper.c
+  ANY_ber.c
+  ANY.c
+  ANY_uper.c
+  ANY_xer.c
+  aper_decoder.c
+  aper_encoder.c
+  aper_opentype.c
+  aper_support.c
+  asn_application.c
+  asn_bit_data.c
+  asn_codecs_prim_ber.c
+  asn_codecs_prim.c
+  asn_codecs_prim_xer.c
+  asn_internal.c
+  asn_random_fill.c
+  asn_SEQUENCE_OF.c
+  asn_SET_OF.c
+  ber_decoder.c
+  ber_tlv_length.c
+  ber_tlv_tag.c
+  BIT_STRING.c
+  BIT_STRING_print.c
+  BIT_STRING_rfill.c
+  BIT_STRING_uper.c
+  BIT_STRING_xer.c
+  Cause.c
+  CauseMisc.c
+  CauseProtocol.c
+  CauseRIC.c
+  CauseRICservice.c
+  CauseTransport.c
+  constraints.c
+  constr_CHOICE_aper.c
+  constr_CHOICE_ber.c
+  constr_CHOICE.c
+  constr_CHOICE_print.c
+  constr_CHOICE_rfill.c
+  constr_CHOICE_uper.c
+  constr_CHOICE_xer.c
+  constr_SEQUENCE_aper.c
+  constr_SEQUENCE_ber.c
+  constr_SEQUENCE.c
+  constr_SEQUENCE_OF_aper.c
+  constr_SEQUENCE_OF_ber.c
+  constr_SEQUENCE_OF.c
+  constr_SEQUENCE_OF_uper.c
+  constr_SEQUENCE_OF_xer.c
+  constr_SEQUENCE_print.c
+  constr_SEQUENCE_rfill.c
+  constr_SEQUENCE_uper.c
+  constr_SEQUENCE_xer.c
+  constr_SET_OF_aper.c
+  constr_SET_OF_ber.c
+  constr_SET_OF.c
+  constr_SET_OF_print.c
+  constr_SET_OF_rfill.c
+  constr_SET_OF_uper.c
+  constr_SET_OF_xer.c
+  constr_TYPE.c
+  Criticality.c
+  CriticalityDiagnostics.c
+  CriticalityDiagnostics-IE-Item.c
+  CriticalityDiagnostics-IE-List.c
+  der_encoder.c
+  E2AP-PDU.c
+  E2connectionSetupFailed-Item.c
+  E2connectionSetupFailed-List.c
+  E2connectionUpdateAcknowledge.c
+  E2connectionUpdate.c
+  E2connectionUpdateFailure.c
+  E2connectionUpdate-Item.c
+  E2connectionUpdate-List.c
+  E2connectionUpdateRemove-Item.c
+  E2connectionUpdateRemove-List.c
+  E2nodeComponentConfigUpdateAck.c
+  E2nodeComponentConfigUpdateAck-Item.c
+  E2nodeComponentConfigUpdateAck-List.c
+  E2nodeComponentConfigUpdate.c
+  E2nodeComponentConfigUpdateENB.c
+  E2nodeComponentConfigUpdateENgNB.c
+  E2nodeComponentConfigUpdateGNB.c
+  E2nodeComponentConfigUpdate-Item.c
+  E2nodeComponentConfigUpdate-List.c
+  E2nodeComponentConfigUpdateNGeNB.c
+  E2nodeComponentGNB-CU-UP-ID.c
+  E2nodeComponentGNB-DU-ID.c
+  E2nodeComponentID.c
+  E2nodeComponentType.c
+  E2nodeConfigurationUpdateAcknowledge.c
+  E2nodeConfigurationUpdate.c
+  E2nodeConfigurationUpdateFailure.c
+  E2nodeConnected-List.c
+  E2setupFailure.c
+  E2setupRequest.c
+  E2setupResponse.c
+  E42RICcontrolRequest.c
+  E42RICsubscriptionDeleteRequest.c
+  E42RICsubscriptionRequest.c
+  E42setupRequest.c
+  E42setupResponse.c
+  ENB-ID.c
+  ENB-ID-Choice.c
+  ENGNB-ID.c
+  ErrorIndication.c
+  EXTERNAL.c
+  GlobalE2node-eNB-ID.c
+  GlobalE2node-en-gNB-ID.c
+  GlobalE2node-gNB-ID.c
+  GlobalE2node-ID.c
+  GlobalE2node-ng-eNB-ID.c
+  GlobalENB-ID.c
+  GlobalenGNB-ID.c
+  GlobalgNB-ID.c
+  GlobalngeNB-ID.c
+  GlobalRIC-ID.c
+  GNB-CU-UP-ID.c
+  GNB-DU-ID.c
+  GNB-ID-Choice.c
+  GraphicString.c
+  InitiatingMessage.c
+  INTEGER_aper.c
+  INTEGER_ber.c
+  INTEGER.c
+  INTEGER_print.c
+  INTEGER_rfill.c
+  INTEGER_uper.c
+  INTEGER_xer.c
+  NativeEnumerated_aper.c
+  NativeEnumerated.c
+  NativeEnumerated_uper.c
+  NativeEnumerated_xer.c
+  NativeInteger_aper.c
+  NativeInteger_ber.c
+  NativeInteger.c
+  NativeInteger_print.c
+  NativeInteger_rfill.c
+  NativeInteger_uper.c
+  NativeInteger_xer.c
+  ObjectDescriptor.c
+  OBJECT_IDENTIFIER.c
+  OBJECT_IDENTIFIER_print.c
+  OBJECT_IDENTIFIER_rfill.c
+  OBJECT_IDENTIFIER_xer.c
+  OCTET_STRING_aper.c
+  OCTET_STRING_ber.c
+  OCTET_STRING.c
+  OCTET_STRING_print.c
+  OCTET_STRING_rfill.c
+  OCTET_STRING_uper.c
+  OCTET_STRING_xer.c
+  OPEN_TYPE_aper.c
+  OPEN_TYPE_ber.c
+  OPEN_TYPE.c
+  OPEN_TYPE_uper.c
+  OPEN_TYPE_xer.c
+  per_decoder.c
+  per_encoder.c
+  per_opentype.c
+  per_support.c
+  PLMN-Identity.c
+  Presence.c
+  PrintableString.c
+  ProcedureCode.c
+  ProtocolIE-Container.c
+  ProtocolIE-ContainerList.c
+  ProtocolIE-ContainerPair.c
+  ProtocolIE-ContainerPairList.c
+  ProtocolIE-Field.c
+  ProtocolIE-FieldPair.c
+  ProtocolIE-ID.c
+  ProtocolIE-SingleContainer.c
+  RANfunctionDefinition.c
+  RANfunctionID.c
+  RANfunctionIDcause-Item.c
+  RANfunctionID-Item.c
+  RANfunction-Item.c
+  RANfunctionOID.c
+  RANfunctionRevision.c
+  RANfunctionsIDcause-List.c
+  RANfunctionsID-List.c
+  RANfunctions-List.c
+  ResetRequest.c
+  ResetResponse.c
+  RICaction-Admitted-Item.c
+  RICaction-Admitted-List.c
+  RICactionDefinition.c
+  RICactionID.c
+  RICaction-NotAdmitted-Item.c
+  RICaction-NotAdmitted-List.c
+  RICactions-ToBeSetup-List.c
+  RICaction-ToBeSetup-Item.c
+  RICactionType.c
+  RICcallProcessID.c
+  RICcontrolAcknowledge.c
+  RICcontrolAckRequest.c
+  RICcontrolFailure.c
+  RICcontrolHeader.c
+  RICcontrolMessage.c
+  RICcontrolOutcome.c
+  RICcontrolRequest.c
+  RICcontrolStatus.c
+  RICeventTriggerDefinition.c
+  RICindication.c
+  RICindicationHeader.c
+  RICindicationMessage.c
+  RICindicationSN.c
+  RICindicationType.c
+  RICrequestID.c
+  RICserviceQuery.c
+  RICserviceUpdateAcknowledge.c
+  RICserviceUpdate.c
+  RICserviceUpdateFailure.c
+  RICsubscriptionDeleteFailure.c
+  RICsubscriptionDeleteRequest.c
+  RICsubscriptionDeleteResponse.c
+  RICsubscriptionDetails.c
+  RICsubscriptionFailure.c
+  RICsubscriptionRequest.c
+  RICsubscriptionResponse.c
+  RICsubsequentAction.c
+  RICsubsequentActionType.c
+  RICtimeToWait.c
+  SuccessfulOutcome.c
+  TimeToWait.c
+  TNLinformation.c
+  TNLusage.c
+  TriggeringMessage.c
+  TypeOfError.c
+  UnsuccessfulOutcome.c
+  uper_decoder.c
+  uper_encoder.c
+  uper_opentype.c
+  uper_support.c
+  XAPP-ID.c
+  xer_decoder.c
+  xer_encoder.c
+  xer_support.c
+  )
+
+if(FALSE) # fake a block comment
+
+set(ASN_MODULE_SRCS_2
     E2AP-PDU.c
     InitiatingMessage.c
     SuccessfulOutcome.c
@@ -168,6 +411,7 @@ set(ASN_MODULE_SRCS
     E42updateE2node.c
 )
 
+
 set(ASN_MODULE_HDRS
     E2AP-PDU.h
     InitiatingMessage.h
@@ -333,6 +577,11 @@ set(ASN_MODULE_HDRS
     per_opentype.h
 )
 
+endif()
+
+
+
+
 add_library(e2ap_asn1_obj OBJECT ${ASN_MODULE_SRCS})
 #${ASN_MODULE_HDRS})
 target_include_directories(e2ap_asn1_obj
@@ -341,5 +590,6 @@ target_include_directories(e2ap_asn1_obj
                            )
 
 target_compile_options(e2ap_asn1_obj PUBLIC "-DASN_DISABLE_OER_SUPPORT")
+target_compile_options(e2ap_asn1_obj PUBLIC "-DASN_DISABLE_JER_SUPPORT")
 target_compile_options(e2ap_asn1_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
 

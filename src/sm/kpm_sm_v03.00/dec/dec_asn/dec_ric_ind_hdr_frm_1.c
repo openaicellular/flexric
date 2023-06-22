@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "../../../../util/conversions.h"
+#include <arpa/inet.h> // ntohl
 
 #include "dec_ric_ind_hdr_frm_1.h"
 

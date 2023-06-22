@@ -9,18 +9,6 @@ if(SM_ENCODING_RLC  STREQUAL "PLAIN")
                       main.c 
                       ../../rnd/fill_rnd_data_rlc.c
                       ../../../src/util/time_now_us.c
-
-                      #  ../../../src/sm/sm_proc_data.c 
-                      # ../../../src/sm/rlc_sm/rlc_sm_agent.c 
-                      # ../../../src/sm/rlc_sm/rlc_sm_ric.c 
-                      # ../../../src/sm/rlc_sm/enc/rlc_enc_plain.c 
-                      # ../../../src/sm/rlc_sm/dec/rlc_dec_plain.c 
-                      # ../../../src/util/alg_ds/alg/defer.c
-                      # ../../../src/util/alg_ds/alg/eq_float.c
-                      # ../../../src/sm/rlc_sm/ie/rlc_data_ie.c
-                      #../common/fill_ind_data.c
-                      #../../../src/sm/rc_sm/test/fill_rnd_data_rc.c
-                      #../../../test/encode_decode/sm/kpm/fill_rnd_data_kpm.c
               )
 elseif(SM_ENCODING_RLC STREQUAL "ASN")
   message(FATAL_ERROR "Not implemented ASN encoding")
@@ -31,7 +19,7 @@ elseif(SM_ENCODING_RLC STREQUAL "FLATBUFFERS")
 endif()
 
 target_compile_definitions(test_rlc_sm PUBLIC ${SM_ENCODING_RLC})
-target_link_libraries(test_rlc_sm PUBLIC rlc_sm -pthread)
+target_link_libraries(test_rlc_sm PUBLIC rlc_sm_static -pthread)
 
 enable_testing()
 add_test(Unit_test_RLC test_rlc_sm)

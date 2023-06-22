@@ -17,38 +17,29 @@ set(SM_ENCODING_RLC_SRC
 
 
 if(SM_ENCODING_RLC STREQUAL "PLAIN")
-  add_library(rlc_sm SHARED
-                      # This dependency sucks!
-                      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+  set(SM_ENCODING_RLC_SRC_PLAIN 
+    # This dependency sucks!
+    ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+    ${SM_ENCODING_RLC_SRC}
+    enc/rlc_enc_plain.c 
+    dec/rlc_dec_plain.c 
+    )
 
-                      ${SM_ENCODING_RLC_SRC}
-                      enc/rlc_enc_plain.c 
-                      dec/rlc_dec_plain.c 
-                      )
+  # Shared
+  add_library(rlc_sm SHARED ${SM_ENCODING_RLC_SRC_PLAIN} )
+  target_compile_options(rlc_sm PRIVATE -fvisibility=hidden)
+
+  # Static
+  add_library(rlc_sm_static STATIC ${SM_ENCODING_RLC_SRC_PLAIN}) 
 
 elseif(SM_ENCODING_RLC STREQUAL "ASN" )
   message(FATAL_ERROR "RLC SM ASN not implemented")
-  add_subdirectory(ie/asn)
-
-  add_library(rlc_sm SHARED
-                     ${SM_ENCODING_RLC_SRC}
-                      enc/rlc_enc_asn.c 
-                      dec/rlc_dec_asn.c 
-                      )
-  target_include_directories(rlc_sm PRIVATE "ie/asn")
-  target_compile_options(rlc_sm PUBLIC "-DASN_DISABLE_OER_SUPPORT")
-  target_compile_options(rlc_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
-
 elseif(SM_ENCODING_RLC STREQUAL "FLATBUFFERS" )
   message(FATAL_ERROR "RLC SM FB not implemented")
-  add_library(rlc_sm SHARED
-                     ${SM_ENCODING_RLC_SRC}
-                      enc/rlc_enc_fb.c 
-                      dec/rlc_dec_fb.c 
-                      )
 else()
   message(FATAL_ERROR "Unknown SM encoding type ")
 endif()
 
 target_compile_definitions(rlc_sm PUBLIC ${SM_ENCODING_RLC})
+target_compile_definitions(rlc_sm_static PUBLIC ${SM_ENCODING_RLC})
 

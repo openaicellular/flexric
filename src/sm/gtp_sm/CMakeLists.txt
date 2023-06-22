@@ -17,16 +17,29 @@ set(SM_ENCODING_GTP_SRC
 
 
 if(SM_ENCODING_GTP STREQUAL "PLAIN")
+  set(SM_ENCODING_GTP_SRC_PLAIN
+    ${SM_ENCODING_GTP_SRC}
+    # This dependency sucks!
+    ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+    enc/gtp_enc_plain.c 
+    dec/gtp_dec_plain.c 
+    )
+
+  # Shared
   add_library(gtp_sm SHARED
-                      ${SM_ENCODING_GTP_SRC}
-                      # This dependency sucks!
-                      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
-                      enc/gtp_enc_plain.c 
-                      dec/gtp_dec_plain.c 
-                      )
+              ${SM_ENCODING_GTP_SRC_PLAIN}
+              )
+  target_compile_options(gtp_sm PRIVATE -fvisibility=hidden)
+
+  # Static
+  add_library(gtp_sm_static STATIC 
+              ${SM_ENCODING_GTP_SRC_PLAIN}
+              )
+
 else()
   message(FATAL_ERROR "Unknown SM encoding type ")
 endif()
 
 target_compile_definitions(gtp_sm PUBLIC ${SM_ENCODING_GTP})
+target_compile_definitions(gtp_sm_static PUBLIC ${SM_ENCODING_GTP})
 
