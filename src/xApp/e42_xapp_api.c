@@ -99,6 +99,12 @@ e2_node_arr_t e2_nodes_xapp_api(void)
   return e2_nodes_xapp(xapp);
 }
 
+size_t e2_nodes_len_xapp_api(void)
+{
+  assert(xapp != NULL);
+
+  return e2_nodes_len_xapp(xapp);
+}
 /*
 static inline
 bool valid_interval(inter_xapp_e i)
