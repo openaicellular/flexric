@@ -53,7 +53,9 @@ elseif(SM_ENCODING_KPM STREQUAL "ASN")
   target_include_directories(kpm_sm PRIVATE "ie/asn")
   target_compile_options(kpm_sm PRIVATE "-DASN_DISABLE_OER_SUPPORT" -fPIC)
   target_compile_options(kpm_sm PRIVATE "-DASN_DISABLE_JER_SUPPORT" -fPIC)
-  target_compile_options(kpm_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC -fvisibility=hidden)
+  target_compile_options(kpm_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC )
+
+  #-fvisibility=hidden
 
   # Static Library
   add_library(kpm_sm_static STATIC ${SM_ENCODING_KPM_SRC_ASN})

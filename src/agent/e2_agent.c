@@ -36,7 +36,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-
+/*
 // Equality file descriptors
 static inline
 bool eq_fd_pair(const void* key1, const void* key2 )
@@ -55,7 +55,9 @@ bool eq_fd_pair(const void* key1, const void* key2 )
 
   return eq_fd(&fd1->r, &fd2->r) && eq_fd(&fd1->w, &fd2->w);
 }
+*/
 
+/*
 // Comparation file descriptors
 static inline 
 int cmp_fd_pair(void const* fd_v1, void const* fd_v2)
@@ -77,6 +79,7 @@ int cmp_fd_pair(void const* fd_v1, void const* fd_v2)
 
   return cmp_fd(&fd1->w, &fd2->w);
 }
+*/
 
 static
 e2_setup_request_t generate_setup_request(e2_agent_t* ag)
@@ -539,11 +542,12 @@ void e2_start_agent(e2_agent_t* ag)
 
   // Resend the subscription request message
   e2_setup_request_t sr = generate_setup_request(ag); 
-  defer({ e2ap_free_setup_request(&sr);  } );
+//  defer({ e2ap_free_setup_request(&sr);  } );
 
   printf("[E2-AGENT]: Sending setup request\n");
   byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr); 
   defer({free_byte_array(ba); } ); 
+  e2ap_free_setup_request(&sr);
 
   e2ap_send_bytes_agent(&ag->ep, ba);
 

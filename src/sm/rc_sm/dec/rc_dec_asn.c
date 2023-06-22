@@ -201,6 +201,7 @@ byte_array_t copy_ostring_to_ba(OCTET_STRING_t os)
   return ba;
 }
 
+/*
 static inline
 OCTET_STRING_t copy_ba_to_ostring(byte_array_t ba)
 {
@@ -209,6 +210,7 @@ OCTET_STRING_t copy_ba_to_ostring(byte_array_t ba)
   memcpy(os.buf, ba.buf, ba.len);
   return os;
 }
+*/
 
 static inline
 byte_array_t copy_bit_string_to_ba(BIT_STRING_t bs)
@@ -222,6 +224,7 @@ byte_array_t copy_bit_string_to_ba(BIT_STRING_t bs)
   return ba;
 }
 
+/*
 static inline
 BIT_STRING_t	copy_ba_to_bit_string(byte_array_t ba)
 {
@@ -235,9 +238,7 @@ BIT_STRING_t	copy_ba_to_bit_string(byte_array_t ba)
 
   return bs;
 }
-
-
-
+*/
 
 static
 network_interface_e2rc_t dec_msg_type_ni(MessageType_Choice_NI_t const* src)

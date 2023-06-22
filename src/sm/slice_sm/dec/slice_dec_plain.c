@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
 static inline
 size_t next_pow2(size_t x)
 {
@@ -18,6 +19,7 @@ size_t next_pow2(size_t x)
 	
 	return x + 1;
 }
+*/
 
 slice_event_trigger_t slice_dec_event_trigger_plain(size_t len, uint8_t const ev_tr[len])
 {

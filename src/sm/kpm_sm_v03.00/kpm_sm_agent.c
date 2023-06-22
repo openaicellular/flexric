@@ -122,11 +122,12 @@ sm_e2_setup_data_t on_e2_setup_kpm_sm_ag(sm_agent_t const* sm_agent)
   // Call the RAN and fill the data  
   kpm_e2_setup_t kpm = {0};
   sm->base.io.read_setup(&kpm);
-  defer({ free_kpm_ran_function_def(&kpm.ran_func_def );});
+ // defer({ free_kpm_ran_function_def(&kpm.ran_func_def );});
 
   kpm_ran_function_def_t* ran_func = &kpm.ran_func_def; 
 
   byte_array_t ba = kpm_enc_func_def(&sm->enc, ran_func);
+  free_kpm_ran_function_def(ran_func);
 
   sm_e2_setup_data_t setup = {0}; 
   setup.len_rfd = ba.len;

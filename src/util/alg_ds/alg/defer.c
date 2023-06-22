@@ -30,6 +30,7 @@ void cleanup_deferred (void (^*d) (void))
 {
   (*d)();
 }
+
 #elif defined __GNUC__ // nested-function-in-stmt-expressionstatic
 void cleanup_deferred (void (**d) (void))
 { 

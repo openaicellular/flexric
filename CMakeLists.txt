@@ -18,9 +18,16 @@ endif()
 set(COMPILER "GCC" CACHE STRING "Compiler selection")
 set_property(CACHE COMPILER PROPERTY STRINGS "GCC" "CLANG")
 
-if(COMPILER STREQUAL CLANG)
+if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
+  # using Clang
   add_compile_options("-fblocks;")
   add_link_options("-lBlocksRuntime;")
+  #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # using GCC
+  #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+  # using Intel C++
+  #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # using Visual Studio C++
 endif()
 
 set(BUILDING_LIBRARY "STATIC" CACHE STRING "Static or dynamic library")
@@ -98,7 +105,7 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(BUILDING_LIBRARY STREQUAL "STATIC")
-  add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-fopt-info")
+  add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;") #-fopt-info
 elseif(BUILDING_LIBRARY STREQUAL "DYNAMIC")
   # -fPIC flag
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)

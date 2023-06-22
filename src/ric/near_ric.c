@@ -47,6 +47,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/*
 static inline
 void free_sm_ric(void* key, void* value)
 {
@@ -61,6 +62,8 @@ void free_sm_ric(void* key, void* value)
   if(handle != NULL)
       dlclose(handle);
 }
+*/
+
 
 static inline
 void free_fd(void* key, void* value)
@@ -267,6 +270,7 @@ void consume_fd(int fd)
   assert(bytes == sizeof(read_buf));
 }
 
+/*
 static inline
 bool eq_sock_addr(void const* m0_v, void const* m1_v)
 {
@@ -287,7 +291,9 @@ bool eq_sock_addr(void const* m0_v, void const* m1_v)
   
   return true;
 }
+*/
 
+/*
 static inline
 bool addr_registered_or_first_msg(e2ap_msg_t* msg, seq_arr_t* arr, sctp_msg_t const* rcv)
 {
@@ -307,6 +313,7 @@ bool addr_registered_or_first_msg(e2ap_msg_t* msg, seq_arr_t* arr, sctp_msg_t co
   assert(it != end && "Socket address not registered and msg is not E2_SETUP_REQUEST");
   return it != end;
 }
+*/
 
 /*
 static

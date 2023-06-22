@@ -99,6 +99,7 @@ e2_node_arr_t e2_nodes_xapp_api(void)
   return e2_nodes_xapp(xapp);
 }
 
+/*
 static inline
 bool valid_interval(inter_xapp_e i)
 {
@@ -113,6 +114,8 @@ bool valid_interval(inter_xapp_e i)
 
   return true;
 }
+*/
+
 
 static inline
 bool valid_global_e2_node(global_e2_node_id_t* id, reg_e2_nodes_t* n)

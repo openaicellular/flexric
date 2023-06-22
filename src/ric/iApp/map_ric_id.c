@@ -107,11 +107,13 @@ void free_map_ric_id(map_ric_id_t* map)
 //  assoc_free(&map->tree);
 }
 
+/*
 static inline
 bool eq_uint16(void const* m0, void const* m1)
 {
   return *(uint16_t*)m0 == *(uint16_t*)m1;
 }
+*/
 
 static inline
 bool eq_e2_node_ric_req(void const* m0_v, void const* m1_v)

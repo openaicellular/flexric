@@ -82,7 +82,7 @@ void fill_scn19_slice(scn19_slice_t* scn19)
   } else if(type ==SLICE_SCN19_SM_V0_ON_DEMAND){
     scn19->conf = SLICE_SCN19_SM_V0_ON_DEMAND;
 //    scn19->u.on_demand.log_delta_byte = abs(rand()%121);
-    scn19->u.on_demand.log_delta = 1.0 * fabs((float)rand()/RAND_MAX);
+    scn19->u.on_demand.log_delta = 1.0 * fabs((float)rand()/(float)RAND_MAX);
     scn19->u.on_demand.tau = abs(rand()%256);
     scn19->u.on_demand.pct_reserved = fabs((float)rand()/(float)RAND_MAX);
   } else {
@@ -149,7 +149,7 @@ void fill_ul_dl_slice(ul_dl_slice_conf_t* slice)
 
     uint32_t type = abs(rand()% SLICE_ALG_SM_V0_END);
 
-    if(type == SLICE_ALG_SM_V0_NONE || SLICE_ALG_SM_V0_SCN19)
+    if(type == SLICE_ALG_SM_V0_NONE || type == SLICE_ALG_SM_V0_SCN19)
       type = SLICE_ALG_SM_V0_STATIC; 
 
 

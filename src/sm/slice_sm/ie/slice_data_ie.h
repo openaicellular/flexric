@@ -58,7 +58,7 @@ bool eq_slice_event_trigger(slice_event_trigger_t* m0, slice_event_trigger_t* m1
 /////////////////////////////////////
 
 typedef struct {
-
+  uint32_t dummy;  
 } slice_action_def_t;
 
 void free_slice_action_def(slice_action_def_t* src); 
