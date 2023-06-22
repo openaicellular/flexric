@@ -43,7 +43,4 @@ target_link_libraries(test_ag_ric_xapp
                       )
 enable_testing()
 add_test(test-All-in-one test_ag_ric_xapp)
-else()
-  message(FATAL_ERROR "Only E2AP_ENCODING allowed ")
-endif()
 
