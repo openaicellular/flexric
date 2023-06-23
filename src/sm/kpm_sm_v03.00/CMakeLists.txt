@@ -20,17 +20,17 @@ set(SM_ENCODING_KPM_SRC
                       ../../util/alg_ds/ds/assoc_container/bimap.c
                       )
 
-if(SM_ENCODING_KPM STREQUAL "PLAIN")
-  message(FATAL_ERROR "KPM SM PLAIN not implemented")
-elseif(SM_ENCODING_KPM STREQUAL "ASN")
+
+if(SM_ENCODING_KPM STREQUAL "ASN")
   add_subdirectory(ie/asn)
 
   set(SM_ENCODING_KPM_SRC_ASN
     ${SM_ENCODING_KPM_SRC}
-    ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+    ${E2AP_SRC_RAN_FUNCION} 
     enc/kpm_enc_asn.c 
     dec/kpm_dec_asn.c 
     ie/kpm_data_ie.c
+    $<TARGET_OBJECTS:e2ap_ran_func_obj>
     $<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
     $<TARGET_OBJECTS:kpm_ric_info_common_obj>
     $<TARGET_OBJECTS:kpm_ric_info_obj>
@@ -53,9 +53,7 @@ elseif(SM_ENCODING_KPM STREQUAL "ASN")
   target_include_directories(kpm_sm PRIVATE "ie/asn")
   target_compile_options(kpm_sm PRIVATE "-DASN_DISABLE_OER_SUPPORT" -fPIC)
   target_compile_options(kpm_sm PRIVATE "-DASN_DISABLE_JER_SUPPORT" -fPIC)
-  target_compile_options(kpm_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC )
-
-  #-fvisibility=hidden
+  target_compile_options(kpm_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC -fvisibility=hidden)
 
   # Static Library
   add_library(kpm_sm_static STATIC ${SM_ENCODING_KPM_SRC_ASN})
@@ -66,12 +64,15 @@ elseif(SM_ENCODING_KPM STREQUAL "ASN")
   target_compile_options(kpm_sm_static PUBLIC "-DASN_DISABLE_JER_SUPPORT")
   target_compile_options(kpm_sm_static PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
 
+elseif(SM_ENCODING_KPM STREQUAL "PLAIN")
+  message(FATAL_ERROR "KPM SM PLAIN not implemented")
 elseif(SM_ENCODING_KPM STREQUAL "FLATBUFFERS" )
   message(FATAL_ERROR "KPM SM FB not implemented")
 else()
   message(FATAL_ERROR "Unknown KPM SM encoding type")
 endif()
 
-target_compile_definitions(kpm_sm PUBLIC ${SM_ENCODING_KPM})
-target_compile_definitions(kpm_sm_static PUBLIC ${SM_ENCODING_KPM})
+# ${E2AP_VERSION} needed since the ran_function may changge from version to version
+target_compile_definitions(kpm_sm PUBLIC ${SM_ENCODING_KPM} ${E2AP_VERSION})
+target_compile_definitions(kpm_sm_static PUBLIC ${SM_ENCODING_KPM} ${E2AP_VERSION})
 

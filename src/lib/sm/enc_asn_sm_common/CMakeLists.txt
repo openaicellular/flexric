@@ -4,7 +4,6 @@ set(SM_COMMON_ENC_ASN_SRCS
     enc_ran_function_name.c
     )
 
-include_directories("../../ap/ie/asn")
 add_library(sm_common_enc_asn_obj OBJECT 
                                 ${SM_COMMON_ENC_ASN_SRCS}
                                 )

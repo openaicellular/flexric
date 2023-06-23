@@ -32,7 +32,8 @@
 
 #include "iApps/subscription_ric.h"
 #include "lib/async_event.h" 
-#include "lib/ap/free/e2ap_msg_free.h"
+//#include "lib/ap/free/e2ap_msg_free.h"
+
 #include "lib/pending_event_ric.h"
 #include "sm/sm_ric.h" 
 #include "util/alg_ds/ds/assoc_container/assoc_generic.h"

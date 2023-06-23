@@ -79,7 +79,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
 
           add_library(e42_xapp_shared SHARED # STATIC or SHARED
             ${XAPP_SRC}
-	    ../util/conversions.c
+            #../util/conversions.c
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             )
 
@@ -97,8 +97,8 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
 
 endif()
 
-target_compile_definitions(e42_xapp PRIVATE ${E2AP_ENCODING} ${XAPP_DB} )
-target_compile_definitions(e42_xapp_shared PRIVATE ${E2AP_ENCODING} ${XAPP_DB} )
+target_compile_definitions(e42_xapp PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB} )
+target_compile_definitions(e42_xapp_shared PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB} )
 
 add_definitions(-DXAPP_DB_DIR="${XAPP_DB_DIR}")
 

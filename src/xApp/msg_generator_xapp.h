@@ -26,9 +26,9 @@
 #define MESSAGE_GENERATOR_XAPP_H 
 
 
-#include "../lib/ap/e2ap_types/ric_subscription_request.h"
-#include "../lib/ap/e2ap_types/e42_setup_request.h"
-#include "../lib/ap/e2ap_types/e42_ric_subscription_request.h"
+#include "../lib/e2ap/ric_subscription_request_wrapper.h"
+#include "../lib/e2ap/e42_setup_request_wrapper.h"
+#include "../lib/e2ap/e42_ric_subscription_request_wrapper.h"
 
 #include "e42_xapp.h"
 

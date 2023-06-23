@@ -23,8 +23,8 @@
 #define E42_IAPP_H 
 
 // Like E2 Agent, but it does not generate the Setup Request
-#include "../../lib/ap/global_consts.h"
-#include "../../lib/ap/type_defs.h"
+#include "../../lib/e2ap/global_consts_wrapper.h"
+#include "../../lib/e2ap/type_defs_wrapper.h"
 #include "../../lib/msg_hand/reg_e2_nodes.h"
 
 #include "../../util/alg_ds/ds/assoc_container/assoc_generic.h"

@@ -18,7 +18,7 @@ set(SM_ENCODING_PDCP_SRC
 if(SM_ENCODING_PDCP STREQUAL "PLAIN")
   set(SM_ENCODING_PDCP_SRC_PLAIN 
     # This dependency sucks!
-    ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+    $<TARGET_OBJECTS:e2ap_ran_func_obj>
     ${SM_ENCODING_PDCP_SRC}
     enc/pdcp_enc_plain.c 
     dec/pdcp_dec_plain.c 
@@ -44,6 +44,6 @@ else()
   message(FATAL_ERROR "Unknnown path")
 endif()
 
-target_compile_definitions(pdcp_sm PUBLIC ${SM_ENCODING_PDCP})
-target_compile_definitions(pdcp_sm_static PUBLIC ${SM_ENCODING_PDCP})
+target_compile_definitions(pdcp_sm PUBLIC ${SM_ENCODING_PDCP}  ${E2AP_VERSION} )
+target_compile_definitions(pdcp_sm_static PUBLIC ${SM_ENCODING_PDCP}  ${E2AP_VERSION} )
 

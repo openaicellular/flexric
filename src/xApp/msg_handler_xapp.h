@@ -24,8 +24,7 @@
 #define MSG_HANDLER_XAPP
 
 #include "e42_xapp.h"
-#include "lib/ap/type_defs.h"
-
+#include "lib/e2ap/type_defs_wrapper.h"
 
 void init_handle_msg_xapp(e2ap_handle_msg_fp_xapp (*handle_msg)[31]);
 

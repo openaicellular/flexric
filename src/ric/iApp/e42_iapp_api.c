@@ -28,8 +28,8 @@
 #include <stdlib.h>
 #include <stdio.h>                                         // for NULL                     
 #include "e42_iapp.h"
-#include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"  // for global_e2_...
-#include "../../lib/ap/e2ap_types/common/e2ap_plmn.h"            // for plmn_t
+#include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"  // for global_e2_...
+#include "../../lib/e2ap/e2ap_plmn_wrapper.h"            // for plmn_t
 #include "../../util/ngran_types.h"                              // for ngran_gNB                
 #include "../../util/conf_file.h"
 

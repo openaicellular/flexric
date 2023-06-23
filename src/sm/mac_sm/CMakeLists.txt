@@ -12,9 +12,8 @@ set(SM_ENCODING_MAC_SRC
                      ../../util/alg_ds/ds/seq_container/seq_ring.c 
                      ../../util/alg_ds/ds/assoc_container/assoc_rb_tree.c
                      ../../util/alg_ds/ds/assoc_container/bimap.c
-                       # This dependency sucks!
-                      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
-
+                     # This dependency sucks!
+                     $<TARGET_OBJECTS:e2ap_ran_func_obj>
                      ie/mac_data_ie.c
                       )
 
@@ -26,7 +25,7 @@ if(SM_ENCODING_MAC STREQUAL "PLAIN")
     )
 
   # Shared
-  add_library(mac_sm SHARED ${SM_ENCODING_MAC_SRC_ASN})
+  add_library(mac_sm SHARED ${SM_ENCODING_MAC_SRC_ASN} )
   target_compile_options(mac_sm PRIVATE -fvisibility=hidden)
 
   # Static
@@ -61,7 +60,7 @@ else()
 endif()
 
 
-target_compile_definitions(mac_sm PUBLIC ${SM_ENCODING_MAC})
-target_compile_definitions(mac_sm_static PUBLIC ${SM_ENCODING_MAC})
+target_compile_definitions(mac_sm PUBLIC ${SM_ENCODING_MAC} ${E2AP_VERSION} )
+target_compile_definitions(mac_sm_static PUBLIC ${SM_ENCODING_MAC} ${E2AP_VERSION} )
 
 

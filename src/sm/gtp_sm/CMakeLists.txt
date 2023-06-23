@@ -16,11 +16,12 @@ set(SM_ENCODING_GTP_SRC
                       )
 
 
+
+
 if(SM_ENCODING_GTP STREQUAL "PLAIN")
   set(SM_ENCODING_GTP_SRC_PLAIN
     ${SM_ENCODING_GTP_SRC}
-    # This dependency sucks!
-    ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+    $<TARGET_OBJECTS:e2ap_ran_func_obj>
     enc/gtp_enc_plain.c 
     dec/gtp_dec_plain.c 
     )
@@ -40,6 +41,7 @@ else()
   message(FATAL_ERROR "Unknown SM encoding type ")
 endif()
 
-target_compile_definitions(gtp_sm PUBLIC ${SM_ENCODING_GTP})
-target_compile_definitions(gtp_sm_static PUBLIC ${SM_ENCODING_GTP})
+# ${E2AP_VERSION} needed since the ran_function may changge from version to version
+target_compile_definitions(gtp_sm PRIVATE ${SM_ENCODING_GTP} ${E2AP_VERSION})
+target_compile_definitions(gtp_sm_static PRIVATE ${SM_ENCODING_GTP} ${E2AP_VERSION} )
 

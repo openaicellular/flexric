@@ -4,6 +4,15 @@ project(Flexric VERSION 0.0.1 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 11)
 
+# use ccache if available
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  message(STATUS "Found ccache in ${CCACHE_PROGRAM}")
+  set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+endif()
+
+
 set(default_build_type "Debug")
 
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
@@ -115,9 +124,32 @@ else()
 endif()
 
 
+#######
+## E2AP encoding and versioning 
+#######
+
 set(E2AP_ENCODING "ASN" CACHE STRING "The E2AP encoding to use")
 set_property(CACHE E2AP_ENCODING PROPERTY STRINGS "ASN" "FLATBUFFERS")
 message(STATUS "Selected E2AP_ENCODING: ${E2AP_ENCODING}")
+
+set(E2AP_VERSION "E2AP_V1" CACHE STRING "E2AP version")
+set_property(CACHE E2AP_VERSION PROPERTY STRINGS "E2AP_V1" "E2AP_V2" "E2AP_V3")
+message(STATUS "Selected E2AP_VERSION: ${E2AP_VERSION}")
+
+if(E2AP_VERSION STREQUAL "E2AP_V1")
+  add_library(e2ap_ran_func_obj OBJECT 
+              src/lib/e2ap/v1_01/e2ap_types/common/e2ap_ran_function.c )
+  add_library(e2ap_plmn_obj OBJECT 
+              src/lib/e2ap/v1_01/e2ap_types/common/e2ap_plmn.c )
+  add_library(e2ap_global_node_id_obj OBJECT 
+              src/lib/e2ap/v1_01/e2ap_types/common/e2ap_global_node_id.c )
+
+
+else()
+  message(FATAL_ERROR "E2AP V2 and V3 not implemented")
+endif()
+
+
 
 
 #######

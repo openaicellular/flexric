@@ -35,7 +35,7 @@
 #include "e2_node.h"
 #include "lib/pending_events.h"
 #include "lib/pending_event_ric.h"
-#include "lib/ap/free/e2ap_msg_free.h"
+#include "lib/e2ap/e2ap_msg_free_wrapper.h"
 #include "iApps/subscription_ric.h"
 #include "iApp/e42_iapp_api.h"
 

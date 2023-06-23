@@ -23,7 +23,7 @@
 #define PENDING_EVENT_XAPP_H
 
 #include "../lib/pending_events.h"
-#include "../lib/ap/e2ap_types/common/ric_gen_id.h"
+#include "../lib/e2ap/ric_gen_id_wrapper.h"
 
 #include <pthread.h>
 #include "../util/alg_ds/ds/assoc_container/bimap.h"

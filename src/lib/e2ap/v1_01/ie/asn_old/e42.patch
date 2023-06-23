@@ -1,0 +1,238 @@
+12,17c12,17
+<       E2connectionUpdate,
+<       E2connectionUpdateAcknowledge,
+<       E2connectionUpdateFailure,
+<       E2nodeConfigurationUpdate,
+<       E2nodeConfigurationUpdateAcknowledge,
+<       E2nodeConfigurationUpdateFailure,
+---
+>     E2connectionUpdate,
+>     E2connectionUpdateAcknowledge,
+>     E2connectionUpdateFailure,
+>     E2nodeConfigurationUpdate,
+>     E2nodeConfigurationUpdateAcknowledge,
+>     E2nodeConfigurationUpdateFailure,
+37c37,43
+<     RICsubscriptionDeleteResponse
+---
+>     RICsubscriptionDeleteResponse,
+>     E42setupRequest,
+>     E42setupResponse,
+>     E42RICsubscriptionRequest,
+>     E42RICsubscriptionDeleteRequest,
+>     E42RICcontrolRequest
+> 
+49c55,59
+<     id-RICsubscriptionDelete
+---
+>     id-RICsubscriptionDelete,
+>     id-E42setup,
+>     id-E42RICsubscription,
+>     id-E42RICsubscriptionDelete,                
+>     id-E42RICcontrol
+102c112,116
+<     reset,
+---
+>     reset                                               |
+>     e42setup                                            |                                           
+>     e42ricSubscription                                  |                                           
+>     e42ricSubscriptionDelete                            | 
+>     e42ricControl, 
+182a197,229
+> e42setup E2AP-ELEMENTARY-PROCEDURE ::= {
+>     INITIATING MESSAGE      E42setupRequest
+>     SUCCESSFUL OUTCOME      E42setupResponse
+>     UNSUCCESSFUL OUTCOME    E2setupFailure
+>     PROCEDURE CODE          id-E42setup
+>     CRITICALITY             reject
+> }
+> 
+> e42ricSubscription E2AP-ELEMENTARY-PROCEDURE ::= {
+>     INITIATING MESSAGE      E42RICsubscriptionRequest
+>     SUCCESSFUL OUTCOME      RICsubscriptionResponse
+>     UNSUCCESSFUL OUTCOME    RICsubscriptionFailure
+>     PROCEDURE CODE          id-E42RICsubscription
+>     CRITICALITY             reject
+> }
+> e42ricSubscriptionDelete E2AP-ELEMENTARY-PROCEDURE ::= {
+>     INITIATING MESSAGE      E42RICsubscriptionDeleteRequest
+>     SUCCESSFUL OUTCOME      RICsubscriptionDeleteResponse
+>     UNSUCCESSFUL OUTCOME    RICsubscriptionDeleteFailure
+>     PROCEDURE CODE          id-E42RICsubscriptionDelete
+>     CRITICALITY             reject
+> }
+> 
+> e42ricControl E2AP-ELEMENTARY-PROCEDURE ::= {
+>     INITIATING MESSAGE      E42RICcontrolRequest
+>     SUCCESSFUL OUTCOME      RICcontrolAcknowledge
+>     UNSUCCESSFUL OUTCOME    RICcontrolFailure
+>     PROCEDURE CODE          id-E42RICcontrol
+>     CRITICALITY             reject
+> }
+> 
+> 
+> 
+280c327,328
+<     maxofTNLA
+---
+>     maxofTNLA,
+>     id-XAPP-ID
+370a419,465
+> 
+> 
+> 
+> -- **************************************************************
+> -- **************************************************************
+> -- **************************************************************
+> E42RICsubscriptionRequest ::= SEQUENCE {
+>     protocolIEs                 ProtocolIE-Container    {{E42RICsubscriptionRequest-IEs}},
+>     ...
+> }
+> E42RICsubscriptionRequest-IEs E2AP-PROTOCOL-IES ::= {
+> 
+>     { ID id-XAPP-ID  CRITICALITY reject  TYPE XAPP-ID  PRESENCE mandatory } | 
+>     { ID id-GlobalE2node-ID            CRITICALITY reject                        TYPE GlobalE2node-ID 
+>     PRESENCE mandatory }|
+>     { ID id-RICrequestID                CRITICALITY reject                       TYPE RICrequestID
+>     PRESENCE mandatory}|
+>     { ID id-RANfunctionID               CRITICALITY reject                       TYPE RANfunctionID
+>     PRESENCE mandatory}|
+>     { ID id-RICsubscriptionDetails      CRITICALITY reject                       TYPE RICsubscriptionDetails
+>     PRESENCE mandatory},
+>     ...
+> }
+> 
+> -- **************************************************************
+> 
+> 
+> -- **************************************************************
+> -- **************************************************************
+> E42RICsubscriptionDeleteRequest ::= SEQUENCE {
+>     protocolIEs                 ProtocolIE-Container    {{E42RICsubscriptionDeleteRequest-IEs}},
+>     ...
+> }
+> E42RICsubscriptionDeleteRequest-IEs E2AP-PROTOCOL-IES ::= {
+>     { ID id-XAPP-ID  CRITICALITY reject  TYPE XAPP-ID  PRESENCE mandatory } | 
+>     { ID id-RICrequestID                CRITICALITY reject                       TYPE RICrequestID
+>     PRESENCE mandatory }|
+>     { ID id-RANfunctionID               CRITICALITY reject                       TYPE RANfunctionID
+>     PRESENCE mandatory },
+>     ...
+> }
+> -- **************************************************************
+> 
+> 
+> 
+> 
+> 
+457a553,582
+> 
+> -- **************************************************************
+> -- **************************************************************
+> E42RICcontrolRequest ::= SEQUENCE {
+>     protocolIEs                  ProtocolIE-Container   {{E42RICcontrolRequest-IEs}},
+>     ...
+> }
+> E42RICcontrolRequest-IEs E2AP-PROTOCOL-IES ::= {
+>     { ID id-XAPP-ID  CRITICALITY reject  TYPE XAPP-ID  PRESENCE mandatory } | 
+>     { ID id-GlobalE2node-ID              CRITICALITY reject TYPE GlobalE2node-ID 
+>     PRESENCE mandatory }|
+>     { ID id-RICrequestID                 CRITICALITY reject TYPE RICrequestID
+>     PRESENCE mandatory }|
+>     { ID id-RANfunctionID                CRITICALITY reject TYPE RANfunctionID
+>     PRESENCE mandatory }|
+>     { ID id-RICcallProcessID             CRITICALITY reject TYPE RICcallProcessID
+>     PRESENCE optional   }|
+>     { ID id-RICcontrolHeader             CRITICALITY reject TYPE RICcontrolHeader
+>     PRESENCE mandatory }|
+>     { ID id-RICcontrolMessage            CRITICALITY reject TYPE RICcontrolMessage
+>     PRESENCE mandatory }|
+>     { ID id-RICcontrolAckRequest         CRITICALITY reject TYPE RICcontrolAckRequest
+>     PRESENCE optional   },
+>     ...
+> }
+> -- **************************************************************
+> 
+> 
+> 
+> 
+526a652,662
+> 
+> E42setupRequest ::= SEQUENCE {
+>     protocolIEs     ProtocolIE-Container                        { {E42setupRequestIEs} },
+>     ...
+> }
+> E42setupRequestIEs E2AP-PROTOCOL-IES ::=               {
+>     { ID id-RANfunctionsAdded                         CRITICALITY reject         TYPE RANfunctions-List
+>     PRESENCE mandatory},
+>     ...
+> }
+> 
+541a678,691
+> 
+> -- **************************************************************
+> E42setupResponse ::= SEQUENCE {
+>     protocolIEs     ProtocolIE-Container                        { {E42setupResponseIEs} },
+>     ...
+> }
+> E42setupResponseIEs E2AP-PROTOCOL-IES ::= {
+>      { ID id-XAPP-ID  CRITICALITY reject  TYPE XAPP-ID  PRESENCE mandatory } | 
+>      { ID id-E2nodesConnected  CRITICALITY reject TYPE E2nodeConnected-List PRESENCE mandatory  },
+>      ...
+> }
+> 
+> 
+> 
+753a904,941
+> -- ******************* E2 extension by Mikel Irazabal ***********
+> -- **************************************************************
+> --E2nodeConnected-List ::= SEQUENCE (SIZE(0..maxofConnectedE2Nodes)) OF ProtocolIE-SingleContainer{{E2nodeConnected-ItemIEs}}
+> --E2nodeConnected-ItemIEs E2AP-PROTOCOL-IES ::= {
+> --    { ID id-NODEfunctionID-Item       CRITICALITY reject       TYPE  E2nodeConnected-Item  
+> --    PRESENCE mandatory },
+> --    ...
+> --}
+> --E2nodeConnected-Item ::= SEQUENCE {
+> --    e2nodeID                GlobalE2node-ID,
+> --    ...,
+> --    ackRanFunctionID        RANfunctions-List       OPTIONAL
+> --}
+> 
+> 
+> -- **************************************************************
+> -- **************************************************************
+> -- **************************************************************
+> 
+> E2nodeConnected-List ::= SEQUENCE {
+>   protocolIEs     ProtocolIE-Container { { E2nodeConnected-ItemIEs} }
+> }
+> 
+> E2nodeConnected-ItemIEs E2AP-PROTOCOL-IES ::= {
+>     { ID id-GlobalE2node-ID                           CRITICALITY reject         TYPE GlobalE2node-ID
+>     PRESENCE mandatory }|
+>     { ID id-RANfunctionsAdded                         CRITICALITY reject         TYPE RANfunctions-List
+>     PRESENCE mandatory},
+>     ...
+> }
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+1136a1325,1326
+> XAPP-ID ::= INTEGER (0..65535)
+> 
+1173a1364,1367
+> id-E42setup                                 ProcedureCode ::= 12
+> id-E42RICsubscription                       ProcedureCode ::= 13
+> id-E42RICsubscriptionDelete                 ProcedureCode ::= 14
+> id-E42RICcontrol                            ProcedureCode ::= 15
+1179a1374
+> maxofConnectedE2Nodes                       INTEGER ::= 256
+1228a1424,1426
+> id-XAPP-ID                                                 ProtocolIE-ID      ::=  49
+> id-E2nodesConnected                                         ProtocolIE-ID      ::=  50
+> id-NODEfunctionID-Item                                      ProtocolIE-ID     ::=  51

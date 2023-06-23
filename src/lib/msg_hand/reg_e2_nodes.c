@@ -25,7 +25,7 @@
 #include "../../util/alg_ds/alg/find.h"
 #include "../../util/alg_ds/alg/alg.h" 
 
-#include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"
 
 
 #include <assert.h>

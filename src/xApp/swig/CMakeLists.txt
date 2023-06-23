@@ -54,9 +54,10 @@ endif()
 SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE ${XAPP_LANG} SOURCES 
                                                  swig_wrapper.i 
                                                  swig_wrapper.cpp
-                                                 ../../lib/ap/e2ap_types/common/e2ap_plmn.c
-                                                 ../../lib/ap/e2ap_types/common/e2ap_ran_function.c 
-                                                 ../../lib/ap/e2ap_types/common/e2ap_global_node_id.c
+                                                 # This dependency sucks!
+                                                 $<TARGET_OBJECTS:e2ap_ran_func_obj>
+                                                 $<TARGET_OBJECTS:e2ap_plmn_obj>
+                                                 $<TARGET_OBJECTS:e2ap_global_node_id_obj>
                                                  #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
                                                  ../../sm/mac_sm/ie/mac_data_ie.c 
                                                  ../../sm/rlc_sm/ie/rlc_data_ie.c

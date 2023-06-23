@@ -31,8 +31,8 @@
 #include "pending_event_xapp.h"
 
 #include "../lib/pending_events.h"
-#include "../lib/ap/e2ap_ap.h"
-#include "../lib/ap/free/e2ap_msg_free.h"
+#include "../lib/e2ap/e2ap_ap_wrapper.h"
+#include "../lib/e2ap/e2ap_msg_free_wrapper.h"
 
 #include "../util/alg_ds/alg/alg.h"
 #include "../util/alg_ds/ds/seq_container/seq_generic.h"

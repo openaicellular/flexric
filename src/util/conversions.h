@@ -27,7 +27,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../lib/ap/ie/asn/BIT_STRING.h"
+// The scope for BIT_STRING is defined in the CMakeLists.txt. Sorry.
+#include <BIT_STRING.h>
 
 /* Endianness conversions for 16 and 32 bits integers from host to network order */
 #if (BYTE_ORDER == LITTLE_ENDIAN)

@@ -22,7 +22,7 @@
 #ifndef SM_PROCEDURES_DATA_H
 #define SM_PROCEDURES_DATA_H 
 
-#include "../lib/ap/e2ap_types/common/e2ap_ran_function.h"
+#include "../lib/e2ap/e2ap_ran_function_wrapper.h"
 
 #include <stddef.h>
 #include <stdint.h>

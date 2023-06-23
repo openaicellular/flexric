@@ -23,7 +23,8 @@
 #define MSG_HANDLER_AGENT
 
 #include "e2_agent.h"
-#include "lib/ap/type_defs.h"
+
+#include "lib/e2ap/type_defs_wrapper.h"
 
 void init_handle_msg_agent(handle_msg_fp_agent (*handle_msg)[30]);
 

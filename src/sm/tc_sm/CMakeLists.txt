@@ -10,7 +10,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../util)
 
 set(SM_ENCODING_TC_SRC 
     # This dependency sucks!
-    ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+    $<TARGET_OBJECTS:e2ap_ran_func_obj>
     ../sm_proc_data.c 
     tc_sm_agent.c 
     tc_sm_ric.c 
@@ -42,7 +42,7 @@ elseif(SM_ENCODING_TC STREQUAL "FLATBUFFERS" )
   message(FATAL_ERROR "TC SM FB not implemented")
 endif()
 
-target_compile_definitions(tc_sm PUBLIC ${SM_ENCODING_TC})
-target_compile_definitions(tc_sm_static PUBLIC ${SM_ENCODING_TC})
+target_compile_definitions(tc_sm PUBLIC ${SM_ENCODING_TC} ${E2AP_VERSION}  )
+target_compile_definitions(tc_sm_static PUBLIC ${SM_ENCODING_TC} ${E2AP_VERSION}  )
 
 

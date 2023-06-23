@@ -18,6 +18,5 @@ set(3GPP_DERIVED_IE_SRCS
   rrc_msg_id.c
   )
 
-include_directories("../../ap/ie/asn")
 add_library(3gpp_derived_ie_obj OBJECT ${3GPP_DERIVED_IE_SRCS})
               

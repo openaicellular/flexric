@@ -12,12 +12,9 @@ set(3GPP_DERIVED_IE_DEC_ASN_SRCS
   dec_ng_enb_du.c
   )
 
-
-include_directories("../../ap/ie/asn")
 add_library(3gpp_derived_ie_dec_asn_obj OBJECT
                                     ${3GPP_DERIVED_IE_DEC_ASN_SRCS}
                                     )
-   
               
 target_compile_options(3gpp_derived_ie_dec_asn_obj PRIVATE "-DASN_DISABLE_OER_SUPPORT")
 target_compile_options(3gpp_derived_ie_dec_asn_obj PRIVATE "-DASN_DISABLE_JER_SUPPORT")

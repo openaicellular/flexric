@@ -23,8 +23,7 @@
 #define REGISTERED_E2_NODES_H 
 
 #include "../../util/alg_ds/ds/assoc_container/assoc_generic.h"
-#include "../ap/e2ap_types/e2_node_connected.h"
-
+#include "../e2ap/e2_node_connected_wrapper.h"
 #include "e2_node_arr.h"
 
 #include <stddef.h>

@@ -31,8 +31,8 @@
 #include "util/conf_file.h"
 #include "util/ngran_types.h"
 
-#include "lib/ap/global_consts.h"
-#include "lib/ap/type_defs.h"
+//#include "lib/ap/global_consts.h"
+//#include "lib/ap/type_defs.h"
 
 #include "asio_agent.h"
 #include "e2ap_agent.h"

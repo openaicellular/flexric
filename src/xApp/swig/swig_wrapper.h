@@ -1,14 +1,14 @@
 #ifndef SWIG_WRAPPER_H
 #define SWIG_WRAPPER_H 
 
-#include <string>
-#include <memory>
-#include <vector>
 #include <cstddef>
+#include <memory>
+#include <string>
+#include <vector>
 
-#include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
-#include "../../lib/ap/e2ap_types/common/e2ap_plmn.h"
-#include "../../lib/ap/e2ap_types/common/e2ap_ran_function.h"
+#include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"
+#include "../../lib/e2ap/e2ap_plmn_wrapper.h"
+#include "../../lib/e2ap/e2ap_ran_function_wrapper.h"
 
 #include "../../sm/mac_sm/ie/mac_data_ie.h"
 #include "../../sm/rlc_sm/ie/rlc_data_ie.h"

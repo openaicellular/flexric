@@ -35,7 +35,7 @@
 #include "msg_generator_xapp.h"
 #include "e2ap_xapp.h"
 
-#include "lib/ap/free/e2ap_msg_free.h"
+#include "lib/e2ap/e2ap_msg_free_wrapper.h"
 #include "lib/pending_events.h"
 
 #include "../sm/rlc_sm/rlc_sm_id.h"

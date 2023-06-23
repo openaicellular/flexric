@@ -18,7 +18,7 @@ set(SM_ENCODING_SLICE_SRC
 if(SM_ENCODING_SLICE STREQUAL "PLAIN")
   set(SM_ENCODING_SLICE_SRC_PLAIN 
     # This dependency sucks!
-    ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+    $<TARGET_OBJECTS:e2ap_ran_func_obj>
     ${SM_ENCODING_SLICE_SRC}
     enc/slice_enc_plain.c 
     dec/slice_dec_plain.c 
@@ -39,6 +39,6 @@ else()
   message(FATAL_ERROR "Unknown SM encoding type ")
 endif()
 
-target_compile_definitions(slice_sm PUBLIC ${SM_ENCODING_SLICE})
-target_compile_definitions(slice_sm_static PUBLIC ${SM_ENCODING_SLICE})
+target_compile_definitions(slice_sm PUBLIC ${SM_ENCODING_SLICE} ${E2AP_VERSION}  )
+target_compile_definitions(slice_sm_static PUBLIC ${SM_ENCODING_SLICE} ${E2AP_VERSION}  )
 
