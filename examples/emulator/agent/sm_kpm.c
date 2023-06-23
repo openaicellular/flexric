@@ -37,7 +37,7 @@ ue_id_e2sm_t fill_ue_id_data(void)
 }
 
 static 
-kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(void)
+kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(kpm_act_def_format_1_t act_def_fr1)
 {
   kpm_ind_msg_format_1_t msg_frm_1 = {0};
 
@@ -47,36 +47,42 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(void)
   msg_frm_1.meas_data_lst = calloc(msg_frm_1.meas_data_lst_len, sizeof(*msg_frm_1.meas_data_lst));
   assert(msg_frm_1.meas_data_lst != NULL && "Memory exhausted" );
 
+  size_t const rec_data_len = act_def_fr1.meas_info_lst_len; // Recoding Data Length
   for (size_t i = 0; i < msg_frm_1.meas_data_lst_len; i++){
     // Measurement Record
-    msg_frm_1.meas_data_lst[i].meas_record_len = 2;  // (rand() % 65535) + 1;
+    msg_frm_1.meas_data_lst[i].meas_record_len = rec_data_len;
     msg_frm_1.meas_data_lst[i].meas_record_lst = calloc(msg_frm_1.meas_data_lst[i].meas_record_len, sizeof(meas_record_lst_t));
     assert(msg_frm_1.meas_data_lst[i].meas_record_lst != NULL && "Memory exhausted" );
 
-    for (size_t j = 0; j < msg_frm_1.meas_data_lst[i].meas_record_len; j++){
-      msg_frm_1.meas_data_lst[i].meas_record_lst[j].value = REAL_MEAS_VALUE; // rand()%END_MEAS_VALUE;
-      msg_frm_1.meas_data_lst[i].meas_record_lst[j].real_val = (rand() % 256) + 0.1;
+    for (size_t j = 0; j < msg_frm_1.meas_data_lst[i].meas_record_len; j++) {
+      msg_frm_1.meas_data_lst[i].meas_record_lst[j].value = rand()%END_MEAS_VALUE;
+      if (msg_frm_1.meas_data_lst[i].meas_record_lst[j].value == REAL_MEAS_VALUE) {
+        msg_frm_1.meas_data_lst[i].meas_record_lst[j].real_val = (rand() % 256) + 0.1;
+      } else if (msg_frm_1.meas_data_lst[i].meas_record_lst[j].value == INTEGER_MEAS_VALUE) {
+        msg_frm_1.meas_data_lst[i].meas_record_lst[j].int_val = (rand() % 256);
+      } else {
+        msg_frm_1.meas_data_lst[i].meas_record_lst[j].no_value = NULL;
+      }
     }
   }
 
   // Measurement Information - OPTIONAL
-  msg_frm_1.meas_info_lst_len = num_drbs;
+  msg_frm_1.meas_info_lst_len = rec_data_len;
   msg_frm_1.meas_info_lst = calloc(msg_frm_1.meas_info_lst_len, sizeof(meas_info_format_1_lst_t));
   assert(msg_frm_1.meas_info_lst != NULL && "Memory exhausted" );
 
   char *measName_arr[] = {"DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI"};
   for (size_t i = 0; i < msg_frm_1.meas_info_lst_len; i++) {
     // Measurement Type
-    // msg_frm_1.meas_info_lst[i].meas_type.type = ID_MEAS_TYPE;
-    msg_frm_1.meas_info_lst[i].meas_type.type = NAME_MEAS_TYPE;
-    // DRB ID
-    // msg_frm_1.meas_info_lst[i].meas_type.id = i;
+    msg_frm_1.meas_info_lst[i].meas_type.type = act_def_fr1.meas_info_lst[i].meas_type.type;
     // Measurement Name
-    char* s = measName_arr[i];
-    msg_frm_1.meas_info_lst[i].meas_type.name.buf = calloc(strlen(s) + 1, sizeof(char));
-    memcpy(msg_frm_1.meas_info_lst[i].meas_type.name.buf, s, strlen(s));
-    msg_frm_1.meas_info_lst[i].meas_type.name.len = strlen(s) + 1;
-    msg_frm_1.meas_info_lst[i].meas_type.name.buf[strlen(s)] = '\0';
+    if (act_def_fr1.meas_info_lst[i].meas_type.type == NAME_MEAS_TYPE) {
+      msg_frm_1.meas_info_lst[i].meas_type.name.buf = calloc(act_def_fr1.meas_info_lst[i].meas_type.name.len, sizeof(uint8_t));
+      memcpy(msg_frm_1.meas_info_lst[i].meas_type.name.buf, act_def_fr1.meas_info_lst[i].meas_type.name.buf, act_def_fr1.meas_info_lst[i].meas_type.name.len);
+      msg_frm_1.meas_info_lst[i].meas_type.name.len = act_def_fr1.meas_info_lst[i].meas_type.name.len;
+    } else {
+      msg_frm_1.meas_info_lst[i].meas_type.id = act_def_fr1.meas_info_lst[i].meas_type.id;
+    }
 
     // Label Information
     msg_frm_1.meas_info_lst[i].label_info_lst_len = 1;
@@ -93,7 +99,7 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(void)
 }
 
 static 
-kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_sta(void)
+kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_sta(kpm_act_def_format_1_t act_def_fr1)
 {
   kpm_ind_msg_format_3_t msg_frm_3 = {0};
 
@@ -106,7 +112,7 @@ kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_sta(void)
   for (size_t i = 0; i < msg_frm_3.ue_meas_report_lst_len; i++)
   {
     msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst = fill_ue_id_data();
-    msg_frm_3.meas_report_per_ue[i].ind_msg_format_1 = fill_kpm_ind_msg_frm_1();
+    msg_frm_3.meas_report_per_ue[i].ind_msg_format_1 = fill_kpm_ind_msg_frm_1(act_def_fr1);
   }
 
   return msg_frm_3;
@@ -171,7 +177,7 @@ void read_kpm_sm(void* data)
     // 7.8 Supported RIC Styles and E2SM IE Formats
     // Format 4 corresponds to indication message 3
     kpm->ind.msg.type = FORMAT_3_INDICATION_MESSAGE;
-    kpm->ind.msg.frm_3 = fill_kpm_ind_msg_frm_3_sta();
+    kpm->ind.msg.frm_3 = fill_kpm_ind_msg_frm_3_sta(kpm->act_def->frm_4.action_def_format_1);
   } else {
      kpm->ind.hdr = fill_kpm_ind_hdr(); 
      kpm->ind.msg = fill_kpm_ind_msg(); 
