@@ -14,16 +14,14 @@ if(CCACHE_PROGRAM)
   message(STATUS "Found ccache in ${CCACHE_PROGRAM}")
   set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
   set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+else()
+  message(STATUS "Ccache not found, please consider installing it for faster compilation running the command: sudo apt install -y ccache")
 endif()
 
 #Unity build
 #set(UNITY_BUILD ON)
 #set(UNITY_BUILD_BATCH_SIZE 10)
 # cmake -GNinja -DCMAKE_UNITY_BUILD=ON -DCMAKE_CXX_COMPILER=clang++-DCMAKE_CXX_FLAGS="-fuse-ld=lld -ftime-trace"
-
-
-
-
 
 set(default_build_type "Debug")
 
@@ -36,8 +34,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
-set(COMPILER "GCC" CACHE STRING "Compiler selection")
-set_property(CACHE COMPILER PROPERTY STRINGS "GCC" "CLANG")
+#set(COMPILER "GCC" CACHE STRING "Compiler selection")
+#set_property(CACHE COMPILER PROPERTY STRINGS "GCC" "CLANG")
 
 if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
   # using Clang
