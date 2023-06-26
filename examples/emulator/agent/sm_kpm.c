@@ -49,10 +49,12 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(kpm_act_def_format_1_t act_def_fr1
 
   size_t const rec_data_len = act_def_fr1.meas_info_lst_len; // Recoding Data Length
   for (size_t i = 0; i < msg_frm_1.meas_data_lst_len; i++){
-    // Incomplete Flag
-    msg_frm_1.meas_data_lst[i].incomplete_flag = calloc(1, sizeof(enum_value_e));
-    assert(msg_frm_1.meas_data_lst[i].incomplete_flag != NULL && "Memory exhausted");
-    *msg_frm_1.meas_data_lst[i].incomplete_flag = TRUE_ENUM_VALUE;
+    if (rand() % 2) {
+      // Incomplete Flag
+      msg_frm_1.meas_data_lst[i].incomplete_flag = calloc(1, sizeof(enum_value_e));
+      assert(msg_frm_1.meas_data_lst[i].incomplete_flag != NULL && "Memory exhausted");
+      *msg_frm_1.meas_data_lst[i].incomplete_flag = TRUE_ENUM_VALUE;
+    }
 
     // Measurement Record
     msg_frm_1.meas_data_lst[i].meas_record_len = rec_data_len;
