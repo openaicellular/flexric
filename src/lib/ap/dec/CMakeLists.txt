@@ -11,6 +11,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
                            "../ie/asn")
 
   target_compile_options(e2ap_msg_dec_obj PRIVATE "-DASN_DISABLE_OER_SUPPORT")
+  target_compile_options(e2ap_msg_dec_obj PRIVATE "-DASN_DISABLE_JER_SUPPORT")
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS")
   add_library(e2ap_msg_dec_obj OBJECT 

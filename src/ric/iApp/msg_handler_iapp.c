@@ -102,9 +102,9 @@ e2ap_msg_t e2ap_handle_subscription_response_iapp(e42_iapp_t* iapp, const e2ap_m
   dst->ric_id.ric_req_id = x.ric_id.ric_req_id;
 
   sctp_msg_t sctp_msg = {0}; 
-  defer({ free_sctp_msg(&sctp_msg); } );
   sctp_msg.info = find_map_xapps_sad(&iapp->ep.xapps, x.xapp_id);
   sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans); 
+  defer({ free_sctp_msg(&sctp_msg); } );
        
   e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
 
@@ -130,9 +130,9 @@ e2ap_msg_t e2ap_handle_subscription_delete_response_iapp(e42_iapp_t* iapp, const
   dst->ric_id = x.ric_id;
 
   sctp_msg_t sctp_msg = {0};
-  defer({ free_sctp_msg(&sctp_msg); } );
   sctp_msg.info = find_map_xapps_sad(&iapp->ep.xapps, x.xapp_id);
   sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans); 
+  defer({ free_sctp_msg(&sctp_msg); } );
        
   e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
 
@@ -163,9 +163,9 @@ e2ap_msg_t e2ap_handle_e42_ric_control_ack_iapp(e42_iapp_t* iapp, const e2ap_msg
   printf("[iApp]: RIC_CONTROL_ACKNOWLEDGE tx\n");
 
   sctp_msg_t sctp_msg = {0};
-  defer({ free_sctp_msg(&sctp_msg); } );
   sctp_msg.info = find_map_xapps_sad(&iapp->ep.xapps, x.xapp_id);
   sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans); 
+  defer({ free_sctp_msg(&sctp_msg); } );
        
   e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
 
@@ -235,9 +235,9 @@ e2ap_msg_t e2ap_handle_ric_indication_iapp(e42_iapp_t* iapp, const e2ap_msg_t* m
   dst->ric_id.ric_req_id = x.ric_id.ric_req_id;
 
   sctp_msg_t sctp_msg = {0}; 
-  defer({ free_sctp_msg(&sctp_msg); } );
   sctp_msg.info = find_map_xapps_sad(&iapp->ep.xapps, x.xapp_id);
   sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans); 
+  defer({ free_sctp_msg(&sctp_msg); } );
 
   e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
 

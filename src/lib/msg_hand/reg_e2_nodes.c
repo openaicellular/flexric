@@ -123,6 +123,7 @@ void add_reg_e2_node(reg_e2_nodes_t* i, global_e2_node_id_t const* id, size_t le
 //  assert(seq_size(arr_tmp) == 2 && "Only for current test valid");
 }
 
+/*
 static inline
 assoc_rb_tree_t available_e2node(reg_e2_nodes_t* n, size_t len, ran_function_t rf[len])
 {
@@ -174,6 +175,8 @@ assoc_rb_tree_t available_e2node(reg_e2_nodes_t* n, size_t len, ran_function_t r
 
   return ret;
 }
+*/
+
 
 size_t sz_reg_e2_node(reg_e2_nodes_t* n)
 {

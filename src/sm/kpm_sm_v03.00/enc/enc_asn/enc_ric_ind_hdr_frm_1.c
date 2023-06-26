@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <arpa/inet.h> // htonl
 
 #include "../../../../util/conversions.h"
 

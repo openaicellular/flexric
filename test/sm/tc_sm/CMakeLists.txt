@@ -19,6 +19,6 @@ elseif(SM_ENCODING_TC STREQUAL "FLATBUFFERS")
 endif()
 
 target_compile_definitions(test_tc_sm PUBLIC ${SM_ENCODING_TC})
-target_link_libraries(test_tc_sm PUBLIC tc_sm -pthread)
+target_link_libraries(test_tc_sm PUBLIC tc_sm_static -pthread)
 enable_testing()
 add_test(Unit_test_TC test_tc_sm)

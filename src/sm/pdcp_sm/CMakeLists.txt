@@ -16,27 +16,23 @@ set(SM_ENCODING_PDCP_SRC
                       )
 
 if(SM_ENCODING_PDCP STREQUAL "PLAIN")
-  add_library(pdcp_sm  SHARED
-                       # This dependency sucks!
-                      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
-                     ${SM_ENCODING_PDCP_SRC}
-                      enc/pdcp_enc_plain.c 
-                      dec/pdcp_dec_plain.c 
-                      )
+  set(SM_ENCODING_PDCP_SRC_PLAIN 
+    # This dependency sucks!
+    ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+    ${SM_ENCODING_PDCP_SRC}
+    enc/pdcp_enc_plain.c 
+    dec/pdcp_dec_plain.c 
+    )
+
+  # Shared
+  add_library(pdcp_sm SHARED ${SM_ENCODING_PDCP_SRC_PLAIN} )
+  target_compile_options(pdcp_sm PRIVATE -fvisibility=hidden)
+
+  # Static
+  add_library(pdcp_sm_static STATIC ${SM_ENCODING_PDCP_SRC_PLAIN} )
+
 elseif(SM_ENCODING_PDCP STREQUAL "ASN" )
   message(FATAL_ERROR "SM Encoding PDCP ASN not implemented")
-  add_subdirectory(ie/asn)
-  add_library(pdcp_sm SHARED
-                      ${SM_ENCODING_PDCP_SRC}
-                      enc/pdcp_enc_asn.c 
-                      dec/pdcp_dec_asn.c 
-                      )
-  target_include_directories(pdcp_sm  
-                            PRIVATE
-                            "ie/asn")
-  target_compile_options(pdcp_sm_lib PUBLIC "-DASN_DISABLE_OER_SUPPORT")
-  target_compile_options(pdcp_sm_lib PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
-
 elseif(SM_ENCODING_PDCP STREQUAL "FLATBUFFERS" )
   message(FATAL_ERROR "SM Encoding PDCP FB not implemented")
   add_library(pdcp_sm SHARED
@@ -49,4 +45,5 @@ else()
 endif()
 
 target_compile_definitions(pdcp_sm PUBLIC ${SM_ENCODING_PDCP})
+target_compile_definitions(pdcp_sm_static PUBLIC ${SM_ENCODING_PDCP})
 

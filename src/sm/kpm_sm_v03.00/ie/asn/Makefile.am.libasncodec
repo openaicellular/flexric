@@ -1,391 +1,517 @@
 ASN_MODULE_SRCS=	\
-	asn/TimeStamp.c	\
-	asn/BinIndex.c	\
-	asn/BinRangeValue.c	\
-	asn/GranularityPeriod.c	\
-	asn/LogicalOR.c	\
-	asn/MeasurementType.c	\
-	asn/MeasurementTypeName.c	\
-	asn/MeasurementTypeID.c	\
-	asn/MeasurementLabel.c	\
-	asn/TestCondInfo.c	\
-	asn/TestCond-Type.c	\
-	asn/TestCond-Expression.c	\
-	asn/TestCond-Value.c	\
-	asn/BinRangeDefinition.c	\
-	asn/BinRangeList.c	\
-	asn/BinRangeItem.c	\
-	asn/DistMeasurementBinRangeList.c	\
-	asn/DistMeasurementBinRangeItem.c	\
-	asn/MeasurementInfoList.c	\
-	asn/MeasurementInfoItem.c	\
-	asn/LabelInfoList.c	\
-	asn/LabelInfoItem.c	\
-	asn/MeasurementData.c	\
-	asn/MeasurementDataItem.c	\
-	asn/MeasurementRecord.c	\
-	asn/MeasurementRecordItem.c	\
-	asn/MeasurementInfo-Action-List.c	\
-	asn/MeasurementInfo-Action-Item.c	\
-	asn/MeasurementCondList.c	\
-	asn/MeasurementCondItem.c	\
-	asn/MeasurementCondUEidList.c	\
-	asn/MeasurementCondUEidItem.c	\
-	asn/MatchingCondList.c	\
-	asn/MatchingCondItem.c	\
-	asn/MatchingCondItem-Choice.c	\
-	asn/MatchingUEidList.c	\
-	asn/MatchingUEidItem.c	\
-	asn/MatchingUEidPerGP.c	\
-	asn/MatchingUEidPerGP-Item.c	\
-	asn/MatchingUEidList-PerGP.c	\
-	asn/MatchingUEidItem-PerGP.c	\
-	asn/MatchingUeCondPerSubList.c	\
-	asn/MatchingUeCondPerSubItem.c	\
-	asn/MatchingUEidPerSubList.c	\
-	asn/MatchingUEidPerSubItem.c	\
-	asn/UEMeasurementReportList.c	\
-	asn/UEMeasurementReportItem.c	\
-	asn/E2SM-KPM-EventTriggerDefinition.c	\
-	asn/E2SM-KPM-EventTriggerDefinition-Format1.c	\
-	asn/E2SM-KPM-ActionDefinition.c	\
-	asn/E2SM-KPM-ActionDefinition-Format1.c	\
-	asn/E2SM-KPM-ActionDefinition-Format2.c	\
-	asn/E2SM-KPM-ActionDefinition-Format3.c	\
-	asn/E2SM-KPM-ActionDefinition-Format4.c	\
-	asn/E2SM-KPM-ActionDefinition-Format5.c	\
-	asn/E2SM-KPM-IndicationHeader.c	\
-	asn/E2SM-KPM-IndicationHeader-Format1.c	\
-	asn/E2SM-KPM-IndicationMessage.c	\
-	asn/E2SM-KPM-IndicationMessage-Format1.c	\
-	asn/E2SM-KPM-IndicationMessage-Format2.c	\
-	asn/E2SM-KPM-IndicationMessage-Format3.c	\
-	asn/E2SM-KPM-RANfunction-Description.c	\
-	asn/RIC-EventTriggerStyle-Item.c	\
-	asn/RIC-ReportStyle-Item.c	\
-	asn/CGI.c	\
-	asn/CoreCPID.c	\
-	asn/InterfaceIdentifier.c	\
-	asn/InterfaceID-NG.c	\
-	asn/InterfaceID-Xn.c	\
-	asn/InterfaceID-F1.c	\
-	asn/InterfaceID-E1.c	\
-	asn/InterfaceID-S1.c	\
-	asn/InterfaceID-X2.c	\
-	asn/InterfaceID-W1.c	\
-	asn/Interface-MessageID.c	\
-	asn/InterfaceType.c	\
-	asn/GroupID.c	\
-	asn/QoSID.c	\
-	asn/RANfunction-Name.c	\
-	asn/RIC-Format-Type.c	\
-	asn/RIC-Style-Type.c	\
-	asn/RIC-Style-Name.c	\
-	asn/RRC-MessageID.c	\
-	asn/RRCclass-LTE.c	\
-	asn/RRCclass-NR.c	\
-	asn/ServingCell-ARFCN.c	\
-	asn/ServingCell-PCI.c	\
-	asn/UEID.c	\
-	asn/UEID-GNB.c	\
-	asn/UEID-GNB-CU-CP-E1AP-ID-List.c	\
-	asn/UEID-GNB-CU-CP-E1AP-ID-Item.c	\
-	asn/UEID-GNB-CU-F1AP-ID-List.c	\
-	asn/UEID-GNB-CU-CP-F1AP-ID-Item.c	\
-	asn/UEID-GNB-DU.c	\
-	asn/UEID-GNB-CU-UP.c	\
-	asn/UEID-NG-ENB.c	\
-	asn/UEID-NG-ENB-DU.c	\
-	asn/UEID-EN-GNB.c	\
-	asn/UEID-ENB.c	\
-	asn/ENB-ID.c	\
-	asn/GlobalENB-ID.c	\
-	asn/GUMMEI.c	\
-	asn/MME-Group-ID.c	\
-	asn/MME-Code.c	\
-	asn/MME-UE-S1AP-ID.c	\
-	asn/QCI.c	\
-	asn/SubscriberProfileIDforRFP.c	\
-	asn/EN-GNB-ID.c	\
-	asn/ENB-UE-X2AP-ID.c	\
-	asn/ENB-UE-X2AP-ID-Extension.c	\
-	asn/E-UTRA-ARFCN.c	\
-	asn/E-UTRA-PCI.c	\
-	asn/E-UTRA-TAC.c	\
-	asn/GlobalenGNB-ID.c	\
-	asn/NGENB-CU-UE-W1AP-ID.c	\
-	asn/NGENB-DU-ID.c	\
-	asn/AMFPointer.c	\
-	asn/AMFRegionID.c	\
-	asn/AMFSetID.c	\
-	asn/AMF-UE-NGAP-ID.c	\
-	asn/EUTRACellIdentity.c	\
-	asn/EUTRA-CGI.c	\
-	asn/FiveQI.c	\
-	asn/GlobalGNB-ID.c	\
-	asn/GlobalNgENB-ID.c	\
-	asn/GNB-ID.c	\
-	asn/GUAMI.c	\
-	asn/IndexToRFSP.c	\
-	asn/NgENB-ID.c	\
-	asn/NRCellIdentity.c	\
-	asn/NR-CGI.c	\
-	asn/PLMNIdentity.c	\
-	asn/QosFlowIdentifier.c	\
-	asn/SD.c	\
-	asn/S-NSSAI.c	\
-	asn/SST.c	\
-	asn/NG-RANnodeUEXnAPID.c	\
-	asn/GlobalNGRANNodeID.c	\
-	asn/GNB-CU-CP-UE-E1AP-ID.c	\
-	asn/GNB-CU-UP-ID.c	\
-	asn/FiveGS-TAC.c	\
-	asn/FreqBandNrItem.c	\
-	asn/GNB-CU-UE-F1AP-ID.c	\
-	asn/GNB-DU-ID.c	\
-	asn/NR-PCI.c	\
-	asn/NR-ARFCN.c	\
-	asn/NRFrequencyBand-List.c	\
-	asn/NRFrequencyBandItem.c	\
-	asn/NRFrequencyInfo.c	\
-	asn/NRFrequencyShift7p5khz.c	\
-	asn/RANUEID.c	\
-	asn/SupportedSULBandList.c	\
-	asn/SupportedSULFreqBandItem.c
+	TimeStamp.c	\
+	BinIndex.c	\
+	BinRangeValue.c	\
+	GranularityPeriod.c	\
+	LogicalOR.c	\
+	MeasurementType.c	\
+	MeasurementTypeName.c	\
+	MeasurementTypeID.c	\
+	MeasurementLabel.c	\
+	TestCondInfo.c	\
+	TestCond-Type.c	\
+	TestCond-Expression.c	\
+	TestCond-Value.c	\
+	BinRangeDefinition.c	\
+	BinRangeList.c	\
+	BinRangeItem.c	\
+	DistMeasurementBinRangeList.c	\
+	DistMeasurementBinRangeItem.c	\
+	MeasurementInfoList.c	\
+	MeasurementInfoItem.c	\
+	LabelInfoList.c	\
+	LabelInfoItem.c	\
+	MeasurementData.c	\
+	MeasurementDataItem.c	\
+	MeasurementRecord.c	\
+	MeasurementRecordItem.c	\
+	MeasurementInfo-Action-List.c	\
+	MeasurementInfo-Action-Item.c	\
+	MeasurementCondList.c	\
+	MeasurementCondItem.c	\
+	MeasurementCondUEidList.c	\
+	MeasurementCondUEidItem.c	\
+	MatchingCondList.c	\
+	MatchingCondItem.c	\
+	MatchingCondItem-Choice.c	\
+	MatchingUEidList.c	\
+	MatchingUEidItem.c	\
+	MatchingUEidPerGP.c	\
+	MatchingUEidPerGP-Item.c	\
+	MatchingUEidList-PerGP.c	\
+	MatchingUEidItem-PerGP.c	\
+	MatchingUeCondPerSubList.c	\
+	MatchingUeCondPerSubItem.c	\
+	MatchingUEidPerSubList.c	\
+	MatchingUEidPerSubItem.c	\
+	UEMeasurementReportList.c	\
+	UEMeasurementReportItem.c	\
+	E2SM-KPM-EventTriggerDefinition.c	\
+	E2SM-KPM-EventTriggerDefinition-Format1.c	\
+	E2SM-KPM-ActionDefinition.c	\
+	E2SM-KPM-ActionDefinition-Format1.c	\
+	E2SM-KPM-ActionDefinition-Format2.c	\
+	E2SM-KPM-ActionDefinition-Format3.c	\
+	E2SM-KPM-ActionDefinition-Format4.c	\
+	E2SM-KPM-ActionDefinition-Format5.c	\
+	E2SM-KPM-IndicationHeader.c	\
+	E2SM-KPM-IndicationHeader-Format1.c	\
+	E2SM-KPM-IndicationMessage.c	\
+	E2SM-KPM-IndicationMessage-Format1.c	\
+	E2SM-KPM-IndicationMessage-Format2.c	\
+	E2SM-KPM-IndicationMessage-Format3.c	\
+	E2SM-KPM-RANfunction-Description.c	\
+	RIC-EventTriggerStyle-Item.c	\
+	RIC-ReportStyle-Item.c	\
+	CGI.c	\
+	CoreCPID.c	\
+	InterfaceIdentifier.c	\
+	InterfaceID-NG.c	\
+	InterfaceID-Xn.c	\
+	InterfaceID-F1.c	\
+	InterfaceID-E1.c	\
+	InterfaceID-S1.c	\
+	InterfaceID-X2.c	\
+	InterfaceID-W1.c	\
+	Interface-MessageID.c	\
+	InterfaceType.c	\
+	GroupID.c	\
+	QoSID.c	\
+	RANfunction-Name.c	\
+	RIC-Format-Type.c	\
+	RIC-Style-Type.c	\
+	RIC-Style-Name.c	\
+	RRC-MessageID.c	\
+	RRCclass-LTE.c	\
+	RRCclass-NR.c	\
+	ServingCell-ARFCN.c	\
+	ServingCell-PCI.c	\
+	UEID.c	\
+	UEID-GNB.c	\
+	UEID-GNB-CU-CP-E1AP-ID-List.c	\
+	UEID-GNB-CU-CP-E1AP-ID-Item.c	\
+	UEID-GNB-CU-F1AP-ID-List.c	\
+	UEID-GNB-CU-CP-F1AP-ID-Item.c	\
+	UEID-GNB-DU.c	\
+	UEID-GNB-CU-UP.c	\
+	UEID-NG-ENB.c	\
+	UEID-NG-ENB-DU.c	\
+	UEID-EN-GNB.c	\
+	UEID-ENB.c	\
+	ENB-ID.c	\
+	GlobalENB-ID.c	\
+	GUMMEI.c	\
+	MME-Group-ID.c	\
+	MME-Code.c	\
+	MME-UE-S1AP-ID.c	\
+	QCI.c	\
+	SubscriberProfileIDforRFP.c	\
+	EN-GNB-ID.c	\
+	ENB-UE-X2AP-ID.c	\
+	ENB-UE-X2AP-ID-Extension.c	\
+	E-UTRA-ARFCN.c	\
+	E-UTRA-PCI.c	\
+	E-UTRA-TAC.c	\
+	GlobalenGNB-ID.c	\
+	NGENB-CU-UE-W1AP-ID.c	\
+	NGENB-DU-ID.c	\
+	AMFPointer.c	\
+	AMFRegionID.c	\
+	AMFSetID.c	\
+	AMF-UE-NGAP-ID.c	\
+	EUTRACellIdentity.c	\
+	EUTRA-CGI.c	\
+	FiveQI.c	\
+	GlobalGNB-ID.c	\
+	GlobalNgENB-ID.c	\
+	GNB-ID.c	\
+	GUAMI.c	\
+	IndexToRFSP.c	\
+	NgENB-ID.c	\
+	NRCellIdentity.c	\
+	NR-CGI.c	\
+	PLMNIdentity.c	\
+	QosFlowIdentifier.c	\
+	SD.c	\
+	S-NSSAI.c	\
+	SST.c	\
+	NG-RANnodeUEXnAPID.c	\
+	GlobalNGRANNodeID.c	\
+	GNB-CU-CP-UE-E1AP-ID.c	\
+	GNB-CU-UP-ID.c	\
+	FiveGS-TAC.c	\
+	FreqBandNrItem.c	\
+	GNB-CU-UE-F1AP-ID.c	\
+	GNB-DU-ID.c	\
+	NR-PCI.c	\
+	NR-ARFCN.c	\
+	NRFrequencyBand-List.c	\
+	NRFrequencyBandItem.c	\
+	NRFrequencyInfo.c	\
+	NRFrequencyShift7p5khz.c	\
+	RANUEID.c	\
+	SupportedSULBandList.c	\
+	SupportedSULFreqBandItem.c	\
+	EXTERNAL.c
 
 ASN_MODULE_HDRS=	\
-	asn/TimeStamp.h	\
-	asn/BinIndex.h	\
-	asn/BinRangeValue.h	\
-	asn/GranularityPeriod.h	\
-	asn/LogicalOR.h	\
-	asn/MeasurementType.h	\
-	asn/MeasurementTypeName.h	\
-	asn/MeasurementTypeID.h	\
-	asn/MeasurementLabel.h	\
-	asn/TestCondInfo.h	\
-	asn/TestCond-Type.h	\
-	asn/TestCond-Expression.h	\
-	asn/TestCond-Value.h	\
-	asn/BinRangeDefinition.h	\
-	asn/BinRangeList.h	\
-	asn/BinRangeItem.h	\
-	asn/DistMeasurementBinRangeList.h	\
-	asn/DistMeasurementBinRangeItem.h	\
-	asn/MeasurementInfoList.h	\
-	asn/MeasurementInfoItem.h	\
-	asn/LabelInfoList.h	\
-	asn/LabelInfoItem.h	\
-	asn/MeasurementData.h	\
-	asn/MeasurementDataItem.h	\
-	asn/MeasurementRecord.h	\
-	asn/MeasurementRecordItem.h	\
-	asn/MeasurementInfo-Action-List.h	\
-	asn/MeasurementInfo-Action-Item.h	\
-	asn/MeasurementCondList.h	\
-	asn/MeasurementCondItem.h	\
-	asn/MeasurementCondUEidList.h	\
-	asn/MeasurementCondUEidItem.h	\
-	asn/MatchingCondList.h	\
-	asn/MatchingCondItem.h	\
-	asn/MatchingCondItem-Choice.h	\
-	asn/MatchingUEidList.h	\
-	asn/MatchingUEidItem.h	\
-	asn/MatchingUEidPerGP.h	\
-	asn/MatchingUEidPerGP-Item.h	\
-	asn/MatchingUEidList-PerGP.h	\
-	asn/MatchingUEidItem-PerGP.h	\
-	asn/MatchingUeCondPerSubList.h	\
-	asn/MatchingUeCondPerSubItem.h	\
-	asn/MatchingUEidPerSubList.h	\
-	asn/MatchingUEidPerSubItem.h	\
-	asn/UEMeasurementReportList.h	\
-	asn/UEMeasurementReportItem.h	\
-	asn/E2SM-KPM-EventTriggerDefinition.h	\
-	asn/E2SM-KPM-EventTriggerDefinition-Format1.h	\
-	asn/E2SM-KPM-ActionDefinition.h	\
-	asn/E2SM-KPM-ActionDefinition-Format1.h	\
-	asn/E2SM-KPM-ActionDefinition-Format2.h	\
-	asn/E2SM-KPM-ActionDefinition-Format3.h	\
-	asn/E2SM-KPM-ActionDefinition-Format4.h	\
-	asn/E2SM-KPM-ActionDefinition-Format5.h	\
-	asn/E2SM-KPM-IndicationHeader.h	\
-	asn/E2SM-KPM-IndicationHeader-Format1.h	\
-	asn/E2SM-KPM-IndicationMessage.h	\
-	asn/E2SM-KPM-IndicationMessage-Format1.h	\
-	asn/E2SM-KPM-IndicationMessage-Format2.h	\
-	asn/E2SM-KPM-IndicationMessage-Format3.h	\
-	asn/E2SM-KPM-RANfunction-Description.h	\
-	asn/RIC-EventTriggerStyle-Item.h	\
-	asn/RIC-ReportStyle-Item.h	\
-	asn/CGI.h	\
-	asn/CoreCPID.h	\
-	asn/InterfaceIdentifier.h	\
-	asn/InterfaceID-NG.h	\
-	asn/InterfaceID-Xn.h	\
-	asn/InterfaceID-F1.h	\
-	asn/InterfaceID-E1.h	\
-	asn/InterfaceID-S1.h	\
-	asn/InterfaceID-X2.h	\
-	asn/InterfaceID-W1.h	\
-	asn/Interface-MessageID.h	\
-	asn/InterfaceType.h	\
-	asn/GroupID.h	\
-	asn/QoSID.h	\
-	asn/RANfunction-Name.h	\
-	asn/RIC-Format-Type.h	\
-	asn/RIC-Style-Type.h	\
-	asn/RIC-Style-Name.h	\
-	asn/RRC-MessageID.h	\
-	asn/RRCclass-LTE.h	\
-	asn/RRCclass-NR.h	\
-	asn/ServingCell-ARFCN.h	\
-	asn/ServingCell-PCI.h	\
-	asn/UEID.h	\
-	asn/UEID-GNB.h	\
-	asn/UEID-GNB-CU-CP-E1AP-ID-List.h	\
-	asn/UEID-GNB-CU-CP-E1AP-ID-Item.h	\
-	asn/UEID-GNB-CU-F1AP-ID-List.h	\
-	asn/UEID-GNB-CU-CP-F1AP-ID-Item.h	\
-	asn/UEID-GNB-DU.h	\
-	asn/UEID-GNB-CU-UP.h	\
-	asn/UEID-NG-ENB.h	\
-	asn/UEID-NG-ENB-DU.h	\
-	asn/UEID-EN-GNB.h	\
-	asn/UEID-ENB.h	\
-	asn/ENB-ID.h	\
-	asn/GlobalENB-ID.h	\
-	asn/GUMMEI.h	\
-	asn/MME-Group-ID.h	\
-	asn/MME-Code.h	\
-	asn/MME-UE-S1AP-ID.h	\
-	asn/QCI.h	\
-	asn/SubscriberProfileIDforRFP.h	\
-	asn/EN-GNB-ID.h	\
-	asn/ENB-UE-X2AP-ID.h	\
-	asn/ENB-UE-X2AP-ID-Extension.h	\
-	asn/E-UTRA-ARFCN.h	\
-	asn/E-UTRA-PCI.h	\
-	asn/E-UTRA-TAC.h	\
-	asn/GlobalenGNB-ID.h	\
-	asn/NGENB-CU-UE-W1AP-ID.h	\
-	asn/NGENB-DU-ID.h	\
-	asn/AMFPointer.h	\
-	asn/AMFRegionID.h	\
-	asn/AMFSetID.h	\
-	asn/AMF-UE-NGAP-ID.h	\
-	asn/EUTRACellIdentity.h	\
-	asn/EUTRA-CGI.h	\
-	asn/FiveQI.h	\
-	asn/GlobalGNB-ID.h	\
-	asn/GlobalNgENB-ID.h	\
-	asn/GNB-ID.h	\
-	asn/GUAMI.h	\
-	asn/IndexToRFSP.h	\
-	asn/NgENB-ID.h	\
-	asn/NRCellIdentity.h	\
-	asn/NR-CGI.h	\
-	asn/PLMNIdentity.h	\
-	asn/QosFlowIdentifier.h	\
-	asn/SD.h	\
-	asn/S-NSSAI.h	\
-	asn/SST.h	\
-	asn/NG-RANnodeUEXnAPID.h	\
-	asn/GlobalNGRANNodeID.h	\
-	asn/GNB-CU-CP-UE-E1AP-ID.h	\
-	asn/GNB-CU-UP-ID.h	\
-	asn/FiveGS-TAC.h	\
-	asn/FreqBandNrItem.h	\
-	asn/GNB-CU-UE-F1AP-ID.h	\
-	asn/GNB-DU-ID.h	\
-	asn/NR-PCI.h	\
-	asn/NR-ARFCN.h	\
-	asn/NRFrequencyBand-List.h	\
-	asn/NRFrequencyBandItem.h	\
-	asn/NRFrequencyInfo.h	\
-	asn/NRFrequencyShift7p5khz.h	\
-	asn/RANUEID.h	\
-	asn/SupportedSULBandList.h	\
-	asn/SupportedSULFreqBandItem.h
+	TimeStamp.h	\
+	BinIndex.h	\
+	BinRangeValue.h	\
+	GranularityPeriod.h	\
+	LogicalOR.h	\
+	MeasurementType.h	\
+	MeasurementTypeName.h	\
+	MeasurementTypeID.h	\
+	MeasurementLabel.h	\
+	TestCondInfo.h	\
+	TestCond-Type.h	\
+	TestCond-Expression.h	\
+	TestCond-Value.h	\
+	BinRangeDefinition.h	\
+	BinRangeList.h	\
+	BinRangeItem.h	\
+	DistMeasurementBinRangeList.h	\
+	DistMeasurementBinRangeItem.h	\
+	MeasurementInfoList.h	\
+	MeasurementInfoItem.h	\
+	LabelInfoList.h	\
+	LabelInfoItem.h	\
+	MeasurementData.h	\
+	MeasurementDataItem.h	\
+	MeasurementRecord.h	\
+	MeasurementRecordItem.h	\
+	MeasurementInfo-Action-List.h	\
+	MeasurementInfo-Action-Item.h	\
+	MeasurementCondList.h	\
+	MeasurementCondItem.h	\
+	MeasurementCondUEidList.h	\
+	MeasurementCondUEidItem.h	\
+	MatchingCondList.h	\
+	MatchingCondItem.h	\
+	MatchingCondItem-Choice.h	\
+	MatchingUEidList.h	\
+	MatchingUEidItem.h	\
+	MatchingUEidPerGP.h	\
+	MatchingUEidPerGP-Item.h	\
+	MatchingUEidList-PerGP.h	\
+	MatchingUEidItem-PerGP.h	\
+	MatchingUeCondPerSubList.h	\
+	MatchingUeCondPerSubItem.h	\
+	MatchingUEidPerSubList.h	\
+	MatchingUEidPerSubItem.h	\
+	UEMeasurementReportList.h	\
+	UEMeasurementReportItem.h	\
+	E2SM-KPM-EventTriggerDefinition.h	\
+	E2SM-KPM-EventTriggerDefinition-Format1.h	\
+	E2SM-KPM-ActionDefinition.h	\
+	E2SM-KPM-ActionDefinition-Format1.h	\
+	E2SM-KPM-ActionDefinition-Format2.h	\
+	E2SM-KPM-ActionDefinition-Format3.h	\
+	E2SM-KPM-ActionDefinition-Format4.h	\
+	E2SM-KPM-ActionDefinition-Format5.h	\
+	E2SM-KPM-IndicationHeader.h	\
+	E2SM-KPM-IndicationHeader-Format1.h	\
+	E2SM-KPM-IndicationMessage.h	\
+	E2SM-KPM-IndicationMessage-Format1.h	\
+	E2SM-KPM-IndicationMessage-Format2.h	\
+	E2SM-KPM-IndicationMessage-Format3.h	\
+	E2SM-KPM-RANfunction-Description.h	\
+	RIC-EventTriggerStyle-Item.h	\
+	RIC-ReportStyle-Item.h	\
+	CGI.h	\
+	CoreCPID.h	\
+	InterfaceIdentifier.h	\
+	InterfaceID-NG.h	\
+	InterfaceID-Xn.h	\
+	InterfaceID-F1.h	\
+	InterfaceID-E1.h	\
+	InterfaceID-S1.h	\
+	InterfaceID-X2.h	\
+	InterfaceID-W1.h	\
+	Interface-MessageID.h	\
+	InterfaceType.h	\
+	GroupID.h	\
+	QoSID.h	\
+	RANfunction-Name.h	\
+	RIC-Format-Type.h	\
+	RIC-Style-Type.h	\
+	RIC-Style-Name.h	\
+	RRC-MessageID.h	\
+	RRCclass-LTE.h	\
+	RRCclass-NR.h	\
+	ServingCell-ARFCN.h	\
+	ServingCell-PCI.h	\
+	UEID.h	\
+	UEID-GNB.h	\
+	UEID-GNB-CU-CP-E1AP-ID-List.h	\
+	UEID-GNB-CU-CP-E1AP-ID-Item.h	\
+	UEID-GNB-CU-F1AP-ID-List.h	\
+	UEID-GNB-CU-CP-F1AP-ID-Item.h	\
+	UEID-GNB-DU.h	\
+	UEID-GNB-CU-UP.h	\
+	UEID-NG-ENB.h	\
+	UEID-NG-ENB-DU.h	\
+	UEID-EN-GNB.h	\
+	UEID-ENB.h	\
+	ENB-ID.h	\
+	GlobalENB-ID.h	\
+	GUMMEI.h	\
+	MME-Group-ID.h	\
+	MME-Code.h	\
+	MME-UE-S1AP-ID.h	\
+	QCI.h	\
+	SubscriberProfileIDforRFP.h	\
+	EN-GNB-ID.h	\
+	ENB-UE-X2AP-ID.h	\
+	ENB-UE-X2AP-ID-Extension.h	\
+	E-UTRA-ARFCN.h	\
+	E-UTRA-PCI.h	\
+	E-UTRA-TAC.h	\
+	GlobalenGNB-ID.h	\
+	NGENB-CU-UE-W1AP-ID.h	\
+	NGENB-DU-ID.h	\
+	AMFPointer.h	\
+	AMFRegionID.h	\
+	AMFSetID.h	\
+	AMF-UE-NGAP-ID.h	\
+	EUTRACellIdentity.h	\
+	EUTRA-CGI.h	\
+	FiveQI.h	\
+	GlobalGNB-ID.h	\
+	GlobalNgENB-ID.h	\
+	GNB-ID.h	\
+	GUAMI.h	\
+	IndexToRFSP.h	\
+	NgENB-ID.h	\
+	NRCellIdentity.h	\
+	NR-CGI.h	\
+	PLMNIdentity.h	\
+	QosFlowIdentifier.h	\
+	SD.h	\
+	S-NSSAI.h	\
+	SST.h	\
+	NG-RANnodeUEXnAPID.h	\
+	GlobalNGRANNodeID.h	\
+	GNB-CU-CP-UE-E1AP-ID.h	\
+	GNB-CU-UP-ID.h	\
+	FiveGS-TAC.h	\
+	FreqBandNrItem.h	\
+	GNB-CU-UE-F1AP-ID.h	\
+	GNB-DU-ID.h	\
+	NR-PCI.h	\
+	NR-ARFCN.h	\
+	NRFrequencyBand-List.h	\
+	NRFrequencyBandItem.h	\
+	NRFrequencyInfo.h	\
+	NRFrequencyShift7p5khz.h	\
+	RANUEID.h	\
+	SupportedSULBandList.h	\
+	SupportedSULFreqBandItem.h	\
+	EXTERNAL.h
 
-ASN_MODULE_HDRS+=asn/OPEN_TYPE.h
-ASN_MODULE_SRCS+=asn/OPEN_TYPE.c
-ASN_MODULE_HDRS+=asn/constr_CHOICE.h
-ASN_MODULE_HDRS+=asn/BOOLEAN.h
-ASN_MODULE_SRCS+=asn/BOOLEAN.c
-ASN_MODULE_HDRS+=asn/INTEGER.h
-ASN_MODULE_SRCS+=asn/INTEGER.c
-ASN_MODULE_HDRS+=asn/NULL.h
-ASN_MODULE_SRCS+=asn/NULL.c
-ASN_MODULE_HDRS+=asn/NativeEnumerated.h
-ASN_MODULE_SRCS+=asn/NativeEnumerated.c
-ASN_MODULE_HDRS+=asn/NativeInteger.h
-ASN_MODULE_SRCS+=asn/NativeInteger.c
-ASN_MODULE_HDRS+=asn/NativeReal.h
-ASN_MODULE_SRCS+=asn/NativeReal.c
-ASN_MODULE_HDRS+=asn/REAL.h
-ASN_MODULE_HDRS+=asn/PrintableString.h
-ASN_MODULE_SRCS+=asn/PrintableString.c
-ASN_MODULE_HDRS+=asn/OCTET_STRING.h
-ASN_MODULE_SRCS+=asn/REAL.c
-ASN_MODULE_HDRS+=asn/asn_SEQUENCE_OF.h
-ASN_MODULE_SRCS+=asn/asn_SEQUENCE_OF.c
-ASN_MODULE_HDRS+=asn/asn_SET_OF.h
-ASN_MODULE_SRCS+=asn/asn_SET_OF.c
-ASN_MODULE_SRCS+=asn/constr_CHOICE.c
-ASN_MODULE_HDRS+=asn/constr_SEQUENCE.h
-ASN_MODULE_SRCS+=asn/constr_SEQUENCE.c
-ASN_MODULE_HDRS+=asn/constr_SEQUENCE_OF.h
-ASN_MODULE_SRCS+=asn/constr_SEQUENCE_OF.c
-ASN_MODULE_HDRS+=asn/constr_SET_OF.h
-ASN_MODULE_SRCS+=asn/constr_SET_OF.c
-ASN_MODULE_HDRS+=asn/asn_application.h
-ASN_MODULE_SRCS+=asn/asn_application.c
-ASN_MODULE_HDRS+=asn/asn_ioc.h
-ASN_MODULE_HDRS+=asn/asn_system.h
-ASN_MODULE_HDRS+=asn/asn_codecs.h
-ASN_MODULE_HDRS+=asn/asn_internal.h
-ASN_MODULE_SRCS+=asn/asn_internal.c
-ASN_MODULE_HDRS+=asn/asn_random_fill.h
-ASN_MODULE_SRCS+=asn/asn_random_fill.c
-ASN_MODULE_HDRS+=asn/asn_bit_data.h
-ASN_MODULE_SRCS+=asn/asn_bit_data.c
-ASN_MODULE_SRCS+=asn/OCTET_STRING.c
-ASN_MODULE_HDRS+=asn/BIT_STRING.h
-ASN_MODULE_SRCS+=asn/BIT_STRING.c
-ASN_MODULE_SRCS+=asn/asn_codecs_prim.c
-ASN_MODULE_HDRS+=asn/asn_codecs_prim.h
-ASN_MODULE_HDRS+=asn/ber_tlv_length.h
-ASN_MODULE_SRCS+=asn/ber_tlv_length.c
-ASN_MODULE_HDRS+=asn/ber_tlv_tag.h
-ASN_MODULE_SRCS+=asn/ber_tlv_tag.c
-ASN_MODULE_HDRS+=asn/ber_decoder.h
-ASN_MODULE_SRCS+=asn/ber_decoder.c
-ASN_MODULE_HDRS+=asn/der_encoder.h
-ASN_MODULE_SRCS+=asn/der_encoder.c
-ASN_MODULE_HDRS+=asn/constr_TYPE.h
-ASN_MODULE_SRCS+=asn/constr_TYPE.c
-ASN_MODULE_HDRS+=asn/constraints.h
-ASN_MODULE_SRCS+=asn/constraints.c
-ASN_MODULE_HDRS+=asn/xer_support.h
-ASN_MODULE_SRCS+=asn/xer_support.c
-ASN_MODULE_HDRS+=asn/xer_decoder.h
-ASN_MODULE_SRCS+=asn/xer_decoder.c
-ASN_MODULE_HDRS+=asn/xer_encoder.h
-ASN_MODULE_SRCS+=asn/xer_encoder.c
-ASN_MODULE_HDRS+=asn/per_support.h
-ASN_MODULE_SRCS+=asn/per_support.c
-ASN_MODULE_HDRS+=asn/per_decoder.h
-ASN_MODULE_SRCS+=asn/per_decoder.c
-ASN_MODULE_HDRS+=asn/per_encoder.h
-ASN_MODULE_SRCS+=asn/per_encoder.c
-ASN_MODULE_HDRS+=asn/per_opentype.h
-ASN_MODULE_SRCS+=asn/per_opentype.c
+ASN_MODULE_HDRS+=ANY.h
+ASN_MODULE_SRCS+=ANY.c
+ASN_MODULE_HDRS+=OCTET_STRING.h
+ASN_MODULE_HDRS+=OPEN_TYPE.h
+ASN_MODULE_SRCS+=OPEN_TYPE.c
+ASN_MODULE_HDRS+=constr_CHOICE.h
+ASN_MODULE_HDRS+=BOOLEAN.h
+ASN_MODULE_SRCS+=BOOLEAN.c
+ASN_MODULE_HDRS+=GraphicString.h
+ASN_MODULE_SRCS+=GraphicString.c
+ASN_MODULE_HDRS+=INTEGER.h
+ASN_MODULE_SRCS+=INTEGER.c
+ASN_MODULE_HDRS+=NULL.h
+ASN_MODULE_SRCS+=NULL.c
+ASN_MODULE_HDRS+=NativeEnumerated.h
+ASN_MODULE_SRCS+=NativeEnumerated.c
+ASN_MODULE_HDRS+=NativeInteger.h
+ASN_MODULE_SRCS+=NativeInteger.c
+ASN_MODULE_HDRS+=NativeReal.h
+ASN_MODULE_SRCS+=NativeReal.c
+ASN_MODULE_HDRS+=REAL.h
+ASN_MODULE_HDRS+=OBJECT_IDENTIFIER.h
+ASN_MODULE_SRCS+=OBJECT_IDENTIFIER.c
+ASN_MODULE_HDRS+=asn_codecs_prim.h
+ASN_MODULE_HDRS+=ObjectDescriptor.h
+ASN_MODULE_SRCS+=ObjectDescriptor.c
+ASN_MODULE_HDRS+=PrintableString.h
+ASN_MODULE_SRCS+=PrintableString.c
+ASN_MODULE_SRCS+=REAL.c
+ASN_MODULE_HDRS+=asn_SEQUENCE_OF.h
+ASN_MODULE_SRCS+=asn_SEQUENCE_OF.c
+ASN_MODULE_HDRS+=asn_SET_OF.h
+ASN_MODULE_SRCS+=asn_SET_OF.c
+ASN_MODULE_SRCS+=constr_CHOICE.c
+ASN_MODULE_HDRS+=constr_SEQUENCE.h
+ASN_MODULE_SRCS+=constr_SEQUENCE.c
+ASN_MODULE_HDRS+=constr_SEQUENCE_OF.h
+ASN_MODULE_SRCS+=constr_SEQUENCE_OF.c
+ASN_MODULE_HDRS+=constr_SET_OF.h
+ASN_MODULE_SRCS+=constr_SET_OF.c
+ASN_MODULE_HDRS+=asn_application.h
+ASN_MODULE_SRCS+=asn_application.c
+ASN_MODULE_HDRS+=asn_ioc.h
+ASN_MODULE_HDRS+=asn_system.h
+ASN_MODULE_HDRS+=asn_codecs.h
+ASN_MODULE_HDRS+=asn_internal.h
+ASN_MODULE_SRCS+=asn_internal.c
+ASN_MODULE_HDRS+=asn_bit_data.h
+ASN_MODULE_SRCS+=asn_bit_data.c
+ASN_MODULE_SRCS+=OCTET_STRING.c
+ASN_MODULE_HDRS+=BIT_STRING.h
+ASN_MODULE_SRCS+=BIT_STRING.c
+ASN_MODULE_SRCS+=asn_codecs_prim.c
+ASN_MODULE_HDRS+=ber_tlv_length.h
+ASN_MODULE_SRCS+=ber_tlv_length.c
+ASN_MODULE_HDRS+=ber_tlv_tag.h
+ASN_MODULE_SRCS+=ber_tlv_tag.c
+ASN_MODULE_HDRS+=constr_TYPE.h
+ASN_MODULE_SRCS+=constr_TYPE.c
+ASN_MODULE_HDRS+=constraints.h
+ASN_MODULE_SRCS+=constraints.c
+ASN_MODULE_HDRS+=ber_decoder.h
+ASN_MODULE_HDRS+=der_encoder.h
+ASN_MODULE_SRCS+=ber_decoder.c
+ASN_MODULE_SRCS+=der_encoder.c
+ASN_MODULE_SRCS+=ANY_ber.c
+ASN_MODULE_SRCS+=BOOLEAN_ber.c
+ASN_MODULE_SRCS+=INTEGER_ber.c
+ASN_MODULE_SRCS+=NULL_ber.c
+ASN_MODULE_SRCS+=NativeInteger_ber.c
+ASN_MODULE_SRCS+=NativeReal_ber.c
+ASN_MODULE_SRCS+=OCTET_STRING_ber.c
+ASN_MODULE_SRCS+=OPEN_TYPE_ber.c
+ASN_MODULE_SRCS+=asn_codecs_prim_ber.c
+ASN_MODULE_SRCS+=constr_CHOICE_ber.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_OF_ber.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_ber.c
+ASN_MODULE_SRCS+=constr_SET_OF_ber.c
+ASN_MODULE_HDRS+=xer_support.h
+ASN_MODULE_HDRS+=xer_decoder.h
+ASN_MODULE_HDRS+=xer_encoder.h
+ASN_MODULE_SRCS+=xer_support.c
+ASN_MODULE_SRCS+=xer_decoder.c
+ASN_MODULE_SRCS+=xer_encoder.c
+ASN_MODULE_SRCS+=ANY_xer.c
+ASN_MODULE_SRCS+=BIT_STRING_xer.c
+ASN_MODULE_SRCS+=BOOLEAN_xer.c
+ASN_MODULE_SRCS+=INTEGER_xer.c
+ASN_MODULE_SRCS+=NULL_xer.c
+ASN_MODULE_SRCS+=NativeEnumerated_xer.c
+ASN_MODULE_SRCS+=NativeInteger_xer.c
+ASN_MODULE_SRCS+=NativeReal_xer.c
+ASN_MODULE_SRCS+=OBJECT_IDENTIFIER_xer.c
+ASN_MODULE_SRCS+=OCTET_STRING_xer.c
+ASN_MODULE_SRCS+=OPEN_TYPE_xer.c
+ASN_MODULE_SRCS+=REAL_xer.c
+ASN_MODULE_SRCS+=asn_codecs_prim_xer.c
+ASN_MODULE_SRCS+=constr_CHOICE_xer.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_OF_xer.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_xer.c
+ASN_MODULE_SRCS+=constr_SET_OF_xer.c
+ASN_MODULE_HDRS+=per_decoder.h
+ASN_MODULE_HDRS+=per_encoder.h
+ASN_MODULE_HDRS+=per_support.h
+ASN_MODULE_HDRS+=per_opentype.h
+ASN_MODULE_SRCS+=per_decoder.c
+ASN_MODULE_SRCS+=per_encoder.c
+ASN_MODULE_SRCS+=per_support.c
+ASN_MODULE_SRCS+=per_opentype.c
+ASN_MODULE_HDRS+=uper_decoder.h
+ASN_MODULE_HDRS+=uper_encoder.h
+ASN_MODULE_HDRS+=uper_support.h
+ASN_MODULE_HDRS+=uper_opentype.h
+ASN_MODULE_SRCS+=uper_decoder.c
+ASN_MODULE_SRCS+=uper_encoder.c
+ASN_MODULE_SRCS+=uper_support.c
+ASN_MODULE_SRCS+=uper_opentype.c
+ASN_MODULE_SRCS+=ANY_uper.c
+ASN_MODULE_SRCS+=BIT_STRING_uper.c
+ASN_MODULE_SRCS+=BOOLEAN_uper.c
+ASN_MODULE_SRCS+=INTEGER_uper.c
+ASN_MODULE_SRCS+=NULL_uper.c
+ASN_MODULE_SRCS+=NativeEnumerated_uper.c
+ASN_MODULE_SRCS+=NativeInteger_uper.c
+ASN_MODULE_SRCS+=NativeReal_uper.c
+ASN_MODULE_SRCS+=OCTET_STRING_uper.c
+ASN_MODULE_SRCS+=OPEN_TYPE_uper.c
+ASN_MODULE_SRCS+=REAL_uper.c
+ASN_MODULE_SRCS+=constr_CHOICE_uper.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_OF_uper.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_uper.c
+ASN_MODULE_SRCS+=constr_SET_OF_uper.c
+ASN_MODULE_HDRS+=aper_decoder.h
+ASN_MODULE_HDRS+=aper_encoder.h
+ASN_MODULE_HDRS+=aper_support.h
+ASN_MODULE_HDRS+=aper_opentype.h
+ASN_MODULE_SRCS+=aper_decoder.c
+ASN_MODULE_SRCS+=aper_encoder.c
+ASN_MODULE_SRCS+=aper_support.c
+ASN_MODULE_SRCS+=aper_opentype.c
+ASN_MODULE_SRCS+=ANY_aper.c
+ASN_MODULE_SRCS+=BOOLEAN_aper.c
+ASN_MODULE_SRCS+=INTEGER_aper.c
+ASN_MODULE_SRCS+=NULL_aper.c
+ASN_MODULE_SRCS+=NativeEnumerated_aper.c
+ASN_MODULE_SRCS+=NativeInteger_aper.c
+ASN_MODULE_SRCS+=NativeReal_aper.c
+ASN_MODULE_SRCS+=OCTET_STRING_aper.c
+ASN_MODULE_SRCS+=OPEN_TYPE_aper.c
+ASN_MODULE_SRCS+=REAL_aper.c
+ASN_MODULE_SRCS+=constr_CHOICE_aper.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_OF_aper.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_aper.c
+ASN_MODULE_SRCS+=constr_SET_OF_aper.c
+ASN_MODULE_SRCS+=BIT_STRING_print.c
+ASN_MODULE_SRCS+=BOOLEAN_print.c
+ASN_MODULE_SRCS+=INTEGER_print.c
+ASN_MODULE_SRCS+=NULL_print.c
+ASN_MODULE_SRCS+=NativeInteger_print.c
+ASN_MODULE_SRCS+=NativeReal_print.c
+ASN_MODULE_SRCS+=OBJECT_IDENTIFIER_print.c
+ASN_MODULE_SRCS+=OCTET_STRING_print.c
+ASN_MODULE_SRCS+=REAL_print.c
+ASN_MODULE_SRCS+=constr_CHOICE_print.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_print.c
+ASN_MODULE_SRCS+=constr_SET_OF_print.c
+ASN_MODULE_HDRS+=asn_random_fill.h
+ASN_MODULE_SRCS+=asn_random_fill.c
+ASN_MODULE_SRCS+=BIT_STRING_rfill.c
+ASN_MODULE_SRCS+=BOOLEAN_rfill.c
+ASN_MODULE_SRCS+=INTEGER_rfill.c
+ASN_MODULE_SRCS+=NULL_rfill.c
+ASN_MODULE_SRCS+=NativeInteger_rfill.c
+ASN_MODULE_SRCS+=NativeReal_rfill.c
+ASN_MODULE_SRCS+=OBJECT_IDENTIFIER_rfill.c
+ASN_MODULE_SRCS+=OCTET_STRING_rfill.c
+ASN_MODULE_SRCS+=REAL_rfill.c
+ASN_MODULE_SRCS+=constr_CHOICE_rfill.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_rfill.c
+ASN_MODULE_SRCS+=constr_SET_OF_rfill.c
+ASN_MODULE_HDRS+=jer_encoder.h
+ASN_MODULE_SRCS+=jer_encoder.c
+ASN_MODULE_SRCS+=ANY_jer.c
+ASN_MODULE_SRCS+=BIT_STRING_jer.c
+ASN_MODULE_SRCS+=BOOLEAN_jer.c
+ASN_MODULE_SRCS+=INTEGER_jer.c
+ASN_MODULE_SRCS+=NULL_jer.c
+ASN_MODULE_SRCS+=NativeEnumerated_jer.c
+ASN_MODULE_SRCS+=NativeInteger_jer.c
+ASN_MODULE_SRCS+=NativeReal_jer.c
+ASN_MODULE_SRCS+=OBJECT_IDENTIFIER_jer.c
+ASN_MODULE_SRCS+=OCTET_STRING_jer.c
+ASN_MODULE_SRCS+=REAL_jer.c
+ASN_MODULE_SRCS+=constr_CHOICE_jer.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_OF_jer.c
+ASN_MODULE_SRCS+=constr_SEQUENCE_jer.c
+ASN_MODULE_SRCS+=constr_SET_OF_jer.c
 
 ASN_MODULE_CFLAGS=-DASN_DISABLE_OER_SUPPORT 
 
 lib_LTLIBRARIES+=libasncodec.la
 libasncodec_la_SOURCES=$(ASN_MODULE_SRCS) $(ASN_MODULE_HDRS)
-libasncodec_la_CPPFLAGS=-I$(top_srcdir)/asn/
+libasncodec_la_CPPFLAGS=-I$(top_srcdir)/
 libasncodec_la_CFLAGS=$(ASN_MODULE_CFLAGS)
 libasncodec_la_LDFLAGS=-lm

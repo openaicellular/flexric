@@ -78,14 +78,18 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
                );
       }
       if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst_len > 0) {
-        if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst_len == kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_len) {
-          size_t rec_data_len = kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_len;
+        // TODO: need to get the all meas data
+        size_t meas_data_idx = 0;
+        if (*kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].incomplete_flag == TRUE_ENUM_VALUE) {
+          printf("No UE connected to E2-Node, meas_data incomplete_flag == TRUE_ENUM_VALUE\n");
+        } else if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst_len == kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_len) {
+          size_t rec_data_len = kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_len;
           for (size_t j = 0; j < rec_data_len; j++) {
             if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst[j].meas_type.type == NAME_MEAS_TYPE &&
-                kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_lst[j].value == REAL_MEAS_VALUE) {
+                kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_lst[j].value == REAL_MEAS_VALUE) {
               printf("MeasName %s, MeasData %lf\n",
                      kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst[j].meas_type.name.buf,
-                     kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_lst[j].real_val
+                     kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_lst[j].real_val
                      );
             }
           }
@@ -238,7 +242,7 @@ int main(int argc, char *argv[])
     kpm_sub.sz_ad = 1;
     kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
     assert(kpm_sub.ad != NULL && "Memory exhausted");
-    const char *act[] = {"DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI", NULL}; // TS 34.425 clause 4.4.6
+    const char *act[] = {"DRB.RlcSduDelayDl", "DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI", NULL}; // TS 34.425 clause 4.4.6
     *kpm_sub.ad = gen_act_def(act);
 
     const int KPM_ran_function = 2;

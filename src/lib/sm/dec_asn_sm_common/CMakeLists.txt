@@ -3,7 +3,7 @@ set(SM_COMMON_DEC_ASN_SRCS
     dec_ran_func_name.c
     dec_ue_id.c)
 
-include_directories("/usr/local/share/asn1c/")
+include_directories("../../ap/ie/asn")
 add_library(sm_common_dec_asn_obj OBJECT
                                 ${SM_COMMON_DEC_ASN_SRCS}
                                 )
@@ -12,4 +12,5 @@ add_library(sm_common_dec_asn_obj OBJECT
                               # e2sm_kpm_asn1_obj)
               
                               target_compile_options(sm_common_dec_asn_obj PRIVATE "-DASN_DISABLE_OER_SUPPORT")
+                              target_compile_options(sm_common_dec_asn_obj PRIVATE "-DASN_DISABLE_JER_SUPPORT")
 target_compile_options(sm_common_dec_asn_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC)

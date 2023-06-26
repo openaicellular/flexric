@@ -19,8 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
-
 #ifndef MAC_SERVICE_MODEL_AGENT_H
 #define MAC_SERVICE_MODEL_AGENT_H
 
@@ -29,6 +27,7 @@
 
 #include "../sm_agent.h"
 
+__attribute__ ((visibility ("default"))) 
 sm_agent_t* make_mac_sm_agent(sm_io_ag_ran_t io);
 
 #endif

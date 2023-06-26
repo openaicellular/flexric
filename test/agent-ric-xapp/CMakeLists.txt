@@ -4,40 +4,28 @@ endif()
 
 add_executable(test_ag_ric_xapp
                 test_ag_ric_xapp.c
-#                ${CMAKE_SOURCE_DIR}/test/sm/common/fill_ind_data.c
-#                ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
-#                ${CMAKE_SOURCE_DIR}/src/sm/rlc_sm/ie/rlc_data_ie.c
-#                ${CMAKE_SOURCE_DIR}/src/sm/pdcp_sm/ie/pdcp_data_ie.c
-#                ${CMAKE_SOURCE_DIR}/src/sm/slice_sm/ie/slice_data_ie.c
-#                ${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
-#                ${CMAKE_SOURCE_DIR}/src/sm/tc_sm/ie/tc_data_ie.c
-#                ${CMAKE_SOURCE_DIR}/src/sm/gtp_sm/ie/gtp_data_ie.c
-#                ${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
-                # ../sm/common/fill_ind_data.c
-                # ../../src/sm/rc_sm/test/fill_rnd_data_rc.c
-
-                  ../../../test/rnd/fill_rnd_data_gtp.c
-                  ../../../test/rnd/fill_rnd_data_tc.c
-                  ../../../test/rnd/fill_rnd_data_mac.c
-                  ../../../test/rnd/fill_rnd_data_rlc.c
-                  ../../../test/rnd/fill_rnd_data_pdcp.c
-                  ../../../test/rnd/fill_rnd_data_kpm.c
-                  ../../../test/rnd/fill_rnd_data_rc.c
-                  ../../../test/rnd/fill_rnd_data_slice.c
+                ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_gtp.c
+                ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_tc.c
+                ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_mac.c
+                ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_rlc.c
+                ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_pdcp.c
+                ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_kpm.c
+                ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_rc.c
+                ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_slice.c
 
 
 
 
 
-                ../../src/sm/mac_sm/ie/mac_data_ie.c
-                ../../src/sm/rlc_sm/ie/rlc_data_ie.c
-                ../../src/sm/pdcp_sm/ie/pdcp_data_ie.c
-                ../../src/sm/slice_sm/ie/slice_data_ie.c
-                ../../src/sm/kpm_sm_v03.00/ie/kpm_data_ie.c
-                ../../src/sm/tc_sm/ie/tc_data_ie.c
-                ../../src/sm/gtp_sm/ie/gtp_data_ie.c
-                ../../src/util/alg_ds/alg/defer.c
-                ../../
+                ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
+                ${CMAKE_SOURCE_DIR}/src/sm/rlc_sm/ie/rlc_data_ie.c
+                ${CMAKE_SOURCE_DIR}/src/sm/pdcp_sm/ie/pdcp_data_ie.c
+                ${CMAKE_SOURCE_DIR}/src/sm/slice_sm/ie/slice_data_ie.c
+                ${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+                ${CMAKE_SOURCE_DIR}/src/sm/tc_sm/ie/tc_data_ie.c
+                ${CMAKE_SOURCE_DIR}/src/sm/gtp_sm/ie/gtp_data_ie.c
+                ${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
+                ${CMAKE_SOURCE_DIR}/
                 )
 
 # enable below directive if you want to debug ASN code:
@@ -53,6 +41,6 @@ target_link_libraries(test_ag_ric_xapp
                       -lsctp
                       -ldl
                       )
-
 enable_testing()
-add_test(test-All-in-one test_ag_ric_xapp) 
+add_test(test-All-in-one test_ag_ric_xapp)
+

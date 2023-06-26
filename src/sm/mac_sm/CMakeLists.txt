@@ -19,11 +19,18 @@ set(SM_ENCODING_MAC_SRC
                       )
 
 if(SM_ENCODING_MAC STREQUAL "PLAIN")
-  add_library(mac_sm SHARED
-                      ${SM_ENCODING_MAC_SRC}
-                      enc/mac_enc_plain.c 
-                      dec/mac_dec_plain.c 
-                      )
+  set(SM_ENCODING_MAC_SRC_ASN 
+    ${SM_ENCODING_MAC_SRC}
+    enc/mac_enc_plain.c 
+    dec/mac_dec_plain.c 
+    )
+
+  # Shared
+  add_library(mac_sm SHARED ${SM_ENCODING_MAC_SRC_ASN})
+  target_compile_options(mac_sm PRIVATE -fvisibility=hidden)
+
+  # Static
+  add_library(mac_sm_static STATIC ${SM_ENCODING_MAC_SRC_ASN})
 
 elseif(SM_ENCODING_MAC STREQUAL "ASN")
   message(FATAL_ERROR "MAC SM ASN not implemented")
@@ -35,10 +42,12 @@ elseif(SM_ENCODING_MAC STREQUAL "ASN")
                       enc/mac_enc_asn.c 
                       dec/mac_dec_asn.c 
                       )
-  target_include_directories(mac_sm PRIVATE
-                            "ie/asn")
-  target_compile_options(mac_sm PUBLIC "-DASN_DISABLE_OER_SUPPORT")
-  target_compile_options(mac_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
+                    #target_include_directories(mac_sm PRIVATE
+                    #        "ie/asn")
+                    #  target_compile_options(mac_sm PUBLIC "-DASN_DISABLE_OER_SUPPORT")
+                    #  target_compile_options(mac_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
+
+
 
 elseif(SM_ENCODING_MAC STREQUAL "FLATBUFFERS" )
   message(FATAL_ERROR "MAC SM FB not implemented")
@@ -53,5 +62,6 @@ endif()
 
 
 target_compile_definitions(mac_sm PUBLIC ${SM_ENCODING_MAC})
+target_compile_definitions(mac_sm_static PUBLIC ${SM_ENCODING_MAC})
 
 

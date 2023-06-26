@@ -1497,6 +1497,7 @@ ProtocolIE-Field {E2AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
     value           E2AP-PROTOCOL-IES.&Value            ({IEsSetParam}{@id})
 }
 -- **************************************************************
+
 ProtocolIE-ContainerPair {E2AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
         SEQUENCE (SIZE (0..maxProtocolIEs)) OF
         ProtocolIE-FieldPair {{IEsSetParam}}

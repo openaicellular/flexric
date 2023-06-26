@@ -55,7 +55,7 @@ typedef struct{
   sctp_info_t info;
   union{
     byte_array_t ba;
-    union sctp_notification notif;
+    union sctp_notification* notif;
   };
 } sctp_msg_t;
 

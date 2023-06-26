@@ -13,16 +13,12 @@ set(3GPP_DERIVED_IE_DEC_ASN_SRCS
   )
 
 
-include_directories("/usr/local/share/asn1c/")
-
+include_directories("../../ap/ie/asn")
 add_library(3gpp_derived_ie_dec_asn_obj OBJECT
                                     ${3GPP_DERIVED_IE_DEC_ASN_SRCS}
                                     )
-                                  #$<TARGET_OBJECTS:e2sm_kpm_asn1_obj>)
-
-                                  #target_link_libraries(3gpp_derived_ie_dec_asn_obj PUBLIC
-                                  # e2sm_kpm_asn1_obj)
-    
+   
               
-                                  target_compile_options(3gpp_derived_ie_dec_asn_obj PRIVATE "-DASN_DISABLE_OER_SUPPORT")
+target_compile_options(3gpp_derived_ie_dec_asn_obj PRIVATE "-DASN_DISABLE_OER_SUPPORT")
+target_compile_options(3gpp_derived_ie_dec_asn_obj PRIVATE "-DASN_DISABLE_JER_SUPPORT")
 target_compile_options(3gpp_derived_ie_dec_asn_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC)
