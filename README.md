@@ -183,19 +183,18 @@ Additionally, all the data received in the xApp is also written to /tmp/xapp_db 
 
 ### 3.1 Integration with OpenAirInterface 4G/5G RAN
 
-We will use a patch provided in flexric repository. Below the commands to achieve that. Substitute the pathtoflexricsrc for your use-case
+We will use a specific branch provided in OAI repository. Below the commands to achieve that.
 ```bash
 $ git clone https://gitlab.eurecom.fr/oai/openairinterface5g.git oai
 $ cd oai/
-$ git checkout 2023.w19
-$ git am <pathtoflexricsrc>/flexric/multiRAT/oai/oai_2023_w19.patch --whitespace=nowarn
+$ git checkout e2-rf
 $ source oaienv
 $ cd cmake_targets
-$ ./build_oai -I -w USRP -i  #For OAI first time installation. it will install some dependencies
+$ ./build_oai -i -I  #For OAI first time installation. it will install some dependencies
 # to test with USRP
-$ ./build_oai --eNB --gNB -c -C -w USRP --ninja
+$ ./build_oai --gNB -c -C -w USRP --build-e2 --ninja
 # to test with 5G RF sim
-$ ./build_oai --gNB --nrUE -c -C -w SIMU --ninja
+$ ./build_oai --gNB --nrUE -c -C -w SIMU --build-e2 --ninja
 ```
 
 The compilation of OAI may take 10 minutes. Example configuration files using a B210 USRP are provided in flexric to facilitate the integration.
