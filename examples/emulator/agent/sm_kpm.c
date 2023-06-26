@@ -71,7 +71,6 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(kpm_act_def_format_1_t act_def_fr1
   msg_frm_1.meas_info_lst = calloc(msg_frm_1.meas_info_lst_len, sizeof(meas_info_format_1_lst_t));
   assert(msg_frm_1.meas_info_lst != NULL && "Memory exhausted" );
 
-  char *measName_arr[] = {"DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI"};
   for (size_t i = 0; i < msg_frm_1.meas_info_lst_len; i++) {
     // Measurement Type
     msg_frm_1.meas_info_lst[i].meas_type.type = act_def_fr1.meas_info_lst[i].meas_type.type;
