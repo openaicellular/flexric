@@ -173,7 +173,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 {
   assert(args != NULL);
 
-  printf("[xApp]: Initializing ... \n");
+  printf("[xAap]: Initializing ... \n");
 
   e42_xapp_t* xapp = calloc(1, sizeof(*xapp));
   assert(xapp != NULL && "Memory exhausted");
@@ -211,77 +211,84 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   init_msg_dispatcher(&xapp->msg_disp);
 
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
-  // SQLite3
-  char* dir = get_conf_db_dir(args);
-  char dir2[1024] = {0};
-  assert(strlen(dir) < 1024 && "String too large");
-  if (!strlen(dir)) {
-    sprintf(dir, XAPP_DB_DIR);
-  } else {
-    strcpy(dir2, dir);
-  }
-  //printf("dir = %s\n", dir);
-
-  // SQLite3 & MYSQL
-  char* db_name;
-  if (strlen(args->xapp_db_name) == 0) {
-    // Avoid breaking the native C-API
-    db_name = strdup("testdb");
-  } else {
-    db_name = strdup(args->xapp_db_name);
+  // Check DB is enabled for this xApp
+  char* db_enable = get_conf_db_enable(args);
+  bool db_on = 0;
+  if (!strcmp(db_enable, "ON") || !strcmp(db_enable, "on")) {
+    db_on = 1;
   }
 
-  if (strcmp(db_name, "nodb") == 0) {
-    printf("Do not use the DB\n");
-  } else {
-    char dbname2[XAPP_DB_LEN] = {0};
-    strcpy(dbname2, db_name);
-    printf("Use DB named: %s\n", dbname2);
+  if (db_on) {
+    printf("Set DB_ENABLE = %s, use DB for this xApp\n", db_enable);
+    // Get DB directory
+    // TODO: remove XAPP_DB_DIR from compiler option
+    char* dir = get_conf_db_dir(args);
+    char dir2[1024] = {0};
+    assert(strlen(dir) < 1024 && "String too large");
+    if (!strlen(dir)) {
+      sprintf(dir2, XAPP_DB_DIR);
+      printf("[MySQL/SQLite3]: use default DB dir: %s\n", dir2);
+    } else {
+      strcpy(dir2, dir);
+      printf("[MySQL/SQLite3]: use .conf DB dir: %s\n", dir2);
+    }
 
+    // Get DB name
+    char* db_name = get_conf_db_name(args);
+    char dbname2[1024] = {0};
+    assert(strlen(db_name) < 1024 && "String too large");
+    if (!strlen(db_name)) {
+      int64_t const now = time_now_us();
+      sprintf(dbname2, "xapp_db_%ld", now);
+      printf("[MySQL/SQLite3]: use default DB name: %s\n", dir2);
+    } else {
+      strcpy(dbname2, db_name);
+      printf("[MySQL/SQLite3]: use .conf DB name: %s\n", dbname2);
+    }
+
+    // Get DB ip address
     char* db_ip = get_conf_db_ip(args);
-    printf("[MySQL]: get server ip %s from conf\n", db_ip);
     char dbip2[24] = {0};
     assert(strlen(db_ip) < 24 && "String too large");
     if (!strlen(db_ip)) {
       sprintf(dbip2, "localhost");
+      printf("[MySQL/SQLite3]: use default DB ip: %s\n", dbip2);
     } else {
       strcpy(dbip2, db_ip);
+      printf("[MySQL/SQLite3]: use .conf DB ip: %s\n", dbip2);
     }
 
+    char dbusr2[1024] = {0};
+    char dbpass2[1024] = {0};
+    # ifdef MYSQL_XAPP
     char* db_user = get_conf_db_user(args);
-    char dbusr2[XAPP_DB_LEN] = {0};
-    assert(strlen(db_user) < XAPP_DB_LEN && "DB-username too long");
+    assert(strlen(db_user) < 1024 && "DB-username too long");
     if (!strlen(db_user)) {
-      printf("[MySQL]: use default username\n");
       sprintf(dbusr2, "xapp");
+      printf("[MySQL]: use default DB username: %s\n", dbusr2);
     } else {
-      printf("[MySQL]: get username from conf\n");
       strcpy(dbusr2, db_user);
+      printf("[MySQL]: use .conf DB username: %s\n", dbusr2);
     }
 
     char* db_pass = get_conf_db_pass(args);
-    char dbpass2[XAPP_DB_LEN] = {0};
-    assert(strlen(db_pass) < XAPP_DB_LEN && "DB-password too long");
+    assert(strlen(db_pass) < 1024 && "DB-password too long");
     if (!strlen(db_pass)) {
-      printf("[MySQL]: use default password\n");
       sprintf(dbpass2, "eurecom");
+      printf("[MySQL]: use default DB password: %s\n", dbpass2);
     } else {
-      printf("[MySQL]: get password from conf\n");
       strcpy(dbpass2, db_pass);
+      printf("[MySQL]: use .conf DB password: %s\n", dbpass2);
     }
-
-    // Uncomment to test
-    // printf("user = %s\n", dbusr2);
-    // printf("pass = %s\n", dbpass2);
-
+    #endif
     init_db_xapp(&xapp->db, dbip2, dir2, dbusr2, dbpass2, dbname2);
-    free(db_ip);
-    free(db_user);
-    free(db_pass);
-  }
 
-  free(dir);
-  free(db_name);
+    free(db_ip);
+    free(dir);
+    free(db_name);
+  } else {
+    printf("db_on = %d (DB_ENABLE = %s), do not init DB for this xApp\n", db_on, db_enable);
+  }
 #endif
   xapp->connected = false;
   xapp->stop_token = false;

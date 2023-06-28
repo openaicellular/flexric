@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <cstddef>
+#include <cstring>
 
 #include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
 #include "../../lib/ap/e2ap_types/common/e2ap_plmn.h"
@@ -40,7 +41,7 @@ struct E2Node {
   std::vector<RanFunction> ran_func;
 };
 
-void init(const char* xapp_db_name);
+void init(std::vector<std::string>& argv);
 
 bool try_stop(void);
 

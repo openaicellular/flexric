@@ -4,6 +4,7 @@ import os
 import pdb
 from tabulate import tabulate
 import signal
+import sys
 
 def sig_handler(signum, frame):
     print("Ctrl-C Detect")
@@ -192,7 +193,7 @@ def get_e2_nodes_in_tuple_list():
 ####  GENERAL
 ####################
 
-ric.init("testdb")
+ric.init(sys.argv)
 signal.signal(signal.SIGINT, sig_handler)
 
 e2nodes = 0

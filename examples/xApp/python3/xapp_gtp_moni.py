@@ -2,6 +2,7 @@ import xapp_sdk as ric
 import time
 import os
 import pdb
+import sys
 
 ####################
 #### GTP INDICATION CALLBACK
@@ -24,7 +25,7 @@ class GTPCallback(ric.gtp_cb):
 ####  GENERAL 
 ####################
 
-ric.init("testdb")
+ric.init(sys.argv)
 
 conn = ric.conn_e2_nodes()
 assert(len(conn) > 0)

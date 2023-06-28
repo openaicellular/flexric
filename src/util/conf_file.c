@@ -14,6 +14,8 @@
 
 #include "alg_ds/alg/defer.h"
 
+#define MAX_PASSWORD_LENGTH 64
+
 static
 const char* default_conf_file = "/usr/local/etc/flexric/flexric.conf";
 
@@ -383,7 +385,6 @@ fr_args_t init_fr_args(int argc, char* argv[])
 
   fr_args_t args = {0};
   load_default_val(&args);
-  
   if(argc > 1){
     assert(argc < 6 && "Only -h -c -p flags supported");
     assert(argv != NULL);
@@ -526,7 +527,7 @@ char* get_conf_db_user(fr_args_t const* args)
 
   defer({fclose(fp); } );
 
-  char db_user[XAPP_DB_LEN] = {0};
+  char db_user[NAME_MAX] = {0};
   while ((read = getline(&line, &len, fp)) != -1) {
     const char* needle = "DB_USERNAME =";
     char* ans = strstr(line, needle);
@@ -561,7 +562,7 @@ char* get_conf_db_pass(fr_args_t const* args)
 
   defer({fclose(fp); } );
 
-  char db_pass[XAPP_DB_LEN] = {0};
+  char db_pass[MAX_PASSWORD_LENGTH] = {0};
   while ((read = getline(&line, &len, fp)) != -1) {
     const char* needle = "DB_PASSWORD =";
     char* ans = strstr(line, needle);
@@ -578,6 +579,41 @@ char* get_conf_db_pass(fr_args_t const* args)
   // TODO: valid_db_pass()
 
   return strdup(db_pass);
+}
+
+char* get_conf_db_enable(fr_args_t const* args)
+{
+  char* line = NULL;
+  defer({free(line);});
+  size_t len = 0;
+  ssize_t read;
+
+  FILE * fp = fopen(args->conf_file, "r");
+
+  if (fp == NULL){
+    printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
+    exit(EXIT_FAILURE);
+  }
+
+  defer({fclose(fp); } );
+
+  char db_enable[5] = {0}; // ON or OFF
+  while ((read = getline(&line, &len, fp)) != -1) {
+    const char* needle = "DB_ENABLE =";
+    char* ans = strstr(line, needle);
+    if(ans != NULL){
+      ans += strlen(needle);
+      ans = ltrim(ans);
+      ans = rtrim(ans);
+      assert(strlen(ans) + 1 <= sizeof(db_enable));
+      memcpy(db_enable, ans , strlen(ans)); // \n character
+      break;
+    }
+  }
+
+  // TODO: valid_db_pass()
+
+  return strdup(db_enable);
 }
 
 char* get_conf_db_ip(fr_args_t const* args)

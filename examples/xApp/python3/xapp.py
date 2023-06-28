@@ -9,6 +9,7 @@ from curses.textpad import rectangle, Textbox
 import math
 from enum import Enum
 import os
+import sys
 
 
 class ServiceModelEnum(Enum):
@@ -1055,7 +1056,7 @@ def subscribe_sm(n_idx, enum_sm, tti_enum):
 ####################
 def init():
     # 0. init
-    ric.init("testdb")
+    ric.init(sys.argv)
     # 1. get the length of connected e2 nodes
     global e2nodes
     e2nodes = get_e2_nodes()
