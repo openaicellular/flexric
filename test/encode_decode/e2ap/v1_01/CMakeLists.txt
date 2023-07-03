@@ -14,10 +14,8 @@ if(E2AP_ENCODING STREQUAL "ASN")
                         e2_agent
                         $<TARGET_OBJECTS:e2ap_ie_obj>
                         )
-                      #target_compile_options(test_e2ap_encode_asn  PUBLIC "-DASN_DISABLE_OER_SUPPORT")
   target_compile_options(test_e2ap_encode_asn  PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
   target_compile_definitions(test_e2ap_encode_asn PRIVATE ${E2AP_VERSION})
-  #  target_include_directories(test_e2ap_encode_asn PRIVATE "../../../src/lib/ap/ie/asn/")
 
   add_executable(test_e2ap_enc_dec_asn test_e2ap_enc_dec_asn.c)
   target_link_libraries(test_e2ap_enc_dec_asn
@@ -25,30 +23,12 @@ if(E2AP_ENCODING STREQUAL "ASN")
                         e2_agent
                         $<TARGET_OBJECTS:e2ap_ie_obj>
                         )
-                      #target_compile_options(test_e2ap_enc_dec_asn PRIVATE "-DASN_DISABLE_OER_SUPPORT")
-  #target_compile_options(test_e2ap_enc_dec_asn PRIVATE "-DASN_DISABLE_OER_SUPPORT")
 
   target_compile_options(test_e2ap_enc_dec_asn PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
   target_compile_definitions(test_e2ap_enc_dec_asn PRIVATE ${E2AP_VERSION})
 
-if(E2AP_VERSION STREQUAL "E2AP_V1")
   target_include_directories(test_e2ap_encode_asn  PRIVATE "../../../../src/lib/e2ap/v1_01/ie/asn/")
   target_include_directories(test_e2ap_enc_dec_asn PRIVATE "../../../../src/lib/e2ap/v1_01/ie/asn/")
-elseif(E2AP_VERSION STREQUAL "E2AP_V2")
-  message(FATAL_ERROR "E2AP V2 and V3 not implemented")
-elseif(E2AP_VERSION STREQUAL "E2AP_V3")
-  message(FATAL_ERROR "E2AP V2 and V3 not implemented")
-else()
-  message(FATAL_ERROR "E2AP V2 and V3 not implemented")
-endif()
-
-
-
-
-
-
-
-
   target_include_directories(test_e2ap_enc_dec_asn PRIVATE "../../../src/lib/ap/ie/asn/")
 
 

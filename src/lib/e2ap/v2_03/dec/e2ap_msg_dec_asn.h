@@ -144,6 +144,23 @@ e2ap_msg_t e2ap_dec_node_configuration_update_ack(const struct E2AP_PDU* pdu);
 // E2 -> RIC
 e2ap_msg_t e2ap_dec_connection_update_failure(const struct E2AP_PDU* pdu);
 
+/////
+// New in V2
+/////
+
+// E2 <-> RIC
+e2ap_msg_t e2ap_dec_removal_request(const struct E2AP_PDU* pdu);
+
+// E2 <-> RIC
+e2ap_msg_t e2ap_dec_removal_response(const struct E2AP_PDU* pdu);
+
+// E2 <-> RIC
+e2ap_msg_t e2ap_dec_removal_failure(const struct E2AP_PDU* pdu);
+
+/////
+// End new in V2
+/////
+
 
 // xApp -> iApp
 e2ap_msg_t e2ap_dec_e42_setup_request(const struct E2AP_PDU* pdu);

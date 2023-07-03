@@ -19,24 +19,22 @@
  *      contact@openairinterface.org
  */
 
-
-
 #ifndef E2_SETUP_REQUEST_H
 #define E2_SETUP_REQUEST_H
 
 #include <stddef.h>
 #include "common/e2ap_ran_function.h"
 #include "common/e2ap_global_node_id.h"
-#include "common/e2ap_node_component_config_update.h"
+#include "common/e2ap_node_component_config_add.h"
 
 typedef struct e2_setup_request {
+  uint8_t trans_id; 
   global_e2_node_id_t id;
   ran_function_t* ran_func_item;
   size_t len_rf;
-  e2_node_component_config_update_t* comp_conf_update;
-  size_t len_ccu;
+  e2ap_node_component_config_add_t* comp_conf_add;
+  size_t len_cca;
 } e2_setup_request_t;
-
 
 e2_setup_request_t cp_e2_setup_request(const e2_setup_request_t* src);
 

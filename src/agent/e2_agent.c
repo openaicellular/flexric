@@ -94,30 +94,69 @@ e2_setup_request_t generate_setup_request(e2_agent_t* ag)
   ran_function_t* ran_func = calloc(len_rf, sizeof(*ran_func));
   assert(ran_func != NULL);
 
+  // ToDO: Transaction ID needs to be considered within the pending messages
+  
   e2_setup_request_t sr = {
+    .trans_id = 0,
     .id = ag->global_e2_node_id,
     .ran_func_item = ran_func,
     .len_rf = len_rf,
-    .comp_conf_update = NULL,
-    .len_ccu = 0
+    //.comp_conf_update = NULL,
+    //.len_ccu = 0
   };
 
   void* it = assoc_front(&ag->plugin.sm_ds);
   for(size_t i = 0; i < len_rf; ++i){
     sm_agent_t* sm = assoc_value(&ag->plugin.sm_ds, it);
-    assert(sm->ran_func_id == *(uint16_t*)assoc_key(&ag->plugin.sm_ds, it) && "RAN function mismatch");
+    assert(sm->info.id() == *(uint16_t*)assoc_key(&ag->plugin.sm_ds, it) && "RAN function mismatch");
 
     sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
-    assert(sm->ran_func_id == def.rf.id);
+    // Pass memory ownership
+    ran_func[i].def.len = def.len_rfd;
+    ran_func[i].def.buf = def.ran_fun_def;
 
-    if(def.len_rfd > 0)
-      free(def.ran_fun_def);
-
-    ran_func[i] = def.rf;
+    ran_func[i].id = sm->info.id();
+    ran_func[i].rev = sm->info.rev();
+#ifdef E2AP_V1
+   ran_func[i].oid = calloc(1, sizeof(byte_array_t)); 
+   assert(ran_func[i].oid != NULL && "Memory exhausted");
+   *ran_func[i].oid = cp_str_to_ba(sm->info.oid());
+#elif E2AP_V2
+   ran_func[i].oid = cp_str_to_ba(sm->info.oid());
+#else
+  static_assert(0 !=0 && "Not implemented");
+#endif
 
     it = assoc_next(&ag->plugin.sm_ds ,it);
   }
   assert(it == assoc_end(&ag->plugin.sm_ds) && "Length mismatch");
+
+#ifdef E2AP_V2
+  // ToDO: This needs to be filled from the RAN
+  sr.len_cca = 1; 
+  sr.comp_conf_add = calloc(sr.len_cca, sizeof(e2ap_node_component_config_add_t));
+  assert(sr.comp_conf_add != NULL && "Memory exhausted");
+    
+  // Mandatory
+  // 9.2.26
+  sr.comp_conf_add[0].e2_node_comp_interface_type = NG_E2AP_NODE_COMP_INTERFACE_TYPE;
+  // Optional
+  // 9.2.32
+  sr.comp_conf_add[0]. e2_node_comp_id = NULL;
+
+  // Mandatory
+  // 9.2.27
+  const char req[] = "NGAP Request Message sent";
+  const char res[] = "NGAP Response Message reveived";
+
+  //  e2ap_node_comp_conf_t e2_node_comp_conf;
+  sr.comp_conf_add[0].e2_node_comp_conf.request = cp_str_to_ba(req); 
+  sr.comp_conf_add[0].e2_node_comp_conf.response = cp_str_to_ba(res); 
+
+#elif E2AP_V3
+  static_assert(0 !=0 && "Not implemented");
+#endif
+
   return sr;
 }
 
@@ -544,12 +583,11 @@ void e2_start_agent(e2_agent_t* ag)
 
   // Resend the subscription request message
   e2_setup_request_t sr = generate_setup_request(ag); 
-//  defer({ e2ap_free_setup_request(&sr);  } );
+  defer({ e2ap_free_setup_request(&sr);  } );
 
   printf("[E2-AGENT]: Sending setup request\n");
   byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr); 
   defer({free_byte_array(ba); } ); 
-  e2ap_free_setup_request(&sr);
 
   e2ap_send_bytes_agent(&ag->ep, ba);
 

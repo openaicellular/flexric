@@ -599,7 +599,7 @@ void e2ap_free_node_connection_update_failure_msg(e2ap_msg_t* msg)
 {
   assert(msg != NULL);
   assert(msg->type == E2_CONNECTION_UPDATE_FAILURE );
- e2ap_free_node_connection_update_failure(&msg->u_msgs.e2_conn_updt_fail);
+  e2ap_free_node_connection_update_failure(&msg->u_msgs.e2_conn_updt_fail);
 }
 
 void e2ap_free_node_connection_update_failure(e2_node_connection_update_failure_t* cf)
@@ -611,6 +611,7 @@ void e2ap_free_node_connection_update_failure(e2_node_connection_update_failure_
     assert(0!=0 && "Not implemented!");
   }
 }
+
 
 // xApp -> iApp
 void e2ap_free_e42_setup_request_msg(e2ap_msg_t* msg)

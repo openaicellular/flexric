@@ -160,7 +160,17 @@ sm_e2_setup_data_t on_e2_setup_pdcp_sm_ag(sm_agent_t const* sm_agent)
   sm_e2_setup_data_t setup = {.len_rfd =0, .ran_fun_def = NULL  }; 
 
   // ToDo: Missing a call to the RAN to fill this data
+  size_t const sz = strnlen(SM_PDCP_STR, 256);
+  assert(sz < 256 && "Buffer overeflow?");
 
+  setup.len_rfd = sz;
+  setup.ran_fun_def = calloc(1, sz);
+  assert(setup.ran_fun_def != NULL);
+
+  memcpy(setup.ran_fun_def, SM_PDCP_STR , sz);
+ 
+
+  /*
   setup.len_rfd = strlen(sm->base.ran_func_name);
   setup.ran_fun_def = calloc(1, strlen(sm->base.ran_func_name));
   assert(setup.ran_fun_def != NULL);
@@ -175,7 +185,7 @@ sm_e2_setup_data_t on_e2_setup_pdcp_sm_ag(sm_agent_t const* sm_agent)
   assert(setup.rf.oid != NULL && "Memory exhausted");
 
   *setup.rf.oid = cp_str_to_ba(SM_PDCP_OID);
-
+*/
   return setup;
 }
 
@@ -200,12 +210,43 @@ void free_pdcp_sm_ag(sm_agent_t* sm_agent)
 }
 
 
+// General SM information
+
+// Definition
+static
+char const* def_pdcp_sm_ag(void)
+{
+  return SM_PDCP_STR;
+}
+
+// ID
+static
+uint16_t id_pdcp_sm_ag(void)
+{
+  return SM_PDCP_ID; 
+}
+
+  // Revision
+static
+uint16_t rev_pdcp_sm_ag (void)
+{
+  return SM_PDCP_REV;
+}
+
+// OID
+static
+char const* oid_pdcp_sm_ag (void)
+{
+  return SM_PDCP_OID;
+}
+
+
 sm_agent_t* make_pdcp_sm_agent(sm_io_ag_ran_t io)
 {
   sm_pdcp_agent_t* sm = calloc(1, sizeof(*sm));
   assert(sm != NULL && "Memory exhausted!!!");
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_PDCP_ID; 
+ // *(uint16_t*)(&sm->base.ran_func_id) = SM_PDCP_ID; 
 
   //sm->base.io = io;
 
@@ -227,8 +268,17 @@ sm_agent_t* make_pdcp_sm_agent(sm_io_ag_ran_t io)
   sm->base.proc.on_ric_service_update = on_ric_service_update_pdcp_sm_ag;
   sm->base.proc.on_e2_setup = on_e2_setup_pdcp_sm_ag;
 
-  assert(strlen(SM_PDCP_STR) < sizeof( sm->base.ran_func_name) );
-  memcpy(sm->base.ran_func_name, SM_PDCP_STR, strlen(SM_PDCP_STR)); 
+  // General SM information
+  sm->base.info.def = def_pdcp_sm_ag;
+  sm->base.info.id =  id_pdcp_sm_ag;
+  sm->base.info.rev = rev_pdcp_sm_ag;
+  sm->base.info.oid = oid_pdcp_sm_ag;
+
+
+
+
+//  assert(strlen(SM_PDCP_STR) < sizeof( sm->base.ran_func_name) );
+//  memcpy(sm->base.ran_func_name, SM_PDCP_STR, strlen(SM_PDCP_STR)); 
 
   return &sm->base;
 }

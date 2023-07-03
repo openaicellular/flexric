@@ -156,6 +156,16 @@ sm_e2_setup_data_t on_e2_setup_mac_sm_ag(sm_agent_t const* sm_agent)
 
   sm_e2_setup_data_t setup = {.len_rfd = 0, .ran_fun_def = NULL }; 
 
+  size_t const sz = strnlen(SM_MAC_STR, 256);
+  assert(sz < 256 && "Buffer overeflow?");
+
+  setup.len_rfd = sz;
+  setup.ran_fun_def = calloc(1, sz);
+  assert(setup.ran_fun_def != NULL);
+
+  memcpy(setup.ran_fun_def, SM_MAC_STR , sz);
+ 
+  /*
   setup.len_rfd = strlen(sm->base.ran_func_name);
   setup.ran_fun_def = calloc(1, strlen(sm->base.ran_func_name));
   assert(setup.ran_fun_def != NULL);
@@ -170,6 +180,7 @@ sm_e2_setup_data_t on_e2_setup_mac_sm_ag(sm_agent_t const* sm_agent)
   assert(setup.rf.oid != NULL && "Memory exhausted");
 
   *setup.rf.oid = cp_str_to_ba(SM_MAC_OID);
+*/
 
   return setup;
 }
@@ -192,6 +203,40 @@ void free_mac_sm_ag(sm_agent_t* sm_agent)
   sm_mac_agent_t* sm = (sm_mac_agent_t*)sm_agent;
   free(sm);
 }
+
+
+// General SM information
+
+// Definition
+static
+char const* def_mac_sm_ag(void)
+{
+  return SM_MAC_STR;
+}
+
+// ID
+static
+uint16_t id_mac_sm_ag(void)
+{
+  return SM_MAC_ID; 
+}
+
+  // Revision
+static
+uint16_t rev_mac_sm_ag (void)
+{
+  return SM_MAC_REV;
+}
+
+// OID
+static
+char const* oid_mac_sm_ag (void)
+{
+  return SM_MAC_OID;
+}
+
+
+
 
 sm_agent_t* make_mac_sm_agent(sm_io_ag_ran_t io)
 {
@@ -216,17 +261,27 @@ sm_agent_t* make_mac_sm_agent(sm_io_ag_ran_t io)
   sm->base.proc.on_e2_setup = on_e2_setup_mac_sm_ag;
   sm->base.handle = NULL;
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_MAC_ID; 
-  assert(strlen( SM_MAC_STR ) < sizeof(sm->base.ran_func_name));
-  memcpy(sm->base.ran_func_name, SM_MAC_STR, strlen(SM_MAC_STR));
+  // General SM information
+  sm->base.info.def = def_mac_sm_ag;
+  sm->base.info.id =  id_mac_sm_ag;
+  sm->base.info.rev = rev_mac_sm_ag;
+  sm->base.info.oid = oid_mac_sm_ag;
+
+
+
+  //*(uint16_t*)(&sm->base.ran_func_id) = SM_MAC_ID; 
+  //assert(strlen( SM_MAC_STR ) < sizeof(sm->base.ran_func_name));
+  //memcpy(sm->base.ran_func_name, SM_MAC_STR, strlen(SM_MAC_STR));
 
   return &sm->base;
 }
 
+/*
 uint16_t id_mac_sm_agent(sm_agent_t const* sm_agent )
 {
   assert(sm_agent != NULL);
   sm_mac_agent_t* sm = (sm_mac_agent_t*)sm_agent;
   return sm->base.ran_func_id;
 }
+*/
 

@@ -19,8 +19,8 @@ else()
 endif()
 
 #Unity build
-#set(UNITY_BUILD ON)
-#set(UNITY_BUILD_BATCH_SIZE 10)
+set(UNITY_BUILD ON)
+set(UNITY_BUILD_BATCH_SIZE 10)
 # cmake -GNinja -DCMAKE_UNITY_BUILD=ON -DCMAKE_CXX_COMPILER=clang++-DCMAKE_CXX_FLAGS="-fuse-ld=lld -ftime-trace"
 
 set(default_build_type "Debug")
@@ -153,14 +153,16 @@ if(E2AP_VERSION STREQUAL "E2AP_V1")
               src/lib/e2ap/v1_01/e2ap_types/common/e2ap_plmn.c )
   add_library(e2ap_global_node_id_obj OBJECT 
               src/lib/e2ap/v1_01/e2ap_types/common/e2ap_global_node_id.c )
-
-
+elseif(E2AP_VERSION STREQUAL "E2AP_V2")
+  add_library(e2ap_ran_func_obj OBJECT 
+              src/lib/e2ap/v2_03/e2ap_types/common/e2ap_ran_function.c )
+  add_library(e2ap_plmn_obj OBJECT 
+              src/lib/e2ap/v2_03/e2ap_types/common/e2ap_plmn.c )
+  add_library(e2ap_global_node_id_obj OBJECT 
+              src/lib/e2ap/v2_03/e2ap_types/common/e2ap_global_node_id.c )
 else()
   message(FATAL_ERROR "E2AP V2 and V3 not implemented")
 endif()
-
-
-
 
 #######
 ## Service Models 

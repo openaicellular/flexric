@@ -3,7 +3,7 @@ set(ASN_MODULE_SRCS
   ANY_aper.c
   ANY_ber.c
   ANY.c
-  ANY_jer.c
+  #ANY_jer.c
   ANY_uper.c
   ANY_xer.c
   aper_decoder.c
@@ -23,7 +23,7 @@ set(ASN_MODULE_SRCS
   ber_tlv_length.c
   ber_tlv_tag.c
   BIT_STRING.c
-  BIT_STRING_jer.c
+  #BIT_STRING_jer.c
   BIT_STRING_print.c
   BIT_STRING_rfill.c
   BIT_STRING_uper.c
@@ -39,7 +39,7 @@ set(ASN_MODULE_SRCS
   constr_CHOICE_aper.c
   constr_CHOICE_ber.c
   constr_CHOICE.c
-  constr_CHOICE_jer.c
+  #constr_CHOICE_jer.c
   constr_CHOICE_print.c
   constr_CHOICE_rfill.c
   constr_CHOICE_uper.c
@@ -47,11 +47,11 @@ set(ASN_MODULE_SRCS
   constr_SEQUENCE_aper.c
   constr_SEQUENCE_ber.c
   constr_SEQUENCE.c
-  constr_SEQUENCE_jer.c
+  #constr_SEQUENCE_jer.c
   constr_SEQUENCE_OF_aper.c
   constr_SEQUENCE_OF_ber.c
   constr_SEQUENCE_OF.c
-  constr_SEQUENCE_OF_jer.c
+  #constr_SEQUENCE_OF_jer.c
   constr_SEQUENCE_OF_uper.c
   constr_SEQUENCE_OF_xer.c
   constr_SEQUENCE_print.c
@@ -61,7 +61,7 @@ set(ASN_MODULE_SRCS
   constr_SET_OF_aper.c
   constr_SET_OF_ber.c
   constr_SET_OF.c
-  constr_SET_OF_jer.c
+  #constr_SET_OF_jer.c
   constr_SET_OF_print.c
   constr_SET_OF_rfill.c
   constr_SET_OF_uper.c
@@ -146,22 +146,22 @@ set(ASN_MODULE_SRCS
   INTEGER_aper.c
   INTEGER_ber.c
   INTEGER.c
-  INTEGER_jer.c
+  #INTEGER_jer.c
   INTEGER_print.c
   INTEGER_rfill.c
   INTEGER_uper.c
   INTEGER_xer.c
-  jer_encoder.c
+  #jer_encoder.c
   MMEname.c
   NativeEnumerated_aper.c
   NativeEnumerated.c
-  NativeEnumerated_jer.c
+  #NativeEnumerated_jer.c
   NativeEnumerated_uper.c
   NativeEnumerated_xer.c
   NativeInteger_aper.c
   NativeInteger_ber.c
   NativeInteger.c
-  NativeInteger_jer.c
+  #NativeInteger_jer.c
   NativeInteger_print.c
   NativeInteger_rfill.c
   NativeInteger_uper.c
@@ -169,14 +169,14 @@ set(ASN_MODULE_SRCS
   NGENB-DU-ID.c
   ObjectDescriptor.c
   OBJECT_IDENTIFIER.c
-  OBJECT_IDENTIFIER_jer.c
+  #OBJECT_IDENTIFIER_jer.c
   OBJECT_IDENTIFIER_print.c
   OBJECT_IDENTIFIER_rfill.c
   OBJECT_IDENTIFIER_xer.c
   OCTET_STRING_aper.c
   OCTET_STRING_ber.c
   OCTET_STRING.c
-  OCTET_STRING_jer.c
+  #OCTET_STRING_jer.c
   OCTET_STRING_print.c
   OCTET_STRING_rfill.c
   OCTET_STRING_uper.c

@@ -138,9 +138,9 @@ void init_ap_asn(e2ap_asn_t* asn)
   asn->free_msg[24] =  e2ap_free_node_connection_update_ack_msg;
   asn->free_msg[25] =  e2ap_free_node_connection_update_failure_msg;
 
-  asn->free_msg[26] =  e2ap_free_removal_request;
-  asn->free_msg[27] =  e2ap_free_removal_response;
-  asn->free_msg[28] =  e2ap_free_removal_failure;
+  asn->free_msg[26] =  e2ap_free_removal_request_msg;
+  asn->free_msg[27] =  e2ap_free_removal_response_msg;
+  asn->free_msg[28] =  e2ap_free_removal_failure_msg;
 
   asn->free_msg[29] =  e2ap_free_e42_setup_request_msg;
   asn->free_msg[30] =  e2ap_free_e42_setup_response_msg;

@@ -86,16 +86,32 @@ e42_setup_request_t generate_e42_setup_request(e42_xapp_t* xapp)
   void* it = assoc_front(&xapp->plugin_ag.sm_ds);
   for(size_t i = 0; i < len_rf; ++i){
     sm_agent_t* sm = assoc_value(&xapp->plugin_ag.sm_ds, it);
-    assert(sm->ran_func_id == *(uint16_t*)assoc_key(&xapp->plugin_ag.sm_ds, it) && "RAN function mismatch");
+    assert(sm->info.id() == *(uint16_t*)assoc_key(&xapp->plugin_ag.sm_ds, it) && "RAN function mismatch");
 
     sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
+    // Pass memory ownership
+    ran_func[i].def.len = def.len_rfd;
+    ran_func[i].def.buf = def.ran_fun_def;
+
+    ran_func[i].id = sm->info.id();
+    ran_func[i].rev = sm->info.rev();
+#ifdef E2AP_V1
+   ran_func[i].oid = calloc(1, sizeof(byte_array_t)); 
+   assert(ran_func[i].oid != NULL && "Memory exhausted");
+   *ran_func[i].oid = cp_str_to_ba(sm->info.oid());
+#elif E2AP_V2
+   ran_func[i].oid = cp_str_to_ba(sm->info.oid());
+#else
+  static_assert(0 !=0 && "Not implemented");
+#endif
+/*
     assert(sm->ran_func_id == def.rf.id);
 
     if(def.len_rfd > 0)
       free(def.ran_fun_def);
 
     ran_func[i] = def.rf;
-
+*/
     it = assoc_next(&xapp->plugin_ag.sm_ds ,it);
   }
   assert(it == assoc_end(&xapp->plugin_ag.sm_ds) && "Length mismatch");

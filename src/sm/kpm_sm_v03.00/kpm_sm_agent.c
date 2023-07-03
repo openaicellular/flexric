@@ -122,7 +122,6 @@ sm_e2_setup_data_t on_e2_setup_kpm_sm_ag(sm_agent_t const* sm_agent)
   // Call the RAN and fill the data  
   kpm_e2_setup_t kpm = {0};
   sm->base.io.read_setup(&kpm);
- // defer({ free_kpm_ran_function_def(&kpm.ran_func_def );});
 
   kpm_ran_function_def_t* ran_func = &kpm.ran_func_def; 
 
@@ -132,16 +131,6 @@ sm_e2_setup_data_t on_e2_setup_kpm_sm_ag(sm_agent_t const* sm_agent)
   sm_e2_setup_data_t setup = {0}; 
   setup.len_rfd = ba.len;
   setup.ran_fun_def = ba.buf;
-
-  // RAN Function
-  setup.rf.def = cp_str_to_ba(SM_KPM_STR);
-  setup.rf.id = SM_KPM_ID;
-  setup.rf.rev = SM_KPM_REV;
-
-  setup.rf.oid = calloc(1, sizeof(byte_array_t) );
-  assert(setup.rf.oid != NULL && "Memory exhausted");
-
-  *setup.rf.oid = cp_str_to_ba(SM_KPM_OID);
 
   return setup;
 }
@@ -188,12 +177,43 @@ void free_act_def_kpm_sm_ag(sm_agent_t *sm_agent, void* act_def_v)
   free(act_def);
 }
 
+
+// General SM information
+
+// Definition
+static
+char const* def_kpm_sm_ag(void)
+{
+  return SM_KPM_STR;
+}
+
+// ID
+static
+uint16_t id_kpm_sm_ag(void)
+{
+  return SM_KPM_ID; 
+}
+
+  // Revision
+static
+uint16_t rev_kpm_sm_ag (void)
+{
+  return SM_KPM_REV;
+}
+
+// OID
+static
+char const* oid_kpm_sm_ag (void)
+{
+  return SM_KPM_OID;
+}
+
 sm_agent_t *make_kpm_sm_agent(sm_io_ag_ran_t io)
 {
   sm_kpm_agent_t *sm = calloc(1, sizeof(*sm));
   assert(sm != NULL && "Memory exhausted!!!");
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_KPM_ID; 
+  //*(uint16_t*)(&sm->base.ran_func_id) = SM_KPM_ID; 
 
   // Read
   sm->base.io.read_ind = io.read_ind_tbl[KPM_STATS_V3_0];
@@ -220,10 +240,17 @@ sm_agent_t *make_kpm_sm_agent(sm_io_ag_ran_t io)
   sm->base.proc.on_control            = NULL;
   sm->base.proc.on_ric_service_update = on_ric_service_update_kpm_sm_ag;
   sm->base.proc.on_e2_setup           = on_e2_setup_kpm_sm_ag;
+  sm->base.handle = NULL;
+
+  // General SM information
+  sm->base.info.def = def_kpm_sm_ag;
+  sm->base.info.id =  id_kpm_sm_ag;
+  sm->base.info.rev = rev_kpm_sm_ag;
+  sm->base.info.oid = oid_kpm_sm_ag;
 
   // SM name
-  assert(strlen(SM_KPM_STR) < sizeof( sm->base.ran_func_name) );
-  memcpy(sm->base.ran_func_name, SM_KPM_STR, strlen(SM_KPM_STR)); 
+  //assert(strlen(SM_KPM_STR) < sizeof( sm->base.ran_func_name) );
+  //memcpy(sm->base.ran_func_name, SM_KPM_STR, strlen(SM_KPM_STR)); 
 
   return &sm->base;
 }

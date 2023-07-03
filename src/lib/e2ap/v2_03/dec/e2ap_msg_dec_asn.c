@@ -37,12 +37,12 @@
 #include "../ie/asn/E2AP-PDU.h"
 #include "../ie/asn/E2nodeComponentConfigUpdate-Item.h"
 #include "../ie/asn/E2nodeComponentID.h"
-#include "../ie/asn/E2nodeComponentGNB-CU-UP-ID.h"
-#include "../ie/asn/E2nodeComponentGNB-DU-ID.h"
-#include "../ie/asn/E2nodeComponentConfigUpdateGNB.h"
-#include "../ie/asn/E2nodeComponentConfigUpdateENgNB.h"
-#include "../ie/asn/E2nodeComponentConfigUpdateNGeNB.h"
-#include "../ie/asn/E2nodeComponentConfigUpdateENB.h"
+//#include "../ie/asn/E2nodeComponentGNB-CU-UP-ID.h"
+//#include "../ie/asn/E2nodeComponentGNB-DU-ID.h"
+//#include "../ie/asn/E2nodeComponentConfigUpdateGNB.h"
+//#include "../ie/asn/E2nodeComponentConfigUpdateENgNB.h"
+//#include "../ie/asn/E2nodeComponentConfigUpdateNGeNB.h"
+//#include "../ie/asn/E2nodeComponentConfigUpdateENB.h"
 #include "../ie/asn/RICindication.h"
 #include "../ie/asn/RICsubscriptionRequest.h"
 #include "../ie/asn/RICsubsequentAction.h"
@@ -58,6 +58,8 @@
 static inline
 byte_array_t copy_ostring_to_ba(OCTET_STRING_t src)
 {
+  assert(src.size > 0 && src.buf != NULL);
+
   byte_array_t dst = { .len = src.size}; 
   dst.buf = malloc(src.size);
   memcpy(dst.buf, src.buf, src.size);
@@ -67,6 +69,8 @@ byte_array_t copy_ostring_to_ba(OCTET_STRING_t src)
 static inline
 byte_array_t copy_bs_to_ba(BIT_STRING_t src)
 {
+  assert(src.size > 0 && src.buf != NULL);
+
   byte_array_t dst = { .len = src.size}; 
   dst.buf = malloc(src.size);
   memcpy(dst.buf, src.buf, src.size);
@@ -77,15 +81,12 @@ byte_array_t copy_bs_to_ba(BIT_STRING_t src)
 static inline
 ran_function_t copy_ran_function(const RANfunction_Item_t* src)
 {
-  ran_function_t dst;
-  memset(&dst, 0, sizeof(ran_function_t));
+  ran_function_t dst = {0};
   dst.id = src->ranFunctionID;
   dst.rev = src->ranFunctionRevision;
   dst.def = copy_ostring_to_ba(src->ranFunctionDefinition);
-  if(src->ranFunctionOID != NULL){
-    dst.oid = calloc(1, sizeof(byte_array_t)); 
-    *dst.oid = copy_ostring_to_ba(*src->ranFunctionOID);
-  }
+  dst.oid = copy_ostring_to_ba(src->ranFunctionOID);
+
   return dst;
 }
 
@@ -111,7 +112,7 @@ int e2ap_asn1c_get_procedureCode(const E2AP_PDU_t* pdu)
   assert(rc != -1 && "Invalid procedure code");
   return rc;
 }
-
+/*
 static inline
 e2_node_component_config_update_t copy_e2_node_component_conf_update(const E2nodeComponentConfigUpdate_Item_t* src)
 {
@@ -170,6 +171,7 @@ e2_node_component_config_update_t copy_e2_node_component_conf_update(const E2nod
       }
     case E2nodeComponentConfigUpdate_PR_eNBconfigUpdate:
       {
+        assert(0 != 0 && "Not implemented");
         dst.update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_ENB_CONFIG_UPDATE;
         const E2nodeComponentConfigUpdateENB_t* eNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.eNBconfigUpdate;
         if (eNBconfigUpdate->s1APconfigUpdate != NULL){
@@ -187,7 +189,7 @@ e2_node_component_config_update_t copy_e2_node_component_conf_update(const E2nod
   }
   return dst;
 }
-
+*/
 
 static inline
 cause_t copy_cause(Cause_t src)
@@ -605,6 +607,9 @@ e2ap_msg_t e2ap_dec_subscription_failure(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
   e2ap_msg_t ret = {.type = RIC_SUBSCRIPTION_FAILURE};
+
+  assert(0!=0 && "Not implemented");
+/*
   ric_subscription_failure_t* sf = &ret.u_msgs.ric_sub_fail;
   assert(pdu->present == E2AP_PDU_PR_unsuccessfulOutcome);
   assert(pdu->choice.unsuccessfulOutcome->procedureCode == ProcedureCode_id_RICsubscription);
@@ -633,11 +638,13 @@ e2ap_msg_t e2ap_dec_subscription_failure(const E2AP_PDU_t* pdu)
   const RICsubscriptionFailure_IEs_t* act_not_adm_list = out->protocolIEs.list.array[2];
   assert(act_not_adm_list->id == ProtocolIE_ID_id_RICactions_NotAdmitted);
   assert(act_not_adm_list->criticality == Criticality_reject);
-  assert(act_not_adm_list->value.present == RICsubscriptionFailure_IEs__value_PR_RICaction_NotAdmitted_List);
+  assert(0 !=0 && "Not implemented"); 
+  //assert(act_not_adm_list->value.present == RICsubscriptionFailure_IEs__value_PR_RICaction_NotAdmitted_List);
 
   sf->len_na = act_not_adm_list->value.choice.RICaction_NotAdmitted_List.list.count;
   sf->not_admitted = calloc(sf->len_na,sizeof(ric_action_not_admitted_t));
   for(size_t i = 0; i < sf->len_na; ++i){
+    assert(0 !=0 && "Not implemented" ); 
     // RIC Action ID. Mandatory  
     const RICaction_NotAdmitted_ItemIEs_t* nai = (const RICaction_NotAdmitted_ItemIEs_t*)act_not_adm_list->value.choice.RICaction_NotAdmitted_List.list.array[i];
     assert(nai->id == ProtocolIE_ID_id_RICaction_NotAdmitted_Item);	
@@ -658,6 +665,7 @@ e2ap_msg_t e2ap_dec_subscription_failure(const E2AP_PDU_t* pdu)
     assert(0!=0 && "Not Implemented");
   }
 
+    */
   return ret;
 }
 
@@ -1146,9 +1154,10 @@ e2ap_msg_t e2ap_dec_control_ack(const E2AP_PDU_t* pdu)
       *ctrl->call_process_id = copy_ostring_to_ba(ric_ctrl->value.choice.RICcallProcessID); 
   //RIC Control Status. Mandatory
     } else if (id == ProtocolIE_ID_id_RICcontrolStatus){
-      assert(ric_ctrl->criticality == Criticality_reject);
-     assert(ric_ctrl->value.present ==  RICcontrolAcknowledge_IEs__value_PR_RICcontrolStatus);
-     ctrl->status =ric_ctrl->value.choice.RICcontrolStatus;   
+      assert(0 != 0 && "Not implemented");
+     // assert(ric_ctrl->criticality == Criticality_reject);
+     //assert(ric_ctrl->value.present ==  RICcontrolAcknowledge_IEs__value_PR_RICcontrolStatus);
+     //ctrl->status = ric_ctrl->value.choice.RICcontrolStatus;   
   //RIC Control Outcome. Optional
     } else { // id == ProtocolIE_ID_id_RICcontrolOutcome
       assert(ric_ctrl->criticality == Criticality_reject);
@@ -1294,9 +1303,19 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
   e2_setup_request_t* sr = &ret.u_msgs.e2_stp_req;
 
   const E2setupRequest_t *out = &pdu->choice.initiatingMessage->value.choice.E2setupRequest;
-  assert(out->protocolIEs.list.count > 0 && out->protocolIEs.list.count < 4);
+  assert(out->protocolIEs.list.count > 0 && out->protocolIEs.list.count < 5);
 
-  E2setupRequestIEs_t* setup_rid = out->protocolIEs.list.array[0];
+
+  // Mandatory Transaction ID
+  E2setupRequestIEs_t const* trans_id  = out->protocolIEs.list.array[0];
+
+  assert(trans_id->id == ProtocolIE_ID_id_TransactionID);	
+  assert(trans_id->criticality == Criticality_reject);
+  assert(trans_id->value.present == E2setupRequestIEs__value_PR_TransactionID);
+  assert(trans_id->value.choice.TransactionID < 256);
+  sr->trans_id = trans_id->value.choice.TransactionID; 
+
+  E2setupRequestIEs_t* setup_rid = out->protocolIEs.list.array[1];
 
   // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
   assert(setup_rid->id == ProtocolIE_ID_id_GlobalE2node_ID);
@@ -1334,11 +1353,11 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
   }
 
   int elm_id = out->protocolIEs.list.count - 1;
-  assert(elm_id > -1 && elm_id < 3);
+  assert(elm_id > -1 && elm_id < 4);
 
-  while(elm_id != 0){
+  while(elm_id > 1){
     const ProtocolIE_ID_t proto_id = out->protocolIEs.list.array[elm_id]->id;  
-    assert(proto_id == ProtocolIE_ID_id_RANfunctionsAdded || proto_id == ProtocolIE_ID_id_E2nodeComponentConfigUpdate);
+    assert(proto_id == ProtocolIE_ID_id_RANfunctionsAdded || proto_id == ProtocolIE_ID_id_E2nodeComponentConfigAddition);
     // List of RAN Functions Added
     if(proto_id == ProtocolIE_ID_id_RANfunctionsAdded){
       E2setupRequestIEs_t* ran_list = out->protocolIEs.list.array[elm_id];
@@ -1362,119 +1381,46 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
         dst->rev = src->ranFunctionRevision;
 
         dst->def = copy_ostring_to_ba(src->ranFunctionDefinition); 
-
-        if(src->ranFunctionOID != NULL){
-          dst->oid = malloc(sizeof(byte_array_t));
-          *dst->oid = copy_ostring_to_ba(*src->ranFunctionOID);
-        }
+        dst->oid = copy_ostring_to_ba(src->ranFunctionOID); 
       }
-    } else { //if(proto_id == ProtocolIE_ID_id_E2nodeComponentConfigUpdate)
-      const E2setupRequestIEs_t* comp_update = out->protocolIEs.list.array[elm_id];
-      assert(comp_update->criticality == Criticality_reject);
-      assert(comp_update->value.present == E2setupRequestIEs__value_PR_E2nodeComponentConfigUpdate_List); 
+    } else if (proto_id == ProtocolIE_ID_id_E2nodeComponentConfigAddition) {
+      const E2setupRequestIEs_t* comp_add = out->protocolIEs.list.array[elm_id];
+      assert(comp_add->criticality == Criticality_reject);
+      assert(comp_add->value.present == E2setupRequestIEs__value_PR_E2nodeComponentConfigAddition_List); 
 
-      assert(comp_update->value.choice.E2nodeComponentConfigUpdate_List.list.count < MAX_NUM_E2_NODE_COMPONENTS);
-      const size_t sz = comp_update->value.choice.E2nodeComponentConfigUpdate_List.list.count; 
-      sr->len_ccu = sz;
-      sr->comp_conf_update = calloc(sz, sizeof(e2_node_component_config_update_t));
+      sr->len_cca = comp_add->value.choice.E2nodeComponentConfigAddition_List.list.count;
+      assert(sr->len_cca > 0 && sr->len_cca < 1024);
+      sr->comp_conf_add = calloc(sr->len_cca, sizeof(e2ap_node_component_config_add_t));
+      assert(sr->comp_conf_add != NULL);
 
-      E2nodeComponentConfigUpdate_ItemIEs_t** arr = (E2nodeComponentConfigUpdate_ItemIEs_t**)comp_update->value.choice.E2nodeComponentConfigUpdate_List.list.array;
-      for(size_t i = 0; i < sz; ++i){
-        assert(arr[i]->id == ProtocolIE_ID_id_E2nodeComponentConfigUpdate_Item);
-        assert(arr[i]->criticality == Criticality_reject); 
-        assert(arr[i]->value.present == E2nodeComponentConfigUpdate_ItemIEs__value_PR_E2nodeComponentConfigUpdate_Item);
-        const E2nodeComponentConfigUpdate_Item_t* src = &arr[i]->value.choice.E2nodeComponentConfigUpdate_Item;
-        e2_node_component_config_update_t* dst = &sr->comp_conf_update[i]; 
-        sr->comp_conf_update[i] = copy_e2_node_component_conf_update(src);
-        /* 
-        // E2 Node Component Type. Mandatory
-        assert(src->e2nodeComponentType < 6); 
-        dst->e2_node_component_type = src->e2nodeComponentType; 
-        // E2 Node Component Configuration Update. Mandatory
-        switch (src->e2nodeComponentConfigUpdate.present) {
-        case E2nodeComponentConfigUpdate_PR_gNBconfigUpdate:
-        {
-        dst->update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_GNB_CONFIG_UPDATE;
-        const E2nodeComponentConfigUpdateGNB_t* gNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.gNBconfigUpdate;
-        if (gNBconfigUpdate->ngAPconfigUpdate != NULL){
-        dst->gnb.ngap_gnb_cu_cp = malloc(sizeof(byte_array_t)); 
-         *dst->gnb.ngap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->ngAPconfigUpdate); 
-         }
-         if (gNBconfigUpdate->xnAPconfigUpdate != NULL){
-         dst->gnb.xnap_gnb_cu_cp = malloc(sizeof(byte_array_t));
-         *dst->gnb.xnap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->xnAPconfigUpdate); 
-         }
-         if (gNBconfigUpdate->e1APconfigUpdate != NULL){
-         dst->gnb.e1ap_gnb_cu_cp = malloc(sizeof(byte_array_t) ); 
-         *dst->gnb.e1ap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->e1APconfigUpdate); 
-         }
-         if (gNBconfigUpdate->f1APconfigUpdate != NULL){
-         dst->gnb.f1ap_gnb_cu_cp = malloc(sizeof(byte_array_t));
-         *dst->gnb.f1ap_gnb_cu_cp = copy_ostring_to_ba(*gNBconfigUpdate->f1APconfigUpdate);
-         }
-         break;
-         }
-         case E2nodeComponentConfigUpdate_PR_en_gNBconfigUpdate:
-         {
-         dst->update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_EN_GNB_CONFIG_UPDATE; 
-         const E2nodeComponentConfigUpdateENgNB_t* en_gNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.en_gNBconfigUpdate;
-         if (en_gNBconfigUpdate->x2APconfigUpdate != NULL){
-         dst->en_gnb.x2ap_en_gnb = malloc(sizeof(byte_array_t) );
-         *dst->en_gnb.x2ap_en_gnb = copy_ostring_to_ba(*en_gNBconfigUpdate->x2APconfigUpdate);
-         }
-         break;
-         }
-         case E2nodeComponentConfigUpdate_PR_ng_eNBconfigUpdate:
-         {
-         dst->update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_NG_ENB_CONFIG_UPDATE;
-         const E2nodeComponentConfigUpdateNGeNB_t* ng_eNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.ng_eNBconfigUpdate;
-         if (ng_eNBconfigUpdate->ngAPconfigUpdate != NULL){
-         dst->ng_enb.ngap_ng_enb = malloc(sizeof(byte_array_t)); 
-         *dst->ng_enb.ngap_ng_enb = copy_ostring_to_ba(*ng_eNBconfigUpdate->ngAPconfigUpdate);
-         }
-         if (ng_eNBconfigUpdate->xnAPconfigUpdate != NULL){
-         dst->ng_enb.xnap_ng_enb = malloc(sizeof(byte_array_t)) ;
-         *dst->ng_enb.xnap_ng_enb = copy_ostring_to_ba(*ng_eNBconfigUpdate->xnAPconfigUpdate); 
-         }
-         break;
-         }
-         case E2nodeComponentConfigUpdate_PR_eNBconfigUpdate:
-         {
-         dst->update_present = E2_NODE_COMPONENT_CONFIG_UPDATE_ENB_CONFIG_UPDATE;
-         const E2nodeComponentConfigUpdateENB_t* eNBconfigUpdate = src->e2nodeComponentConfigUpdate.choice.eNBconfigUpdate;
-         if (eNBconfigUpdate->s1APconfigUpdate != NULL){
-         dst->enb.s1ap_enb = malloc(sizeof(byte_array_t));
-         *dst->enb.s1ap_enb = copy_ostring_to_ba(*eNBconfigUpdate->s1APconfigUpdate);
-         }
-         if (eNBconfigUpdate->x2APconfigUpdate != NULL){
-         dst->enb.x2ap_enb = malloc(sizeof(byte_array_t) );
-         *dst->enb.x2ap_enb = copy_ostring_to_ba(*eNBconfigUpdate->x2APconfigUpdate); 
-         }
-         break;
-         }
-         default:
-         assert(0!=0 && "Invalid code path");
-         }
-         */
+      for(size_t i = 0; i < sr->len_cca; ++i){
+        e2ap_node_component_config_add_t* dst = &sr->comp_conf_add[i];
+        E2nodeComponentConfigAddition_ItemIEs_t const* cca = (E2nodeComponentConfigAddition_ItemIEs_t const*)comp_add->value.choice.E2nodeComponentConfigAddition_List.list.array[i];
 
-        // E2 Node Component ID. Optional
-        if (src->e2nodeComponentID != NULL){
-          dst->id_present = malloc(sizeof(*dst->id_present));
-          switch (src->e2nodeComponentID->present) {
-            case E2nodeComponentID_PR_e2nodeComponentTypeGNB_CU_UP:
-              *dst->id_present = E2_NODE_COMPONENT_ID_E2_NODE_COMPONENT_TYPE_GNB_CU_UP;
-              // Is this what we want?
-              asn_INTEGER2ulong(&src->e2nodeComponentID->choice.e2nodeComponentTypeGNB_CU_UP->	 gNB_CU_UP_ID, &dst->gnb_cu_up_id);
-              break;
-            case E2nodeComponentID_PR_e2nodeComponentTypeGNB_DU:
-              *dst->id_present = E2_NODE_COMPONENT_ID_E2_NODE_COMPONENT_TYPE_GNB_DU; 
-              asn_INTEGER2ulong(&src->e2nodeComponentID->choice.e2nodeComponentTypeGNB_DU->gNB_DU_ID, &dst->gnb_du_id);
-              break;
-            default:
-              assert(0!=0 && "Invalid code path");
-          }
-        }
-      } 
+        assert(cca->id == ProtocolIE_ID_id_E2nodeComponentConfigAddition_Item);
+        assert(cca->criticality == Criticality_reject);
+        assert(cca->value.present == E2nodeComponentConfigAddition_ItemIEs__value_PR_E2nodeComponentConfigAddition_Item);
+
+        E2nodeComponentConfigAddition_Item_t const* it = &cca->value.choice.E2nodeComponentConfigAddition_Item; 
+
+        //e2ap_node_component_config_add_t* comp_conf_add;
+        // Mandatory
+        // 9.2.26
+        assert(it->e2nodeComponentInterfaceType < END_E2AP_NODE_COMP_INTERFACE_TYPE);
+        dst->e2_node_comp_interface_type = it->e2nodeComponentInterfaceType;
+
+        // Optional
+        // 9.2.32
+        assert(it->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeF1 == NULL);
+        dst->e2_node_comp_id = NULL;
+
+        // Mandatory
+        // 9.2.27
+        dst->e2_node_comp_conf.request = copy_ostring_to_ba(it->e2nodeComponentConfiguration.e2nodeComponentRequestPart);
+        dst->e2_node_comp_conf.response = copy_ostring_to_ba(it->e2nodeComponentConfiguration.e2nodeComponentResponsePart); 
+      }
+    } else {
+      assert(0!=0 && "Unknown type");
     }     
     elm_id -=1; 
   }
@@ -1611,7 +1557,8 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
       }
       elm_id -=1; 
     } else { // ProtocolIE_ID_id_E2nodeComponentConfigUpdateAck
-
+      assert(0 != 0 && "Not implemented");             //
+      /*                                                       //
       const E2setupResponseIEs_t* comp_conf = out->protocolIEs.list.array[elm_id];
       assert(comp_conf->id == ProtocolIE_ID_id_E2nodeComponentConfigUpdateAck); 
       assert(comp_conf->criticality == Criticality_reject); 
@@ -1629,6 +1576,7 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
 
       }
       elm_id -=1; 
+      */
     }
   }
   return ret;
@@ -1881,8 +1829,13 @@ e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
 }
 
 // RIC -> E2
- e2ap_msg_t e2ap_dec_service_update_failure(const E2AP_PDU_t* pdu)
+e2ap_msg_t e2ap_dec_service_update_failure(const E2AP_PDU_t* pdu)
 {
+  assert(0!=0 && "Not implemented");
+e2ap_msg_t dst = {0};
+return dst;
+}
+/*
   assert(pdu != NULL);
   e2ap_msg_t ret = {.type = RIC_SERVICE_UPDATE_FAILURE};
  ric_service_update_failure_t* uf = &ret.u_msgs.ric_serv_updt_fail;
@@ -1933,6 +1886,7 @@ e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
   }
   return ret;
 }
+*/
 
 // RIC -> E2
 e2ap_msg_t e2ap_dec_service_query(const E2AP_PDU_t* pdu)
@@ -1997,7 +1951,8 @@ e2ap_msg_t e2ap_dec_node_configuration_update(const E2AP_PDU_t* pdu)
   for(int i = 0; i < sz; ++i){
     const E2nodeComponentConfigUpdate_ItemIEs_t* n = (const E2nodeComponentConfigUpdate_ItemIEs_t*) conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.array[i];
      const E2nodeComponentConfigUpdate_Item_t* src = &n->value.choice.E2nodeComponentConfigUpdate_Item;
-    cu->comp_conf_update_list[i] = copy_e2_node_component_conf_update(src);
+     assert(0 != 0 && "Not implemented");
+//    cu->comp_conf_update_list[i] = copy_e2_node_component_conf_update(src);
   }
   return ret;
 }
@@ -2047,11 +2002,45 @@ e2ap_msg_t e2ap_dec_node_configuration_update_failure(const E2AP_PDU_t* pdu)\
 e2ap_msg_t e2ap_dec_connection_update_failure(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
- assert(0!=0 && "Not implemented");
+  assert(0!=0 && "Not implemented");
   e2ap_msg_t ret;
   return ret;
 }
 
+/////
+// new V2
+/////
+
+// E2 <-> RIC
+e2ap_msg_t e2ap_dec_removal_request(const struct E2AP_PDU* pdu)
+{
+  assert(pdu != NULL);
+  assert(0!=0 && "Not implemented");
+  e2ap_msg_t ret;
+  return ret;
+}
+
+// E2 <-> RIC
+e2ap_msg_t e2ap_dec_removal_response(const struct E2AP_PDU* pdu)
+{
+  assert(pdu != NULL);
+  assert(0!=0 && "Not implemented");
+  e2ap_msg_t ret;
+  return ret;
+}
+
+// E2 <-> RIC
+e2ap_msg_t e2ap_dec_removal_failure(const struct E2AP_PDU* pdu)
+{
+  assert(pdu != NULL);
+  assert(0!=0 && "Not implemented");
+  e2ap_msg_t ret;
+  return ret;
+}
+
+/////
+// end new V2
+/////
 
 // xApp -> iApp
 e2ap_msg_t e2ap_dec_e42_setup_request(const struct E2AP_PDU* pdu)
@@ -2093,11 +2082,7 @@ e2ap_msg_t e2ap_dec_e42_setup_request(const struct E2AP_PDU* pdu)
     dst->rev = src->ranFunctionRevision;
 
     dst->def = copy_ostring_to_ba(src->ranFunctionDefinition); 
-
-    if(src->ranFunctionOID != NULL){
-      dst->oid = malloc(sizeof(byte_array_t));
-      *dst->oid = copy_ostring_to_ba(*src->ranFunctionOID);
-    }
+    dst->oid = copy_ostring_to_ba(src->ranFunctionOID);
   }
 
   return ret;
@@ -2208,11 +2193,7 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       dst_ie->rev = src->ranFunctionRevision;
 
       dst_ie->def = copy_ostring_to_ba(src->ranFunctionDefinition); 
-
-      if(src->ranFunctionOID != NULL){
-        dst_ie->oid = malloc(sizeof(byte_array_t));
-        *dst_ie->oid = copy_ostring_to_ba(*src->ranFunctionOID);
-      }
+      dst_ie->oid = copy_ostring_to_ba(src->ranFunctionOID);
     }
   }
   return ret;

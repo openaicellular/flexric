@@ -26,7 +26,7 @@
 #ifdef E2AP_V1
 #include "v1_01/enc/e2ap_msg_enc_generic.h"
 #elif E2AP_V2 
-static_assert(0!=0, "Not implemented E2AP version");
+#include "v2_03/enc/e2ap_msg_enc_generic.h"
 #elif E2AP_V3 
 static_assert(0!=0, "Not implemented E2AP version");
 #else

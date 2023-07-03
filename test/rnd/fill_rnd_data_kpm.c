@@ -1487,4 +1487,3 @@ kpm_ran_function_def_t fill_kpm_ran_func_def(void)
   return ran_function;
 }
 
-

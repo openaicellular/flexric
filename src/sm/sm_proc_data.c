@@ -96,7 +96,7 @@ void free_sm_e2_setup(sm_e2_setup_data_t* data)
     free(data->ran_fun_def);
   }
 
-  free_ran_function(&data->rf);
+  //free_ran_function(&data->rf);
 } 
 
 void free_sm_ric_service_update(sm_ric_service_update_data_t* data)

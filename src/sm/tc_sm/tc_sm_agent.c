@@ -123,25 +123,30 @@ sm_e2_setup_data_t on_e2_setup_tc_sm_ag(sm_agent_t const* sm_agent)
   assert(sm_agent != NULL);
 //  printf("on_e2_setup called \n");
   sm_tc_agent_t* sm = (sm_tc_agent_t*)sm_agent;
+  (void)sm;
 
   sm_e2_setup_data_t setup = {.len_rfd =0, .ran_fun_def = NULL  }; 
 
   // ToDo: RAN Function should be filled from the RAN
 
-  setup.len_rfd = strlen(sm->base.ran_func_name);
-  setup.ran_fun_def = calloc(1, strlen(sm->base.ran_func_name));
+  size_t const sz = strnlen(SM_TC_STR, 256);
+  assert(sz < 256 && "Buffer overeflow?");
+
+  setup.len_rfd = sz;
+  setup.ran_fun_def = calloc(1, sz);
   assert(setup.ran_fun_def != NULL);
-  memcpy(setup.ran_fun_def, sm->base.ran_func_name, strlen(sm->base.ran_func_name));
 
+  memcpy(setup.ran_fun_def, SM_TC_STR , sz);
+ 
  // RAN Function
-  setup.rf.def = cp_str_to_ba(SM_TC_SHORT_NAME);
-  setup.rf.id = SM_TC_ID;
-  setup.rf.rev = SM_TC_REV;
+//  setup.rf.def = cp_str_to_ba(SM_TC_SHORT_NAME);
+//  setup.rf.id = SM_TC_ID;
+//  setup.rf.rev = SM_TC_REV;
 
-  setup.rf.oid = calloc(1, sizeof(byte_array_t) );
-  assert(setup.rf.oid != NULL && "Memory exhausted");
+//  setup.rf.oid = calloc(1, sizeof(byte_array_t) );
+//  assert(setup.rf.oid != NULL && "Memory exhausted");
 
-  *setup.rf.oid = cp_str_to_ba(SM_TC_OID);
+//  *setup.rf.oid = cp_str_to_ba(SM_TC_OID);
 
   return setup;
 }
@@ -166,12 +171,43 @@ void free_tc_sm_ag(sm_agent_t* sm_agent)
   free(sm);
 }
 
+// General SM information
+
+// Definition
+static
+char const* def_tc_sm_ag(void)
+{
+  return SM_TC_STR;
+}
+
+// ID
+static
+uint16_t id_tc_sm_ag(void)
+{
+  return SM_TC_ID; 
+}
+
+  // Revision
+static
+uint16_t rev_tc_sm_ag (void)
+{
+  return SM_TC_REV;
+}
+
+// OID
+static
+char const* oid_tc_sm_ag (void)
+{
+  return SM_TC_OID;
+}
+
+
 sm_agent_t* make_tc_sm_agent(sm_io_ag_ran_t io)
 {
   sm_tc_agent_t* sm = calloc(1, sizeof(sm_tc_agent_t));
   assert(sm != NULL && "Memory exhausted!!!");
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_TC_ID; 
+//  *(uint16_t*)(&sm->base.ran_func_id) = SM_TC_ID; 
 
 //  sm->base.io = io;
 
@@ -193,17 +229,24 @@ sm_agent_t* make_tc_sm_agent(sm_io_ag_ran_t io)
   sm->base.proc.on_e2_setup = on_e2_setup_tc_sm_ag;
   sm->base.handle = NULL;
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_TC_ID; 
-  assert(strlen(SM_TC_STR) < sizeof( sm->base.ran_func_name) );
-  memcpy(sm->base.ran_func_name, SM_TC_STR, strlen(SM_TC_STR)); 
+  // General SM information
+  sm->base.info.def = def_tc_sm_ag;
+  sm->base.info.id =  id_tc_sm_ag;
+  sm->base.info.rev = rev_tc_sm_ag;
+  sm->base.info.oid = oid_tc_sm_ag;
+
+//  *(uint16_t*)(&sm->base.ran_func_id) = SM_TC_ID; 
+//  assert(strlen(SM_TC_STR) < sizeof( sm->base.ran_func_name) );
+//  memcpy(sm->base.ran_func_name, SM_TC_STR, strlen(SM_TC_STR)); 
 
   return &sm->base;
 }
-
+/*
 uint16_t id_tc_sm_agent(sm_agent_t const* sm_agent )
 {
   assert(sm_agent != NULL);
   sm_tc_agent_t* sm = (sm_tc_agent_t*)sm_agent;
   return sm->base.ran_func_id;
 }
+*/
 

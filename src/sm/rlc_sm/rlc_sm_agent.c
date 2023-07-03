@@ -150,11 +150,16 @@ sm_e2_setup_data_t on_e2_setup_rlc_sm_ag(sm_agent_t const* sm_agent)
   // ToDo: in other SMs we should call the RAN to fulfill this data
   // as it represents the capabilities of the RAN Function
 
-  setup.len_rfd = strlen(sm->base.ran_func_name);
-  setup.ran_fun_def = calloc(1, strlen(sm->base.ran_func_name));
+  size_t const sz = strnlen(SM_RLC_STR, 256);
+  assert(sz < 256 && "Buffer overeflow?");
+
+  setup.len_rfd = sz;
+  setup.ran_fun_def = calloc(1, sz);
   assert(setup.ran_fun_def != NULL);
-  memcpy(setup.ran_fun_def, sm->base.ran_func_name, strlen(sm->base.ran_func_name));
+
+  memcpy(setup.ran_fun_def, SM_RLC_STR , sz);
   
+  /*
   // RAN Function
   setup.rf.def = cp_str_to_ba(SM_RLC_SHORT_NAME);
   setup.rf.id = SM_RLC_ID;
@@ -164,6 +169,7 @@ sm_e2_setup_data_t on_e2_setup_rlc_sm_ag(sm_agent_t const* sm_agent)
   assert(setup.rf.oid != NULL && "Memory exhausted");
 
   *setup.rf.oid = cp_str_to_ba(SM_RLC_OID);
+*/
 
   return setup;
 }
@@ -189,12 +195,46 @@ void free_rlc_sm_ag(sm_agent_t* sm_agent)
   free(sm);
 }
 
+
+
+// General SM information
+
+// Definition
+static
+char const* def_rlc_sm_ag(void)
+{
+  return SM_RLC_STR;
+}
+
+// ID
+static
+uint16_t id_rlc_sm_ag(void)
+{
+  return SM_RLC_ID; 
+}
+
+  // Revision
+static
+uint16_t rev_rlc_sm_ag (void)
+{
+  return SM_RLC_REV;
+}
+
+// OID
+static
+char const* oid_rlc_sm_ag (void)
+{
+  return SM_RLC_OID;
+}
+
+
+
 sm_agent_t* make_rlc_sm_agent(sm_io_ag_ran_t io)
 {
   sm_rlc_agent_t* sm = calloc(1, sizeof(sm_rlc_agent_t));
   assert(sm != NULL && "Memory exhausted!!!");
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_RLC_ID; 
+//  *(uint16_t*)(&sm->base.ran_func_id) = SM_RLC_ID; 
 
   // Read
   sm->base.io.read_ind = io.read_ind_tbl[RLC_STATS_V0];
@@ -207,6 +247,7 @@ sm_agent_t* make_rlc_sm_agent(sm_io_ag_ran_t io)
   sm->base.free_sm = free_rlc_sm_ag;
   sm->base.free_act_def = NULL; //free_act_def_rlc_sm_ag;
 
+  // O-RAN E2SM 5 Procedures
   sm->base.proc.on_subscription = on_subscription_rlc_sm_ag;
   sm->base.proc.on_indication = on_indication_rlc_sm_ag;
   sm->base.proc.on_control = on_control_rlc_sm_ag;
@@ -214,17 +255,24 @@ sm_agent_t* make_rlc_sm_agent(sm_io_ag_ran_t io)
   sm->base.proc.on_e2_setup = on_e2_setup_rlc_sm_ag;
   sm->base.handle = NULL;
 
-  assert(strlen(SM_RLC_STR) < sizeof( sm->base.ran_func_name) );
-  memcpy(sm->base.ran_func_name, SM_RLC_STR, strlen(SM_RLC_STR)); 
+  // General SM information
+  sm->base.info.def = def_rlc_sm_ag;
+  sm->base.info.id =  id_rlc_sm_ag;
+  sm->base.info.rev = rev_rlc_sm_ag;
+  sm->base.info.oid = oid_rlc_sm_ag;
+
+//  assert(strlen(SM_RLC_STR) < sizeof( sm->base.ran_func_name) );
+//  memcpy(sm->base.ran_func_name, SM_RLC_STR, strlen(SM_RLC_STR)); 
 
   return &sm->base;
 }
 
-
+/*
 uint16_t id_rlc_sm_agent(sm_agent_t const* sm_agent )
 {
   assert(sm_agent != NULL);
   sm_rlc_agent_t* sm = (sm_rlc_agent_t*)sm_agent;
   return sm->base.ran_func_id;
 }
+*/
 

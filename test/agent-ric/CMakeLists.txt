@@ -37,7 +37,6 @@ target_link_libraries(test_near_ric
                       -lsctp
                       -ldl)
 
- 
 target_compile_options(test_near_ric PUBLIC "-DASN_DISABLE_JER_SUPPORT")
-target_include_directories(test_near_ric PRIVATE "/usr/local/share/asn1c/")
+target_include_directories(test_near_ric PRIVATE "/opt/asn1c/share/asn1c/")
 

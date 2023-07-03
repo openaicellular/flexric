@@ -175,6 +175,10 @@ byte_array_t e2ap_enc_node_connection_update_failure_asn(const e2_node_connectio
 byte_array_t e2ap_enc_node_connection_update_failure_asn_msg(const e2ap_msg_t* msg); 
 struct E2AP_PDU* e2ap_enc_node_connection_update_failure_asn_pdu(const e2_node_connection_update_failure_t*);
 
+/////
+// New in V2
+/////
+
 // E2 <-> RIC
 byte_array_t e2ap_enc_removal_request_asn(const e2_removal_request_t*); 
 byte_array_t e2ap_enc_removal_request_asn_msg(const e2ap_msg_t* msg);
@@ -189,6 +193,10 @@ struct E2AP_PDU* e2ap_enc_removal_response_asn_pdu(const e2_removal_response_t*)
 byte_array_t e2ap_enc_removal_failure_asn(const e2_removal_failure_t*); 
 byte_array_t e2ap_enc_removal_failure_asn_msg(const e2ap_msg_t* msg);
 struct E2AP_PDU* e2ap_enc_removal_failure_asn_pdu(const e2_removal_failure_t*);
+
+/////
+// end New in V2
+/////
 
 // xApp -> iApp
 byte_array_t e2ap_enc_e42_subscription_request_asn(const e42_ric_subscription_request_t* sr);

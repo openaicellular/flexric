@@ -136,20 +136,31 @@ sm_e2_setup_data_t on_e2_setup_slice_sm_ag(sm_agent_t const* sm_agent)
 
   sm_e2_setup_data_t setup = {.len_rfd =0, .ran_fun_def = NULL }; 
 
+  size_t const sz = strnlen(SM_SLICE_STR, 256);
+  assert(sz < 256 && "Buffer overeflow?");
+
+  setup.len_rfd = sz;
+  setup.ran_fun_def = calloc(1, sz);
+  assert(setup.ran_fun_def != NULL);
+
+  memcpy(setup.ran_fun_def, SM_SLICE_STR , sz);
+ 
+/*
   setup.len_rfd = strlen(sm->base.ran_func_name);
   setup.ran_fun_def = calloc(1, strlen(sm->base.ran_func_name));
   assert(setup.ran_fun_def != NULL);
   memcpy(setup.ran_fun_def, sm->base.ran_func_name, strlen(sm->base.ran_func_name));
+*/
 
   // RAN Function
-  setup.rf.def = cp_str_to_ba(SM_SLICE_SHORT_NAME);
-  setup.rf.id = SM_SLICE_ID;
-  setup.rf.rev = SM_SLICE_REV;
+//  setup.rf.def = cp_str_to_ba(SM_SLICE_SHORT_NAME);
+//  setup.rf.id = SM_SLICE_ID;
+//  setup.rf.rev = SM_SLICE_REV;
 
-  setup.rf.oid = calloc(1, sizeof(byte_array_t) );
-  assert(setup.rf.oid != NULL && "Memory exhausted");
+//  setup.rf.oid = calloc(1, sizeof(byte_array_t) );
+//  assert(setup.rf.oid != NULL && "Memory exhausted");
 
-  *setup.rf.oid = cp_str_to_ba(SM_SLICE_OID);
+//  *setup.rf.oid = cp_str_to_ba(SM_SLICE_OID);
 
   return setup;
 }
@@ -174,12 +185,43 @@ void free_slice_sm_ag(sm_agent_t* sm_agent)
   free(sm);
 }
 
+// General SM information
+
+// Definition
+static
+char const* def_slice_sm_ag(void)
+{
+  return SM_SLICE_STR;
+}
+
+// ID
+static
+uint16_t id_slice_sm_ag(void)
+{
+  return SM_SLICE_ID; 
+}
+
+  // Revision
+static
+uint16_t rev_slice_sm_ag (void)
+{
+  return SM_SLICE_REV;
+}
+
+// OID
+static
+char const* oid_slice_sm_ag (void)
+{
+  return SM_SLICE_OID;
+}
+
+
 sm_agent_t* make_slice_sm_agent(sm_io_ag_ran_t io)
 {
   sm_slice_agent_t* sm = calloc(1, sizeof(sm_slice_agent_t));
   assert(sm != NULL && "Memory exhausted!!!");
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_SLICE_ID; 
+//  *(uint16_t*)(&sm->base.ran_func_id) = SM_SLICE_ID; 
 
 //  sm->base.io = io;
 
@@ -201,17 +243,25 @@ sm_agent_t* make_slice_sm_agent(sm_io_ag_ran_t io)
   sm->base.proc.on_e2_setup = on_e2_setup_slice_sm_ag;
   sm->base.handle = NULL;
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_SLICE_ID; 
-  assert(strlen(SM_SLICE_STR) < sizeof( sm->base.ran_func_name) );
-  memcpy(sm->base.ran_func_name, SM_SLICE_STR, strlen(SM_SLICE_STR)); 
+  // General SM information
+  sm->base.info.def = def_slice_sm_ag;
+  sm->base.info.id =  id_slice_sm_ag;
+  sm->base.info.rev = rev_slice_sm_ag;
+  sm->base.info.oid = oid_slice_sm_ag;
+
+
+//  *(uint16_t*)(&sm->base.ran_func_id) = SM_SLICE_ID; 
+//  assert(strlen(SM_SLICE_STR) < sizeof( sm->base.ran_func_name) );
+//  memcpy(sm->base.ran_func_name, SM_SLICE_STR, strlen(SM_SLICE_STR)); 
 
   return &sm->base;
 }
-
+/*
 uint16_t id_slice_sm_agent(sm_agent_t const* sm_agent )
 {
   assert(sm_agent != NULL);
   sm_slice_agent_t* sm = (sm_slice_agent_t*)sm_agent;
   return sm->base.ran_func_id;
 }
+*/
 

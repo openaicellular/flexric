@@ -25,7 +25,7 @@
 #ifdef E2AP_V1
 #include "v1_01/e2ap_types/e42_setup_request.h"
 #elif E2AP_V2
-static_assert(0!=0 , "Not implemented");
+#include "v2_03/e2ap_types/e42_setup_request.h"
 #elif E2AP_V3
 static_assert(0!=0 , "Not implemented");
 #endif

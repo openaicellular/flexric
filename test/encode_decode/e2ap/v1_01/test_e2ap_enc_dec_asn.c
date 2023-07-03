@@ -1039,7 +1039,6 @@ int main()
     test_e42_setup_response();
     test_e42_subscription_request();
     test_e42_subscription_delete_request();     
-
     test_e42_control_request();
 
   }

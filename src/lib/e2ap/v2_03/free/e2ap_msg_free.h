@@ -19,13 +19,10 @@
  *      contact@openairinterface.org
  */
 
-
-
 #ifndef E2AP_MSG_FREE_H
 #define E2AP_MSG_FREE_H
 
 #include "../type_defs.h"
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // O-RAN E2APv01.01: Messages for Global Procedures ///////////////////////////////////////////////
@@ -139,6 +136,26 @@ void e2ap_free_node_connection_update_ack(e2_node_connection_update_ack_t* ca);
 // E2 -> RIC
 void e2ap_free_node_connection_update_failure_msg(e2ap_msg_t* msg);
 void e2ap_free_node_connection_update_failure(e2_node_connection_update_failure_t* cf);
+
+/////
+// new V2
+/////
+
+// E2 <-> RIC
+void e2ap_free_removal_request_msg(e2ap_msg_t* msg);
+void e2ap_free_removal_request(e2_removal_request_t* rr);
+
+// E2 <-> RIC
+void e2ap_free_removal_response_msg(e2ap_msg_t* msg);
+void e2ap_free_removal_response(e2_removal_response_t* rr);
+
+// E2 <-> RIC
+void e2ap_free_removal_failure_msg(e2ap_msg_t* msg);
+void e2ap_free_removal_failure(e2_removal_failure_t* rf);
+
+/////
+// end new V2
+/////
 
 // xApp -> iApp
 void e2ap_free_e42_setup_request_msg(e2ap_msg_t* msg);

@@ -1,13 +1,11 @@
 # From a very bad design of conversion taken from OAI, it only gets worse with time...
 if(E2AP_VERSION STREQUAL "E2AP_V1")
   include_directories("../lib/e2ap/v1_01/ie/asn")
+elseif(E2AP_VERSION STREQUAL "E2AP_V2")
+  include_directories("../lib/e2ap/v2_03/ie/asn")
 else()
   message(FATAL_ERROR "E2AP V2 and V3 not implemented")
 endif()
-
-
-
-
 
 add_library(e2ap_ds_obj OBJECT 
                         byte_array.c 

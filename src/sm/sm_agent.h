@@ -46,6 +46,22 @@ typedef struct{
 
 } sm_e2ap_procedures_agent_t;
 
+// SM General Information
+typedef struct{
+
+  // Definition
+  char const* (*def)(void);
+
+  // ID
+  uint16_t (*id)(void);
+
+  // Revision
+  uint16_t (*rev)(void);
+
+  // OID
+  char const* (*oid)(void);
+
+} sm_e2ap_info_t;
 
 typedef struct sm_agent_s {
 
@@ -66,10 +82,12 @@ typedef struct sm_agent_s {
   // Shared Object handle
   void* handle;
 
-  // RAN Function ID
-  uint16_t const ran_func_id;
+  // SM Information function;
+  sm_e2ap_info_t info;
 
-  char ran_func_name[32];
+  // RAN Function ID
+//  uint16_t const ran_func_id;
+//  char ran_func_name[32];
 
 } sm_agent_t;
 

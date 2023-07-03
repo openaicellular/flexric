@@ -33,7 +33,6 @@ set(E2_AGENT_SRC
 
 if(E2AP_ENCODING STREQUAL "ASN")
 
-  #    add_library(e2_agent ${E2_AGENT_BLD_LIB} #STATIC or SHARED
   add_library(e2_agent STATIC  #STATIC or SHARED
             ${E2_AGENT_SRC}
             $<TARGET_OBJECTS:e2ap_ie_obj>
@@ -44,11 +43,7 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS")
           add_library(e2_agent ${E2_AGENT_BLD_LIB} #STATIC or SHARED
             ${E2_AGENT_SRC}
            )
-
           #bundle_static_library(e2_agent libflatccrt_d.a)
-
-
-
 else()
   message(FATAL_ERROR "Error, while compiling the agent" )
 endif()

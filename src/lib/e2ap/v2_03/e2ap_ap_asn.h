@@ -19,8 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
-
 #ifndef E2AP_APPLICATION_PROTOCOL_ASN
 #define E2AP_APPLICATION_PROTOCOL_ASN
 

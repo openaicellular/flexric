@@ -242,7 +242,7 @@ sm_e2_setup_data_t on_e2_setup_rc_sm_ag(sm_agent_t const* sm_agent)
   sm_e2_setup_data_t setup = {0}; 
   setup.len_rfd = ba.len;
   setup.ran_fun_def = ba.buf;
-
+/*
   // RAN Function
   setup.rf.def = cp_str_to_ba(SM_RAN_CTRL_SHORT_NAME);
   setup.rf.id = SM_RC_ID;
@@ -252,7 +252,7 @@ sm_e2_setup_data_t on_e2_setup_rc_sm_ag(sm_agent_t const* sm_agent)
   assert(setup.rf.oid != NULL && "Memory exhausted");
 
   *setup.rf.oid = cp_str_to_ba(SM_RAN_CTRL_OID);
-
+*/
   return setup;
 }
 
@@ -276,12 +276,45 @@ void free_rc_sm_ag(sm_agent_t* sm_agent)
   free(sm);
 }
 
+
+// General SM information
+
+// Definition
+static
+char const* def_rc_sm_ag(void)
+{
+  return SM_RAN_CTRL_SHORT_NAME;
+}
+
+// ID
+static
+uint16_t id_rc_sm_ag(void)
+{
+  return   SM_RC_ID; 
+}
+
+  // Revision
+static
+uint16_t rev_rc_sm_ag (void)
+{
+  return SM_RC_REV;
+}
+
+// OID
+static
+char const* oid_rc_sm_ag (void)
+{
+  return SM_RAN_CTRL_OID;
+}
+
+
+
 sm_agent_t* make_rc_sm_agent(sm_io_ag_ran_t io)
 {
   sm_rc_agent_t* sm = calloc(1, sizeof(sm_rc_agent_t));
   assert(sm != NULL && "Memory exhausted!!!");
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_RC_ID; 
+  //*(uint16_t*)(&sm->base.ran_func_id) = SM_RC_ID; 
 
   // Read
   sm->base.io.read_ind = io.read_ind_tbl[RAN_CTRL_STATS_V1_03];
@@ -301,16 +334,24 @@ sm_agent_t* make_rc_sm_agent(sm_io_ag_ran_t io)
   sm->base.proc.on_e2_setup = on_e2_setup_rc_sm_ag;
   sm->base.handle = NULL;
 
-  assert(strlen(SM_RAN_CTRL_SHORT_NAME) < sizeof( sm->base.ran_func_name) );
-  memcpy(sm->base.ran_func_name, SM_RAN_CTRL_SHORT_NAME, strlen(SM_RAN_CTRL_SHORT_NAME)); 
+  // General SM information
+  sm->base.info.def = def_rc_sm_ag;
+  sm->base.info.id =  id_rc_sm_ag;
+  sm->base.info.rev = rev_rc_sm_ag;
+  sm->base.info.oid = oid_rc_sm_ag;
+
+
+//  assert(strlen(SM_RAN_CTRL_SHORT_NAME) < sizeof( sm->base.ran_func_name) );
+//  memcpy(sm->base.ran_func_name, SM_RAN_CTRL_SHORT_NAME, strlen(SM_RAN_CTRL_SHORT_NAME)); 
 
   return &sm->base;
 }
-
+/*
 uint16_t id_rc_sm_agent(sm_agent_t const* sm_agent )
 {
   assert(sm_agent != NULL);
   sm_rc_agent_t* sm = (sm_rc_agent_t*)sm_agent;
   return sm->base.ran_func_id;
 }
+*/
 

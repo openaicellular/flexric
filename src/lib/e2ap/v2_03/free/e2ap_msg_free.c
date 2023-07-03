@@ -295,14 +295,14 @@ void e2ap_free_setup_request(e2_setup_request_t* sr)
   for(size_t i = 0; i < sr->len_rf; ++i){
     ran_function_t* dst = &sr->ran_func_item[i];
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(sr->ran_func_item);
 
-  for(size_t i = 0; i < sr->len_ccu; ++i){
-    free_node_config_update(&sr->comp_conf_update[i]);  
+  for(size_t i = 0; i < sr->len_cca; ++i){
+    free_e2ap_node_component_config_add(&sr->comp_conf_add[i]);  
   } 
-  free(sr->comp_conf_update); 
+  free(sr->comp_conf_add); 
 }
 
 
@@ -404,14 +404,14 @@ void e2ap_free_service_update(ric_service_update_t* su)
   for(size_t i = 0; i < su->len_added; ++i){
     ran_function_t* dst = &su->added[i]; 
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(su->added);
 
   for(size_t i = 0; i < su->len_modified; ++i){
     ran_function_t* dst = &su->modified[i]; 
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(su->modified);
 
@@ -612,6 +612,56 @@ void e2ap_free_node_connection_update_failure(e2_node_connection_update_failure_
   }
 }
 
+/////
+// new V2
+/////
+
+// E2 <-> RIC
+void e2ap_free_removal_request_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type == E2_REMOVAL_REQUEST);
+  e2ap_free_removal_request(&msg->u_msgs.e2_rem_req);
+}
+
+void e2ap_free_removal_request(e2_removal_request_t* rr)
+{
+  assert(rr != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+// E2 <-> RIC
+void e2ap_free_removal_response_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type == E2_REMOVAL_RESPONSE);
+  e2ap_free_removal_response(&msg->u_msgs.e2_rem_res);
+}
+
+void e2ap_free_removal_response(e2_removal_response_t* rr)
+{
+  assert(rr != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+// E2 <-> RIC
+void e2ap_free_removal_failure_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type == E2_REMOVAL_FAILURE);
+  e2ap_free_removal_failure(&msg->u_msgs.e2_rem_fail);
+}
+
+void e2ap_free_removal_failure(e2_removal_failure_t* rf)
+{
+  assert(rf != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+/////
+// end new V2
+/////
+
 // xApp -> iApp
 void e2ap_free_e42_setup_request_msg(e2ap_msg_t* msg)
 {
@@ -626,7 +676,7 @@ void e2ap_free_e42_setup_request(e42_setup_request_t* sr)
   for(size_t i = 0; i < sr->len_rf; ++i){
     ran_function_t* dst = &sr->ran_func_item[i];
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(sr->ran_func_item);
 }

@@ -60,12 +60,6 @@
 #include "e2ap_types/e2_removal_response.h"
 #include "e2ap_types/e2_removal_failure.h"
 
-e2_removal_request_t e2_rem_req;
-    e2_removal_response_t e2_rem_res;
-    e2_removal_failure_t e2_rem_fail;
-
-
-
 #include "e2ap_types/e42_setup_request.h"
 #include "e2ap_types/e42_setup_response.h"
 #include "e2ap_types/e42_ric_subscription_request.h"

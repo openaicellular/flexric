@@ -58,7 +58,7 @@ void check_eq_ran_function(sm_agent_t const* ag, sm_ric_t const* ric)
 {
   assert(ag != NULL);
   assert(ric != NULL);
-  assert(ag->ran_func_id == ric->ran_func_id);
+  assert(ag->info.id() == ric->ran_func_id);
 }
 
 // RIC -> E2

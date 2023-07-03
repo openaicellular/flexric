@@ -26,7 +26,6 @@
 #include "dec/gtp_dec_generic.h"
 #include "../../util/alg_ds/alg/defer.h"
 
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -141,6 +140,16 @@ sm_e2_setup_data_t on_e2_setup_gtp_sm_ag(sm_agent_t const* sm_agent)
   // ToDO: Fill RAN Function from the RAN
   sm_e2_setup_data_t setup = {.len_rfd =0, .ran_fun_def = NULL  }; 
 
+  size_t const sz = strnlen(SM_GTP_STR, 256);
+  assert(sz < 256 && "Buffer overeflow?");
+
+  setup.len_rfd = sz;
+  setup.ran_fun_def = calloc(1, sz);
+  assert(setup.ran_fun_def != NULL);
+
+  memcpy(setup.ran_fun_def, SM_GTP_STR , sz);
+ 
+  /*
   setup.len_rfd = strlen(sm->base.ran_func_name);
   setup.ran_fun_def = calloc(1, strlen(sm->base.ran_func_name));
   assert(setup.ran_fun_def != NULL);
@@ -155,6 +164,7 @@ sm_e2_setup_data_t on_e2_setup_gtp_sm_ag(sm_agent_t const* sm_agent)
   assert(setup.rf.oid != NULL && "Memory exhausted");
 
   *setup.rf.oid = cp_str_to_ba(SM_GTP_OID);
+*/
 
   return setup;
 }
@@ -179,12 +189,43 @@ void free_gtp_sm_ag(sm_agent_t* sm_agent)
   free(sm);
 }
 
+
+// General SM information
+// Definition
+static
+char const* def_gtp_sm_ag(void)
+{
+  return SM_GTP_STR;
+}
+
+// ID
+static
+uint16_t id_gtp_sm_ag(void)
+{
+  return SM_GTP_ID; 
+}
+
+  // Revision
+static
+uint16_t rev_gtp_sm_ag (void)
+{
+  return SM_GTP_REV;
+}
+
+// OID
+static
+char const* oid_gtp_sm_ag (void)
+{
+  return SM_GTP_OID;
+}
+
+
 sm_agent_t* make_gtp_sm_agent(sm_io_ag_ran_t io)
 {
   sm_gtp_agent_t* sm = calloc(1, sizeof(sm_gtp_agent_t));
   assert(sm != NULL && "Memory exhausted!!!");
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_GTP_ID; 
+  // *(uint16_t*)(&sm->base.ran_func_id) = SM_GTP_ID; 
 
   // Read
   sm->base.io.read_ind = io.read_ind_tbl[GTP_STATS_V0];
@@ -204,17 +245,24 @@ sm_agent_t* make_gtp_sm_agent(sm_io_ag_ran_t io)
   sm->base.proc.on_e2_setup = on_e2_setup_gtp_sm_ag;
   sm->base.handle = NULL;
 
-  assert(strlen(SM_GTP_STR) < sizeof( sm->base.ran_func_name) );
-  memcpy(sm->base.ran_func_name, SM_GTP_STR, strlen(SM_GTP_STR)); 
+  // General SM information
+  sm->base.info.def = def_gtp_sm_ag;
+  sm->base.info.id =  id_gtp_sm_ag;
+  sm->base.info.rev = rev_gtp_sm_ag;
+  sm->base.info.oid = oid_gtp_sm_ag;
+
+  //assert(strlen(SM_GTP_STR) < sizeof( sm->base.ran_func_name) );
+  //memcpy(sm->base.ran_func_name, SM_GTP_STR, strlen(SM_GTP_STR)); 
 
   return &sm->base;
 }
 
-
+/*
 uint16_t id_gtp_sm_agent(sm_agent_t const* sm_agent )
 {
   assert(sm_agent != NULL);
   sm_gtp_agent_t* sm = (sm_gtp_agent_t*)sm_agent;
   return sm->base.ran_func_id;
 }
+*/
 

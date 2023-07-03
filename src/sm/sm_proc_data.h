@@ -77,7 +77,6 @@ typedef struct{
 } sm_ctrl_out_data_t;
 
 typedef struct{
-  ran_function_t rf;
   uint8_t* ran_fun_def;
   size_t len_rfd;
 } sm_e2_setup_data_t;
