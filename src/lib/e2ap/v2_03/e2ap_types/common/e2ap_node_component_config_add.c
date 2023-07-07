@@ -30,9 +30,9 @@ void free_e2ap_node_component_config_add(e2ap_node_component_config_add_t* src)
   // 9.2.26
   // e2ap_node_comp_interface_type_e e2_node_comp_interface_type;
   
-  // Optional
+  // Bug in the standard!!! Optional or Mandatory?
   // 9.2.32
-  assert(src-> e2_node_comp_id == NULL && "Not implemented"); 
+  free_e2ap_node_comp_id(&src->e2_node_comp_id);
 
   // Mandatory
   // 9.2.27
@@ -50,7 +50,7 @@ e2ap_node_component_config_add_t cp_e2ap_node_component_config_add(e2ap_node_com
   dst.e2_node_comp_interface_type = src->e2_node_comp_interface_type ;
   // Optional
   // 9.2.32
-  assert(src-> e2_node_comp_id == NULL && "Not implemented"); 
+  dst.e2_node_comp_id = cp_e2ap_node_comp_id(&src->e2_node_comp_id);
 
   // Mandatory
   // 9.2.27
@@ -73,8 +73,8 @@ bool eq_e2ap_node_component_config_add(e2ap_node_component_config_add_t const* m
   
   // Optional
   // 9.2.32
-  assert(m0->e2_node_comp_id == NULL && "Not implemented"); 
-  assert(m1->e2_node_comp_id == NULL && "Not implemented"); 
+  if(eq_e2ap_node_comp_id(&m0->e2_node_comp_id,&m1->e2_node_comp_id  ) == false)
+    return false;
 
   // Mandatory
   // 9.2.27

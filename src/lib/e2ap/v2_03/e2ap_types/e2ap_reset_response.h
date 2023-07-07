@@ -28,6 +28,7 @@
 #include <stdbool.h>
 
 typedef struct {
+  uint8_t trans_id;
   criticality_diagnostics_t* crit_diag; // optional
 } e2ap_reset_response_t;
 

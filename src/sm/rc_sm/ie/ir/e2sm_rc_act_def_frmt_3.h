@@ -2,7 +2,7 @@
 #define E2SM_RAN_CONTROL_ACTION_DEFINITION_FORMAT_3
 
 #include "ran_param_insertion.h"
-#include "../../../../lib/sm/sm_common_ie/ue_id.h"
+#include "../../../../lib/sm/ie/ue_id.h"
 
 #include <stdbool.h>
 #include <stdlib.h>

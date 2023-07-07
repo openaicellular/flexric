@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "../../../../lib/sm/dec_asn_sm_common/dec_cell_global_id.h"
+#include "../../../../lib/sm/dec/dec_cell_global_id.h"
 #include "../../ie/asn/asn_constant.h"
 #include "../dec_asn_kpm_common/dec_meas_info_frm_3.h"
 #include "dec_ric_action_def_frm_3.h"

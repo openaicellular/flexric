@@ -35,8 +35,10 @@ typedef uint16_t accepted_ran_function_t;
 
 typedef struct {
 
+  // Mandatory
   uint8_t trans_id;
 
+  // Mandatory
   global_ric_id_t id;
 
   // [0-256]
@@ -47,10 +49,7 @@ typedef struct {
   rejected_ran_function_t* rejected;
   size_t len_rej;
 
-//  e2_node_component_config_update_t* comp_conf_update_ack_list;
-//  size_t len_ccual;
-
-  // [0-1024]
+  // [1-1024]
   e2ap_node_comp_config_add_ack_t* comp_config_add_ack;
   size_t len_ccaa;
 
@@ -61,4 +60,3 @@ void free_e2_setup_response(e2_setup_response_t* src);
 bool eq_e2_setup_response(const e2_setup_response_t* m0, const e2_setup_response_t* m1);
 
 #endif
-

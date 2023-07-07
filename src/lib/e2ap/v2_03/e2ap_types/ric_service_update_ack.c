@@ -30,6 +30,9 @@ bool eq_ric_service_update_ack(const ric_service_update_ack_t* m0, const  ric_se
 
   if(m0 == NULL || m1 == NULL) return false;
 
+  if(m0->trans_id != m1->trans_id)
+    return false;
+
   if(m0->len_accepted != m1->len_accepted)
     return false;
 

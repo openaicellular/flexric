@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "../../../../../lib/sm/sm_common_ie/ran_function_name.h"
+#include "../../../../../lib/sm/ie/ran_function_name.h"
 #include "kpm_ric_event_trigger_def.h"
 #include "kpm_ric_action_def.h"
 #include "kpm_ric_ind_hdr.h"

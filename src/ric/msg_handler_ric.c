@@ -33,6 +33,7 @@
 #include "e2ap_ric.h"
 #include "near_ric.h"
 #include "e2_node.h"
+#include "generate_setup_response.h"
 #include "lib/pending_events.h"
 #include "lib/pending_event_ric.h"
 #include "lib/e2ap/e2ap_msg_free_wrapper.h"
@@ -64,6 +65,57 @@ bool check_valid_msg_type(e2_msg_type_t msg_type)
   return false;
 }
 
+/*
+static
+e2_setup_response_t fill_e2_setup_response_v1(const e2_setup_request_t* req, accepted_ran_function_t* accepted, size_t len_acc)
+{
+  assert(req != NULL);
+  e2_setup_response_t sr = {
+      .id.plmn = req->id.plmn, 
+      .id.near_ric_id.double_word = 25,
+      .accepted = accepted,
+      .len_acc = len_acc,
+      .rejected = NULL,
+      .len_rej = 0,
+      .comp_conf_update_ack_list = NULL,
+      .len_ccual = 0
+  };
+  return sr;
+}
+
+static
+e2_setup_response_t fill_e2_setup_response_v2(const e2_setup_request_t* req, accepted_ran_function_t* accepted, size_t len_acc )
+{
+
+  assert(req != NULL);
+  e2_setup_response_t sr = {
+      .id.plmn = req->id.plmn, 
+      .id.near_ric_id.double_word = 25,
+      .accepted = accepted,
+      .len_acc = len_acc,
+      .rejected = NULL,
+      .len_rej = 0,
+      .comp_config_add_ack = NULL,
+      .len_ccaa = 0
+  };
+  return sr;
+
+}
+
+static
+e2_setup_response_t fill_e2_setup_response_v3(const e2_setup_request_t* req, accepted_ran_function_t* accepted, size_t len_acc )
+{
+  assert(req != NULL);
+  assert(0 !=0 && "Not implemented");
+e2_setup_response_t dst = {0};
+
+return dst;
+
+}
+*/
+
+
+/*
 static inline
 e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_request_t* req)
 {
@@ -102,19 +154,11 @@ e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_requ
     fflush(stdout);
   }
 
-  e2_setup_response_t sr = {
-      .id.plmn = req->id.plmn, 
-      .id.near_ric_id.double_word = 25,
-      .accepted = accepted,
-      .len_acc = len_acc,
-      .rejected = NULL,
-      .len_rej = 0,
-      .comp_conf_update_ack_list = NULL,
-      .len_ccual = 0
-  };
+  e2_setup_response_t sr = fill_e2_setup_response(&ric->e2ap_version.type, req, accepted, len_acc); 
 
   return sr;
 }
+*/
 
 static
 void stop_pending_event(near_ric_t* ric, pending_event_ric_t* ev )
@@ -300,7 +344,9 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   assert(msg->type == RIC_CONTROL_ACKNOWLEDGE);
 
   ric_control_acknowledge_t const* ack = &msg->u_msgs.ric_ctrl_ack;
+#ifdef E2AP_V1 
   assert( ack->status == RIC_CONTROL_STATUS_SUCCESS && "Only success supported ") ;
+#endif
 
   pending_event_ric_t ev = {.ev = CONTROL_REQUEST_PENDING_EVENT, .id = ack->ric_id }; 
   stop_pending_event(ric, &ev);
@@ -365,7 +411,7 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
 
 
   e2ap_msg_t ans = {.type = E2_SETUP_RESPONSE };
-  ans.u_msgs.e2_stp_resp = generate_setup_response(ric, req); 
+  ans.u_msgs.e2_stp_resp = generate_setup_response(&ric->e2ap_version.type, ric, req); 
 
   e2_node_t n = {0};
   init_e2_node(&n, &req->id, ans.u_msgs.e2_stp_resp.len_acc, ans.u_msgs.e2_stp_resp.accepted); 

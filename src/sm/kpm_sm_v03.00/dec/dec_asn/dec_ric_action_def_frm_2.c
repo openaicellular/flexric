@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "../../../../lib/sm/dec_asn_sm_common/dec_ue_id.h"
+#include "../../../../lib/sm/dec/dec_ue_id.h"
 #include "dec_ric_action_def_frm_2.h"
 #include "dec_ric_action_def_frm_1.h"
 

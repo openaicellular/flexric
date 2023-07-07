@@ -26,7 +26,7 @@
 #include <stdbool.h>
 
 typedef enum{
-  SUCCESS_E2AP_NODE_COMP_CONF_ACK,
+  SUCCESS_E2AP_NODE_COMP_CONF_ACK = 0,
   FAILURE_E2AP_NODE_COMP_CONF_ACK,
 } outcome_e2ap_node_comp_conf_ack_e;
 

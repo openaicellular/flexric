@@ -1,8 +1,8 @@
+add_subdirectory(3gpp)
 add_subdirectory(e2ap)
 add_subdirectory(ep)
 add_subdirectory(msg_hand)
 add_subdirectory(sm)
-#add_subdirectory(e2sm_common_ie)
 
 add_library(pending_events_obj OBJECT 
                                 pending_events.c 

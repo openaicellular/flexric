@@ -1,5 +1,5 @@
 #include "enc_ue_id_gran_period_lst.h"
-#include "../../../../lib/sm/enc_asn_sm_common/enc_ue_id.h"
+#include "../../../../lib/sm/enc/enc_ue_id.h"
 #include "../../ie/asn/asn_constant.h"
 #include "../../ie/asn/MatchingUEidItem-PerGP.h"
 #include "../../ie/asn/MatchingUEidList-PerGP.h"

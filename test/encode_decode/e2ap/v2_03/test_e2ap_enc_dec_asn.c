@@ -19,8 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
-
 #include <assert.h>
 #include <time.h>
 
@@ -44,7 +42,7 @@ byte_array_t copy_str_to_ba(const char* str)
 
   return dst;
 }
-
+/*
 void try_encode(E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
@@ -61,6 +59,26 @@ void try_encode(E2AP_PDU_t* pdu)
   }
   assert(er.encoded > -1);
 }
+*/
+
+static
+E2AP_PDU_t* e2ap_create_pdu(const uint8_t* buffer, int buffer_len)
+{
+  assert(buffer != NULL);
+  assert(buffer_len > -1);
+
+  E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
+  const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
+  const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2AP_PDU, (void**)&pdu, buffer, buffer_len);
+  //printf("rval.code = %d\n", rval.code);
+  //fprintf(stdout, "length of data %ld\n", rval.consumed);
+  assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGEND_BASIC_PER syntax?");
+  return pdu;
+}
+
+
+
+
 
 static
 void free_pdu(E2AP_PDU_t* pdu)
@@ -108,7 +126,9 @@ void test_subscription_request()
   .len_action = len_action
  };
 
-  E2AP_PDU_t* pdu = e2ap_enc_subscription_request_asn_pdu(&sr_begin);   
+  byte_array_t ba = e2ap_enc_subscription_request_asn(&sr_begin);   
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
   e2ap_msg_t msg = e2ap_dec_subscription_request(pdu);
   free_pdu(pdu); 
   assert(msg.type == RIC_SUBSCRIPTION_REQUEST );
@@ -139,7 +159,10 @@ void test_subscription_response()
     .len_na = len_na
   };
 
-  E2AP_PDU_t* pdu = e2ap_enc_subscription_response_asn_pdu(&sr_begin);   
+
+  byte_array_t ba = e2ap_enc_subscription_response_asn(&sr_begin);   
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
   e2ap_msg_t msg = e2ap_dec_subscription_response(pdu);
   free_pdu(pdu); 
   assert(msg.type == RIC_SUBSCRIPTION_RESPONSE);
@@ -163,10 +186,11 @@ void test_subscription_failure()
 
   criticality_diagnostics_t* crit_diag = NULL; 
 
+  cause_t cause = {0};
+
   ric_subscription_failure_t sf_begin = {
     .ric_id = ric_id,
-    . not_admitted = na,
-    .len_na = 1,
+    .cause = cause,
     .crit_diag = crit_diag, // optional
   };
 
@@ -191,7 +215,10 @@ void test_subscription_delete_request()
     .ric_id = ric_id,
   };
 
-  E2AP_PDU_t* pdu = e2ap_enc_subscription_delete_request_asn_pdu(&dr_begin);
+
+ byte_array_t ba = e2ap_enc_subscription_delete_request_asn(&dr_begin);
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
   e2ap_msg_t msg = e2ap_dec_subscription_delete_request(pdu);
   free_pdu(pdu); 
   assert(msg.type == RIC_SUBSCRIPTION_DELETE_REQUEST);
@@ -213,7 +240,10 @@ void test_ric_subscription_delete_response()
     .ric_id = ric_id,
   };
 
-  E2AP_PDU_t* pdu = e2ap_enc_subscription_delete_response_asn_pdu(&dr_begin);
+  byte_array_t ba = e2ap_enc_subscription_delete_response_asn(&dr_begin);
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
+
   e2ap_msg_t msg = e2ap_dec_subscription_delete_response(pdu);
   free_pdu(pdu); 
   assert(msg.type == RIC_SUBSCRIPTION_DELETE_RESPONSE);
@@ -280,7 +310,9 @@ void test_indication()
   .msg = ba_msg,
   };
 
-  E2AP_PDU_t* pdu = e2ap_enc_indication_asn_pdu(&ind_begin);
+  byte_array_t ba = e2ap_enc_indication_asn(&ind_begin);
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
   e2ap_msg_t msg = e2ap_dec_indication(pdu);
   free_pdu(pdu); 
   assert(msg.type == RIC_INDICATION);
@@ -321,7 +353,11 @@ void test_control_request()
   .ack_req = ack_req, // optional
 };
 
-  E2AP_PDU_t* pdu = e2ap_enc_control_request_asn_pdu(&rcr_begin);
+
+  byte_array_t ba = e2ap_enc_control_request_asn(&rcr_begin);
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
+
   e2ap_msg_t msg = e2ap_dec_control_request(pdu);
   free_pdu(pdu); 
   assert(msg.type == RIC_CONTROL_REQUEST);
@@ -338,17 +374,20 @@ void test_control_request_ack()
     .ran_func_id = 12};
 
   byte_array_t* call_process_id = NULL; // optional
-  ric_control_status_t status = RIC_CONTROL_STATUS_SUCCESS;
+  //ric_control_status_t status = RIC_CONTROL_STATUS_SUCCESS;
   byte_array_t* control_outcome = NULL; // optional
 
   ric_control_acknowledge_t c_ack_begin = {
     .ric_id = ric_id,
     .call_process_id = call_process_id,
-    .status = status,
+   // .status = status,
     .control_outcome = control_outcome,
   };
 
-  E2AP_PDU_t* pdu = e2ap_enc_control_ack_asn_pdu(&c_ack_begin);
+  byte_array_t ba = e2ap_enc_control_ack_asn(&c_ack_begin);
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
+
   e2ap_msg_t msg = e2ap_dec_control_ack(pdu);
   free_pdu(pdu); 
   assert(msg.type == RIC_CONTROL_ACKNOWLEDGE);
@@ -415,8 +454,8 @@ void test_error_indication()
 void test_setup_request()
 {
   e2ap_plmn_t plmn = {
-    .mcc = 10,
-    .mnc = 15,
+    .mcc = 505,
+    .mnc = 1,
     .mnc_digit_len = 2
   };
 
@@ -447,11 +486,13 @@ void test_setup_request()
 
   // Mandatory
   // 9.2.26
-  comp_conf_add[0].e2_node_comp_interface_type = rand() % END_E2AP_NODE_COMP_INTERFACE_TYPE; 
+  comp_conf_add[0].e2_node_comp_interface_type =  NG_E2AP_NODE_COMP_INTERFACE_TYPE; //  rand() % END_E2AP_NODE_COMP_INTERFACE_TYPE; 
 
-  // Optional
+  // Bug !!! Optional in specs, Mandatory in asn
   // 9.2.32
-  comp_conf_add[0].e2_node_comp_id = NULL;
+ // comp_conf_add[0].e2_node_comp_id = NULL;
+  const char ng_amf_name[] = "NG AMF NAME";
+  comp_conf_add[0].e2_node_comp_id.ng_amf_name = copy_str_to_ba(ng_amf_name);
 
   // Mandatory
   // 9.2.27
@@ -469,7 +510,9 @@ void test_setup_request()
     .len_cca = len_cca
   };
 
-  E2AP_PDU_t* pdu = e2ap_enc_setup_request_asn_pdu(&e2_stp_req_begin);
+  byte_array_t ba = e2ap_enc_setup_request_asn(&e2_stp_req_begin);
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
   e2ap_msg_t msg = e2ap_dec_setup_request(pdu);
   free_pdu(pdu); 
   assert(msg.type == E2_SETUP_REQUEST); 
@@ -498,20 +541,42 @@ void test_setup_response()
   accepted[0] = 45;
   const size_t len_rej = 0;
   rejected_ran_function_t* rejected = NULL;
-  e2_node_component_config_update_t* comp_conf_update_ack_list = NULL;
-  const size_t len_ccual = 0;
+
+  // [1-1024]
+  size_t len_ccaa = 1;
+  e2ap_node_comp_config_add_ack_t* comp_config_add_ack = calloc(len_ccaa, sizeof(e2ap_node_comp_config_add_ack_t)  );
+  assert(comp_config_add_ack != NULL && "Memory exhausted");
+
+  // 9.2.26
+  // Mandatory
+  comp_config_add_ack->e2_node_comp_interface_type = NG_E2AP_NODE_COMP_INTERFACE_TYPE;
+
+  // 9.2.32
+  // Mandatory
+  const char ng_amf_name[] = "NG AMF NAME";
+  comp_config_add_ack->e2_node_comp_id.ng_amf_name = copy_str_to_ba(ng_amf_name);
+
+  // 9.2.28
+  // Mandatory
+  comp_config_add_ack->e2_node_comp_conf_ack.outcome = SUCCESS_E2AP_NODE_COMP_CONF_ACK;
+
 
   e2_setup_response_t e2_stp_res_begin = {
+  // Mandatory
+    .trans_id = rand()%256,
     .id = id,
     .accepted = accepted ,
     .len_acc = len_acc ,
     .rejected = rejected ,
     .len_rej = len_rej ,
-    .comp_conf_update_ack_list = comp_conf_update_ack_list ,
-    .len_ccual = len_ccual ,
+    .comp_config_add_ack = comp_config_add_ack ,
+    .len_ccaa = len_ccaa,
   };
 
-  E2AP_PDU_t* pdu = e2ap_enc_setup_response_asn_pdu(&e2_stp_res_begin);
+
+  byte_array_t ba = e2ap_enc_setup_response_asn(&e2_stp_res_begin);
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
   e2ap_msg_t msg = e2ap_dec_setup_response(pdu);
   free_pdu(pdu); 
   assert(msg.type == E2_SETUP_RESPONSE); 
@@ -769,22 +834,6 @@ void fill_ran_function(ran_function_t* rf)
   rf->oid = copy_str_to_ba(oid);
 }
 
-static
-E2AP_PDU_t* e2ap_create_pdu(const uint8_t* buffer, int buffer_len)
-{
-  assert(buffer != NULL);
-  assert(buffer_len > -1);
-
-  E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
-  const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
-  const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2AP_PDU, (void**)&pdu, buffer, buffer_len);
-  //printf("rval.code = %d\n", rval.code);
-  //fprintf(stdout, "length of data %ld\n", rval.consumed);
-  assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGEND_BASIC_PER syntax?");
-  return pdu;
-}
-
-
 
 void test_e42_setup_request()
 {
@@ -853,7 +902,7 @@ void test_e42_setup_response()
 
   e42_setup_response_t sr_begin = {
     .xapp_id = rand()%1024,
-    .len_e2_nodes_conn = rand()%4+1,
+    .len_e2_nodes_conn = (rand()%4)+1,
   };
 
   if(sr_begin.len_e2_nodes_conn > 0 ){
@@ -865,7 +914,7 @@ void test_e42_setup_response()
     e2_node_connected_t* n = &sr_begin.nodes[i];
     n->id = id; 
 
-    uint32_t r = rand()%8;
+    uint32_t const r = (rand()%8) + 1;
 
     n->len_rf = r;
     if(r > 0){
@@ -881,6 +930,7 @@ void test_e42_setup_response()
 
   byte_array_t ba = e2ap_enc_e42_setup_response_asn(&sr_begin);
   assert(ba.buf != NULL && ba.len > 0);
+  
   E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
   free_byte_array(ba);
   assert(pdu != NULL);
@@ -1052,22 +1102,27 @@ void test_e42_control_request()
 
 int main()
 {
+    test_subscription_request();
+    test_subscription_response();
 
-//  for(size_t i =0 ; i < 1024; ++i){
-//    test_subscription_request();
-//    test_subscription_response();
-//    test_subscription_failure();
-//    test_subscription_delete_request();
-//    test_ric_subscription_delete_response();
-//    test_subscription_delete_failure();
-//    test_indication();
-//    test_control_request(); 
-//    test_control_request_ack(); 
-//    test_control_request_failure(); 
+    //    test_subscription_failure();
+   
+    test_subscription_delete_request();
+    test_ric_subscription_delete_response();
+
+    //    test_subscription_delete_failure();
+   
+    test_indication();
+    test_control_request(); 
+    test_control_request_ack(); 
+
+    //    test_control_request_failure(); 
 //    test_error_indication();
+   
     test_setup_request();
     test_setup_response();
-//    test_setup_failure();
+
+    //    test_setup_failure();
 //    test_reset_request(); 
 //    test_reset_response();
 //    test_service_update();
@@ -1089,13 +1144,12 @@ int main()
     // test_removal_failure();
 
     // E42
-//    test_e42_setup_request();
-//    test_e42_setup_response();
-//    test_e42_subscription_request();
-//    test_e42_subscription_delete_request();     
-//    test_e42_control_request();
+    test_e42_setup_request();
+    test_e42_setup_response();
+    test_e42_subscription_request();
+    test_e42_subscription_delete_request();     
+    test_e42_control_request();
 
-//  }
   puts("Sucess running the encoding/decoding test");
   return 0;
 }

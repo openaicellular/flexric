@@ -62,11 +62,31 @@ bool eq_e2_setup_response(const e2_setup_response_t* m0, const e2_setup_response
   return true;
 }
 
-
 void free_e2_setup_response(e2_setup_response_t* src)
 {
   assert(src != NULL);
 
-  assert(0!=0 && "Not implemented");
-}
+  // Mandatory
+  // uint8_t trans_id;
 
+  // Mandatory
+  // global_ric_id_t id;
+
+  // [0-256]
+  assert(src->len_acc < 257);
+  if(src->accepted != NULL)
+    free(src->accepted);
+
+  // [0-256]
+  assert(src->len_rej < 257);
+  if(src->rejected != NULL)
+    free(src->rejected);
+
+  // [1-1024]
+  assert(src->len_ccaa > 0 && src->len_ccaa < 1025);
+  for(size_t i = 0; i < src->len_ccaa; ++i){
+   free_e2ap_node_comp_config_add_ack(&src->comp_config_add_ack[i]); 
+  }
+  if(src->comp_config_add_ack != NULL)
+    free(src->comp_config_add_ack);
+}

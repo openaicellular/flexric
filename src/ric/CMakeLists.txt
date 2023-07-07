@@ -35,6 +35,7 @@ set(RIC_SRC
             iApps/stdout.c
             iApps/influx.c
             iApps/string_parser.c
+            generate_setup_response.c
             plugin_ric.c
             map_e2_node_sockaddr.c
             not_handler_ric.c

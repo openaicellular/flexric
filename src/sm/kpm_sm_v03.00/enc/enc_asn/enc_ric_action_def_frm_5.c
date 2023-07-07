@@ -1,6 +1,6 @@
 #include "enc_ric_action_def_frm_5.h"
 
-#include "../../../../lib/sm/enc_asn_sm_common/enc_ue_id.h"
+#include "../../../../lib/sm/enc/enc_ue_id.h"
 #include "../../ie/asn/MatchingUEidPerSubItem.h"
 #include "../../ie/asn/asn_constant.h"
 #include "enc_ric_action_def_frm_1.h"

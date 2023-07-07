@@ -31,9 +31,11 @@ typedef struct{
   // Mandatory
   // 9.2.26
   e2ap_node_comp_interface_type_e e2_node_comp_interface_type;
-  // Optional
+
+  // Bug in the standard!!! Optional in the standard, Mandatory in asn specs
+  // Let's take the asn definition;
   // 9.2.32
-  e2ap_node_comp_id_t* e2_node_comp_id;
+  e2ap_node_comp_id_t e2_node_comp_id;
 
   // Mandatory
   // 9.2.27

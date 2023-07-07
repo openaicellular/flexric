@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "../../../../lib/sm/3gpp_derived_ie/rrc_msg_id.h"
+#include "../../../../lib/3gpp/ie/rrc_msg_id.h"
 #include "network_interface_e2rc.h" 
 #include "ev_trigger_ue_info.h"
 #include "logical_or.h"

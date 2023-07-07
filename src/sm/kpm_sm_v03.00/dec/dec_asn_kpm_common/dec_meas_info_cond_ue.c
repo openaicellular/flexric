@@ -2,7 +2,7 @@
 #include "../../ie/asn/asn_constant.h"
 
 #include "dec_meas_info_cond_ue.h"
-#include "../../../../lib/sm/dec_asn_sm_common/dec_ue_id.h"
+#include "../../../../lib/sm/dec/dec_ue_id.h"
 #include "../../ie/asn/MeasurementCondUEidItem.h"
 #include "../../ie/asn/MatchingUEidList.h"
 #include "../../ie/asn/MatchingUEidItem.h"

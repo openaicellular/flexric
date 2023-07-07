@@ -33,7 +33,7 @@ typedef struct{
 
   // 9.2.32
   // Mandatory
-  e2ap_node_comp_id_t* e2_node_comp_id;
+  e2ap_node_comp_id_t e2_node_comp_id;
 
   // 9.2.28
   // Mandatory

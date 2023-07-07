@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "../../ie/asn/asn_constant.h"
 
-#include "../../../../lib/sm/dec_asn_sm_common/dec_ue_id.h"
+#include "../../../../lib/sm/dec/dec_ue_id.h"
 #include "../../ie/asn/UEMeasurementReportItem.h"
 #include "dec_ric_ind_msg_frm_3.h"
 #include "dec_ric_ind_msg_frm_1.h"

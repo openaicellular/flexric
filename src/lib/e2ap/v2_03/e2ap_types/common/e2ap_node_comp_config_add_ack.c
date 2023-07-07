@@ -29,6 +29,18 @@ void free_e2ap_node_comp_config_add_ack(e2ap_node_comp_config_add_ack_t* src)
   assert(src != NULL);
   assert(0 != 0 && "Not implemented");
 
+  // 9.2.26
+  // Mandatory
+  //e2ap_node_comp_interface_type_e e2_node_comp_interface_type;
+
+  // 9.2.32
+  // Mandatory
+  free_e2ap_node_comp_id(&src->e2_node_comp_id);
+
+  // 9.2.28
+  // Mandatory
+  free_e2ap_node_comp_conf_ack(&src->e2_node_comp_conf_ack);
+  //e2ap_node_comp_conf_ack_t e2_node_comp_conf_ack;
 }
 
 e2ap_node_comp_config_add_ack_t cp_e2ap_node_comp_config_add_ack(e2ap_node_comp_config_add_ack_t const* src)
@@ -49,7 +61,23 @@ bool eq_e2ap_node_component_config_add_ack(e2ap_node_comp_config_add_ack_t const
   if(m0 == NULL || m1 == NULL)
     return false;
 
-  assert(0 != 0 && "Not implemented");
-  return false;
+  // 9.2.26
+  // Mandatory
+  assert(m0->e2_node_comp_interface_type < END_E2AP_NODE_COMP_INTERFACE_TYPE);
+  assert(m1->e2_node_comp_interface_type < END_E2AP_NODE_COMP_INTERFACE_TYPE);
+  if(m0->e2_node_comp_interface_type != m1->e2_node_comp_interface_type)
+    return false;
+
+  // 9.2.32
+  // Mandatory
+  if(eq_e2ap_node_comp_id(&m0->e2_node_comp_id, &m1->e2_node_comp_id) == false)
+      return false;
+
+  // 9.2.28
+  // Mandatory
+  if(eq_e2ap_node_comp_conf_ack(&m0->e2_node_comp_conf_ack, &m1->e2_node_comp_conf_ack) == false)
+    return false;
+
+  return true;
 }
 

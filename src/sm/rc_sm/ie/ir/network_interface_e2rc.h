@@ -1,9 +1,9 @@
 #ifndef NETWORK_INTERFACE_E2RC_H
 #define NETWORK_INTERFACE_E2RC_H
 
-#include "../../../../lib/sm/3gpp_derived_ie/network_interface_type.h"
-#include "../../../../lib/sm/3gpp_derived_ie/network_interface_id.h"
-#include "../../../../lib/sm/3gpp_derived_ie/network_interface_msg_id.h"
+#include "../../../../lib/3gpp/ie/network_interface_type.h"
+#include "../../../../lib/3gpp/ie/network_interface_id.h"
+#include "../../../../lib/3gpp/ie/network_interface_msg_id.h"
 
 typedef struct{
 

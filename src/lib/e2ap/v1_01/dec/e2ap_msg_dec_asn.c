@@ -1280,7 +1280,6 @@ e2ap_msg_t e2ap_dec_error_indication(const E2AP_PDU_t* pdu)
   return ret;
 }
 
-
 // E2 -> RIC
 e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
 {

@@ -1,5 +1,5 @@
 #include "enc_meas_info_cond_ue.h"
-#include "../../../../lib/sm/enc_asn_sm_common/enc_ue_id.h"
+#include "../../../../lib/sm/enc/enc_ue_id.h"
 #include "../../ie/kpm_data_ie/data/meas_type.h"
 #include "../../ie/asn/asn_constant.h"
 #include "../../ie/asn/MeasurementCondUEidItem.h"

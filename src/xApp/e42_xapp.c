@@ -358,6 +358,7 @@ void send_subscription_request(e42_xapp_t* xapp, global_e2_node_id_t* id, ric_ge
 {
   assert(xapp != NULL);
   assert(id != NULL);
+  printf("E42_RIC_SUBSCRIPTION_REQUEST %d \n", E42_RIC_SUBSCRIPTION_REQUEST);
   assert(xapp->handle_msg[E42_RIC_SUBSCRIPTION_REQUEST]!= NULL);
 
   sm_ric_t* sm = sm_plugin_ric(&xapp->plugin_ric, ric_id.ran_func_id);

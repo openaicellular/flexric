@@ -25,12 +25,8 @@ target_link_libraries(test_near_ric
                       $<TARGET_OBJECTS:kpm_ric_info_common_obj>
                       $<TARGET_OBJECTS:kpm_ric_info_obj>
                       $<TARGET_OBJECTS:e2sm_common_ie_obj>
-                      $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-                      $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-                      $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
-                      $<TARGET_OBJECTS:sm_common_ie_obj>
-                      $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-                      $<TARGET_OBJECTS:sm_common_enc_asn_obj>
+                      $<TARGET_OBJECTS:3gpp_common_ie_obj>
+                      $<TARGET_OBJECTS:e2sm_common_ie_obj>
                       $<TARGET_OBJECTS:e2sm_rc_ir_obj>
                       near_ric_test
                       -pthread

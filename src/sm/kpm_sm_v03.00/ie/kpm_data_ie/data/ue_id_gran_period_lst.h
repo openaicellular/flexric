@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "../../../../../lib/sm/sm_common_ie/ue_id.h"
+#include "../../../../../lib/sm/ie/ue_id.h"
 #include "enum_value.h"
 
 #include <stdlib.h>

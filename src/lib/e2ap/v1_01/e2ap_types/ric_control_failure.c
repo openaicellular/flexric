@@ -41,5 +41,8 @@ bool eq_control_failure(const ric_control_failure_t* m0, const ric_control_failu
   if(eq_byte_array(m0->control_outcome, m1->control_outcome) == false)
     return false;
 
+
+
+
   return true;
 }

@@ -5,7 +5,7 @@
 #include "dec_ric_action_def_frm_1.h"
 #include "../dec_asn_kpm_common/dec_meas_bin_range_info.h"
 #include "../dec_asn_kpm_common/dec_meas_info_frm_1.h"
-#include "../../../../lib/sm/dec_asn_sm_common/dec_cell_global_id.h"
+#include "../../../../lib/sm/dec/dec_cell_global_id.h"
 
 kpm_act_def_format_1_t kpm_dec_action_def_frm_1_asn(const  E2SM_KPM_ActionDefinition_Format1_t * act_def_asn)
 {

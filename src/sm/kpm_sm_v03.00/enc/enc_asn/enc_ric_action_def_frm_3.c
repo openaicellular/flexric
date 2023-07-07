@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "../../../../lib/sm/enc_asn_sm_common/enc_cell_global_id.h"
+#include "../../../../lib/sm/enc/enc_cell_global_id.h"
 #include "../../ie/asn/asn_constant.h"
 #include "../enc_asn_kpm_common/enc_meas_info_frm_3.h"
 #include "enc_ric_action_def_frm_3.h"

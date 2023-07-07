@@ -273,7 +273,9 @@ e2ap_msg_t e2ap_handle_control_request_agent(e2_agent_t* ag, const e2ap_msg_t* m
 
   ric_control_acknowledge_t ric_ctrl_ack = {.ric_id = ctrl_req->ric_id,
                                             .call_process_id = NULL,
+#ifdef E2AP_V1
                                             .status = RIC_CONTROL_STATUS_SUCCESS,
+#endif                                            
                                             .control_outcome = ba_ctrl_ans } ;
 
   printf("[E2-AGENT]: CONTROL ACKNOWLEDGE sent\n");

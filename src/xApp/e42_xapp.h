@@ -45,6 +45,14 @@
 
 #include <stdatomic.h>
 
+#ifdef E2AP_V1
+#define HANDLE_MSG_NUM 31
+#elif  E2AP_V2
+#define HANDLE_MSG_NUM 34
+#else
+static_assert(0!=0 , "Not implemented");
+#endif
+
 typedef struct e42_xapp_s e42_xapp_t;
 
 typedef struct e2ap_msg_s (*e2ap_handle_msg_fp_xapp)(struct e42_xapp_s* xapp, const struct e2ap_msg_s* msg);
@@ -54,7 +62,7 @@ typedef struct e42_xapp_s
   e2ap_ep_xapp_t ep;
   e2ap_xapp_t ap; 
   asio_xapp_t io;
-  e2ap_handle_msg_fp_xapp handle_msg[31]; // note that not all the slots will be occupied
+  e2ap_handle_msg_fp_xapp handle_msg[ HANDLE_MSG_NUM ]; // note that not all the slots will be occupied
 
   // Registered SMs
   plugin_ag_t plugin_ag; // Needed for E2 setup request
@@ -109,6 +117,8 @@ void rm_report_sm_sync_xapp(e42_xapp_t* xapp, int handle);
 
 // We wait for the message to come back and avoid asyncronous programming
 sm_ans_xapp_t control_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t ran_func_id, void* ctrl_msg);
+
+#undef HANDLE_MSG_NUM 
 
 #endif
 

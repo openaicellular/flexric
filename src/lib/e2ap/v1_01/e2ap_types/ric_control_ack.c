@@ -23,12 +23,6 @@
 
 #include "ric_control_ack.h"
 
-  ric_gen_id_t ric_id;
-  byte_array_t* call_process_id; // optional
-  ric_control_status_t status;
-  byte_array_t* control_outcome; // optional
-
-
 
 bool eq_ric_control_ack_req(const ric_control_acknowledge_t* m0, const ric_control_acknowledge_t* m1)
 {

@@ -125,8 +125,13 @@ void e2ap_free_subscription_failure_msg(e2ap_msg_t* msg)
 void e2ap_free_subscription_failure(ric_subscription_failure_t* sf)
 {
   assert(sf != NULL);
-  assert(sf->not_admitted != NULL);
-  free(sf->not_admitted);
+
+// Mandatory
+//  ric_gen_id_t ric_id;
+  // Mandatory
+//  cause_t cause;
+  // Optional 
+//  criticality_diagnostics_t* crit_diag; 
 
   if(sf->crit_diag != NULL){
     assert(0!=0 && "Not implemented");
@@ -327,10 +332,11 @@ void e2ap_free_setup_response(e2_setup_response_t* sr)
     assert(0!= 0 && "Not Implemented");
   }
 
-  if(sr->len_ccual > 0){
+  assert(sr->len_ccaa > 0);
+/*  if(sr->len_ccaa > 0){
     assert(0!= 0 && "Not Implemented");
   }
-
+*/
 }
 
 // RIC -> E2

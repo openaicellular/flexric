@@ -41,16 +41,24 @@ e2ap_node_comp_conf_ack_t cp_e2ap_node_comp_conf_ack( e2ap_node_comp_conf_ack_t 
   return dst;
 }
 
-
-bool eq_e2ap_node_comp_conf_ack( e2ap_node_comp_conf_ack_t const* m0, e2ap_node_comp_conf_ack_t const* m1)
+bool eq_e2ap_node_comp_conf_ack(e2ap_node_comp_conf_ack_t const* m0, e2ap_node_comp_conf_ack_t const* m1)
 {
   if(m0 == m1)
     return true;
-  if(m0 != NULL || m1 != NULL)
+  if(m0 == NULL || m1 == NULL)
     return false;
 
-  assert(0!=0 && "Not implemented");
+  // Mandatory
+  // Outcome
+  if(m0->outcome != m1->outcome)
+    return false;
 
-  return false;
+
+  // Optional
+  // 9.2.1
+  assert(m0->cause == NULL && "Not implemented");
+  assert(m1->cause == NULL && "Not implemented");
+
+  return true;
 }
 

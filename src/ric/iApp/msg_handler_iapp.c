@@ -52,9 +52,9 @@ bool check_valid_msg_type(e2_msg_type_t msg_type )
       || msg_type == RIC_SUBSCRIPTION_DELETE_RESPONSE;
 }
 
-void init_handle_msg_iapp(handle_msg_fp_iapp (*handle_msg)[31])
+void init_handle_msg_iapp(handle_msg_fp_iapp (*handle_msg)[34])
 {
-  memset((*handle_msg), 0, sizeof(handle_msg_fp_iapp)*31);
+  memset((*handle_msg), 0, sizeof(handle_msg_fp_iapp)*34);
 
   (*handle_msg)[RIC_SUBSCRIPTION_RESPONSE] = e2ap_handle_subscription_response_iapp;
   (*handle_msg)[E42_SETUP_REQUEST] = e2ap_handle_e42_setup_request_iapp;
@@ -156,8 +156,10 @@ e2ap_msg_t e2ap_handle_e42_ric_control_ack_iapp(e42_iapp_t* iapp, const e2ap_msg
   defer( { e2ap_msg_free_iapp(&iapp->ap, &ans); } );
   ric_control_acknowledge_t* dst = &ans.u_msgs.ric_ctrl_ack;
   dst->ric_id = x.ric_id;
-  dst->status = src->status; 
 
+#ifdef E2AP_V1
+  dst->status = src->status; 
+#endif
   printf("[iApp]: RIC_CONTROL_ACKNOWLEDGE tx\n");
 
   sctp_msg_t sctp_msg = {0};

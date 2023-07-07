@@ -32,6 +32,7 @@
 #include <stdint.h>
 
 typedef struct {
+  uint8_t trans_id;
   cause_t cause;
   e2ap_time_to_wait_e* time_to_wait_ms;       // optional
   criticality_diagnostics_t* crit_diag;   // optional

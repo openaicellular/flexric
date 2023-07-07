@@ -170,13 +170,10 @@
 #include "../ie/asn/RANFunctionDefinition-Policy-Action-Item.h"
 #include "../ie/asn/PolicyCondition-RANParameter-Item.h"
 
-
 #include "../ie/asn/PolicyAction-RANParameter-Item.h"
 
-#include "../../../lib/sm/enc_asn_sm_common/enc_cell_global_id.h"
-
-
-#include "../../../lib/sm/enc_asn_sm_common/enc_ue_id.h"
+#include "../../../lib/sm/enc/enc_cell_global_id.h"
+#include "../../../lib/sm/enc/enc_ue_id.h"
 
 
 #include "rc_enc_asn.h"

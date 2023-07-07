@@ -97,7 +97,9 @@ e2_setup_request_t generate_setup_request(e2_agent_t* ag)
   // ToDO: Transaction ID needs to be considered within the pending messages
   
   e2_setup_request_t sr = {
+#ifdef E2AP_V2
     .trans_id = 0,
+#endif 
     .id = ag->global_e2_node_id,
     .ran_func_item = ran_func,
     .len_rf = len_rf,
@@ -140,10 +142,13 @@ e2_setup_request_t generate_setup_request(e2_agent_t* ag)
   // Mandatory
   // 9.2.26
   sr.comp_conf_add[0].e2_node_comp_interface_type = NG_E2AP_NODE_COMP_INTERFACE_TYPE;
-  // Optional
+  // Bug!! Optional in the standard, mandatory in ASN.1
   // 9.2.32
-  sr.comp_conf_add[0]. e2_node_comp_id = NULL;
-
+  sr.comp_conf_add[0].e2_node_comp_id.type = NG_E2AP_NODE_COMP_INTERFACE_TYPE  ;
+ 
+  const char ng_msg[] = "Dummy message";
+  sr.comp_conf_add[0].e2_node_comp_id. ng_amf_name = cp_str_to_ba(ng_msg); 
+ 
   // Mandatory
   // 9.2.27
   const char req[] = "NGAP Request Message sent";

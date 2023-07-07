@@ -1,6 +1,6 @@
 #include "enc_ric_ind_msg_frm_3.h"
 
-#include "../../../../lib/sm/enc_asn_sm_common/enc_ue_id.h"
+#include "../../../../lib/sm/enc/enc_ue_id.h"
 #include "../../ie/asn/asn_constant.h"
 #include "../../ie/asn/UEMeasurementReportList.h"
 #include "../../ie/asn/UEMeasurementReportItem.h"

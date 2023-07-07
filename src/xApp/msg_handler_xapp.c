@@ -283,8 +283,9 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
   assert(msg->type == RIC_CONTROL_ACKNOWLEDGE);
 
   ric_control_acknowledge_t const* ack = &msg->u_msgs.ric_ctrl_ack;
+#ifdef E2AP_V1 
   assert( ack->status == RIC_CONTROL_STATUS_SUCCESS && "Only success supported ") ;
-
+#endif
   act_proc_ans_t rv = find_act_proc(&xapp->act_proc, ack->ric_id.ric_req_id);
   printf("ric_req_id = %d \n", ack->ric_id.ric_req_id );
   assert(rv.ok == true && "ric_req_id not registered in the registry");

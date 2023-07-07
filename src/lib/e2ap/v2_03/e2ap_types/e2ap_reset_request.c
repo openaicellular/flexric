@@ -30,6 +30,8 @@ bool eq_reset_request(const e2ap_reset_request_t* m0, const e2ap_reset_request_t
 
   if(m0 == NULL || m1 == NULL) return false;
 
+  if(m0->trans_id != m1->trans_id) return false;
+
   if(eq_cause(&m0->cause, &m1->cause) == false)
     return false;
 

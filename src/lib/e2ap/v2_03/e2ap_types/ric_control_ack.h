@@ -27,16 +27,9 @@
 #include "common/ric_gen_id.h"
 #include "util/byte_array.h"
 
-typedef enum {
-  RIC_CONTROL_STATUS_SUCCESS = 0,
-  RIC_CONTROL_STATUS_REJECTED = 1,
-  RIC_CONTROL_STATUS_FAILED = 2, 
-} ric_control_status_t;
-
 typedef struct {
   ric_gen_id_t ric_id;
   byte_array_t* call_process_id; // optional
-  ric_control_status_t status;
   byte_array_t* control_outcome; // optional
 } ric_control_acknowledge_t;
 

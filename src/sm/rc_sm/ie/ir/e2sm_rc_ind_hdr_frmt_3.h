@@ -2,7 +2,7 @@
 #define E2SM_RC_INDICATION_HEADER_FORMAT_3_H
 
 #include <stdint.h>
-#include "../../../../lib/sm/sm_common_ie/ue_id.h"
+#include "../../../../lib/sm/ie/ue_id.h"
 
 typedef struct{
 

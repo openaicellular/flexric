@@ -2,7 +2,7 @@
 #include "../../../../util/alg_ds/alg/defer.h"
 #include "enc_ric_action_def_frm_2.h"
 #include "enc_ric_action_def_frm_1.h"
-#include "../../../../lib/sm/enc_asn_sm_common/enc_ue_id.h"
+#include "../../../../lib/sm/enc//enc_ue_id.h"
 
 E2SM_KPM_ActionDefinition_Format2_t * kpm_enc_action_def_frm_2_asn(const kpm_act_def_format_2_t * act_def_frm_2) 
 {

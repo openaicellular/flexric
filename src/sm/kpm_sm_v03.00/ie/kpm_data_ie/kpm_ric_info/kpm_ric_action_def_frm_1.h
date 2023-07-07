@@ -8,7 +8,7 @@ extern "C" {
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../../../../../lib/sm/sm_common_ie/cell_global_id.h"
+#include "../../../../../lib/sm/ie/cell_global_id.h"
 #include "../data/meas_info_frm_1_lst.h"
 #include "../data/meas_bin_range_info_lst.h"
 

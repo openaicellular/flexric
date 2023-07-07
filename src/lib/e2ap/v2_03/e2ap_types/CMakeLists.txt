@@ -44,7 +44,7 @@ set(e2ap_src_types
   common/e2ap_node_component_config_update.c  
   common/e2ap_node_comp_config_add_ack.c  
   common/e2ap_node_comp_conf_add_ack.c 
-
+  common/e2ap_node_comp_id.c 
 
   common/transport_layer_info.c 
   common/e2ap_plmn.c 

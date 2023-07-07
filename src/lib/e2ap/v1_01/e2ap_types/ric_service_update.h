@@ -28,6 +28,7 @@
 #include "common/e2ap_ran_function_id_rev.h"
 
 typedef struct {
+
   ran_function_t* added;
   size_t len_added;
 
