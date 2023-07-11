@@ -167,19 +167,19 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
   assert(dst.matching_cond_lst != NULL && "Memory exhausted");
 
   // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
-  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
-  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.test_cond_type = S_NSSAI_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.S_NSSAI = TRUE_TEST_COND_TYPE;
 
   dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
   assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
+  *dst.matching_cond_lst[0].test_info_lst.test_cond = EQUAL_TEST_COND;
 
   dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
   assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
   *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
   dst.matching_cond_lst[0].test_info_lst.int_value = malloc(sizeof(int64_t));
   assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.int_value = 0;
+  *dst.matching_cond_lst[0].test_info_lst.int_value = 1;
 
   // Action definition Format 1
   dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
