@@ -31,10 +31,13 @@
 
 
 typedef struct {
+  // Mandatory
   ric_gen_id_t ric_id;
-  ric_action_not_admitted_t* not_admitted;
-  size_t len_na;
-  criticality_diagnostics_t* crit_diag; // optional
+  // Mandatory
+  cause_t cause;
+  // Optional 
+  criticality_diagnostics_t* crit_diag; 
+
 } ric_subscription_failure_t;
 
 

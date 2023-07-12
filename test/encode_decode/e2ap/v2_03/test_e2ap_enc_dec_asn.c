@@ -1105,30 +1105,30 @@ int main()
     test_subscription_request();
     test_subscription_response();
 
-    //    test_subscription_failure();
+    //test_subscription_failure();
    
     test_subscription_delete_request();
     test_ric_subscription_delete_response();
 
-    //    test_subscription_delete_failure();
+    //test_subscription_delete_failure();
    
     test_indication();
     test_control_request(); 
     test_control_request_ack(); 
 
-    //    test_control_request_failure(); 
-//    test_error_indication();
+    //test_control_request_failure(); 
+    //test_error_indication();
    
     test_setup_request();
     test_setup_response();
 
-    //    test_setup_failure();
-//    test_reset_request(); 
-//    test_reset_response();
-//    test_service_update();
-//    test_service_update_ack();
-//    test_service_update_failure();
-//    test_service_query();
+    //test_setup_failure();
+    //test_reset_request(); 
+    //test_reset_response();
+    //test_service_update();
+    //test_service_update_ack();
+    //test_service_update_failure();
+    //test_service_query();
 
     // ToDO:
     //  test_node_configuration_update();

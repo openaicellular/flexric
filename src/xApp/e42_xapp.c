@@ -193,7 +193,8 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 
   init_ap(&xapp->ap.base.type);
 
-  init_handle_msg_xapp(&xapp->handle_msg);
+  xapp->sz_handle_msg = sizeof(xapp->handle_msg)/sizeof(xapp->handle_msg[0]);;
+  init_handle_msg_xapp(xapp->sz_handle_msg, &xapp->handle_msg);
 
   sm_io_ag_ran_t io = init_io_ag_ran();
 

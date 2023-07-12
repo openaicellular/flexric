@@ -31,14 +31,8 @@ bool eq_ric_subscritption_failure(const ric_subscription_failure_t* m0, const ri
   if(eq_ric_gen_id(&m0->ric_id, &m1->ric_id) == false)
     return false;
 
-  if(m0->len_na != m1->len_na)
+  if(eq_cause(&m0->cause, &m1->cause ) == false)
     return false;
-
-  for(size_t i = 0; i < m0->len_na; ++i){
-    if(eq_ric_action_not_admitted(&m0->not_admitted[i], &m1->not_admitted[i]) == false){
-      return false;
-    }
-  }
 
   if(eq_criticality_diagnostics(m0->crit_diag, m1->crit_diag) == false)
     return false;

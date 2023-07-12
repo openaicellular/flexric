@@ -49,13 +49,7 @@
 #include "E2nodeComponentInterfaceE1.h"
 #include "E2nodeComponentInterfaceW1.h"
 #include "E2nodeComponentInterfaceS1.h"
-// #include "E2nodeComponentGNB-CU-UP-ID.h"
-// #include "E2nodeComponentGNB-DU-ID.h"
 #include "E2nodeComponentID.h"
-// #include "E2nodeComponentConfigUpdateENgNB.h"
-// #include "E2nodeComponentConfigUpdateGNB.h"
-// #include "E2nodeComponentConfigUpdateNGeNB.h"
-// #include "E2nodeComponentConfigUpdateENB.h"
 
 #include <assert.h>
 
@@ -75,7 +69,7 @@ bool encode(byte_array_t* b, const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
   assert(b->buf != NULL);
-  xer_fprint(stderr, &asn_DEF_E2AP_PDU, pdu);
+  // xer_fprint(stderr, &asn_DEF_E2AP_PDU, pdu);
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2AP_PDU, pdu, b->buf, b->len);
   assert(er.encoded < (ssize_t) b->len);
@@ -605,7 +599,9 @@ E2AP_PDU_t* e2ap_enc_subscription_failure_asn_pdu(const ric_subscription_failure
 {
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
-  assert(0 != 0 && "Not implemented");
+ 
+  assert(0 != 0 && "Untested code");
+  (void)sf;
 
  /* 
   pdu->present = E2AP_PDU_PR_unsuccessfulOutcome;
@@ -792,6 +788,9 @@ byte_array_t e2ap_enc_subscription_delete_failure_asn_msg(const e2ap_msg_t* msg)
 E2AP_PDU_t* e2ap_enc_subscription_delete_failure_asn_pdu(const ric_subscription_delete_failure_t* df)  
 {
   assert(df != NULL);
+
+  assert(0 != 0 && "Untested code");
+
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1,sizeof(E2AP_PDU_t));
   pdu->present = E2AP_PDU_PR_unsuccessfulOutcome;
@@ -1152,6 +1151,8 @@ byte_array_t e2ap_enc_control_failure_asn_msg(const e2ap_msg_t* msg)
 E2AP_PDU_t* e2ap_enc_control_failure_asn_pdu( const ric_control_failure_t* cf)
 {
   assert(cf != NULL);
+  assert(0!=0 && "Untested code");
+
   //Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
   pdu->present = E2AP_PDU_PR_unsuccessfulOutcome;
@@ -1240,6 +1241,10 @@ byte_array_t e2ap_enc_error_indication_asn_msg(const e2ap_msg_t* msg)
 
 E2AP_PDU_t* e2ap_enc_error_indication_asn_pdu(const e2ap_error_indication_t* ei)
 {
+  assert(ei != NULL);
+
+  assert(0!=0 && "Untested code");
+  
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1,sizeof(E2AP_PDU_t));
   pdu->present = E2AP_PDU_PR_initiatingMessage;
@@ -1295,7 +1300,6 @@ E2AP_PDU_t* e2ap_enc_error_indication_asn_pdu(const e2ap_error_indication_t* ei)
   }
   return pdu;
 }
-
 
 static
 E2nodeComponentID_t e2ap_enc_node_component_id(e2ap_node_comp_interface_type_e interface_type, const e2ap_node_comp_id_t* id)
@@ -1846,6 +1850,9 @@ byte_array_t e2ap_enc_setup_failure_asn_msg(const e2ap_msg_t* msg)
 
 E2AP_PDU_t* e2ap_enc_setup_failure_asn_pdu(const e2_setup_failure_t* sf)
 {
+
+  assert(0!=0 && "Untested code");
+
   //Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
   pdu->present = E2AP_PDU_PR_unsuccessfulOutcome;
@@ -1925,6 +1932,9 @@ byte_array_t e2ap_enc_reset_request_asn_msg(const e2ap_msg_t* msg)
 E2AP_PDU_t* e2ap_enc_reset_request_asn_pdu(const e2ap_reset_request_t* rr)
 {
   assert(rr != NULL);
+
+  assert(0!=0 && "Untested code");
+
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
   pdu->present = E2AP_PDU_PR_initiatingMessage; 
@@ -1965,6 +1975,9 @@ byte_array_t e2ap_enc_reset_response_asn_msg(const e2ap_msg_t* msg)
 E2AP_PDU_t* e2ap_enc_reset_response_asn_pdu(const e2ap_reset_response_t* rr)
 {
   assert(rr != NULL);
+
+  assert(0!=0 && "Untested code");
+
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1,sizeof(E2AP_PDU_t));
   pdu->present = E2AP_PDU_PR_successfulOutcome;
@@ -2010,6 +2023,9 @@ E2AP_PDU_t* e2ap_enc_service_update_asn_pdu(const ric_service_update_t* su)
   assert(su->len_added <= (size_t)MAX_NUM_RAN_FUNC_ID);
   assert(su->len_deleted <= (size_t)MAX_NUM_RAN_FUNC_ID );
   assert(su->len_modified <= (size_t)MAX_NUM_RAN_FUNC_ID);
+
+  assert(0!=0 && "Untested code");
+
   // Message Type
   E2AP_PDU_t* pdu = calloc(1, sizeof( E2AP_PDU_t ) );
   pdu->present = E2AP_PDU_PR_initiatingMessage;
@@ -2100,6 +2116,9 @@ E2AP_PDU_t* e2ap_enc_service_update_ack_asn_pdu(const ric_service_update_ack_t* 
   assert(su != NULL);
   assert(su->len_accepted <= (size_t)MAX_NUM_RAN_FUNC_ID);
   assert(su->len_rejected <= (size_t)MAX_NUM_RAN_FUNC_ID);
+
+  assert(0!=0 && "Untested code");
+
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
   pdu->present = E2AP_PDU_PR_successfulOutcome; 
@@ -2174,7 +2193,8 @@ E2AP_PDU_t* e2ap_enc_service_update_failure_asn_pdu(const ric_service_update_fai
 {
   assert(uf != NULL);
 
-  assert(0!=0 && "Not implemented");
+  assert(0!=0 && "Untested code");
+  
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
   assert(pdu != NULL && "Memory exhausted");
@@ -2263,6 +2283,8 @@ struct E2AP_PDU* e2ap_enc_service_query_asn_pdu(const ric_service_query_t* sq)
   //Message Type. Mandatory
   assert(sq->len_accepted <= (size_t)MAX_NUM_RAN_FUNC_ID);
 
+  assert(0!=0 && "Untested code");
+
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
   pdu->present = E2AP_PDU_PR_initiatingMessage; 
@@ -2311,8 +2333,9 @@ byte_array_t e2ap_enc_node_configuration_update_asn_msg(const e2ap_msg_t* msg)
 
 struct E2AP_PDU* e2ap_enc_node_configuration_update_asn_pdu(const e2_node_configuration_update_t* cu)
 {
-
   assert(0 != 0 && "Not implemented");
+  (void)cu;
+
 /*
   assert(cu->len_ccul <= (size_t)MAX_NUM_ACTION_DEF);
   // Message Type. Mandatory

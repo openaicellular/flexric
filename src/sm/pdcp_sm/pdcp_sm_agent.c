@@ -156,6 +156,7 @@ sm_e2_setup_data_t on_e2_setup_pdcp_sm_ag(sm_agent_t const* sm_agent)
   assert(sm_agent != NULL);
   //printf("on_e2_setup called \n");
   sm_pdcp_agent_t* sm = (sm_pdcp_agent_t*)sm_agent;
+  (void)sm;
 
   sm_e2_setup_data_t setup = {.len_rfd =0, .ran_fun_def = NULL  }; 
 

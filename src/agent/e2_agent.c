@@ -26,144 +26,14 @@
 #include "not_handler_agent.h"
 #include "lib/async_event.h"
 #include "lib/e2ap/e2ap_ap_wrapper.h"
-//#include "lib/ap/e2ap_ap.h"
 #include "lib/e2ap/e2ap_msg_free_wrapper.h"
-
-//#include "sm/mac_sm/mac_sm_agent.h"
-//#include "sm/rlc_sm/rlc_sm_agent.h"
+#include "gen_msg_agent.h"
 #include "util/alg_ds/alg/alg.h"
 #include "util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "util/compare.h"
 
 #include <assert.h>
 #include <stdio.h>
-
-/*
-// Equality file descriptors
-static inline
-bool eq_fd_pair(const void* key1, const void* key2 )
-{
-  assert(key1 != NULL);
-  assert(key2 != NULL);
-
-  fd_pair_t* fd1 = (fd_pair_t*)key1;
-  fd_pair_t* fd2 = (fd_pair_t*)key2;
-
-  assert(fd1->r > 0 && "File descriptors must be larger than zero");
-  assert(fd2->r > 0 && "File descriptors must be larger than zero");
-
-  assert(fd1->w > 0 && "File descriptors must be larger than zero");
-  assert(fd2->w > 0 && "File descriptors must be larger than zero");
-
-  return eq_fd(&fd1->r, &fd2->r) && eq_fd(&fd1->w, &fd2->w);
-}
-*/
-
-/*
-// Comparation file descriptors
-static inline 
-int cmp_fd_pair(void const* fd_v1, void const* fd_v2)
-{
-  assert(fd_v1 != NULL);
-  assert(fd_v2 != NULL);
- fd_pair_t* fd1 = (fd_pair_t*)fd_v1;
- fd_pair_t* fd2 = (fd_pair_t*)fd_v2;
-
-  assert(fd1->r > 0&& "File descriptors must be larger than zero");
-  assert(fd2->r > 0&& "File descriptors must be larger than zero");
-
-  assert(fd1->w > 0&& "File descriptors must be larger than zero");
-  assert(fd2->w > 0&& "File descriptors must be larger than zero");
-
-  int cmp = cmp_fd(&fd1->r, &fd2->r);
-  if(cmp != 0)
-    return cmp;
-
-  return cmp_fd(&fd1->w, &fd2->w);
-}
-*/
-
-static
-e2_setup_request_t generate_setup_request(e2_agent_t* ag)
-{
-  assert(ag != NULL);
-
-  const size_t len_rf = assoc_size(&ag->plugin.sm_ds);
-  assert(len_rf > 0 && "No RAN function/service model registered. Check if the Service Models are located at shared library paths, default location is /usr/local/flexric/");
-
-  ran_function_t* ran_func = calloc(len_rf, sizeof(*ran_func));
-  assert(ran_func != NULL);
-
-  // ToDO: Transaction ID needs to be considered within the pending messages
-  
-  e2_setup_request_t sr = {
-#ifdef E2AP_V2
-    .trans_id = 0,
-#endif 
-    .id = ag->global_e2_node_id,
-    .ran_func_item = ran_func,
-    .len_rf = len_rf,
-    //.comp_conf_update = NULL,
-    //.len_ccu = 0
-  };
-
-  void* it = assoc_front(&ag->plugin.sm_ds);
-  for(size_t i = 0; i < len_rf; ++i){
-    sm_agent_t* sm = assoc_value(&ag->plugin.sm_ds, it);
-    assert(sm->info.id() == *(uint16_t*)assoc_key(&ag->plugin.sm_ds, it) && "RAN function mismatch");
-
-    sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
-    // Pass memory ownership
-    ran_func[i].def.len = def.len_rfd;
-    ran_func[i].def.buf = def.ran_fun_def;
-
-    ran_func[i].id = sm->info.id();
-    ran_func[i].rev = sm->info.rev();
-#ifdef E2AP_V1
-   ran_func[i].oid = calloc(1, sizeof(byte_array_t)); 
-   assert(ran_func[i].oid != NULL && "Memory exhausted");
-   *ran_func[i].oid = cp_str_to_ba(sm->info.oid());
-#elif E2AP_V2
-   ran_func[i].oid = cp_str_to_ba(sm->info.oid());
-#else
-  static_assert(0 !=0 && "Not implemented");
-#endif
-
-    it = assoc_next(&ag->plugin.sm_ds ,it);
-  }
-  assert(it == assoc_end(&ag->plugin.sm_ds) && "Length mismatch");
-
-#ifdef E2AP_V2
-  // ToDO: This needs to be filled from the RAN
-  sr.len_cca = 1; 
-  sr.comp_conf_add = calloc(sr.len_cca, sizeof(e2ap_node_component_config_add_t));
-  assert(sr.comp_conf_add != NULL && "Memory exhausted");
-    
-  // Mandatory
-  // 9.2.26
-  sr.comp_conf_add[0].e2_node_comp_interface_type = NG_E2AP_NODE_COMP_INTERFACE_TYPE;
-  // Bug!! Optional in the standard, mandatory in ASN.1
-  // 9.2.32
-  sr.comp_conf_add[0].e2_node_comp_id.type = NG_E2AP_NODE_COMP_INTERFACE_TYPE  ;
- 
-  const char ng_msg[] = "Dummy message";
-  sr.comp_conf_add[0].e2_node_comp_id. ng_amf_name = cp_str_to_ba(ng_msg); 
- 
-  // Mandatory
-  // 9.2.27
-  const char req[] = "NGAP Request Message sent";
-  const char res[] = "NGAP Response Message reveived";
-
-  //  e2ap_node_comp_conf_t e2_node_comp_conf;
-  sr.comp_conf_add[0].e2_node_comp_conf.request = cp_str_to_ba(req); 
-  sr.comp_conf_add[0].e2_node_comp_conf.response = cp_str_to_ba(res); 
-
-#elif E2AP_V3
-  static_assert(0 !=0 && "Not implemented");
-#endif
-
-  return sr;
-}
 
 static
 ric_indication_t generate_aindication(e2_agent_t* ag, sm_ind_data_t* data, aind_event_t* ai_ev)
@@ -374,26 +244,6 @@ bool pend_event(e2_agent_t* ag, int fd, pending_event_t** p_ev)
   return *p_ev != NULL;
 }
 
-/*
-static
-async_event_t find_event_type(e2_agent_t* ag, int fd)
-{
-  assert(ag != NULL);
-  assert(fd > 0);
-  async_event_t e = {.type = UNKNOWN_EVENT };
-  if (net_pkt(ag, fd) == true){
-    e.type = NETWORK_EVENT;
-  } else if (ind_event(ag, fd, &e.i_ev) == true) {
-    e.type = INDICATION_EVENT;
-  } else if (pend_event(ag, fd, &e.p_ev) == true){
-    e.type = PENDING_EVENT;
-  } else{
-    assert("Unknown event happened!");
-  }
-  return e;
-}
-*/
-
 static
 void consume_fd(int fd)
 {
@@ -513,7 +363,7 @@ void e2_event_loop_agent(e2_agent_t* ag)
           assert(*e.p_ev == SETUP_REQUEST_PENDING_EVENT && "Unforeseen pending event happened!" );
 
           // Resend the setup request message
-          e2_setup_request_t sr = generate_setup_request(ag); 
+          e2_setup_request_t sr = gen_setup_request(&ag->ap.version.type, ag); 
           defer({ e2ap_free_setup_request(&sr); } );
 
           printf("[E2AP] Resending Setup Request after timeout\n");
@@ -565,7 +415,8 @@ e2_agent_t* e2_init_agent(const char* addr, int port, global_e2_node_id_t ge2nid
 
   init_ap(&ag->ap.base.type);
 
-  init_handle_msg_agent(&ag->handle_msg);
+  ag->sz_handle_msg = sizeof(ag->handle_msg)/sizeof(ag->handle_msg[0]);
+  init_handle_msg_agent(ag->sz_handle_msg, &ag->handle_msg);
 
   init_plugin_ag(&ag->plugin, libs_dir, io);
 
@@ -587,7 +438,7 @@ void e2_start_agent(e2_agent_t* ag)
   assert(ag != NULL);
 
   // Resend the subscription request message
-  e2_setup_request_t sr = generate_setup_request(ag); 
+  e2_setup_request_t sr = gen_setup_request(&ag->ap.version.type, ag); 
   defer({ e2ap_free_setup_request(&sr);  } );
 
   printf("[E2-AGENT]: Sending setup request\n");
@@ -683,56 +534,6 @@ void e2_async_event_agent(e2_agent_t* ag, uint32_t ric_req_id, void* ind_data)
   assert(rc != 0);
 }
 
-/*
-void e2_async_agent(e2_agent_t* ag, uint32_t ric_req_id)
-{
-  assert(ag != NULL);
-  
-  ind_event_t tmp = {.ric_id.ric_req_id = ric_req_id, 
-                     .sm = NULL, 
-                     .action_id = 0 };
-
-  void* start_r = NULL;
-  void* end_r = NULL;
-  void* it_r = NULL; 
-  int num = 5;
-  while(num > 0){
-    
-    int rc = pthread_mutex_lock(&ag->mtx_ind_event);  
-    assert(rc == 0);
-
-    start_r = assoc_rb_tree_front(&ag->ind_event.right);
-    end_r = assoc_rb_tree_end(&ag->ind_event.right);
-    it_r = find_if_rb_tree(&ag->ind_event.right, start_r, end_r, &tmp, eq_ind_event_ric_req_id); 
-    if(it_r != end_r) break;
-
-    rc = pthread_mutex_unlock(&ag->mtx_ind_event);
-    assert(rc == 0);
-
-    num -= 1;
-    // Give some time to propagate the subscription request and be sure
-    // it has been writen in the ind_event ds.
-    usleep(10);
-  }
-
-  assert(it_r != end_r && "ric_rec_id not found");
-  ind_event_t* ind_ev = assoc_rb_tree_key(&ag->ind_event.right, it_r);
-  int fd_write = ind_ev->fd_write; 
-  int rc = pthread_mutex_unlock(&ag->mtx_ind_event);
-  assert(rc == 0);
-
-  assert(fd_write > 0);
-  int num_char = 32;
-  char str[num_char];
-  memset(str, '\0', num_char);
-  rc = snprintf(str, num_char ,"%u\n", ric_req_id );
-  assert(rc > 0 && rc < num_char -1);
-
-  rc = write(fd_write, str, rc);
-  assert(rc != 0);
-}
-*/
-
 //////////////////////////////////
 /////////////////////////////////
 
@@ -795,7 +596,4 @@ void e2_send_control_failure(e2_agent_t* ag, const ric_control_failure_t* cf)
   e2ap_send_bytes_agent(&ag->ep, ba);
   free_byte_array(ba);
 }
-
-
-
 

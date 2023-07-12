@@ -6,7 +6,6 @@ else()
   message(FATAL_ERROR "Unknown type")
 endif()
 
-
 set(E2_AGENT_SRC 
             asio_agent.c
             e2ap_agent.c
@@ -17,6 +16,7 @@ set(E2_AGENT_SRC
             e2_agent_api.c
             plugin_agent.c
             not_handler_agent.c
+            gen_msg_agent.c
             ../sm/sm_proc_data.c
             $<TARGET_OBJECTS:e2ap_ap_obj>
             $<TARGET_OBJECTS:e2ap_ep_obj>
@@ -29,20 +29,13 @@ set(E2_AGENT_SRC
             $<TARGET_OBJECTS:e2ap_msg_dec_obj>
             $<TARGET_OBJECTS:e2ap_msg_free_obj>
             $<TARGET_OBJECTS:e2_ngran_obj>
-
-                                $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-                                $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-                                $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
-
-                                $<TARGET_OBJECTS:sm_common_ie_obj>
-                                $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-                                $<TARGET_OBJECTS:sm_common_enc_asn_obj>
- 
-
-
-                                #            $<TARGET_OBJECTS:3gpp_common_ie_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
+            $<TARGET_OBJECTS:sm_common_ie_obj>
+            $<TARGET_OBJECTS:sm_common_dec_asn_obj>
+            $<TARGET_OBJECTS:sm_common_enc_asn_obj>
             $<TARGET_OBJECTS:e2sm_common_ie_obj>
-
   )
 
 if(E2AP_ENCODING STREQUAL "ASN")

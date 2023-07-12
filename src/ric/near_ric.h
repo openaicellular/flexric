@@ -19,7 +19,6 @@ e* For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
 
-
 #ifndef E2_NEAR_RIC_H
 #define E2_NEAR_RIC_H
 
@@ -35,9 +34,19 @@ e* For more information about the OpenAirInterface (OAI) Software Alliance:
 #include "map_e2_node_sockaddr.h"
 #include "../lib/e2ap/e2ap_version.h"
 
-//#include "../ric/iApp/iapp_if.h"
-
 #include <stdatomic.h>
+
+
+#ifdef E2AP_V1
+#define NUM_HANDLE_MSG 31
+#elif E2AP_V2 
+#define NUM_HANDLE_MSG 34
+#elif E2AP_V3 
+#define NUM_HANDLE_MSG 43
+#else
+static_assert(0!=0, "Unknown E2AP version");
+#endif
+
 
 struct near_ric_s;
 typedef struct e2ap_msg_s (*e2ap_handle_msg_fp_ric)(struct near_ric_s* ric, const struct e2ap_msg_s* msg);
@@ -47,7 +56,8 @@ typedef struct near_ric_s
   e2ap_ep_ric_t ep;
   e2ap_ric_t ap; 
   asio_ric_t io;
-  e2ap_handle_msg_fp_ric handle_msg[30]; // 26 E2AP + 4 E42AP note that not all the slots will be occupied
+  size_t sz_handle_msg;
+  e2ap_handle_msg_fp_ric handle_msg[NUM_HANDLE_MSG]; // 26 E2AP + 4 E42AP note that not all the slots will be occupied
 
   // Registered SMs
   plugin_ric_t plugin;
@@ -65,9 +75,6 @@ typedef struct near_ric_s
   // Pending events
   bi_map_t pending; // left: fd, right: pending_event_ric_t   
   pthread_mutex_t pend_mtx;
-
-  // E2AP Version
-  e2ap_version_t e2ap_version;
 
   atomic_bool server_stopped;
   atomic_bool stop_token;
@@ -111,5 +118,6 @@ void fwd_ric_subscription_request_delete(near_ric_t* ric, global_e2_node_id_t co
 
 uint16_t fwd_ric_control_request(near_ric_t* ric, global_e2_node_id_t const* id, ric_control_request_t const* cr,  void (*f)(e2ap_msg_t const* msg));
 
-#endif
+#undef NUM_HANDLE_MSG  
 
+#endif

@@ -90,9 +90,10 @@ void rm_pending_event_xapp(e42_xapp_t* xapp, pending_event_xapp_t* ev)
   defer({ free(fd); } );
 }
 
-void init_handle_msg_xapp(e2ap_handle_msg_fp_xapp (*handle_msg)[31])
+void init_handle_msg_xapp(size_t len, e2ap_handle_msg_fp_xapp (*handle_msg)[len])
 {
-  memset((*handle_msg), 0, sizeof(e2ap_handle_msg_fp_xapp)*31);
+  assert(len == NONE_E2_MSG_TYPE);
+  memset((*handle_msg), 0, sizeof(e2ap_handle_msg_fp_xapp)*len);
   (*handle_msg)[RIC_SUBSCRIPTION_RESPONSE] = e2ap_handle_subscription_response_xapp;
   (*handle_msg)[RIC_SUBSCRIPTION_FAILURE] = e2ap_handle_subscription_failure_xapp;
   (*handle_msg)[RIC_SUBSCRIPTION_DELETE_RESPONSE] = e2ap_handle_subscription_delete_response_xapp;

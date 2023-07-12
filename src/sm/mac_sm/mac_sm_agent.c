@@ -153,6 +153,7 @@ sm_e2_setup_data_t on_e2_setup_mac_sm_ag(sm_agent_t const* sm_agent)
   //mac_e2_setup_data_t* setup = &rd_if.e2ap.mac;
 
   sm_mac_agent_t* sm = (sm_mac_agent_t*)sm_agent;
+  (void)sm;
 
   sm_e2_setup_data_t setup = {.len_rfd = 0, .ran_fun_def = NULL }; 
 

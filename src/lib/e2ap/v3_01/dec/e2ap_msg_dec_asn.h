@@ -144,6 +144,44 @@ e2ap_msg_t e2ap_dec_node_configuration_update_ack(const struct E2AP_PDU* pdu);
 // E2 -> RIC
 e2ap_msg_t e2ap_dec_connection_update_failure(const struct E2AP_PDU* pdu);
 
+/////
+// New in V2
+/////
+
+// E2 <-> RIC
+e2ap_msg_t e2ap_dec_removal_request(const struct E2AP_PDU* pdu);
+
+// E2 <-> RIC
+e2ap_msg_t e2ap_dec_removal_response(const struct E2AP_PDU* pdu);
+
+// E2 <-> RIC
+e2ap_msg_t e2ap_dec_removal_failure(const struct E2AP_PDU* pdu);
+
+/////
+// End new in V2
+/////
+
+/////
+// New in V3
+/////
+
+e2ap_msg_t e2ap_dec_subscription_mod_request(const struct E2AP_PDU* pdu);
+e2ap_msg_t e2ap_dec_subscription_mod_response(const struct E2AP_PDU* pdu);
+e2ap_msg_t e2ap_dec_subscription_mod_failure(const struct E2AP_PDU* pdu);
+e2ap_msg_t e2ap_dec_subscription_mod_required(const struct E2AP_PDU* pdu);
+e2ap_msg_t e2ap_dec_subscription_mod_confirm(const struct E2AP_PDU* pdu);
+e2ap_msg_t e2ap_dec_subscription_mod_refuse(const struct E2AP_PDU* pdu);
+e2ap_msg_t e2ap_dec_query_request(const struct E2AP_PDU* pdu);
+e2ap_msg_t e2ap_dec_query_response(const struct E2AP_PDU* pdu);
+e2ap_msg_t e2ap_dec_query_failure(const struct E2AP_PDU* pdu);
+
+/////
+// End new in V3
+/////
+
+
+
+ 
 
 // xApp -> iApp
 e2ap_msg_t e2ap_dec_e42_setup_request(const struct E2AP_PDU* pdu);

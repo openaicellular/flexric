@@ -75,7 +75,7 @@ e42_setup_request_t generate_e42_setup_request(e42_xapp_t* xapp)
   const size_t len_rf = assoc_size(&xapp->plugin_ag.sm_ds);
   assert(len_rf > 0 && "No RAN function/service model registered. Check if the Service Models are at the /usr/lib/flexric/ path \n");
 
-  assert(len_rf == assoc_size(&xapp->plugin_ric.sm_ds) && "Invariant violated");
+  assert((len_rf == assoc_size(&xapp->plugin_ric.sm_ds)) && "Invariant violated");
 
   ran_function_t* ran_func = NULL;
   if(len_rf > 0){
@@ -101,17 +101,11 @@ e42_setup_request_t generate_e42_setup_request(e42_xapp_t* xapp)
    *ran_func[i].oid = cp_str_to_ba(sm->info.oid());
 #elif E2AP_V2
    ran_func[i].oid = cp_str_to_ba(sm->info.oid());
+#elif E2AP_V3
+   ran_func[i].oid = cp_str_to_ba(sm->info.oid());
 #else
-  static_assert(0 !=0 && "Not implemented");
+    assert(0 !=0 && "Not implemented"); 
 #endif
-/*
-    assert(sm->ran_func_id == def.rf.id);
-
-    if(def.len_rfd > 0)
-      free(def.ran_fun_def);
-
-    ran_func[i] = def.rf;
-*/
     it = assoc_next(&xapp->plugin_ag.sm_ds ,it);
   }
   assert(it == assoc_end(&xapp->plugin_ag.sm_ds) && "Length mismatch");

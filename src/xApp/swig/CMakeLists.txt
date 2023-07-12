@@ -19,10 +19,10 @@ INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 #SET(CMAKE_SWIG_FLAGS "")
-
 #SET(CMAKE BUILD TYPE Debug)
 
 SET_PROPERTY(SOURCE swig_wrapper.i PROPERTY CPLUSPLUS ON)
+
 
 
 SET(XAPP_TARGET_LANGUAGE "PYTHON_LANG" CACHE STRING "xApp target language.")
@@ -51,6 +51,8 @@ endif()
 
 
 
+
+
 SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE ${XAPP_LANG} SOURCES 
                                                  swig_wrapper.i 
                                                  swig_wrapper.cpp
@@ -69,6 +71,8 @@ SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE ${XAPP_LANG} SOURCES
                                                  ../../util/alg_ds/alg/eq_float.c
                                                  )
 
+
+set_property(TARGET xapp_sdk PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION})
 
 #PYTHON compilation
 if(XAPP_TARGET_LANGUAGE STREQUAL "PYTHON_LANG")
@@ -124,5 +128,5 @@ SWIG_LINK_LIBRARIES(xapp_sdk
                     -lsctp
                     -lpthread)
 
-
+target_compile_definitions(xapp_sdk PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION})
 

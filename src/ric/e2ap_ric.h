@@ -19,10 +19,10 @@
  *      contact@openairinterface.org
  */
 
-
 #ifndef E2AP_RIC_H
 #define E2AP_RIC_H
 
+#include "lib/e2ap/e2ap_version.h"
 #include "lib/e2ap/e2ap_ap_wrapper.h"                                     // for e2ap_...
 #include "lib/e2ap/e2_setup_response_wrapper.h"                // for e2_se...
 #include "lib/e2ap/ric_control_request_wrapper.h"              // for ric_c...
@@ -34,6 +34,7 @@
 typedef struct
 {
   e2ap_ap_t base;
+  e2ap_version_t version;
 } e2ap_ric_t;
 
 

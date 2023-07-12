@@ -52,9 +52,11 @@ bool check_valid_msg_type(e2_msg_type_t msg_type )
       || msg_type == RIC_SUBSCRIPTION_DELETE_RESPONSE;
 }
 
-void init_handle_msg_iapp(handle_msg_fp_iapp (*handle_msg)[34])
+void init_handle_msg_iapp(size_t len, handle_msg_fp_iapp (*handle_msg)[len])
 {
-  memset((*handle_msg), 0, sizeof(handle_msg_fp_iapp)*34);
+  assert(len == NONE_E2_MSG_TYPE );
+
+  memset((*handle_msg), 0, sizeof(handle_msg_fp_iapp)*len);
 
   (*handle_msg)[RIC_SUBSCRIPTION_RESPONSE] = e2ap_handle_subscription_response_iapp;
   (*handle_msg)[E42_SETUP_REQUEST] = e2ap_handle_e42_setup_request_iapp;

@@ -36,13 +36,6 @@
 #include "../ie/asn/E2AP-PDU.h"
 #include "../ie/asn/E2nodeComponentConfigUpdate-Item.h"
 #include "../ie/asn/E2nodeComponentID.h"
-//#include "../ie/asn/E2nodeComponentGNB-CU-UP-ID.h"
-//#include "../ie/asn/E2nodeComponentGNB-DU-ID.h"
-//#include "../ie/asn/E2nodeComponentConfigUpdateGNB.h"
-//#include "../ie/asn/E2nodeComponentConfigUpdateENgNB.h"
-//#include "../ie/asn/E2nodeComponentConfigUpdateNGeNB.h"
-//#include "../ie/asn/E2nodeComponentConfigUpdateENB.h"
-
 #include "../ie/asn/E2nodeComponentConfigurationAck.h"
 
 #include "E2nodeComponentInterfaceNG.h"
@@ -366,7 +359,6 @@ e2ap_msg_t e2ap_dec_subscription_request(const E2AP_PDU_t* pdu)
   assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICsubscriptionRequest);
 
   ric_subscription_request_t* sr = &ret.u_msgs.ric_sub_req; 
-
 
   const RICsubscriptionRequest_t* out = &pdu->choice.initiatingMessage->value.choice.RICsubscriptionRequest;
 
@@ -827,6 +819,9 @@ e2ap_msg_t e2ap_dec_subscription_delete_response(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_subscription_delete_failure(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = RIC_SUBSCRIPTION_DELETE_FAILURE};
   ric_subscription_delete_failure_t* df = &ret.u_msgs.ric_sub_del_fail;
 
@@ -1255,6 +1250,9 @@ e2ap_msg_t e2ap_dec_control_ack(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_control_failure(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = RIC_CONTROL_FAILURE};
   ric_control_failure_t* cf = &ret.u_msgs.ric_ctrl_fail;
 
@@ -1324,6 +1322,9 @@ e2ap_msg_t e2ap_dec_control_failure(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_error_indication(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = E2AP_ERROR_INDICATION};
   e2ap_error_indication_t* dst = &ret.u_msgs.err_ind;
   // Message Type. Mandatory
@@ -1374,7 +1375,6 @@ e2ap_msg_t e2ap_dec_error_indication(const E2AP_PDU_t* pdu)
   }
   return ret;
 }
-
 
 // E2 -> RIC
 e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
@@ -1756,6 +1756,9 @@ e2ap_msg_t e2ap_dec_setup_response(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = E2_SETUP_FAILURE};
   e2_setup_failure_t* sf = &ret.u_msgs.e2_stp_fail;
 
@@ -1822,6 +1825,9 @@ e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_reset_request(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = E2AP_RESET_REQUEST};
   e2ap_reset_request_t* rr = &ret.u_msgs.rst_req;
 
@@ -1855,6 +1861,9 @@ e2ap_msg_t e2ap_dec_reset_request(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_reset_response(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = E2AP_RESET_RESPONSE};
   e2ap_reset_response_t* rr = &ret.u_msgs.rst_resp;
 
@@ -1887,6 +1896,9 @@ e2ap_msg_t e2ap_dec_reset_response(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_service_update(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = RIC_SERVICE_UPDATE};
   ric_service_update_t* su = &ret.u_msgs.ric_serv_updt;
 
@@ -1962,6 +1974,9 @@ e2ap_msg_t e2ap_dec_service_update(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = RIC_SERVICE_UPDATE_ACKNOWLEDGE};
   ric_service_update_ack_t* su = &ret.u_msgs.ric_serv_updt_ack;
   // Message Type. Mandatory
@@ -2029,13 +2044,14 @@ e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
 // RIC -> E2
 e2ap_msg_t e2ap_dec_service_update_failure(const E2AP_PDU_t* pdu)
 {
-  assert(0!=0 && "Not implemented");
-e2ap_msg_t dst = {0};
-return dst;
-}
-/*
+
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = RIC_SERVICE_UPDATE_FAILURE};
+
+/*
  ric_service_update_failure_t* uf = &ret.u_msgs.ric_serv_updt_fail;
   // Message Type. Mandatory
   assert(pdu->present == E2AP_PDU_PR_unsuccessfulOutcome); 
@@ -2082,14 +2098,18 @@ return dst;
     }
     elm -= 1;
   }
+
+*/
   return ret;
 }
-*/
 
 // RIC -> E2
 e2ap_msg_t e2ap_dec_service_query(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = RIC_SERVICE_QUERY};
   ric_service_query_t* sq = &ret.u_msgs.ric_serv_query;
   // Message Type. Mandatory
@@ -2154,8 +2174,8 @@ e2ap_msg_t e2ap_dec_node_configuration_update(const E2AP_PDU_t* pdu)
   cu->len_ccul = sz;
 
   for(int i = 0; i < sz; ++i){
-    const E2nodeComponentConfigUpdate_ItemIEs_t* n = (const E2nodeComponentConfigUpdate_ItemIEs_t*) conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.array[i];
-     const E2nodeComponentConfigUpdate_Item_t* src = &n->value.choice.E2nodeComponentConfigUpdate_Item;
+    //const E2nodeComponentConfigUpdate_ItemIEs_t* n = (const E2nodeComponentConfigUpdate_ItemIEs_t*) conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.array[i];
+    // const E2nodeComponentConfigUpdate_Item_t* src = &n->value.choice.E2nodeComponentConfigUpdate_Item;
      assert(0 != 0 && "Not implemented");
 //    cu->comp_conf_update_list[i] = copy_e2_node_component_conf_update(src);
   }

@@ -11,9 +11,7 @@
 #include "../../sm/rlc_sm/rlc_sm_id.h"
 #include "../../sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../sm/gtp_sm/gtp_sm_id.h"
-
 #include "../../sm/slice_sm/slice_sm_id.h"
-
 #include "../../util/conf_file.h"
 
 
@@ -46,9 +44,6 @@ const char* convert_period(Interval  inter_arg)
 
 }
 
-
-
-
 void init()
 {
   assert(initialized == false && "Already initialized!");
@@ -70,7 +65,6 @@ bool try_stop()
 std::vector<E2Node> conn_e2_nodes(void)
 {
   e2_node_arr_t arr = e2_nodes_xapp_api();
-   
 
   std::vector<E2Node> x; //(arr.len);
 

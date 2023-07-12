@@ -7,11 +7,22 @@
 
 %{
   #include "swig_wrapper.h"
-  #include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"
-  #include "../../lib/e2ap/e2ap_plmn_wrapper.h"
-  #include "../../lib/e2ap/e2ap_ran_function_wrapper.h"
-  #include "../../util/byte_array.h"
 
+#ifdef E2AP_V1
+  #include "../../lib/e2ap/v1_01/e2ap_types/common/e2ap_global_node_id.h"
+  #include "../../lib/e2ap/v1_01/e2ap_types/common/e2ap_plmn.h"
+  #include "../../lib/e2ap/v1_01/e2ap_types/common/e2ap_ran_function.h"
+#elif E2AP_V2
+  #include "../../lib/e2ap/v2_03/e2ap_types/common/e2ap_global_node_id.h"
+  #include "../../lib/e2ap/v2_03/e2ap_types/common/e2ap_plmn.h"
+  #include "../../lib/e2ap/v2_03/e2ap_types/common/e2ap_ran_function.h"
+#elif E2AP_V3
+  #include "../../lib/e2ap/v3_01/e2ap_types/common/e2ap_global_node_id.h"
+  #include "../../lib/e2ap/v3_01/e2ap_types/common/e2ap_plmn.h"
+  #include "../../lib/e2ap/v3_01/e2ap_types/common/e2ap_ran_function.h"
+#endif
+
+ #include "../../util/byte_array.h"
   #include "../../sm/mac_sm/ie/mac_data_ie.h"
   #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
   #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
@@ -105,9 +116,26 @@ namespace std {
 
 %include "swig_wrapper.h"
 %include "../../util/byte_array.h"
+
 %include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"
 %include "../../lib/e2ap/e2ap_plmn_wrapper.h"
 %include "../../lib/e2ap/e2ap_ran_function_wrapper.h"
+
+
+#ifdef E2AP_V1
+  %include "../../lib/e2ap/v1_01/e2ap_types/common/e2ap_global_node_id.h"
+  %include "../../lib/e2ap/v1_01/e2ap_types/common/e2ap_plmn.h"
+  %include "../../lib/e2ap/v1_01/e2ap_types/common/e2ap_ran_function.h"
+#elif E2AP_V2
+  %include "../../lib/e2ap/v2_03/e2ap_types/common/e2ap_global_node_id.h"
+  %include "../../lib/e2ap/v2_03/e2ap_types/common/e2ap_plmn.h"
+  %include "../../lib/e2ap/v2_03/e2ap_types/common/e2ap_ran_function.h"
+#elif E2AP_V3
+  %include "../../lib/e2ap/v3_01/e2ap_types/common/e2ap_global_node_id.h"
+  %include "../../lib/e2ap/v3_01/e2ap_types/common/e2ap_plmn.h"
+  %include "../../lib/e2ap/v3_01/e2ap_types/common/e2ap_ran_function.h"
+#endif
+
 %include "../../sm/mac_sm/ie/mac_data_ie.h"
 %include "../../sm/rlc_sm/ie/rlc_data_ie.h"
 %include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"

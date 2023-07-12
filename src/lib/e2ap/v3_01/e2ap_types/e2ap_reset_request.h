@@ -25,8 +25,10 @@
 #define E2AP_RESET_REQUEST_H
 
 #include "common/e2ap_cause.h"
+#include <stdint.h>
 
 typedef struct {
+  uint8_t trans_id;
   cause_t cause;
 } e2ap_reset_request_t;
 

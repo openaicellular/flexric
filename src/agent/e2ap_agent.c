@@ -29,11 +29,6 @@
 #include "../lib/e2ap/e2ap_msg_dec_generic_wrapper.h"
 #include "../lib/e2ap/e2ap_msg_enc_generic_wrapper.h"
 
-
-//#include "lib/ap/free/e2ap_msg_free.h"
-// #include "lib/ap/type_defs.h"
-
-
 void e2ap_msg_free_ag(e2ap_agent_t* ap, e2ap_msg_t* msg)
 {
   assert(ap != NULL);

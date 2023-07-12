@@ -35,7 +35,7 @@ typedef struct ran_function {
   byte_array_t def;
   uint16_t id;
   uint16_t rev;
-  byte_array_t* oid; // optional
+  byte_array_t oid; 
 } ran_function_t;
 
 ran_function_t cp_ran_function(const ran_function_t* src);

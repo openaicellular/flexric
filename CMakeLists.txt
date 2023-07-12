@@ -53,6 +53,21 @@ set(BUILDING_LIBRARY "STATIC" CACHE STRING "Static or dynamic library")
 set_property(CACHE BUILDING_LIBRARY PROPERTY STRINGS "STATIC" "DYNAMIC")
 message(STATUS "Selected LIBRARY TYPE: ${BUILDING_LIBRARY}")
 
+########
+### CppCheck
+#######
+option(CPP_CHECK "CppCheck" OFF)
+if(CPP_CHECK)
+  set(CMAKE_C_CPPCHECK "cppcheck")
+endif()
+
+########
+### Clang Tidy 
+#######
+option(Clang_Tidy "Clang Tidy" OFF)
+if(Clang_Tidy)
+  set(CMAKE_C_CLANG_TIDY clang-tidy -checks=-*,readability-*)
+endif()
 
 ########
 ### xApp 
@@ -160,8 +175,15 @@ elseif(E2AP_VERSION STREQUAL "E2AP_V2")
               src/lib/e2ap/v2_03/e2ap_types/common/e2ap_plmn.c )
   add_library(e2ap_global_node_id_obj OBJECT 
               src/lib/e2ap/v2_03/e2ap_types/common/e2ap_global_node_id.c )
+elseif(E2AP_VERSION STREQUAL "E2AP_V3")
+  add_library(e2ap_ran_func_obj OBJECT 
+              src/lib/e2ap/v3_01/e2ap_types/common/e2ap_ran_function.c )
+  add_library(e2ap_plmn_obj OBJECT 
+              src/lib/e2ap/v3_01/e2ap_types/common/e2ap_plmn.c )
+  add_library(e2ap_global_node_id_obj OBJECT 
+              src/lib/e2ap/v3_01/e2ap_types/common/e2ap_global_node_id.c )
 else()
-  message(FATAL_ERROR "E2AP V2 and V3 not implemented")
+  message(FATAL_ERROR "E2AP Unknown version selected")
 endif()
 
 #######

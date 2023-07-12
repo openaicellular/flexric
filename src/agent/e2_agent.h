@@ -19,8 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
-
 #ifndef E2_AGENT_H
 #define E2_AGENT_H
 
@@ -40,6 +38,17 @@
 #include <stdatomic.h>
 #include <stdbool.h>
 
+#ifdef E2AP_V1
+#define NUM_HANDLE_MSG 31
+#elif E2AP_V2 
+#define NUM_HANDLE_MSG 34
+#elif E2AP_V3 
+#define NUM_HANDLE_MSG 43
+#else
+static_assert(0!=0, "Unknown E2AP version");
+#endif
+
+
 typedef struct e2_agent_s e2_agent_t;
 
 typedef e2ap_msg_t (*handle_msg_fp_agent)(struct e2_agent_s*, const e2ap_msg_t* msg) ;
@@ -49,7 +58,9 @@ typedef struct e2_agent_s
   e2ap_ep_ag_t ep; 
   e2ap_agent_t ap;
   asio_agent_t io;
-  handle_msg_fp_agent handle_msg[30]; // 26 E2AP + 4 E42AP note that not all the slots will be occupied
+
+  size_t sz_handle_msg;
+  handle_msg_fp_agent handle_msg[NUM_HANDLE_MSG]; // 26 E2AP + 4 E42AP note that not all the slots will be occupied
 
   // Registered SMs
   plugin_ag_t plugin;
@@ -99,6 +110,7 @@ void e2_send_control_failure(e2_agent_t* ag, const ric_control_failure_t* cf);
 
 ////////////////////////////////////////////////
 
+#undef NUM_HANDLE_MSG 
 
 #endif
 

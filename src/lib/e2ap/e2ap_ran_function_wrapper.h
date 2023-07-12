@@ -27,6 +27,8 @@
 #elif defined E2AP_V2
 #include "v2_03/e2ap_types/common/e2ap_ran_function.h"
 #elif defined  E2AP_V3
+#include "v3_01/e2ap_types/common/e2ap_ran_function.h"
+#else
 static_assert(0!=0 , "Not implemented");
 #endif
 

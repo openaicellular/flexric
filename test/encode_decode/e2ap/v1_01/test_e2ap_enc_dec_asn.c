@@ -322,6 +322,8 @@ void test_control_request_ack()
   };
 
   E2AP_PDU_t* pdu = e2ap_enc_control_ack_asn_pdu(&c_ack_begin);
+
+
   e2ap_msg_t msg = e2ap_dec_control_ack(pdu);
   free_pdu(pdu); 
   assert(msg.type == RIC_CONTROL_ACKNOWLEDGE);

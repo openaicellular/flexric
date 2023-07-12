@@ -19,13 +19,10 @@
  *      contact@openairinterface.org
  */
 
-
-
 #ifndef E2AP_MSG_FREE_H
 #define E2AP_MSG_FREE_H
 
 #include "../type_defs.h"
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // O-RAN E2APv01.01: Messages for Global Procedures ///////////////////////////////////////////////
@@ -139,6 +136,62 @@ void e2ap_free_node_connection_update_ack(e2_node_connection_update_ack_t* ca);
 // E2 -> RIC
 void e2ap_free_node_connection_update_failure_msg(e2ap_msg_t* msg);
 void e2ap_free_node_connection_update_failure(e2_node_connection_update_failure_t* cf);
+
+/////
+// new V2
+/////
+
+// E2 <-> RIC
+void e2ap_free_removal_request_msg(e2ap_msg_t* msg);
+void e2ap_free_removal_request(e2_removal_request_t* rr);
+
+// E2 <-> RIC
+void e2ap_free_removal_response_msg(e2ap_msg_t* msg);
+void e2ap_free_removal_response(e2_removal_response_t* rr);
+
+// E2 <-> RIC
+void e2ap_free_removal_failure_msg(e2ap_msg_t* msg);
+void e2ap_free_removal_failure(e2_removal_failure_t* rf);
+
+/////
+// end new V2
+/////
+
+/////
+// new V3
+/////
+void e2ap_free_subscription_mod_request_msg(e2ap_msg_t* msg);
+void e2ap_free_subscription_mod_request(ric_subscription_mod_request_t* sm);
+
+void e2ap_free_subscription_mod_response_msg(e2ap_msg_t* msg);
+void e2ap_free_subscription_mod_response(ric_subscription_mod_response_t* sm);
+
+void e2ap_free_subscription_mod_failure_msg(e2ap_msg_t* msg);
+void e2ap_free_subscription_mod_failure(ric_subscription_mod_failure_t* sm);
+
+void e2ap_free_subscription_mod_required_msg(e2ap_msg_t* msg);
+void e2ap_free_subscription_mod_required(ric_subscription_mod_required_t* sm);
+
+void e2ap_free_subscription_mod_confirm_msg(e2ap_msg_t* msg);
+void e2ap_free_subscription_mod_confirm(ric_subscription_mod_confirm_t* sm);
+
+void e2ap_free_subscription_mod_refuse_msg(e2ap_msg_t* msg);
+void e2ap_free_subscription_mod_refuse(ric_subscription_mod_refuse_t* sm);
+
+void e2ap_free_query_request_msg(e2ap_msg_t* msg);
+void e2ap_free_query_request(ric_query_request_t* qr);
+
+void e2ap_free_query_response_msg(e2ap_msg_t* msg);
+void e2ap_free_query_response(ric_query_response_t* qr);
+
+void e2ap_free_query_failure_msg(e2ap_msg_t* msg);
+void e2ap_free_query_failure(ric_query_failure_t* qr);
+
+/////
+// end new V3
+/////
+
+
 
 // xApp -> iApp
 void e2ap_free_e42_setup_request_msg(e2ap_msg_t* msg);

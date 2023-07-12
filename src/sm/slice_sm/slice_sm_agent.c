@@ -131,6 +131,7 @@ sm_e2_setup_data_t on_e2_setup_slice_sm_ag(sm_agent_t const* sm_agent)
 //  printf("on_e2_setup called \n");
 
   sm_slice_agent_t* sm = (sm_slice_agent_t*)sm_agent;
+  (void)sm;
 
   // ToDo: Call the RAN to fill the RAN Function
 

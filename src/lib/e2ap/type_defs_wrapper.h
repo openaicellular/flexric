@@ -28,7 +28,7 @@
 #elif E2AP_V2
 #include "v2_03/type_defs.h"
 #elif E2AP_V3
-static_assert(0!=0, "Not implemented");
+#include "v3_01/type_defs.h"
 #else
 static_assert(0!=0, "Unknown E2AP version ");
 #endif

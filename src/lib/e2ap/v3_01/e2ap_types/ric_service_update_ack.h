@@ -30,6 +30,7 @@
 #include "common/e2ap_ran_function_id.h"
 
 typedef struct {
+  uint8_t trans_id;
   ran_function_id_t* accepted;
   size_t len_accepted;
   rejected_ran_function_t* rejected;

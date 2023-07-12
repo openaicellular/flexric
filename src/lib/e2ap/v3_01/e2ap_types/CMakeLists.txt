@@ -45,6 +45,12 @@ set(e2ap_src_types
   common/transport_layer_info.c 
   common/e2ap_plmn.c 
   common/ric_subsequent_action.c
+  common/e2ap_node_component_config_add.c
+  common/e2ap_node_component_config_update.c
+  common/e2ap_node_comp_id.c
+  common/e2ap_node_comp_conf_add_ack.c
+  common/e2ap_node_comp_conf.c 
+  common/e2ap_node_comp_config_add_ack.c
   )
 
 add_library(e2ap_types_obj OBJECT 

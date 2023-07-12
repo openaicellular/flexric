@@ -55,9 +55,9 @@ accepted_pair_t accept_ran_func(near_ric_t* ric, const e2_setup_request_t* req)
     if(it != end_it){
       assert(id == *(uint16_t*)assoc_key(&ric->plugin.sm_ds, it) );
       dst.acc[i] = id;
-      char def[2048] = {0};
-      assert(req->ran_func_item[i].def.len < 2047);
-      memcpy(def, req->ran_func_item[i].def.buf, req->ran_func_item[i].def.len);
+      sm_ric_t* sm = (sm_ric_t*)assoc_value(&ric->plugin.sm_ds, it);
+      char def[33] = {0};
+      memcpy(def, sm->ran_func_name, 32);
       printf("[NEAR-RIC]: Accepting RAN function ID %d with def = %s \n", id, def);
     } else {
       printf("Unknown RAN function ID, thus rejecting %d \n", id);
@@ -99,7 +99,7 @@ e2_setup_response_t generate_setup_response_v1(near_ric_t* ric, const e2_setup_r
 
 }
 
-#elif E2AP_V2
+#elif defined(E2AP_V2) || defined(E2AP_V3)
 
 e2_setup_response_t generate_setup_response_v2(near_ric_t* ric, const e2_setup_request_t* req)
 {
@@ -134,13 +134,11 @@ e2_setup_response_t generate_setup_response_v2(near_ric_t* ric, const e2_setup_r
   return sr;
 }
 
-#elif E2AP_V3
-
 e2_setup_response_t generate_setup_response_v3(near_ric_t* ric, const e2_setup_request_t* req)
 {
-  assert(0 !=0 && "Not implemented");
-  e2_setup_response_t dst = {0}
-  return dst;
+  return  generate_setup_response_v2(ric, req);
 }
 
+#else
+static_assert(0!=0, "Unknown E2AP version type");
 #endif

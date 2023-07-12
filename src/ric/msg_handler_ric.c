@@ -411,7 +411,7 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
 
 
   e2ap_msg_t ans = {.type = E2_SETUP_RESPONSE };
-  ans.u_msgs.e2_stp_resp = generate_setup_response(&ric->e2ap_version.type, ric, req); 
+  ans.u_msgs.e2_stp_resp = generate_setup_response(&ric->ap.version.type, ric, req); 
 
   e2_node_t n = {0};
   init_e2_node(&n, &req->id, ans.u_msgs.e2_stp_resp.len_acc, ans.u_msgs.e2_stp_resp.accepted); 

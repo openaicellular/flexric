@@ -144,6 +144,7 @@ sm_e2_setup_data_t on_e2_setup_rlc_sm_ag(sm_agent_t const* sm_agent)
   assert(sm_agent != NULL);
   //printf("on_e2_setup called \n");
   sm_rlc_agent_t* sm = (sm_rlc_agent_t*)sm_agent;
+  (void)sm;
 
   sm_e2_setup_data_t setup = {.len_rfd =0, .ran_fun_def = NULL  }; 
 

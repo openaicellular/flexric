@@ -27,7 +27,7 @@
 #elif E2AP_V2 
 #include "v2_03/e2ap_types/ric_subscription_delete_request.h"
 #elif E2AP_V3 
-static_assert(0!=0, "Not implemented");
+#include "v3_01/e2ap_types/ric_subscription_delete_request.h"
 #else
 static_assert(0!=0, "Unknown E2AP version");
 #endif

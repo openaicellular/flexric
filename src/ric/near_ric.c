@@ -32,7 +32,6 @@
 
 #include "iApps/subscription_ric.h"
 #include "lib/async_event.h" 
-//#include "lib/ap/free/e2ap_msg_free.h"
 
 #include "lib/pending_event_ric.h"
 #include "sm/sm_ric.h" 
@@ -151,9 +150,11 @@ void load_default_pub_sub_ric(near_ric_t* ric)
 }
 
 static
-void init_handle_msg_ric(e2ap_handle_msg_fp_ric (*handle_msg)[30])
+void init_handle_msg_ric(size_t len, e2ap_handle_msg_fp_ric (*handle_msg)[len])
 {
-  memset((*handle_msg), 0, sizeof(e2ap_handle_msg_fp_ric)*30);
+  assert(len == NONE_E2_MSG_TYPE);
+
+  memset((*handle_msg), 0, sizeof(e2ap_handle_msg_fp_ric)*len);
   (*handle_msg)[RIC_SUBSCRIPTION_RESPONSE] =  e2ap_handle_subscription_response_ric;
   (*handle_msg)[RIC_SUBSCRIPTION_FAILURE] =  e2ap_handle_subscription_failure_ric;
   (*handle_msg)[RIC_SUBSCRIPTION_DELETE_RESPONSE] =  e2ap_handle_subscription_delete_response_ric;
@@ -232,7 +233,8 @@ near_ric_t* init_near_ric(fr_args_t const* args)
 
   init_ap(&ric->ap.base.type);
 
-  init_handle_msg_ric(&ric->handle_msg);
+  ric->sz_handle_msg = sizeof(ric->handle_msg)/sizeof(ric->handle_msg[0]);
+  init_handle_msg_ric(ric->sz_handle_msg, &ric->handle_msg);
 
   init_plugin_ric(&ric->plugin, args->libs_dir);
 

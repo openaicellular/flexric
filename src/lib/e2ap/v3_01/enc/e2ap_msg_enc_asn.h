@@ -175,6 +175,69 @@ byte_array_t e2ap_enc_node_connection_update_failure_asn(const e2_node_connectio
 byte_array_t e2ap_enc_node_connection_update_failure_asn_msg(const e2ap_msg_t* msg); 
 struct E2AP_PDU* e2ap_enc_node_connection_update_failure_asn_pdu(const e2_node_connection_update_failure_t*);
 
+// New in V2
+
+// E2 <-> RIC
+byte_array_t e2ap_enc_removal_request_asn(const e2_removal_request_t* rr);
+byte_array_t e2ap_enc_removal_request_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_removal_request_asn_pdu(const e2_removal_request_t * msg);
+
+// E2 <-> RIC
+byte_array_t e2ap_enc_removal_response_asn(const e2_removal_response_t* rr);
+byte_array_t e2ap_enc_removal_response_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU*  e2ap_enc_removal_response_asn_pdu(const e2_removal_response_t* msg);
+
+// E2 <-> RIC
+byte_array_t e2ap_enc_removal_failure_asn(const e2_removal_failure_t* msg);
+byte_array_t e2ap_enc_removal_failure_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_removal_failure_asn_pdu(const e2_removal_failure_t* msg);
+
+// New in V3 
+// RIC -> E2
+byte_array_t e2ap_enc_subscription_mod_request_asn(const ric_subscription_mod_request_t * msg);
+byte_array_t e2ap_enc_subscription_mod_request_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_subscription_mod_request_asn_pdu(const ric_subscription_mod_request_t * msg);
+
+// E2 -> RIC
+byte_array_t e2ap_enc_subscription_mod_response_asn(const ric_subscription_mod_response_t  * msg);
+byte_array_t e2ap_enc_subscription_mod_response_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU*  e2ap_enc_subscription_mod_response_asn_pdu(const ric_subscription_mod_response_t* msg);
+
+// E2 -> RIC
+byte_array_t e2ap_enc_subscription_mod_failure_asn(const ric_subscription_mod_failure_t* msg);
+byte_array_t e2ap_enc_subscription_mod_failure_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_subscription_mod_failure_asn_pdu(const ric_subscription_mod_failure_t* msg);
+
+// E2 -> RIC
+byte_array_t e2ap_enc_subscription_mod_required_asn(const ric_subscription_mod_required_t  * msg);
+byte_array_t e2ap_enc_subscription_mod_required_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_subscription_mod_required_asn_pdu(const ric_subscription_mod_required_t  * msg);
+
+// RIC -> E2 
+byte_array_t e2ap_enc_subscription_mod_confirm_asn(const ric_subscription_mod_confirm_t  * msg);
+byte_array_t e2ap_enc_subscription_mod_confirm_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_subscription_mod_confirm_asn_pdu(const ric_subscription_mod_confirm_t* msg);
+
+// RIC -> E2 
+byte_array_t e2ap_enc_subscription_mod_refuse_asn(const ric_subscription_mod_refuse_t* msg);
+byte_array_t e2ap_enc_subscription_mod_refuse_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_subscription_mod_refuse_asn_pdu(const ric_subscription_mod_refuse_t* msg);
+
+// RIC -> E2 
+byte_array_t e2ap_enc_query_request_asn(const ric_query_request_t* msg);
+byte_array_t e2ap_enc_query_request_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_query_request_asn_pdu(const ric_query_request_t* msg);
+
+// E2 -> RIC
+byte_array_t e2ap_enc_query_response_asn(const ric_query_response_t* msg);
+byte_array_t e2ap_enc_query_response_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_query_response_asn_pdu(const ric_query_response_t* msg);
+
+// E2 -> RIC
+byte_array_t e2ap_enc_query_failure_asn(const ric_query_failure_t  * msg);
+byte_array_t e2ap_enc_query_failure_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_query_failure_asn_pdu(const ric_query_failure_t* msg);
+
 // xApp -> iApp
 byte_array_t e2ap_enc_e42_subscription_request_asn(const e42_ric_subscription_request_t* sr);
 byte_array_t e2ap_enc_e42_subscription_request_asn_msg(const e2ap_msg_t* msg);

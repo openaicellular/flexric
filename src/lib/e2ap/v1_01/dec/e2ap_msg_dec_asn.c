@@ -604,6 +604,9 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_subscription_failure(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
+  assert(0!=0 && "Untested code");
+
   e2ap_msg_t ret = {.type = RIC_SUBSCRIPTION_FAILURE};
   ric_subscription_failure_t* sf = &ret.u_msgs.ric_sub_fail;
   assert(pdu->present == E2AP_PDU_PR_unsuccessfulOutcome);

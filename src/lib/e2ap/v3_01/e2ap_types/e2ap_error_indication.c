@@ -31,6 +31,13 @@ bool eq_error_indication(const e2ap_error_indication_t* m0, const e2ap_error_ind
   if(m0 == NULL || m1 == NULL) 
     return false;
 
+  if(m0->trans_id != m1->trans_id){
+    if(m0->trans_id == NULL || m1->trans_id == NULL)
+      return false;
+    if(*m0->trans_id != *m1->trans_id)
+      return false;
+  }
+  
   if(eq_ric_gen_id(m0->ric_id, m1->ric_id) == false)
     return false;
 

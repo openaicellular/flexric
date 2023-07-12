@@ -28,7 +28,7 @@
 #elif E2AP_V2
 #include "v2_03/e2ap_types/ric_indication.h" 
 #elif E2AP_V3
-static_assert(0!=0, "Not implemented");
+#include "v3_01/e2ap_types/ric_indication.h" 
 #else
 static_assert(0!=0, "Unkown E2AP version");
 #endif

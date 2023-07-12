@@ -125,8 +125,13 @@ void e2ap_free_subscription_failure_msg(e2ap_msg_t* msg)
 void e2ap_free_subscription_failure(ric_subscription_failure_t* sf)
 {
   assert(sf != NULL);
-  assert(sf->not_admitted != NULL);
-  free(sf->not_admitted);
+
+// Mandatory
+//  ric_gen_id_t ric_id;
+  // Mandatory
+//  cause_t cause;
+  // Optional 
+//  criticality_diagnostics_t* crit_diag; 
 
   if(sf->crit_diag != NULL){
     assert(0!=0 && "Not implemented");
@@ -295,14 +300,14 @@ void e2ap_free_setup_request(e2_setup_request_t* sr)
   for(size_t i = 0; i < sr->len_rf; ++i){
     ran_function_t* dst = &sr->ran_func_item[i];
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(sr->ran_func_item);
 
-  for(size_t i = 0; i < sr->len_ccu; ++i){
-    free_node_config_update(&sr->comp_conf_update[i]);  
+  for(size_t i = 0; i < sr->len_cca; ++i){
+    free_e2ap_node_component_config_add(&sr->comp_conf_add[i]);  
   } 
-  free(sr->comp_conf_update); 
+  free(sr->comp_conf_add); 
 }
 
 
@@ -327,10 +332,11 @@ void e2ap_free_setup_response(e2_setup_response_t* sr)
     assert(0!= 0 && "Not Implemented");
   }
 
-  if(sr->len_ccual > 0){
-    assert(0!= 0 && "Not Implemented");
+  assert(sr->len_ccaa > 0);
+  for(size_t i = 0; i < sr->len_ccaa; ++i){
+    free_e2ap_node_comp_config_add_ack(&sr->comp_config_add_ack[i]);
   }
-
+  free(sr->comp_config_add_ack);
 }
 
 // RIC -> E2
@@ -404,14 +410,14 @@ void e2ap_free_service_update(ric_service_update_t* su)
   for(size_t i = 0; i < su->len_added; ++i){
     ran_function_t* dst = &su->added[i]; 
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(su->added);
 
   for(size_t i = 0; i < su->len_modified; ++i){
     ran_function_t* dst = &su->modified[i]; 
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(su->modified);
 
@@ -612,6 +618,194 @@ void e2ap_free_node_connection_update_failure(e2_node_connection_update_failure_
   }
 }
 
+/////
+// new V2
+/////
+
+// E2 <-> RIC
+void e2ap_free_removal_request_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type == E2_REMOVAL_REQUEST);
+  e2ap_free_removal_request(&msg->u_msgs.e2_rem_req);
+}
+
+void e2ap_free_removal_request(e2_removal_request_t* rr)
+{
+  assert(rr != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+// E2 <-> RIC
+void e2ap_free_removal_response_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type == E2_REMOVAL_RESPONSE);
+  e2ap_free_removal_response(&msg->u_msgs.e2_rem_res);
+}
+
+void e2ap_free_removal_response(e2_removal_response_t* rr)
+{
+  assert(rr != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+// E2 <-> RIC
+void e2ap_free_removal_failure_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type == E2_REMOVAL_FAILURE);
+  e2ap_free_removal_failure(&msg->u_msgs.e2_rem_fail);
+}
+
+void e2ap_free_removal_failure(e2_removal_failure_t* rf)
+{
+  assert(rf != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+/////
+// end new V2
+/////
+
+
+/////
+// new V3
+/////
+void e2ap_free_subscription_mod_request_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type == RIC_SUBSCRIPTION_MODIFICATION_REQUEST );
+  e2ap_free_subscription_mod_request(&msg->u_msgs.ric_sub_mod_req);
+}
+
+void e2ap_free_subscription_mod_request(ric_subscription_mod_request_t* sm)
+{
+  assert(sm != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+
+void e2ap_free_subscription_mod_response_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type ==RIC_SUBSCRIPTION_MODIFICATION_RESPONSE );
+   e2ap_free_subscription_mod_response(&msg->u_msgs.ric_sub_mod_res);
+}
+
+void e2ap_free_subscription_mod_response(ric_subscription_mod_response_t* sm)
+{
+  assert(sm != NULL);
+  assert(0!=0 && "Not implemented");
+
+}
+
+void e2ap_free_subscription_mod_failure_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type ==RIC_SUBSCRIPTION_MODIFICATION_FAILURE);
+   e2ap_free_subscription_mod_failure(&msg->u_msgs.ric_sub_mod_fail);
+
+}
+  
+void e2ap_free_subscription_mod_failure(ric_subscription_mod_failure_t* sm)
+{
+  assert(sm != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+
+void e2ap_free_subscription_mod_required_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type ==RIC_SUBSCRIPTION_MODIFICATION_REQUIRED );
+   e2ap_free_subscription_mod_required(&msg->u_msgs.ric_sub_mod_required);
+
+}
+void e2ap_free_subscription_mod_required(ric_subscription_mod_required_t* sm)
+{
+  assert(sm != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+void e2ap_free_subscription_mod_confirm_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type ==RIC_SUBSCRIPTION_MODIFICATION_CONFIRM );
+  e2ap_free_subscription_mod_confirm(&msg->u_msgs.ric_sub_mod_conf);
+}
+void e2ap_free_subscription_mod_confirm(ric_subscription_mod_confirm_t* sm)
+{
+  assert(sm != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+
+void e2ap_free_subscription_mod_refuse_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type ==RIC_SUBSCRIPTION_MODIFICATION_REFUSE );
+   e2ap_free_subscription_mod_refuse(&msg->u_msgs.ric_sub_mod_ref);
+
+}
+void e2ap_free_subscription_mod_refuse(ric_subscription_mod_refuse_t* sm)
+{
+  assert(sm != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+
+void e2ap_free_query_request_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type == RIC_QUERY_REQUEST);
+   e2ap_free_query_request(&msg->u_msgs.ric_qey_req);
+}
+
+void e2ap_free_query_request(ric_query_request_t* qr)
+{
+  assert(qr != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+
+void e2ap_free_query_response_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type ==RIC_QUERY_RESPONSE);
+   e2ap_free_query_response(&msg->u_msgs.ric_qey_res);
+}
+void e2ap_free_query_response(ric_query_response_t* qr)
+{
+  assert(qr != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+
+void e2ap_free_query_failure_msg(e2ap_msg_t* msg)
+{
+  assert(msg != NULL);
+  assert(msg->type ==RIC_QUERY_FAILURE);
+  e2ap_free_query_failure(&msg->u_msgs.ric_qey_fail);
+}
+void e2ap_free_query_failure(ric_query_failure_t* qr)
+{
+  assert(qr != NULL);
+  assert(0!=0 && "Not implemented");
+}
+
+/////
+// end new V3
+/////
+
+
+
+
+
+
+
+
+
 // xApp -> iApp
 void e2ap_free_e42_setup_request_msg(e2ap_msg_t* msg)
 {
@@ -626,7 +820,7 @@ void e2ap_free_e42_setup_request(e42_setup_request_t* sr)
   for(size_t i = 0; i < sr->len_rf; ++i){
     ran_function_t* dst = &sr->ran_func_item[i];
     free_byte_array(dst->def);
-    free_ba_if_not_null(dst->oid);
+    free_byte_array(dst->oid);
   }
   free(sr->ran_func_item);
 }

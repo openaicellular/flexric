@@ -86,9 +86,11 @@ void stop_ind_event(e2_agent_t* ag, ric_gen_id_t id)
   free(fd);
 }
 
-void init_handle_msg_agent(handle_msg_fp_agent (*handle_msg)[30])
+void init_handle_msg_agent(size_t len, handle_msg_fp_agent (*handle_msg)[len])
 {
-  memset((*handle_msg), 0, sizeof(handle_msg_fp_agent)*30);
+  assert(len == NONE_E2_MSG_TYPE);
+
+  memset((*handle_msg), 0, sizeof(handle_msg_fp_agent)*len);
 
   (*handle_msg)[RIC_SUBSCRIPTION_REQUEST] = e2ap_handle_subscription_request_agent;
   (*handle_msg)[RIC_SUBSCRIPTION_DELETE_REQUEST] =  e2ap_handle_subscription_delete_request_agent;

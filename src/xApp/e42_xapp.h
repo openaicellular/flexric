@@ -49,6 +49,8 @@
 #define HANDLE_MSG_NUM 31
 #elif  E2AP_V2
 #define HANDLE_MSG_NUM 34
+#elif  E2AP_V3
+#define HANDLE_MSG_NUM 43
 #else
 static_assert(0!=0 , "Not implemented");
 #endif
@@ -62,7 +64,9 @@ typedef struct e42_xapp_s
   e2ap_ep_xapp_t ep;
   e2ap_xapp_t ap; 
   asio_xapp_t io;
-  e2ap_handle_msg_fp_xapp handle_msg[ HANDLE_MSG_NUM ]; // note that not all the slots will be occupied
+
+  size_t sz_handle_msg;
+  e2ap_handle_msg_fp_xapp handle_msg[HANDLE_MSG_NUM ]; // note that not all the slots will be occupied
 
   // Registered SMs
   plugin_ag_t plugin_ag; // Needed for E2 setup request

@@ -28,6 +28,8 @@
 #include "common/e2ap_ran_function_id_rev.h"
 
 typedef struct {
+  uint8_t trans_id;
+
   ran_function_t* added;
   size_t len_added;
 

@@ -27,7 +27,7 @@
 #elif E2AP_V2 
 #include "v2_03/e2ap_types/e2_node_connected.h"
 #elif E2AP_V3 
-static_assert(0!=0, "Not implemented");
+#include "v3_01/e2ap_types/e2_node_connected.h"
 #else 
 static_assert(0!=0, "Unknwon E2AP Version");
 #endif

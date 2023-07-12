@@ -26,7 +26,8 @@
 
 #include "lib/e2ap/type_defs_wrapper.h"
 
-void init_handle_msg_agent(handle_msg_fp_agent (*handle_msg)[30]);
+void init_handle_msg_agent(size_t len, handle_msg_fp_agent (*handle_msg)[len]);
+//void init_handle_msg_agent(handle_msg_fp_agent (*handle_msg)[30]);
 
 e2ap_msg_t e2ap_msg_handle_agent(e2_agent_t* agent, const e2ap_msg_t* msg);
 

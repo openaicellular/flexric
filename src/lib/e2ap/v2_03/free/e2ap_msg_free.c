@@ -333,10 +333,10 @@ void e2ap_free_setup_response(e2_setup_response_t* sr)
   }
 
   assert(sr->len_ccaa > 0);
-/*  if(sr->len_ccaa > 0){
-    assert(0!= 0 && "Not Implemented");
+  for(size_t i = 0; i < sr->len_ccaa; ++i){
+    free_e2ap_node_comp_config_add_ack(&sr->comp_config_add_ack[i]);
   }
-*/
+  free(sr->comp_config_add_ack);
 }
 
 // RIC -> E2

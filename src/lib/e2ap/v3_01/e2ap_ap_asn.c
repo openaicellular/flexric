@@ -61,13 +61,26 @@ void init_ap_asn(e2ap_asn_t* asn)
   asn->enc_msg[23] =  e2ap_enc_node_connection_update_asn_msg;
   asn->enc_msg[24] =  e2ap_enc_node_connection_update_ack_asn_msg;
   asn->enc_msg[25] =  e2ap_enc_node_connection_update_failure_asn_msg;
-  asn->enc_msg[26] =  e2ap_enc_e42_setup_request_asn_msg;
-  asn->enc_msg[27] =  e2ap_enc_e42_setup_response_asn_msg;
-                      
-  asn->enc_msg[28] = e2ap_enc_e42_subscription_request_asn_msg;
-  asn->enc_msg[29] = e2ap_enc_e42_subscription_delete_request_asn_msg;
+  // New in V2 
+  asn->enc_msg[26] =  e2ap_enc_removal_request_asn_msg;
+  asn->enc_msg[27] =  e2ap_enc_removal_response_asn_msg;
+  asn->enc_msg[28] =  e2ap_enc_removal_failure_asn_msg;
+  // New in V3 
+  asn->enc_msg[29] =  e2ap_enc_subscription_mod_request_asn_msg;
+  asn->enc_msg[30] =  e2ap_enc_subscription_mod_response_asn_msg;
+  asn->enc_msg[31] =  e2ap_enc_subscription_mod_failure_asn_msg;
+  asn->enc_msg[32] =  e2ap_enc_subscription_mod_required_asn_msg;
+  asn->enc_msg[33] =  e2ap_enc_subscription_mod_confirm_asn_msg;
+  asn->enc_msg[34] =  e2ap_enc_subscription_mod_refuse_asn_msg;
+  asn->enc_msg[35] =  e2ap_enc_query_request_asn_msg;
+  asn->enc_msg[36] =  e2ap_enc_query_response_asn_msg;
+  asn->enc_msg[37] =  e2ap_enc_query_failure_asn_msg;
 
-  asn->enc_msg[30] = e2ap_enc_e42_control_request_asn_msg;
+  asn->enc_msg[38] =  e2ap_enc_e42_setup_request_asn_msg;
+  asn->enc_msg[39] =  e2ap_enc_e42_setup_response_asn_msg;
+  asn->enc_msg[40] = e2ap_enc_e42_subscription_request_asn_msg;
+  asn->enc_msg[41] = e2ap_enc_e42_subscription_delete_request_asn_msg;
+  asn->enc_msg[42] = e2ap_enc_e42_control_request_asn_msg;
 
   // Decoding Functions
   asn->dec_msg[0] =  e2ap_dec_subscription_request;
@@ -96,11 +109,26 @@ void init_ap_asn(e2ap_asn_t* asn)
   asn->dec_msg[23] =  e2ap_dec_connection_update;
   asn->dec_msg[24] =  e2ap_dec_connection_update_ack;
   asn->dec_msg[25] =  e2ap_dec_connection_update_failure;
-  asn->dec_msg[26] =  e2ap_dec_e42_setup_request;
-  asn->dec_msg[27] =  e2ap_dec_e42_setup_response;
-  asn->dec_msg[28] =  e2ap_dec_e42_subscription_request;
-  asn->dec_msg[29] =  e2ap_dec_e42_subscription_delete_request;
-  asn->dec_msg[30] =  e2ap_dec_e42_control_request;
+  // New in V2
+  asn->dec_msg[26] =  e2ap_dec_removal_request;
+  asn->dec_msg[27] =  e2ap_dec_removal_response;
+  asn->dec_msg[28] =  e2ap_dec_removal_failure;
+  // New in V3 
+  asn->dec_msg[29] =  e2ap_dec_subscription_mod_request;
+  asn->dec_msg[30] =  e2ap_dec_subscription_mod_response;
+  asn->dec_msg[31] =  e2ap_dec_subscription_mod_failure;
+  asn->dec_msg[32] =  e2ap_dec_subscription_mod_required;
+  asn->dec_msg[33] =  e2ap_dec_subscription_mod_confirm;
+  asn->dec_msg[34] =  e2ap_dec_subscription_mod_refuse;
+  asn->dec_msg[35] =  e2ap_dec_query_request;
+  asn->dec_msg[36] =  e2ap_dec_query_response;
+  asn->dec_msg[37] =  e2ap_dec_query_failure;
+
+  asn->dec_msg[38] =  e2ap_dec_e42_setup_request;
+  asn->dec_msg[39] =  e2ap_dec_e42_setup_response;
+  asn->dec_msg[40] =  e2ap_dec_e42_subscription_request;
+  asn->dec_msg[41] =  e2ap_dec_e42_subscription_delete_request;
+  asn->dec_msg[42] =  e2ap_dec_e42_control_request;
  
   // Free Functions
   asn->free_msg[0] =  e2ap_free_subscription_request_msg;
@@ -129,11 +157,25 @@ void init_ap_asn(e2ap_asn_t* asn)
   asn->free_msg[23] =  e2ap_free_node_connection_update_msg;
   asn->free_msg[24] =  e2ap_free_node_connection_update_ack_msg;
   asn->free_msg[25] =  e2ap_free_node_connection_update_failure_msg;
-  asn->free_msg[26] =  e2ap_free_e42_setup_request_msg;
-  asn->free_msg[27] =  e2ap_free_e42_setup_response_msg;
-  asn->free_msg[28] =  e2ap_free_e42_ric_subscription_request_msg;
-  asn->free_msg[29] =  e2ap_free_e42_ric_subscription_delete_request_msg;
-  asn->free_msg[30] =  e2ap_free_e42_ric_control_request_msg;
+  // New in V2 
+  asn->free_msg[26] =  e2ap_free_removal_request_msg;
+  asn->free_msg[27] =  e2ap_free_removal_response_msg;
+  asn->free_msg[28] =  e2ap_free_removal_failure_msg;
+  // New in V3 
+  asn->free_msg[29] =  e2ap_free_subscription_mod_request_msg;
+  asn->free_msg[30] =  e2ap_free_subscription_mod_response_msg;
+  asn->free_msg[31] =  e2ap_free_subscription_mod_failure_msg;
+  asn->free_msg[32] =  e2ap_free_subscription_mod_required_msg;
+  asn->free_msg[33] =  e2ap_free_subscription_mod_confirm_msg;
+  asn->free_msg[34] =  e2ap_free_subscription_mod_refuse_msg;
+  asn->free_msg[35] =  e2ap_free_query_request_msg;
+  asn->free_msg[36] =  e2ap_free_query_response_msg;
+  asn->free_msg[37] =  e2ap_free_query_failure_msg;
 
+  asn->free_msg[38] =  e2ap_free_e42_setup_request_msg;
+  asn->free_msg[39] =  e2ap_free_e42_setup_response_msg;
+  asn->free_msg[40] =  e2ap_free_e42_ric_subscription_request_msg;
+  asn->free_msg[41] =  e2ap_free_e42_ric_subscription_delete_request_msg;
+  asn->free_msg[42] =  e2ap_free_e42_ric_control_request_msg;
 }
 

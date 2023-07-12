@@ -28,6 +28,7 @@
 #include "common/e2ap_ran_function_id_rev.h"
 
 typedef struct {
+  uint8_t trans_id;
   e2ap_ran_function_id_rev_t* accepted;
   size_t len_accepted;
 } ric_service_query_t;
