@@ -14,7 +14,6 @@ import (
 // ------------------------------------------------------------------------ //
 
 type SLICECallback struct {
-	//xapp.SwigcptrSlice_cb
 }
 
 func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {

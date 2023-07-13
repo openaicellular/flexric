@@ -32,12 +32,12 @@ func main() {
 	for ; i <= nodes.Size()-1; i++ {
 		var e2Node xapp.E2Node = nodes.Get(int(i))
 		
-		var ranTypeName string = xapp.Get_ngran_name(e2Node.GetId().GetXtype())
+		var ranTypeName string = xapp.Get_e2ap_ngran_name(e2Node.GetId().GetXtype())
 	
 		// if Node is monolithic
-		if xapp.Ngran_eNB == utils.RanNametoInt(ranTypeName) ||
-			xapp.Ngran_ng_eNB == utils.RanNametoInt(ranTypeName) ||
-			xapp.Ngran_gNB == utils.RanNametoInt(ranTypeName) {
+		if xapp.E2ap_ngran_eNB == utils.RanNametoInt(ranTypeName) ||
+			xapp.E2ap_ngran_ng_eNB == utils.RanNametoInt(ranTypeName) ||
+			xapp.E2ap_ngran_gNB == utils.RanNametoInt(ranTypeName) {
 			fmt.Printf("E2 node %d info: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n",
 				i,
 				e2Node.GetId().GetNb_id(),

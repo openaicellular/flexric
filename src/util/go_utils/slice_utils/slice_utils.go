@@ -908,6 +908,8 @@ type PolicyEnforcementCallback func(Configuration)
 // ------------------------------------------------------------------------ //
 func StartXAppServer(policyEnforceCallback PolicyEnforcementCallback) {
 	// ----------------------- Gin Client ----------------------- //
+	gin.SetMode(gin.ReleaseMode)
+	
 	// TODO: Delete this part
 	Client = &http.Client{
 		Timeout: time.Second * 30,
