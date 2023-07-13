@@ -37,5 +37,7 @@ add_library(e2_ngran_obj OBJECT
     e2ap_ngran_type.c
                          )
 
+add_subdirectory(go_utils)
+
 
 

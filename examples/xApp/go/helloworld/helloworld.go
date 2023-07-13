@@ -2,34 +2,13 @@ package main
 
 import "C"
 import (
-	xapp "final.com/xapp_sdk"
+	xapp "build/examples/xApp/go/xapp_sdk"
 	"fmt"
 	"time"
+	utils "build/examples/xApp/go/utils/slice_utils"
 )
 
-func RanNametoInt(value string) int {
-	switch value {
-	case "ngran_eNB":
-		return 0
-	case "ngran_ng_eNB":
-		return 1
-	case "ngran_gNB":
-		return 2
-	case "ngran_eNB_CU":
-		return 3
-	case "ngran_ng_eNB_CU":
-		return 4
-	case "ngran_gNB_CU":
-		return 5
-	case "ngran_eNB_DU":
-		return 6
-	case "ngran_gNB_DU":
-		return 7
-	case "ngran_eNB_MBMS_STA":
-		return 8
-	}
-	return -1
-}
+
 
 // ------------------------------------------------------------------------ //
 //
@@ -56,9 +35,9 @@ func main() {
 		var ranTypeName string = xapp.Get_ngran_name(e2Node.GetId().GetXtype())
 	
 		// if Node is monolithic
-		if xapp.Ngran_eNB == RanNametoInt(ranTypeName) ||
-			xapp.Ngran_ng_eNB == RanNametoInt(ranTypeName) ||
-			xapp.Ngran_gNB == RanNametoInt(ranTypeName) {
+		if xapp.Ngran_eNB == utils.RanNametoInt(ranTypeName) ||
+			xapp.Ngran_ng_eNB == utils.RanNametoInt(ranTypeName) ||
+			xapp.Ngran_gNB == utils.RanNametoInt(ranTypeName) {
 			fmt.Printf("E2 node %d info: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n",
 				i,
 				e2Node.GetId().GetNb_id(),
@@ -75,7 +54,7 @@ func main() {
 				e2Node.GetId().GetPlmn().GetMnc(),
 				e2Node.GetId().GetPlmn().GetMnc_digit_len(),
 				ranTypeName,
-				*e2Node.GetId().GetCu_du_id(),
+				e2Node.GetId().GetCu_du_id(),
 			)
 		}
 		fmt.Printf("E2 node %d supported RAN function's IDs: \n", i)
