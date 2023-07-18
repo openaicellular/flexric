@@ -19,7 +19,6 @@
  *      contact@openairinterface.org
  */
 
-#include "../db.h"
 #include "sqlite3_wrapper.h"
 #include "../../../util/time_now_us.h"
 
@@ -1191,10 +1190,17 @@ void write_gtp_stats(sqlite3* db, global_e2_node_id_t const* id, gtp_ind_data_t 
 //  }
 //}
 
-void init_db_sqlite3(sqlite3** db, char const* db_filename)
+void init_db_sqlite3(sqlite3** db, db_params_t const* db_params)
 {
   assert(db != NULL);
-  assert(db_filename != NULL);
+  assert(db_params != NULL);
+
+  char db_filename[256] = {0};
+  if (strlen(db_params->dir) && strlen(db_params->db_name)) {
+    int n = snprintf(db_filename, 255, "%s%s", db_params->dir, db_params->db_name);
+    assert(n < 256 && "Overflow");
+  }
+  printf("[SQLite3]: Filename = %s \n", db_filename);
 
   int const rc = sqlite3_open(db_filename, db);
   assert(rc != SQLITE_CANTOPEN && "SQLITE3 cannot open the directory. Does it already exist?");

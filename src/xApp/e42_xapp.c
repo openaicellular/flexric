@@ -52,6 +52,7 @@
 #include "../../test/rnd/fill_rnd_data_rc.h"
 #include "../../test/rnd/fill_rnd_data_kpm.h"
 
+#include "db/db_params.h"
 
 #include <assert.h>
 #include <time.h>
@@ -211,83 +212,14 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   init_msg_dispatcher(&xapp->msg_disp);
 
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
+  db_params_t db_params = {0};
   // Check DB is enabled for this xApp
-  char* db_enable = get_conf_db_enable(args);
-  bool db_on = 0;
-  if (!strcmp(db_enable, "ON") || !strcmp(db_enable, "on")) {
-    db_on = 1;
-  }
-
-  if (db_on) {
-    printf("Set DB_ENABLE = %s, use DB for this xApp\n", db_enable);
-    // Get DB directory
-    // TODO: remove XAPP_DB_DIR from compiler option
-    char* dir = get_conf_db_dir(args);
-    char dir2[1024] = {0};
-    assert(strlen(dir) < 1024 && "String too large");
-    if (!strlen(dir)) {
-      sprintf(dir2, XAPP_DB_DIR);
-      printf("[MySQL/SQLite3]: use default DB dir: %s\n", dir2);
-    } else {
-      strcpy(dir2, dir);
-      printf("[MySQL/SQLite3]: use .conf DB dir: %s\n", dir2);
-    }
-
-    // Get DB name
-    char* db_name = get_conf_db_name(args);
-    char dbname2[1024] = {0};
-    assert(strlen(db_name) < 1024 && "String too large");
-    if (!strlen(db_name)) {
-      int64_t const now = time_now_us();
-      sprintf(dbname2, "xapp_db_%ld", now);
-      printf("[MySQL/SQLite3]: use default DB name: %s\n", dir2);
-    } else {
-      strcpy(dbname2, db_name);
-      printf("[MySQL/SQLite3]: use .conf DB name: %s\n", dbname2);
-    }
-
-    // Get DB ip address
-    char* db_ip = get_conf_db_ip(args);
-    char dbip2[24] = {0};
-    assert(strlen(db_ip) < 24 && "String too large");
-    if (!strlen(db_ip)) {
-      sprintf(dbip2, "localhost");
-      printf("[MySQL/SQLite3]: use default DB ip: %s\n", dbip2);
-    } else {
-      strcpy(dbip2, db_ip);
-      printf("[MySQL/SQLite3]: use .conf DB ip: %s\n", dbip2);
-    }
-
-    char dbusr2[1024] = {0};
-    char dbpass2[1024] = {0};
-    # ifdef MYSQL_XAPP
-    char* db_user = get_conf_db_user(args);
-    assert(strlen(db_user) < 1024 && "DB-username too long");
-    if (!strlen(db_user)) {
-      sprintf(dbusr2, "xapp");
-      printf("[MySQL]: use default DB username: %s\n", dbusr2);
-    } else {
-      strcpy(dbusr2, db_user);
-      printf("[MySQL]: use .conf DB username: %s\n", dbusr2);
-    }
-
-    char* db_pass = get_conf_db_pass(args);
-    assert(strlen(db_pass) < 1024 && "DB-password too long");
-    if (!strlen(db_pass)) {
-      sprintf(dbpass2, "eurecom");
-      printf("[MySQL]: use default DB password: %s\n", dbpass2);
-    } else {
-      strcpy(dbpass2, db_pass);
-      printf("[MySQL]: use .conf DB password: %s\n", dbpass2);
-    }
-    #endif
-    init_db_xapp(&xapp->db, dbip2, dir2, dbusr2, dbpass2, dbname2);
-
-    free(db_ip);
-    free(dir);
-    free(db_name);
-  } else {
-    printf("db_on = %d (DB_ENABLE = %s), do not init DB for this xApp\n", db_on, db_enable);
+  db_params.enable = get_conf_db_enable(args);
+  printf("[xApp]: DB_ENABLE = %s\n", db_params.enable?"TURE":"FALSE");
+  if (db_params.enable) {
+    get_db_params(args, &db_params);
+    bool t = init_db_xapp(&xapp->db, &db_params);
+    assert(t == true && "init db failed\n");
   }
 #endif
   xapp->connected = false;

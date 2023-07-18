@@ -22,6 +22,7 @@
 #ifndef DATABASE_XAPP_H
 #define DATABASE_XAPP_H 
 
+#include "db_params.h"
 #include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
 #include "../../sm/agent_if/read/sm_ag_if_rd.h"
 #include "../../util/alg_ds/ds/tsn_queue/tsn_queue.h"
@@ -51,8 +52,7 @@ typedef struct{
 } db_xapp_t;
 
 /* return: true(successfully connected to the DB), false(otherwise)*/
-bool init_db_xapp(db_xapp_t* db, char const* ip, char const* dir,
-                  char const* user, char const* pass, char const* dbname);
+bool init_db_xapp(db_xapp_t* db, db_params_t const* db_params);
 
 void close_db_xapp(db_xapp_t* db);
 

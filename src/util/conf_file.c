@@ -581,7 +581,7 @@ char* get_conf_db_pass(fr_args_t const* args)
   return strdup(db_pass);
 }
 
-char* get_conf_db_enable(fr_args_t const* args)
+bool get_conf_db_enable(fr_args_t const* args)
 {
   char* line = NULL;
   defer({free(line);});
@@ -613,7 +613,9 @@ char* get_conf_db_enable(fr_args_t const* args)
 
   // TODO: valid_db_pass()
 
-  return strdup(db_enable);
+  if (!strcmp(db_enable, "ON") || !strcmp(db_enable, "on") || !strcmp(db_enable, "On") || !strcmp(db_enable, "oN") || !strcmp(db_enable, "1"))
+    return true;
+  return false;
 }
 
 char* get_conf_db_ip(fr_args_t const* args)

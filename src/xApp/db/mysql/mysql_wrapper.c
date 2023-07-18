@@ -1681,14 +1681,14 @@ void write_gtp_stats(MYSQL* conn, global_e2_node_id_t const* id, gtp_ind_data_t 
 //  }
 //}
 
-void init_db_mysql(MYSQL* conn, char const* db_name)
+void init_db_mysql(MYSQL* conn, db_params_t const* db_params)
 {
   assert(conn != NULL);
-  assert(db_name != NULL);
+  assert(db_params != NULL);
 
   // drop exists db in server
   char cmd_drop_db[512] = "DROP DATABASE IF EXISTS ";
-  strcat(cmd_drop_db, db_name);
+  strcat(cmd_drop_db, db_params->db_name);
   printf("[MySQL]: %s\n", cmd_drop_db);
   if(mysql_query(conn, cmd_drop_db))
     mysql_finish_with_error(conn);
@@ -1696,7 +1696,7 @@ void init_db_mysql(MYSQL* conn, char const* db_name)
 
   // create db in server
   char cmd_create_db[512] = "CREATE DATABASE IF NOT EXISTS ";
-  strcat(cmd_create_db, db_name);
+  strcat(cmd_create_db, db_params->db_name);
   printf("[MySQL]: %s\n", cmd_create_db);
   if(mysql_query(conn, cmd_create_db))
     mysql_finish_with_error(conn);
@@ -1704,7 +1704,7 @@ void init_db_mysql(MYSQL* conn, char const* db_name)
 
   // use db created db
   char cmd_use_db[512] = "USE ";
-  strcat(cmd_use_db, db_name);
+  strcat(cmd_use_db, db_params->db_name);
   printf("[MySQL]: %s\n", cmd_use_db);
 
   //////
