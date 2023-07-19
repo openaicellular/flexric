@@ -141,7 +141,7 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/xapp_sdk.go" )
 
   # Copy slice_utils package to build directory
-  configure_file("${CMAKE_SOURCE_DIR}/src/util/go_utils/slice_utils/slice_utils.go" 
+  configure_file("${CMAKE_SOURCE_DIR}/src/xApp/A1/go_utils/slice_utils/slice_utils.go" 
   "${CMAKE_BINARY_DIR}/examples/xApp/go/utils/slice_utils/slice_utils.go" COPYONLY)
 
   # Copy the Go xApps to the build directory
