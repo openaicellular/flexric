@@ -613,7 +613,7 @@ bool get_conf_db_enable(fr_args_t const* args)
 
   // TODO: valid_db_pass()
 
-  if (!strcmp(db_enable, "ON") || !strcmp(db_enable, "on") || !strcmp(db_enable, "On") || !strcmp(db_enable, "oN") || !strcmp(db_enable, "1"))
+  if (!strcasecmp(db_enable, "ON") || !strcasecmp(db_enable, "1"))
     return true;
   return false;
 }
