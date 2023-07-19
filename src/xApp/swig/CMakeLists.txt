@@ -114,40 +114,73 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
   # Compile the Swig wrapper for Go
   SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk.so -w312 -w314)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
-  
-  # Check if go.mod exists
-  if(EXISTS "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod")
+
+  #Check if go.mod exists
+  if(EXISTS "${CMAKE_BINARY_DIR}/go.mod")
     MESSAGE(STATUS "go.mod already exists")
   else()
-    execute_process(COMMAND go mod init final.com/xapp_sdk
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/examples/xApp/go/
-      RESULT_VARIABLE go_mod_init_result
-      OUTPUT_VARIABLE go_mod_init_output
-      ERROR_VARIABLE go_mod_init_error)
+    execute_process(COMMAND go mod init build
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        RESULT_VARIABLE go_mod_init_result
+        OUTPUT_VARIABLE go_mod_init_output
+        ERROR_VARIABLE go_mod_init_error)
     if(NOT go_mod_init_result EQUAL 0)
-    message(FATAL_ERROR "Failed to run 'go mod init': ${go_mod_init_error}")
+      message(FATAL_ERROR "Failed to run 'go mod init' in swig: ${go_mod_init_error}")
+    else()
+      MESSAGE(STATUS "go.mod init successful from swig")
     endif()
   endif()
-  
-  
+
   # Copy the necessary files to the build directory
   SWIG_LINK_LIBRARIES(xapp_sdk ${GO_LIBRARIES})
-   # Copy go.mod, xapp_sdk.go and libxapp_sdk.so to the build directory
-   # These 3 files are necessary to build the xApp
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/go/go.mod" "${CMAKE_BINARY_DIR}/examples/xApp/go/go.mod" )
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/go/libxapp_sdk.so" )
+  # Copy go.mod, xapp_sdk.go and libxapp_sdk.so to the build directory
+  # These 3 files are necessary to build the xApp
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so" )
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk.go" )
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/xapp_sdk.go" )
+
+  # Copy slice_utils package to build directory
+  configure_file("${CMAKE_SOURCE_DIR}/src/xApp/A1/go_utils/slice_utils/slice_utils.go" 
+  "${CMAKE_BINARY_DIR}/examples/xApp/go/utils/slice_utils/slice_utils.go" COPYONLY)
+
+  # Copy the Go xApps to the build directory
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/helloworld/helloworld.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/helloworld.go" )
+
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" )
+
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_slice_sla_max_number_of_ues.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_slice_sla_max_number_of_ues.go" )
+  
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/simulate_xapp_manager.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/simulate_xapp_manager.go" )
+
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_config.conf" "${CMAKE_BINARY_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_config.conf" )
+
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/xapp_print_slice_ue_assoc.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/xapp_print_slice_ue_assoc.go" )
+    
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_slice_generic_ctrl.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_slice_generic_ctrl.go" )
+
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slicing-generic-control/simulate_xapp_manager.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slicing-generic-control/simulate_xapp_manager.go" )
+
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_config.conf" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_config.conf" )
+
+  add_custom_command(
+      TARGET xapp_sdk
+      POST_BUILD
+      COMMAND go mod tidy
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+      COMMENT "Running go mod tidy in swig"
+  )
+  
    
-   # Copy the Go xApps to the build directory
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-     "${CMAKE_SOURCE_DIR}/examples/xApp/go/helloworld/helloworld.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/helloworld.go" )
-
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-     "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" )
-
-
 #JAVA compilation
 elseif(XAPP_TARGET_LANGUAGE STREQUAL "JAVA_LANG")
  ADD_COMPILE_DEFINITIONS(XAPP_LANG_JAVA)
