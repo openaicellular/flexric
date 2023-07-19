@@ -152,25 +152,25 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
     "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" )
 
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/prod-ready/oran/slice-sla/max-num-of-ues/xapp_slice_sla_max_number_of_ues.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/prod-ready/oran/slice-sla/max-num-of-ues/xapp_slice_sla_max_number_of_ues.go" )
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_slice_sla_max_number_of_ues.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_slice_sla_max_number_of_ues.go" )
   
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/prod-ready/oran/slice-sla/max-num-of-ues/simulate_xapp_manager.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/prod-ready/oran/slice-sla/max-num-of-ues/simulate_xapp_manager.go" )
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/simulate_xapp_manager.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/simulate_xapp_manager.go" )
 
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/prod-ready/oran/slice-sla/max-num-of-ues/xapp_config.conf" "${CMAKE_BINARY_DIR}/examples/xApp/go/prod-ready/oran/slice-sla/max-num-of-ues/xapp_config.conf" )
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_config.conf" "${CMAKE_BINARY_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_config.conf" )
 
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/xapp_print_slice_ue_assoc.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/xapp_print_slice_ue_assoc.go" )
     
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/prod-ready/br/slice/slicing-generic-control/xapp_slice_generic_ctrl.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/prod-ready/br/slice/slicing-generic-control/xapp_slice_generic_ctrl.go" )
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_slice_generic_ctrl.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_slice_generic_ctrl.go" )
 
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/prod-ready/br/slice/slicing-generic-control/simulate_xapp_manager.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/prod-ready/br/slice/slicing-generic-control/simulate_xapp_manager.go" )
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slicing-generic-control/simulate_xapp_manager.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slicing-generic-control/simulate_xapp_manager.go" )
 
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/prod-ready/br/slice/slicing-generic-control/xapp_config.conf" "${CMAKE_BINARY_DIR}/examples/xApp/go/prod-ready/br/slice/slicing-generic-control/xapp_config.conf" )
+    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_config.conf" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_config.conf" )
 
   add_custom_command(
       TARGET xapp_sdk
