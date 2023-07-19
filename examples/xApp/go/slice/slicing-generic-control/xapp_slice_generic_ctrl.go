@@ -48,7 +48,7 @@ func PolicyEnforcement(PolicyConfiguration utils.Configuration){
 // ------------------------------------------------------------------------ //
 func main() {
 	// ----------------------- Initialization ----------------------- //
-	utils.Init()
+	utils.Init(os.Args)
 
 	// Connect
 	utils.Conn = xapp.Conn_e2_nodes()

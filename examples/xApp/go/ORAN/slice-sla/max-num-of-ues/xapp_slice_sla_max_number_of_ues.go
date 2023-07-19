@@ -209,7 +209,7 @@ func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration){
 
 func main() {
 	// ----------------------- Initialization ----------------------- //
-	utils.Init()
+	utils.Init(os.Args)
 	
 
 	// Connect
