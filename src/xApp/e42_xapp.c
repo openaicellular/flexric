@@ -215,7 +215,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   db_params_t db_params = {0};
   // Check DB is enabled for this xApp
   db_params.enable = get_conf_db_enable(args);
-  printf("[xApp]: DB_ENABLE = %s\n", db_params.enable?"TURE":"FALSE");
+  printf("[xApp]: DB_ENABLE = %s\n", db_params.enable?"TRUE":"FALSE");
   if (db_params.enable) {
     get_db_params(args, &db_params);
     bool t = init_db_xapp(&xapp->db, &db_params);
