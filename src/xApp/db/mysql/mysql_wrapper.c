@@ -1681,25 +1681,41 @@ void write_gtp_stats(MYSQL* conn, global_e2_node_id_t const* id, gtp_ind_data_t 
 //  }
 //}
 
-void init_db_mysql(MYSQL* conn, db_params_t const* db_params)
+void init_db_mysql(MYSQL** conn, db_params_t const* db_params)
 {
   assert(conn != NULL);
   assert(db_params != NULL);
+  assert(db_params->ip != NULL);
+  assert(db_params->user != NULL);
+  assert(db_params->pass != NULL);
+
+  *conn = mysql_init(NULL);
+  assert(*conn != NULL && "Error initialializing mySQL\n");
+
+  printf("[MySQL]: try to connect server ip %s\n", db_params->ip);
+  if(mysql_real_connect(*conn, db_params->ip, db_params->user, db_params->pass, NULL, 0, NULL, 0) == NULL)
+  {
+    fprintf(stderr, "Fatal: connecting to mySQL: %s\n", mysql_error(*conn));
+    mysql_close(*conn);
+    return;
+  }
+  printf("[MySQL]: Connection Successful\n");
+
 
   // drop exists db in server
   char cmd_drop_db[512] = "DROP DATABASE IF EXISTS ";
   strcat(cmd_drop_db, db_params->db_name);
   printf("[MySQL]: %s\n", cmd_drop_db);
-  if(mysql_query(conn, cmd_drop_db))
-    mysql_finish_with_error(conn);
+  if(mysql_query(*conn, cmd_drop_db))
+    mysql_finish_with_error(*conn);
   printf("[MySQL]: Drop Exist DB Successful\n");
 
   // create db in server
   char cmd_create_db[512] = "CREATE DATABASE IF NOT EXISTS ";
   strcat(cmd_create_db, db_params->db_name);
   printf("[MySQL]: %s\n", cmd_create_db);
-  if(mysql_query(conn, cmd_create_db))
-    mysql_finish_with_error(conn);
+  if(mysql_query(*conn, cmd_create_db))
+    mysql_finish_with_error(*conn);
   printf("[MySQL]: Create New DB Successful\n");
 
   // use db created db
@@ -1710,46 +1726,46 @@ void init_db_mysql(MYSQL* conn, db_params_t const* db_params)
   //////
   // MAC
   //////
-  mysql_query(conn, cmd_use_db);
-  create_mac_ue_table(conn);
+  mysql_query(*conn, cmd_use_db);
+  create_mac_ue_table(*conn);
   printf("[MySQL]: Create New MAC_UE Table Successful\n");
 
   //////
   // RLC
   //////
-  mysql_query(conn, cmd_use_db);
-  create_rlc_bearer_table(conn);
+  mysql_query(*conn, cmd_use_db);
+  create_rlc_bearer_table(*conn);
   printf("[MySQL]: Create New RLC_bearer Table Successful\n");
 
   //////
   // PDCP
   //////
-  mysql_query(conn, cmd_use_db);
-  create_pdcp_bearer_table(conn);
+  mysql_query(*conn, cmd_use_db);
+  create_pdcp_bearer_table(*conn);
   printf("[MySQL]: Create New PDCP_bearer Table Successful\n");
 
   //////
   // SLICE
   //////
-  mysql_query(conn, cmd_use_db);
-  create_slice_table(conn);
+  mysql_query(*conn, cmd_use_db);
+  create_slice_table(*conn);
   printf("[MySQL]: Create New Slice Table Successful\n");
-  mysql_query(conn, cmd_use_db);
-  create_ue_slice_table(conn);
+  mysql_query(*conn, cmd_use_db);
+  create_ue_slice_table(*conn);
   printf("[MySQL]: Create New UE_SLICE Table Successful\n");
 
   //////
   // GTP
   //////
-  mysql_query(conn, cmd_use_db);
-  create_gtp_table(conn);
+  mysql_query(*conn, cmd_use_db);
+  create_gtp_table(*conn);
   printf("[MySQL]: Create New GTP Table Successful\n");
 
   //////
   // KPM
   //////
-  mysql_query(conn, cmd_use_db);
-  create_kpm_table(conn);
+  mysql_query(*conn, cmd_use_db);
+  create_kpm_table(*conn);
   printf("[MySQL]: Create New KPM Table Successful\n");
 }
 

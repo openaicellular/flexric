@@ -41,3 +41,14 @@ void get_db_params(fr_args_t const* args, db_params_t* db_params)
     printf("[MySQL]: use .conf DB password: %s\n", db_params->pass);
 #endif
 }
+
+void free_db_params(db_params_t* params)
+{
+  free(params->ip);
+  free(params->dir);
+  free(params->db_name);
+# ifdef MYSQL_XAPP
+  free(params->user);
+  free(params->pass);
+#endif
+}

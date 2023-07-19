@@ -35,6 +35,8 @@
   #include "sqlite3/sqlite3.h"
 #elif defined(MYSQL_XAPP)
   #include "mysql/mysql.h"
+#else
+
 #endif
 
 typedef struct{

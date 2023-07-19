@@ -131,31 +131,9 @@ bool init_db_xapp(db_xapp_t* db,
   assert(db != NULL);
   assert(db_params != NULL);
 
-#ifdef MYSQL_XAPP
-  assert(db_params->ip != NULL);
-  assert(db_params->user != NULL);
-  assert(db_params->pass != NULL);
-  db->handler = mysql_init(NULL);
-  assert((db->handler != NULL) && "Error initialializing mySQL\n");
-
-  printf("[MySQL]: try to connect server ip %s\n", db_params->ip);
-  if(mysql_real_connect(db->handler, db_params->ip, db_params->user, db_params->pass, NULL, 0, NULL, 0) == NULL)
-  {
-    fprintf(stderr, "Fatal: connecting to mySQL: %s\n", mysql_error(db->handler));
-    mysql_close(db->handler);
-    return false;
-  }
-  printf("[MySQL]: Connection Successful\n");
-  init_db_gen(db->handler, db_params);
-  assert(db->handler != NULL && "db->handler == NULL");
-#elif defined(SQLITE3_XAPP)
   init_db_gen(&db->handler, db_params);
   assert(&db->handler != NULL && "&db->handler == NULL");
-#else
 
-#endif
-
-  //init_db_gen(db->handler, db_params);
   init_tsnq(&db->q, sizeof(e2_node_ag_if_t));
 
   int rc = pthread_create(&db->p, NULL, worker_thread, db);

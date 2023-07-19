@@ -28,7 +28,7 @@
 #include "../../../lib/ap/e2ap_types/common/e2ap_global_node_id.h" 
 
 
-void init_db_mysql(MYSQL* conn, db_params_t const* db_params);
+void init_db_mysql(MYSQL** conn, db_params_t const* db_params);
 
 void close_db_mysql(MYSQL* conn);
 

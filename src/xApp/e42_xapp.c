@@ -221,6 +221,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
     bool t = init_db_xapp(&xapp->db, &db_params);
     assert(t == true && "init db failed\n");
   }
+  free_db_params(&db_params);
 #endif
   xapp->connected = false;
   xapp->stop_token = false;
@@ -328,7 +329,7 @@ void free_e42_xapp(e42_xapp_t* xapp)
   free_msg_dispatcher(&xapp->msg_disp);
 
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
-  if(xapp->db.handler != NULL){
+  if(&xapp->db.handler != NULL){
     close_db_xapp(&xapp->db);
   }
 #endif

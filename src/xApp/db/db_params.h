@@ -20,4 +20,6 @@ typedef struct{
 
 void get_db_params(fr_args_t const* args, db_params_t* params);
 
+void free_db_params(db_params_t* params);
+
 #endif //BR_FLEXRIC_DB_PARAMS_H
