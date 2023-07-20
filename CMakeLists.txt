@@ -43,18 +43,6 @@ set(XAPP_DB "MYSQL_XAPP" CACHE STRING "xApp DB")
 set_property(CACHE XAPP_DB PROPERTY STRINGS "MYSQL_XAPP" "SQLITE3_XAPP" "NONE_XAPP")
 message(STATUS "Selected xApp DB : ${XAPP_DB}")
 
-set(XAPP_DB_DIR "/tmp/" CACHE STRING "The xApp DB write directory")
-if(NOT XAPP_DB_DIR  MATCHES "/$")
-  message(FATAL_ERROR "xApp directory path needs to terminate in one / char")
-endif() 
-
-if(NOT EXISTS ${XAPP_DB_DIR})
-  message(FATAL_ERROR "Selected XAPP_DB_DIR does not exist. Please create it or change path")
-endif()
-
-message(STATUS "Selected xApp dir : ${XAPP_DB_DIR}")
-
-
 ########
 ### SANITIZER 
 ########

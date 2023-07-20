@@ -25,7 +25,7 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 // ------------------------------------------------------------------------ //
 func main() {
 
-	xapp.Init()
+	xapp.Init(os.Args)
 
 	// Connect
 	var conn xapp.E2NodeVector = xapp.Conn_e2_nodes()

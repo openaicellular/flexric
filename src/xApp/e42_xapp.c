@@ -52,6 +52,7 @@
 #include "../../test/rnd/fill_rnd_data_rc.h"
 #include "../../test/rnd/fill_rnd_data_kpm.h"
 
+#include "db/db_params.h"
 
 #include <assert.h>
 #include <time.h>
@@ -211,44 +212,16 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   init_msg_dispatcher(&xapp->msg_disp);
 
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
-  // SQLite3
-  char* dir = get_conf_db_dir(args);
-  char dir2[1024] = {0};
-  assert(strlen(dir) < 1024 && "String too large");
-  if (!strlen(dir)) {
-    sprintf(dir, XAPP_DB_DIR);
-  } else {
-    strcpy(dir2, dir);
+  db_params_t db_params = {0};
+  // Check DB is enabled for this xApp
+  db_params.enable = get_conf_db_enable(args);
+  printf("[xApp]: DB_ENABLE = %s\n", db_params.enable?"TRUE":"FALSE");
+  if (db_params.enable) {
+    get_db_params(args, &db_params);
+    bool t = init_db_xapp(&xapp->db, &db_params);
+    assert(t == true && "init db failed\n");
   }
-  //printf("dir = %s\n", dir);
-
-  // SQLite3 & MYSQL
-  char* db_name = get_conf_db_name(args);
-  char dbname2[1024] = {0};
-  assert(strlen(db_name) < 1024 && "String too large");
-  if (!strlen(db_name)) {
-    int64_t const now = time_now_us();
-    sprintf(dbname2, "xapp_db_%ld", now);
-  } else {
-    strcpy(dbname2, db_name);
-  }
-  //printf("db_name = %s\n", db_name);
-
-  char* db_ip = get_conf_db_ip(args);
-  printf("[MySQL]: get server ip %s from conf\n", db_ip);
-  char dbip2[24] = {0};
-  assert(strlen(db_ip) < 24 && "String too large");
-  if (!strlen(db_ip)) {
-    sprintf(dbip2, "localhost");
-  } else {
-    strcpy(dbip2, db_ip);
-  }
-
-  init_db_xapp(&xapp->db, dbip2, dir2, dbname2);
-
-  free(db_ip);
-  free(dir);
-  free(db_name);
+  free_db_params(&db_params);
 #endif
   xapp->connected = false;
   xapp->stop_token = false;
@@ -356,7 +329,9 @@ void free_e42_xapp(e42_xapp_t* xapp)
   free_msg_dispatcher(&xapp->msg_disp);
 
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
-  close_db_xapp(&xapp->db);
+  if(&xapp->db.handler != NULL){
+    close_db_xapp(&xapp->db);
+  }
 #endif
 
   free(xapp);

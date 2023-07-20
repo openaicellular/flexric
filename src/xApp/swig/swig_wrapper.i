@@ -5,6 +5,28 @@
 %include "carrays.i"
 %include <typemaps.i>
 
+// convert list in python to std::vector<std::string>& in c++
+%typemap(in) std::vector<std::string>& (std::vector<std::string> temp) {
+  // Check if the input object is a list
+  if (PyList_Check($input)) {
+    int size = PyList_Size($input);
+    temp.resize(size);
+    for (int i = 0; i < size; ++i) {
+      PyObject* item = PyList_GetItem($input, i);
+      if (!PyUnicode_Check(item)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a list of strings");
+        return NULL;
+      }
+      const char* str = PyUnicode_AsUTF8(item);
+      temp[i] = str;
+    }
+    $1 = &temp;
+  } else {
+    PyErr_SetString(PyExc_TypeError, "Expected a list of strings");
+    return NULL;
+  }
+}
+
 %{
   #include "swig_wrapper.h"
   #include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"

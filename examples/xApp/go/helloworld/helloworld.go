@@ -5,6 +5,7 @@ import (
 	xapp "build/examples/xApp/go/xapp_sdk"
 	"fmt"
 	"time"
+	"os"
 	utils "build/examples/xApp/go/utils/slice_utils"
 )
 
@@ -17,7 +18,7 @@ import (
 // ------------------------------------------------------------------------ //
 func main() {
 	// Initial of xApp
-	xapp.Init()
+	xapp.Init(os.Args)
 
 	var nodes xapp.E2NodeVector = xapp.Conn_e2_nodes()
 

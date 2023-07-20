@@ -555,7 +555,7 @@ func main() {
 
 	sliceId := 0
 
-	xapp.Init()
+	xapp.Init(os.Args)
 
 	// Connect
 	conn = xapp.Conn_e2_nodes()

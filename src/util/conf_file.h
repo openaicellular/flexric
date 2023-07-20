@@ -2,6 +2,7 @@
 #define FLEXRIC_CONFIGURATION_FILE_H 
 
 #include <stdint.h>
+#include <stdbool.h>
 #define FR_CONF_FILE_LEN 128
 
 typedef struct {
@@ -20,6 +21,12 @@ char* get_near_ric_ip(fr_args_t const*);
 char* get_conf_db_dir(fr_args_t const*);
 
 char* get_conf_db_name(fr_args_t const*);
+
+char* get_conf_db_user(fr_args_t const*);
+
+char* get_conf_db_pass(fr_args_t const*);
+
+bool get_conf_db_enable(fr_args_t const*);
 
 char* get_conf_db_ip(fr_args_t const*);
 

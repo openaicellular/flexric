@@ -266,8 +266,9 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
     free_sm_ag_if_rd(&msg_disp.rd);
   } else {
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
-   // Write to SQL DB
-   write_db_xapp(&xapp->db, &ans.val.e2_node ,&msg_disp.rd);
+  if(xapp->db.handler != NULL){
+    write_db_xapp(&xapp->db, &ans.val.e2_node ,&msg_disp.rd);
+  }
 #endif
 
     // Write to the callback. Should I send the E2 Node info to the cb??

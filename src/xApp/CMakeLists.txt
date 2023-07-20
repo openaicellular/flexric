@@ -160,7 +160,6 @@ endif()
 target_compile_definitions(e42_xapp PRIVATE ${E2AP_ENCODING} ${XAPP_DB} )
 target_compile_definitions(e42_xapp_shared PRIVATE ${E2AP_ENCODING} ${XAPP_DB} )
 
-add_definitions(-DXAPP_DB_DIR="${XAPP_DB_DIR}")
 
 #string(TIMESTAMP NOW "%Y-%m-%dT%H:%M:%SZ")
 #string(APPEND XAPP_DB_DIR ${NOW} )

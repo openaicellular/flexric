@@ -29,8 +29,8 @@
 
 
 #define init_db_gen(T,U) _Generic ((T), \
-                                    sqlite3*:  init_db_sqlite3, \
-                                    MYSQL*:    init_db_mysql, \
+                                    sqlite3**:  init_db_sqlite3, \
+                                    MYSQL**:    init_db_mysql, \
                                     default:   init_db_sqlite3) (T,U)
 
 #define close_db_gen(T) _Generic ((T),\

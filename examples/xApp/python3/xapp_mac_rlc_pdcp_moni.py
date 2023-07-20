@@ -3,7 +3,7 @@ import time
 import os
 import pdb
 import csv
-
+import sys
 
 ####################
 #### MAC INDICATION CALLBACK
@@ -90,8 +90,9 @@ if __name__ == '__main__':
     mac_hndlr = []
     rlc_hndlr = []
     pdcp_hndlr = []
+
     # Start
-    ric.init()
+    ric.init(sys.argv)
     conn = ric.conn_e2_nodes()
     assert(len(conn) > 0)
     for i in range(0, len(conn)):

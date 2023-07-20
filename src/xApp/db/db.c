@@ -126,45 +126,13 @@ void* worker_thread(void* arg)
 }
 
 bool init_db_xapp(db_xapp_t* db,
-                  char const* ip,
-                  char const* dir,
-                  char const* db_name)
+                  db_params_t const* db_params)
 {
   assert(db != NULL);
-  assert(db_name != NULL);
+  assert(db_params != NULL);
 
-  // XXX-IMPROVE: encapsulate db specific logic into its respective function init_db_gen().
-  // Further, init_db_xapp() should have a var_args approach for its arguments
-#ifdef MYSQL_XAPP
-  (void)dir;
-  assert(ip != NULL);
-  db->handler = mysql_init(NULL);
-  assert((db->handler != NULL) && "Error initialializing mySQL\n");
-
-  const char* user = "xapp";
-  const char* pass = "eurecom";
-  printf("[MySQL]: try to connect server ip %s\n", ip);
-  if(mysql_real_connect(db->handler, ip, user, pass, NULL, 0, NULL, 0) == NULL)
-  {
-    fprintf(stderr, "Fatal: connecting to mySQL: %s\n", mysql_error(db->handler));
-    mysql_close(db->handler);
-    return false;
-  }
-  printf("[MySQL]: Connection Successful\n");
-  init_db_gen(db->handler, db_name);
-#elif defined(SQLITE3_XAPP)
-  (void)ip;
-  assert(dir != NULL);
-  char filename[256] = {0};
-  if (strlen(dir) && strlen(db_name)) {
-    int n = snprintf(filename, 255, "%s%s", dir, db_name);
-    assert(n < 256 && "Overflow");
-  }
-  printf("Filename = %s \n ", filename);
-  init_db_gen(&db->handler, filename);
-#else
-
-#endif
+  init_db_gen(&db->handler, db_params);
+  assert(&db->handler != NULL && "&db->handler == NULL");
 
   init_tsnq(&db->q, sizeof(e2_node_ag_if_t));
 

@@ -2,6 +2,7 @@ import xapp_sdk as ric
 import time
 import pdb
 import json
+import sys
 
 ####################
 ####  SLICE INDICATION MSG TO JSON
@@ -387,7 +388,7 @@ def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
 ####  GENERAL
 ####################
 
-ric.init()
+ric.init(sys.argv)
 
 conn = ric.conn_e2_nodes()
 assert(len(conn) > 0)

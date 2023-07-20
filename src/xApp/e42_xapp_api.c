@@ -75,7 +75,7 @@ void init_xapp_api(fr_args_t const* args)
   while(connected_e42_xapp(xapp) == false)
     sleep(1);
 }
-  
+
 bool try_stop_xapp_api(void)
 {
   assert(xapp != NULL);

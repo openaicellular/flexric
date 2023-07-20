@@ -51,15 +51,38 @@ const char* convert_period(Interval  inter_arg)
 
 
 
-void init()
+void init(std::vector<std::string>& argv)
 {
   assert(initialized == false && "Already initialized!");
+  // for (const auto& str : argv) {
+  //  std::cout << str << std::endl;
+  //}
 
-  int const argc = 1;
-  char** argv = NULL;
-  fr_args_t args = init_fr_args(argc, argv);
+  // Allocate memory for the char** array
+  char** c_argv = new char*[argv.size()];
+  // Copy each string to the char* array
+  for (size_t i = 0; i < argv.size(); ++i) {
+    // Allocate memory for the current string
+    c_argv[i] = new char[argv[i].size() + 1];
 
-  initialized = true; 
+    // Copy the contents of the string
+    std::strcpy(c_argv[i], argv[i].c_str());
+  }
+  // Print the strings
+  //  for (size_t i = 0; i < argv.size(); ++i) {
+  //    std::cout << c_argv[i] << std::endl;
+  //  }
+
+  fr_args_t args = init_fr_args(argv.size(), c_argv);
+
+  // Deallocate memory for the char** array
+  for (size_t i = 0; i < argv.size(); ++i) {
+    delete[] c_argv[i];
+  }
+  delete[] c_argv;
+
+
+  initialized = true;
 
   init_xapp_api(&args);
 }
