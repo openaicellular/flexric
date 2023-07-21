@@ -23,11 +23,17 @@
 #include <assert.h>
 #include <stdlib.h>
 
-
 void free_e2ap_node_comp_conf_ack(e2ap_node_comp_conf_ack_t* src)
 {
   assert(src != NULL);
-  assert(0!=0 && "Not implemented");
+
+  // Mandatory
+  // Outcome
+  //outcome_e2ap_node_comp_conf_ack_e outcome;
+
+  // Optional
+  // 9.2.1
+  assert(src->cause == NULL && "Not implemented");
 }
 
 

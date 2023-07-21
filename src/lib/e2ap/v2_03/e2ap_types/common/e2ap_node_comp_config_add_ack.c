@@ -27,7 +27,7 @@
 void free_e2ap_node_comp_config_add_ack(e2ap_node_comp_config_add_ack_t* src)
 {
   assert(src != NULL);
-  assert(0 != 0 && "Not implemented");
+  //assert(0 != 0 && "Not implemented");
 
   // 9.2.26
   // Mandatory
