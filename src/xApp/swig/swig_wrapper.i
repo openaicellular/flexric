@@ -5,6 +5,24 @@
 %include "carrays.i"
 %include <typemaps.i>
 
+%{
+  #include "swig_wrapper.h"
+  #include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+  #include "../../lib/ap/e2ap_types/common/e2ap_plmn.h"
+  #include "../../lib/ap/e2ap_types/common/e2ap_ran_function.h"
+  #include "../../util/byte_array.h"
+  #include "../../util/e2ap_ngran_types.h"
+
+
+  #include "../../sm/mac_sm/ie/mac_data_ie.h"
+  #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
+  #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
+  #include "../../sm/slice_sm/ie/slice_data_ie.h"
+  #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
+//  #include "../../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"
+%}
+
+#ifdef SWIGPYTHON
 // convert list in python to std::vector<std::string>& in c++
 %typemap(in) std::vector<std::string>& (std::vector<std::string> temp) {
   // Check if the input object is a list
@@ -27,24 +45,6 @@
   }
 }
 
-%{
-  #include "swig_wrapper.h"
-  #include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
-  #include "../../lib/ap/e2ap_types/common/e2ap_plmn.h"
-  #include "../../lib/ap/e2ap_types/common/e2ap_ran_function.h"
-  #include "../../util/byte_array.h"
-  #include "../../util/e2ap_ngran_types.h"
-
-
-  #include "../../sm/mac_sm/ie/mac_data_ie.h"
-  #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
-  #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
-  #include "../../sm/slice_sm/ie/slice_data_ie.h"
-  #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
-//  #include "../../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"
-%}
-
-#ifdef SWIGPYTHON
 /* uintXX_t mapping: Python -> C */
 %typemap(in) uint8_t {
     $1 = (uint8_t) PyInt_AsLong($input);

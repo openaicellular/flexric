@@ -18,7 +18,12 @@ import (
 // ------------------------------------------------------------------------ //
 func main() {
 	// Initial of xApp
-	xapp.Init(os.Args)
+	args := xapp.NewStringVector()
+	for _, arg := range os.Args {
+		fmt.Println(arg)
+		args.Add(arg)
+	}
+	xapp.Init(args)
 
 	var nodes xapp.E2NodeVector = xapp.Conn_e2_nodes()
 

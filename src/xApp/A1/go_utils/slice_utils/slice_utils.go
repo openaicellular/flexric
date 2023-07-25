@@ -846,7 +846,11 @@ func Init(){
 	ParseXappConfig()
 
 	// Init xApp from C SDK
-	xapp.Init()
+	args := xapp.NewStringVector()
+	for _, arg := range os.Args {
+		args.Add(arg)
+	}
+	xapp.Init(args)
 
 	// Create the channel for receiving the finish command
 	FinishChannel = make(chan bool)
