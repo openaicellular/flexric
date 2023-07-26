@@ -5,8 +5,8 @@ import (
 	xapp "build/examples/xApp/go/xapp_sdk"
 	"fmt"
 	"time"
-	"os"
 	utils "build/examples/xApp/go/utils/slice_utils"
+	"os"
 )
 
 
@@ -18,12 +18,7 @@ import (
 // ------------------------------------------------------------------------ //
 func main() {
 	// Initial of xApp
-	args := xapp.NewStringVector()
-	for _, arg := range os.Args {
-		fmt.Println(arg)
-		args.Add(arg)
-	}
-	xapp.Init(args)
+	xapp.Init(xapp.SlToStrVec(os.Args))
 
 	var nodes xapp.E2NodeVector = xapp.Conn_e2_nodes()
 

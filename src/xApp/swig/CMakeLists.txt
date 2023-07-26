@@ -144,41 +144,60 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
   configure_file("${CMAKE_SOURCE_DIR}/src/xApp/A1/go_utils/slice_utils/slice_utils.go" 
   "${CMAKE_BINARY_DIR}/examples/xApp/go/utils/slice_utils/slice_utils.go" COPYONLY)
 
-  # Copy the Go xApps to the build directory
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/helloworld/helloworld.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/helloworld.go" )
+  # Gather all files in examples/xApp/go directory recursively
+  file(GLOB_RECURSE GO_FILES RELATIVE ${CMAKE_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/examples/xApp/go/*")
 
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/xapp_slice_moni_ctrl.go" )
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_slice_sla_max_number_of_ues.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_slice_sla_max_number_of_ues.go" )
-  
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/simulate_xapp_manager.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/simulate_xapp_manager.go" )
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_config.conf" "${CMAKE_BINARY_DIR}/examples/xApp/go/ORAN/slice-sla/max-num-of-ues/xapp_config.conf" )
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/xapp_print_slice_ue_assoc.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/xapp_print_slice_ue_assoc.go" )
+  foreach(GO_FILE IN LISTS GO_FILES)
+    get_filename_component(GO_FILE_PATH ${GO_FILE} DIRECTORY)
     
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_slice_generic_ctrl.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_slice_generic_ctrl.go" )
+    # Ensure the destination directory exists
+    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${GO_FILE_PATH}")
 
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slicing-generic-control/simulate_xapp_manager.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slicing-generic-control/simulate_xapp_manager.go" )
+    add_custom_command(TARGET xapp_sdk POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${CMAKE_SOURCE_DIR}/${GO_FILE}"
+      "${CMAKE_BINARY_DIR}/${GO_FILE}"
+      COMMENT "Copying ${GO_FILE}"
+    )
+  endforeach()
 
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_config.conf" "${CMAKE_BINARY_DIR}/examples/xApp/go/slice/slicing-generic-control/xapp_config.conf" )
+  # This variable will hold the paths to all the Go binaries
+  set(GO_BINARIES "")
 
-  add_custom_command(
+  # Gather all Go _main.go files in examples/xApp/go directory recursively
+  file(GLOB_RECURSE GO_MAIN_FILES RELATIVE ${CMAKE_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/examples/xApp/go/*/*_main.go")
+
+  foreach(GO_MAIN_FILE IN LISTS GO_MAIN_FILES)
+    get_filename_component(GO_APP_DIR ${GO_MAIN_FILE} DIRECTORY)
+
+    # Extract the file's base name
+    get_filename_component(GO_FILE_NAME_WE ${GO_MAIN_FILE} NAME_WE)
+
+    # Remove the _main suffix to get the executable name
+    string(REGEX REPLACE "_main$" "" EXECUTABLE_NAME ${GO_FILE_NAME_WE})
+
+    add_custom_command(
       TARGET xapp_sdk
       POST_BUILD
       COMMAND go mod tidy
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-      COMMENT "Running go mod tidy in swig"
-  )
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${GO_APP_DIR}
+      COMMENT "Running go mod tidy in ${GO_APP_DIR}"
+    )
+
+    # Add "go_" prefix to the executable name
+    set(PREFIXED_EXECUTABLE_NAME "go_${EXECUTABLE_NAME}")
+
+    add_custom_command(
+      TARGET xapp_sdk
+      POST_BUILD
+      COMMAND go build -o ${PREFIXED_EXECUTABLE_NAME}
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${GO_APP_DIR}
+      COMMENT "Building Go application in ${GO_APP_DIR}"
+    )
+
+    # Add the path to the Go binary to the list of binaries
+    list(APPEND GO_BINARIES "${CMAKE_BINARY_DIR}/${GO_APP_DIR}/${PREFIXED_EXECUTABLE_NAME}")
+  endforeach()
   
    
 #JAVA compilation

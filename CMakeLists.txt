@@ -258,6 +258,10 @@ if (XAPP_PYTHON_INSTALL)
   install(TARGETS e42_xapp_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif ()
 
+if (XAPP_GO_INSTALL)
+  install(PROGRAMS ${GO_BINARIES} DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif ()
+
 # make uninstall
 add_custom_target("uninstall" COMMENT "Uninstall installed files")
 add_custom_command(

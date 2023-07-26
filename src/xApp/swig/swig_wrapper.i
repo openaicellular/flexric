@@ -111,6 +111,17 @@
 #cgo LDFLAGS: -L. -lxapp_sdk -Wl,-rpath=${SRCDIR}
 %}
 
+%insert(go_wrapper) %{
+// Converts a slice of strings to a StringVector object
+func SlToStrVec(slice []string) (_swig_ret StringVector) {
+    vec := NewStringVector()
+    for _, str := range slice {
+        vec.Add(str)
+    }
+    return vec
+}
+%}
+
 %typemap(in) uint8_t {
     $1 = (long)$input;
 }

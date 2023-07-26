@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 	utils "build/examples/xApp/go/utils/slice_utils"
+	"os"
 )
 
 
@@ -25,7 +26,7 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 // ------------------------------------------------------------------------ //
 func main() {
 
-	xapp.Init(os.Args)
+	xapp.Init(xapp.SlToStrVec(os.Args))
 
 	// Connect
 	var conn xapp.E2NodeVector = xapp.Conn_e2_nodes()
