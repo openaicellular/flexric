@@ -41,7 +41,9 @@
 #include "sm/sm_io.h"
 
 #ifdef PROXY_AGENT
-#include "../proxy-agent/ran_if.h"
+#include "proxy-agent/ran_if.h"
+#include "proxy-agent/notif_e2_ran.h"
+#include "proxy-agent/ws_io_ran.h"
 #endif
 
 #include <stdatomic.h>
@@ -67,7 +69,7 @@ typedef struct e2_agent_s
 
   // Pending events
   bi_map_t pending;  // left: fd, right: pending_event_t 
-
+  
   global_e2_node_id_t global_e2_node_id;
 
   // Aperiodic Indication events
@@ -75,9 +77,14 @@ typedef struct e2_agent_s
 
   atomic_bool stop_token;
   atomic_bool agent_stopped;
+
   #ifdef PROXY_AGENT
-  ran_if_t *ran_if;
+  ran_if_t *      ran_if;       // RAN interface pointer
+  bi_map_t        correlation;  // will store correlation data from procedures that we can't transport to RAN interface.
+  pthread_mutex_t pend_mtx;     // mutex for 'pending' datastructure
+  pthread_mutex_t corr_mtx;     // mutex for 'correlation' datastructure
   #endif
+
 } e2_agent_t;
 
 e2_agent_t* e2_init_agent(const char* addr, int port, global_e2_node_id_t ge2nid, sm_io_ag_ran_t io, char const*  libs_dir);

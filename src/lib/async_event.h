@@ -35,7 +35,7 @@ typedef enum
   INDICATION_EVENT,
   APERIODIC_INDICATION_EVENT,
   PENDING_EVENT,
-
+  
   UNKNOWN_EVENT,
 } async_event_e;
 

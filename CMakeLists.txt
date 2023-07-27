@@ -177,8 +177,9 @@ set_property(CACHE XAPP_PYTHON_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
 set(UNIT_TEST "FALSE" CACHE STRING "build test cases")
 set_property(CACHE UNIT_TEST PROPERTY STRINGS "TRUE" "FALSE")
 
-option(RAN_WITH_WS "Include support for RAN having a websocket interface" OFF)
+set(RAN_WITH_WS "OFF" CACHE STRING "Include support for RAN having a websocket interface")
 message(STATUS "Include support for RAN with a websocket interface: ${RAN_WITH_WS}")
+set_property(CACHE RAN_WITH_WS PROPERTY STRINGS "ON" "OFF")
 
 include_directories(src)
 add_subdirectory(src)

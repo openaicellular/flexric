@@ -431,7 +431,7 @@ void e2_event_loop_ric(near_ric_t* ric)
         }
       case PENDING_EVENT:
         {
-          printf("Pending event timeout happened. Communication with E2 Node lost?\n");
+          printf("Pending event timeout happened. Communication with E2 Node lost? Event n.%d\n", *e.p_ev);
           consume_fd(e.fd);
 
           break;

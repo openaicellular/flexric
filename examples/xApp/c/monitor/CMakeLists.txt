@@ -50,6 +50,8 @@ target_link_libraries(xapp_kpm_moni
 											-lsctp
 											-ldl
 											)
+# enable below directive if you need to debug asn code
+# target_compile_options(xapp_kpm_moni PUBLIC -DASN_EMIT_DEBUG=1)
 
 # xapp_moni
 add_executable(xapp_moni

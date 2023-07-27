@@ -79,4 +79,23 @@ void fill_mac_ind_data(mac_ind_data_t* ind)
   }
 }
 
+void fill_mac_ctrl(mac_ctrl_req_data_t* ctrl)
+{
+  assert(ctrl != NULL);
+
+  srand(time(0));
+  int const mod = 1024;
+
+  ctrl->msg.ran_conf_len = abs(rand()%5);
+  if(ctrl->msg.ran_conf_len > 0){
+    ctrl->msg.ran_conf = calloc(ctrl->msg.ran_conf_len, sizeof(mac_conf_t));
+    assert(ctrl->msg.ran_conf != NULL && "memory exhausted");
+  }
+  for(uint32_t i = 0; i < ctrl->msg.ran_conf_len; ++i) {
+    ctrl->msg.ran_conf[i].rnti = abs(rand()%mod);
+    ctrl->msg.ran_conf[i].pusch_mcs = abs(rand()%mod);
+    ctrl->msg.ran_conf[i].isset_pusch_mcs = abs(rand()%2);
+  }
+}
+
 

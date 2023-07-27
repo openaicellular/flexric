@@ -25,7 +25,7 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS")
                           )
 
 else()
-  message(FATAL_ERROR "Unknonw E2AP encoding type")
+  message(FATAL_ERROR "Unknown E2AP encoding type")
 endif()
 
 # Set the MACRO variable that will be used by the compiler to select the encoding/decoding

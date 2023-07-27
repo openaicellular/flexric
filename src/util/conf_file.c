@@ -14,6 +14,7 @@
 
 #include "alg_ds/alg/defer.h"
 
+#define valid_ipv4 valid_ip
 #define MAX_PASSWORD_LENGTH 64
 
 static
@@ -161,68 +162,35 @@ int parse_args(int argc, char** argv, args_t* args)
 }
 
 */
+#ifdef PROXY_AGENT
+#include <libwebsockets.h>
+static
+bool valid_logl(int logl)
+{
+  return logl & ( LLL_ERR    |
+                  LLL_WARN   |
+                  LLL_NOTICE |
+	                LLL_INFO	 |
+                  LLL_DEBUG	 |
+                  LLL_PARSER |
+                  LLL_HEADER |
+                  LLL_EXT		 |
+                  LLL_CLIENT |
+                  LLL_LATENCY|
+                  LLL_USER	 |
+                  LLL_THREAD
+                );
 
 
+}
+#endif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+static
+bool valid_port(const char *port)
+{
+  int val = atoi(port);
+  return (val > 0 && val < USHRT_MAX);
+}
 
 
 static
@@ -656,7 +624,7 @@ char* get_conf_db_ip(fr_args_t const* args)
   return strdup(ip_addr);
 }
 
-char* get_conf_amr_ip(fr_args_t const* args)
+char* get_conf_ran_ip(fr_args_t const* args)
 {
   char* line = NULL;
   defer({free(line);});
@@ -667,7 +635,7 @@ char* get_conf_amr_ip(fr_args_t const* args)
 
   if (fp == NULL){
     printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
-    exit(EXIT_FAILURE);
+    return NULL;
   }
 
   defer({fclose(fp); } );
@@ -686,10 +654,96 @@ char* get_conf_amr_ip(fr_args_t const* args)
     }
   }
 
-  if(valid_ip(ip_addr) == false){
+  if (read == -1)
+    return NULL; // not found
+
+  if(valid_ipv4(ip_addr) == false){
     printf("IP address string invalid = %s Check the config file\n",ip_addr);
-    exit(EXIT_FAILURE);
+    return NULL;
   }
 
   return strdup(ip_addr);
 }
+
+int get_conf_ran_port(fr_args_t const* args)
+{
+  char* line = NULL;
+  defer({free(line);});
+  size_t len = 0;
+  ssize_t read;
+
+  FILE * fp = fopen(args->conf_file, "r");
+
+  if (fp == NULL){
+    printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
+    return -1;
+  }
+
+  defer({fclose(fp); } );
+
+  char port[24] = {0};
+  while ((read = getline(&line, &len, fp)) != -1) {
+    const char* needle = "RAN_PORT =";
+    char* ans = strstr(line, needle);
+    if(ans != NULL){
+      ans += strlen(needle);
+      ans = ltrim(ans);
+      ans = rtrim(ans);
+      assert(strlen(ans) <= sizeof(port));
+      memcpy(port, ans , strlen(ans)); // \n character
+      break;
+    }
+  }
+  if (read == -1)
+    return -1;// not found
+
+  if (valid_port(port) == false){
+    printf("IP port string invalid = %s. Check the config file\n", port);
+    return -1;
+  }
+
+  return atoi(port);
+}
+
+#ifdef PROXY_AGENT
+int get_conf_ran_logl(fr_args_t const* args)
+{
+  char* line = NULL;
+  defer({free(line);});
+  size_t len = 0;
+  ssize_t read;
+
+  FILE * fp = fopen(args->conf_file, "r");
+
+  if (fp == NULL){
+    printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
+    return -1;
+  }
+
+  defer({fclose(fp); } );
+
+  char logl[24] = {0};
+  while ((read = getline(&line, &len, fp)) != -1) {
+    const char* needle = "RAN_LOGL =";
+    char* ans = strstr(line, needle);
+    if(ans != NULL){
+      ans += strlen(needle);
+      ans = ltrim(ans);
+      ans = rtrim(ans);
+      assert(strlen(ans) <= sizeof(logl));
+      memcpy(logl, ans , strlen(ans)); // \n character
+      break;
+    }
+  }
+
+  int ret = atoi(logl);
+  if (valid_logl(ret) == false){
+    printf("RAN loglevel invalid = %s (%d). Check the config file\n", logl, ret);
+    printf("Allowed levels are a bitwose combination of\n");
+    printf("LLL_ERR(%d), LLL_WARN(%d),LLL_NOTICE(%d), LLL_INFO(%d), LLL_DEBUG(%d), LLL_PARSER(%d), LLL_HEADER(%d), LLL_EXT(%d), LLL_CLIENT(%d), LLL_LATENCY(%d), LLL_USER(%d), LLL_THREAD(%d)\n", LLL_ERR, LLL_WARN, LLL_NOTICE, LLL_INFO, LLL_DEBUG, LLL_PARSER, LLL_HEADER, LLL_EXT, LLL_CLIENT, LLL_LATENCY, LLL_USER, LLL_THREAD);
+    return -1;
+  }
+
+  return ret;
+}
+#endif

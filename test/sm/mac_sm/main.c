@@ -33,6 +33,8 @@
 static
 mac_ind_data_t cp;
 
+static
+mac_ctrl_req_data_t cp_ctrl;
 /////
 // AGENT
 ////
@@ -51,17 +53,27 @@ void read_ind_mac(void* read)
   cp.msg = cp_mac_ind_msg(&ind->msg);
 }
 
-/*
-static 
-sm_ag_if_ans_t write_RAN(const sm_ag_if_wr_t* data)
+static
+sm_ag_if_ans_t write_ctrl_mac(void const* data)
 {
   assert(data != NULL);
-  assert(0!=0 && "Not implemented");
-  sm_ag_if_ans_t ans = {0};
+
+  assert(data != NULL);
+  mac_ctrl_req_data_t const* mac_req_ctrl = (mac_ctrl_req_data_t const* )data; // &data->slice_req_ctrl;
+  mac_ctrl_msg_t const* msg = &mac_req_ctrl->msg;
+
+  for (size_t i = 0; i < msg->ran_conf_len; i++) {
+    // TODO
+    printf("ran_conf[%ld].isset_pusch_mcs %d\n", i, msg->ran_conf[i].isset_pusch_mcs);
+    printf("ran_conf[%ld].pusch_mcs %d\n", i, msg->ran_conf[i].pusch_mcs);
+    printf("ran_conf[%ld].rnti %d\n", i, msg->ran_conf[i].rnti);
+  }
+
+  sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0};
+  ans.ctrl_out.type = MAC_AGENT_IF_CTRL_ANS_V0;
+  ans.ctrl_out.mac.ans = MAC_CTRL_OUT_OK;
   return ans;
 }
-*/
-
 /////////////////////////////
 // Check Functions
 // //////////////////////////
@@ -113,17 +125,64 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   free_sm_ind_data(&sm_data); 
 }
 
+static
+void check_ctrl(sm_agent_t* ag, sm_ric_t* ric)
+{
+  assert(ag != NULL);
+  assert(ric != NULL);
+
+  //sm_ag_if_wr_t wr = {.type = CONTROL_SM_AG_IF_WR };
+  //wr.ctrl.type = SLICE_CTRL_REQ_V0 ;
+
+  sm_ag_if_wr_t ctrl_msg = {0};
+  ctrl_msg.type = CONTROL_SM_AG_IF_WR;
+  ctrl_msg.ctrl.type = MAC_CTRL_REQ_V0;
+  mac_ctrl_req_data_t* mac_req_ctrl = &ctrl_msg.ctrl.mac_ctrl;
+  fill_mac_ctrl(mac_req_ctrl);
+
+  cp_ctrl.hdr = cp_mac_ctrl_hdr(&mac_req_ctrl->hdr);
+  cp_ctrl.msg = cp_mac_ctrl_msg(&mac_req_ctrl->msg);
+
+  sm_ctrl_req_data_t ctrl_req = ric->proc.on_control_req(ric, &ctrl_msg);
+
+  sm_ctrl_out_data_t out_data = ag->proc.on_control(ag, &ctrl_req);
+
+  sm_ag_if_ans_ctrl_t ans = ric->proc.on_control_out(ric, &out_data);
+  assert(ans.type == MAC_AGENT_IF_CTRL_ANS_V0);
+
+  if(ctrl_req.len_hdr > 0)
+    free(ctrl_req.ctrl_hdr);
+
+  if(ctrl_req.len_msg > 0)
+    free(ctrl_req.ctrl_msg);
+
+  if(out_data.len_out > 0)
+    free(out_data.ctrl_out);
+
+  free_mac_ctrl_out(&ans.mac);
+
+  free_mac_ctrl_hdr(&mac_req_ctrl->hdr);
+  free_mac_ctrl_msg(&mac_req_ctrl->msg);
+
+  free_mac_ctrl_hdr(&cp_ctrl.hdr);
+  free_mac_ctrl_msg(&cp_ctrl.msg);
+}
+
 int main()
 {
   sm_io_ag_ran_t io_ag = {0};
-  io_ag.read_ind_tbl[MAC_STATS_V0] = read_ind_mac; 
+  io_ag.read_ind_tbl[MAC_STATS_V0] = read_ind_mac;
+  io_ag.write_ctrl_tbl[MAC_STATS_V0] = write_ctrl_mac;
 
   sm_agent_t* sm_ag = make_mac_sm_agent(io_ag);
   sm_ric_t* sm_ric = make_mac_sm_ric();
 
-  check_eq_ran_function(sm_ag, sm_ric);
-  check_subscription(sm_ag, sm_ric);
-  check_indication(sm_ag, sm_ric);
+  for(int i = 0; i < 64*1024; ++i) {
+    check_eq_ran_function(sm_ag, sm_ric);
+    check_subscription(sm_ag, sm_ric);
+    check_indication(sm_ag, sm_ric);
+    check_ctrl(sm_ag, sm_ric);
+  }
 
   sm_ag->free_sm(sm_ag);
   sm_ric->free_sm(sm_ric);

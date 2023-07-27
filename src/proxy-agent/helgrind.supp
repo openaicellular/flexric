@@ -1,0 +1,47 @@
+# Suppression file for helgrind tool to be used in proxy_agent
+# Format of this file is:
+# {
+#     name_of_suppression
+#     tool_name:supp_kind
+#     (optional extra info for some suppression types)
+#     caller0 name, or /name/of/so/file.so
+#     caller1 name, or ditto
+#     (optionally: caller2 name)
+#     (optionally: caller3 name)
+#  }
+#
+# Below are false positive in the sense that by design ringbuffer has been done like that to in
+# case have no refreshed data.
+# Example of usage: 
+# valgrind --time-stamp=yes --tool=helgrind --suppressions=src/proxy-agent/helgrind.supp proxy_agent_ws
+
+{                                                                                            
+   ringbuffer_get
+   Helgrind:Race                                                               
+   fun:memmove                                                                                 
+   fun:get_ringbuffer_data                                                                      
+   fun:read_kpm_sm                                                                               
+   fun:on_indication_kpm_sm_ag                                                                   
+   fun:e2_event_loop_agent                                                                       
+   fun:e2_start_agent                                                                            
+   fun:static_start_agent                                                                        
+   obj:/usr/lib/x86_64-linux-gnu/valgrind/vgpreload_helgrind-amd64-linux.so                      
+   fun:start_thread                                                                              
+   fun:clone                                                                                     
+}
+{                                                                                                
+   put_ringbuffer_data
+   Helgrind:Race                                                                                 
+   fun:memmove                                                                                   
+   fun:put_ringbuffer_data                                                                       
+   fun:handle_ran_indication_stats                                                               
+   fun:ran_msg_handle                                                                            
+   fun:io_ran_ws_async_loop                                                                      
+   fun:lws_ws_client_rx_sm                                                                       
+   fun:lws_ws_handshake_client                                                                   
+   fun:lws_read_h1                                                                               
+   fun:rops_handle_POLLIN_ws                                                                     
+   fun:lws_service_fd_tsi                                                                        
+   fun:_lws_plat_service_forced_tsi                                                              
+   fun:_lws_plat_service_tsi.part.0                                                              
+}

@@ -5,6 +5,7 @@ add_subdirectory(sm)
 #add_subdirectory(e2sm_common_ie)
 
 add_library(pending_events_obj OBJECT 
+                                correlation_events.c
                                 pending_events.c 
                                 pending_event_ric.c
                                 ind_event.c

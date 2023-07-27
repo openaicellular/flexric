@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include "ran_if.h"
 #include "proxy_agent_conf.h"
 
 static const int                  default_host_port = 9001;
@@ -9,30 +10,45 @@ bool ws_initconf(struct proxy_conf_t * conf, int argc, char *argv[])
   conf->e2args = init_fr_args(argc, argv);
   conf->retry_count = 0;
 
-  conf->port = default_host_port;
-  char* amr_ip = get_conf_amr_ip(&conf->e2args);
-  strncpy(conf->address, amr_ip, strlen(amr_ip));
-  printf("[E2 Agent]: get amr-ran ip %s from conf\n", amr_ip);
+  conf->io_ran_conf.port = default_host_port;
+  conf->io_ran_conf.logl = default_log_level;
+
+  char* amr_ip = get_conf_ran_ip(&conf->e2args);
+  if (amr_ip){
+    strncpy(conf->io_ran_conf.address, amr_ip, strlen(amr_ip));
+    printf("[E2 Agent]: get amr-ran ip %s from conf file %s\n", amr_ip, conf->e2args.conf_file);
+    free(amr_ip);
+  }
+  int retval;
+  if ((retval = get_conf_ran_port(&conf->e2args)) != -1){
+    printf("[E2 Agent]: got RAN port %d from conf file %s\n", retval, conf->e2args.conf_file);
+    conf->io_ran_conf.port = retval;
+  }
+  
+  if ((retval = get_conf_ran_logl(&conf->e2args)) != -1) {
+    printf("[E2 Agent]: got RAN log levels %d from conf file %s\n", retval, conf->e2args.conf_file);
+    conf->io_ran_conf.logl = get_conf_ran_logl(&conf->e2args);
+  }
+  
   char *envar = getenv("WS_RAN_HOST");
   if (envar)
   {
     printf("Environment variable WS_RAN_HOST caught\n");
     char *p = strtok(envar, ":");
     if (p != NULL) {
-      strncpy(conf->address, p, sizeof(conf->address));
+      strncpy(conf->io_ran_conf.address, p, sizeof(conf->io_ran_conf.address));
       p = strtok(NULL, " ");
       if (p)
-        conf->port = atoi(p);
+        conf->io_ran_conf.port = atoi(p);
     }else 
-      strncpy(conf->address, envar, sizeof(conf->address));
+      strncpy(conf->io_ran_conf.address, envar, sizeof(conf->io_ran_conf.address));
   } 
 
-  conf->logl = default_log_level; 
   envar = getenv("WS_LOGL");
   if (envar)
   { 
     printf("Environment variable WS_LOGL caught\n");
-    conf->logl = atoi(envar);
+    conf->io_ran_conf.logl = atoi(envar);
   }
   
   return true;
@@ -59,5 +75,5 @@ void ws_conf_print(struct proxy_conf_t * c)
   "- RAN port:%d\n"\
   "- LogLevel:%d\n"\
   "- E2 conf file (%s) and SM lib dir (%s)\n"\
-  , c->retry_count, c->address, c->port, c->logl, c->e2args.conf_file,c->e2args.libs_dir);     
+  , c->retry_count, c->io_ran_conf.address, c->io_ran_conf.port, c->io_ran_conf.logl, c->e2args.conf_file,c->e2args.libs_dir);     
 }

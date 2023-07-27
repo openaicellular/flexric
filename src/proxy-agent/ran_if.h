@@ -4,33 +4,45 @@
 #ifndef RAN_IF_H
 #define RAN_IF_H
 
-// TODO: provide an extern declaration for ctx_t that has to be implemented by the transport (i.e. ws) to avoid including ws_ran_if.h
-// and decouple this generic interface to the WS implementation
-#include "ws_ran_if.h"
 #include "util/alg_ds/ds/assoc_container/bimap.h"
+#include "util/alg_ds/ds/tsn_queue/tsn_queue.h"
 
-typedef struct lws_context ctx_t;
+#include "io_ran.h"
+#include "ser_ran.h"
 
+/* 
+ * Four modules compose the RAN interface: 
+ *  - msg_handler, 
+ *  - I/O, 
+ *  - serialization, 
+ *  - application logic (i.e KPM Service Model).
+ * Communications from/to the RAN interface are: 
+ * - notification mechanism with E2 interface 
+ * - communication mean with storage for indication data to be perused by E2 interface (push only)
+ * Msg_handler, application/SM logic and storage for indication data are not referenced as module resource from the RAN_IF 
+ * for the moment; instead they will be called autonomously when needed.
+ */
 typedef struct ran_if_t
 {
-  ctx_t * (*init)(struct proxy_conf_t conf);
-  void (*conn)(ctx_t *ctx);
-  int (*poll)(ctx_t *ctx);
-  void (*free)(ctx_t *ctx);
+  /*  I/O module */
+  io_ran_abs_t *io;
   
-  ctx_t *ctx;      // websocket context. 
-                   // XXX-REFACTOR: lws->context = ctx. You may probably remove the need of ctx in this interface and just bring around the interface the lws.
-                   // XXX-REFACTOR: signature of conn()/poll/free do not need anymore the ctx as lws is now part of the same data structure.
-  struct lws *lws; // websocket connection instance (WSI)
-  
-  // Registered Indication events
-  bi_map_t ind_event; // key1:timer_id, key2:ind_event_t 
-  
-  // Pending events
-  // bi_map_t pending; // left: fd, right: pending_event_t 
-  struct ws_async_event_t  *user; // pointer to global variable holding the data to be shared in the loop function. This is valued at init time.
+  /*  Serialization module */
+  ran_ser_abs_t *ser;
 
-  bool ind_timer_ready; 
+  /* Communication mean for notification mechanism among RAN and E2 interface.
+   * Implemented as a linkedlist for communicating with the I/O module from inside the I/O RAN module itself and from/to the outside world 
+   * (i.e. from E2 interface) containing notif_ran_event_t messages
+   */
+  tsnq_t io_ran_notif_ds;
+
+  /* 
+   * Registered Indication events asked by different Service Models subscribed by the external E2 interface. 
+   * Meaning of the keys for the bidirectional map is: {left_key:timer_id, right_key:ind_event_t }
+   */
+  bi_map_t ind_event; 
+  
 } ran_if_t;
+
 
 #endif
