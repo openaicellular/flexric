@@ -6,9 +6,34 @@ import (
 	"fmt"
 	"time"
 	"os"
-	utils "build/examples/xApp/go/utils/slice_utils"
 )
 
+// ------------------------------------------------------------------------ //
+//  Function for returning the appropriate Int for the RAN Name
+// ------------------------------------------------------------------------ //
+func RanNametoInt(value string) int {
+	switch value {
+	case "ngran_eNB":
+		return 0
+	case "ngran_ng_eNB":
+		return 1
+	case "ngran_gNB":
+		return 2
+	case "ngran_eNB_CU":
+		return 3
+	case "ngran_ng_eNB_CU":
+		return 4
+	case "ngran_gNB_CU":
+		return 5
+	case "ngran_eNB_DU":
+		return 6
+	case "ngran_gNB_DU":
+		return 7
+	case "ngran_eNB_MBMS_STA":
+		return 8
+	}
+	return -1
+}
 
 
 // ------------------------------------------------------------------------ //
@@ -17,8 +42,7 @@ import (
 //
 // ------------------------------------------------------------------------ //
 func main() {
-	// Initial of xApp
-	xapp.Init(os.Args)
+	xapp.Init(xapp.SlToStrVec(os.Args))
 
 	var nodes xapp.E2NodeVector = xapp.Conn_e2_nodes()
 
@@ -36,9 +60,9 @@ func main() {
 		var ranTypeName string = xapp.Get_e2ap_ngran_name(e2Node.GetId().GetXtype())
 	
 		// if Node is monolithic
-		if xapp.E2ap_ngran_eNB == utils.RanNametoInt(ranTypeName) ||
-			xapp.E2ap_ngran_ng_eNB == utils.RanNametoInt(ranTypeName) ||
-			xapp.E2ap_ngran_gNB == utils.RanNametoInt(ranTypeName) {
+		if xapp.E2ap_ngran_eNB == RanNametoInt(ranTypeName) ||
+			xapp.E2ap_ngran_ng_eNB == RanNametoInt(ranTypeName) ||
+			xapp.E2ap_ngran_gNB == RanNametoInt(ranTypeName) {
 			fmt.Printf("E2 node %d info: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n",
 				i,
 				e2Node.GetId().GetNb_id(),
