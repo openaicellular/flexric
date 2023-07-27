@@ -5,14 +5,13 @@
 #include <libwebsockets.h>
 
 #include "util/conf_file.h"
+#include "ws_io_ran.h"
 
 struct proxy_conf_t
  {
-    uint16_t            retry_count;  /* WS: count of consecutive retries for connecting to the RAN (UNUSED)*/
-    char                address[128]; /* WS: ip address */
-    int                 port;         /* WS: port */
-    enum lws_log_levels logl;         /* WS: loglevel*/
-    fr_args_t           e2args;       /* E2: cmdline args*/
+    uint16_t             retry_count;  /* WS: count of consecutive retries for connecting to the RAN (UNUSED)*/
+    struct io_ran_conf_t io_ran_conf;  // RAN I/O module conf
+    fr_args_t            e2args;       /* E2: cmdline args*/
 };
 
 /* 

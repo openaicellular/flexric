@@ -30,7 +30,11 @@ bool get_conf_db_enable(fr_args_t const*);
 
 char* get_conf_db_ip(fr_args_t const*);
 
-char* get_conf_amr_ip(fr_args_t const*);
+char* get_conf_ran_ip(fr_args_t const*);
+
+int get_conf_ran_port(fr_args_t const* args);
+
+int get_conf_ran_logl(fr_args_t const* args);
 
 #endif
 

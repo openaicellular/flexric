@@ -17,8 +17,8 @@
 # Manuals: API https://github.com/json-c/json-c/wiki, examples: https://github.com/rbtylee/tutorial-jsonc/blob/master/tutorial/index.md 
 
 find_package(PkgConfig)
-pkg_check_modules(LIB_WEBSOCKETS REQUIRED libwebsockets>3.0.0 libwebsockets<4.0.0)
-pkg_check_modules(LIB_JSON-C REQUIRED json-c<1.0.0 json-c>0.13.0)
+pkg_check_modules(LIBWEBSOCKETS REQUIRED libwebsockets>3.0.0 libwebsockets<4.0.0)
+pkg_check_modules(LIBJSON-C REQUIRED json-c<1.0.0 json-c>0.13.0)
 
 set(E2_AGENT_BLD_LIB  "STATIC")
 
@@ -33,9 +33,15 @@ set(E2_PROXY_AGENT_SRC
     ${CMAKE_SOURCE_DIR}/src/agent/plugin_agent.c
     ${CMAKE_SOURCE_DIR}/src/agent/not_handler_agent.c
     ${CMAKE_SOURCE_DIR}/src/sm/sm_proc_data.c
+    # we do below to avoid having a specific proxy_agent library for configuration parsing code
+    ${CMAKE_SOURCE_DIR}/src/util/conf_file.c 
+    # for testing
+    ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
+    ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_kpm.c
+    ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_mac.c
   )
 if(E2AP_ENCODING STREQUAL "ASN")
-  add_library(e2_proxy_agent 
+  add_library(e2_proxy_agent
               STATIC  
               ${E2_PROXY_AGENT_SRC} 
               $<TARGET_OBJECTS:e2ap_ie_obj> 
@@ -58,21 +64,27 @@ endif()
 target_compile_definitions(e2_proxy_agent PRIVATE PROXY_AGENT)
 target_compile_definitions(e2_proxy_agent PRIVATE ${E2AP_ENCODING})
 
+
 add_executable(proxy_agent_ws
               proxy_agent.c
               proxy_agent_conf.c
-              ws_ran_if.c
-              ws_msg_hdlr.c
+              ran_msg_hdlr.c
               e2_sm_agent.c
-              msg_json_ws.c
+              e2_sm_mac_agent.c
+              e2_sm_kpm_agent.c
+              json_ser_ran.c
               ringbuffer.c
-              notif_e2_ws.c
+              notif_e2_ran.c
+              ws_io_ran.c
               ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
-              ${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v2.02/ie/kpm_data_ie.c
               )
 
 target_compile_definitions(proxy_agent_ws PRIVATE ${E2AP_ENCODING})
-target_link_libraries(proxy_agent_ws  
+target_link_libraries(proxy_agent_ws
                       PUBLIC
-                      e2_proxy_agent 
-                      -pthread -lsctp -ldl -lwebsockets -ljson-c)
+                      e2_proxy_agent
+                      -pthread -lsctp -ldl ${LIBWEBSOCKETS_LIBRARIES} ${LIBJSON-C_LIBRARIES})
+target_include_directories(proxy_agent_ws PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/ap/ie/asn/")
+
+
+

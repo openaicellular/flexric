@@ -85,14 +85,14 @@ sm_ind_data_t on_indication_kpm_sm_ag(sm_agent_t const* sm_agent, void* act_def_
   sm_kpm_agent_t* sm = (sm_kpm_agent_t*)sm_agent;
 
   kpm_act_def_t* act_def = act_def_v;
+  kpm_act_def_t const* const_act_def = act_def;
 
   sm_ind_data_t ret = {0};
 
   // Fill Indication Message and Header
  // sm_ag_if_rd_t rd_if = {.type = INDICATION_MSG_AGENT_IF_ANS_V0};
  // sm_ag_if_rd_ind_t ind = {.type = KPM_STATS_V3_0};
-  kpm_rd_ind_data_t kpm = {0}; 
-  kpm.act_def = act_def;
+  kpm_rd_ind_data_t kpm = {.act_def = const_act_def};
   sm->base.io.read_ind(&kpm); 
   // Free memory allocated by the RAN. Sucks
   defer({ free_kpm_ind_data(&kpm.ind); });

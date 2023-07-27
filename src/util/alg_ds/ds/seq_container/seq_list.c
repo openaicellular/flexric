@@ -66,6 +66,20 @@ void seq_list_push_back(seq_list_t* lst, void* data)
   last->next = lst_node_init(data);
   ++lst->size; 
 }
+// XXX: do a unit test for this function and the whole funtionalities of seq_list.c
+void seq_list_pop_front(seq_list_t* lst)
+{
+  assert(lst != NULL);
+  if(lst->root == NULL) 
+    return;
+  
+  lst_node_t *front_node = seq_list_front(lst);
+  lst_node_t *successor_node = front_node->next;
+  free (front_node->data);
+  front_node->data = NULL; 
+  lst->root = successor_node;
+  lst->size--;
+}
 
 void seq_list_erase(seq_list_t* lst, void* it)
 {

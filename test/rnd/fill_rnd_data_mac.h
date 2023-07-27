@@ -25,4 +25,5 @@
 
 void fill_mac_ind_data(mac_ind_data_t* ind);
 
+void fill_mac_ctrl(mac_ctrl_req_data_t* ctrl);
 #endif

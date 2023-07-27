@@ -31,7 +31,7 @@ SOFTWARE.
 #include <string.h>
 #include <unistd.h>
 
-#include "tsn_queue.h"
+#include "util/alg_ds/ds/tsn_queue/tsn_queue.h"
 
 
 typedef struct
@@ -58,9 +58,9 @@ void* dereference(void* it)
 static
 void* worker_thread(void* arg)
 {
-  tsq_t* q = (tsq_t*)arg;
+  tsnq_t* q = (tsnq_t*)arg;
   while(true){
-   val_t* v = wait_and_pop_tsq(q, dereference); 
+   val_t* v = wait_and_pop_tsnq(q, dereference); 
     if(v == NULL) break;
 
     assert(v != NULL);
@@ -82,8 +82,8 @@ void free_value(void* it)
 
 int main()
 {
-  tsq_t q = {0};
-  init_tsq(&q, sizeof(val_t));
+  tsnq_t q = {0};
+  init_tsnq(&q, sizeof(val_t));
 
   int rc = pthread_create(&t, NULL, worker_thread, &q);
   assert(rc == 0);
@@ -92,14 +92,12 @@ int main()
   for(size_t i = 0; i < 8192; ++i){
     val_t v = {0};
     v.n = n;
-    push_tsq(&q, &v, sizeof(val_t) );
+    push_tsnq(&q, &v, sizeof(val_t) );
     ++n;
   }
 
-
-  free_tsq(&q, free_value );
+  free_tsnq(&q, free_value );
   pthread_join(t, NULL);
 
   return 0;
 }
-

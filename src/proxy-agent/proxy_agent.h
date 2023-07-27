@@ -28,15 +28,16 @@
 #include <poll.h>
 #include <unistd.h>
 
-#include "../agent/e2_agent_api.h"
-#include "../agent/e2_agent.h"
+#include "agent/e2_agent_api.h"
+#include "agent/e2_agent.h"
 #include "ran_if.h"
 #include "e2_sm_agent.h"
+#include "proxy_agent_conf.h"
 
 
 typedef struct proxy_agent_t 
 {
-  // RAN interface (we support just WS implementation)
+  // RAN interface (we support just WS implementation for the moment)
   ran_if_t ran_if;
 
   // E2 interface
@@ -48,18 +49,11 @@ typedef struct proxy_agent_t
   // Registered SMs
   // plugin_ag_t plugin;
 
-  
-
 } proxy_agent_t;
 
 void proxy_set_exit(void);
-int proxy_get_exit_flag(void);
+bool proxy_get_exit_flag(void);
 
-struct lws_context *ws_get_global_ctx (void);
-void ws_set_global_ctx (struct lws_context *ctx);
-void ws_set_global_lws(struct lws *lws);
-struct lws *ws_get_global_lws(void);
-struct proxy_conf_t  *get_proxy_conf(void);
 proxy_agent_t * get_proxy_agent(void);
 
 

@@ -1,3 +1,8 @@
+if (UNIT_TEST)
+    add_subdirectory(alg_ds/ds/tsn_queue)
+    enable_testing()
+endif()
+
 
 add_library(e2ap_ds_obj OBJECT 
                         byte_array.c 
