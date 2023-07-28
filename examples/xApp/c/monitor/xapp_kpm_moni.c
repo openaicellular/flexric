@@ -32,23 +32,6 @@
 #include <signal.h>
 #include <pthread.h>
 
-static
-byte_array_t copy_str_to_ba(const char* str)
-{
-  assert(str != NULL);
-
-  size_t const sz = strlen(str);
-  byte_array_t dst = {.len = sz };
-  dst.buf = calloc(sz ,sizeof(uint8_t) );
-  assert(dst.buf != NULL);
-
-  memcpy(dst.buf, str, sz);
-
-  return dst;
-}
-
-//static
-//ue_id_e2sm_t ue_id;
 
 static
 pthread_mutex_t mtx;
@@ -100,9 +83,33 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
             switch (msg_frm_1->meas_info_lst[z].meas_type.type)
             {
             case NAME_MEAS_TYPE:
+            {
               // note: just real value considered
-              printf("Measurement Name = %s, value = %lf\n", msg_frm_1->meas_info_lst[z].meas_type.name.buf, msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+
+              char meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len + 1];
+              memcpy(meas_info_name_str, msg_frm_1->meas_info_lst[z].meas_type.name.buf, msg_frm_1->meas_info_lst[z].meas_type.name.len);
+              meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len] = '\0';
+              
+              if (strcmp(meas_info_name_str, "DRB.RlcSduDelayDl") == 0)
+              {
+                printf("DRB.RlcSduDelayDl = %.2f [μs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+              }
+              else if (strcmp(meas_info_name_str, "DRB.UEThpDl") == 0)
+              {
+                printf("DRB.UEThpDl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+              }
+              else if (strcmp(meas_info_name_str, "DRB.UEThpUl") == 0)
+              {
+                printf("DRB.UEThpUl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+              }
+              else
+              {
+                assert(false && "Measurement Name not yet implemented");
+              }
+              
+              
               break;
+            }
           
             default:
               assert(false && "Measurement Type not yet implemented");
@@ -138,7 +145,7 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
 
   dst.meas_type.type = NAME_MEAS_TYPE;
   // ETSI TS 128 552
-  dst.meas_type.name = copy_str_to_ba(  action );
+  dst.meas_type.name = cp_str_to_ba(action);
 
   dst.label_info_lst_len = 1;
   dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
