@@ -84,29 +84,54 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
             {
             case NAME_MEAS_TYPE:
             {
-              // note: just real value considered
-
+              // Get the Measurement Name
               char meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len + 1];
               memcpy(meas_info_name_str, msg_frm_1->meas_info_lst[z].meas_type.name.buf, msg_frm_1->meas_info_lst[z].meas_type.name.len);
               meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len] = '\0';
+
+              // Get the value of the Measurement
+              switch (msg_frm_1->meas_data_lst[j].meas_record_lst[z].value)
+              {
+              case REAL_MEAS_VALUE:
+              {
+                if (strcmp(meas_info_name_str, "DRB.RlcSduDelayDl") == 0)
+                {
+                  printf("DRB.RlcSduDelayDl = %.2f [μs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+                }
+                else if (strcmp(meas_info_name_str, "DRB.UEThpDl") == 0)
+                {
+                  printf("DRB.UEThpDl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+                }
+                else if (strcmp(meas_info_name_str, "DRB.UEThpUl") == 0)
+                {
+                  printf("DRB.UEThpUl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+                }
+                else
+                {
+                  assert(false && "Measurement Name not yet implemented");
+                }
+
+                break;
+              }
+                
+
+              case INTEGER_MEAS_VALUE:
+              {
+                if (strcmp(meas_info_name_str, "L1M.PHR1.BinX") == 0)
+                {
+                  printf("L1M.PHR1.BinX = %d [dB]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                }
+                else
+                {
+                  assert(false && "Measurement Name not yet implemented");
+                }
+
+                break;
+              }
               
-              if (strcmp(meas_info_name_str, "DRB.RlcSduDelayDl") == 0)
-              {
-                printf("DRB.RlcSduDelayDl = %.2f [μs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+              default:
+                assert("Value not recognized");
               }
-              else if (strcmp(meas_info_name_str, "DRB.UEThpDl") == 0)
-              {
-                printf("DRB.UEThpDl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
-              }
-              else if (strcmp(meas_info_name_str, "DRB.UEThpUl") == 0)
-              {
-                printf("DRB.UEThpUl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
-              }
-              else
-              {
-                assert(false && "Measurement Name not yet implemented");
-              }
-              
               
               break;
             }
@@ -268,7 +293,7 @@ int main(int argc, char *argv[])
     kpm_sub.sz_ad = 1;
     kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
     assert(kpm_sub.ad != NULL && "Memory exhausted");
-    const char *act[] = {"DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", NULL}; // 3GPP TS 28.552
+    const char *act[] = {"DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "L1M.PHR1.BinX", NULL}; // 3GPP TS 28.552
     *kpm_sub.ad = gen_act_def(act);
 
     const int KPM_ran_function = 2;
