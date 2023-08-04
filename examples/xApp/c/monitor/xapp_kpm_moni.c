@@ -54,7 +54,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   {
     lock_guard(&mtx);
 
-    static int counter = 0;
+    static int counter = 1;
     printf("\n%7d KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n", counter,
            now - hdr_frm_1->collectStartTime, e2_node->type, e2_node->nb_id);
 
@@ -117,9 +117,13 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 
               case INTEGER_MEAS_VALUE:
               {
-                if (strcmp(meas_info_name_str, "L1M.PHR1.BinX") == 0)
+                if (strcmp(meas_info_name_str, "RRU.PrbTotDl") == 0)
                 {
-                  printf("L1M.PHR1.BinX = %d [dB]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                  printf("RRU.PrbTotDl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                }
+                else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
+                {
+                  printf("RRU.PrbTotUl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
                 }
                 else
                 {
@@ -293,7 +297,7 @@ int main(int argc, char *argv[])
     kpm_sub.sz_ad = 1;
     kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
     assert(kpm_sub.ad != NULL && "Memory exhausted");
-    const char *act[] = {"DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "L1M.PHR1.BinX", NULL}; // 3GPP TS 28.552
+    const char *act[] = {"DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl", NULL}; // 3GPP TS 28.552
     *kpm_sub.ad = gen_act_def(act);
 
     const int KPM_ran_function = 2;
@@ -302,7 +306,7 @@ int main(int argc, char *argv[])
     assert(kpm_handle[i].success == true);
   }
 
-  sleep(5);
+  sleep(100);
 
 
   for(int i = 0; i < nodes.len; ++i){
