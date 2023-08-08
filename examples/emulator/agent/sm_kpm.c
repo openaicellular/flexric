@@ -185,8 +185,8 @@ void read_kpm_sm(void* data)
     kpm->ind.msg.type = FORMAT_3_INDICATION_MESSAGE;
     kpm->ind.msg.frm_3 = fill_kpm_ind_msg_frm_3_sta(kpm->act_def->frm_4.action_def_format_1);
   } else {
-     kpm->ind.hdr = fill_kpm_ind_hdr(); 
-     kpm->ind.msg = fill_kpm_ind_msg(); 
+     kpm->ind.hdr = fill_rnd_kpm_ind_hdr(); 
+     kpm->ind.msg = fill_rnd_kpm_ind_msg(); 
   }
 }
 
@@ -196,7 +196,7 @@ void read_kpm_setup_sm(void* e2ap)
 //  assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0);
 
   kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(e2ap);
-  kpm->ran_func_def = fill_kpm_ran_func_def(); 
+  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
 }
 
 sm_ag_if_ans_t write_ctrl_kpm_sm(void const* src)

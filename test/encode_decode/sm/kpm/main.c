@@ -11,7 +11,7 @@
 
 void test_kpm_ric_event_trigger_def_asn(void)
 {
-  kpm_event_trigger_def_t msg = fill_kpm_event_trigger_def();
+  kpm_event_trigger_def_t msg = fill_rnd_kpm_event_trigger_def();
   defer({ free_kpm_event_trigger_def(&msg); }); 
 
   byte_array_t ba = kpm_enc_event_trigger_asn(&msg);
@@ -26,7 +26,7 @@ void test_kpm_ric_event_trigger_def_asn(void)
 
 void test_kpm_act_def(void)
 {
-  kpm_act_def_t action_def = fill_kpm_action_def();
+  kpm_act_def_t action_def = fill_rnd_kpm_action_def();
   defer({ free_kpm_action_def(&action_def); });
 
   byte_array_t ba = kpm_enc_action_def_asn(&action_def);
@@ -40,7 +40,7 @@ void test_kpm_act_def(void)
 
 void test_kpm_ind_hdr(void)
 {
-  kpm_ind_hdr_t hdr = fill_kpm_ind_hdr();
+  kpm_ind_hdr_t hdr = fill_rnd_kpm_ind_hdr();
   defer({ free_kpm_ind_hdr(&hdr); });
 
   byte_array_t ba = kpm_enc_ind_hdr_asn(&hdr);
@@ -54,7 +54,7 @@ void test_kpm_ind_hdr(void)
 
 void test_kpm_ind_msg(void)
 {
-  kpm_ind_msg_t msg = fill_kpm_ind_msg();
+  kpm_ind_msg_t msg = fill_rnd_kpm_ind_msg();
   defer({ free_kpm_ind_msg(&msg); });
 
   byte_array_t ba = kpm_enc_ind_msg_asn(&msg);
@@ -68,7 +68,7 @@ void test_kpm_ind_msg(void)
 
 void test_kpm_ran_function(void)
 {
-  kpm_ran_function_def_t msg =  fill_kpm_ran_func_def();
+  kpm_ran_function_def_t msg =  fill_rnd_kpm_ran_func_def();
   defer({ free_kpm_ran_function_def(&msg); });
 
   byte_array_t ba = kpm_enc_func_def_asn(&msg);

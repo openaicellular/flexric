@@ -129,7 +129,7 @@ void read_xapp(sm_ag_if_rd_t* data)
 
   assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
   if(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 ){
-    e2ap->kpm.ran_func_def = fill_kpm_ran_func_def(); 
+    e2ap->kpm.ran_func_def = fill_rnd_kpm_ran_func_def(); 
   } else if(e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0 ){
     e2ap->rc.ran_func_def = fill_rc_ran_func_def();
   } else {
@@ -144,7 +144,7 @@ void read_kpm_e2setup_xapp(void* data)
 {
   assert(data != NULL);
   kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(data);
-  kpm->ran_func_def = fill_kpm_ran_func_def(); 
+  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
 
 }
 

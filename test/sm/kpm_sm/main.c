@@ -60,8 +60,8 @@ void read_ind_kpm(void* read)
 
   kpm_rd_ind_data_t* kpm = (kpm_rd_ind_data_t*)read;
 
-  kpm->ind.hdr = fill_kpm_ind_hdr();
-  kpm->ind.msg = fill_kpm_ind_msg(); 
+  kpm->ind.hdr = fill_rnd_kpm_ind_hdr();
+  kpm->ind.msg = fill_rnd_kpm_ind_msg(); 
   assert(kpm->act_def!= NULL);
   
   //
@@ -80,7 +80,7 @@ void read_e2_setup_kpm(void* data)
 
   kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)data;
 
-  kpm->ran_func_def = fill_kpm_ran_func_def(); 
+  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
   cp_e2_setup.ran_func_def = cp_kpm_ran_function_def(&kpm->ran_func_def);
 
   assert(eq_kpm_ran_function_def(&cp_e2_setup.ran_func_def, &kpm->ran_func_def) == true);
@@ -98,7 +98,7 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
   assert(ric != NULL);
 
   sm_ag_if_wr_subs_t sub = {.type = KPM_SUBS_V3_0};
-  sub.kpm.ev_trg_def = fill_kpm_event_trigger_def();
+  sub.kpm.ev_trg_def = fill_rnd_kpm_event_trigger_def();
   defer({ free_kpm_event_trigger_def(&sub.kpm.ev_trg_def); });
 
   sub.kpm.sz_ad = 1;
@@ -106,7 +106,7 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
   assert(sub.kpm.ad != NULL && "Memory exhausted");
   defer({free(sub.kpm.ad );});
  
-  sub.kpm.ad[0] = fill_kpm_action_def();
+  sub.kpm.ad[0] = fill_rnd_kpm_action_def();
   defer({ free_kpm_action_def(&sub.kpm.ad[0]) ;});
 
   sm_subs_data_t data = ric->proc.on_subscription(ric, &sub.kpm);
@@ -128,14 +128,14 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   sm_ag_if_wr_subs_t sub = {.type = KPM_SUBS_V3_0 }; 
   defer({ free_kpm_sub_data(&sub.kpm); });
 
-  sub.kpm.ev_trg_def = fill_kpm_event_trigger_def();
+  sub.kpm.ev_trg_def = fill_rnd_kpm_event_trigger_def();
   sub.kpm.sz_ad = 1;
   sub.kpm.ad = calloc(sub.kpm.sz_ad, sizeof(kpm_act_def_t));
   assert(sub.kpm.ad != NULL && "Memory exhausted");
   sub.kpm.ad[0] = 
 */
   
-  kpm_act_def_t act_def = fill_kpm_action_def();
+  kpm_act_def_t act_def = fill_rnd_kpm_action_def();
   defer({  free_kpm_action_def(&act_def); } );
   
   sm_ind_data_t sm_data = ag->proc.on_indication(ag, &act_def);

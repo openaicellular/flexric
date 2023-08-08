@@ -47,7 +47,7 @@ void read_e2_setup_kpm(void* data)
 {
   assert(data != NULL);
   kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)data;
-  kpm->ran_func_def = fill_kpm_ran_func_def(); 
+  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
 }
 
 static
@@ -65,7 +65,7 @@ void read_e2_setup_agent(sm_ag_if_rd_e2setup_t* e2ap)
   assert(e2ap != NULL);
   assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
   if(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 ){
-    e2ap->kpm.ran_func_def = fill_kpm_ran_func_def(); 
+    e2ap->kpm.ran_func_def = fill_rnd_kpm_ran_func_def(); 
   } else if(e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0 ){
     e2ap->rc.ran_func_def = fill_rc_ran_func_def();
   } else {
@@ -127,8 +127,8 @@ void read_ind_kpm(void* ind)
 {
   assert(ind != NULL);
   kpm_ind_data_t* kpm = (kpm_ind_data_t*)ind;
-  kpm->hdr = fill_kpm_ind_hdr();
-  kpm->msg = fill_kpm_ind_msg();
+  kpm->hdr = fill_rnd_kpm_ind_hdr();
+  kpm->msg = fill_rnd_kpm_ind_msg();
 }
 
 static
@@ -159,8 +159,8 @@ void read_ind_agent(sm_ag_if_rd_ind_t* ind)
   } else if(ind->type == TC_STATS_V0){
     fill_tc_ind_data(&ind->tc);
   } else if(ind->type == KPM_STATS_V3_0){
-    ind->kpm.ind.hdr = fill_kpm_ind_hdr();
-    ind->kpm.ind.msg = fill_kpm_ind_msg();
+    ind->kpm.ind.hdr = fill_rnd_kpm_ind_hdr();
+    ind->kpm.ind.msg = fill_rnd_kpm_ind_msg();
   } else if(ind->type == RAN_CTRL_STATS_V1_03){
     assert(0!=0 && "The logic in RAN Ctrl SM is different!"); 
   } else {
@@ -400,7 +400,7 @@ int main(int argc, char *argv[])
   kpm_sub.ad = calloc(kpm_sub.sz_ad, sizeof(kpm_act_def_t));
   assert(kpm_sub.ad != NULL && "Memory exhausted");
  
-  kpm_sub.ad[0] = fill_kpm_action_def();
+  kpm_sub.ad[0] = fill_rnd_kpm_action_def();
 
   const uint16_t h7 = report_service_near_ric_api(id, KPM_ran_func_id, &kpm_sub);
 
