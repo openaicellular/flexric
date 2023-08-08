@@ -73,7 +73,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 
       kpm_ind_msg_format_1_t const* msg_frm_1 = &msg_frm_3->meas_report_per_ue[i].ind_msg_format_1;
 
-      // UE Measurements per DRB 
+      // UE Measurements per granularity period
       for (size_t j = 0; j<msg_frm_1->meas_data_lst_len; j++)
       {
         for (size_t z = 0; z<msg_frm_1->meas_data_lst[j].meas_record_len; z++)
@@ -119,11 +119,11 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
               {
                 if (strcmp(meas_info_name_str, "RRU.PrbTotDl") == 0)
                 {
-                  printf("RRU.PrbTotDl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                  printf("RRU.PrbTotDl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
                 }
                 else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
                 {
-                  printf("RRU.PrbTotUl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                  printf("RRU.PrbTotUl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
                 }
                 else
                 {
@@ -151,7 +151,6 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
         }        
       }
     }
-    fflush(stdout);
     counter++;
   }
 }
@@ -191,7 +190,7 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
 {
   kpm_act_def_format_1_t dst = {0};
 
-  dst.gran_period_ms = 100;
+  dst.gran_period_ms = 1000;
 
   // [1, 65535]
   size_t count = 0;
@@ -201,7 +200,7 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
   dst.meas_info_lst_len = count;
   dst.meas_info_lst = calloc(count, sizeof(meas_info_format_1_lst_t));
   assert(dst.meas_info_lst != NULL && "Memory exhausted");
-  printf("count %ld\n", count);
+
   for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
     dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action[i]);
   }
@@ -234,6 +233,8 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
   dst.matching_cond_lst[0].test_info_lst.int_value = malloc(sizeof(int64_t));
   assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
   *dst.matching_cond_lst[0].test_info_lst.int_value = 1;
+
+  printf("[xApp]: Filter UEs by S-NSSAI criteria where SST = %lu\n", *dst.matching_cond_lst[0].test_info_lst.int_value);
 
   // Action definition Format 1
   dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
@@ -290,8 +291,9 @@ int main(int argc, char *argv[])
     defer({ free_kpm_sub_data(&kpm_sub); });
 
     // KPM Event Trigger
-    uint64_t period_ms = 100;
+    uint64_t period_ms = 1000;
     kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
+    printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
 
     // KPM Action Definition
     kpm_sub.sz_ad = 1;
