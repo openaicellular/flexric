@@ -125,6 +125,14 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
                 {
                   printf("RRU.PrbTotUl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
                 }
+                else if (strcmp(meas_info_name_str, "DRB.PdcpSduVolumeDL") == 0)
+                {
+                  printf("DRB.PdcpSduVolumeDL = %d [kb]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                }
+                else if (strcmp(meas_info_name_str, "DRB.PdcpSduVolumeUL") == 0)
+                {
+                  printf("DRB.PdcpSduVolumeUL = %d [kb]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                }
                 else
                 {
                   assert(false && "Measurement Name not yet implemented");
@@ -299,7 +307,7 @@ int main(int argc, char *argv[])
     kpm_sub.sz_ad = 1;
     kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
     assert(kpm_sub.ad != NULL && "Memory exhausted");
-    const char *act[] = {"DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl", NULL}; // 3GPP TS 28.552
+    const char *act[] = {"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl", NULL}; // 3GPP TS 28.552
     *kpm_sub.ad = gen_act_def(act);
 
     const int KPM_ran_function = 2;
