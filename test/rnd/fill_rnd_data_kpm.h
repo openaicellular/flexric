@@ -24,15 +24,15 @@
 
 #include "../../src/sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
 
-kpm_event_trigger_def_t fill_kpm_event_trigger_def(void);
+kpm_event_trigger_def_t fill_rnd_kpm_event_trigger_def(void);
   
-kpm_act_def_t fill_kpm_action_def(void);
+kpm_act_def_t fill_rnd_kpm_action_def(void);
 
-kpm_ind_hdr_t fill_kpm_ind_hdr(void);
+kpm_ind_hdr_t fill_rnd_kpm_ind_hdr(void);
 
-kpm_ind_msg_t fill_kpm_ind_msg(void);
+kpm_ind_msg_t fill_rnd_kpm_ind_msg(void);
 
-kpm_ran_function_def_t fill_kpm_ran_func_def(void);
+kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void);
 
 #endif
 
