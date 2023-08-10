@@ -1,5 +1,6 @@
 #include <assert.h>
 
+
 #include "dec_label_info.h"
 
 #include "../../../../util/conversions.h"
@@ -38,7 +39,14 @@ label_info_lst_t kpm_dec_label_info_asn(const MeasurementLabel_t * meas_label_as
     }
 
     if (meas_label_asn->sliceID != NULL) {
-        assert(false && "not implemented");
+        SNSSAI_t *sliceID = (SNSSAI_t*)meas_label_asn->sliceID;
+        label_info.sliceID = (S_NSSAI_t*)calloc(1, sizeof(S_NSSAI_t));
+        label_info.sliceID->sST = *sliceID->sST.buf;
+        for(int i=0;i<3;i++){
+            label_info.sliceID->sD[i] = malloc(sizeof(uint8_t));
+            *label_info.sliceID->sD[i] = sliceID->sD->buf[i];
+        }
+        // assert(false && "not implemented");
     }
     if (meas_label_asn->fiveQI != NULL) {
         assert(false && "not implemented");

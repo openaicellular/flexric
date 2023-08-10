@@ -12,7 +12,6 @@ MatchingCondItem_t * kpm_enc_matching_cond_asn(const matching_condition_format_3
     if (matching_cond->cond_type == LABEL_INFO)
     {
         matching_item_asn->matchingCondChoice.present = MatchingCondItem_Choice_PR_measLabel;
-        
         LabelInfoItem_t * labels = kpm_enc_label_info_asn(&matching_cond->label_info_lst);
         matching_item_asn->matchingCondChoice.choice.measLabel = &labels->measLabel;
     }

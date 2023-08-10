@@ -20,7 +20,16 @@ label_info_lst_t cp_label_info(label_info_lst_t const *src)
     *dst.plmn_id = cp_e2sm_plmn( src->plmn_id);
   }
 
-  assert(src->sliceID == NULL && "Not implemented");
+  if (src->sliceID != NULL) {
+    dst.sliceID = calloc(1, sizeof(S_NSSAI_t));
+    dst.sliceID->sST = src->sliceID->sST;
+    for(int i=0;i<3;i++){
+      dst.sliceID->sD[i] = calloc(1, sizeof(uint8_t));
+      memcpy(dst.sliceID->sD[i], src->sliceID->sD[i], 1);
+    }
+  }
+
+  // assert(src->sliceID == NULL && "Not implemented");
   assert(src->fiveQI == NULL && "Not implemented");
   assert(src->qFI == NULL && "Not implemented");
   assert(src->qCI == NULL && "Not implemented");
@@ -62,7 +71,11 @@ void free_label_info(label_info_lst_t *l)
     free(l->plmn_id);
  
   if (l->sliceID != NULL) {
-    assert(false && "not implemented");
+    for(int i=0;i<3;i++){
+      free(l->sliceID->sD[i]);
+    }
+    free(l->sliceID);
+    
   }
 	if (l->fiveQI != NULL) {
     assert(false && "not implemented");

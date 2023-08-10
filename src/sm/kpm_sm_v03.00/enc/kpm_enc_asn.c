@@ -128,7 +128,7 @@ byte_array_t kpm_enc_action_def_asn(kpm_act_def_t const* action_def)
     }
   }
 
-//  xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
+ xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
 //  fflush(stdout);
 
   /* XXX-tuning: 
@@ -141,8 +141,7 @@ byte_array_t kpm_enc_action_def_asn(kpm_act_def_t const* action_def)
   asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_ActionDefinition, pdu, ba.buf, ba.len);
   assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
   ba.len = er.encoded;
-
-
+  
   ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_ActionDefinition, pdu);
 
   return ba;

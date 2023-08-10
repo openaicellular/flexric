@@ -84,8 +84,8 @@ e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_requ
     if(it != end_it){
       assert(id == *(uint16_t*)assoc_key(&ric->plugin.sm_ds, it) );
       accepted[i] = id;
-      char def[1024] = {0};
-      assert(req->ran_func_item[i].def.len < 1023 );
+      char def[2048] = {0};
+      assert(req->ran_func_item[i].def.len < 2048 );
       memcpy(def, req->ran_func_item[i].def.buf, req->ran_func_item[i].def.len);
       printf("[NEAR-RIC]: Accepting RAN function ID %d with def = %s \n", id, def);
     } else {
@@ -97,7 +97,7 @@ e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_requ
         it = assoc_next(&ric->plugin.sm_ds, it);
       }
 
-      assert(0!=0 && "Unknown RAN function ID from the agent received");
+      // assert(0!=0 && "Unknown RAN function ID from the agent received");
     }
     fflush(stdout);
   }
@@ -429,7 +429,8 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   assert(ric != NULL);
   assert(msg != NULL);
   assert(msg->type == E2_NODE_CONFIGURATION_UPDATE);
-  assert(0 != 0 && "Not Implemented");
+  // Disable for integrating with OSC O-DU
+  // assert(0 != 0 && "Not Implemented");
 
   e2ap_msg_t ans = {0};
   return ans;

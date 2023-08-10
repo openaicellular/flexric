@@ -68,7 +68,7 @@ bool encode(byte_array_t* b, const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
   assert(b->buf != NULL);
- xer_fprint(stderr, &asn_DEF_E2AP_PDU, pdu);
+//  xer_fprint(stderr, &asn_DEF_E2AP_PDU, pdu);
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2AP_PDU, pdu, b->buf, b->len);
   assert(er.encoded < (ssize_t) b->len);

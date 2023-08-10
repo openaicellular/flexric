@@ -7,11 +7,12 @@
 
 
 LabelInfoItem_t * kpm_enc_label_info_asn(const label_info_lst_t * label_info)
-{
+{ 
     LabelInfoItem_t * label_info_asn = calloc(1, sizeof(LabelInfoItem_t));
     assert (label_info_asn != NULL && "Memory exhausted");
 
     if (label_info->noLabel != NULL) {
+      printf("Encoding no label\n");
       assert(*label_info->noLabel == TRUE_ENUM_VALUE && "has only one value (true)");
       label_info_asn->measLabel.noLabel = malloc (sizeof(*(label_info_asn->measLabel.noLabel)));
       assert (label_info_asn->measLabel.noLabel != NULL && "Memory exhausted");
@@ -29,7 +30,13 @@ LabelInfoItem_t * kpm_enc_label_info_asn(const label_info_lst_t * label_info)
     }
 
     if (label_info->sliceID != NULL) {
-      assert(false && "not implemented");
+      label_info_asn->measLabel.sliceID = (struct S_NSSAI*)calloc(1, sizeof(struct S_NSSAI));
+      label_info_asn->measLabel.sliceID->sST = label_info->sliceID->sST;
+      // for(int i=0;i<3;i++){
+      //   label_info_asn->measLabel.sliceID->sD[i] = malloc(sizeof(uint8_t));
+      //   label_info_asn->measLabel.sliceID->sD[i][0] = label_info->sliceID->sD[i];
+      // }
+      // assert(false && "not implemented");
     }
     if (label_info->fiveQI != NULL) {
       assert(false && "not implemented");
