@@ -40,7 +40,7 @@ if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
             $<TARGET_OBJECTS:e42_xapp_db_obj>
 
             # KPM SM
-            ../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+            ../sm/kpm_sm/ie/kpm_data_ie.c
             ../../test/rnd/fill_rnd_data_kpm.c
             #$<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
             $<TARGET_OBJECTS:kpm_ric_info_common_obj>
@@ -97,7 +97,7 @@ else()
             $<TARGET_OBJECTS:pending_events_obj>
 
             # KPM SM
-            ../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+            ../sm/kpm_sm/ie/kpm_data_ie.c
             ../../test/rnd/fill_rnd_data_kpm.c
             #$<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
             $<TARGET_OBJECTS:kpm_ric_info_common_obj>

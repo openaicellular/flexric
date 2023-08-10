@@ -129,7 +129,11 @@ kpm_ric_ind_hdr_format_1_t fill_kpm_ind_hdr_frm_1(void)
 {
   kpm_ric_ind_hdr_format_1_t hdr_frm_1 = {0};
 
+  #ifndef KPM_v3_00
+  hdr_frm_1.collectStartTime = time_now_us()/1000000;
+  #else
   hdr_frm_1.collectStartTime = time_now_us();
+  #endif
   
   hdr_frm_1.fileformat_version = NULL;
   
@@ -165,7 +169,7 @@ kpm_ind_hdr_t fill_kpm_ind_hdr_sta(void)
 void read_kpm_sm(void* data)
 {
   assert(data != NULL);
-  //assert(data->type == KPM_STATS_V3_0);
+  //assert(data->type == KPM_STATS_V2_03_V3_00);
 
   kpm_rd_ind_data_t* kpm = (kpm_rd_ind_data_t*)data;
 
@@ -193,7 +197,7 @@ void read_kpm_sm(void* data)
 void read_kpm_setup_sm(void* e2ap)
 {
   assert(e2ap != NULL);
-//  assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0);
+//  assert(e2ap->type == KPM_V2_03_V3_00_AGENT_IF_E2_SETUP_ANS_V0);
 
   kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(e2ap);
   kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 

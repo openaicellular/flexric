@@ -22,10 +22,10 @@
 
 #include "../../rnd/fill_rnd_data_kpm.h"
 #include "../../../src/util/alg_ds/alg/defer.h"
-#include "../../../src/sm/kpm_sm_v03.00/kpm_sm_agent.h"
-#include "../../../src/sm/kpm_sm_v03.00/kpm_sm_ric.h"
-#include "../../../src/sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
-#include "../../../src/sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../../../src/sm/kpm_sm/kpm_sm_agent.h"
+#include "../../../src/sm/kpm_sm/kpm_sm_ric.h"
+#include "../../../src/sm/kpm_sm/ie/kpm_data_ie.h"
+#include "../../../src/sm/kpm_sm/kpm_sm_id.h"
 #include "../../rnd/fill_rnd_data_kpm.h"
 
 #include <assert.h>
@@ -97,7 +97,7 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
   assert(ag != NULL);
   assert(ric != NULL);
 
-  sm_ag_if_wr_subs_t sub = {.type = KPM_SUBS_V3_0};
+  sm_ag_if_wr_subs_t sub = {.type = KPM_SUBS_V2_03_V3_00};
   sub.kpm.ev_trg_def = fill_rnd_kpm_event_trigger_def();
   defer({ free_kpm_event_trigger_def(&sub.kpm.ev_trg_def); });
 
@@ -125,7 +125,7 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   assert(ag != NULL);
   assert(ric != NULL);
 /*  
-  sm_ag_if_wr_subs_t sub = {.type = KPM_SUBS_V3_0 }; 
+  sm_ag_if_wr_subs_t sub = {.type = KPM_SUBS_V2_03_V3_00 }; 
   defer({ free_kpm_sub_data(&sub.kpm); });
 
   sub.kpm.ev_trg_def = fill_rnd_kpm_event_trigger_def();
@@ -143,7 +143,7 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   defer({ free_kpm_ind_data(&cp_ind); });
 
   sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &sm_data);
-  assert(msg.type == KPM_STATS_V3_0);
+  assert(msg.type == KPM_STATS_V2_03_V3_00);
   defer({ free_kpm_ind_data(&msg.kpm.ind); });
 
   kpm_ind_data_t const* data = &msg.kpm.ind;
@@ -160,7 +160,7 @@ void check_e2_setup(sm_agent_t* ag, sm_ric_t* ric)
   defer({ free_sm_e2_setup(&data); });
 
   sm_ag_if_rd_e2setup_t out = ric->proc.on_e2_setup(ric, &data);
-  assert(out.type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0);
+  assert(out.type == KPM_V2_03_V3_00_AGENT_IF_E2_SETUP_ANS_V0);
 
   defer({ free_kpm_ran_function_def(&out.kpm.ran_func_def); });
 
@@ -172,8 +172,8 @@ int main()
   srand(time(0)); 
 
   sm_io_ag_ran_t io_ag = {0};
-  io_ag.read_ind_tbl[KPM_STATS_V3_0] = read_ind_kpm;
-  io_ag.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
+  io_ag.read_ind_tbl[KPM_STATS_V2_03_V3_00] = read_ind_kpm;
+  io_ag.read_setup_tbl[KPM_V2_03_V3_00_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
 
   sm_agent_t* sm_ag = make_kpm_sm_agent(io_ag);
   sm_ric_t* sm_ric = make_kpm_sm_ric();

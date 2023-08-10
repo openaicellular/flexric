@@ -14,7 +14,7 @@
 
 #include "../../sm/slice_sm/slice_sm_id.h"
 
-#include "../../sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../../sm/kpm_sm/kpm_sm_id.h"
 
 #include "../../util/conf_file.h"
 

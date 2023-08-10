@@ -24,7 +24,7 @@
 #include "../../src/xApp/e42_xapp_api.h"
 #include "../../src/sm/slice_sm/slice_sm_id.h"
 #include "../../src/sm/gtp_sm/gtp_sm_id.h"
-#include "../../src/sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../../src/sm/kpm_sm/kpm_sm_id.h"
 #include "../../src/sm/rc_sm/rc_sm_id.h"
 #include "../../src/util/alg_ds/alg/defer.h"
 #include "../../src/util/time_now_us.h"
@@ -212,8 +212,8 @@ static
 void read_e2_setup_agent(sm_ag_if_rd_e2setup_t* e2ap)
 {
   assert(e2ap != NULL);
-  assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
-  if(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 ){
+  assert(e2ap->type == KPM_V2_03_V3_00_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
+  if(e2ap->type == KPM_V2_03_V3_00_AGENT_IF_E2_SETUP_ANS_V0 ){
     e2ap->kpm.ran_func_def = fill_rnd_kpm_ran_func_def();
   } else if(e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0 ){
     e2ap->rc.ran_func_def = fill_rc_ran_func_def();
@@ -239,7 +239,7 @@ void read_RAN(sm_ag_if_rd_t* ag_if)
         data->type == RLC_STATS_V0 ||  
         data->type == PDCP_STATS_V0 || 
         data->type == SLICE_STATS_V0 || 
-        data->type == KPM_STATS_V3_0 ||
+        data->type == KPM_STATS_V2_03_V3_00 ||
         data->type == GTP_STATS_V0);
 
   if(data->type == MAC_STATS_V0 ){
@@ -252,7 +252,7 @@ void read_RAN(sm_ag_if_rd_t* ag_if)
     fill_slice_ind_data(&data->slice);
   } else if(data->type == GTP_STATS_V0){
     fill_gtp_ind_data(&data->gtp);
-  } else if(data->type == KPM_STATS_V3_0){
+  } else if(data->type == KPM_STATS_V2_03_V3_00){
     assert(data->kpm.act_def != NULL && "Which action should be sent to KPM?");
     data->kpm.ind.hdr = fill_rnd_kpm_ind_hdr();
     data->kpm.ind.msg = fill_rnd_kpm_ind_msg();
@@ -438,13 +438,19 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 {
   assert(rd != NULL);
   assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
-  assert(rd->ind.type == KPM_STATS_V3_0);
+  assert(rd->ind.type == KPM_STATS_V2_03_V3_00);
 
   kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
 
   int64_t now = time_now_us();
+
+  #ifndef KPM_v3_00
+  printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+         now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime*1000000, id->type, id->nb_id);
+  #else
   printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
          now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime, id->type, id->nb_id);
+  #endif
 }
 
 static
@@ -523,11 +529,11 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
   dst.read_ind_tbl[SLICE_STATS_V0] =   read_ind_slice;
   dst.read_ind_tbl[TC_STATS_V0] =   read_ind_tc;
   dst.read_ind_tbl[GTP_STATS_V0] =   read_ind_gtp;
-  dst.read_ind_tbl[KPM_STATS_V3_0] =   read_ind_kpm;
+  dst.read_ind_tbl[KPM_STATS_V2_03_V3_00] =   read_ind_kpm;
   dst.read_ind_tbl[RAN_CTRL_STATS_V1_03] = read_ind_rc;
 
   //  READ: E2 Setup
-  dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
+  dst.read_setup_tbl[KPM_V2_03_V3_00_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
   dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_rc;
 
   // WRITE: CONTROL

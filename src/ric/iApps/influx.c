@@ -185,7 +185,7 @@ void notify_influx_listener(sm_ag_if_rd_ind_t const* data)
   assert(data != NULL);
 
   assert(data->type == MAC_STATS_V0 || data->type == RLC_STATS_V0 || data->type == PDCP_STATS_V0 
-      || data->type == SLICE_STATS_V0 || data->type == KPM_STATS_V3_0 || data->type == GTP_STATS_V0
+      || data->type == SLICE_STATS_V0 || data->type == KPM_STATS_V2_03_V3_00 || data->type == GTP_STATS_V0
       || data->type == TC_STATS_V0 || data->type == RAN_CTRL_STATS_V1_03);
 
   return;
@@ -251,7 +251,7 @@ void notify_influx_listener(sm_ag_if_rd_ind_t const* data)
       int const rc = sendto(sockfd, stats, strlen(stats),  MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
       assert(rc != -1);
     }
-  } else if(data->type == KPM_STATS_V3_0){
+  } else if(data->type == KPM_STATS_V2_03_V3_00){
     assert(0!=0 && "Not implemented");
 
     // kpm_ind_data_t const* kpm = &data->kpm;

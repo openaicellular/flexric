@@ -1,0 +1,517 @@
+ASN_MODULE_SRCS=	\
+	../src/sm/kpm_sm/ie/asn/TimeStamp.c	\
+	../src/sm/kpm_sm/ie/asn/BinIndex.c	\
+	../src/sm/kpm_sm/ie/asn/BinRangeValue.c	\
+	../src/sm/kpm_sm/ie/asn/GranularityPeriod.c	\
+	../src/sm/kpm_sm/ie/asn/LogicalOR.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementType.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementTypeName.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementTypeID.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementLabel.c	\
+	../src/sm/kpm_sm/ie/asn/TestCondInfo.c	\
+	../src/sm/kpm_sm/ie/asn/TestCond-Type.c	\
+	../src/sm/kpm_sm/ie/asn/TestCond-Expression.c	\
+	../src/sm/kpm_sm/ie/asn/TestCond-Value.c	\
+	../src/sm/kpm_sm/ie/asn/BinRangeDefinition.c	\
+	../src/sm/kpm_sm/ie/asn/BinRangeList.c	\
+	../src/sm/kpm_sm/ie/asn/BinRangeItem.c	\
+	../src/sm/kpm_sm/ie/asn/DistMeasurementBinRangeList.c	\
+	../src/sm/kpm_sm/ie/asn/DistMeasurementBinRangeItem.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementInfoList.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementInfoItem.c	\
+	../src/sm/kpm_sm/ie/asn/LabelInfoList.c	\
+	../src/sm/kpm_sm/ie/asn/LabelInfoItem.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementData.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementDataItem.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementRecord.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementRecordItem.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementInfo-Action-List.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementInfo-Action-Item.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementCondList.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementCondItem.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementCondUEidList.c	\
+	../src/sm/kpm_sm/ie/asn/MeasurementCondUEidItem.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingCondList.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingCondItem.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingCondItem-Choice.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidList.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidItem.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidPerGP.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidPerGP-Item.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidList-PerGP.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidItem-PerGP.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingUeCondPerSubList.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingUeCondPerSubItem.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidPerSubList.c	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidPerSubItem.c	\
+	../src/sm/kpm_sm/ie/asn/UEMeasurementReportList.c	\
+	../src/sm/kpm_sm/ie/asn/UEMeasurementReportItem.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-EventTriggerDefinition.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-EventTriggerDefinition-Format1.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition-Format1.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition-Format2.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition-Format3.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition-Format4.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition-Format5.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationHeader.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationHeader-Format1.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationMessage.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationMessage-Format1.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationMessage-Format2.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationMessage-Format3.c	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-RANfunction-Description.c	\
+	../src/sm/kpm_sm/ie/asn/RIC-EventTriggerStyle-Item.c	\
+	../src/sm/kpm_sm/ie/asn/RIC-ReportStyle-Item.c	\
+	../src/sm/kpm_sm/ie/asn/CGI.c	\
+	../src/sm/kpm_sm/ie/asn/CoreCPID.c	\
+	../src/sm/kpm_sm/ie/asn/InterfaceIdentifier.c	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-NG.c	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-Xn.c	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-F1.c	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-E1.c	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-S1.c	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-X2.c	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-W1.c	\
+	../src/sm/kpm_sm/ie/asn/Interface-MessageID.c	\
+	../src/sm/kpm_sm/ie/asn/InterfaceType.c	\
+	../src/sm/kpm_sm/ie/asn/GroupID.c	\
+	../src/sm/kpm_sm/ie/asn/QoSID.c	\
+	../src/sm/kpm_sm/ie/asn/RANfunction-Name.c	\
+	../src/sm/kpm_sm/ie/asn/RIC-Format-Type.c	\
+	../src/sm/kpm_sm/ie/asn/RIC-Style-Type.c	\
+	../src/sm/kpm_sm/ie/asn/RIC-Style-Name.c	\
+	../src/sm/kpm_sm/ie/asn/RRC-MessageID.c	\
+	../src/sm/kpm_sm/ie/asn/RRCclass-LTE.c	\
+	../src/sm/kpm_sm/ie/asn/RRCclass-NR.c	\
+	../src/sm/kpm_sm/ie/asn/ServingCell-ARFCN.c	\
+	../src/sm/kpm_sm/ie/asn/ServingCell-PCI.c	\
+	../src/sm/kpm_sm/ie/asn/UEID.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-List.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-Item.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-CU-F1AP-ID-List.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-CU-CP-F1AP-ID-Item.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-DU.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-CU-UP.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-NG-ENB.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-NG-ENB-DU.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-EN-GNB.c	\
+	../src/sm/kpm_sm/ie/asn/UEID-ENB.c	\
+	../src/sm/kpm_sm/ie/asn/ENB-ID.c	\
+	../src/sm/kpm_sm/ie/asn/GlobalENB-ID.c	\
+	../src/sm/kpm_sm/ie/asn/GUMMEI.c	\
+	../src/sm/kpm_sm/ie/asn/MME-Group-ID.c	\
+	../src/sm/kpm_sm/ie/asn/MME-Code.c	\
+	../src/sm/kpm_sm/ie/asn/MME-UE-S1AP-ID.c	\
+	../src/sm/kpm_sm/ie/asn/QCI.c	\
+	../src/sm/kpm_sm/ie/asn/SubscriberProfileIDforRFP.c	\
+	../src/sm/kpm_sm/ie/asn/EN-GNB-ID.c	\
+	../src/sm/kpm_sm/ie/asn/ENB-UE-X2AP-ID.c	\
+	../src/sm/kpm_sm/ie/asn/ENB-UE-X2AP-ID-Extension.c	\
+	../src/sm/kpm_sm/ie/asn/E-UTRA-ARFCN.c	\
+	../src/sm/kpm_sm/ie/asn/E-UTRA-PCI.c	\
+	../src/sm/kpm_sm/ie/asn/E-UTRA-TAC.c	\
+	../src/sm/kpm_sm/ie/asn/GlobalenGNB-ID.c	\
+	../src/sm/kpm_sm/ie/asn/NGENB-CU-UE-W1AP-ID.c	\
+	../src/sm/kpm_sm/ie/asn/NGENB-DU-ID.c	\
+	../src/sm/kpm_sm/ie/asn/AMFPointer.c	\
+	../src/sm/kpm_sm/ie/asn/AMFRegionID.c	\
+	../src/sm/kpm_sm/ie/asn/AMFSetID.c	\
+	../src/sm/kpm_sm/ie/asn/AMF-UE-NGAP-ID.c	\
+	../src/sm/kpm_sm/ie/asn/EUTRACellIdentity.c	\
+	../src/sm/kpm_sm/ie/asn/EUTRA-CGI.c	\
+	../src/sm/kpm_sm/ie/asn/FiveQI.c	\
+	../src/sm/kpm_sm/ie/asn/GlobalGNB-ID.c	\
+	../src/sm/kpm_sm/ie/asn/GlobalNgENB-ID.c	\
+	../src/sm/kpm_sm/ie/asn/GNB-ID.c	\
+	../src/sm/kpm_sm/ie/asn/GUAMI.c	\
+	../src/sm/kpm_sm/ie/asn/IndexToRFSP.c	\
+	../src/sm/kpm_sm/ie/asn/NgENB-ID.c	\
+	../src/sm/kpm_sm/ie/asn/NRCellIdentity.c	\
+	../src/sm/kpm_sm/ie/asn/NR-CGI.c	\
+	../src/sm/kpm_sm/ie/asn/PLMNIdentity.c	\
+	../src/sm/kpm_sm/ie/asn/QosFlowIdentifier.c	\
+	../src/sm/kpm_sm/ie/asn/SD.c	\
+	../src/sm/kpm_sm/ie/asn/S-NSSAI.c	\
+	../src/sm/kpm_sm/ie/asn/SST.c	\
+	../src/sm/kpm_sm/ie/asn/NG-RANnodeUEXnAPID.c	\
+	../src/sm/kpm_sm/ie/asn/GlobalNGRANNodeID.c	\
+	../src/sm/kpm_sm/ie/asn/GNB-CU-CP-UE-E1AP-ID.c	\
+	../src/sm/kpm_sm/ie/asn/GNB-CU-UP-ID.c	\
+	../src/sm/kpm_sm/ie/asn/FiveGS-TAC.c	\
+	../src/sm/kpm_sm/ie/asn/FreqBandNrItem.c	\
+	../src/sm/kpm_sm/ie/asn/GNB-CU-UE-F1AP-ID.c	\
+	../src/sm/kpm_sm/ie/asn/GNB-DU-ID.c	\
+	../src/sm/kpm_sm/ie/asn/NR-PCI.c	\
+	../src/sm/kpm_sm/ie/asn/NR-ARFCN.c	\
+	../src/sm/kpm_sm/ie/asn/NRFrequencyBand-List.c	\
+	../src/sm/kpm_sm/ie/asn/NRFrequencyBandItem.c	\
+	../src/sm/kpm_sm/ie/asn/NRFrequencyInfo.c	\
+	../src/sm/kpm_sm/ie/asn/NRFrequencyShift7p5khz.c	\
+	../src/sm/kpm_sm/ie/asn/RANUEID.c	\
+	../src/sm/kpm_sm/ie/asn/SupportedSULBandList.c	\
+	../src/sm/kpm_sm/ie/asn/SupportedSULFreqBandItem.c	\
+	../src/sm/kpm_sm/ie/asn/EXTERNAL.c
+
+ASN_MODULE_HDRS=	\
+	../src/sm/kpm_sm/ie/asn/TimeStamp.h	\
+	../src/sm/kpm_sm/ie/asn/BinIndex.h	\
+	../src/sm/kpm_sm/ie/asn/BinRangeValue.h	\
+	../src/sm/kpm_sm/ie/asn/GranularityPeriod.h	\
+	../src/sm/kpm_sm/ie/asn/LogicalOR.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementType.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementTypeName.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementTypeID.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementLabel.h	\
+	../src/sm/kpm_sm/ie/asn/TestCondInfo.h	\
+	../src/sm/kpm_sm/ie/asn/TestCond-Type.h	\
+	../src/sm/kpm_sm/ie/asn/TestCond-Expression.h	\
+	../src/sm/kpm_sm/ie/asn/TestCond-Value.h	\
+	../src/sm/kpm_sm/ie/asn/BinRangeDefinition.h	\
+	../src/sm/kpm_sm/ie/asn/BinRangeList.h	\
+	../src/sm/kpm_sm/ie/asn/BinRangeItem.h	\
+	../src/sm/kpm_sm/ie/asn/DistMeasurementBinRangeList.h	\
+	../src/sm/kpm_sm/ie/asn/DistMeasurementBinRangeItem.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementInfoList.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementInfoItem.h	\
+	../src/sm/kpm_sm/ie/asn/LabelInfoList.h	\
+	../src/sm/kpm_sm/ie/asn/LabelInfoItem.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementData.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementDataItem.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementRecord.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementRecordItem.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementInfo-Action-List.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementInfo-Action-Item.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementCondList.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementCondItem.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementCondUEidList.h	\
+	../src/sm/kpm_sm/ie/asn/MeasurementCondUEidItem.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingCondList.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingCondItem.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingCondItem-Choice.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidList.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidItem.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidPerGP.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidPerGP-Item.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidList-PerGP.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidItem-PerGP.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingUeCondPerSubList.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingUeCondPerSubItem.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidPerSubList.h	\
+	../src/sm/kpm_sm/ie/asn/MatchingUEidPerSubItem.h	\
+	../src/sm/kpm_sm/ie/asn/UEMeasurementReportList.h	\
+	../src/sm/kpm_sm/ie/asn/UEMeasurementReportItem.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-EventTriggerDefinition.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-EventTriggerDefinition-Format1.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition-Format1.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition-Format2.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition-Format3.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition-Format4.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-ActionDefinition-Format5.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationHeader.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationHeader-Format1.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationMessage.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationMessage-Format1.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationMessage-Format2.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-IndicationMessage-Format3.h	\
+	../src/sm/kpm_sm/ie/asn/E2SM-KPM-RANfunction-Description.h	\
+	../src/sm/kpm_sm/ie/asn/RIC-EventTriggerStyle-Item.h	\
+	../src/sm/kpm_sm/ie/asn/RIC-ReportStyle-Item.h	\
+	../src/sm/kpm_sm/ie/asn/CGI.h	\
+	../src/sm/kpm_sm/ie/asn/CoreCPID.h	\
+	../src/sm/kpm_sm/ie/asn/InterfaceIdentifier.h	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-NG.h	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-Xn.h	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-F1.h	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-E1.h	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-S1.h	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-X2.h	\
+	../src/sm/kpm_sm/ie/asn/InterfaceID-W1.h	\
+	../src/sm/kpm_sm/ie/asn/Interface-MessageID.h	\
+	../src/sm/kpm_sm/ie/asn/InterfaceType.h	\
+	../src/sm/kpm_sm/ie/asn/GroupID.h	\
+	../src/sm/kpm_sm/ie/asn/QoSID.h	\
+	../src/sm/kpm_sm/ie/asn/RANfunction-Name.h	\
+	../src/sm/kpm_sm/ie/asn/RIC-Format-Type.h	\
+	../src/sm/kpm_sm/ie/asn/RIC-Style-Type.h	\
+	../src/sm/kpm_sm/ie/asn/RIC-Style-Name.h	\
+	../src/sm/kpm_sm/ie/asn/RRC-MessageID.h	\
+	../src/sm/kpm_sm/ie/asn/RRCclass-LTE.h	\
+	../src/sm/kpm_sm/ie/asn/RRCclass-NR.h	\
+	../src/sm/kpm_sm/ie/asn/ServingCell-ARFCN.h	\
+	../src/sm/kpm_sm/ie/asn/ServingCell-PCI.h	\
+	../src/sm/kpm_sm/ie/asn/UEID.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-List.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-Item.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-CU-F1AP-ID-List.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-CU-CP-F1AP-ID-Item.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-DU.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-GNB-CU-UP.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-NG-ENB.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-NG-ENB-DU.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-EN-GNB.h	\
+	../src/sm/kpm_sm/ie/asn/UEID-ENB.h	\
+	../src/sm/kpm_sm/ie/asn/ENB-ID.h	\
+	../src/sm/kpm_sm/ie/asn/GlobalENB-ID.h	\
+	../src/sm/kpm_sm/ie/asn/GUMMEI.h	\
+	../src/sm/kpm_sm/ie/asn/MME-Group-ID.h	\
+	../src/sm/kpm_sm/ie/asn/MME-Code.h	\
+	../src/sm/kpm_sm/ie/asn/MME-UE-S1AP-ID.h	\
+	../src/sm/kpm_sm/ie/asn/QCI.h	\
+	../src/sm/kpm_sm/ie/asn/SubscriberProfileIDforRFP.h	\
+	../src/sm/kpm_sm/ie/asn/EN-GNB-ID.h	\
+	../src/sm/kpm_sm/ie/asn/ENB-UE-X2AP-ID.h	\
+	../src/sm/kpm_sm/ie/asn/ENB-UE-X2AP-ID-Extension.h	\
+	../src/sm/kpm_sm/ie/asn/E-UTRA-ARFCN.h	\
+	../src/sm/kpm_sm/ie/asn/E-UTRA-PCI.h	\
+	../src/sm/kpm_sm/ie/asn/E-UTRA-TAC.h	\
+	../src/sm/kpm_sm/ie/asn/GlobalenGNB-ID.h	\
+	../src/sm/kpm_sm/ie/asn/NGENB-CU-UE-W1AP-ID.h	\
+	../src/sm/kpm_sm/ie/asn/NGENB-DU-ID.h	\
+	../src/sm/kpm_sm/ie/asn/AMFPointer.h	\
+	../src/sm/kpm_sm/ie/asn/AMFRegionID.h	\
+	../src/sm/kpm_sm/ie/asn/AMFSetID.h	\
+	../src/sm/kpm_sm/ie/asn/AMF-UE-NGAP-ID.h	\
+	../src/sm/kpm_sm/ie/asn/EUTRACellIdentity.h	\
+	../src/sm/kpm_sm/ie/asn/EUTRA-CGI.h	\
+	../src/sm/kpm_sm/ie/asn/FiveQI.h	\
+	../src/sm/kpm_sm/ie/asn/GlobalGNB-ID.h	\
+	../src/sm/kpm_sm/ie/asn/GlobalNgENB-ID.h	\
+	../src/sm/kpm_sm/ie/asn/GNB-ID.h	\
+	../src/sm/kpm_sm/ie/asn/GUAMI.h	\
+	../src/sm/kpm_sm/ie/asn/IndexToRFSP.h	\
+	../src/sm/kpm_sm/ie/asn/NgENB-ID.h	\
+	../src/sm/kpm_sm/ie/asn/NRCellIdentity.h	\
+	../src/sm/kpm_sm/ie/asn/NR-CGI.h	\
+	../src/sm/kpm_sm/ie/asn/PLMNIdentity.h	\
+	../src/sm/kpm_sm/ie/asn/QosFlowIdentifier.h	\
+	../src/sm/kpm_sm/ie/asn/SD.h	\
+	../src/sm/kpm_sm/ie/asn/S-NSSAI.h	\
+	../src/sm/kpm_sm/ie/asn/SST.h	\
+	../src/sm/kpm_sm/ie/asn/NG-RANnodeUEXnAPID.h	\
+	../src/sm/kpm_sm/ie/asn/GlobalNGRANNodeID.h	\
+	../src/sm/kpm_sm/ie/asn/GNB-CU-CP-UE-E1AP-ID.h	\
+	../src/sm/kpm_sm/ie/asn/GNB-CU-UP-ID.h	\
+	../src/sm/kpm_sm/ie/asn/FiveGS-TAC.h	\
+	../src/sm/kpm_sm/ie/asn/FreqBandNrItem.h	\
+	../src/sm/kpm_sm/ie/asn/GNB-CU-UE-F1AP-ID.h	\
+	../src/sm/kpm_sm/ie/asn/GNB-DU-ID.h	\
+	../src/sm/kpm_sm/ie/asn/NR-PCI.h	\
+	../src/sm/kpm_sm/ie/asn/NR-ARFCN.h	\
+	../src/sm/kpm_sm/ie/asn/NRFrequencyBand-List.h	\
+	../src/sm/kpm_sm/ie/asn/NRFrequencyBandItem.h	\
+	../src/sm/kpm_sm/ie/asn/NRFrequencyInfo.h	\
+	../src/sm/kpm_sm/ie/asn/NRFrequencyShift7p5khz.h	\
+	../src/sm/kpm_sm/ie/asn/RANUEID.h	\
+	../src/sm/kpm_sm/ie/asn/SupportedSULBandList.h	\
+	../src/sm/kpm_sm/ie/asn/SupportedSULFreqBandItem.h	\
+	../src/sm/kpm_sm/ie/asn/EXTERNAL.h
+
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/ANY.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/ANY.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/OCTET_STRING.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/OPEN_TYPE.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OPEN_TYPE.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/constr_CHOICE.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/BOOLEAN.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BOOLEAN.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/GraphicString.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/GraphicString.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/INTEGER.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/INTEGER.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/NULL.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NULL.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/NativeEnumerated.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeEnumerated.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/NativeInteger.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeInteger.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/NativeReal.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeReal.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/REAL.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/OBJECT_IDENTIFIER.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OBJECT_IDENTIFIER.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/asn_codecs_prim.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/ObjectDescriptor.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/ObjectDescriptor.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/PrintableString.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/PrintableString.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/REAL.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/asn_SEQUENCE_OF.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/asn_SEQUENCE_OF.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/asn_SET_OF.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/asn_SET_OF.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_CHOICE.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_OF.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_OF.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/constr_SET_OF.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SET_OF.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/asn_application.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/asn_application.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/asn_ioc.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/asn_system.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/asn_codecs.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/asn_internal.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/asn_internal.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/asn_bit_data.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/asn_bit_data.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OCTET_STRING.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/BIT_STRING.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BIT_STRING.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/asn_codecs_prim.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/ber_tlv_length.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/ber_tlv_length.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/ber_tlv_tag.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/ber_tlv_tag.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/constr_TYPE.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_TYPE.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/constraints.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constraints.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/ber_decoder.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/der_encoder.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/ber_decoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/der_encoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/ANY_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BOOLEAN_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/INTEGER_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NULL_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeInteger_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeReal_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OCTET_STRING_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OPEN_TYPE_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/asn_codecs_prim_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_CHOICE_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_OF_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_ber.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SET_OF_ber.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/xer_support.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/xer_decoder.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/xer_encoder.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/xer_support.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/xer_decoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/xer_encoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/ANY_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BIT_STRING_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BOOLEAN_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/INTEGER_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NULL_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeEnumerated_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeInteger_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeReal_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OBJECT_IDENTIFIER_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OCTET_STRING_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OPEN_TYPE_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/REAL_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/asn_codecs_prim_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_CHOICE_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_OF_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_xer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SET_OF_xer.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/per_decoder.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/per_encoder.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/per_support.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/per_opentype.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/per_decoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/per_encoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/per_support.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/per_opentype.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/uper_decoder.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/uper_encoder.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/uper_support.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/uper_opentype.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/uper_decoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/uper_encoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/uper_support.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/uper_opentype.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/ANY_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BIT_STRING_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BOOLEAN_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/INTEGER_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NULL_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeEnumerated_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeInteger_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeReal_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OCTET_STRING_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OPEN_TYPE_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/REAL_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_CHOICE_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_OF_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_uper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SET_OF_uper.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/aper_decoder.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/aper_encoder.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/aper_support.h
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/aper_opentype.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/aper_decoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/aper_encoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/aper_support.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/aper_opentype.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/ANY_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BOOLEAN_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/INTEGER_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NULL_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeEnumerated_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeInteger_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeReal_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OCTET_STRING_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OPEN_TYPE_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/REAL_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_CHOICE_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_OF_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SET_OF_aper.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BIT_STRING_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BOOLEAN_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/INTEGER_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NULL_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeInteger_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeReal_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OBJECT_IDENTIFIER_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OCTET_STRING_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/REAL_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_CHOICE_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_print.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SET_OF_print.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/asn_random_fill.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/asn_random_fill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BIT_STRING_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BOOLEAN_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/INTEGER_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NULL_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeInteger_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeReal_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OBJECT_IDENTIFIER_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OCTET_STRING_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/REAL_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_CHOICE_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_rfill.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SET_OF_rfill.c
+ASN_MODULE_HDRS+=../src/sm/kpm_sm/ie/asn/jer_encoder.h
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/jer_encoder.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/ANY_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BIT_STRING_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/BOOLEAN_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/INTEGER_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NULL_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeEnumerated_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeInteger_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/NativeReal_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OBJECT_IDENTIFIER_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/OCTET_STRING_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/REAL_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_CHOICE_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_OF_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SEQUENCE_jer.c
+ASN_MODULE_SRCS+=../src/sm/kpm_sm/ie/asn/constr_SET_OF_jer.c
+
+ASN_MODULE_CFLAGS=-DASN_DISABLE_OER_SUPPORT 
+
+lib_LTLIBRARIES+=libasncodec.la
+libasncodec_la_SOURCES=$(ASN_MODULE_SRCS) $(ASN_MODULE_HDRS)
+libasncodec_la_CPPFLAGS=-I$(top_srcdir)/../src/sm/kpm_sm/ie/asn/
+libasncodec_la_CFLAGS=$(ASN_MODULE_CFLAGS)
+libasncodec_la_LDFLAGS=-lm

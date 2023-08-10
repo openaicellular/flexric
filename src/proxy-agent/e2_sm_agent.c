@@ -10,7 +10,7 @@
 #include "../sm/slice_sm/ie/slice_data_ie.h"
 #include "../sm/tc_sm/ie/tc_data_ie.h"
 #include "../sm/gtp_sm/ie/gtp_data_ie.h"
-#include "../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"
+#include "../sm/kpm_sm/ie/kpm_data_ie.h"
 #include "../src/util/time_now_us.h"
 
 #include "e2_sm_agent.h"

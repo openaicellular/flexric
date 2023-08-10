@@ -26,7 +26,7 @@
 #include "../../../../src/sm/rlc_sm/rlc_sm_id.h"
 #include "../../../../src/sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../../../src/sm/gtp_sm/gtp_sm_id.h"
-#include "../../../../src/sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../../../../src/sm/kpm_sm/kpm_sm_id.h"
 #include "../../../../src/util/e2ap_ngran_types.h"
 
 #include <stdlib.h>
@@ -93,7 +93,7 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 //  } else if (rd->ind.type == GTP_STATS_V0) {
 //    printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
 //           now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id);
-  } else if (rd->ind.type == KPM_STATS_V3_0) {
+  } else if (rd->ind.type == KPM_STATS_V2_03_V3_00) {
     if (rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime) {
 //      count_kpm += 1;
 //      aggr_tstamp_kpm += now - rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime;

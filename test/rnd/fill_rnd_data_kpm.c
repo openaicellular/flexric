@@ -20,7 +20,7 @@
  */
 
 #include "fill_rnd_data_kpm.h"
-#include "../../src/sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../../src/sm/kpm_sm/kpm_sm_id.h"
 #include "../../src/util/time_now_us.h"
 
 #include <assert.h>
@@ -964,7 +964,12 @@ static kpm_ric_ind_hdr_format_1_t fill_rnd_kpm_ind_hdr_frm_1(void)
   kpm_ric_ind_hdr_format_1_t hdr_frm_1 = {0};
 
   int64_t t = time_now_us();
+
+  #ifndef KPM_v3_00
+  hdr_frm_1.collectStartTime = t/1000000;
+  #else
   hdr_frm_1.collectStartTime = t;
+  #endif
   
   hdr_frm_1.fileformat_version = NULL;
   

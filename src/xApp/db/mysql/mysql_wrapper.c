@@ -1769,7 +1769,7 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
   sm_ag_if_rd_ind_t const* rd = &ag_rd->ind;
   assert(rd->type == MAC_STATS_V0   || rd->type == RLC_STATS_V0
          || rd->type == PDCP_STATS_V0  || rd->type == GTP_STATS_V0 || rd->type == SLICE_STATS_V0
-         || rd->type == KPM_STATS_V3_0 || rd->type == RAN_CTRL_STATS_V1_03);
+         || rd->type == KPM_STATS_V2_03_V3_00 || rd->type == RAN_CTRL_STATS_V1_03);
 
   if(rd->type == MAC_STATS_V0){
     write_mac_stats(conn, id, &rd->mac);
@@ -1781,7 +1781,7 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
     write_slice_stats(conn, id, &rd->slice);
   } else if (rd->type == GTP_STATS_V0) {
     write_gtp_stats(conn, id, &rd->gtp);
-  } else if (rd->type == KPM_STATS_V3_0) {
+  } else if (rd->type == KPM_STATS_V2_03_V3_00) {
     // write_kpm_stats(conn, id, &rd->kpm_stats);
     printf("mysql not support kpm sm\n");
   } else if (rd->type == RAN_CTRL_STATS_V1_03) {

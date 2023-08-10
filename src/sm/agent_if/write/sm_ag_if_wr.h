@@ -30,7 +30,7 @@
 #include "../../slice_sm/ie/slice_data_ie.h"
 #include "../../tc_sm/ie/tc_data_ie.h"
 #include "../../gtp_sm/ie/gtp_data_ie.h"
-#include "../../kpm_sm_v03.00/ie/kpm_data_ie.h"
+#include "../../kpm_sm/ie/kpm_data_ie.h"
 #include "../../rc_sm/ie/rc_data_ie.h"
 
 //////////////////////
@@ -78,7 +78,7 @@ typedef enum{
   SLICE_SUBS_V0, 
   TC_SUBS_V0, 
   GTP_SUBS_V0, 
-  KPM_SUBS_V3_0, 
+  KPM_SUBS_V2_03_V3_00, 
   RAN_CTRL_SUBS_V1_03, 
   SM_AGENT_IF_WRITE_SUBS_V0_END,
 } sm_ag_if_subs_e;

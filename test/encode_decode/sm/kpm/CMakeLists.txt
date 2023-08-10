@@ -6,7 +6,7 @@ add_executable(test_enc_dec_kpm_sm
   ../../../../src/util/alg_ds/alg/defer.c 
   main.c)
 
-target_include_directories(test_enc_dec_kpm_sm PUBLIC "../../../../src/sm/kpm_sm_v03.00/ie/asn")
+target_include_directories(test_enc_dec_kpm_sm PUBLIC "../../../../src/sm/kpm_sm/ie/asn")
 
 target_link_libraries(test_enc_dec_kpm_sm 
                             PUBLIC 

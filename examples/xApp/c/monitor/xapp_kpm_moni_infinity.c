@@ -22,7 +22,7 @@
 #include "../../../../src/xApp/e42_xapp_api.h"
 #include "../../../../src/util/alg_ds/alg/defer.h"
 #include "../../../../src/util/time_now_us.h"
-#include "../../../../src/sm/kpm_sm_v2.02/kpm_sm_id.h"
+#include "../../../../src/sm/kpm_sm/kpm_sm_id.h"
 
 #include <stdlib.h>
 #include <stdio.h>

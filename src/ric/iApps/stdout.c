@@ -304,7 +304,11 @@ void print_kpm_stats(kpm_ind_data_t const* kpm)
 
   // From Indication Header : Collect Start Time
   // To be defined better, switch/case for specific format
-  uint64_t truncated_ts = (uint64_t)kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime;
+  #ifndef KPM_v3_00
+  uint64_t truncated_ts = kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime*1000000;
+  #else
+  uint64_t truncated_ts = kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime;
+  #endif
 
 
 
@@ -348,7 +352,7 @@ void notify_stdout_listener(sm_ag_if_rd_ind_t const* data)
   else if (data->type == TC_STATS_V0){
     // assert(0!=0 && "Not implemented");
     //print_tc_stats(&data->gtp.msg);
-  }else if (data->type == KPM_STATS_V3_0){
+  }else if (data->type == KPM_STATS_V2_03_V3_00){
     // assert(0!=0 && "Not implemented");
 //    print_kpm_stats(&data->kpm_ind);
   } else if (data->type == RAN_CTRL_STATS_V1_03){

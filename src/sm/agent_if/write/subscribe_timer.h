@@ -22,11 +22,11 @@
 #ifndef SUBSCRIBE_TIMER_EUR_H
 #define SUBSCRIBE_TIMER_EUR_H
 
-#include "../../kpm_sm_v03.00/ie/kpm_data_ie.h"
+#include "../../kpm_sm/ie/kpm_data_ie.h"
 #include <stdint.h>
 
 typedef enum{
-  KPM_V3_0_SUB_DATA_ENUM,
+  KPM_V2_03_V3_00_SUB_DATA_ENUM,
   RAN_CONTROL_V1_3_SUB_DATA_ENUM,
   NONE_SUB_DATA_ENUM,
 

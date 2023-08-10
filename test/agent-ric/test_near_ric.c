@@ -63,8 +63,8 @@ static
 void read_e2_setup_agent(sm_ag_if_rd_e2setup_t* e2ap)
 {
   assert(e2ap != NULL);
-  assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
-  if(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 ){
+  assert(e2ap->type == KPM_V2_03_V3_00_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
+  if(e2ap->type == KPM_V2_03_V3_00_AGENT_IF_E2_SETUP_ANS_V0 ){
     e2ap->kpm.ran_func_def = fill_rnd_kpm_ran_func_def(); 
   } else if(e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0 ){
     e2ap->rc.ran_func_def = fill_rc_ran_func_def();
@@ -158,7 +158,7 @@ void read_ind_agent(sm_ag_if_rd_ind_t* ind)
     fill_gtp_ind_data(&ind->gtp);
   } else if(ind->type == TC_STATS_V0){
     fill_tc_ind_data(&ind->tc);
-  } else if(ind->type == KPM_STATS_V3_0){
+  } else if(ind->type == KPM_STATS_V2_03_V3_00){
     ind->kpm.ind.hdr = fill_rnd_kpm_ind_hdr();
     ind->kpm.ind.msg = fill_rnd_kpm_ind_msg();
   } else if(ind->type == RAN_CTRL_STATS_V1_03){
@@ -329,11 +329,11 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
   dst.read_ind_tbl[SLICE_STATS_V0] =   read_ind_slice;
   dst.read_ind_tbl[TC_STATS_V0] =   read_ind_tc;
   dst.read_ind_tbl[GTP_STATS_V0] =   read_ind_gtp;
-  dst.read_ind_tbl[KPM_STATS_V3_0] =   read_ind_kpm;
+  dst.read_ind_tbl[KPM_STATS_V2_03_V3_00] =   read_ind_kpm;
   dst.read_ind_tbl[RAN_CTRL_STATS_V1_03] = read_ind_rc;
 
   //  READ: E2 Setup
-  dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
+  dst.read_setup_tbl[KPM_V2_03_V3_00_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
   dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_rc;
 
   // WRITE: CONTROL

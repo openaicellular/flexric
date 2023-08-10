@@ -56,13 +56,20 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
-  assert(rd->ind.type == KPM_STATS_V3_0); 
+  assert(rd->ind.type == KPM_STATS_V2_03_V3_00); 
 
   kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
 
   int64_t now = time_now_us();
+
+  #ifndef KPM_v3_00
+  printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+         now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime*1000000, e2_node->type, e2_node->nb_id);
+  #else
   printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
          now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime, e2_node->type, e2_node->nb_id);
+  #endif
+
   printf("Sojourn time %lf \n",kpm->msg.frm_3.meas_report_per_ue[0].ind_msg_format_1.meas_data_lst[0].meas_record_lst[0].real_val);
 
   {

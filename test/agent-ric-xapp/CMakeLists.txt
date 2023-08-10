@@ -21,7 +21,7 @@ add_executable(test_ag_ric_xapp
                 ${CMAKE_SOURCE_DIR}/src/sm/rlc_sm/ie/rlc_data_ie.c
                 ${CMAKE_SOURCE_DIR}/src/sm/pdcp_sm/ie/pdcp_data_ie.c
                 ${CMAKE_SOURCE_DIR}/src/sm/slice_sm/ie/slice_data_ie.c
-                ${CMAKE_SOURCE_DIR}/src/sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+                ${CMAKE_SOURCE_DIR}/src/sm/kpm_sm/ie/kpm_data_ie.c
                 ${CMAKE_SOURCE_DIR}/src/sm/tc_sm/ie/tc_data_ie.c
                 ${CMAKE_SOURCE_DIR}/src/sm/gtp_sm/ie/gtp_data_ie.c
                 ${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c

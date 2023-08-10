@@ -27,7 +27,7 @@
 #include "../../slice_sm/ie/slice_data_ie.h"
 #include "../../tc_sm/ie/tc_data_ie.h"
 #include "../../gtp_sm/ie/gtp_data_ie.h"
-#include "../../kpm_sm_v03.00/ie/kpm_data_ie.h"
+#include "../../kpm_sm/ie/kpm_data_ie.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -48,7 +48,7 @@ void free_sm_ag_if_rd_ind(sm_ag_if_rd_ind_t* d)
     free_tc_ind_data(&d->tc);
   } else if(d->type == GTP_STATS_V0){
     free_gtp_ind_data(&d->gtp);
-  } else if(d->type == KPM_STATS_V3_0){
+  } else if(d->type == KPM_STATS_V2_03_V3_00){
     free_kpm_ind_data(&d->kpm.ind);
   } else if(d->type == RAN_CTRL_STATS_V1_03 ){
     free_rc_ind_data(&d->rc.ind);
@@ -76,7 +76,7 @@ sm_ag_if_rd_ind_t cp_sm_ag_if_rd_ind(sm_ag_if_rd_ind_t const* d)
     ans.tc = cp_tc_ind_data(&d->tc);
   } else if(ans.type == GTP_STATS_V0) {
     ans.gtp = cp_gtp_ind_data(&d->gtp);
-  } else if(ans.type == KPM_STATS_V3_0) {
+  } else if(ans.type == KPM_STATS_V2_03_V3_00) {
     ans.kpm.ind = cp_kpm_ind_data(&d->kpm.ind);
     //kpm_act_def_t* tmp = calloc(1, sizeof(kpm_act_def_t));
     //assert(tmp != NULL && "Memory exhausted");

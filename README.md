@@ -89,6 +89,9 @@ software has been tested with specific version of `libwebsockets-dev` and `libjs
   $ cd flexric
   $ mkdir build
   $ cd build
+  # specify KPM version - default is v2.03
+  # to use KPM v3.00
+  $ cmake .. -DKPM_v3_00=ON
   # to use SQLite DB
   $ cmake .. -DEMU_AGENT_INSTALL=TRUE -DNEAR_RIC_INSTALL=TRUE -DUNIT_TEST=TRUE -DXAPP_C_INSTALL=TRUE -DXAPP_DB=SQLITE3_XAPP -DXAPP_PYTHON_INSTALL=TRUE
   # to use MYSQL DB

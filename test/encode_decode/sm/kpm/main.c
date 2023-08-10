@@ -1,7 +1,7 @@
 #include "../../../../src/util/alg_ds/alg/defer.h"
 #include "../../../../src/util/byte_array.h"
-#include "../../../../src/sm/kpm_sm_v03.00/enc/kpm_enc_asn.h"
-#include "../../../../src/sm/kpm_sm_v03.00/dec/kpm_dec_asn.h"
+#include "../../../../src/sm/kpm_sm/enc/kpm_enc_asn.h"
+#include "../../../../src/sm/kpm_sm/dec/kpm_dec_asn.h"
 #include "../../../rnd/fill_rnd_data_kpm.h"
 
 #include <assert.h>

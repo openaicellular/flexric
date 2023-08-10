@@ -126,6 +126,11 @@ message(STATUS "Selected E2AP_ENCODING: ${E2AP_ENCODING}")
 
 add_definitions(-DSERVICE_MODEL_DIR_PATH="${SM_DIR_PATH}/")
 
+# KPM Service Model version - default is v2.03
+set(KPM_v3_00 "OFF" CACHE STRING "The KPM version to use")
+set_property(CACHE KPM_v3_00 PROPERTY STRINGS "ON" "OFF")
+message(STATUS "KPM v3.00: ${KPM_v3_00}")
+
 # KPM service Model encoding definitions
 set(SM_ENCODING_KPM "ASN" CACHE STRING "The KPM SM encoding to use")
 set_property(CACHE SM_ENCODING_KPM PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
