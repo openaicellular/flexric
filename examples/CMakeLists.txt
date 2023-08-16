@@ -1,10 +1,10 @@
-if (EMU_AGENT_INSTALL)
+if (EMU_AGENT)
     add_subdirectory(emulator)
 endif()
-if (NEAR_RIC_INSTALL)
+if (NEAR_RIC)
     add_subdirectory(ric)
 endif()
-if (XAPP_PYTHON_INSTALL OR XAPP_C_INSTALL)
+if (XAPP_C)
     add_subdirectory(xApp)
 endif()
 

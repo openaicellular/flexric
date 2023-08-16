@@ -166,20 +166,17 @@ endif()
 ###
 # set install options
 ###
-set(NEAR_RIC_INSTALL "FALSE" CACHE STRING "NEAR real time RIC install selection")
-set_property(CACHE NEAR_RIC_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(EMU_AGENT_INSTALL "FALSE" CACHE STRING "emulator of E2 agent")
-set_property(CACHE EMU_AGENT_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(XAPP_C_INSTALL "FALSE" CACHE STRING "XAPP in C install selection")
-set_property(CACHE XAPP_C_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(XAPP_PYTHON_INSTALL "FALSE" CACHE STRING "XAPP in Python install selection")
-set_property(CACHE XAPP_PYTHON_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(UNIT_TEST "FALSE" CACHE STRING "build test cases")
-set_property(CACHE UNIT_TEST PROPERTY STRINGS "TRUE" "FALSE")
+option(NEAR_RIC "Build and install Near-Real-Time RIC" ON)
+message(STATUS "Build and install Near-Real-Time RIC: ${NEAR_RIC}")
+option(EMU_AGENT "Build and install emulator of E2 agents" ON)
+message(STATUS "Build and install emulator of E2 agents: ${EMU_AGENT}")
+option(XAPP_C "Build and install xAPP in C" ON)
+message(STATUS "Build and install xAPP in C: ${XAPP_C}")
+option(UNIT_TEST "Build and install unit test" ON)
+message(STATUS "Build and install unit test: ${UNIT_TEST}")
 
-set(RAN_WITH_WS "OFF" CACHE STRING "Include support for RAN having a websocket interface")
-message(STATUS "Include support for RAN with a websocket interface: ${RAN_WITH_WS}")
-set_property(CACHE RAN_WITH_WS PROPERTY STRINGS "ON" "OFF")
+option(RAN_WITH_WS "Build and install proxy-agent to support websocket interface of RAN" OFF)
+message(STATUS "Build and install proxy-agent to support websocket interface of RAN: ${RAN_WITH_WS}")
 
 include_directories(src)
 add_subdirectory(src)
@@ -224,7 +221,7 @@ enable_testing()
 ###
 # Install Near real-time RIC
 ###
-if (NEAR_RIC_INSTALL)
+if (NEAR_RIC)
   install(TARGETS nearRT-RIC DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
@@ -232,7 +229,7 @@ endif ()
 # Install Emulator Agent
 ###
 
-if (EMU_AGENT_INSTALL)
+if (EMU_AGENT)
   install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR})
   if (RAN_WITH_WS)
     install(TARGETS proxy_agent_ws DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -243,24 +240,39 @@ endif ()
 ###
 # Install xApps
 ###
-if (XAPP_C_INSTALL)
-  install(TARGETS xapp_mac_rlc_pdcp_moni xapp_slice_moni_ctrl xapp_gtp_moni xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR})
+if (XAPP_C)
+  # hw
+  install(TARGETS xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR})
+  # monitor
+  install(TARGETS xapp_moni
+      xapp_mac_rlc_pdcp_moni
+      xapp_gtp_moni
+      xapp_kpm_moni
+      DESTINATION ${CMAKE_INSTALL_BINDIR})
+  # slice ctrl
+  install(TARGETS xapp_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
-if (XAPP_PYTHON_INSTALL)
+
+if (XAPP_PYTHON_SWIG)
   install(FILES
-    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp.py
-    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk.py
-    ${CMAKE_BINARY_DIR}/examples/xApp/python3/_xapp_sdk.so
-    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_gtp_moni.py
-    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py
-    ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages)
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp.py
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk.py
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/_xapp_sdk.so
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_moni.py
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_gtp_moni.py
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_kpm_moni.py
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages)
   install(TARGETS e42_xapp_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif ()
+endif()
 
-if (XAPP_GO_INSTALL)
-  install(PROGRAMS ${GO_BINARIES} DESTINATION ${CMAKE_INSTALL_BINDIR})
+if (XAPP_GO_SWIG)
+  install(PROGRAMS
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/go_helloworld
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/slice/go_xapp_slice_moni_ctrl
+          DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
 # make uninstall
