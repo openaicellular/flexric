@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-kpm_event_trigger_def_t fill_kpm_event_trigger_def(void)
+kpm_event_trigger_def_t fill_rnd_kpm_event_trigger_def(void)
 {
   kpm_event_trigger_def_t dst = {0};
 
@@ -44,7 +44,7 @@ kpm_event_trigger_def_t fill_kpm_event_trigger_def(void)
   return dst;
 }
 
-static bin_range_def_t fill_bin_range_def(void)
+static bin_range_def_t fill_rnd_bin_range_def(void)
 {
   bin_range_def_t bin_range_def = {0};
 
@@ -99,7 +99,7 @@ static bin_range_def_t fill_bin_range_def(void)
   return bin_range_def;
 }
 
-static kpm_act_def_format_1_t fill_kpm_action_def_frm_1(void)
+static kpm_act_def_format_1_t fill_rnd_kpm_action_def_frm_1(void)
 {
   kpm_act_def_format_1_t action_def_frm_1 = {0};
 
@@ -210,14 +210,14 @@ static kpm_act_def_format_1_t fill_kpm_action_def_frm_1(void)
     }
 
     // Bin Range Definition
-    action_def_frm_1.meas_bin_info_lst[i].bin_range_def = fill_bin_range_def();
+    action_def_frm_1.meas_bin_info_lst[i].bin_range_def = fill_rnd_bin_range_def();
 
   }
 
   return action_def_frm_1;
 }
 
-static gnb_e2sm_t fill_gnb_data(void)
+static gnb_e2sm_t fill_rnd_gnb_data(void)
 {
   gnb_e2sm_t gnb = {0};
 
@@ -324,7 +324,7 @@ static gnb_e2sm_t fill_gnb_data(void)
   return gnb;
 }
 
-static gnb_du_e2sm_t fill_gnb_du_data(void)
+static gnb_du_e2sm_t fill_rnd_gnb_du_data(void)
 {
   gnb_du_e2sm_t gnb_du = {0};
   gnb_du.gnb_cu_ue_f1ap = (rand() % 4294967296) + 0;
@@ -335,7 +335,7 @@ static gnb_du_e2sm_t fill_gnb_du_data(void)
   return gnb_du;
 }
 
-static gnb_cu_up_e2sm_t fill_gnb_cu_up_data(void)
+static gnb_cu_up_e2sm_t fill_rnd_gnb_cu_up_data(void)
 {
   gnb_cu_up_e2sm_t gnb_cu_up = {0};
   gnb_cu_up.gnb_cu_cp_ue_e1ap = (rand() % 4294967296) + 0;
@@ -346,7 +346,7 @@ static gnb_cu_up_e2sm_t fill_gnb_cu_up_data(void)
   return gnb_cu_up;
 }
 
-static ng_enb_e2sm_t fill_ng_enb_data(void)
+static ng_enb_e2sm_t fill_rnd_ng_enb_data(void)
 {
   ng_enb_e2sm_t ng_enb = {0};
 
@@ -452,7 +452,7 @@ static ng_enb_e2sm_t fill_ng_enb_data(void)
   return ng_enb;
 }
 
-static ng_enb_du_e2sm_t fill_ng_enb_du_data(void)
+static ng_enb_du_e2sm_t fill_rnd_ng_enb_du_data(void)
 {
   ng_enb_du_e2sm_t ng_enb_du = {0};
 
@@ -464,7 +464,7 @@ static ng_enb_du_e2sm_t fill_ng_enb_du_data(void)
   return ng_enb_du;
 }
 
-static en_gnb_e2sm_t fill_en_gnb_data(void)
+static en_gnb_e2sm_t fill_rnd_en_gnb_data(void)
 {
   en_gnb_e2sm_t en_gnb = {0};
 
@@ -536,7 +536,7 @@ static en_gnb_e2sm_t fill_en_gnb_data(void)
   return en_gnb;
 }
 
-static enb_e2sm_t fill_enb_data(void)
+static enb_e2sm_t fill_rnd_enb_data(void)
 {
   enb_e2sm_t enb = {0};
 
@@ -602,7 +602,7 @@ static enb_e2sm_t fill_enb_data(void)
   return enb;
 }
 
-static ue_id_e2sm_t fill_ue_id_data(void)
+static ue_id_e2sm_t fill_rnd_ue_id_data(void)
 {
   ue_id_e2sm_t ue_id_data = {0};
 
@@ -611,31 +611,31 @@ static ue_id_e2sm_t fill_ue_id_data(void)
   switch (ue_id_data.type)
   {
   case GNB_UE_ID_E2SM:
-    ue_id_data.gnb = fill_gnb_data();
+    ue_id_data.gnb = fill_rnd_gnb_data();
     break;
 
   case GNB_DU_UE_ID_E2SM:
-    ue_id_data.gnb_du = fill_gnb_du_data();
+    ue_id_data.gnb_du = fill_rnd_gnb_du_data();
     break;
   
   case GNB_CU_UP_UE_ID_E2SM:
-    ue_id_data.gnb_cu_up = fill_gnb_cu_up_data();
+    ue_id_data.gnb_cu_up = fill_rnd_gnb_cu_up_data();
     break;
 
   case NG_ENB_UE_ID_E2SM:
-    ue_id_data.ng_enb = fill_ng_enb_data();
+    ue_id_data.ng_enb = fill_rnd_ng_enb_data();
     break;
 
   case NG_ENB_DU_UE_ID_E2SM:
-    ue_id_data.ng_enb_du = fill_ng_enb_du_data();
+    ue_id_data.ng_enb_du = fill_rnd_ng_enb_du_data();
     break;
 
   case EN_GNB_UE_ID_E2SM:
-    ue_id_data.en_gnb = fill_en_gnb_data();
+    ue_id_data.en_gnb = fill_rnd_en_gnb_data();
     break;
 
   case ENB_UE_ID_E2SM:
-    ue_id_data.enb = fill_enb_data();
+    ue_id_data.enb = fill_rnd_enb_data();
     break;
   
   default:
@@ -646,22 +646,22 @@ static ue_id_e2sm_t fill_ue_id_data(void)
   return ue_id_data;
 }
 
-static kpm_act_def_format_2_t fill_kpm_action_def_frm_2(void)
+static kpm_act_def_format_2_t fill_rnd_kpm_action_def_frm_2(void)
 {
   kpm_act_def_format_2_t action_def_frm_2 = {0};
 
   // UE ID
-  action_def_frm_2.ue_id = fill_ue_id_data();
+  action_def_frm_2.ue_id = fill_rnd_ue_id_data();
   
 
   // Action Definition Format 1
 
-  action_def_frm_2.action_def_format_1 = fill_kpm_action_def_frm_1();
+  action_def_frm_2.action_def_format_1 = fill_rnd_kpm_action_def_frm_1();
 
   return action_def_frm_2;
 }
 
-static test_info_lst_t fill_kpm_test_info(void)
+static test_info_lst_t fill_rnd_kpm_test_info(void)
 {
   test_info_lst_t test_info = {0};
 
@@ -728,7 +728,7 @@ static test_info_lst_t fill_kpm_test_info(void)
   return test_info;
 }
 
-static kpm_act_def_format_3_t fill_kpm_action_def_frm_3(void)
+static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
 {
   kpm_act_def_format_3_t action_def_frm_3 = {0};
 
@@ -785,7 +785,7 @@ static kpm_act_def_format_3_t fill_kpm_action_def_frm_3(void)
         break;
       
       case TEST_INFO:
-        meas_info->matching_cond_lst[j].test_info_lst = fill_kpm_test_info();
+        meas_info->matching_cond_lst[j].test_info_lst = fill_rnd_kpm_test_info();
         break;
       
       default:
@@ -884,7 +884,7 @@ static kpm_act_def_format_3_t fill_kpm_action_def_frm_3(void)
   return action_def_frm_3;
 }
 
-static kpm_act_def_format_4_t fill_kpm_action_def_frm_4(void)
+static kpm_act_def_format_4_t fill_rnd_kpm_action_def_frm_4(void)
 {
   kpm_act_def_format_4_t action_def_frm_4 = {0};
 
@@ -898,15 +898,15 @@ static kpm_act_def_format_4_t fill_kpm_action_def_frm_4(void)
   {
     action_def_frm_4.matching_cond_lst[i].logical_OR = NULL;
 
-    action_def_frm_4.matching_cond_lst[i].test_info_lst = fill_kpm_test_info();
+    action_def_frm_4.matching_cond_lst[i].test_info_lst = fill_rnd_kpm_test_info();
   }
 
-  action_def_frm_4.action_def_format_1 = fill_kpm_action_def_frm_1();
+  action_def_frm_4.action_def_format_1 = fill_rnd_kpm_action_def_frm_1();
 
   return action_def_frm_4;
 }
 
-static kpm_act_def_format_5_t fill_kpm_action_def_frm_5(void)
+static kpm_act_def_format_5_t fill_rnd_kpm_action_def_frm_5(void)
 {
   kpm_act_def_format_5_t action_def_frm_5 = {0};
 
@@ -918,18 +918,18 @@ static kpm_act_def_format_5_t fill_kpm_action_def_frm_5(void)
 
   for (size_t i = 0; i<action_def_frm_5.ue_id_lst_len; i++)
   {
-    action_def_frm_5.ue_id_lst[i] = fill_ue_id_data();
+    action_def_frm_5.ue_id_lst[i] = fill_rnd_ue_id_data();
   }
 
   
   // Action Definition Format 1
-  action_def_frm_5.action_def_format_1 = fill_kpm_action_def_frm_1();
+  action_def_frm_5.action_def_format_1 = fill_rnd_kpm_action_def_frm_1();
 
 
   return action_def_frm_5;
 }
 
-kpm_act_def_t fill_kpm_action_def(void)
+kpm_act_def_t fill_rnd_kpm_action_def(void)
 {
   kpm_act_def_t action_def = {0};
 
@@ -938,24 +938,24 @@ kpm_act_def_t fill_kpm_action_def(void)
   switch (action_def.type)
   {
   case FORMAT_1_ACTION_DEFINITION:
-    action_def.frm_1 = fill_kpm_action_def_frm_1();
+    action_def.frm_1 = fill_rnd_kpm_action_def_frm_1();
     break;
 
   case FORMAT_2_ACTION_DEFINITION:
-    action_def.frm_2 = fill_kpm_action_def_frm_2();
+    action_def.frm_2 = fill_rnd_kpm_action_def_frm_2();
     break;
 
   case FORMAT_3_ACTION_DEFINITION:
-    action_def.frm_3 = fill_kpm_action_def_frm_3();
+    action_def.frm_3 = fill_rnd_kpm_action_def_frm_3();
     break;
   
   /* Possible extensions: */
   case FORMAT_4_ACTION_DEFINITION:
-    action_def.frm_4 = fill_kpm_action_def_frm_4();
+    action_def.frm_4 = fill_rnd_kpm_action_def_frm_4();
     break;
 
   case FORMAT_5_ACTION_DEFINITION:
-    action_def.frm_5 = fill_kpm_action_def_frm_5();
+    action_def.frm_5 = fill_rnd_kpm_action_def_frm_5();
     break;
 
   default:
@@ -965,7 +965,7 @@ kpm_act_def_t fill_kpm_action_def(void)
   return action_def;
 }
 
-static kpm_ric_ind_hdr_format_1_t fill_kpm_ind_hdr_frm_1(void)
+static kpm_ric_ind_hdr_format_1_t fill_rnd_kpm_ind_hdr_frm_1(void)
 {
   kpm_ric_ind_hdr_format_1_t hdr_frm_1 = {0};
 
@@ -992,7 +992,7 @@ static kpm_ric_ind_hdr_format_1_t fill_kpm_ind_hdr_frm_1(void)
   return hdr_frm_1;
 }
 
-kpm_ind_hdr_t fill_kpm_ind_hdr(void)
+kpm_ind_hdr_t fill_rnd_kpm_ind_hdr(void)
 {
   kpm_ind_hdr_t hdr = {0};
 
@@ -1001,7 +1001,7 @@ kpm_ind_hdr_t fill_kpm_ind_hdr(void)
   switch (hdr.type)
   {
   case FORMAT_1_INDICATION_HEADER:
-    hdr.kpm_ric_ind_hdr_format_1 = fill_kpm_ind_hdr_frm_1();
+    hdr.kpm_ric_ind_hdr_format_1 = fill_rnd_kpm_ind_hdr_frm_1();
     break;
   
   default:
@@ -1012,7 +1012,7 @@ kpm_ind_hdr_t fill_kpm_ind_hdr(void)
   return hdr;
 }
 
-static kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(void)
+static kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(void)
 {
   kpm_ind_msg_format_1_t msg_frm_1 = {0};
   
@@ -1113,7 +1113,7 @@ static kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(void)
   return msg_frm_1;
 }
 
-static kpm_ind_msg_format_2_t fill_kpm_ind_msg_frm_2(void)
+static kpm_ind_msg_format_2_t fill_rnd_kpm_ind_msg_frm_2(void)
 {
   kpm_ind_msg_format_2_t msg_frm_2 = {0};
 
@@ -1215,7 +1215,7 @@ static kpm_ind_msg_format_2_t fill_kpm_ind_msg_frm_2(void)
         break;
       
       case TEST_INFO:
-        cond_ue->matching_cond_lst[j].test_info_lst = fill_kpm_test_info();
+        cond_ue->matching_cond_lst[j].test_info_lst = fill_rnd_kpm_test_info();
         break;
       
       default:
@@ -1236,7 +1236,7 @@ static kpm_ind_msg_format_2_t fill_kpm_ind_msg_frm_2(void)
 
     for (size_t j = 0; j<cond_ue->ue_id_matched_lst_len; j++)
     {
-      cond_ue->ue_id_matched_lst[j] = fill_ue_id_data();
+      cond_ue->ue_id_matched_lst[j] = fill_rnd_ue_id_data();
     }
 
     // Sequence of Matched UE IDs for Granularity Periods
@@ -1265,7 +1265,7 @@ static kpm_ind_msg_format_2_t fill_kpm_ind_msg_frm_2(void)
 
         for (size_t z = 0; z<cond_ue->ue_id_gran_period_lst[j].matched_ue_lst.ue_lst_len; z++)
         {
-          cond_ue->ue_id_gran_period_lst[j].matched_ue_lst.ue_lst[z] = fill_ue_id_data();
+          cond_ue->ue_id_gran_period_lst[j].matched_ue_lst.ue_lst[z] = fill_rnd_ue_id_data();
         }
         break;
       }
@@ -1281,7 +1281,7 @@ static kpm_ind_msg_format_2_t fill_kpm_ind_msg_frm_2(void)
 }
 
 static 
-kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3(void)
+kpm_ind_msg_format_3_t fill_rnd_kpm_ind_msg_frm_3(void)
 {
   kpm_ind_msg_format_3_t msg_frm_3 = {0};
 
@@ -1292,8 +1292,8 @@ kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3(void)
 
   for (size_t i = 0; i<msg_frm_3.ue_meas_report_lst_len; i++)
   {
-    msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst = fill_ue_id_data();
-    msg_frm_3.meas_report_per_ue[i].ind_msg_format_1 = fill_kpm_ind_msg_frm_1();
+    msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst = fill_rnd_ue_id_data();
+    msg_frm_3.meas_report_per_ue[i].ind_msg_format_1 = fill_rnd_kpm_ind_msg_frm_1();
   }
 
   return msg_frm_3;
@@ -1301,7 +1301,7 @@ kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3(void)
 
 
 
-kpm_ind_msg_t fill_kpm_ind_msg(void)
+kpm_ind_msg_t fill_rnd_kpm_ind_msg(void)
 {
   kpm_ind_msg_t msg = {0};
 
@@ -1310,16 +1310,16 @@ kpm_ind_msg_t fill_kpm_ind_msg(void)
   switch (msg.type)
   {
   case FORMAT_1_INDICATION_MESSAGE:
-    msg.frm_1 = fill_kpm_ind_msg_frm_1();
+    msg.frm_1 = fill_rnd_kpm_ind_msg_frm_1();
     break;
 
   case FORMAT_2_INDICATION_MESSAGE:
-    msg.frm_2 = fill_kpm_ind_msg_frm_2();
+    msg.frm_2 = fill_rnd_kpm_ind_msg_frm_2();
     break;
 
   /* Possible extensions: */
   case FORMAT_3_INDICATION_MESSAGE:
-    msg.frm_3 = fill_kpm_ind_msg_frm_3();
+    msg.frm_3 = fill_rnd_kpm_ind_msg_frm_3();
     break;
   
   default:
@@ -1328,7 +1328,7 @@ kpm_ind_msg_t fill_kpm_ind_msg(void)
   return msg;
 }
 
-kpm_ran_function_def_t fill_kpm_ran_func_def(void)
+kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void)
 {
   kpm_ran_function_def_t ran_function = {0};
 

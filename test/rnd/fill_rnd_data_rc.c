@@ -1008,7 +1008,7 @@ e2sm_rc_ind_hdr_frmt_1_t fill_rnd_rc_ind_hdr_frmt_1(void)
 }
 
 static
-gnb_e2sm_t fill_gnb_data(void)
+gnb_e2sm_t fill_rnd_gnb_data(void)
 {
   gnb_e2sm_t gnb = {0};
 
@@ -1114,7 +1114,7 @@ gnb_e2sm_t fill_gnb_data(void)
 }
 
 static
-gnb_du_e2sm_t fill_gnb_du_data(void)
+gnb_du_e2sm_t fill_rnd_gnb_du_data(void)
 {
   gnb_du_e2sm_t gnb_du = {0};
   gnb_du.gnb_cu_ue_f1ap = (rand() % 4294967296) + 0;
@@ -1126,7 +1126,7 @@ gnb_du_e2sm_t fill_gnb_du_data(void)
 }
 
 static
-gnb_cu_up_e2sm_t fill_gnb_cu_up_data(void)
+gnb_cu_up_e2sm_t fill_rnd_gnb_cu_up_data(void)
 {
   gnb_cu_up_e2sm_t gnb_cu_up = {0};
   gnb_cu_up.gnb_cu_cp_ue_e1ap = (rand() % 4294967296) + 0;
@@ -1137,7 +1137,7 @@ gnb_cu_up_e2sm_t fill_gnb_cu_up_data(void)
   return gnb_cu_up;
 }
 
-ng_enb_e2sm_t fill_ng_enb_data(void)
+ng_enb_e2sm_t fill_rnd_ng_enb_data(void)
 {
   ng_enb_e2sm_t ng_enb = {0};
 
@@ -1244,7 +1244,7 @@ ng_enb_e2sm_t fill_ng_enb_data(void)
   return ng_enb;
 }
 
-ng_enb_du_e2sm_t fill_ng_enb_du_data(void)
+ng_enb_du_e2sm_t fill_rnd_ng_enb_du_data(void)
 {
   ng_enb_du_e2sm_t ng_enb_du = {0};
 
@@ -1256,7 +1256,7 @@ ng_enb_du_e2sm_t fill_ng_enb_du_data(void)
   return ng_enb_du;
 }
 
-en_gnb_e2sm_t fill_en_gnb_data(void)
+en_gnb_e2sm_t fill_rnd_en_gnb_data(void)
 {
   en_gnb_e2sm_t en_gnb = {0};
 
@@ -1328,7 +1328,7 @@ en_gnb_e2sm_t fill_en_gnb_data(void)
   return en_gnb;
 }
 
-enb_e2sm_t fill_enb_data(void)
+enb_e2sm_t fill_rnd_enb_data(void)
 {
   enb_e2sm_t enb = {0};
 
@@ -1404,31 +1404,31 @@ ue_id_e2sm_t fill_rnd_ue_id(void)
   switch (ue_id_data.type)
   {
   case GNB_UE_ID_E2SM:
-    ue_id_data.gnb = fill_gnb_data();
+    ue_id_data.gnb = fill_rnd_gnb_data();
     break;
 
   case GNB_DU_UE_ID_E2SM:
-    ue_id_data.gnb_du = fill_gnb_du_data();
+    ue_id_data.gnb_du = fill_rnd_gnb_du_data();
     break;
   
   case GNB_CU_UP_UE_ID_E2SM:
-    ue_id_data.gnb_cu_up = fill_gnb_cu_up_data();
+    ue_id_data.gnb_cu_up = fill_rnd_gnb_cu_up_data();
     break;
 
   case NG_ENB_UE_ID_E2SM:
-    ue_id_data.ng_enb = fill_ng_enb_data();
+    ue_id_data.ng_enb = fill_rnd_ng_enb_data();
     break;
 
   case NG_ENB_DU_UE_ID_E2SM:
-    ue_id_data.ng_enb_du = fill_ng_enb_du_data();
+    ue_id_data.ng_enb_du = fill_rnd_ng_enb_du_data();
     break;
 
   case EN_GNB_UE_ID_E2SM:
-    ue_id_data.en_gnb = fill_en_gnb_data();
+    ue_id_data.en_gnb = fill_rnd_en_gnb_data();
     break;
 
   case ENB_UE_ID_E2SM:
-    ue_id_data.enb = fill_enb_data();
+    ue_id_data.enb = fill_rnd_enb_data();
     break;
   
   default:

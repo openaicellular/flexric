@@ -51,7 +51,7 @@ void read_e2_setup_kpm(void* data)
 {
   assert(data != NULL);
   kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)data;
-  kpm->ran_func_def = fill_kpm_ran_func_def();
+  kpm->ran_func_def = fill_rnd_kpm_ran_func_def();
 }
 
 static
@@ -124,8 +124,8 @@ void read_ind_kpm(void* ind)
 {
   assert(ind != NULL);
   kpm_ind_data_t* kpm = (kpm_ind_data_t*)ind;
-  kpm->hdr = fill_kpm_ind_hdr();
-  kpm->msg = fill_kpm_ind_msg();
+  kpm->hdr = fill_rnd_kpm_ind_hdr();
+  kpm->msg = fill_rnd_kpm_ind_msg();
 }
 
 static
@@ -224,7 +224,7 @@ void read_e2_setup_agent(sm_ag_if_rd_e2setup_t* e2ap)
   assert(e2ap != NULL);
   assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
   if(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 ){
-    e2ap->kpm.ran_func_def = fill_kpm_ran_func_def();
+    e2ap->kpm.ran_func_def = fill_rnd_kpm_ran_func_def();
   } else if(e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0 ){
     e2ap->rc.ran_func_def = fill_rc_ran_func_def();
   } else {
@@ -263,9 +263,9 @@ void read_RAN(sm_ag_if_rd_t* ag_if)
   } else if(data->type == GTP_STATS_V0){
     fill_gtp_ind_data(&data->gtp);
   } else if(data->type == KPM_STATS_V3_0){
-    assert(data->kpm.act_def != NULL && "Which action should be sent to KPM?");
-    data->kpm.ind.hdr = fill_kpm_ind_hdr();
-    data->kpm.ind.msg = fill_kpm_ind_msg();
+    assert(data->kpm.act_def != NULL && "Which action should be sent to KPM?"); 
+    data->kpm.ind.hdr = fill_rnd_kpm_ind_hdr();
+    data->kpm.ind.msg = fill_rnd_kpm_ind_msg();
   } else {
     assert("Invalid data type");
   }
@@ -622,11 +622,11 @@ int main(int argc, char *argv[])
 
   // KPM
   kpm_sub_data_t kpm_sub = {0};
-  kpm_sub.ev_trg_def = fill_kpm_event_trigger_def();
+  kpm_sub.ev_trg_def = fill_rnd_kpm_event_trigger_def();
   kpm_sub.sz_ad = 1;
   kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
   assert(kpm_sub.ad != NULL && "Memory exhausted");
-  kpm_sub.ad[0] = fill_kpm_action_def();
+  kpm_sub.ad[0] = fill_rnd_kpm_action_def();
   defer({ free_kpm_sub_data(&kpm_sub); });
 
   sm_ans_xapp_t h_4 = report_sm_xapp_api(&nodes.n[0].id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
