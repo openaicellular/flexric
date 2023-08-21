@@ -24,9 +24,9 @@
 
 #ifdef E2AP_V1
 #include "v1_01/e2ap_types/common/e2ap_global_node_id.h"
-#elif E2AP_V2
+#elif defined E2AP_V2
 #include "v2_03/e2ap_types/common/e2ap_global_node_id.h"
-#elif E2AP_V3
+#elif defined E2AP_V3
 #include "v3_01/e2ap_types/common/e2ap_global_node_id.h"
 #else
 static_assert(0!=0, "Unknown E2AP Version");

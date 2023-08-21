@@ -126,11 +126,11 @@ namespace std {
   %include "../../lib/e2ap/v1_01/e2ap_types/common/e2ap_global_node_id.h"
   %include "../../lib/e2ap/v1_01/e2ap_types/common/e2ap_plmn.h"
   %include "../../lib/e2ap/v1_01/e2ap_types/common/e2ap_ran_function.h"
-#elif E2AP_V2
+#elif defined E2AP_V2
   %include "../../lib/e2ap/v2_03/e2ap_types/common/e2ap_global_node_id.h"
   %include "../../lib/e2ap/v2_03/e2ap_types/common/e2ap_plmn.h"
   %include "../../lib/e2ap/v2_03/e2ap_types/common/e2ap_ran_function.h"
-#elif E2AP_V3
+#elif defined E2AP_V3
   %include "../../lib/e2ap/v3_01/e2ap_types/common/e2ap_global_node_id.h"
   %include "../../lib/e2ap/v3_01/e2ap_types/common/e2ap_plmn.h"
   %include "../../lib/e2ap/v3_01/e2ap_types/common/e2ap_ran_function.h"
