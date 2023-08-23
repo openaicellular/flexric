@@ -1,8 +1,11 @@
 import xapp_sdk as ric
 
-import time, copy
-from helpers import SubscriptionHelper, ts_grouping, promscale_jsonize
+import time
 from configs import CONFIGS
+from helpers import sm_configs_to_e2_statuses, \
+                    sm_configs_to_e2_intervals, \
+                    sm_configs_to_sm_filters, \
+                    CallbackHelper, ts_grouping, promscale_jsonize
 
 import polars as pl
 import json, snappy, requests, traceback, queue
@@ -18,192 +21,224 @@ from multiprocessing import set_start_method, Manager, Process
 ##############
 # SUBSCRIBER #
 ##############
-class MACCallback(ric.mac_cb, SubscriptionHelper):
+class MACCallback(ric.mac_cb, CallbackHelper):
     # Define Python class 'constructor'
-    def __init__(self, e2_id, target_metrics, test_checkpoint):
+    def __init__(self, sm_name, e2_metrics, report_checkpoint=0):
         # Call C++ base class constructor
         ric.mac_cb.__init__(self)
 
         # Call SubscriptionHelper's constructor
-        SubscriptionHelper.__init__(self, e2_id, target_metrics, test_checkpoint)
+        CallbackHelper.__init__(self, sm_name, e2_metrics, report_checkpoint)
 
     # Override C++ method: virtual void handle(swig_mac_ind_msg_t a) = 0;
     def handle(self, ind):
         if len(ind.ue_stats) > 0:
             ricmont_ms = time.time_ns()//1_000_000
-            tstamp_ms = ind.tstamp // 1000
+            tstamp_ms = ind.tstamp//1000
 
             try:
-                # Process and enqueue messages
+                # E2-based filtering of messages, plus enqueuing
+                e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc, 
+                         ind.id.nb_id, ind.id.cu_du_id)
+                e2_filters = self.filters[e2_id]
+
                 global msg_queue
                 for ue_stat in ind.ue_stats:
-                    for metric in self.target_metrics:
+                    for metric in e2_filters:
                         msg_queue.put_nowait({
-                            '__name__': metric, 'rnti': f"{ue_stat.rnti}",
-                            'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}",
-                            'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}",
-                            'timestamp': tstamp_ms, 'value': getattr(ue_stat, metric),
-                            'ricmonstamp': ricmont_ms
+                            '__name__': metric,
+                            'value': getattr(ue_stat, metric),
+                            'timestamp': tstamp_ms,
+                            'frame': f"{ue_stat.frame}",
+                            'slot': f"{ue_stat.slot}",
+                            'rnti': f"{ue_stat.rnti}",
+                            'ricmonstamp': ricmont_ms,
+                            'mcc': f"{e2_id[0]}",
+                            'mnc': f"{e2_id[1]}",
+                            'nb_id': f"{e2_id[2]}",
+                            'cu_du_id': f"{e2_id[3]}"
                         })
 
                 # Report the latencies
-                if self.test_checkpoint > 0:
-                    self.report_latency('MAC', tstamp_ms, ricmont_ms)
+                if self.report_checkpoint > 0:
+                    self.report_maxlatency(tstamp_ms, ricmont_ms)
             except Exception as e:
                 print("[MAC-callback] Exception caught:", e)
                 return
 
-class PDCPCallback(ric.pdcp_cb, SubscriptionHelper):
+class PDCPCallback(ric.pdcp_cb, CallbackHelper):
     # Define Python class 'constructor'
-    def __init__(self, e2_id, target_metrics, test_checkpoint):
+    def __init__(self, sm_name, e2_metrics, report_checkpoint=0):
         # Call C++ base class constructor
         ric.pdcp_cb.__init__(self)
 
         # Call SubscriptionHelper's constructor
-        SubscriptionHelper.__init__(self, e2_id, target_metrics, test_checkpoint)
+        CallbackHelper.__init__(self, sm_name, e2_metrics, report_checkpoint)
 
     # Override C++ method: virtual void handle(swig_pdcp_ind_msg_t a) = 0;
     def handle(self, ind):
         if len(ind.rb_stats) > 0:
             ricmont_ms = time.time_ns()//1_000_000
-            tstamp_ms = ind.tstamp // 1000
+            tstamp_ms = ind.tstamp//1000
 
             try:
-                # Process and enqueue messages
+                # E2-based filtering of messages, plus enqueuing
+                e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc, 
+                         ind.id.nb_id, ind.id.cu_du_id)
+                e2_filters = self.filters[e2_id]
+
                 global msg_queue
                 for rb_stat in ind.rb_stats:
-                    for metric in self.target_metrics:
+                    for metric in e2_filters:
                         msg_queue.put_nowait({
-                            '__name__': f"pdcp_{metric}", 'rnti': f"{rb_stat.rnti}",
-                            'nb_id': f"{self.nb_id}", 'cu_du_id': f"{self.cu_du_id}",
-                            'mcc': f"{self.mcc}", 'mnc': f"{self.mnc}",
-                            'timestamp': tstamp_ms, 'value': getattr(rb_stat, metric),
-                            'ricmonstamp': ricmont_ms
+                            '__name__': f"pdcp_{metric}",
+                            'value': getattr(rb_stat, metric),
+                            'timestamp': tstamp_ms,
+                            'rnti': f"{rb_stat.rnti}",
+                            'ricmonstamp': ricmont_ms,
+                            'mcc': f"{e2_id[0]}",
+                            'mnc': f"{e2_id[1]}",
+                            'nb_id': f"{e2_id[2]}",
+                            'cu_du_id': f"{e2_id[3]}"
                         })
 
                 # Report the latencies
-                if self.test_checkpoint > 0:
-                    self.report_latency('PDCP', tstamp_ms, ricmont_ms)
+                if self.report_checkpoint > 0:
+                    self.report_maxlatency(tstamp_ms, ricmont_ms)
             except Exception as e:
                 print("[PDCP-callback] Exception caught:", e)
                 return
 
-def subscriber(e2_nodes_configs, test_checkpoint=0):
-    # For reporting cycle times during testing
-    lastcycle_ms, maxcycle_ms = 0, 0
-    test_counter = 0
+def subscriber(sm_configs, report_checkpoint):
+    # From sm_configs to E2-Nodes' status book
+    # {(e2_id): {'is_on': T/F, '<SM>': HandlerObject}}
+    e2_statuses = sm_configs_to_e2_statuses(sm_configs)
 
-    # Bookeeping the status of each E2-Node
-    e2_nodes_book = copy.deepcopy(e2_nodes_configs)
-    for _, configs in e2_nodes_book.items():
-        configs['is_on'] = False
-        for _, sm_configs in configs.items():
-            if isinstance(sm_configs, dict):
-                sm_configs['callback'] = None
-                sm_configs['handler'] = None
+    # From sm_configs to E2-based per-SM intervals
+    # {(e2_id): {'<SM>': 'interval'}}
+    e2_intervals = sm_configs_to_e2_intervals(sm_configs)
 
+    # From sm_configs to SM-based programmable filters (for all E2-Nodes)
+    # {'<SM>': {(e2_id): ['<metric_i>']}}
+    sm_filters = sm_configs_to_sm_filters(sm_configs)
+
+    # Create shared callbacks between different E2-Nodes
+    shared_mac_cb = MACCallback('MAC', sm_filters['MAC'], 
+                                report_checkpoint)
+    shared_pdcp_cb = PDCPCallback('PDCP', sm_filters['PDCP'], 
+                                  report_checkpoint)
+
+    # Now, let us handle multiple E2-Node subscriptions
     ric.init()
     global is_running
     while True:
+        # First: Extract the list of "ON" conns_ids
         conns = ric.conn_e2_nodes()
         conns_ids = {
-            (conn.id.plmn.mcc, conn.id.plmn.mnc, conn.id.nb_id, conn.id.cu_du_id): conn.id
+            (conn.id.plmn.mcc,
+             conn.id.plmn.mnc,
+             conn.id.nb_id,
+             conn.id.cu_du_id): conn.id
             for conn in conns
         }
 
-        # [REMARK] ignore E2-Node that is NOT in the book!
-        for e2_id, e2_sub in e2_nodes_book.items():
-            # Case-1: E2-Node is marked as "on" but has been DOWN
-            if e2_sub['is_on'] and (not e2_id in conns_ids):
-                e2_sub['is_on'] = False
-                for _, sm_configs in e2_sub.items():
-                    if isinstance(sm_configs, dict):
-                        # Cannot unsubscribe from a dead E2-Node
-                        # => drop the handler instead
-                        # => TODO: fix this at FlexRIC
-                        sm_configs['handler'] = None
-                print(f"[RICMon] Drop handlers of E2-Node: {e2_id}!")
+        # Second: Drop handlers or re-subscribe to each known E2-Nodes
+        # I.e., ignore E2-Nodes that are not in e2_statuses
+        for e2_id, status in e2_statuses.items():
+            # Case-1: E2-Node is marked as "ON" but is now "OFF"
+            if status['is_on'] and (not e2_id in conns_ids):
+                status['is_on'] = False
+                for status_type in list(status.keys()):
+                    if status_type != 'is_on':
+                        # TODO: Fix unsubscribe a dead E2-Node at FlexRIC
+                        status[status_type] = None
+                print(f"[RICMon] Dropped handlers of E2-Node: {e2_id}!")
 
-            # Case-2: E2-Node is marked as "off" but is now UP
-            if (not e2_sub['is_on']) and (e2_id in conns_ids):
-                e2_sub['is_on'] = True
-                for sm, sm_configs in e2_sub.items():
-                    if isinstance(sm_configs, dict):
-                        if sm_configs['callback'] is None:
-                            sm_configs['callback'] = globals()[f"{sm}Callback"](
-                                                e2_id, target_metrics=sm_configs['metrics'],
-                                                test_checkpoint=test_checkpoint
-                                            )
-                        sm_configs['handler'] = getattr(ric, f"report_{sm.lower()}_sm")(
-                                            conns_ids[e2_id], 
-                                            getattr(ric, sm_configs['interval']),
-                                            sm_configs['callback']
-                                        )
+            # Case-2: E2-Node is marked as "OFF" but is now "ON"
+            if (not status['is_on']) and (e2_id in conns_ids):
+                status['is_on'] = True
+                for status_type in list(status.keys()):
+                    if status_type != 'is_on':
+                        # TODO: Check if messages within the same SM,
+                        # can arrive at different intervals, or not?
+                        status[status_type] = getattr(
+                            ric, f"report_{status_type.lower()}_sm"
+                        )(
+                            conns_ids[e2_id],
+                            getattr(ric, e2_intervals[e2_id][status_type]),
+                            locals()[f"shared_{status_type.lower()}_cb"]
+                        )
                 print(f"[RICMon] Subscribed to E2-Node: {e2_id}!")
 
-        # Report the cycle times
-        if test_checkpoint > 0:
-            if test_counter != 0:
-                maxcycle_ms = max(maxcycle_ms, time.time_ns()//1_000_000 - lastcycle_ms)
-            lastcycle_ms = time.time_ns()//1_000_000
-
-            if test_counter < test_checkpoint*100:
-                test_counter += 1
-            else:
-                print(f"[RICMon] conn_e2_nodes(): {list(conns_ids.keys())};")
-                print(f"\tmax-cycled every: {maxcycle_ms} (ms).")
-                test_counter = 0
-                maxcycle_ms = 0
-
+        # Thirdly: Check if Ctrl+C has been pressed => breaking the loop
         try:
             if not is_running.value:
                 break
         except EOFError:
             break
 
-    # When exiting, unsubscribe all existing handlers
+    # When exiting, unsubscribe handlers (if existed)
     print('[Ctrl+C] Unsubscribing...')
-    for _, e2_sub in e2_nodes_book.items():
-        e2_sub['is_on'] = False
-        for sm, sm_configs in e2_sub.items():
-            if isinstance(sm_configs, dict):
-                sm_configs['callback'] = None
-                if sm_configs['handler']:
-                    getattr(ric, f"rm_report_{sm.lower()}_sm")(sm_configs['handler'])
-                    sm_configs['handler'] = None
+    for _, status in e2_statuses.items():
+        status['is_on'] = False
+        for status_type in list(status.keys()):
+            if status_type != 'is_on':
+                if status[status_type]:
+                    getattr(
+                        ric, f"rm_report_{status_type.lower()}_sm"
+                    )(status[status_type])
+                    status[status_type] = None
 
     # Stopping the SDK...
     print('[Ctrl+C] Stopping the SDK...')
     while ric.try_stop == 0:
         time.sleep(0.01)
 
+    # Stopping the StatsWriter
+    print('[Ctrl+C] Stopping the StatsWriter...')
+    global stats_writer_proc, manager
+    stats_writer_proc.join()
+    manager.shutdown()
 
-##########
-# WRITER #
-##########
-def publish(idx, msg_queue, session, min_batch_size=16,
-            promscale_url='http://localhost:9201/write', labels_key='labels', is_test=False):
+
+################
+# STATS WRITER #
+################
+def write(idx, is_running, msg_queue, session, promscale_url,
+          min_batch_size=16, labels_key='labels'):
     # For reporting Througput & HOL-sojourn when exiting
     pushes_count, total_samples, total_sojourn = 0, 0, 0
 
     # Set the DataFrame schema & pick labels for GROUP BY
-    msg_dtype = [('__name__', pl.Utf8), ('rnti', pl.Utf8), ('nb_id', pl.Utf8), 
-                 ('cu_du_id', pl.Utf8), ('mcc', pl.Utf8), ('mnc', pl.Utf8), 
-                 ('timestamp', pl.UInt64), ('value', pl.Float32), ('ricmonstamp', pl.UInt64)]
+    msg_dtype = [('__name__', pl.Utf8), ('rnti', pl.Utf8), 
+                 ('nb_id', pl.Utf8), ('cu_du_id', pl.Utf8), 
+                 ('mcc', pl.Utf8), ('mnc', pl.Utf8),
+                 ('timestamp', pl.UInt64), ('value', pl.Float32), 
+                 ('ricmonstamp', pl.UInt64)]
     labels_list = ['__name__', 'rnti', 'nb_id', 'cu_du_id', 'mcc', 'mnc']
 
-    global is_running
     msgs_df = pl.DataFrame({}, schema=msg_dtype)
-    while is_running:
+    while True:
         try:
             cur_size = msg_queue.qsize()
             msgs = [msg_queue.get(timeout=1) for _ in range(cur_size)]
-            msgs_df.vstack(pl.DataFrame(msgs, schema=msg_dtype), in_place=True)
+
+            # TODO: put your stateful pre-processor here:
+            # STATE = {'key': [values]} is stored across function calls
+            # - initializing STATE inside stats_writer(), 
+            # - and pass STATE into write().
+
+            msgs_df.vstack(pl.DataFrame(msgs, schema=msg_dtype), 
+                           in_place=True)
         except queue.Empty:
-            print(f"[PUSHER-{idx}] Timeout while dequeuing; Ctrl+C?")
-            break
+            print(f"[PUSHER-{idx}] Timeout while dequeuing!")
         except Exception as e:
             print(f"[PUSHER-{idx}] Exception caught:", e)
+
+        try:
+            if not is_running.value:
+                break
+        except EOFError:
             break
 
         if msgs_df.height >= min_batch_size:
@@ -218,11 +253,12 @@ def publish(idx, msg_queue, session, min_batch_size=16,
 
             # POST to a Promscale (exception-prone)
             try:
-                response = session.post(promscale_url, data=snappy_payload, timeout=1)
+                response = session.post(promscale_url, 
+                                        data=snappy_payload, timeout=1)
                 if response.status_code != 200:
-                    print(f"\n\t[PUSHER-{idx}] ERROR returned by Promscale!!!\n")
+                    print(f"\n\t[PUSHER-{idx}] Prosmcale ERROR returned!\n")
             except requests.exceptions.Timeout:
-                print(f"\n\t[PUSHER-{idx}] Pushing to Promscale takes too long!!!\n")
+                print(f"\n\t[PUSHER-{idx}] Pushing to Promscale timeout!\n")
             except Exception:
                 traceback.print_exc()
             finally:
@@ -232,39 +268,38 @@ def publish(idx, msg_queue, session, min_batch_size=16,
             endt_ms = time.time_ns()//1_000_000
             ricmont_ms = msgs_df['ricmonstamp'][0]
             total_sojourn += (endt_ms-ricmont_ms)
-
             pushes_count += 1
             total_samples += msgs_df.height
-            if is_test:
-                print(f"[PUSHER-{idx}] HOL-sojourn of {msgs_df.height} messages: \
-                      {endt_ms-ricmont_ms} (ms).")
 
+            # Reset the DataFrame
             msgs_df = pl.DataFrame({}, schema=msg_dtype)
 
     print(f"[PUSHER-{idx}] {total_samples} records \
           with AVG(HOL-sojourn) = {total_sojourn//pushes_count} (ms).")
 
-def stats_writer(msg_queue, promscale_url, is_db, is_test, num_threads=2):
-    # Session (connection pool) sharing between threads
+def stats_writer(is_running, msg_queue, promscale_url, is_db, num_threads=2):
+    # Session (connection pool) shared between threads
     session = requests.Session()
-    session.mount('http://', requests.adapters.HTTPAdapter(max_retries=0, pool_block=True,
-                  pool_connections=1, pool_maxsize=num_threads*2))
-    session.headers.update({'Content-Type': 'application/json', 'Content-Encoding': 'snappy'})
+    session.mount('http://', requests.adapters.HTTPAdapter(
+        max_retries=0, pool_block=True,
+        pool_connections=1, pool_maxsize=num_threads*2)
+    )
+    session.headers.update({'Content-Type': 'application/json', 
+                            'Content-Encoding': 'snappy'})
 
-    # Handling Ctrl+C in the "spawned" Writer process
+    # [Trick] A do-nothing sig-handler for the "spawned" StatsWriter process
     def writer_sighandler(signal, frame):
-        global is_running
-        is_running = False
+        pass
     signal.signal(signal.SIGINT, writer_sighandler)
 
-    global is_running
-    is_running = True
+    # ThreadPool-based writing to PromScale
     labels_key = 'labels' if is_db else 'tests'
     with ThreadPoolExecutor(num_threads) as executor:
         for idx in range(num_threads):
-            executor.submit(publish, idx, msg_queue, session, promscale_url=promscale_url,
-                            labels_key=labels_key, is_test=is_test)
+            executor.submit(write, idx, is_running, msg_queue,
+                            session, promscale_url, labels_key=labels_key)
 
+    # When exit, draining the queues
     try:
         print("[Ctrl+C] Clearing the shared queues...")
         while not msg_queue.empty():
@@ -285,19 +320,15 @@ def subscriber_sighandler(signal, frame):
 if __name__ == '__main__':
     set_start_method('spawn')
 
-    global is_running, msg_queue
+    global manager, is_running, msg_queue, stats_writer_proc
     manager = Manager()
     is_running = manager.Value(bool, True)
     msg_queue = manager.Queue()
+    stats_writer_proc = Process(target=stats_writer,
+                                args=(is_running, msg_queue,
+                                      CONFIGS['promscale_url'],
+                                      CONFIGS['database_mode']))
 
     signal.signal(signal.SIGINT, subscriber_sighandler)
-    stats_writer_proc = Process(target=stats_writer,args=(msg_queue,
-                                                          CONFIGS['promscale_url'],
-                                                          CONFIGS['database_mode'],
-                                                          CONFIGS['stats_writer_report']))
-
     stats_writer_proc.start()
-    subscriber(CONFIGS['e2_nodes_configs'],
-               test_checkpoint=CONFIGS['subscriber_report_cycles'])
-
-    stats_writer_proc.join()
+    subscriber(CONFIGS['sm_configs'], CONFIGS['callback_report_checkpoint'])

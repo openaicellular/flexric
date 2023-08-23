@@ -87,12 +87,21 @@
     $result = PyInt_FromLong((long) $1);
 }
 
-/* patch 'cu_du_id' as an uint64_t pointer*/
+/* fix 'cu_du_id' as an uint64_t pointer (in C) */
 %typemap(out) uint64_t * {
     if ($1 == NULL) {
-        $result = PyInt_FromLong((long) 0);
+        $result = PyLong_FromLong((long) 0);
     } else {
-        $result = PyInt_FromLong((long) *$1);
+        $result = PyLong_FromUnsignedLong(*$1);
+    }
+}
+
+/* fix 'cu_du_id' as a <long unsigned int>-vector pointer (in C++) */
+%typemap(out) std::vector<long unsigned int> * {
+    if ($1 == NULL || $1->size() == 0) {
+        $result = PyLong_FromLong((long) 0);
+    } else {
+        $result = PyLong_FromUnsignedLong((*$1)[0]);
     }
 }
 
