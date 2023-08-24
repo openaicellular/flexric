@@ -19,7 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
 #include "sm_proc_data.h"
 
 #include <assert.h>
@@ -38,7 +37,6 @@ void free_sm_subs_data(sm_subs_data_t* data)
     assert(data->len_et != 0);
     free(data->event_trigger);
   }
-
 }
 
 void free_sm_ind_data(sm_ind_data_t* data)
@@ -59,7 +57,6 @@ void free_sm_ind_data(sm_ind_data_t* data)
     assert(data->len_cpid != 0);
     free(data->call_process_id);
   }
-
 }
 
 void free_sm_ctrl_req_data(sm_ctrl_req_data_t* data)
@@ -95,7 +92,6 @@ void free_sm_e2_setup(sm_e2_setup_data_t* data)
     assert(data->len_rfd != 0);
     free(data->ran_fun_def);
   }
-
   //free_ran_function(&data->rf);
 } 
 
@@ -109,4 +105,43 @@ void free_sm_ric_service_update(sm_ric_service_update_data_t* data)
   }
 
 }
+
+#ifdef E2AP_V3
+
+void free_sm_ric_query_data(sm_ric_query_data_t* data)
+{
+  assert(data != NULL);
+
+  if(data->query_hdr != NULL){
+    assert(data->len_hdr != 0);
+    free(data->query_hdr);
+  }
+
+  if(data->query_msg != NULL){
+    assert(data->len_msg != 0);
+    free(data->query_msg);
+  }
+}
+
+void free_sm_ric_query_out_data(sm_ric_query_out_data_t* data)
+{
+  assert(data != NULL);
+
+  if(data->query_out != NULL){
+    assert(data->len_out != NULL);
+    free(data->query_out);
+  }
+}
+
+void free_sm_sub_mod_data(sm_sub_mod_data_t* data)
+{
+  assert(data != NULL);
+  
+  if(data->mod != NULL){
+    assert(data->len != 0);
+    free(data->mod);
+  }
+}
+
+#endif // E2AP_V3
 

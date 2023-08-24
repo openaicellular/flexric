@@ -77,6 +77,12 @@ typedef struct e2_agent_s
   // Aperiodic Indication events
   tsq_t aind; // aind_event_t Events that occurred 
 
+#if defined(E2AP_V2) || defined (E2AP_V3)
+  // Read RAN 
+  void (*read_setup_ran)(void* data);
+  _Atomic uint32_t trans_id_setup_req;
+#endif
+
   atomic_bool stop_token;
   atomic_bool agent_stopped;
 } e2_agent_t;

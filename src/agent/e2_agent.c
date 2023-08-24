@@ -426,6 +426,14 @@ e2_agent_t* e2_init_agent(const char* addr, int port, global_e2_node_id_t ge2nid
 
   init_tsq(&ag->aind, sizeof(aind_event_t));
 
+#if defined(E2AP_V2) || defined (E2AP_V3)
+  // Read RAN 
+  assert(io.read_setup_ran != NULL);
+  ag->read_setup_ran = io.read_setup_ran;
+
+  ag->trans_id_setup_req = 0;
+#endif
+
   ag->global_e2_node_id = ge2nid;
   ag->stop_token = false;
   ag->agent_stopped = false;
@@ -445,8 +453,6 @@ void e2_start_agent(e2_agent_t* ag)
   byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr); 
   defer({free_byte_array(ba); } ); 
 
-  e2ap_send_bytes_agent(&ag->ep, ba);
-
   // A pending event is created along with a timer of 3000 ms,
   // after which an event will be generated
   pending_event_t ev = SETUP_REQUEST_PENDING_EVENT;
@@ -455,6 +461,9 @@ void e2_start_agent(e2_agent_t* ag)
   //printf("fd_timer with value created == %d\n", fd_timer);
 
   bi_map_insert(&ag->pending, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev)); 
+
+  // Send the message
+  e2ap_send_bytes_agent(&ag->ep, ba);
 
   e2_event_loop_agent(ag);
 }

@@ -19,20 +19,20 @@
  *      contact@openairinterface.org
  */
 
-#ifndef E2AP_NODE_COMP_INTERFACE_TYPE_MIR_H
-#define E2AP_NODE_COMP_INTERFACE_TYPE_MIR_H
+#ifndef E2AP_NODE_COMPONENT_CONFIG_ADD_WRAPPER_H
+#define E2AP_NODE_COMPONENT_CONFIG_ADD_WRAPPER_H
 
-// 9.2.26
-typedef enum{
-  NG_E2AP_NODE_COMP_INTERFACE_TYPE = 0, 
-  XN_E2AP_NODE_COMP_INTERFACE_TYPE = 1, 
-  E1_E2AP_NODE_COMP_INTERFACE_TYPE = 2,
-  F1_E2AP_NODE_COMP_INTERFACE_TYPE = 3, 
-  W1_E2AP_NODE_COMP_INTERFACE_TYPE = 4, 
-  S1_E2AP_NODE_COMP_INTERFACE_TYPE = 5, 
-  X2_E2AP_NODE_COMP_INTERFACE_TYPE = 6,
+#ifdef E2AP_V1
 
-  END_E2AP_NODE_COMP_INTERFACE_TYPE
-} e2ap_node_comp_interface_type_e;
+#elif E2AP_V2 
+#include "v2_03/e2ap_types/common/e2ap_node_component_config_add.h"
+#elif E2AP_V3 
+#include "v3_01/e2ap_types/common/e2ap_node_component_config_add.h"
+#else
+static_assert(0!=0, "Unknown E2AP version");
+#endif
+
+
+
 
 #endif

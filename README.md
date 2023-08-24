@@ -37,9 +37,10 @@ Below is the list of features available in this version divided per component an
   ```bash
   git clone https://github.com/swig/swig.git
   cd swig
+  git checkout release-4.1
   ./autogen.sh
   ./configure --prefix=/usr/
-  make
+  make -j8
   make install
   ```
 

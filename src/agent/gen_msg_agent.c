@@ -77,9 +77,8 @@ e2_setup_request_t gen_setup_request_v2(e2_agent_t* ag)
   assert(ran_func != NULL);
 
   // ToDO: Transaction ID needs to be considered within the pending messages
-  
   e2_setup_request_t sr = {
-    .trans_id = 0,
+    .trans_id = ag->trans_id_setup_req++,
     .id = ag->global_e2_node_id,
     .ran_func_item = ran_func,
     .len_rf = len_rf,
@@ -102,30 +101,16 @@ e2_setup_request_t gen_setup_request_v2(e2_agent_t* ag)
   }
   assert(it == assoc_end(&ag->plugin.sm_ds) && "Length mismatch");
 
+  // E2 Node Component Configuration Addition List
   // ToDO: This needs to be filled by the RAN
   sr.len_cca = 1; 
   sr.comp_conf_add = calloc(sr.len_cca, sizeof(e2ap_node_component_config_add_t));
   assert(sr.comp_conf_add != NULL && "Memory exhausted");
-    
-  // Mandatory
-  // 9.2.26
-  sr.comp_conf_add[0].e2_node_comp_interface_type = NG_E2AP_NODE_COMP_INTERFACE_TYPE;
-  // Bug!! Optional in the standard, mandatory in ASN.1
-  // 9.2.32
-  sr.comp_conf_add[0].e2_node_comp_id.type = NG_E2AP_NODE_COMP_INTERFACE_TYPE  ;
  
-  const char ng_msg[] = "Dummy message";
-  sr.comp_conf_add[0].e2_node_comp_id. ng_amf_name = cp_str_to_ba(ng_msg); 
- 
-  // Mandatory
-  // 9.2.27
-  const char req[] = "NGAP Request Message sent";
-  const char res[] = "NGAP Response Message reveived";
+  assert(ag->read_setup_ran != NULL);
+  ag->read_setup_ran(sr.comp_conf_add);
 
-  sr.comp_conf_add[0].e2_node_comp_conf.request = cp_str_to_ba(req); 
-  sr.comp_conf_add[0].e2_node_comp_conf.response = cp_str_to_ba(res); 
-
-  return sr;
+ return sr;
 }
 
 e2_setup_request_t gen_setup_request_v3(e2_agent_t* ag)

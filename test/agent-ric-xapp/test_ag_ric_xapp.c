@@ -38,6 +38,7 @@
 #include "../rnd/fill_rnd_data_tc.h"                  
 #include "../rnd/fill_rnd_data_kpm.h"                  
 #include "../rnd/fill_rnd_data_slice.h"                  
+#include "../rnd/fill_rnd_data_e2_setup_req.h"                  
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -60,6 +61,14 @@ void read_e2_setup_rc(void* data)
   rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
   rc->ran_func_def = fill_rc_ran_func_def(); 
 }
+
+static
+void read_e2_setup_ran(void* data)
+{
+  assert(data != NULL);
+  *(e2ap_node_component_config_add_t*)data = fill_e2ap_node_component_config_add();
+}
+
 
 static
 void read_ind_mac(void* ind)
@@ -501,6 +510,11 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
   //  READ: E2 Setup
   dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
   dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_rc;
+
+  //  READ: E2 Setup RAN
+#if defined(E2AP_V2) || defined(E2AP_V3)
+  dst.read_setup_ran = read_e2_setup_ran;
+#endif
 
   // WRITE: CONTROL
   dst.write_ctrl_tbl[SLICE_CTRL_REQ_V0] = write_ctrl_slice;

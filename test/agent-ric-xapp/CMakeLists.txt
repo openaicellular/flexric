@@ -9,6 +9,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
     ../../../test/rnd/fill_rnd_data_kpm.c                  
     ../../../test/rnd/fill_rnd_data_rc.c                  
     ../../../test/rnd/fill_rnd_data_slice.c                  
+    ../../../test/rnd/fill_rnd_data_e2_setup_req.c
 
     ../../src/sm/mac_sm/ie/mac_data_ie.c
     ../../src/sm/rlc_sm/ie/rlc_data_ie.c

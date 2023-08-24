@@ -321,6 +321,11 @@ e2ap_msg_t e2ap_handle_setup_response_agent(e2_agent_t* ag, const e2ap_msg_t* ms
   pending_event_t ev = SETUP_REQUEST_PENDING_EVENT;
   stop_pending_event(ag,ev);
 
+#if defined(E2AP_V2) || defined(E2AP_V3)
+  assert(ag->trans_id_setup_req > 0 && "Receiving an E2 SETUP-RESPONSE, eventhough not E2 SETUP-REQUEST not sent from this E2 Node" );
+  printf("[E2-AGENT]: Transaction ID E2 SETUP-REQUEST %u E2 SETUP-RESPONSE %u \n", --ag->trans_id_setup_req, msg->u_msgs.e2_stp_resp.trans_id);
+  ag->trans_id_setup_req = 0;
+#endif
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans; 
 }

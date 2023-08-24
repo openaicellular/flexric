@@ -19,20 +19,34 @@
  *      contact@openairinterface.org
  */
 
-#ifndef E2AP_NODE_COMP_INTERFACE_TYPE_MIR_H
-#define E2AP_NODE_COMP_INTERFACE_TYPE_MIR_H
+#include "fill_rnd_data_e2_setup_req.h"
+#include "../../src/lib/e2ap/e2ap_node_comp_interface_type_wrapper.h"
+#include "../../src/util/byte_array.h"
+#include <assert.h>
+#include <stdlib.h>
+#include <stdint.h>
 
-// 9.2.26
-typedef enum{
-  NG_E2AP_NODE_COMP_INTERFACE_TYPE = 0, 
-  XN_E2AP_NODE_COMP_INTERFACE_TYPE = 1, 
-  E1_E2AP_NODE_COMP_INTERFACE_TYPE = 2,
-  F1_E2AP_NODE_COMP_INTERFACE_TYPE = 3, 
-  W1_E2AP_NODE_COMP_INTERFACE_TYPE = 4, 
-  S1_E2AP_NODE_COMP_INTERFACE_TYPE = 5, 
-  X2_E2AP_NODE_COMP_INTERFACE_TYPE = 6,
+e2ap_node_component_config_add_t fill_e2ap_node_component_config_add(void)
+{
+  e2ap_node_component_config_add_t dst = {0}; 
 
-  END_E2AP_NODE_COMP_INTERFACE_TYPE
-} e2ap_node_comp_interface_type_e;
+  // Mandatory
+  // 9.2.26
+  dst.e2_node_comp_interface_type = NG_E2AP_NODE_COMP_INTERFACE_TYPE;
+  // Bug!! Optional in the standard, mandatory in ASN.1
+  // 9.2.32
+  dst.e2_node_comp_id.type = NG_E2AP_NODE_COMP_INTERFACE_TYPE;
+ 
+  const char ng_msg[] = "Dummy message";
+  dst.e2_node_comp_id.ng_amf_name = cp_str_to_ba(ng_msg); 
+ 
+  // Mandatory
+  // 9.2.27
+  const char req[] = "NGAP Request Message sent";
+  const char res[] = "NGAP Response Message reveived";
 
-#endif
+  dst.e2_node_comp_conf.request = cp_str_to_ba(req); 
+  dst.e2_node_comp_conf.response = cp_str_to_ba(res); 
+  return dst;
+}
+

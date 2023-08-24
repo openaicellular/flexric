@@ -44,6 +44,12 @@ typedef struct{
 
   sm_ric_service_update_data_t (*on_ric_service_update)(sm_agent_t const* sm);
 
+#ifdef E2AP_V3
+  sm_ric_query_out_data_t (*on_ric_query)(sm_agent_t const* sm, sm_ric_query_t const* data);
+
+  void (*on_subscription_mod)(sm_agent_t const* sm,sm_sub_mod_data_t const*);
+#endif
+
 } sm_e2ap_procedures_agent_t;
 
 // SM General Information

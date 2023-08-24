@@ -46,6 +46,12 @@ typedef struct {
 
   sm_ag_if_rd_rsu_t (*on_ric_service_update)(sm_ric_t const*, sm_ric_service_update_data_t const*);
 
+#ifdef E2AP_V3
+  sm_ric_query_t (*on_ric_query)(sm_ric_t const*, void*);
+
+  void (*on_subscription_mod)(sm_ric_t const* sm, void*);
+#endif
+
 } sm_e2ap_procedures_ric_t;
 
 typedef struct sm_ric_s {
@@ -53,7 +59,7 @@ typedef struct sm_ric_s {
   // 5 Procedures stored at the SO
   sm_e2ap_procedures_ric_t proc; 
 
-    // Free function
+  // Free function
   void (*free_sm)(sm_ric_t* sm_ric);
 
   // (De)Allocation memory functions
@@ -62,7 +68,7 @@ typedef struct sm_ric_s {
   // Shared Object handle
   void* handle;
 
-// RAN Function ID
+  // RAN Function ID
   uint16_t const ran_func_id;
 
   char ran_func_name[32];
