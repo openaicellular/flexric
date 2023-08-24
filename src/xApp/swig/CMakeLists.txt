@@ -8,13 +8,10 @@ CMAKE_POLICY(SET CMP0078 NEW)
 CMAKE_POLICY(SET CMP0086 NEW) 
 
 FIND_PACKAGE(SWIG 4.0 REQUIRED)
-FIND_PACKAGE(Python3 REQUIRED)
+
 #find_package (Python3 COMPONENTS Interpreter Development)
 
 INCLUDE(${SWIG_USE_FILE})
-
-FIND_PACKAGE(PythonLibs)
-INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -29,90 +26,113 @@ endif()
 
 SET_PROPERTY(SOURCE swig_wrapper.i PROPERTY CPLUSPLUS ON)
 
+option(XAPP_PYTHON_SWIG "Build xApps in Python" ON)
+message(STATUS "Build xApps in Python: ${XAPP_PYTHON_SWIG}")
+option(XAPP_GO_SWIG "Build xApp in Golang" OFF)
+message(STATUS "Build xApp in Golang: ${XAPP_GO_SWIG}")
+option(XAPP_JAVA_SWIG "Build xApp in Java" OFF)
+message(STATUS "Build xApp in Java: ${XAPP_JAVA_SWIG}")
+option(XAPP_JAVASCRIPT_SWIG "Build xApp in Javascript" OFF)
+message(STATUS "uild xApp in Javascript: ${XAPP_JAVASCRIPT_SWIG}")
 
-SET(XAPP_TARGET_LANGUAGE "PYTHON_LANG" CACHE STRING "xApp target language.")
-SET_PROPERTY(CACHE XAPP_TARGET_LANGUAGE PROPERTY STRINGS "PYTHON_LANG" "GO_LANG" "JAVA_LANG" "JAVASCRIPT_LANG")
-MESSAGE(STATUS "Selected xApp target language: ${XAPP_TARGET_LANGUAGE}")
+#set(XAPP_LANG_LIST)
 
 #PYTHON compilation
-if(XAPP_TARGET_LANGUAGE STREQUAL "PYTHON_LANG")
-  SET(XAPP_LANG "python")
-
-#GOLANG compilation
-elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
-  SET(XAPP_LANG "go")
-
-#JAVA compilation
-elseif(XAPP_TARGET_LANGUAGE STREQUAL "JAVA_LANG")
-  SET(XAPP_LANG "java")
-
-#JAVASCRIPT compilation
-elseif(XAPP_TARGET_LANGUAGE STREQUAL "JAVASCRIPT_LANG")
-  SET(XAPP_LANG "javascript")
-
-else()
-  message(FATAL_ERROR "Unknown XAPP_TARGET_LANGUAGE")
+if(XAPP_PYTHON_SWIG)
+  FIND_PACKAGE(Python3 REQUIRED)
+  FIND_PACKAGE(PythonLibs)
+  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+#  list(APPEND XAPP_LANG_LIST "python")
+  SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE python SOURCES
+      swig_wrapper.i
+      swig_wrapper.cpp
+      ../../lib/ap/e2ap_types/common/e2ap_plmn.c
+      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+      ../../lib/ap/e2ap_types/common/e2ap_global_node_id.c
+      #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+      ../../sm/mac_sm/ie/mac_data_ie.c
+      ../../sm/rlc_sm/ie/rlc_data_ie.c
+      ../../sm/pdcp_sm/ie/pdcp_data_ie.c
+      ../../sm/slice_sm/ie/slice_data_ie.c
+      ../../sm/tc_sm/ie/tc_data_ie.c
+      ../../sm/gtp_sm/ie/gtp_data_ie.c
+      ../../util/byte_array.c
+      ../../util/alg_ds/alg/eq_float.c
+      ../../util/e2ap_ngran_type.c
+      )
 endif()
 
+#GOLANG compilation
+if(XAPP_GO_SWIG)
+#  list(APPEND XAPP_LANG_LIST "go")
+  SWIG_ADD_LIBRARY(xapp_sdk_go LANGUAGE go SOURCES
+      swig_wrapper.i
+      swig_wrapper.cpp
+      ../../lib/ap/e2ap_types/common/e2ap_plmn.c
+      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
+      ../../lib/ap/e2ap_types/common/e2ap_global_node_id.c
+      #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+      ../../sm/mac_sm/ie/mac_data_ie.c
+      ../../sm/rlc_sm/ie/rlc_data_ie.c
+      ../../sm/pdcp_sm/ie/pdcp_data_ie.c
+      ../../sm/slice_sm/ie/slice_data_ie.c
+      ../../sm/tc_sm/ie/tc_data_ie.c
+      ../../sm/gtp_sm/ie/gtp_data_ie.c
+      ../../util/byte_array.c
+      ../../util/alg_ds/alg/eq_float.c
+      ../../
+      )
 
-
-SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE ${XAPP_LANG} SOURCES 
-                                                 swig_wrapper.i 
-                                                 swig_wrapper.cpp
-                                                 ../../lib/ap/e2ap_types/common/e2ap_plmn.c
-                                                 ../../lib/ap/e2ap_types/common/e2ap_ran_function.c 
-                                                 ../../lib/ap/e2ap_types/common/e2ap_global_node_id.c
-                                                 #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
-                                                 ../../sm/mac_sm/ie/mac_data_ie.c 
-                                                 ../../sm/rlc_sm/ie/rlc_data_ie.c
-                                                 ../../sm/pdcp_sm/ie/pdcp_data_ie.c
-                                                 ../../sm/slice_sm/ie/slice_data_ie.c
-                                                 ../../sm/tc_sm/ie/tc_data_ie.c
-                                                 ../../sm/gtp_sm/ie/gtp_data_ie.c
-                                                 ../../util/byte_array.c
-                                                 ../../util/alg_ds/alg/eq_float.c
-    ../../util/e2ap_ngran_type.c
-                                                 )
-
+endif()
 
 #PYTHON compilation
-if(XAPP_TARGET_LANGUAGE STREQUAL "PYTHON_LANG")
-  ADD_COMPILE_DEFINITIONS(XAPP_LANG_PYTHON)
+if(XAPP_PYTHON_SWIG)
+
+  TARGET_COMPILE_DEFINITIONS(xapp_sdk PRIVATE XAPP_LANG_PYTHON)
   SWIG_LINK_LIBRARIES(xapp_sdk ${PYTHON_LIBRARIES})
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/_xapp_sdk.so" )
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/_xapp_sdk.so")
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk.py" )
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk.py")
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-     "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py" )
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py")
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-     "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py" )
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py")
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/python3/watch_slice_stats" "${CMAKE_BINARY_DIR}/examples/xApp/python3/watch_slice_stats" )
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/watch_slice_stats" "${CMAKE_BINARY_DIR}/examples/xApp/python3/watch_slice_stats")
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_gtp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_gtp_moni.py" )
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_gtp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_gtp_moni.py")
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp.py" )
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp.py")
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_moni.py" )
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_moni.py")
 
-   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_kpm_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_kpm_moni.py" )
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_kpm_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_kpm_moni.py")
 
-# I do not like this solution at all but it is not my code ...
-target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter )
+  # I do not like this solution at all but it is not my code ...
+  target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter )
+
+  #Comment this line to build it from the directory
+  ADD_DEPENDENCIES(xapp_sdk e42_xapp_shared)
+
+  target_include_directories(xapp_sdk PRIVATE
+      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_INCLUDE_DIRS}>)
+
+  SWIG_LINK_LIBRARIES(xapp_sdk
+      e42_xapp_shared
+      -ldl
+      -lsctp
+      -lpthread
+      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
+      )
+endif()
 
 #GOLANG compilation
-elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
-  ADD_COMPILE_DEFINITIONS(XAPP_LANG_GO)
+if(XAPP_GO_SWIG)
+
+  TARGET_COMPILE_DEFINITIONS(xapp_sdk_go PRIVATE XAPP_LANG_GO)
   # Compile the Swig wrapper for Go
-  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk.so -w312 -w314)
+  SET_PROPERTY(TARGET xapp_sdk_go PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk_go.so -w312 -w314)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
 
   #Check if go.mod exists
@@ -132,24 +152,24 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
   endif()
 
   # Copy the necessary files to the build directory
-  SWIG_LINK_LIBRARIES(xapp_sdk ${GO_LIBRARIES})
+  SWIG_LINK_LIBRARIES(xapp_sdk_go ${GO_LIBRARIES})
 
   # Copy go.mod, xapp_sdk.go and libxapp_sdk.so to the build directory
   # These 3 files are necessary to build the xApp
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so" )
+  add_custom_command(TARGET xapp_sdk_go POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk_go.so" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so" )
 
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/xapp_sdk.go" )
+  add_custom_command(TARGET xapp_sdk_go POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.go" "${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/xapp_sdk.go" )
 
   # Gather all files in examples/xApp/go directory recursively
   file(GLOB_RECURSE GO_FILES RELATIVE ${CMAKE_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/examples/xApp/go/*")
 
   foreach(GO_FILE IN LISTS GO_FILES)
     get_filename_component(GO_FILE_PATH ${GO_FILE} DIRECTORY)
-    
+
     # Ensure the destination directory exists
     file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${GO_FILE_PATH}")
 
-    add_custom_command(TARGET xapp_sdk POST_BUILD
+    add_custom_command(TARGET xapp_sdk_go POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
       "${CMAKE_SOURCE_DIR}/${GO_FILE}"
       "${CMAKE_BINARY_DIR}/${GO_FILE}"
@@ -173,7 +193,7 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
     string(REGEX REPLACE "_main$" "" EXECUTABLE_NAME ${GO_FILE_NAME_WE})
 
     add_custom_command(
-      TARGET xapp_sdk
+      TARGET xapp_sdk_go
       POST_BUILD
       COMMAND go mod tidy
       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${GO_APP_DIR}
@@ -184,7 +204,7 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
     set(PREFIXED_EXECUTABLE_NAME "go_${EXECUTABLE_NAME}")
 
     add_custom_command(
-      TARGET xapp_sdk
+      TARGET xapp_sdk_go
       POST_BUILD
       COMMAND go build -o ${PREFIXED_EXECUTABLE_NAME}
       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${GO_APP_DIR}
@@ -194,37 +214,40 @@ elseif(XAPP_TARGET_LANGUAGE STREQUAL "GO_LANG")
     # Add the path to the Go binary to the list of binaries
     list(APPEND GO_BINARIES "${CMAKE_BINARY_DIR}/${GO_APP_DIR}/${PREFIXED_EXECUTABLE_NAME}")
   endforeach()
-  
-   
-#JAVA compilation
-elseif(XAPP_TARGET_LANGUAGE STREQUAL "JAVA_LANG")
- ADD_COMPILE_DEFINITIONS(XAPP_LANG_JAVA)
- INCLUDE_DIRECTORIES(/usr/lib/jvm/default-java/include)
- INCLUDE_DIRECTORIES(/usr/lib/jvm/default-java/include/linux)
 
-#JAVASCRIPT compilation
-elseif(XAPP_TARGET_LANGUAGE STREQUAL "JAVASCRIPT_LANG")
-  ADD_COMPILE_DEFINITIONS(XAPP_LANG_JAVASCRIPT)
-  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_OPTIONS -v8)
-  INCLUDE_DIRECTORIES(/usr/include/nodejs/src)
-  INCLUDE_DIRECTORIES(/usr/include/nodejs/deps/v8/include/)
+  #Comment this line to build it from the directory
+  ADD_DEPENDENCIES(xapp_sdk_go e42_xapp_shared)
 
-else()
-  message(FATAL_ERROR "Unknown XAPP_TARGET_LANGUAGE")
+  target_include_directories(xapp_sdk_go PRIVATE
+      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_INCLUDE_DIRS}>)
+
+  SWIG_LINK_LIBRARIES(xapp_sdk_go
+      e42_xapp_shared
+      -ldl
+      -lsctp
+      -lpthread
+      $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
+      )
 endif()
 
-#Comment this line to build it from the directory
-ADD_DEPENDENCIES(xapp_sdk e42_xapp_shared)
+#JAVA compilation
+if(XAPP_JAVA_SWIG)
+ message(FATAL_ERROR "SWIG for JAVA not implemented")
+# ADD_COMPILE_DEFINITIONS(XAPP_LANG_JAVA)
+# INCLUDE_DIRECTORIES(/usr/lib/jvm/default-java/include)
+# INCLUDE_DIRECTORIES(/usr/lib/jvm/default-java/include/linux)
+endif()
 
-target_include_directories(xapp_sdk PRIVATE 
-                          $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_INCLUDE_DIRS}>)
+#JAVASCRIPT compilation
+if(XAPP_JAVASCRIPT_SWIG)
+  message(FATAL_ERROR "SWIG for JAVASCRIPT not implemented")
+#  ADD_COMPILE_DEFINITIONS(XAPP_LANG_JAVASCRIPT)
+#  SET_PROPERTY(TARGET xapp_sdk_javascript PROPERTY SWIG_COMPILE_OPTIONS -v8)
+#  INCLUDE_DIRECTORIES(/usr/include/nodejs/src)
+#  INCLUDE_DIRECTORIES(/usr/include/nodejs/deps/v8/include/)
+endif()
 
-SWIG_LINK_LIBRARIES(xapp_sdk
-                    e42_xapp_shared
-                    -ldl
-                    -lsctp
-                    -lpthread
-                    $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
-                    )
+
+
 
 

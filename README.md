@@ -1,4 +1,5 @@
 # FlexRIC
+>TODO: need to be updated
 
 This repository contains [O-RAN Alliance](https://www.o-ran.org/) compliant E2 node Agent emulators, a NearRT-RIC, xApps written in C/C++ and Python, as well as
 patches to 5G/4G OpenAirInterface and 4G srsRAN. It implements various service models (NG/GTP, PDCP, RLC, MAC, KPM v2, SLICE, TC) and a built-in emulation. Depending on the service model, different encoding schemes have been developed (ASN.1, flatbuffer, plain). The indication data received in the xApp uses as persistence mechanism an sqlite3 database for enabling offline processing applications
@@ -55,16 +56,22 @@ Below an example of how to install common dependencies in ubuntu:
 sudo apt install libsctp-dev python3.8 cmake-curses-gui libpcre2-dev python3-dev
 ```
 
-If you are using mysql as a storage for xapps you may need to install it via
+- If you are using mysql as a storage for xapps you may need to install it via
 ```bash
 sudo apt install libmysqlclient-dev mysql-server
 ```
 
-If you are using the option in cmake `-DRAN_WITH_WS=True`, you need to also install the following packages:
+- If you are using the option in cmake `-DRAN_WITH_WS=ON`, you need to also install the following packages:
 ```bash
 sudo apt install libwebsockets-dev libjson-c-dev
 ```
 software has been tested with specific version of `libwebsockets-dev` and `libjson-c-dev`; cmake will check for that and promt an error in case the version you are trying to install is not compatible.
+
+- If you are using the xApp written in Go by enabling the option in cmake `-DXAPP_GO_SWIG=ON`, you need to install the golang in version 1.19:
+```bash
+sudo snap install go --channel=1.19/stable
+```
+
 
 1.3 Clone the FlexRIC project, build and install it. 
 
