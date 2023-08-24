@@ -105,6 +105,50 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 //      }
       printf("KPM ind_msg latency = %lu from E2-node type %d ID %d\n",
              now - rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime, e2_node->type, e2_node->nb_id);
+//      kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
+//      if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE) {
+//        for (size_t i = 0; i < kpm->msg.frm_1.meas_data_lst_len; i++) {
+//          for (size_t j = 0; j < kpm->msg.frm_1.meas_data_lst[i].meas_record_len; j++) {
+//            if (kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].value == INTEGER_MEAS_VALUE)
+//              printf("meas record INTEGER_MEAS_VALUE value %d\n", kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].int_val);
+//            else if (kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].value == REAL_MEAS_VALUE)
+//              printf("meas record REAL_MEAS_VALUE value %f\n", kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].real_val);
+//            else
+//              printf("meas record NO_VALUE_MEAS_VALUE value\n");
+//          }
+//        }
+//      } else if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE) {
+//        for (size_t i = 0; i < kpm->msg.frm_3.ue_meas_report_lst_len; i++) {
+//          if (kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type == GNB_UE_ID_E2SM) {
+//            printf("UE ID type %d, amf_ue_ngap_id %ld\n",
+//                   kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type,
+//                   kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id
+//            );
+//          }
+//          if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst_len > 0) {
+//            // TODO: need to get the all meas data
+//            size_t meas_data_idx = 0;
+//            if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].incomplete_flag) {
+//              if (*kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].incomplete_flag == TRUE_ENUM_VALUE)
+//                printf("No UE connected to E2-Node, meas_data incomplete_flag == TRUE_ENUM_VALUE\n");
+//            } else if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst_len == kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_len) {
+//              size_t rec_data_len = kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_len;
+//              for (size_t j = 0; j < rec_data_len; j++) {
+//                if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst[j].meas_type.type == NAME_MEAS_TYPE &&
+//                    kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_lst[j].value == REAL_MEAS_VALUE) {
+//                  printf("MeasName %s, MeasData %lf\n",
+//                         kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst[j].meas_type.name.buf,
+//                         kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_lst[j].real_val
+//                  );
+//                }
+//              }
+//            }
+//          }
+//        }
+//        //printf("Sojourn time %lf \n",kpm->msg.frm_3.meas_report_per_ue[0].ind_msg_format_1.meas_data_lst[0].meas_record_lst[0].real_val);
+//      } else {
+//        printf("unknown kpm ind format\n");
+//      }
     }
   }
   else
@@ -207,24 +251,30 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
 }
 
 static
-kpm_act_def_format_1_t gen_act_def_frmt_1(const char* action)
+kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
 {
   kpm_act_def_format_1_t dst = {0};
 
   dst.gran_period_ms = 100;
 
   // [1, 65535]
-  dst.meas_info_lst_len = 1;
-  dst.meas_info_lst = calloc(1, sizeof(meas_info_format_1_lst_t));
+  size_t count = 0;
+  while (action[count] != NULL) {
+    count++;
+  }
+  dst.meas_info_lst_len = count;
+  dst.meas_info_lst = calloc(count, sizeof(meas_info_format_1_lst_t));
   assert(dst.meas_info_lst != NULL && "Memory exhausted");
-
-  *dst.meas_info_lst = gen_meas_info_format_1_lst(action);
+  printf("count %ld\n", count);
+  for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
+    dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action[i]);
+  }
 
   return dst;
 }
 
 static
-kpm_act_def_format_4_t gen_act_def_frmt_4(const char* action)
+kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
 {
   kpm_act_def_format_4_t dst = {0};
 
@@ -256,12 +306,20 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char* action)
 }
 
 static
-kpm_act_def_t gen_act_def(const char* act)
+kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm)
 {
   kpm_act_def_t dst = {0};
 
-  dst.type = FORMAT_4_ACTION_DEFINITION;
-  dst.frm_4 = gen_act_def_frmt_4(act);
+  if (act_frm == FORMAT_1_ACTION_DEFINITION) {
+    dst.type = FORMAT_1_ACTION_DEFINITION;
+    dst.frm_1 = gen_act_def_frmt_1(act);
+  } else if (act_frm == FORMAT_4_ACTION_DEFINITION) {
+    dst.type = FORMAT_4_ACTION_DEFINITION;
+    dst.frm_4 = gen_act_def_frmt_4(act);
+  } else {
+    assert(0!=0 && "not support action definition type");
+  }
+
   return dst;
 }
 
@@ -292,8 +350,10 @@ void send_report_sm(global_e2_node_id_t* id,
       kpm_sub.sz_ad = 1;
       kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
       assert(kpm_sub.ad != NULL && "Memory exhausted");
-      const char act[] = "DRB.RlcSduDelayDl";
-      *kpm_sub.ad = gen_act_def(act);
+      const char *act[] = {"DRB.RlcSduDelayDl", "DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI", NULL}; // TS 34.425 clause 4.4.6
+      format_action_def_e act_type = FORMAT_4_ACTION_DEFINITION;
+      *kpm_sub.ad = gen_act_def(act, act_type);
+
 
       handle[j] = report_sm_xapp_api(id, ran_func_id, &kpm_sub, sm_cb_all);
     } else {

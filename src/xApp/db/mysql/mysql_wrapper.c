@@ -48,11 +48,11 @@ void create_mac_ue_table(MYSQL* conn)
   if(mysql_query(conn, "CREATE TABLE MAC_UE("
                        "tstamp BIGINT CHECK(tstamp > 0),"
                        "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
-                       "mcc INT,"
-                       "mnc INT,"
-                       "mnc_digit_len INT,"
-                       "nb_id INT,"
-                       "cu_du_id TEXT,"
+                       "e2node_mcc INT,"
+                       "e2node_mnc INT,"
+                       "e2node_mnc_digit_len INT,"
+                       "e2node_nb_id INT,"
+                       "e2node_cu_du_id TEXT,"
                        "frame INT,"
                        "slot INT,"
                        "dl_aggr_tbs BIGINT CHECK(dl_aggr_tbs >= 0 AND dl_aggr_tbs < 18446744073709551615),"
@@ -109,11 +109,11 @@ void create_rlc_bearer_table(MYSQL* conn)
   char* sql_rlc = "CREATE TABLE RLC_bearer("
                   "tstamp BIGINT CHECK(tstamp > 0),"
                   "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
-                  "mcc INT,"
-                  "mnc INT,"
-                  "mnc_digit_len INT,"
-                  "nb_id INT,"
-                  "cu_du_id TEXT,"
+                  "e2node_mcc INT,"
+                  "e2node_mnc INT,"
+                  "e2node_mnc_digit_len INT,"
+                  "e2node_nb_id INT,"
+                  "e2node_cu_du_id TEXT,"
                   "txpdu_pkts BIGINT CHECK(txpdu_pkts >= 0 AND txpdu_pkts < 4294967296)," // 1 << 32 = 4294967296
                   "txpdu_bytes BIGINT CHECK(txpdu_bytes >= 0 AND txpdu_bytes < 4294967296),"
                   "txpdu_wt_ms BIGINT CHECK(txpdu_wt_ms >= 0 AND txpdu_wt_ms < 4294967296),"
@@ -167,11 +167,11 @@ void create_pdcp_bearer_table(MYSQL* conn)
   char* sql_pdcp = "CREATE TABLE PDCP_bearer("
                    "tstamp BIGINT CHECK(tstamp > 0),"
                    "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
-                   "mcc INT,"
-                   "mnc INT,"
-                   "mnc_digit_len INT,"
-                   "nb_id INT,"
-                   "cu_du_id TEXT,"
+                   "e2node_mcc INT,"
+                   "e2node_mnc INT,"
+                   "e2node_mnc_digit_len INT,"
+                   "e2node_nb_id INT,"
+                   "e2node_cu_du_id TEXT,"
                    "txpdu_pkts BIGINT CHECK(txpdu_pkts >= 0 AND txpdu_pkts < 4294967296),"
                    "txpdu_bytes BIGINT CHECK(txpdu_bytes >=0 AND txpdu_bytes < 4294967296),"
                    "txpdu_sn BIGINT CHECK(txpdu_sn >=0 AND txpdu_sn < 4294967296),"
@@ -208,11 +208,11 @@ void create_slice_table(MYSQL* conn)
   char* sql_slice = "CREATE TABLE SLICE("
                     "tstamp BIGINT CHECK(tstamp > 0),"
                     "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
-                    "mcc INT,"
-                    "mnc INT,"
-                    "mnc_digit_len INT,"
-                    "nb_id INT,"
-                    "cu_du_id TEXT,"
+                    "e2node_mcc INT,"
+                    "e2node_mnc INT,"
+                    "e2node_mnc_digit_len INT,"
+                    "e2node_nb_id INT,"
+                    "e2node_cu_du_id TEXT,"
                     "len_slices INT CHECK(len_slices  >= 0 AND len_slices < 4),"
                     "sched_name TEXT,"
                     "id INT CHECK(id >=0 AND id < 4294967296),"
@@ -241,11 +241,11 @@ void create_ue_slice_table(MYSQL* conn)
   char* sql_ue_slice = "CREATE TABLE UE_SLICE("
                        "tstamp BIGINT CHECK(tstamp > 0),"
                        "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
-                       "mcc INT,"
-                       "mnc INT,"
-                       "mnc_digit_len INT,"
-                       "nb_id INT,"
-                       "cu_du_id TEXT,"
+                       "e2node_mcc INT,"
+                       "e2node_mnc INT,"
+                       "e2node_mnc_digit_len INT,"
+                       "e2node_nb_id INT,"
+                       "e2node_cu_du_id TEXT,"
                        "len_ue_slice BIGINT CHECK(len_ue_slice >= 0 AND len_ue_slice < 4294967296),"
                        "rnti INT CHECK(rnti >= -1 AND rnti < 65535),"
                        "dl_id BIGINT CHECK(dl_id >= -1 AND dl_id < 4294967296)"
@@ -266,11 +266,11 @@ void create_gtp_table(MYSQL* conn)
   char* sql_gtp = "CREATE TABLE GTP_NGUT("
                   "tstamp BIGINT CHECK(tstamp > 0),"
                   "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
-                  "mcc INT,"
-                  "mnc INT,"
-                  "mnc_digit_len INT,"
-                  "nb_id INT,"
-                  "cu_du_id TEXT,"
+                  "e2node_mcc INT,"
+                  "e2node_mnc INT,"
+                  "e2node_mnc_digit_len INT,"
+                  "e2node_nb_id INT,"
+                  "e2node_cu_du_id TEXT,"
                   "teidgnb BIGINT,"
                   "rnti INT CHECK(rnti >= -1 AND rnti < 65535),"
                   "qfi INT,"
@@ -286,65 +286,149 @@ void create_kpm_table(MYSQL* conn)
 {
   assert(conn != NULL);
 
-  // ToDo: PRIMARY KEY UNIQUE
-  if(mysql_query(conn, "DROP TABLE IF EXISTS KPM_MeasRecord"))
+  if(mysql_query(conn, "DROP TABLE IF EXISTS KPM_IND_MEAS_DATA"))
     mysql_finish_with_error(conn);
-  char* sql_kpm_measRecord = "CREATE TABLE KPM_MeasRecord("
+  char* sql_kpm_meas_data = "CREATE TABLE KPM_IND_MEAS_DATA("
+                            "tstamp BIGINT CHECK(tstamp > 0),"
+                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                            "e2node_mcc INT,"
+                            "e2node_mnc INT,"
+                            "e2node_mnc_digit_len INT,"
+                            "e2node_nb_id INT,"
+                            "e2node_cu_du_id TEXT,"
+                            "ric_ind_format INT,"
+                            "meas_data_len INT,"
+                            "meas_data_idx INT,"
+                            "meas_record_len INT,"
+                            "meas_record_idx INT,"
+                            "incompleteFlag TEXT,"
+                            "gran_period_ms INT,"
+                            "meas_value_type TEXT,"
+                            "meas_value_int INT,"
+                            "meas_value_real REAL,"
+                            "meas_value_no TEXT"
+                            ");";
+
+  if(mysql_query(conn, sql_kpm_meas_data))
+    mysql_finish_with_error(conn);
+
+  if(mysql_query(conn, "DROP TABLE IF EXISTS KPM_IND_MEAS_INFO"))
+    mysql_finish_with_error(conn);
+  char* sql_kpm_meas_info_frm1 = "CREATE TABLE KPM_IND_MEAS_INFO("
+                                 "tstamp BIGINT CHECK(tstamp > 0),"
+                                 "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                                 "e2node_mcc INT,"
+                                 "e2node_mnc INT,"
+                                 "e2node_mnc_digit_len INT,"
+                                 "e2node_nb_id INT,"
+                                 "e2node_cu_du_id TEXT,"
+                                 "ric_ind_format INT,"
+                                 "meas_info_len INT,"
+                                 "meas_info_idx INT,"
+                                 "meas_type TEXT,"
+                                 "meas_name TEXT,"
+                                 "meas_id INT,"
+                                 "label_info_len INT,"
+                                 "label_info_idx INT,"
+                                 "noLabel BOOLEAN CHECK(noLabel IN (0,1)),"
+                                 "plmn_id_mcc INT CHECK(plmn_id_mcc >= 0 AND plmn_id_mcc < 255),"
+                                 "plmn_id_mnc INT CHECK(plmn_id_mnc >= 0 AND plmn_id_mnc < 255),"
+                                 "plmn_id_mnc_digit_len INT CHECK(plmn_id_mnc_digit_len >= 0 AND plmn_id_mnc_digit_len < 255),"
+                                 "sliceID_sST INT CHECK(sliceID_sST >= 0 AND sliceID_sST < 255),"
+                                 "sliceID_sD TEXT,"
+                                 "fiveQI INT CHECK(fiveQI >= 0 AND fiveQI < 255),"
+                                 "qFI INT CHECK(qFI >= 0 AND qFI < 255),"
+                                 "qCI INT CHECK(qCI >= 0 AND qCI < 255),"
+                                 "qCImax INT CHECK(qCImax >= 0 AND qCImax < 255),"
+                                 "qCImin INT CHECK(qCImin >= 0 AND qCImin < 255),"
+                                 "aRPmax INT CHECK(aRPmax >= 0 AND aRPmax < 255),"
+                                 "aRPmin INT CHECK(aRPmin >= 0 AND aRPmin < 255),"
+                                 "bitrateRange INT CHECK(bitrateRange >= 0 AND bitrateRange < 32767),"
+                                 "layerMU_MIMO INT CHECK(layerMU_MIMO >= 0 AND layerMU_MIMO < 32767),"
+                                 "sUM BOOLEAN CHECK(sUM IN (0,1)),"
+                                 "distBinX INT CHECK(distBinX >= 0 AND distBinX < 255),"
+                                 "distBinY INT CHECK(distBinY >= 0 AND distBinY < 255),"
+                                 "distBinZ INT CHECK(distBinZ >= 0 AND distBinZ < 255),"
+                                 "preLabelOverride BOOLEAN CHECK(preLabelOverride IN (0,1)),"
+                                 "startEndInd INT,"
+                                 "min BOOLEAN CHECK(min IN (0,1)),"
+                                 "max BOOLEAN CHECK(max IN (0,1)),"
+                                 "avg BOOLEAN CHECK(avg IN (0,1)),"
+                                 "ssbIndex INT CHECK(ssbIndex >= 0 AND ssbIndex < 32767),"
+                                 "nonGoB_beamformModeIndex INT CHECK(nonGoB_beamformModeIndex >= 0 AND nonGoB_beamformModeIndex < 32767),"
+                                 "mimoModeIndex INT CHECK(mimoModeIndex >= 0 AND mimoModeIndex < 255)"
+                                 ");";
+
+  if(mysql_query(conn, sql_kpm_meas_info_frm1))
+    mysql_finish_with_error(conn);
+
+  if(mysql_query(conn, "DROP TABLE IF EXISTS KPM_IND_MEAS_DATA_INFO"))
+    mysql_finish_with_error(conn);
+  char* sql_kpm_meas_data_info = "CREATE TABLE KPM_IND_MEAS_DATA_INFO("
+                                 "tstamp BIGINT CHECK(tstamp > 0),"
+                                 "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                                 "e2node_mcc INT,"
+                                 "e2node_mnc INT,"
+                                 "e2node_mnc_digit_len INT,"
+                                 "e2node_nb_id INT,"
+                                 "e2node_cu_du_id TEXT,"
+                                 "ric_ind_format INT,"
+                                 "meas_data_len BIGINT,"
+                                 "meas_data_idx BIGINT,"
+                                 "meas_record_len BIGINT,"
+                                 "meas_record_idx BIGINT,"
+                                 "incompleteFlag TEXT,"
+                                 "meas_info_len BIGINT,"
+                                 "meas_info_idx BIGINT,"
+                                 "gran_period_ms INT,"
+                                 "meas_type TEXT," // To map the value to the measurement name or id
+                                 "meas_name TEXT,"
+                                 "meas_id INT,"
+                                 "meas_value_type TEXT,"
+                                 "meas_value_int INT,"
+                                 "meas_value_real REAL,"
+                                 "meas_value_no TEXT"
+                                 ");";
+
+  if(mysql_query(conn, sql_kpm_meas_data_info))
+    mysql_finish_with_error(conn);
+
+  if(mysql_query(conn, "DROP TABLE IF EXISTS KPM_IND_UE_ID_E2SM"))
+    mysql_finish_with_error(conn);
+  char* sql_kpm_ue_id_e2sm = "CREATE TABLE KPM_IND_UE_ID_E2SM("
                              "tstamp BIGINT CHECK(tstamp > 0),"
                              "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
-                             "mcc INT,"
-                             "mnc INT,"
-                             "mnc_digit_len INT,"
-                             "nb_id INT,"
-                             "cu_du_id TEXT,"
-                             "rnti INT CHECK(rnti >= -1 AND rnti < 65535),"
-                             "incompleteFlag INT,"
-                             "name TEXT," //measRecord name
-                             "val REAL"
+                             "e2node_mcc INT,"
+                             "e2node_mnc INT,"
+                             "e2node_mnc_digit_len INT,"
+                             "e2node_nb_id INT,"
+                             "e2node_cu_du_id TEXT,"
+                             "ric_ind_format INT,"
+                             "ue_id_e2sm_type TEXT,"
+                             "guami_plmn_id_mcc INT,"
+                             "guami_plmn_id_mnc INT,"
+                             "guami_plmn_id_mnc_digit_len INT,"
+                             /// gnb.h ///
+                             "amf_ue_ngap_id BIGINT,"
+                             "guami_amf_region_id INT,"
+                             "guami_amf_set_id INT,"
+                             "guami_amf_ptr INT,"
+                             "gnb_cu_ue_f1ap_lst_len BIGINT,"
+                             "gnb_cu_ue_f1ap_lst INT,"
+                             "gnb_cu_cp_ue_e1ap_lst_len BIGINT,"
+                             "gnb_cu_cp_ue_e1ap_lst INT,"
+                             "ran_ue_id BIGINT,"
+                             "ng_ran_node_ue_xnap_id INT,"
+                             /// enb.h ///
+                             "mme_ue_s1ap_id INT,"
+                             "guami_mme_group_id INT,"
+                             "guami_mme_code INT,"
+                             "enb_ue_x2ap_id BIGINT,"
+                             "enb_ue_x2ap_id_extension BIGINT"
                              ");";
 
-  if(mysql_query(conn, sql_kpm_measRecord))
+  if(mysql_query(conn, sql_kpm_ue_id_e2sm))
     mysql_finish_with_error(conn);
-
-  // ToDo: PRIMARY KEY UNIQUE
-//  if(mysql_query(conn, "DROP TABLE IF EXISTS KPM_LabelInfo"))
-//    mysql_finish_with_error(conn);
-//  char* sql_kpm_labelInfo = "CREATE TABLE KPM_LabelInfo("
-//                            "tstamp BIGINT CHECK(tstamp > 0),"
-//                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
-//                            "mcc INT,"
-//                            "mnc INT,"
-//                            "mnc_digit_len INT,"
-//                            "nb_id INT,"
-//                            "cu_du_id TEXT,"
-//                            "MeasType TEXT,"
-//                            "noLabel BIGINT CHECK(noLabel >=0 AND noLabel < 4294967296),"
-//                            "plmnID TEXT,"
-//                            "sST TEXT,"
-//                            "sD TEXT,"
-//                            "fiveQI BIGINT CHECK(fiveQI >= 0 AND fiveQI < 4294967296),"
-//                            "qFI BIGINT CHECK(qFI >= 0 AND qFI < 4294967296),"
-//                            "qCI BIGINT CHECK(qCI >= 0 AND qCI < 4294967296),"
-//                            "qCImax BIGINT CHECK(qCImax >= 0 AND qCImax < 4294967296),"
-//                            "qCImin BIGINT CHECK(qCImin >= 0 AND qCImin < 4294967296),"
-//                            "aRPmax BIGINT CHECK(aRPmax >= 0 AND aRPmax < 4294967296),"
-//                            "aRPmin BIGINT CHECK(aRPmin >= 0 AND aRPmin < 4294967296),"
-//                            "bitrateRange BIGINT CHECK(bitrateRange >= 0 AND bitrateRange < 4294967296),"
-//                            "layerMU_MIMO BIGINT CHECK(layerMU_MIMO >= 0 AND layerMU_MIMO < 4294967296),"
-//                            "sUM BIGINT CHECK(sUM >= 0 AND sUM < 4294967296),"
-//                            "distBinX BIGINT CHECK(distBinX >= 0 AND distBinX < 4294967296),"
-//                            "distBinY BIGINT CHECK(distBinY >= 0 AND distBinY < 4294967296),"
-//                            "distBinZ BIGINT CHECK(distBinZ >= 0 AND distBinZ < 4294967296),"
-//                            "preLabelOverride BIGINT CHECK(preLabelOverride >= 0 AND preLabelOverride < 4294967296),"
-//                            "startEndInd BIGINT CHECK(startEndInd >= 0 AND startEndInd < 4294967296),"
-//                            "min BIGINT CHECK(min >= 0 AND min < 4294967296),"
-//                            "max BIGINT CHECK(max >= 0 AND max < 4294967296),"
-//                            "avg BIGINT CHECK(avg >= 0 AND avg < 4294967296)"
-//                            ");";
-
-  //TODO: need to implement the function to write data of labelinfo
-  //if(mysql_query(conn, sql_kpm_labelInfo))
-  //  mysql_finish_with_error(conn);
 }
 
 //static
@@ -932,148 +1016,790 @@ int to_mysql_string_gtp_NGUT(global_e2_node_id_t const* id,gtp_ngu_t_stats_t* gt
   return rc;
 }
 
-//static
-//void to_mysql_string_kpm_measRecord(global_e2_node_id_t const* id,
-//                                    adapter_MeasDataItem_t* kpm_measData,
-//                                    adapter_MeasRecord_t* kpm_measRecord,
-//                                    MeasInfo_t* kpm_measInfo,
-//                                    int64_t tstamp,
-//                                    uint32_t rnti,
-//                                    char* out,
-//                                    size_t out_len)
-//{
-//  assert(kpm_measData != NULL);
-//  assert(out != NULL);
-//  const size_t max = 512;
-//  assert(out_len >= max);
-//
-//  char* c_null = NULL;
-//  char c_cu_du_id[26];
-//  if (id->cu_du_id) {
-//    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
-//    assert(rc < (int) max && "Not enough space in the char array to write all the data");
-//  }
-//
-//  if (kpm_measRecord == NULL){
-//    int const rc = snprintf(out, max,
-//                            "("
-//                            "%ld,"// tstamp
-//                            "%d," //ngran_node
-//                            "%d," //mcc
-//                            "%d," //mnc
-//                            "%d," //mnc_digit_len
-//                            "%d," //nb_id
-//                            "'%s'," //cu_du_id
-//                            "%d," //rnti
-//                            "%ld,"  //kpm_measData->incompleteFlag
-//                            "'%s'," //kpm_measName
-//                            "'%s'"  //kpm_measRecord->int_val
-//                            ")",
-//                            tstamp,
-//                            id->type,
-//                            id->plmn.mcc,
-//                            id->plmn.mnc,
-//                            id->plmn.mnc_digit_len,
-//                            id->nb_id,
-//                            id->cu_du_id ? c_cu_du_id : c_null,
-//                            rnti,
-//                            kpm_measData->incompleteFlag,
-//                            kpm_measInfo ? kpm_measInfo->measName.buf : NULL,
-//                            c_null
-//                            );
-//    assert(rc < (int)max && "Not enough space in the char array to write all the data");
-//    return ;
-//  } else {
-//    if(kpm_measRecord->type == MeasRecord_int){
-//      int const rc = snprintf(out, max,
-//                              "("
-//                              "%ld,"// tstamp
-//                              "%d," //ngran_node
-//                              "%d," //mcc
-//                              "%d," //mnc
-//                              "%d," //mnc_digit_len
-//                              "%d," //nb_id
-//                              "'%s'," //cu_du_id
-//                              "%d," //rnti
-//                              "%ld,"  //kpm_measData->incompleteFlag
-//                              "'%s'," //kpm_measName
-//                              "%ld"  //kpm_measRecord->int_val
-//                              ")",
-//                              tstamp,
-//                              id->type,
-//                              id->plmn.mcc,
-//                              id->plmn.mnc,
-//                              id->plmn.mnc_digit_len,
-//                              id->nb_id,
-//                              id->cu_du_id ? c_cu_du_id : c_null,
-//                              rnti,
-//                              kpm_measData->incompleteFlag,
-//                              kpm_measInfo ? kpm_measInfo->measName.buf : NULL,
-//                              kpm_measRecord->int_val
-//                              );
-//      assert(rc < (int)max && "Not enough space in the char array to write all the data");
-//      return;
-//    }else if (kpm_measRecord->type == MeasRecord_real){
-//      int const rc = snprintf(out, max,
-//                              "("
-//                              "%ld,"// tstamp
-//                              "%d," //ngran_node
-//                              "%d," //mcc
-//                              "%d," //mnc
-//                              "%d," //mnc_digit_len
-//                              "%d," //nb_id
-//                              "'%s'," //cu_du_id
-//                              "%d," //rnti
-//                              "%ld,"  //kpm_measData->incompleteFlag
-//                              "'%s'," //kpm_measName
-//                              "%f"  //kpm_measRecord->real_val
-//                              ")",
-//                              tstamp,
-//                              id->type,
-//                              id->plmn.mcc,
-//                              id->plmn.mnc,
-//                              id->plmn.mnc_digit_len,
-//                              id->nb_id,
-//                              id->cu_du_id ? c_cu_du_id : c_null,
-//                              rnti,
-//                              kpm_measData->incompleteFlag,
-//                              kpm_measInfo ? kpm_measInfo->measName.buf : NULL,
-//                              kpm_measRecord->real_val
-//                              );
-//      assert(rc < (int)max && "Not enough space in the char array to write all the data");
-//      return;
-//    }else if (kpm_measRecord->type == MeasRecord_noval){
-//      int const rc = snprintf(out, max,
-//                              "("
-//                              "%ld,"// tstamp
-//                              "%d," //ngran_node
-//                              "%d," //mcc
-//                              "%d," //mnc
-//                              "%d," //mnc_digit_len
-//                              "%d," //nb_id
-//                              "'%s'," //cu_du_id
-//                              "%d," //rnti
-//                              "%ld,"  //kpm_measData->incompleteFlag
-//                              "'%s'," //kpm_measName
-//                              "-1"  //kpm_measRecord->noVal
-//                              ")",
-//                              tstamp,
-//                              id->type,
-//                              id->plmn.mcc,
-//                              id->plmn.mnc,
-//                              id->plmn.mnc_digit_len,
-//                              id->nb_id,
-//                              id->cu_du_id ? c_cu_du_id : c_null,
-//                              rnti,
-//                              kpm_measData->incompleteFlag,
-//                              kpm_measInfo ? kpm_measInfo->measName.buf : NULL
-//                              );
-//      assert(rc < (int)max && "Not enough space in the char array to write all the data");
-//      return;
-//    }
-//  }
-//  assert(0!=0 && "Bad input data. Nothing for SQL to be created");
-//}
+typedef struct {
+    size_t meas_data_len;
+    size_t meas_data_idx;
+    size_t meas_record_len;
+    size_t meas_record_idx;
+    meas_record_lst_t meas_record;
+    size_t meas_info_len;
+    size_t meas_info_idx;
+    meas_type_t meas_type;
+    size_t label_info_len;
+    size_t label_info_idx;
+} mysql_str_kpm_ind_frm1_t;
+
+static
+void to_mysql_string_kpm_meas_data(global_e2_node_id_t const* id,
+                                   mysql_str_kpm_ind_frm1_t const sql_str_kpm,
+                                   uint32_t* const gran_period_ms,
+                                   enum_value_e* const incomplete_flag,
+                                   format_ind_msg_e const ric_ind_frmt,
+                                   uint64_t const timestamp,
+                                   char* out,
+                                   size_t out_len)
+{
+  assert(out != NULL);
+  const size_t max = 512;
+  assert(out_len >= max);
+
+  char* c_null = NULL;
+  char c_cu_du_id[26];
+  if (id->cu_du_id) {
+    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  uint32_t int_value = 0;
+  double real_value = 0;
+  bool no_value = false;
+  char c_value_type[26];
+  if (sql_str_kpm.meas_record.value == INTEGER_MEAS_VALUE) {
+    int_value = sql_str_kpm.meas_record.int_val;
+    int rc = snprintf(c_value_type, 26, "INTEGER_MEAS_VALUE");
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+
+    int const rcc = snprintf(out, max,
+                             "("
+                             "%lu,"   //tstamp
+                             "%d,"    //ngran_node
+                             "%d,"    //mcc
+                             "%d,"    //mnc
+                             "%d,"    //mnc_digit_len
+                             "%d,"    //nb_id
+                             "'%s',"  //cu_du_id
+                             "%d,"    //format
+                             "%ld,"   //meas_data_len
+                             "%ld,"   //meas_data_idx
+                             "%ld,"   //meas_record_len
+                             "%ld,"   //meas_record_idx
+                             "'%s',"  //incompleteFlag
+                             "%u,"    //gran_period_ms
+                             "'%s',"  //meas_value_type
+                             "%d,"    //meas_value_int
+                             "%f,"    //meas_value_real
+                             "'%s'"   //meas_value_no
+                             ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ric_ind_frmt + 1
+                            ,sql_str_kpm.meas_data_len
+                            ,sql_str_kpm.meas_data_idx
+                            ,sql_str_kpm.meas_record_len
+                            ,sql_str_kpm.meas_record_idx
+                            ,incomplete_flag ? "TRUE":"FALSE"
+                            ,gran_period_ms ? *gran_period_ms: 0
+                            ,c_value_type
+                            ,int_value
+                            ,real_value
+                            ,no_value ? "TRUE":"FALSE"
+                            );
+    assert(rcc < (int)max && "Not enough space in the char array to write all the data");
+    return;
+  } else if (sql_str_kpm.meas_record.value == REAL_MEAS_VALUE) {
+    real_value = sql_str_kpm.meas_record.real_val;
+    int rc = snprintf(c_value_type, 26, "REAL_MEAS_VALUE");
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+
+    int const rcc = snprintf(out, max,
+                             "("
+                             "%lu,"   //tstamp
+                             "%d,"    //ngran_node
+                             "%d,"    //mcc
+                             "%d,"    //mnc
+                             "%d,"    //mnc_digit_len
+                             "%d,"    //nb_id
+                             "'%s',"  //cu_du_id
+                             "%d,"    //format
+                             "%ld,"   //meas_data_len
+                             "%ld,"   //meas_data_idx
+                             "%ld,"   //meas_record_len
+                             "%ld,"   //meas_record_idx
+                             "'%s',"  //incompleteFlag
+                             "%u,"    //gran_period_ms
+                             "'%s',"  //meas_value_type
+                             "%d,"    //meas_value_int
+                             "%f,"    //meas_value_real
+                             "'%s'"   //meas_value_no
+                             ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ric_ind_frmt + 1
+                            ,sql_str_kpm.meas_data_len
+                            ,sql_str_kpm.meas_data_idx
+                            ,sql_str_kpm.meas_record_len
+                            ,sql_str_kpm.meas_record_idx
+                            ,incomplete_flag ? "TRUE":"FALSE"
+                            ,gran_period_ms ? *gran_period_ms: 0
+                            ,c_value_type
+                            ,int_value
+                            ,real_value
+                            ,no_value ? "TRUE":"FALSE"
+                            );
+    assert(rcc < (int)max && "Not enough space in the char array to write all the data");
+    return;
+  } else {
+    no_value = true;
+    int rc = snprintf(c_value_type, 26, "NO_VALUE_MEAS_VALUE");
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+
+    int const rcc = snprintf(out, max,
+                             "("
+                             "%lu,"   //tstamp
+                             "%d,"    //ngran_node
+                             "%d,"    //mcc
+                             "%d,"    //mnc
+                             "%d,"    //mnc_digit_len
+                             "%d,"    //nb_id
+                             "'%s',"  //cu_du_id
+                             "%d,"    //format
+                             "%ld,"   //meas_data_len
+                             "%ld,"   //meas_data_idx
+                             "%ld,"   //meas_record_len
+                             "%ld,"   //meas_record_idx
+                             "'%s',"  //incompleteFlag
+                             "%u,"  //gran_period_ms
+                             "'%s',"  //meas_value_type
+                             "%d,"    //meas_value_int
+                             "%f,"    //meas_value_real
+                             "'%s'"   //meas_value_no
+                             ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ric_ind_frmt + 1
+                            ,sql_str_kpm.meas_data_len
+                            ,sql_str_kpm.meas_data_idx
+                            ,sql_str_kpm.meas_record_len
+                            ,sql_str_kpm.meas_record_idx
+                            ,incomplete_flag ? "TRUE":"FALSE"
+                            ,gran_period_ms ? *gran_period_ms: 0
+                            ,c_value_type
+                            ,int_value
+                            ,real_value
+                            ,no_value ? "TRUE":"FALSE"
+                            );
+    assert(rcc < (int)max && "Not enough space in the char array to write all the data");
+    return;
+  }
+  assert(0!=0 && "Bad input data. Nothing for SQL to be created");
+}
+
+static
+void to_mysql_string_kpm_meas_info(global_e2_node_id_t const* id,
+                                   mysql_str_kpm_ind_frm1_t const sql_str_kpm,
+                                   label_info_lst_t const label_info,
+                                   format_ind_msg_e const ric_ind_frmt,
+                                   uint64_t const timestamp,
+                                   char* out,
+                                   size_t out_len)
+{
+  assert(out != NULL);
+  const size_t max = 512;
+  assert(out_len >= max);
+
+  char *c_null = NULL;
+  char c_cu_du_id[26];
+  if (id->cu_du_id) {
+    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  if (sql_str_kpm.meas_type.type == NAME_MEAS_TYPE) {
+    int const rc = snprintf(out, max,
+                            "("
+                            "%lu,"   //tstamp
+                            "%d,"    //ngran_node
+                            "%d,"    //mcc
+                            "%d,"    //mnc
+                            "%d,"    //mnc_digit_len
+                            "%d,"    //nb_id
+                            "'%s',"  //cu_du_id
+                            "%d,"    //format
+                            "%ld,"   //meas_info_len
+                            "%ld,"   //meas_info_idx
+                            "'%s',"  //meas_type
+                            "'%s',"  //meas_name
+                            "-1,"    //meas_id
+                            "%ld,"   //label_info_len
+                            "%ld,"   //label_info_idx
+                            "'%s',"  //noLabel
+                            "%d,"    //plmn_id_mcc
+                            "%d,"    //plmn_id_mnc
+                            "%d,"    //plmn_id_mnc_digit_len
+                            "%d,"    //sliceID_sST
+                            "'%s',"  //sliceID_sD
+                            "%d,"    //fiveQI
+                            "%d,"    //qFI
+                            "%d,"    //qCI
+                            "%d,"    //qCImax
+                            "%d,"    //qCImin
+                            "%d,"    //aRPmax
+                            "%d,"    //aRPmin
+                            "%d,"    //bitrateRange
+                            "%d,"    //layerMU_MIMO
+                            "'%s',"  //sUM
+                            "%d,"    //distBinX
+                            "%d,"    //distBinY
+                            "%d,"    //distBinZ
+                            "'%s',"  //preLabelOverride
+                            "%d,"    //startEndInd
+                            "'%s',"  //min
+                            "'%s',"  //max
+                            "'%s',"  //avg
+                            "%d,"    //ssbIndex
+                            "%d,"    //nonGoB_beamformModeIndex
+                            "%d"     //mimoModeIndex
+                            ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ric_ind_frmt + 1
+                            ,sql_str_kpm.meas_info_len
+                            ,sql_str_kpm.meas_info_idx
+                            ,"NAME_MEAS_TYPE"
+                            ,sql_str_kpm.meas_type.name.buf
+                            ,sql_str_kpm.label_info_len
+                            ,sql_str_kpm.label_info_idx
+                            ,label_info.noLabel ? "TRUE":"FALSE"
+                            ,label_info.plmn_id->mcc
+                            ,label_info.plmn_id->mnc
+                            ,label_info.plmn_id->mnc_digit_len
+                            ,label_info.sliceID->sST
+                            ,*label_info.sliceID->sD
+                            ,*label_info.fiveQI
+                            ,*label_info.qFI
+                            ,*label_info.qCI
+                            ,*label_info.qCImax
+                            ,*label_info.qCImin
+                            ,*label_info.aRPmax
+                            ,*label_info.aRPmin
+                            ,*label_info.bitrateRange
+                            ,*label_info.layerMU_MIMO
+                            ,*label_info.sUM ? "TRUE":"FALSE"
+                            ,*label_info.distBinX
+                            ,*label_info.distBinY
+                            ,*label_info.distBinZ
+                            ,*label_info.preLabelOverride ? "TRUE":"FALSE"
+                            ,*label_info.startEndInd
+                            ,*label_info.min ? "TRUE":"FALSE"
+                            ,*label_info.max ? "TRUE":"FALSE"
+                            ,*label_info.avg ? "TRUE":"FALSE"
+                            ,*label_info.ssbIndex
+                            ,*label_info.nonGoB_beamformModeIndex
+                            ,*label_info.mimoModeIndex
+                            );
+    printf(
+           "("
+           "%lu,"   //tstamp
+           "%d,"    //ngran_node
+           "%d,"    //mcc
+           "%d,"    //mnc
+           "%d,"    //mnc_digit_len
+           "%d,"    //nb_id
+           "'%s',"  //cu_du_id
+           "%d,"    //format
+           "%ld,"   //meas_info_len
+           "%ld,"   //meas_info_idx
+           "'%s',"  //meas_type
+           "'%s',"  //meas_name
+           "-1,"    //meas_id
+           "%ld,"   //label_info_len
+           "%ld,"   //label_info_idx
+           "'%s',"  //noLabel
+           "%d,"    //plmn_id_mcc
+           "%d,"    //plmn_id_mnc
+           "%d,"    //plmn_id_mnc_digit_len
+           "%d,"    //sliceID_sST
+           "'%s',"  //sliceID_sD
+           "%d,"    //fiveQI
+           "%d,"    //qFI
+           "%d,"    //qCI
+           "%d,"    //qCImax
+           "%d,"    //qCImin
+           "%d,"    //aRPmax
+           "%d,"    //aRPmin
+           "%d,"    //bitrateRange
+           "%d,"    //layerMU_MIMO
+           "'%s',"  //sUM
+           "%d,"    //distBinX
+           "%d,"    //distBinY
+           "%d,"    //distBinZ
+           "'%s',"  //preLabelOverride
+           "%d,"    //startEndInd
+           "'%s',"  //min
+           "'%s',"  //max
+           "'%s',"  //avg
+           "%d,"    //ssbIndex
+           "%d,"    //nonGoB_beamformModeIndex
+           "%d"     //mimoModeIndex
+           ")"
+            ,timestamp
+            ,id->type
+            ,id->plmn.mcc
+            ,id->plmn.mnc
+            ,id->plmn.mnc_digit_len
+            ,id->nb_id
+            ,id->cu_du_id ? c_cu_du_id : c_null
+            ,ric_ind_frmt + 1
+            ,sql_str_kpm.meas_info_len
+            ,sql_str_kpm.meas_info_idx
+            ,"NAME_MEAS_TYPE"
+            ,sql_str_kpm.meas_type.name.buf
+            ,sql_str_kpm.label_info_len
+            ,sql_str_kpm.label_info_idx
+            ,label_info.noLabel ? "TRUE":"FALSE"
+            ,label_info.plmn_id->mcc
+            ,label_info.plmn_id->mnc
+            ,label_info.plmn_id->mnc_digit_len
+            ,label_info.sliceID->sST
+            ,*label_info.sliceID->sD
+            ,*label_info.fiveQI
+            ,*label_info.qFI
+            ,*label_info.qCI
+            ,*label_info.qCImax
+            ,*label_info.qCImin
+            ,*label_info.aRPmax
+            ,*label_info.aRPmin
+            ,*label_info.bitrateRange
+            ,*label_info.layerMU_MIMO
+            ,*label_info.sUM ? "TRUE":"FALSE"
+            ,*label_info.distBinX
+            ,*label_info.distBinY
+            ,*label_info.distBinZ
+            ,*label_info.preLabelOverride ? "TRUE":"FALSE"
+            ,*label_info.startEndInd
+            ,*label_info.min ? "TRUE":"FALSE"
+            ,*label_info.max ? "TRUE":"FALSE"
+            ,*label_info.avg ? "TRUE":"FALSE"
+            ,*label_info.ssbIndex
+            ,*label_info.nonGoB_beamformModeIndex
+            ,*label_info.mimoModeIndex
+    );
+    assert(rc < (int)max && "Not enough space in the char array to write all the data");
+    return;
+  } else if (sql_str_kpm.meas_type.type == ID_MEAS_TYPE) {
+    int const rc = snprintf(out, max,
+                            "("
+                            "%lu,"   //tstamp
+                            "%d,"    //ngran_node
+                            "%d,"    //mcc
+                            "%d,"    //mnc
+                            "%d,"    //mnc_digit_len
+                            "%d,"    //nb_id
+                            "'%s',"  //cu_du_id
+                            "%d,"    //format
+                            "%ld,"   //meas_info_len
+                            "%ld,"   //meas_info_idx
+                            "'%s',"  //meas_type
+                            "'%s',"  //meas_name
+                            "%d,"    //meas_id
+                            "%ld,"   //label_info_len
+                            "%ld,"   //label_info_idx
+                            "'%s',"  //noLabel
+                            "%d,"    //plmn_id_mcc
+                            "%d,"    //plmn_id_mnc
+                            "%d,"    //plmn_id_mnc_digit_len
+                            "%d,"    //sliceID_sST
+                            "'%s',"  //sliceID_sD
+                            "%d,"    //fiveQI
+                            "%d,"    //qFI
+                            "%d,"    //qCI
+                            "%d,"    //qCImax
+                            "%d,"    //qCImin
+                            "%d,"    //aRPmax
+                            "%d,"    //aRPmin
+                            "%d,"    //bitrateRange
+                            "%d,"    //layerMU_MIMO
+                            "'%s',"  //sUM
+                            "%d,"    //distBinX
+                            "%d,"    //distBinY
+                            "%d,"    //distBinZ
+                            "'%s',"  //preLabelOverride
+                            "%d,"    //startEndInd
+                            "'%s',"  //min
+                            "'%s',"  //max
+                            "'%s',"  //avg
+                            "%d,"    //ssbIndex
+                            "%d,"    //nonGoB_beamformModeIndex
+                            "%d"     //mimoModeIndex
+                            ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ric_ind_frmt + 1
+                            ,sql_str_kpm.meas_info_len
+                            ,sql_str_kpm.meas_info_idx
+                            ,"ID_MEAS_TYPE"
+                            ,"NULL"
+                            ,sql_str_kpm.meas_type.id
+                            ,sql_str_kpm.label_info_len
+                            ,sql_str_kpm.label_info_idx
+                            ,label_info.noLabel ? "TRUE":"FALSE"
+                            ,label_info.plmn_id->mcc
+                            ,label_info.plmn_id->mnc
+                            ,label_info.plmn_id->mnc_digit_len
+                            ,label_info.sliceID->sST
+                            ,*label_info.sliceID->sD
+                            ,*label_info.fiveQI
+                            ,*label_info.qFI
+                            ,*label_info.qCI
+                            ,*label_info.qCImax
+                            ,*label_info.qCImin
+                            ,*label_info.aRPmax
+                            ,*label_info.aRPmin
+                            ,*label_info.bitrateRange
+                            ,*label_info.layerMU_MIMO
+                            ,*label_info.sUM ? "TRUE":"FALSE"
+                            ,*label_info.distBinX
+                            ,*label_info.distBinY
+                            ,*label_info.distBinZ
+                            ,*label_info.preLabelOverride ? "TRUE":"FALSE"
+                            ,*label_info.startEndInd
+                            ,*label_info.min ? "TRUE":"FALSE"
+                            ,*label_info.max ? "TRUE":"FALSE"
+                            ,*label_info.avg ? "TRUE":"FALSE"
+                            ,*label_info.ssbIndex
+                            ,*label_info.nonGoB_beamformModeIndex
+                            ,*label_info.mimoModeIndex
+                            );
+    assert(rc < (int)max && "Not enough space in the char array to write all the data");
+    return;
+  } else {
+    assert(0!=0 && "unknown meas type\n");
+  }
+  assert(0!=0 && "Bad input data. Nothing for SQL to be created");
+}
+
+static
+void to_mysql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
+                                        mysql_str_kpm_ind_frm1_t const sql_str_kpm,
+                                        uint32_t* const gran_period_ms,
+                                        enum_value_e* const incomplete_flag,
+                                        format_ind_msg_e const ric_ind_frmt,
+                                        uint64_t const timestamp,
+                                        char* out,
+                                        size_t out_len) {
+  assert(out != NULL);
+  const size_t max = 512;
+  assert(out_len >= max);
+
+  char *c_null = NULL;
+  char c_cu_du_id[26];
+  if (id->cu_du_id) {
+    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  uint32_t int_value = 0;
+  double real_value = 0;
+  bool no_value = false;
+  char c_value_type[26];
+  if (sql_str_kpm.meas_record.value == INTEGER_MEAS_VALUE) {
+    int_value = sql_str_kpm.meas_record.int_val;
+    int rc = snprintf(c_value_type, 26, "INTEGER_MEAS_VALUE");
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  } else if (sql_str_kpm.meas_record.value == REAL_MEAS_VALUE) {
+    real_value = sql_str_kpm.meas_record.real_val;
+    int rc = snprintf(c_value_type, 26, "REAL_MEAS_VALUE");
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  } else {
+    no_value = true;
+    int rc = snprintf(c_value_type, 26, "NO_VALUE_MEAS_VALUE");
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  if (sql_str_kpm.meas_type.type == NAME_MEAS_TYPE) {
+    uint8_t* meas_name = calloc(sql_str_kpm.meas_type.name.len, sizeof(uint8_t));
+    memcpy(meas_name, sql_str_kpm.meas_type.name.buf, sql_str_kpm.meas_type.name.len);
+    int const rc = snprintf(out, max,
+                            "("
+                            "%lu,"   //tstamp
+                            "%d,"    //ngran_node
+                            "%d,"    //mcc
+                            "%d,"    //mnc
+                            "%d,"    //mnc_digit_len
+                            "%d,"    //nb_id
+                            "'%s',"  //cu_du_id
+                            "%d,"    //format
+                            "%ld,"   //meas_data_len
+                            "%ld,"   //meas_data_idx
+                            "%ld,"   //meas_record_len
+                            "%ld,"   //meas_record_idx
+                            "'%s',"  //incompleteFlag
+                            "%ld,"   //meas_info_len
+                            "%ld,"   //meas_info_idx
+                            "%u,"    //gran_period_ms
+                            "'%s',"  //meas_type
+                            "'%s',"  //meas_name
+                            "-1,"    //meas_id
+                            "'%s',"  //meas_value_type
+                            "%d,"    //meas_value_int
+                            "%f,"    //meas_value_real
+                            "'%s'"   //meas_value_no
+                            ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ric_ind_frmt + 1
+                            ,sql_str_kpm.meas_data_len
+                            ,sql_str_kpm.meas_data_idx
+                            ,sql_str_kpm.meas_record_len
+                            ,sql_str_kpm.meas_record_idx
+                            ,incomplete_flag ? "TRUE":"FALSE"
+                            ,sql_str_kpm.meas_info_len
+                            ,sql_str_kpm.meas_info_idx
+                            ,gran_period_ms ? *gran_period_ms : 0
+                            ,"NAME_MEAS_TYPE"
+                            ,sql_str_kpm.meas_type.name.len > 0 ? (char*)meas_name : "null"
+                            ,c_value_type
+                            ,int_value
+                            ,real_value
+                            ,no_value ? "TRUE":"FALSE"
+                            );
+    free(meas_name);
+    assert(rc < (int)max && "Not enough space in the char array to write all the data");
+    return;
+  } else if (sql_str_kpm.meas_type.type == ID_MEAS_TYPE) {
+    int const rc = snprintf(out, max,
+                            "("
+                            "%lu,"   //tstamp
+                            "%d,"    //ngran_node
+                            "%d,"    //mcc
+                            "%d,"    //mnc
+                            "%d,"    //mnc_digit_len
+                            "%d,"    //nb_id
+                            "'%s',"  //cu_du_id
+                            "%d,"    //format
+                            "%ld,"   //meas_data_len
+                            "%ld,"   //meas_data_idx
+                            "%ld,"   //meas_record_len
+                            "%ld,"   //meas_record_idx
+                            "'%s',"  //incompleteFlag
+                            "%ld,"   //meas_info_len
+                            "%ld,"   //meas_info_idx
+                            "%u,"    //gran_period_ms
+                            "'%s',"  //meas_type
+                            "'%s',"  //meas_name
+                            "%d,"    //meas_id
+                            "'%s',"  //meas_value_type
+                            "%d,"    //meas_value_int
+                            "%f,"    //meas_value_real
+                            "'%s'"   //meas_value_no
+                            ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ric_ind_frmt + 1
+                            ,sql_str_kpm.meas_data_len
+                            ,sql_str_kpm.meas_data_idx
+                            ,sql_str_kpm.meas_record_len
+                            ,sql_str_kpm.meas_record_idx
+                            ,incomplete_flag ? "TRUE":"FALSE"
+                            ,sql_str_kpm.meas_info_len
+                            ,sql_str_kpm.meas_info_idx
+                            ,gran_period_ms ? *gran_period_ms : 0
+                            ,"NAME_ID_TYPE"
+                            ,"NULL"
+                            ,sql_str_kpm.meas_type.id
+                            ,c_value_type
+                            ,int_value
+                            ,real_value
+                            ,no_value ? "TRUE":"FALSE"
+                            );
+    assert(rc < (int)max && "Not enough space in the char array to write all the data");
+    return;
+  } else {
+    assert(0!=0 && "unknown meas type\n");
+  }
+
+  assert(0!=0 && "Bad input data. Nothing for SQL to be created");
+}
+
+static
+void to_mysql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
+                                    ue_id_e2sm_t const ue_id_e2sm,
+                                    format_ind_msg_e const ric_ind_frmt,
+                                    ue_id_e2sm_e const ue_id_e2sm_type,
+                                    uint64_t const timestamp,
+                                    char* out,
+                                    size_t out_len)
+{
+  assert(out != NULL);
+  const size_t max = 512;
+  assert(out_len >= max);
+
+  char *c_null = NULL;
+  char c_cu_du_id[26];
+  if (id->cu_du_id) {
+    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  if (ue_id_e2sm_type == GNB_UE_ID_E2SM) {
+    gnb_e2sm_t gnb = ue_id_e2sm.gnb;
+    int const rc = snprintf(out, max,
+                            "("
+                            "%lu,"   //tstamp
+                            "%d,"    //ngran_node
+                            "%d,"    //mcc
+                            "%d,"    //mnc
+                            "%d,"    //mnc_digit_len
+                            "%d,"    //nb_id
+                            "'%s',"  //cu_du_id
+                            "%d,"    //format
+                            "'%s',"  //ue_id_e2sm_type
+                            "%d,"    //guami_plmn_id_mcc
+                            "%d,"    //guami_plmn_id_mnc
+                            "%d,"    //guami_plmn_id_mnc_digit_len
+                            /// gnb.h ///
+                            "%ld,"   //amf_ue_ngap_id
+                            "%d,"    //guami_amf_region_id
+                            "%d,"    //amf_set_id
+                            "%d,"    //amf_ptr
+                            "%ld,"   //gnb_cu_ue_f1ap_lst_len
+                            "%d,"    //gnb_cu_ue_f1ap_lst
+                            "%ld,"   //gnb_cu_cp_ue_e1ap_lst_len
+                            "%d,"    //gnb_cu_cp_ue_e1ap_lst
+                            "%lu,"   //ran_ue_id
+                            "%u,"    //ng_ran_node_ue_xnap_id
+                            /// enb.h ///
+                            "%d,"    //mme_ue_s1ap_id
+                            "%d,"    //guami_mme_group_id
+                            "%d,"    //guami_mme_code
+                            "%d,"    //enb_ue_x2ap_id
+                            "%d"     //enb_ue_x2ap_id_extension
+                            ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ric_ind_frmt + 1
+                            ,"GNB_UE_ID_E2SM"
+                            ,gnb.guami.plmn_id.mcc
+                            ,gnb.guami.plmn_id.mnc
+                            ,gnb.guami.plmn_id.mnc_digit_len
+                            ,gnb.amf_ue_ngap_id
+                            ,gnb.guami.amf_region_id
+                            ,gnb.guami.amf_set_id
+                            ,gnb.guami.amf_ptr
+                            ,gnb.gnb_cu_ue_f1ap_lst_len
+                            ,gnb.gnb_cu_ue_f1ap_lst_len > 0 ? *gnb.gnb_cu_ue_f1ap_lst : 0
+                            ,gnb.gnb_cu_cp_ue_e1ap_lst_len
+                            ,gnb.gnb_cu_cp_ue_e1ap_lst_len > 0 ? *gnb.gnb_cu_cp_ue_e1ap_lst : 0
+                            ,gnb.ran_ue_id ? *gnb.ran_ue_id : 0
+                            ,gnb.ng_ran_node_ue_xnap_id ? *gnb.ng_ran_node_ue_xnap_id : 0
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,-1
+                            );
+    assert(rc < (int)max && "Not enough space in the char array to write all the data");
+    return;
+  } else if (ue_id_e2sm_type == ENB_UE_ID_E2SM) {
+    enb_e2sm_t enb = ue_id_e2sm.enb;
+    int const rc = snprintf(out, max,
+                            "("
+                            "%lu,"   //tstamp
+                            "%d,"    //ngran_node
+                            "%d,"    //mcc
+                            "%d,"    //mnc
+                            "%d,"    //mnc_digit_len
+                            "%d,"    //nb_id
+                            "'%s',"  //cu_du_id
+                            "%d,"    //format
+                            "'%s',"  //ue_id_e2sm_type
+                            "%d,"    //guami_plmn_id_mcc
+                            "%d,"    //guami_plmn_id_mnc
+                            "%d,"    //guami_plmn_id_mnc_digit_len
+                            /// gnb.h ///
+                            "%ld,"   //amf_ue_ngap_id
+                            "%d,"    //guami_amf_region_id
+                            "%d,"    //amf_set_id
+                            "%d,"    //amf_ptr
+                            "%ld,"   //gnb_cu_ue_f1ap_lst_len
+                            "%d,"    //gnb_cu_ue_f1ap_lst
+                            "%ld,"   //gnb_cu_cp_ue_e1ap_lst_len
+                            "%d,"    //gnb_cu_cp_ue_e1ap_lst
+                            "%ld,"    //ran_ue_id
+                            "%d,"    //ng_ran_node_ue_xnap_id
+                            /// enb.h ///
+                            "%d,"    //mme_ue_s1ap_id
+                            "%d,"    //guami_mme_group_id
+                            "%d,"    //guami_mme_code
+                            "%u,"    //enb_ue_x2ap_id
+                            "%u"     //enb_ue_x2ap_id_extension
+                            ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ric_ind_frmt + 1
+                            ,"ENB_UE_ID_E2SM"
+                            ,enb.gummei.plmn_id.mcc
+                            ,enb.gummei.plmn_id.mnc
+                            ,enb.gummei.plmn_id.mnc_digit_len
+                            ,(long int)-1
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,(long int)-1
+                            ,-1
+                            ,(long int)-1
+                            ,-1
+                            ,(long int)-1
+                            ,-1
+                            ,enb.mme_ue_s1ap_id
+                            ,enb.gummei.mme_group_id
+                            ,enb.gummei.mme_code
+                            ,enb.enb_ue_x2ap_id ? *enb.enb_ue_x2ap_id : 0
+                            ,enb.enb_ue_x2ap_id_extension ? *enb.enb_ue_x2ap_id_extension : 0
+                            );
+    assert(rc < (int)max && "Not enough space in the char array to write all the data");
+    return;
+  } else {
+    assert(0!=0 && "not support ue_id_e2sm type");
+  }
+  assert(0!=0 && "Bad input data. Nothing for SQL to be created");
+}
+
 
 int mac_count = 0;
 int mac_stat_max = 50;
@@ -1081,11 +1807,11 @@ char mac_buffer[2048] = "INSERT INTO MAC_UE "
                         "("
                         "tstamp,"
                         "ngran_node,"
-                        "mcc,"
-                        "mnc,"
-                        "mnc_digit_len,"
-                        "nb_id,"
-                        "cu_du_id,"
+                        "e2node_mcc,"
+                        "e2node_mnc,"
+                        "e2node_mnc_digit_len,"
+                        "e2node_nb_id,"
+                        "e2node_cu_du_id,"
                         "frame,"
                         "slot,"
                         "dl_aggr_tbs,"
@@ -1171,11 +1897,11 @@ char rlc_buffer[2048] = "INSERT INTO RLC_bearer "
                     "("
                     "tstamp,"
                     "ngran_node,"
-                    "mcc,"
-                    "mnc,"
-                    "mnc_digit_len,"
-                    "nb_id,"
-                    "cu_du_id,"
+                    "e2node_mcc,"
+                    "e2node_mnc,"
+                    "e2node_mnc_digit_len,"
+                    "e2node_nb_id,"
+                    "e2node_cu_du_id,"
                     "txpdu_pkts,"
                     "txpdu_bytes,"
                     "txpdu_wt_ms,"
@@ -1257,11 +1983,11 @@ char pdcp_buffer[2048] = "INSERT INTO PDCP_bearer "
                         "("
                         "tstamp,"
                         "ngran_node,"
-                        "mcc,"
-                        "mnc,"
-                        "mnc_digit_len,"
-                        "nb_id,"
-                        "cu_du_id,"
+                        "e2node_mcc,"
+                        "e2node_mnc,"
+                        "e2node_mnc_digit_len,"
+                        "e2node_nb_id,"
+                        "e2node_cu_du_id,"
                         "txpdu_pkts,"
                         "txpdu_bytes,"
                         "txpdu_sn,"
@@ -1326,11 +2052,11 @@ char slice_buffer[2048] = "INSERT INTO SLICE "
                           "("
                           "tstamp,"
                           "ngran_node,"
-                          "mcc,"
-                          "mnc,"
-                          "mnc_digit_len,"
-                          "nb_id,"
-                          "cu_du_id,"
+                          "e2node_mcc,"
+                          "e2node_mnc,"
+                          "e2node_mnc_digit_len,"
+                          "e2node_nb_id,"
+                          "e2node_cu_du_id,"
                           "len_slices,"
                           "sched_name,"
                           "id,"
@@ -1416,11 +2142,11 @@ char ue_slice_buffer[2048] = "INSERT INTO UE_SLICE "
                              "("
                              "tstamp,"
                              "ngran_node,"
-                             "mcc,"
-                             "mnc,"
-                             "mnc_digit_len,"
-                             "nb_id,"
-                             "cu_du_id,"
+                             "e2node_mcc,"
+                             "e2node_mnc,"
+                             "e2node_mnc_digit_len,"
+                             "e2node_nb_id,"
+                             "e2node_cu_du_id,"
                              "len_ue_slice,"
                              "rnti,"
                              "dl_id"
@@ -1509,11 +2235,11 @@ char gtp_buffer[2048] = "INSERT INTO GTP_NGUT "
                          "("
                          "tstamp,"
                          "ngran_node,"
-                         "mcc,"
-                         "mnc,"
-                         "mnc_digit_len,"
-                         "nb_id,"
-                         "cu_du_id,"
+                         "e2node_mcc,"
+                         "e2node_mnc,"
+                         "e2node_mnc_digit_len,"
+                         "e2node_nb_id,"
+                         "e2node_cu_du_id,"
                          "teidgnb,"
                          "rnti,"
                          "qfi,"
@@ -1558,128 +2284,300 @@ void write_gtp_stats(MYSQL* conn, global_e2_node_id_t const* id, gtp_ind_data_t 
 
 }
 
-//static uint32_t extract_kpm_rnti_val(const kpm_ind_msg_t* ind_msg, const adapter_MeasDataItem_t* measData)
-//{
-//  uint32_t rnti = -1; // -1 means not found.
-//  for (size_t j = 0; j < ind_msg->MeasInfo_len; j++) {
-//    if ((ind_msg->MeasInfo[j].meas_type == KPM_V2_MEASUREMENT_TYPE_NAME) &&
-//        (strcmp((char*)ind_msg->MeasInfo[j].measName.buf, "rnti") == 0)) {
-//      if (measData->measRecord[j].type == MeasRecord_int)
-//        rnti = measData->measRecord[j].int_val;
-//      else if (measData->measRecord[j].type == MeasRecord_real)
-//        rnti = measData->measRecord[j].real_val;
-//      else
-//        printf("unknow measRecord type, cannot extract rnti\n");
-//      // printf("find rnti column, measRecord[%lu].real_val = %d\n", j, rnti);
-//      break;
-//    }
-//  }
-//  return rnti;
-//}
-//
-//int kpm_count = 0;
-//int kpm_stat_max = 50;
-//char kpm_buffer[2048] = "INSERT INTO KPM_MeasRecord "
-//                        "("
-//                        "tstamp,"
-//                        "ngran_node,"
-//                        "mcc,"
-//                        "mnc,"
-//                        "mnc_digit_len,"
-//                        "nb_id,"
-//                        "cu_du_id,"
-//                        "rnti,"
-//                        "incompleteFlag,"
-//                        "name,"
-//                        "val"
-//                        ") "
-//                        "VALUES";
-//char kpm_temp[16384] = "";
-//static
-//void write_kpm_stats(MYSQL* conn, global_e2_node_id_t const* id, kpm_ind_data_t const* ind)
-//{
-//  // TODO: Add granulPeriod into database
-//  // TODO: Add MeasInfo and LabelInfo into database
-//
-//  assert(conn != NULL);
-//  assert(ind != NULL);
-//
-//  kpm_ind_msg_t const* ind_msg_kpm = &ind->msg;
-//
-//  int64_t timestamp_us = 0;
-//  if (ind->msg.MeasData_len > 0)
-//    if (ind->msg.MeasData[0].measRecord_len > 0)
-//      timestamp_us = ind->msg.MeasData[0].measRecord[0].real_val;
-//  for(size_t i = 0; i < ind_msg_kpm->MeasData_len; i++){
-//    adapter_MeasDataItem_t* curMeasData = &ind_msg_kpm->MeasData[i];
-//    if (curMeasData->measRecord_len > 0){
-//      uint32_t rnti = extract_kpm_rnti_val(ind_msg_kpm, curMeasData);
-//      for (size_t j = 1; j < curMeasData->measRecord_len; j++){
-//        adapter_MeasRecord_t* curMeasRecord = &curMeasData->measRecord[j];
-//        MeasInfo_t* curMeasInfo = &ind_msg_kpm->MeasInfo[j];
-//
-//        if ((curMeasInfo->meas_type == KPM_V2_MEASUREMENT_TYPE_NAME) &&
-//                (strcmp((char*)curMeasInfo->measName.buf, "rnti") == 0))
-//          continue;
-//
-//        char buffer[2048] = "";
-//        if (kpm_count == 0)
-//          strcat(kpm_temp, kpm_buffer);
-//        kpm_count += 1;
-//        to_mysql_string_kpm_measRecord(id, curMeasData, curMeasRecord, curMeasInfo, timestamp_us, rnti,
-//                                       buffer, 512);
-//        // TODO: by our convention, the first record contains "timestamp_us". Add that value to collectStartTime that is microseconds to be able to have a
-//        // consistent high resolution timestamp in microseconds.
-//        // to_mysql_string_kpm_measRecord(id, curMeasData, curMeasRecord, curMeasInfo, (long)ind->hdr.collectStartTime * 1000000 + ts,
-//        //                                buffer, 512);
-//        if (kpm_count < kpm_stat_max) {
-//          //printf("%d add ,\n", kpm_count);
-//          strcat(buffer, ",");
-//          strcat(kpm_temp, buffer);
-//        } else {
-//          //printf("%d add ;\n", kpm_temp);
-//          kpm_count = 0;
-//          strcat(kpm_temp, buffer);
-//          strcat(kpm_temp, ";");
-//          //for(size_t i = 0; i < strlen(kpm_temp); i++)
-//          //  printf("%c", kpm_temp[i]);
-//          //printf("\n");
-//          //int64_t st = time_now_us();
-//          if (mysql_query(conn, kpm_temp))
-//            mysql_finish_with_error(conn);
-//          //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
-//          strcpy(kpm_temp,"");
-//        }
-//      }
-//    } else {
-//      char buffer[2048] = "";
-//      if (kpm_count == 0)
-//        strcat(kpm_temp, kpm_buffer);
-//      kpm_count += 1;
-//      to_mysql_string_kpm_measRecord(id, curMeasData, NULL, NULL, timestamp_us, -1,
-//      // to_mysql_string_kpm_measRecord(id, curMeasData, NULL, NULL, (long)ind->hdr.collectStartTime * 1000000 + ts,
-//                                      buffer, 512);
-//      if (kpm_count < kpm_stat_max) {
-//        //printf("%d add ,\n", kpm_count);
-//        strcat(buffer, ",");
-//        strcat(kpm_temp, buffer);
-//      } else {
-//        //printf("%d add ;\n", kpm_temp);
-//        kpm_count = 0;
-//        strcat(kpm_temp, buffer);
-//        strcat(kpm_temp, ";");
-//        //for(size_t i = 0; i < strlen(kpm_temp); i++)
-//        //  printf("%c", kpm_temp[i]);
-//        //printf("\n");
-//        //int64_t st = time_now_us();
-//        if (mysql_query(conn, kpm_temp))
-//          mysql_finish_with_error(conn);
-//        //printf("[MYSQL]: write db consuming time: %ld\n", time_now_us() - st);
-//        strcpy(kpm_temp,"");
-//      }
-//    }
-//  }
-//}
+// kpm meas data
+int kpm_meas_data_count = 0;
+int kpm_meas_data_max = 50;
+char kpm_buffer_meas_data[2048] = "INSERT INTO KPM_IND_MEAS_DATA "
+                                  "("
+                                  "tstamp,"
+                                  "ngran_node,"
+                                  "e2node_mcc,"
+                                  "e2node_mnc,"
+                                  "e2node_mnc_digit_len,"
+                                  "e2node_nb_id,"
+                                  "e2node_cu_du_id,"
+                                  "ric_ind_format,"
+                                  "meas_data_len,"
+                                  "meas_data_idx,"
+                                  "meas_record_len,"
+                                  "meas_record_idx,"
+                                  "incompleteFlag,"
+                                  "gran_period_ms,"
+                                  "meas_value_type,"
+                                  "meas_value_int,"
+                                  "meas_value_real,"
+                                  "meas_value_no"
+                                  ") "
+                                  "VALUES";
+char kpm_meas_data_temp[16384] = "";
+// kpm meas info
+int kpm_meas_info_count = 0;
+int kpm_meas_info_max = 50;
+char kpm_buffer_meas_info[2048] = "INSERT INTO KPM_IND_MEAS_INFO "
+                                  "("
+                                  "tstamp,"
+                                  "ngran_node,"
+                                  "e2node_mcc,"
+                                  "e2node_mnc,"
+                                  "e2node_mnc_digit_len,"
+                                  "e2node_nb_id,"
+                                  "e2node_cu_du_id,"
+                                  "ric_ind_format,"
+                                  "meas_info_len,"
+                                  "meas_info_idx,"
+                                  "meas_type,"
+                                  "meas_name,"
+                                  "meas_id,"
+                                  "label_info_len,"
+                                  "label_info_idx,"
+                                  "noLabel,"
+                                  "plmn_id_mcc,"
+                                  "plmn_id_mnc,"
+                                  "plmn_id_mnc_digit_len,"
+                                  "sliceID_sST,"
+                                  "sliceID_sD,"
+                                  "fiveQI,"
+                                  "qFI,"
+                                  "qCI,"
+                                  "qCImax,"
+                                  "qCImin,"
+                                  "aRPmax,"
+                                  "aRPmin,"
+                                  "bitrateRange,"
+                                  "layerMU_MIMO,"
+                                  "sUM,"
+                                  "distBinX,"
+                                  "distBinY,"
+                                  "distBinZ,"
+                                  "preLabelOverride,"
+                                  "startEndInd,"
+                                  "min,"
+                                  "max,"
+                                  "avg,"
+                                  "ssbIndex,"
+                                  "nonGoB_beamformModeIndex,"
+                                  "mimoModeIndex"
+                                  ") "
+                                  "VALUES";
+char kpm_meas_info_temp[16384] = "";
+// combine meas data with meas info
+int kpm_meas_data_info_count = 0;
+int kpm_meas_data_info_max = 50;
+char kpm_buffer_meas_data_info[2048] = "INSERT INTO KPM_IND_MEAS_DATA_INFO "
+                                  "("
+                                  "tstamp,"
+                                  "ngran_node,"
+                                  "e2node_mcc,"
+                                  "e2node_mnc,"
+                                  "e2node_mnc_digit_len,"
+                                  "e2node_nb_id,"
+                                  "e2node_cu_du_id,"
+                                  "ric_ind_format,"
+                                  "meas_data_len,"
+                                  "meas_data_idx,"
+                                  "meas_record_len,"
+                                  "meas_record_idx,"
+                                  "incompleteFlag,"
+                                  "meas_info_len,"
+                                  "meas_info_idx,"
+                                  "gran_period_ms,"
+                                  "meas_type," // To map the value to the measurement name or id
+                                  "meas_name,"
+                                  "meas_id,"
+                                  "meas_value_type,"
+                                  "meas_value_int,"
+                                  "meas_value_real,"
+                                  "meas_value_no"
+                                  ") "
+                                  "VALUES";
+char kpm_meas_data_info_temp[16384] = "";
+static void write_kpm_frm1_stats(MYSQL* conn,
+                                 global_e2_node_id_t const* id,
+                                 format_ind_msg_e const ric_ind_frmt,
+                                 kpm_ind_msg_format_1_t const* msg,
+                                 uint64_t const timestamp)
+{
+  assert(conn != NULL);
+  assert(msg != NULL);
+
+  for (size_t i = 0; i < msg->meas_data_lst_len; i++) {
+    mysql_str_kpm_ind_frm1_t sql_str_kpm = {0};
+    sql_str_kpm.meas_data_len = msg->meas_data_lst_len;
+    sql_str_kpm.meas_data_idx = i;
+
+    meas_data_lst_t meas_data = msg->meas_data_lst[i];
+    if (msg->meas_info_lst_len != meas_data.meas_record_len) {
+      printf("meas_info_lst_len != meas_record_len, cannot write kpm ind frm1 to sqlite3 db\n");
+      break;
+    }
+
+    sql_str_kpm.meas_record_len = meas_data.meas_record_len;
+    sql_str_kpm.meas_info_len = msg->meas_info_lst_len;
+    for (size_t j = 0; j < meas_data.meas_record_len; j++) {
+      meas_record_lst_t meas_record = meas_data.meas_record_lst[j];
+      sql_str_kpm.meas_record_idx = j;
+      sql_str_kpm.meas_record = meas_record;
+      meas_info_format_1_lst_t meas_info = msg->meas_info_lst[j];
+      sql_str_kpm.meas_info_idx = j;
+      sql_str_kpm.meas_type = meas_info.meas_type;
+
+      // meas data
+      char buffer[2048] = "";
+      if (kpm_meas_data_count == 0)
+        strcat(kpm_meas_data_temp, kpm_buffer_meas_data);
+      kpm_meas_data_count += 1;
+      to_mysql_string_kpm_meas_data(id, sql_str_kpm, msg->gran_period_ms, meas_data.incomplete_flag, ric_ind_frmt, timestamp, buffer, 512);
+      if (kpm_meas_data_count < kpm_meas_data_max) {
+        strcat(buffer, ",");
+        strcat(kpm_meas_data_temp, buffer);
+      } else {
+        strcat(kpm_meas_data_temp, buffer);
+        strcat(kpm_meas_data_temp, ";");
+        if (mysql_query(conn, kpm_meas_data_temp))
+          mysql_finish_with_error(conn);
+        strcpy(kpm_meas_data_temp,"");
+        kpm_meas_data_count = 0;
+      }
+
+      // meas info
+      for (size_t k = 0; k < meas_info.label_info_lst_len; k++) {
+        label_info_lst_t label_info = meas_info.label_info_lst[k];
+        if (*label_info.noLabel == TRUE_ENUM_VALUE)
+          continue;
+        char buffer2[2048] = "";
+        if (kpm_meas_info_count == 0)
+          strcat(kpm_meas_info_temp, kpm_buffer_meas_info);
+        kpm_meas_info_count += 1;
+        to_mysql_string_kpm_meas_info(id, sql_str_kpm, label_info, ric_ind_frmt, timestamp, buffer2, 512);
+        if (kpm_meas_info_count < kpm_meas_info_max) {
+          strcat(buffer2, ",");
+          strcat(kpm_meas_info_temp, buffer2);
+        } else {
+          strcat(kpm_meas_info_temp, buffer2);
+          strcat(kpm_meas_info_temp, ";");
+          if (mysql_query(conn, kpm_meas_info_temp))
+            mysql_finish_with_error(conn);
+          strcpy(kpm_meas_info_temp,"");
+          kpm_meas_info_count = 0;
+        }
+      }
+
+      // combine meas data with meas info
+      char buffer3[2048] = "";
+      if (kpm_meas_data_info_count == 0)
+        strcat(kpm_meas_data_info_temp, kpm_buffer_meas_data_info);
+      kpm_meas_data_info_count += 1;
+      to_mysql_string_kpm_meas_data_info(id, sql_str_kpm, msg->gran_period_ms, meas_data.incomplete_flag, ric_ind_frmt, timestamp, buffer3, 512);
+      if (kpm_meas_data_info_count < kpm_meas_data_info_max) {
+        strcat(buffer3, ",");
+        strcat(kpm_meas_data_info_temp, buffer3);
+      } else {
+        strcat(kpm_meas_data_info_temp, buffer3);
+        strcat(kpm_meas_data_info_temp, ";");
+        if (mysql_query(conn, kpm_meas_data_info_temp))
+          mysql_finish_with_error(conn);
+        strcpy(kpm_meas_data_info_temp,"");
+        kpm_meas_data_info_count = 0;
+      }
+    }
+  }
+}
+
+// ue_id_e2sm
+int kpm_ue_id_e2sm_count = 0;
+int kpm_ue_id_e2sm_max = 50;
+char kpm_buffer_ue_id_e2sm[2048] = "INSERT INTO KPM_IND_UE_ID_E2SM "
+                                   "("
+                                   "tstamp,"
+                                   "ngran_node,"
+                                   "e2node_mcc,"
+                                   "e2node_mnc,"
+                                   "e2node_mnc_digit_len,"
+                                   "e2node_nb_id,"
+                                   "e2node_cu_du_id,"
+                                   "ric_ind_format,"
+                                   "ue_id_e2sm_type,"
+                                   "guami_plmn_id_mcc,"
+                                   "guami_plmn_id_mnc,"
+                                   "guami_plmn_id_mnc_digit_len,"
+                                   /// gnb.h ///
+                                   "amf_ue_ngap_id,"
+                                   "guami_amf_region_id,"
+                                   "guami_amf_set_id,"
+                                   "guami_amf_ptr,"
+                                   "gnb_cu_ue_f1ap_lst_len,"
+                                   "gnb_cu_ue_f1ap_lst,"
+                                   "gnb_cu_cp_ue_e1ap_lst_len,"
+                                   "gnb_cu_cp_ue_e1ap_lst,"
+                                   "ran_ue_id,"
+                                   "ng_ran_node_ue_xnap_id,"
+                                   /// enb.h ///
+                                   "mme_ue_s1ap_id,"
+                                   "guami_mme_group_id,"
+                                   "guami_mme_code,"
+                                   "enb_ue_x2ap_id,"
+                                   "enb_ue_x2ap_id_extension"
+                                   ") "
+                                   "VALUES";
+char kpm_ue_id_e2sm_temp[16384] = "";
+static
+void write_kpm_frm3_stats(MYSQL* conn,
+                          global_e2_node_id_t const* id,
+                          format_ind_msg_e const ric_ind_frmt,
+                          kpm_ind_msg_format_3_t const* msg,
+                          uint64_t const timestamp)
+{
+  assert(conn != NULL);
+  assert(msg != NULL);
+
+  for (size_t i = 0; i < msg->ue_meas_report_lst_len; i++) {
+    // ue_id_e2sm_t
+    ue_id_e2sm_t ue_id_e2sm = msg->meas_report_per_ue[i].ue_meas_report_lst;
+    if (ue_id_e2sm.type == GNB_UE_ID_E2SM || ue_id_e2sm.type == ENB_UE_ID_E2SM) {
+      char buffer[2048] = "";
+      if (kpm_ue_id_e2sm_count == 0)
+        strcat(kpm_ue_id_e2sm_temp, kpm_buffer_ue_id_e2sm);
+      kpm_ue_id_e2sm_count += 1;
+      to_mysql_string_kpm_ue_id_e2sm(id, ue_id_e2sm, ric_ind_frmt, ue_id_e2sm.type, timestamp, buffer, 512);
+      if (kpm_ue_id_e2sm_count < kpm_ue_id_e2sm_max) {
+        strcat(buffer, ",");
+        strcat(kpm_ue_id_e2sm_temp, buffer);
+      } else {
+        strcat(kpm_ue_id_e2sm_temp, buffer);
+        strcat(kpm_ue_id_e2sm_temp, ";");
+        if (mysql_query(conn, kpm_ue_id_e2sm_temp))
+          mysql_finish_with_error(conn);
+        strcpy(kpm_ue_id_e2sm_temp,"");
+        kpm_ue_id_e2sm_count = 0;
+      }
+    } else {
+      printf("not supported ue_id_e2sm type\n");
+    }
+
+    // kpm_ind_msg_format_1_t
+    kpm_ind_msg_format_1_t const *meas_report = &msg->meas_report_per_ue[i].ind_msg_format_1;
+    write_kpm_frm1_stats(conn, id, ric_ind_frmt, meas_report, timestamp);
+  }
+
+}
+
+static
+void write_kpm_stats(MYSQL* conn, global_e2_node_id_t const* id, kpm_ind_data_t const* ind)
+{
+  assert(conn != NULL);
+  assert(ind != NULL);
+
+  kpm_ind_msg_t const* msg = &ind->msg;
+  uint64_t const timestamp = ind->hdr.kpm_ric_ind_hdr_format_1.collectStartTime;
+
+  if (msg->type == FORMAT_1_INDICATION_MESSAGE) {
+    write_kpm_frm1_stats(conn, id, msg->type, &msg->frm_1, timestamp);
+  } else if (msg->type == FORMAT_2_INDICATION_MESSAGE) {
+    assert(0!=0);
+  } else if (msg->type == FORMAT_3_INDICATION_MESSAGE) {
+    write_kpm_frm3_stats(conn, id, msg->type, &msg->frm_3, timestamp);
+  }
+}
 
 void init_db_mysql(MYSQL** conn, db_params_t const* db_params)
 {
@@ -1798,8 +2696,7 @@ void write_db_mysql(MYSQL* conn, global_e2_node_id_t const* id, sm_ag_if_rd_t co
   } else if (rd->type == GTP_STATS_V0) {
     write_gtp_stats(conn, id, &rd->gtp);
   } else if (rd->type == KPM_STATS_V3_0) {
-    // write_kpm_stats(conn, id, &rd->kpm_stats);
-    printf("mysql not support kpm sm\n");
+    write_kpm_stats(conn, id, &rd->kpm.ind);
   } else if (rd->type == RAN_CTRL_STATS_V1_03) {
     printf("mysql not support rc sm\n");
   } else {
