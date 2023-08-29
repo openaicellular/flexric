@@ -9,6 +9,21 @@ else()
   message(FATAL_ERROR "Unknown type")
 endif()
 
+if(KPM_VERSION STREQUAL "KPM_V2")
+set(KPM_VERSION_SRC 
+  ../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie.c
+  )
+elseif(KPM_VERSION STREQUAL "KPM_V3")
+set(KPM_VERSION_SRC 
+  ../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+  )
+else()
+  message(FATAL_ERROR "Unknown KPM version")
+endif()
+
+
+
+
 set(XAPP_SRC 
   e2ap_xapp.c
   asio_xapp.c
@@ -39,7 +54,8 @@ set(XAPP_SRC
   $<TARGET_OBJECTS:e42_xapp_db_obj>
 
   # KPM SM
-  ../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+  ${KPM_VERSION_SRC}
+ 
   ../../test/rnd/fill_rnd_data_kpm.c
   #$<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
   $<TARGET_OBJECTS:kpm_ric_info_common_obj>
@@ -105,8 +121,8 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
 
 endif()
 
-target_compile_definitions(e42_xapp PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB} )
-target_compile_definitions(e42_xapp_shared PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB} )
+target_compile_definitions(e42_xapp PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB}  ${KPM_VERSION})
+target_compile_definitions(e42_xapp_shared PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB}  ${KPM_VERSION})
 
 add_definitions(-DXAPP_DB_DIR="${XAPP_DB_DIR}")
 

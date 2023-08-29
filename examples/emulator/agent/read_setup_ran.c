@@ -28,7 +28,13 @@
 void read_setup_ran(void* data)
 {
   assert(data != NULL);
+#ifdef E2AP_V1
 
+#elif defined(E2AP_V2) || defined(E2AP_V3) 
   *((e2ap_node_component_config_add_t*)data) = fill_e2ap_node_component_config_add();
+#else
+  static_assert(0!=0, "Unknown E2AP version");
+#endif
+
 }
 

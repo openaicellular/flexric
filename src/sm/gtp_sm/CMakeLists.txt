@@ -42,6 +42,6 @@ else()
 endif()
 
 # ${E2AP_VERSION} needed since the ran_function may changge from version to version
-target_compile_definitions(gtp_sm PRIVATE ${SM_ENCODING_GTP} ${E2AP_VERSION})
-target_compile_definitions(gtp_sm_static PRIVATE ${SM_ENCODING_GTP} ${E2AP_VERSION} )
+target_compile_definitions(gtp_sm PRIVATE ${SM_ENCODING_GTP} ${E2AP_VERSION} ${KPM_VERSION} )
+target_compile_definitions(gtp_sm_static PRIVATE ${SM_ENCODING_GTP} ${E2AP_VERSION} ${KPM_VERSION} )
 

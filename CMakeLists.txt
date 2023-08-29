@@ -23,6 +23,19 @@ set(UNITY_BUILD ON)
 set(UNITY_BUILD_BATCH_SIZE 10)
 # cmake -GNinja -DCMAKE_UNITY_BUILD=ON -DCMAKE_CXX_COMPILER=clang++-DCMAKE_CXX_FLAGS="-fuse-ld=lld -ftime-trace"
 
+SET(CMAKE_EXPORT_COMPILE_COMMANDS ON )
+# For YouCompleteMe configuration
+file(CREATE_LINK
+  "${CMAKE_BINARY_DIR}/compile_commands.json"
+  "${CMAKE_SOURCE_DIR}/compile_commands.json"
+  SYMBOLIC
+)
+
+###
+### Scan build
+###
+# mkdir build && cd build && scan-build cmake .. && scan-build make -j8 && scan-view /tmp/scan-buildXXXXX-1
+
 set(default_build_type "Debug")
 
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
@@ -37,12 +50,54 @@ endif()
 #set(COMPILER "GCC" CACHE STRING "Compiler selection")
 #set_property(CACHE COMPILER PROPERTY STRINGS "GCC" "CLANG")
 
+########
+### SANITIZER 
+########
+
+#https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110157
+
+set(SANITIZER "NONE" CACHE STRING "Sanitizers")
+set_property(CACHE SANITIZER PROPERTY STRINGS "NONE" "ADDRESS" "THREAD")
+message(STATUS "Selected SANITIZER TYPE: ${SANITIZER}")
+
+if(${SANITIZER} STREQUAL "ADDRESS")
+   add_compile_options("-fno-omit-frame-pointer;-fsanitize=address")
+   add_link_options("-fsanitize=address")
+elseif(${SANITIZER} STREQUAL "THREAD")
+  add_compile_options("-fsanitize=thread;-g;")
+  add_link_options("-fsanitize=thread;")
+elseif(${SANITIZER} STREQUAL "STACK")
+  add_compile_options("-fstack-protector-all")
+  add_link_options("-fstack-protector-all")
+endif()
+
+
+########
+### Compiler 
+########
+
 if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
   # using Clang
   add_compile_options("-fblocks;")
   add_link_options("-lBlocksRuntime;")
-  #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  
+  if(${SANITIZER} STREQUAL "ADDRESS")
+    message(FATAL_ERROR "ASan not supported by CLANG as FlexRIC uses blocks e.g., defer. Use gcc or unselect the sanitizer")
+  endif() 
+  
   # using GCC
+elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+  # sudo update-alternatives --config gcc
+  if(CMAKE_C_COMPILER_VERSION STREQUAL "11.3.0")
+    message(FATAL_ERROR "Due to bug in gcc 11.3.0 when implementing C11 _Generics, it does not compile FlexRIC.
+    Alternatively use gcc-10, gcc-12 or gcc-13 e.g., sudo update-alternatives --config gcc ")
+  elseif(${SANITIZER} STREQUAL "ADDRESS")
+    if(NOT CMAKE_C_COMPILER_VERSION STREQUAL "10.4.0")
+      message(FATAL_ERROR "ASan not supported by newer versions of gcc when using nested functions needed e.g., defer.
+      Change the compiler to gcc-10 using e.g., sudo update-alternatives --config gcc")
+    endif()
+  endif()
+
   #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
   # using Intel C++
   #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -88,25 +143,6 @@ endif()
 
 message(STATUS "Selected xApp dir : ${XAPP_DB_DIR}")
 
-
-########
-### SANITIZER 
-########
-
-set(SANITIZER "NONE" CACHE STRING "Sanitizers")
-set_property(CACHE SANITIZER PROPERTY STRINGS "NONE" "ADDRESS" "THREAD")
-message(STATUS "Selected SANITIZER TYPE: ${SANITIZER}")
-
-if(${SANITIZER} STREQUAL "ADDRESS")
-   add_compile_options("-fno-omit-frame-pointer;-fsanitize=address")
-   add_link_options("-fsanitize=address")
-elseif(${SANITIZER} STREQUAL "THREAD")
-  add_compile_options("-fsanitize=thread;-g;")
-  add_link_options("-fsanitize=thread;")
-elseif(${SANITIZER} STREQUAL "STACK")
-  add_compile_options("-fstack-protector-all")
-  add_link_options("-fstack-protector-all")
-endif()
 
 option(CODE_COVERAGE "Code coverage" OFF)
 if(CODE_COVERAGE)
@@ -157,7 +193,7 @@ set(E2AP_ENCODING "ASN" CACHE STRING "The E2AP encoding to use")
 set_property(CACHE E2AP_ENCODING PROPERTY STRINGS "ASN" "FLATBUFFERS")
 message(STATUS "Selected E2AP_ENCODING: ${E2AP_ENCODING}")
 
-set(E2AP_VERSION "E2AP_V2" CACHE STRING "E2AP version")
+set(E2AP_VERSION "E2AP_V1" CACHE STRING "E2AP version")
 set_property(CACHE E2AP_VERSION PROPERTY STRINGS "E2AP_V1" "E2AP_V2" "E2AP_V3")
 message(STATUS "Selected E2AP_VERSION: ${E2AP_VERSION}")
 
@@ -196,6 +232,11 @@ add_definitions(-DSERVICE_MODEL_DIR_PATH="${SM_DIR_PATH}/")
 set(SM_ENCODING_KPM "ASN" CACHE STRING "The KPM SM encoding to use")
 set_property(CACHE SM_ENCODING_KPM PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
 message(STATUS "Selected KPM SM_ENCODING: ${SM_ENCODING_KPM}")
+
+set(KPM_VERSION "KPM_V2" CACHE STRING "The KPM SM version to use")
+set_property(CACHE SM_ENCODING_KPM PROPERTY STRINGS "KPM_V2" "KPM_V3")
+message(STATUS "Selected KPM Version: ${KPM_VERSION}")
+
 
 # RC service Model encoding definitions
 set(SM_ENCODING_RC "ASN" CACHE STRING "The RC SM encoding to use")
@@ -265,15 +306,6 @@ endif ()
 
 # Build SWIG interface
 #add_subdirectory(src/xApp/swig)
-
-SET(CMAKE_EXPORT_COMPILE_COMMANDS ON )
-# For YouCompleteMe configuration
-IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
-  EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
-  )
-ENDIF()
 
 
 ###

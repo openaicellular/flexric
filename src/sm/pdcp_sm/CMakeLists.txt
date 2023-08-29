@@ -44,6 +44,6 @@ else()
   message(FATAL_ERROR "Unknnown path")
 endif()
 
-target_compile_definitions(pdcp_sm PUBLIC ${SM_ENCODING_PDCP}  ${E2AP_VERSION} )
-target_compile_definitions(pdcp_sm_static PUBLIC ${SM_ENCODING_PDCP}  ${E2AP_VERSION} )
+target_compile_definitions(pdcp_sm PUBLIC ${SM_ENCODING_PDCP}  ${E2AP_VERSION}  ${KPM_VERSION} )
+target_compile_definitions(pdcp_sm_static PUBLIC ${SM_ENCODING_PDCP}  ${E2AP_VERSION}  ${KPM_VERSION} )
 

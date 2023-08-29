@@ -20,7 +20,7 @@
  */
 
 #include "fill_rnd_data_kpm.h"
-#include "../../src/sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../../src/util/time_now_us.h"
 
 #include <assert.h>

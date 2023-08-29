@@ -42,7 +42,7 @@ elseif(SM_ENCODING_TC STREQUAL "FLATBUFFERS" )
   message(FATAL_ERROR "TC SM FB not implemented")
 endif()
 
-target_compile_definitions(tc_sm PUBLIC ${SM_ENCODING_TC} ${E2AP_VERSION}  )
-target_compile_definitions(tc_sm_static PUBLIC ${SM_ENCODING_TC} ${E2AP_VERSION}  )
+target_compile_definitions(tc_sm PUBLIC ${SM_ENCODING_TC} ${E2AP_VERSION}  ${KPM_VERSION}  )
+target_compile_definitions(tc_sm_static PUBLIC ${SM_ENCODING_TC} ${E2AP_VERSION}   ${KPM_VERSION} )
 
 

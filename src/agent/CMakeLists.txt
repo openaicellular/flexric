@@ -71,5 +71,5 @@ if(${BUILDING_LIBRARY} STREQUAL "DYNAMIC" )
 
 endif()
 
-target_compile_definitions(e2_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION})
+target_compile_definitions(e2_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION} )
 

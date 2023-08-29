@@ -59,8 +59,8 @@ else()
   message(FATAL_ERROR "Unknown SM encoding type")
 endif()
 
-
-target_compile_definitions(mac_sm PUBLIC ${SM_ENCODING_MAC} ${E2AP_VERSION} )
-target_compile_definitions(mac_sm_static PUBLIC ${SM_ENCODING_MAC} ${E2AP_VERSION} )
+# ToDo: Dependency from KPM_VERSION needs to be removed!
+target_compile_definitions(mac_sm PUBLIC ${SM_ENCODING_MAC} ${E2AP_VERSION}  ${KPM_VERSION} )
+target_compile_definitions(mac_sm_static PUBLIC ${SM_ENCODING_MAC} ${E2AP_VERSION}  ${KPM_VERSION} )
 
 

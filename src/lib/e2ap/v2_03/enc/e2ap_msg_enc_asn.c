@@ -599,6 +599,7 @@ E2AP_PDU_t* e2ap_enc_subscription_failure_asn_pdu(const ric_subscription_failure
 {
   // Message Type. Mandatory
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
+  assert(pdu != NULL && "Memory exhausted");
  
   assert(0 != 0 && "Untested code");
   (void)sf;

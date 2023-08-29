@@ -90,7 +90,7 @@ if(INCL_WHAT_YOU_USE)
   set_property(TARGET near_ric PROPERTY C_INCLUDE_WHAT_YOU_USE ${iwyu_path})
 endif()
 
-target_compile_definitions(near_ric PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION})
+target_compile_definitions(near_ric PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION}  ${KPM_VERSION} )
 
-target_compile_definitions(near_ric_test PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION})
+target_compile_definitions(near_ric_test PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION} )
 target_compile_definitions(near_ric_test PRIVATE TEST_AGENT_RIC)

@@ -12,5 +12,5 @@ else()
   message(FATAL_ERROR "Unknown XAPP_DB selected")
 endif()
 
-target_compile_definitions(e42_xapp_db_obj PRIVATE ${XAPP_DB} ${E2AP_VERSION})
+target_compile_definitions(e42_xapp_db_obj PRIVATE ${XAPP_DB} ${E2AP_VERSION} ${KPM_VERSION} )
 

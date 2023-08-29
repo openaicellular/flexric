@@ -12,5 +12,5 @@ add_library(pending_events_obj OBJECT
                                 $<TARGET_OBJECTS:e2ap_ap_obj>
                                 )
 
-target_compile_definitions(pending_events_obj PRIVATE ${E2AP_VERSION})
+target_compile_definitions(pending_events_obj PRIVATE ${E2AP_VERSION} ${KPM_VERSION}  )
 

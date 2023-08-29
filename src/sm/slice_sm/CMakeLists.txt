@@ -39,6 +39,6 @@ else()
   message(FATAL_ERROR "Unknown SM encoding type ")
 endif()
 
-target_compile_definitions(slice_sm PUBLIC ${SM_ENCODING_SLICE} ${E2AP_VERSION}  )
-target_compile_definitions(slice_sm_static PUBLIC ${SM_ENCODING_SLICE} ${E2AP_VERSION}  )
+target_compile_definitions(slice_sm PUBLIC ${SM_ENCODING_SLICE} ${E2AP_VERSION}   ${KPM_VERSION}  )
+target_compile_definitions(slice_sm_static PUBLIC ${SM_ENCODING_SLICE} ${E2AP_VERSION}  ${KPM_VERSION}  )
 

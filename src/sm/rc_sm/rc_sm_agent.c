@@ -232,6 +232,7 @@ sm_e2_setup_data_t on_e2_setup_rc_sm_ag(sm_agent_t const* sm_agent)
 //  rd.e2ap.type = RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0;
 
   rc_e2_setup_t rc = {0};
+  // Will call the function read_rc_setup_sm 
   sm->base.io.read_setup(&rc);
 
   e2sm_rc_func_def_t* ran_func = &rc.ran_func_def; 

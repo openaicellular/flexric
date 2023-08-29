@@ -24,7 +24,7 @@
 #include "../../src/xApp/e42_xapp_api.h"
 #include "../../src/sm/slice_sm/slice_sm_id.h"
 #include "../../src/sm/gtp_sm/gtp_sm_id.h"
-#include "../../src/sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../../src/sm/rc_sm/rc_sm_id.h" 
 #include "../../src/util/alg_ds/alg/defer.h"
 #include "../../src/util/time_now_us.h"
@@ -62,13 +62,14 @@ void read_e2_setup_rc(void* data)
   rc->ran_func_def = fill_rc_ran_func_def(); 
 }
 
+#if defined(E2AP_V2) || defined(E2AP_V3)
 static
 void read_e2_setup_ran(void* data)
 {
   assert(data != NULL);
   *(e2ap_node_component_config_add_t*)data = fill_e2ap_node_component_config_add();
 }
-
+#endif
 
 static
 void read_ind_mac(void* ind)

@@ -123,12 +123,14 @@ void read_ind_rc(void* ind)
   assert(0!=0 && "The logic in RAN Ctrl SM for indication is different!"); 
 }
 
+#if defined(E2AP_V2) || defined(E2AP_V3)
 static
 void read_e2_setup_ran(void* data)
 {
   assert(data != NULL);
   *((e2ap_node_component_config_add_t*)(data)) = fill_e2ap_node_component_config_add();
 }
+#endif
 
 static
 sm_ag_if_ans_t write_ctrl_rc(void const* ctrl)

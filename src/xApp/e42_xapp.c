@@ -46,7 +46,7 @@
 #include "../sm/slice_sm/slice_sm_id.h"
 #include "../sm/tc_sm/tc_sm_id.h"
 #include "../sm/gtp_sm/gtp_sm_id.h"
-#include "../sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../sm/rc_sm/rc_sm_id.h"
 
 #include "../../test/rnd/fill_rnd_data_rc.h"
@@ -496,13 +496,14 @@ void send_control_request(e42_xapp_t* xapp, global_e2_node_id_t* id, ric_gen_id_
                                        .id = cp_global_e2_node_id(id),
                                        .ctrl_req = ctrl_req 
                                       };
-  defer({ e2ap_free_e42_ric_control_request(&e42_cr);};);
 
   e2ap_msg_t msg = {.type = E42_RIC_CONTROL_REQUEST,
                     .u_msgs.e42_ric_ctrl_req = e42_cr 
                     };
 
   xapp->handle_msg[E42_RIC_CONTROL_REQUEST](xapp, &msg);
+
+  e2ap_free_e42_ric_control_request(&e42_cr);
 }
 
 sm_ans_xapp_t control_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t ran_func_id, void* ctrl_msg)

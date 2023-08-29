@@ -26,6 +26,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#ifdef E2AP_V1
+
+#elif defined(E2AP_V2) || defined(E2AP_V3) 
+
 e2ap_node_component_config_add_t fill_e2ap_node_component_config_add(void)
 {
   e2ap_node_component_config_add_t dst = {0}; 
@@ -49,4 +53,9 @@ e2ap_node_component_config_add_t fill_e2ap_node_component_config_add(void)
   dst.e2_node_comp_conf.response = cp_str_to_ba(res); 
   return dst;
 }
+
+#else
+static_assert(0!=0, "Unknown E2AP version");
+#endif
+
 
