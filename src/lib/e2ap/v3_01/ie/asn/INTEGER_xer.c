@@ -113,9 +113,10 @@ INTEGER__xer_body_decode(const asn_TYPE_descriptor_t *td, void *sptr,
     const char *dec_value_start = 0; /* INVARIANT: always !0 in ST_DIGITS */
     const char *dec_value_end = 0;
 
-    if(chunk_size)
+    if(chunk_size){
         ASN_DEBUG("INTEGER body %ld 0x%2x..0x%2x",
                   (long)chunk_size, *lstart, lstop[-1]);
+    }
 
     if(INTEGER_st_prealloc(st, (chunk_size/3) + 1))
         return XPBD_SYSTEM_FAILURE;
