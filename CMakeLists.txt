@@ -237,7 +237,6 @@ set(KPM_VERSION "KPM_V2" CACHE STRING "The KPM SM version to use")
 set_property(CACHE SM_ENCODING_KPM PROPERTY STRINGS "KPM_V2" "KPM_V3")
 message(STATUS "Selected KPM Version: ${KPM_VERSION}")
 
-
 # RC service Model encoding definitions
 set(SM_ENCODING_RC "ASN" CACHE STRING "The RC SM encoding to use")
 set_property(CACHE SM_ENCODING_RC PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")

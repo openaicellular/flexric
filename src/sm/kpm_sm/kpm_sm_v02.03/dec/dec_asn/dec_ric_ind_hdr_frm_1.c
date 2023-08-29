@@ -1,6 +1,6 @@
-#include <assert.h>
 #include "../../../../../util/conversions.h"
-
+#include <assert.h>
+#include <arpa/inet.h>
 #include "dec_ric_ind_hdr_frm_1.h"
 
 kpm_ric_ind_hdr_format_1_t kpm_dec_ind_hdr_frm_1_asn(const E2SM_KPM_IndicationHeader_Format1_t * ind_hdr_asn)

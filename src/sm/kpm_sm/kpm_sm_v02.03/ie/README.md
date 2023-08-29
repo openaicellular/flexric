@@ -1,5 +1,7 @@
 ## 1. ASN.1 types - v02.03
 
+
+
 1.1 Before
 The ASN.1 file "e2sm_kpm_v02.03_standard.asn1" is taken from the O-RAN specification "O-RAN.WG3.E2SM-KPM-v02.00.033".
 
