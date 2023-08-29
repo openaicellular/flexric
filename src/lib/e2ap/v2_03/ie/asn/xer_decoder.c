@@ -112,9 +112,10 @@ xer_check_tag(const void *buf_ptr, int size, const char *need_tag) {
 	xer_check_tag_e ct = XCT_OPENING;
 
 	if(size < 2 || buf[0] != LANGLE || buf[size-1] != RANGLE) {
-		if(size >= 2)
+		if(size >= 2){
 			ASN_DEBUG("Broken XML tag: \"%c...%c\"",
 			buf[0], buf[size - 1]);
+    }
 		return XCT_BROKEN;
 	}
 
@@ -178,8 +179,8 @@ xer_check_tag(const void *buf_ptr, int size, const char *need_tag) {
 #define	RETURN(_code)	do {					\
 		rval.code = _code;				\
 		rval.consumed = consumed_myself;		\
-		if(rval.code != RC_OK)				\
-			ASN_DEBUG("Failed with %d", rval.code);	\
+		if(rval.code != RC_OK){				\
+			ASN_DEBUG("Failed with %d", rval.code);}	\
 		return rval;					\
 	} while(0)
 

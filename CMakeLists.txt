@@ -175,7 +175,7 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(BUILDING_LIBRARY STREQUAL "STATIC")
-  add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;") #-fopt-info
+  add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-Warray-bounds;-Wempty-body;") #-fopt-info
 elseif(BUILDING_LIBRARY STREQUAL "DYNAMIC")
   # -fPIC flag
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)

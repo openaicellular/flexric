@@ -90,9 +90,10 @@ CHOICE_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
                                 memb_ptr2, pd);
     }
 
-    if(rv.code != RC_OK)
+    if(rv.code != RC_OK){
         ASN_DEBUG("Failed to decode %s in %s (CHOICE) %d",
                   elm->name, td->name, rv.code);
+    }
     return rv;
 }
 
