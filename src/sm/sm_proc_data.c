@@ -128,7 +128,7 @@ void free_sm_ric_query_out_data(sm_ric_query_out_data_t* data)
   assert(data != NULL);
 
   if(data->query_out != NULL){
-    assert(data->len_out != NULL);
+    assert(data->len_out != 0);
     free(data->query_out);
   }
 }

@@ -19,5 +19,9 @@
  *      contact@openairinterface.org
  */
 
+#ifndef READ_SETUP_RAN_E2_AGENT_H
+#define READ_SETUP_RAN_E2_AGENT_H 
+
 void read_setup_ran(void* data);
 
+#endif

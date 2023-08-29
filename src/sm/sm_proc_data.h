@@ -125,7 +125,7 @@ void free_sm_ric_query_out_data(sm_ric_query_out_data_t*);
 typedef struct{
   uint8_t* mod;
   size_t len;
-} sm_sub_mod_data_t 
+} sm_sub_mod_data_t; 
 
 void free_sm_sub_mod_data(sm_sub_mod_data_t*);
 

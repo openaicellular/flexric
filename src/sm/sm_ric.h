@@ -47,7 +47,7 @@ typedef struct {
   sm_ag_if_rd_rsu_t (*on_ric_service_update)(sm_ric_t const*, sm_ric_service_update_data_t const*);
 
 #ifdef E2AP_V3
-  sm_ric_query_t (*on_ric_query)(sm_ric_t const*, void*);
+  sm_ric_query_data_t (*on_ric_query)(sm_ric_t const*, void*);
 
   void (*on_subscription_mod)(sm_ric_t const* sm, void*);
 #endif
