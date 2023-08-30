@@ -26,7 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../../../util/ngran_types.h"
+#include "../../../util/e2ap_ngran_types.h"
 #include "../../../util/byte_array.h"
 #include "e2ap_types/e2_setup_request.h"
 #include "e2ap_types/e2_setup_response.h"

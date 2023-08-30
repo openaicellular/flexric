@@ -28,15 +28,15 @@
 #include "act_proc.h"
 #include "endpoint_xapp.h"
 #include "msg_handler_xapp.h"
-#include "util/alg_ds/alg/alg.h"
-#include "util/alg_ds/ds/lock_guard/lock_guard.h"
-#include "util/compare.h"
+#include "../util/alg_ds/alg/alg.h"
+#include "../util/alg_ds/ds/lock_guard/lock_guard.h"
+#include "../util/compare.h"
 
 #include "msg_generator_xapp.h"
 #include "e2ap_xapp.h"
 
-#include "lib/e2ap/e2ap_msg_free_wrapper.h"
-#include "lib/pending_events.h"
+#include "../lib/e2ap/e2ap_msg_free_wrapper.h"
+#include "../lib/pending_events.h"
 
 #include "../sm/rlc_sm/rlc_sm_id.h"
 

@@ -30,7 +30,7 @@
 #elif E2AP_V3
 #include "v3_01/e2ap_types/ric_indication.h" 
 #else
-static_assert(0!=0, "Unkown E2AP version");
+static_assert(0!=0, "Unknown E2AP version");
 #endif
 
 #endif

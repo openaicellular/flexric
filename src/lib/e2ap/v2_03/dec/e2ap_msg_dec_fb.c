@@ -560,7 +560,7 @@ e2ap_msg_t e2ap_dec_setup_request_fb(e2ap_E2Message_table_t e2mt)
   e2ap_GlobalE2NodeId_union_t id  = e2ap_E2SetupRequest_id_union(fb_sr);
   switch (id.type) {
     case e2ap_GlobalE2NodeId_gNB:
-      sr->id.type = ngran_gNB;
+      sr->id.type = e2ap_ngran_gNB;
       sr->id.plmn.mcc = e2ap_GNB_plmn(id.value)->mcc;
       sr->id.plmn.mnc = e2ap_GNB_plmn(id.value)->mnc;
       sr->id.plmn.mnc_digit_len = e2ap_GNB_plmn(id.value)->mnc_digit_length;
@@ -575,14 +575,14 @@ e2ap_msg_t e2ap_dec_setup_request_fb(e2ap_E2Message_table_t e2mt)
       assert(0 && "en-gNB not implemented");
       break;
     case e2ap_GlobalE2NodeId_ngeNB:
-      sr->id.type = ngran_ng_eNB;
+      sr->id.type = e2ap_ngran_ng_eNB;
       sr->id.plmn.mcc = e2ap_NgeNB_plmn(id.value)->mcc;
       sr->id.plmn.mnc = e2ap_NgeNB_plmn(id.value)->mnc;
       sr->id.plmn.mnc_digit_len = e2ap_NgeNB_plmn(id.value)->mnc_digit_length;
       sr->id.nb_id = e2ap_NgeNB_id(id.value);
       break;
     case e2ap_GlobalE2NodeId_eNB:
-      sr->id.type = ngran_eNB;
+      sr->id.type = e2ap_ngran_eNB;
       sr->id.plmn.mcc = e2ap_ENB_plmn(id.value)->mcc;
       sr->id.plmn.mnc = e2ap_ENB_plmn(id.value)->mnc;
       sr->id.plmn.mnc_digit_len = e2ap_ENB_plmn(id.value)->mnc_digit_length;

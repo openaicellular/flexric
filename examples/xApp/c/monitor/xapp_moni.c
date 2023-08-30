@@ -26,7 +26,7 @@
 #include "../../../../src/sm/rlc_sm/rlc_sm_id.h"
 #include "../../../../src/sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../../../src/sm/gtp_sm/gtp_sm_id.h"
-#include "../../../../src/sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../../../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../../../../src/util/e2ap_ngran_types.h"
 
 #include <stdlib.h>
@@ -337,7 +337,7 @@ void send_report_sm(global_e2_node_id_t* id,
   size_t end_c_handle = c_handle + num_sm;
   for(size_t j = c_handle; j < end_c_handle; j++){
     uint16_t ran_func_id = sm_id_arr[sm_idx];
-    printf("xApp subscribes RAN Func ID %d in E2 node idx %ld, ngran_gNB_CU\n", ran_func_id, n_idx);
+    printf("xApp subscribes RAN Func ID %d in E2 node idx %ld\n", ran_func_id, n_idx);
     if (ran_func_id == SM_KPM_ID){
       kpm_sub_data_t kpm_sub = {0};
       defer({ free_kpm_sub_data(&kpm_sub); });

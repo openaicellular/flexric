@@ -33,7 +33,7 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
 
   if(m0 == NULL || m1 == NULL) return false;
 
-  if (NODE_IS_MONOLITHIC(m0->type) && NODE_IS_MONOLITHIC(m1->type)) {
+  if (E2AP_NODE_IS_MONOLITHIC(m0->type) && E2AP_NODE_IS_MONOLITHIC(m1->type)) {
     // compare gNB/eNB
     if(m0->type != m1->type)
       return false;
@@ -45,7 +45,7 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
       return false;
 
     return true;
-  } else if ((NODE_IS_CU(m0->type) || NODE_IS_DU(m0->type)) && (NODE_IS_CU(m1->type) || NODE_IS_DU(m1->type))) {
+  } else if ((E2AP_NODE_IS_CU(m0->type) || E2AP_NODE_IS_DU(m0->type)) && (E2AP_NODE_IS_CU(m1->type) || E2AP_NODE_IS_DU(m1->type))) {
     // compare gNB/eNB-CU/DU
     if(m0->cu_du_id == NULL || m1->cu_du_id == NULL) return false;
 
@@ -115,7 +115,7 @@ int cmp_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
   assert(m0 != NULL);
   assert(m1 != NULL);
 
-  if (NODE_IS_MONOLITHIC(m0->type) && NODE_IS_MONOLITHIC(m1->type)) {
+  if (E2AP_NODE_IS_MONOLITHIC(m0->type) && E2AP_NODE_IS_MONOLITHIC(m1->type)) {
     // compare gNB/eNB
     if (m0->type < m1->type)
       return -1;
@@ -132,7 +132,7 @@ int cmp_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
       return 1;
 
     return 0;
-  } else if ((NODE_IS_CU(m0->type) || NODE_IS_DU(m0->type)) && (NODE_IS_CU(m1->type) || NODE_IS_DU(m1->type))) {
+  } else if ((E2AP_NODE_IS_CU(m0->type) || E2AP_NODE_IS_DU(m0->type)) && (E2AP_NODE_IS_CU(m1->type) || E2AP_NODE_IS_DU(m1->type))) {
     // compare gNB/eNB-CU/DU
     if (m0->type < m1->type)
       return -1;

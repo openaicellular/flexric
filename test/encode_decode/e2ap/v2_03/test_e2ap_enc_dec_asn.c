@@ -459,7 +459,7 @@ void test_setup_request()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -891,7 +891,7 @@ void test_e42_setup_response()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -952,7 +952,7 @@ void test_e42_subscription_request()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -1038,7 +1038,7 @@ void test_e42_control_request()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,

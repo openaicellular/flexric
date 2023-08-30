@@ -33,7 +33,8 @@ add_executable(test_near_ric
 target_link_libraries(test_near_ric
                       PUBLIC 
                       e2_agent
-                      ${FlatCC} 
+                      ${FlatCC}
+                      kpm_sm
                       #/home/mir/workspace/flatcc/lib/libflatccrt_d.a
                       $<TARGET_OBJECTS:kpm_ric_info_common_obj>
                       $<TARGET_OBJECTS:kpm_ric_info_obj>

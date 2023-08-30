@@ -28,14 +28,14 @@ extern "C" {
 #endif
 
 #include "e2ap_plmn.h"
-#include "../../../../../util/ngran_types.h"
+#include "../../../../../util/e2ap_ngran_types.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
 
 typedef struct global_e2_node_id {
-  ngran_node_t type;
+  e2ap_ngran_node_t type;
   e2ap_plmn_t plmn;
   uint32_t nb_id;
   uint64_t *cu_du_id;

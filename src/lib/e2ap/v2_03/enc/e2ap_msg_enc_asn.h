@@ -24,7 +24,7 @@
 #ifndef E2AP_MSG_ENC_ASN_H
 #define E2AP_MSG_ENC_ASN_H
 
-#include "util/ngran_types.h"
+#include "util/e2ap_ngran_types.h"
 #include "../type_defs.h"
 
 

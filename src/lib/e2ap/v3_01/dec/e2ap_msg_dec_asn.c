@@ -55,7 +55,7 @@
 #include "../global_consts.h"
 
 #include "util/conversions.h"
-#include "util/ngran_types.h"
+#include "util/e2ap_ngran_types.h"
 
 static inline
 byte_array_t copy_ostring_to_ba(OCTET_STRING_t src)
@@ -474,7 +474,7 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
   assert(node_src->value.present == E42RICsubscriptionRequest_IEs__value_PR_GlobalE2node_ID);
   if (node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-    id->type = ngran_gNB;
+    id->type = e2ap_ngran_gNB;
 
     GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
     assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
@@ -482,20 +482,20 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, id->nb_id);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      id->type = ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id  != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
     }
     else if (e2gnb->gNB_DU_ID) {
-      id->type = ngran_gNB_DU;
+      id->type = e2ap_ngran_gNB_DU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_DU_ID, id->cu_du_id);
     }
   } else {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-    id->type = ngran_eNB;
+    id->type = e2ap_ngran_eNB;
 
     GlobalE2node_eNB_ID_t *e2enb = node_src->value.choice.GlobalE2node_ID.choice.eNB;
     assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
@@ -1087,7 +1087,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
   assert(node_src->value.present == E42RICcontrolRequest_IEs__value_PR_GlobalE2node_ID);
   if (node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-    id->type = ngran_gNB;
+    id->type = e2ap_ngran_gNB;
 
     GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
     assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
@@ -1095,20 +1095,20 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, id->nb_id);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      id->type = ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
     }
     else if (e2gnb->gNB_DU_ID) {
-      id->type = ngran_gNB_DU;
+      id->type = e2ap_ngran_gNB_DU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_DU_ID, id->cu_du_id);
     }
   } else {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-    id->type = ngran_eNB;
+    id->type = e2ap_ngran_eNB;
 
     GlobalE2node_eNB_ID_t *e2enb = node_src->value.choice.GlobalE2node_ID.choice.eNB;
     assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
@@ -1408,7 +1408,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
   assert(setup_rid->value.present == E2setupRequestIEs__value_PR_GlobalE2node_ID);
   if (setup_rid->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
     assert(setup_rid->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-    sr->id.type = ngran_gNB;
+    sr->id.type = e2ap_ngran_gNB;
 
     GlobalE2node_gNB_ID_t *e2gnb = setup_rid->value.choice.GlobalE2node_ID.choice.gNB;
     assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
@@ -1416,20 +1416,20 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID,sr->id.nb_id);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      sr->id.type = ngran_gNB_CU;
+      sr->id.type = e2ap_ngran_gNB_CU;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, sr->id.cu_du_id);
     }
     else if (e2gnb->gNB_DU_ID) {
-      sr->id.type = ngran_gNB_DU;
+      sr->id.type = e2ap_ngran_gNB_DU;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_DU_ID, sr->id.cu_du_id);
     }
   } else {
     assert(setup_rid->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-    sr->id.type = ngran_eNB;
+    sr->id.type = e2ap_ngran_eNB;
 
     GlobalE2node_eNB_ID_t *e2enb = setup_rid->value.choice.GlobalE2node_ID.choice.eNB;
     assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
@@ -2461,7 +2461,7 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
     assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
     if (src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
       assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
-      dst->id.type = ngran_gNB;
+      dst->id.type = e2ap_ngran_gNB;
 
       GlobalE2node_gNB_ID_t *e2gnb = src->value.choice.GlobalE2node_ID.choice.gNB;
       assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
@@ -2469,20 +2469,20 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, dst->id.nb_id);
 
       if (e2gnb->gNB_CU_UP_ID) {
-        dst->id.type = ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CU;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
       }
       else if (e2gnb->gNB_DU_ID) {
-        dst->id.type = ngran_gNB_DU;
+        dst->id.type = e2ap_ngran_gNB_DU;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_DU_ID, dst->id.cu_du_id);
       }
     } else {
       assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
-      dst->id.type = ngran_eNB;
+      dst->id.type = e2ap_ngran_eNB;
 
       GlobalE2node_eNB_ID_t *e2enb = src->value.choice.GlobalE2node_ID.choice.eNB;
       assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
