@@ -4,7 +4,7 @@
 
 #include "ran_msg_hdlr.h"
 
-#include "lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "lib/e2ap/e2ap_global_node_id_wrapper.h"
 
 typedef struct ws_ioloop_event_t ws_ioloop_event_t; // XXX: to investigate. this a forward declaration to skip error of linking ws_io_ran.h. 
 

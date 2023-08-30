@@ -409,7 +409,7 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       
       ran_io_rmtimer(loop_io_userds->indication_sm_id);
 
-      const char *p = ran_p->ser->encode_indication(0, ev->sm->ran_func_id);
+      const char *p = ran_p->ser->encode_indication(0, ev->sm->info.id());
       
       io_ran_enqueue_for_next_write(NULL, p, sizeof(loop_io_userds->encmsg));
         

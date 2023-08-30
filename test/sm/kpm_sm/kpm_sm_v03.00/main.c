@@ -24,8 +24,8 @@
 #include "../../../../src/util/alg_ds/alg/defer.h"
 #include "../../../../src/sm/kpm_sm/kpm_sm_v03.00/kpm_sm_agent.h"
 #include "../../../../src/sm/kpm_sm/kpm_sm_v03.00/kpm_sm_ric.h"
-#include "../../../../src/sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
-#include "../../../../src/sm/kpm_sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../../../../src/sm/kpm_sm/kpm_data_ie_wrapper.h"
+#include "../../../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 
 #include <assert.h>
 #include <stdlib.h>

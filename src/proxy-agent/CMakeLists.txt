@@ -39,6 +39,7 @@ set(E2_PROXY_AGENT_SRC
     ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
     ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_kpm.c
     ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_mac.c
+    ${KPM_SRC}
   )
 if(E2AP_ENCODING STREQUAL "ASN")
   add_library(e2_proxy_agent
@@ -62,7 +63,7 @@ else()
   message(FATAL_ERROR "Error, while compiling the agent" )
 endif()
 target_compile_definitions(e2_proxy_agent PRIVATE PROXY_AGENT)
-target_compile_definitions(e2_proxy_agent PRIVATE ${E2AP_ENCODING})
+target_compile_definitions(e2_proxy_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 
 
 add_executable(proxy_agent_ws
@@ -79,12 +80,12 @@ add_executable(proxy_agent_ws
               ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
               )
 
-target_compile_definitions(proxy_agent_ws PRIVATE ${E2AP_ENCODING})
+target_compile_definitions(proxy_agent_ws PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 target_link_libraries(proxy_agent_ws
                       PUBLIC
                       e2_proxy_agent
                       -pthread -lsctp -ldl ${LIBWEBSOCKETS_LIBRARIES} ${LIBJSON-C_LIBRARIES})
-target_include_directories(proxy_agent_ws PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/ap/ie/asn/")
+target_include_directories(proxy_agent_ws PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v1_01/ie/asn/")
 
 
 

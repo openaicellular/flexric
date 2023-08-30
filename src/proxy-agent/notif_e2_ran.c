@@ -10,8 +10,8 @@
 #include "notif_e2_ran.h"
 #include "lib/async_event.h"
 
-#include "lib/ap/e2ap_types/ric_control_ack.h"
-#include "lib/ap/free/e2ap_msg_free.h"
+#include "lib/e2ap/ric_control_ack_wrapper.h"
+#include "lib/e2ap/e2ap_msg_free_wrapper.h"
 #include "lib/correlation_events.h"
 #include "util/alg_ds/alg/defer.h"
 #include "util/alg_ds/ds/lock_guard/lock_guard.h"
@@ -93,7 +93,7 @@ generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
   void* it = assoc_front(&ag->plugin.sm_ds);
   for(size_t i = 0; i < all_rf; ++i){
     sm_agent_t* sm = assoc_value( &ag->plugin.sm_ds, it);
-    if (is_sm_whitelisted(sm->ran_func_id))
+    if (is_sm_whitelisted(sm->info.id()))
       whitelisted_rf++;
     it = assoc_next(&ag->plugin.sm_ds, it);
   }
@@ -112,21 +112,26 @@ generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
   size_t whitelisted_idx = 0;
   for(size_t i = 0; i < all_rf; ++i){
     sm_agent_t* sm = assoc_value( &ag->plugin.sm_ds, it);
-    assert(sm->ran_func_id == *(uint16_t*)assoc_key(&ag->plugin.sm_ds, it) && "RAN function mismatch");
+    assert(sm->info.id() == *(uint16_t*)assoc_key(&ag->plugin.sm_ds, it) && "RAN function mismatch");
     
-    if (!is_sm_whitelisted(sm->ran_func_id))
+    if (!is_sm_whitelisted(sm->info.id()))
     {
       it = assoc_next(&ag->plugin.sm_ds, it);
       continue;
     }
 
     sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
-    assert(sm->ran_func_id == def.rf.id);
+    // Pass memory ownership
+    ran_func[whitelisted_idx].def.len = def.len_rfd;
+    ran_func[whitelisted_idx].def.buf = def.ran_fun_def;
 
-    if(def.len_rfd > 0)
-      free(def.ran_fun_def);
+    ran_func[whitelisted_idx].id = sm->info.id();
+    ran_func[whitelisted_idx].rev = sm->info.rev();
 
-    ran_func[whitelisted_idx] = def.rf;
+    ran_func[whitelisted_idx].oid = calloc(1, sizeof(byte_array_t));
+    assert(ran_func[whitelisted_idx].oid != NULL && "Memory exhausted");
+    *ran_func[whitelisted_idx].oid = cp_str_to_ba(sm->info.oid());
+
     whitelisted_idx++;
 
     it = assoc_next(&ag->plugin.sm_ds, it);
@@ -173,7 +178,7 @@ void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long initia
   notif_e2_ran_event_t msg = {
     .type = E2_ADD_SUBSCRIPTION_TIMER_EVENT,
     .subs_ev.time_ms = interval_ms ,
-    .subs_ev.sm_id = ev.sm->ran_func_id,
+    .subs_ev.sm_id = ev.sm->info.id(),
     .subs_ev.ric_action_id = ev.action_id,
     .subs_ev.ric_id = ev.ric_id,
     .subs_ev.act_def = ev.act_def

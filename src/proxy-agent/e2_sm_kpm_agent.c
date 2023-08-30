@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <libwebsockets.h>
 
-#include "sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
+#include "sm/kpm_sm/kpm_data_ie_wrapper.h"
 #include "../../test/rnd/fill_rnd_data_kpm.h"
 #include "util/time_now_us.h"
 #include "util/byte_array.h"

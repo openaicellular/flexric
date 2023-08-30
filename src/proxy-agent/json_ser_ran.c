@@ -9,7 +9,7 @@
 
 #include "util/conversions.h"
 #include "util/alg_ds/alg/defer.h"
-#include "lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "lib/e2ap/e2ap_global_node_id_wrapper.h"
 #include "sm/mac_sm/mac_sm_id.h"
 
 #include "ran_if.h"
