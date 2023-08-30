@@ -25,8 +25,8 @@
 
 #include <stddef.h>
 
-#include "../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
-#include "../lib/ap/e2ap_types/e2_setup_response.h"
+#include "../lib/e2ap/e2ap_global_node_id_wrapper.h"
+#include "../lib/e2ap/e2_setup_response_wrapper.h"
 
 
 typedef struct{

@@ -23,7 +23,7 @@ slice_event_trigger_t cp_slice_event_trigger( slice_event_trigger_t* src)
 
   assert(0 != 0 && "not implemented");
 
-  slice_event_trigger_t ans;
+  slice_event_trigger_t ans = {0};
   return ans;
 }
 
@@ -36,8 +36,6 @@ bool eq_slice_event_trigger(slice_event_trigger_t* m0, slice_event_trigger_t* m1
 
   return false;
 }
-
-
 
 //////////////////////////////////////
 // RIC Action Definition 
@@ -55,7 +53,7 @@ slice_action_def_t cp_slice_action_def(slice_action_def_t* src)
   assert(src != NULL);
   assert(0 != 0 && "not implemented");
 
-  slice_action_def_t ans;
+  slice_action_def_t ans = {0};
   return ans;
 }
 

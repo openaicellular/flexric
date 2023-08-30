@@ -35,7 +35,7 @@
 #include "msg_generator_xapp.h"
 #include "e2ap_xapp.h"
 
-#include "lib/ap/free/e2ap_msg_free.h"
+#include "lib/e2ap/e2ap_msg_free_wrapper.h"
 #include "lib/pending_events.h"
 
 #include "../sm/rlc_sm/rlc_sm_id.h"
@@ -92,9 +92,10 @@ void rm_pending_event_xapp(e42_xapp_t* xapp, pending_event_xapp_t* ev)
   defer({ free(fd); } );
 }
 
-void init_handle_msg_xapp(e2ap_handle_msg_fp_xapp (*handle_msg)[32])
+void init_handle_msg_xapp(size_t len, e2ap_handle_msg_fp_xapp (*handle_msg)[len])
 {
-  memset((*handle_msg), 0, sizeof(e2ap_handle_msg_fp_xapp)*31);
+  assert(len == NONE_E2_MSG_TYPE);
+  memset((*handle_msg), 0, sizeof(e2ap_handle_msg_fp_xapp)*len);
   (*handle_msg)[RIC_SUBSCRIPTION_RESPONSE] = e2ap_handle_subscription_response_xapp;
   (*handle_msg)[RIC_SUBSCRIPTION_FAILURE] = e2ap_handle_subscription_failure_xapp;
   (*handle_msg)[RIC_SUBSCRIPTION_DELETE_RESPONSE] = e2ap_handle_subscription_delete_response_xapp;
@@ -289,8 +290,9 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
   assert(msg->type == RIC_CONTROL_ACKNOWLEDGE);
 
   ric_control_acknowledge_t const* ack = &msg->u_msgs.ric_ctrl_ack;
+#ifdef E2AP_V1
   assert( ack->status == RIC_CONTROL_STATUS_SUCCESS && "Only success supported ") ;
-
+#endif
   act_proc_ans_t rv = find_act_proc(&xapp->act_proc, ack->ric_id.ric_req_id);
   printf("ric_req_id = %d \n", ack->ric_id.ric_req_id );
   assert(rv.ok == true && "ric_req_id not registered in the registry");

@@ -33,7 +33,7 @@
 #include "../../tc_sm/ie/tc_data_ie.h"
 #include "../../gtp_sm/ie/gtp_data_ie.h"
 #include "../../rc_sm/ie/rc_data_ie.h"
-#include "../../kpm_sm_v03.00/ie/kpm_data_ie.h"
+#include "../../kpm_sm/kpm_data_ie_wrapper.h"
 
 #include "../write/subscribe_timer.h"
 
@@ -67,6 +67,7 @@ typedef struct{
   uint32_t ric_id;
 } rc_rd_ind_data_t;
 
+// ToDo: Change it for pointers, to break the dependencies
 typedef struct{
   sm_ag_if_rd_ind_e type;
 // Do not change the order!

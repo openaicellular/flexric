@@ -27,7 +27,7 @@ extern "C" {
 #ifndef NEAR_RIC_SERVER_API
 #define NEAR_RIC_SERVER_API
 
-#include "../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "../lib/e2ap/e2ap_global_node_id_wrapper.h"
 #include "../ric/e2_node.h"
 #include "../util/conf_file.h"
 

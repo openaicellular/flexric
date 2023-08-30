@@ -41,12 +41,17 @@ typedef struct{
  // void (*read)(sm_ag_if_rd_t* data);
  // sm_ag_if_ans_t (*write)(sm_ag_if_wr_t const* data);
 
-  // Read
+  // Read per SM
   read_ind_fp read_ind_tbl[SM_AGENT_IF_READ_V0_END];
   read_e2_setup_fp read_setup_tbl[SM_AGENT_IF_E2_SETUP_ANS_V0_END];
   read_rsu_fp read_rsu_tbl[0];
 
-  // Write
+#if defined(E2AP_V2) || defined (E2AP_V3)
+  // Read RAN 
+  void (*read_setup_ran)(void* data);
+#endif
+
+  // Write SM
   write_ctrl_fp write_ctrl_tbl[SM_AGENT_IF_WRITE_CTRL_V0_END];
   write_subs_fp write_subs_tbl[SM_AGENT_IF_WRITE_SUBS_V0_END];
 } sm_io_ag_ran_t;

@@ -105,7 +105,7 @@ extern "C" {
 // RAN Function Definition 
 /////////////////////////////////////
 
-#include "../../../lib/sm/sm_common_ie/ran_function_name.h"
+#include "../../../lib/sm/ie/ran_function_name.h"
 #include "ir/ran_func_def_ev_trig.h"
 #include "ir/ran_func_def_report.h"
 #include "ir/ran_func_def_insert.h"

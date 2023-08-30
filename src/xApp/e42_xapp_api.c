@@ -23,7 +23,7 @@
 #include "e42_xapp_api.h"
 #include "e42_xapp.h"
 #include "../util/conf_file.h"
-#include "../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "../lib/e2ap/e2ap_global_node_id_wrapper.h"
 #include "../util/alg_ds/alg/defer.h"
 #include "../util/alg_ds/alg/alg.h"
 #include "../sm/slice_sm/slice_sm_id.h"

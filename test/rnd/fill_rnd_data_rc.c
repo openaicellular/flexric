@@ -1002,7 +1002,7 @@ e2sm_rc_ind_hdr_frmt_1_t fill_rnd_rc_ind_hdr_frmt_1(void)
   // Optional
   // 9.3.21
   // [1 - 65535]
-  *dst.ev_trigger_id = (rand() % 65535)+ 1;
+  *dst.ev_trigger_id = (rand() % 65535) + 1;
 
   return dst;
 }

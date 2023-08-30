@@ -319,7 +319,7 @@ void load_plugin_ag(plugin_ag_t* p, const char* path)
 
   sm->handle = handle; 
   assert(sm != NULL);
-  const uint16_t ran_func_id = sm->ran_func_id;
+  const uint16_t ran_func_id = sm->info.id();
 
   {
     lock_guard(&p->sm_ds_mtx);
@@ -350,7 +350,7 @@ sm_agent_t* sm_plugin_ag(plugin_ag_t* p, uint16_t key)
 
   sm_agent_t* sm = assoc_value(&p->sm_ds, it);
 
-  assert(sm->ran_func_id == key);
+  assert(sm->info.id() == key);
   return sm;
 }
 

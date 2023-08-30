@@ -145,9 +145,8 @@ rlc_ind_msg_t cp_rlc_ind_msg(rlc_ind_msg_t const* src)
   if(cp.len > 0){
     cp.rb = calloc(cp.len, sizeof(rlc_radio_bearer_stats_t));
     assert(cp.rb != NULL && "memory exhausted");
+    memcpy(cp.rb, src->rb, sizeof(rlc_radio_bearer_stats_t)*cp.len);
   }
-
-  memcpy(cp.rb, src->rb, sizeof(rlc_radio_bearer_stats_t)*cp.len);
 
   return cp;
 }

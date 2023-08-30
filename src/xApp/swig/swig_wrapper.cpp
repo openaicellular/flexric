@@ -11,11 +11,7 @@
 #include "../../sm/rlc_sm/rlc_sm_id.h"
 #include "../../sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../sm/gtp_sm/gtp_sm_id.h"
-
 #include "../../sm/slice_sm/slice_sm_id.h"
-
-#include "../../sm/kpm_sm_v03.00/kpm_sm_id.h"
-
 #include "../../util/conf_file.h"
 
 
@@ -47,9 +43,6 @@ const char* convert_period(Interval  inter_arg)
   }
 
 }
-
-
-
 
 void init(std::vector<std::string>& argv)
 {
@@ -95,7 +88,6 @@ bool try_stop()
 std::vector<E2Node> conn_e2_nodes(void)
 {
   e2_node_arr_t arr = e2_nodes_xapp_api();
-   
 
   std::vector<E2Node> x;
 
@@ -127,7 +119,7 @@ std::vector<E2Node> conn_e2_nodes(void)
 
       tmp_ran.id = rf.id;
       tmp_ran.rev = rf.rev;
-      tmp_ran.def = rf.definition;
+      tmp_ran.def = rf.def;
       // TODO: oid
 
       ran_func.push_back(tmp_ran);// [j] = rf;

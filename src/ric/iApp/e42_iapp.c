@@ -67,7 +67,8 @@ e42_iapp_t* init_e42_iapp(const char* addr, near_ric_if_t ric_if)
 
   assert(iapp->io.efd < 1024);
 
-  init_handle_msg_iapp(&iapp->handle_msg);
+  iapp->sz_handle_msg = sizeof(iapp->handle_msg)/sizeof(iapp->handle_msg[0]);
+  init_handle_msg_iapp(iapp->sz_handle_msg, &iapp->handle_msg);
 
   assert(iapp->io.efd < 1024);
 

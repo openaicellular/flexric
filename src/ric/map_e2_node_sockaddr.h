@@ -23,7 +23,7 @@
 #ifndef MAP_E2_NODE_SOCKADDR_H
 #define MAP_E2_NODE_SOCKADDR_H 
 
-#include "../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "../lib/e2ap/e2ap_global_node_id_wrapper.h"
 #include "../util/alg_ds/ds/assoc_container/assoc_generic.h"
 #include "../util/alg_ds/ds/assoc_container/bimap.h"
 

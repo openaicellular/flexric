@@ -31,6 +31,7 @@
 #include "../rnd/fill_rnd_data_tc.h"                  
 #include "../rnd/fill_rnd_data_kpm.h"                  
 #include "../rnd/fill_rnd_data_slice.h"                  
+#include "../rnd/fill_rnd_data_e2_setup_req.h"                  
 
 #include <assert.h>
 #include <ctype.h>
@@ -57,22 +58,6 @@ void read_e2_setup_rc(void* data)
   rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
   rc->ran_func_def = fill_rc_ran_func_def(); 
 }
-
-/*
-static
-void read_e2_setup_agent(sm_ag_if_rd_e2setup_t* e2ap)
-{
-  assert(e2ap != NULL);
-  assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
-  if(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 ){
-    e2ap->kpm.ran_func_def = fill_kpm_ran_func_def(); 
-  } else if(e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0 ){
-    e2ap->rc.ran_func_def = fill_rc_ran_func_def();
-  } else {
-    assert(0 != 0 && "Unknown type");
-  }
-}
-*/
 
 static
 void read_ind_mac(void* ind)
@@ -138,52 +123,14 @@ void read_ind_rc(void* ind)
   assert(0!=0 && "The logic in RAN Ctrl SM for indication is different!"); 
 }
 
-
-
-
-/*
+#if defined(E2AP_V2) || defined(E2AP_V3)
 static
-void read_ind_agent(sm_ag_if_rd_ind_t* ind)
+void read_e2_setup_ran(void* data)
 {
-  assert(ind != NULL);
-  if(ind->type == MAC_STATS_V0){
-    fill_mac_ind_data(&ind->mac);
-  } else if(ind->type == RLC_STATS_V0){
-    fill_rlc_ind_data(&ind->rlc);
-  } else if (ind->type == PDCP_STATS_V0){
-    fill_pdcp_ind_data(&ind->pdcp);
-  } else if(ind->type == SLICE_STATS_V0){
-    fill_slice_ind_data(&ind->slice);
-  } else if(ind->type == GTP_STATS_V0){
-    fill_gtp_ind_data(&ind->gtp);
-  } else if(ind->type == TC_STATS_V0){
-    fill_tc_ind_data(&ind->tc);
-  } else if(ind->type == KPM_STATS_V3_0){
-    ind->kpm.ind.hdr = fill_kpm_ind_hdr();
-    ind->kpm.ind.msg = fill_kpm_ind_msg();
-  } else if(ind->type == RAN_CTRL_STATS_V1_03){
-    assert(0!=0 && "The logic in RAN Ctrl SM is different!"); 
-  } else {
-    assert(0!=0 && "Unknown type");
-  } 
+  assert(data != NULL);
+  *((e2ap_node_component_config_add_t*)(data)) = fill_e2ap_node_component_config_add();
 }
-*/
-/*
-  static
-void read_RAN(sm_ag_if_rd_t* ag_rd)
-{
-  assert(ag_rd != NULL);
-  assert(ag_rd->type == INDICATION_MSG_AGENT_IF_ANS_V0 || E2_SETUP_AGENT_IF_ANS_V0 );
-
-  if(ag_rd->type == E2_SETUP_AGENT_IF_ANS_V0){
-    read_e2_setup_agent(&ag_rd->e2ap);
-  } else if(ag_rd->type == INDICATION_MSG_AGENT_IF_ANS_V0 ){
-    read_ind_agent(&ag_rd->ind);
-  } else {
-    assert(0!=0 && "Unknown type");
-  }
-}
-*/
+#endif
 
 static
 sm_ag_if_ans_t write_ctrl_rc(void const* ctrl)
@@ -200,34 +147,6 @@ sm_ag_if_ans_t write_ctrl_rc(void const* ctrl)
   ans.ctrl_out.rc = fill_rnd_rc_ctrl_out();
   return ans;
 }
-
-/*
-static
-sm_ag_if_ans_t write_RAN_ctrl(sm_ag_if_wr_ctrl_t const* ctrl)
-{
-  assert(ctrl != NULL);
-  if(ctrl->type == MAC_CTRL_REQ_V0){
-    //printf("Control message called in the RAN \n");
-    sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0};
-    ans.ctrl_out.type = MAC_AGENT_IF_CTRL_ANS_V0;
-    ans.ctrl_out.mac.ans = MAC_CTRL_OUT_OK;
-    return ans;
-  } else if(ctrl->type == RAN_CONTROL_CTRL_V1_03){
-    printf("RAN_CONTROL_CTRL_V1_03 message called in the RAN \n");
-
-    sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0};
-    ans.ctrl_out.type = RAN_CTRL_V1_3_AGENT_IF_CTRL_ANS_V0;
-    ans.ctrl_out.rc = fill_rnd_rc_ctrl_out();
-    return ans;
-
-  } else {
-    assert(0 != 0 && "Not supported function ");
-  }
-
-  sm_ag_if_ans_t ans = {0};
-  return ans;
-}
-*/
 
 static
 void* emulate_rrc_msg(void* ptr)
@@ -246,7 +165,6 @@ void* emulate_rrc_msg(void* ptr)
   return NULL;
 }
 
-
 static
 sm_ag_if_ans_t write_subs_rc(void const* data)
 {
@@ -263,59 +181,6 @@ sm_ag_if_ans_t write_subs_rc(void const* data)
   sm_ag_if_ans_t ans = {0};
   return ans;
 }
-
-/*
-static
-void write_RAN_subs_rc(wr_rc_sub_data_t const* wr_rc)
-{
-  assert(wr_rc != NULL);
-
-  printf("ric req id %d \n", wr_rc->ric_req_id);
-
-  uint32_t* ptr = malloc(sizeof(uint32_t));
-  assert(ptr != NULL);
-  *ptr = wr_rc->ric_req_id;
-
-  int rc = pthread_create(&t, NULL, emulate_rrc_msg, ptr);
-  assert(rc == 0);
-}
-
-static
-sm_ag_if_ans_t write_RAN_subs(sm_ag_if_wr_subs_t const* subs)
-{
-  assert(subs != NULL);
-  
-  if(subs->type == RAN_CTRL_SUBS_V1_03){
-    write_RAN_subs_rc(&subs->wr_rc);
-  } else {
-    assert(0!=0 && "Unknown type");
-  }
-
-  sm_ag_if_ans_t ans = {0};
-  return ans;
-}
-
-static
-sm_ag_if_ans_t write_RAN(sm_ag_if_wr_t const* ag_wr)
-{
-  assert(ag_wr != NULL);
-  assert(ag_wr->type == CONTROL_SM_AG_IF_WR
-      || ag_wr->type == SUBSCRIPTION_SM_AG_IF_WR);
-
-  if(ag_wr->type == CONTROL_SM_AG_IF_WR){
-    return write_RAN_ctrl(&ag_wr->ctrl);
-  } else if(ag_wr->type == SUBSCRIPTION_SM_AG_IF_WR){
-    return write_RAN_subs(&ag_wr->subs);
-  } else {
-    assert(0!=0 && "Unknown type");
-  }
-
-  assert(0!=0 && "This point should not be reached");
-  sm_ag_if_ans_t ans = {0};
-  return ans;
-}
-
-*/
 
 static
 sm_io_ag_ran_t init_sm_io_ag_ran(void)
@@ -335,6 +200,10 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
   //  READ: E2 Setup
   dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
   dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_rc;
+
+#if defined(E2AP_V2) || defined(E2AP_V3)
+  dst.read_setup_ran = read_e2_setup_ran;
+#endif
 
   // WRITE: CONTROL
   dst.write_ctrl_tbl[RAN_CONTROL_CTRL_V1_03] = write_ctrl_rc;
@@ -390,8 +259,6 @@ int main(int argc, char *argv[])
   const uint16_t GTP_ran_func_id = 148;
   uint16_t h6 = report_service_near_ric_api(id, GTP_ran_func_id, cmd);
 
-
-
   const uint16_t KPM_ran_func_id = 2;
   kpm_sub_data_t kpm_sub = {.ev_trg_def.type = FORMAT_1_RIC_EVENT_TRIGGER,
                             .ev_trg_def.kpm_ric_event_trigger_format_1.report_period_ms = 5};
@@ -404,9 +271,7 @@ int main(int argc, char *argv[])
 
   const uint16_t h7 = report_service_near_ric_api(id, KPM_ran_func_id, &kpm_sub);
 
-
   /// RAN Control Subscription 
-  
   const uint16_t RC_ran_func_id = 3;
 
   rc_sub_data_t rc_sub = {0};
@@ -455,5 +320,5 @@ int main(int argc, char *argv[])
   assert(rc == 0);
 
   printf("Test communicating E2-Agent and Near-RIC run SUCCESSFULLY\n");
-
 }
+

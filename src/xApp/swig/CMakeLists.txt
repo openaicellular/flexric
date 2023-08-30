@@ -16,7 +16,6 @@ INCLUDE(${SWIG_USE_FILE})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 #SET(CMAKE_SWIG_FLAGS "")
-
 #SET(CMAKE BUILD TYPE Debug)
 
 # mysql db
@@ -46,9 +45,9 @@ if(XAPP_PYTHON_SWIG)
   SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE python SOURCES
       swig_wrapper.i
       swig_wrapper.cpp
-      ../../lib/ap/e2ap_types/common/e2ap_plmn.c
-      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
-      ../../lib/ap/e2ap_types/common/e2ap_global_node_id.c
+      $<TARGET_OBJECTS:e2ap_ran_func_obj>
+      $<TARGET_OBJECTS:e2ap_plmn_obj>
+      $<TARGET_OBJECTS:e2ap_global_node_id_obj>
       #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
       ../../sm/mac_sm/ie/mac_data_ie.c
       ../../sm/rlc_sm/ie/rlc_data_ie.c
@@ -68,9 +67,9 @@ if(XAPP_GO_SWIG)
   SWIG_ADD_LIBRARY(xapp_sdk_go LANGUAGE go SOURCES
       swig_wrapper.i
       swig_wrapper.cpp
-      ../../lib/ap/e2ap_types/common/e2ap_plmn.c
-      ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
-      ../../lib/ap/e2ap_types/common/e2ap_global_node_id.c
+      $<TARGET_OBJECTS:e2ap_ran_func_obj>
+      $<TARGET_OBJECTS:e2ap_plmn_obj>
+      $<TARGET_OBJECTS:e2ap_global_node_id_obj>
       #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
       ../../sm/mac_sm/ie/mac_data_ie.c
       ../../sm/rlc_sm/ie/rlc_data_ie.c
@@ -88,7 +87,8 @@ endif()
 #PYTHON compilation
 if(XAPP_PYTHON_SWIG)
 
-  TARGET_COMPILE_DEFINITIONS(xapp_sdk PRIVATE XAPP_LANG_PYTHON)
+  TARGET_COMPILE_DEFINITIONS(xapp_sdk PRIVATE XAPP_LANG_PYTHON ${E2AP_ENCODING} ${E2AP_VERSION})
+  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION})
   SWIG_LINK_LIBRARIES(xapp_sdk ${PYTHON_LIBRARIES})
 
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/_xapp_sdk.so")
@@ -130,9 +130,9 @@ endif()
 #GOLANG compilation
 if(XAPP_GO_SWIG)
 
-  TARGET_COMPILE_DEFINITIONS(xapp_sdk_go PRIVATE XAPP_LANG_GO)
+  TARGET_COMPILE_DEFINITIONS(xapp_sdk_go PRIVATE XAPP_LANG_GO ${E2AP_ENCODING} ${E2AP_VERSION})
   # Compile the Swig wrapper for Go
-  SET_PROPERTY(TARGET xapp_sdk_go PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk_go.so -w312 -w314)
+  SET_PROPERTY(TARGET xapp_sdk_go PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk_go.so -w312 -w314 ${E2AP_VERSION})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
 
   #Check if go.mod exists

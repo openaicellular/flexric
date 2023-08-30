@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../../../../lib/sm/sm_common_ie/ue_id.h"
+#include "../../../../lib/sm/ie/ue_id.h"
 
 // From 9.2.1.4.2
 typedef struct{

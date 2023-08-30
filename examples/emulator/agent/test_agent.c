@@ -27,6 +27,7 @@
 
 
 #include "../../../src/agent/e2_agent_api.h"
+#include "read_setup_ran.h"
 #include "sm_mac.h"
 #include "sm_rlc.h"
 #include "sm_pdcp.h"
@@ -101,6 +102,9 @@ sm_io_ag_ran_t init_io_ag()
   sm_io_ag_ran_t io = {0};
   init_read_ind_tbl(&io.read_ind_tbl);
   init_read_setup_tbl(&io.read_setup_tbl);
+#if defined(E2AP_V2) || defined(E2AP_V3)
+  io.read_setup_ran = read_setup_ran;
+#endif
   init_write_ctrl(&io.write_ctrl_tbl);
   init_write_subs(&io.write_subs_tbl);
 

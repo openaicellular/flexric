@@ -1,3 +1,14 @@
+# From a very bad design of conversion taken from OAI, it only gets worse with time...
+if(E2AP_VERSION STREQUAL "E2AP_V1")
+  include_directories("../lib/e2ap/v1_01/ie/asn")
+elseif(E2AP_VERSION STREQUAL "E2AP_V2")
+  include_directories("../lib/e2ap/v2_03/ie/asn")
+elseif(E2AP_VERSION STREQUAL "E2AP_V3")
+  include_directories("../lib/e2ap/v3_01/ie/asn")
+else()
+  message(FATAL_ERROR "E2AP V2 and V3 not implemented")
+endif()
+
 if (UNIT_TEST)
     add_subdirectory(alg_ds/ds/tsn_queue)
     enable_testing()
@@ -39,7 +50,7 @@ add_library(e2_time_obj OBJECT
                         )
 
 add_library(e2_ngran_obj OBJECT
-    e2ap_ngran_type.c
+                         e2ap_ngran_type.c
                          )
 
 

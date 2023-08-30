@@ -20,9 +20,9 @@
  */
 
 #include "e2ap_ric.h"
-#include "lib/ap/dec/e2ap_msg_dec_generic.h"  // for e2ap_msg_dec_gen
-#include "lib/ap/enc/e2ap_msg_enc_generic.h"  // for e2ap_enc_control_reques...
-#include "lib/ap/free/e2ap_msg_free.h"        // for e2ap_free_control_request
+#include "lib/e2ap/e2ap_msg_dec_generic_wrapper.h"  // for e2ap_msg_dec_gen
+#include "lib/e2ap/e2ap_msg_enc_generic_wrapper.h"  // for e2ap_enc_control_reques...
+#include "lib/e2ap/e2ap_msg_free_wrapper.h"        // for e2ap_free_control_request
 
 #include <assert.h>                           // for assert
 #include <stdio.h>                            // for NULL

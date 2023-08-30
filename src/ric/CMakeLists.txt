@@ -35,6 +35,7 @@ set(RIC_SRC
             iApps/stdout.c
             iApps/influx.c
             iApps/string_parser.c
+            generate_setup_response.c
             plugin_ric.c
             map_e2_node_sockaddr.c
             not_handler_ric.c
@@ -89,8 +90,7 @@ if(INCL_WHAT_YOU_USE)
   set_property(TARGET near_ric PROPERTY C_INCLUDE_WHAT_YOU_USE ${iwyu_path})
 endif()
 
+target_compile_definitions(near_ric PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION}  ${KPM_VERSION} )
 
-target_compile_definitions(near_ric PRIVATE ${E2AP_ENCODING})
-
-target_compile_definitions(near_ric_test PRIVATE ${E2AP_ENCODING})
+target_compile_definitions(near_ric_test PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION} )
 target_compile_definitions(near_ric_test PRIVATE TEST_AGENT_RIC)

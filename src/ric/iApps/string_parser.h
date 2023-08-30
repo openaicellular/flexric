@@ -31,8 +31,7 @@
 #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
 #include "../../sm/slice_sm/ie/slice_data_ie.h"
 #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
-#include "../../sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
-
+#include "../../sm/kpm_sm/kpm_data_ie_wrapper.h"
 
 void to_string_mac_ue_stats(mac_ue_stats_impl_t* stats, int64_t tstamp, char* out, size_t out_len);
 

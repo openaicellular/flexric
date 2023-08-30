@@ -1,7 +1,7 @@
 #ifndef SEQ_CELL_INFO_2_E2SM_RC_H
 #define SEQ_CELL_INFO_2_E2SM_RC_H
 
-#include "../../../../lib/sm/sm_common_ie/cell_global_id.h"
+#include "../../../../lib/sm/ie/cell_global_id.h"
 #include "../../../../util/byte_array.h"
 #include "neighbour_relation_tbl.h"
 
