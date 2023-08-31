@@ -80,6 +80,7 @@ ric_subscription_response_t generate_subscription_response(ric_gen_id_t const* r
 /* 
  * Creates the message `E2 setup request` from RAN
  */
+#ifdef E2AP_V1
 e2_setup_request_t 
 generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
 {
@@ -140,6 +141,56 @@ generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
 
   return sr;
 }
+#elif defined(E2AP_V2) || defined (E2AP_V3)
+e2_setup_request_t generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
+{
+  assert(ag != NULL);
+
+  const size_t len_rf = assoc_size(&ag->plugin.sm_ds);
+  assert(len_rf > 0 && "No RAN function/service model registered. Check if the Service Models are located at shared library paths, default location is /usr/local/flexric/");
+
+  ran_function_t* ran_func = calloc(len_rf, sizeof(*ran_func));
+  assert(ran_func != NULL);
+
+  // ToDO: Transaction ID needs to be considered within the pending messages
+  e2_setup_request_t sr = {
+    .trans_id = ag->trans_id_setup_req++,
+    .id = ge2ni,
+    .ran_func_item = ran_func,
+    .len_rf = len_rf,
+  };
+
+  void* it = assoc_front(&ag->plugin.sm_ds);
+  for(size_t i = 0; i < len_rf; ++i){
+    sm_agent_t* sm = assoc_value(&ag->plugin.sm_ds, it);
+    assert(sm->info.id() == *(uint16_t*)assoc_key(&ag->plugin.sm_ds, it) && "RAN function mismatch");
+
+    sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
+    // Pass memory ownership
+    ran_func[i].def.len = def.len_rfd;
+    ran_func[i].def.buf = def.ran_fun_def;
+
+    ran_func[i].id = sm->info.id();
+    ran_func[i].rev = sm->info.rev();
+    ran_func[i].oid = cp_str_to_ba(sm->info.oid());
+    it = assoc_next(&ag->plugin.sm_ds ,it);
+  }
+  assert(it == assoc_end(&ag->plugin.sm_ds) && "Length mismatch");
+
+  // E2 Node Component Configuration Addition List
+  // ToDO: This needs to be filled by the RAN
+  sr.len_cca = 1;
+  sr.comp_conf_add = calloc(sr.len_cca, sizeof(e2ap_node_component_config_add_t));
+  assert(sr.comp_conf_add != NULL && "Memory exhausted");
+
+  assert(ag->read_setup_ran != NULL);
+  ag->read_setup_ran(sr.comp_conf_add);
+
+ return sr;
+}
+#else
+static_assert(0!=0, "Unknown E2AP version");
+#endif
 
 // ------------------------E2AP  API ---------------------------------------------------
 static void* create_notif_e2_ran_event(void* it)
@@ -277,19 +328,23 @@ void fwd_ran_e2_ctrl_reply (e2_agent_t *e2_if, ctrl_ev_reply_t reply)
 
   // XXX: handle the 3 cases for status to be reported to ric:  RIC_CONTROL_STATUS_SUCCESS,  RIC_CONTROL_STATUS_REJECTED,  RIC_CONTROL_STATUS_FAILED
   // for now we handle just one SUCCESS/FAILURE
+  assert(reply.ans.type == CTRL_OUTCOME_SM_AG_IF_ANS_V0);
+#ifdef E2AP_V1
   ric_control_status_t ret_sts;
-  if ( reply.ans.type == CTRL_OUTCOME_SM_AG_IF_ANS_V0 && reply.ans.ctrl_out.type == MAC_AGENT_IF_CTRL_ANS_V0)
+  if (reply.ans.ctrl_out.type == MAC_AGENT_IF_CTRL_ANS_V0)
     ret_sts = (reply.ans.ctrl_out.mac.ans == MAC_CTRL_OUT_OK) ? RIC_CONTROL_STATUS_SUCCESS: RIC_CONTROL_STATUS_FAILED;
   else
     assert (0!=0 && "unsupported service model for CTRL procedure\n");
-    
+#endif
   sm_ctrl_out_data_t ctrl_ans = {.len_out = 0, .ctrl_out =NULL};
   
   byte_array_t* ba_ctrl_ans = ba_from_ctrl_out(&ctrl_ans);
   ric_control_acknowledge_t ctrl_ack = {    
     .ric_id = corr->ric_id,
     .call_process_id = NULL,
+#ifdef E2AP_V1
     .status = ret_sts,
+#endif
     .control_outcome = ba_ctrl_ans 
     } ;
   byte_array_t ba = e2ap_enc_control_acknowledge_ag(&e2_if->ap, &ctrl_ack); 
