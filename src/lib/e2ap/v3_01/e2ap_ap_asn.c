@@ -81,6 +81,7 @@ void init_ap_asn(e2ap_asn_t* asn)
   asn->enc_msg[40] = e2ap_enc_e42_subscription_request_asn_msg;
   asn->enc_msg[41] = e2ap_enc_e42_subscription_delete_request_asn_msg;
   asn->enc_msg[42] = e2ap_enc_e42_control_request_asn_msg;
+  asn->enc_msg[43] = e2ap_enc_e42_update_e2_node_asn_msg;
 
   // Decoding Functions
   asn->dec_msg[0] =  e2ap_dec_subscription_request;
@@ -129,7 +130,8 @@ void init_ap_asn(e2ap_asn_t* asn)
   asn->dec_msg[40] =  e2ap_dec_e42_subscription_request;
   asn->dec_msg[41] =  e2ap_dec_e42_subscription_delete_request;
   asn->dec_msg[42] =  e2ap_dec_e42_control_request;
- 
+  asn->dec_msg[43] =  e2ap_dec_e42_update_e2_node;
+
   // Free Functions
   asn->free_msg[0] =  e2ap_free_subscription_request_msg;
   asn->free_msg[1] =  e2ap_free_subscription_response_msg;
@@ -177,5 +179,6 @@ void init_ap_asn(e2ap_asn_t* asn)
   asn->free_msg[40] =  e2ap_free_e42_ric_subscription_request_msg;
   asn->free_msg[41] =  e2ap_free_e42_ric_subscription_delete_request_msg;
   asn->free_msg[42] =  e2ap_free_e42_ric_control_request_msg;
+  asn->free_msg[43] =  e2ap_free_e42_update_e2_node_msg;
 }
 

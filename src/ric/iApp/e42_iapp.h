@@ -48,7 +48,7 @@
 #elif E2AP_V2 
 #define NUM_HANDLE_MSG 35 // 34 + E42-UPDATE-E2-NODE
 #elif E2AP_V3 
-#define NUM_HANDLE_MSG 43
+#define NUM_HANDLE_MSG 44 // 43 + E42-UPDATE-E2-NODE
 #else
 static_assert(0!=0, "Unknown E2AP version");
 #endif

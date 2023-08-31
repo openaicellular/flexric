@@ -268,5 +268,9 @@ byte_array_t e2ap_enc_e42_control_request_asn(const e42_ric_control_request_t* r
 byte_array_t e2ap_enc_e42_control_request_asn_msg(const e2ap_msg_t* msg);
 struct E2AP_PDU* e2ap_enc_e42_control_request_asn_pdu(const e42_ric_control_request_t* ric_req);
 
+// xApp -> iApp
+byte_array_t e2ap_enc_e42_update_e2_node_asn(const e42_update_e2_node_t* sr);
+byte_array_t e2ap_enc_e42_update_e2_node_asn_msg(const e2ap_msg_t* msg);
+struct E2AP_PDU* e2ap_enc_e42_update_e2_node_asn_pdu(const e42_update_e2_node_t* sr);
 
 #endif

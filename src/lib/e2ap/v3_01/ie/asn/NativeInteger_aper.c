@@ -33,10 +33,9 @@ NativeInteger_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
                 ? asn_INTEGER2ulong(&tmpint, (unsigned long *)native)
                 : asn_INTEGER2long(&tmpint, native))
             rval.code = RC_FAIL;
-        else{
+        else
             ASN_DEBUG("NativeInteger %s got value %ld",
                       td->name, *native);
-        }
     }
     ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_INTEGER, &tmpint);
 

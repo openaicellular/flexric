@@ -122,6 +122,7 @@ set(ASN_MODULE_SRCS
   E42RICsubscriptionRequest.c
   E42setupRequest.c
   E42setupResponse.c
+  E42updateE2node.c
   ENB-ID.c
   ENB-ID-Choice.c
   ENGNB-ID.c

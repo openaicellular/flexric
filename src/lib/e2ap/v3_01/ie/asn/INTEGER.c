@@ -360,18 +360,9 @@ asn_imax2INTEGER(INTEGER_t *st, intmax_t value) {
 		}
 		break;
 	}
-
-// I do not understand the warning:
-// warning: array subscript 0 is outside array bounds of ‘intmax_t[1]’ {aka ‘long int[1]’} [-Warray-bounds]
-// for(bp = buf, pend1 += add; p != pend1; p += add)
-//               ~~~~~~^~~~~~
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
 	/* Copy the integer body */
 	for(bp = buf, pend1 += add; p != pend1; p += add)
 		*bp++ = *p;
-#pragma GCC diagnostic pop
 
 	if(st->buf) FREEMEM(st->buf);
 	st->buf = buf;

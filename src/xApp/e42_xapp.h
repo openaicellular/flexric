@@ -52,7 +52,7 @@
 #elif  E2AP_V2
 #define HANDLE_MSG_NUM 35 // 34 + E42-UPDATE-E2-NODE
 #elif  E2AP_V3
-#define HANDLE_MSG_NUM 43
+#define HANDLE_MSG_NUM 44 // 43 + E42-UPDATE-E2-NODE
 #else
 static_assert(0!=0 , "Not implemented");
 #endif
