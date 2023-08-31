@@ -9,6 +9,16 @@ target_link_libraries(test_msg_json
               $<TARGET_OBJECTS:e2ap_ds_obj>
               $<TARGET_OBJECTS:e2ap_alg_obj>
                -pthread -lsctp -ldl -lwebsockets -ljson-c)
-target_include_directories(test_msg_json PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v1_01/ie/asn/")
+
+if(E2AP_VERSION STREQUAL "E2AP_V1")
+    target_include_directories(test_msg_json PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v1_01/ie/asn/")
+elseif(E2AP_VERSION STREQUAL "E2AP_V2")
+    target_include_directories(test_msg_json PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v2_03/ie/asn/")
+elseif(E2AP_VERSION STREQUAL "E2AP_V3")
+    target_include_directories(test_msg_json PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v3_01/ie/asn/")
+else()
+    message(FATAL_ERROR "E2AP Unknown version selected")
+endif()
+
 enable_testing()
 add_test(Unit_test_json test_msg_json)

@@ -38,7 +38,7 @@ e* For more information about the OpenAirInterface (OAI) Software Alliance:
 
 
 #ifdef E2AP_V1
-#define NUM_HANDLE_MSG 31
+#define NUM_HANDLE_MSG 32 // 31 + E42-UPDATE-E2-NODE
 #elif E2AP_V2 
 #define NUM_HANDLE_MSG 34
 #elif E2AP_V3 
