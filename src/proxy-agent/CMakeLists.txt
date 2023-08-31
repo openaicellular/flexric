@@ -85,7 +85,17 @@ target_link_libraries(proxy_agent_ws
                       PUBLIC
                       e2_proxy_agent
                       -pthread -lsctp -ldl ${LIBWEBSOCKETS_LIBRARIES} ${LIBJSON-C_LIBRARIES})
-target_include_directories(proxy_agent_ws PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v1_01/ie/asn/")
+
+if(E2AP_VERSION STREQUAL "E2AP_V1")
+  target_include_directories(proxy_agent_ws PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v1_01/ie/asn/")
+elseif(E2AP_VERSION STREQUAL "E2AP_V2")
+  target_include_directories(proxy_agent_ws PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v2_03/ie/asn/")
+elseif(E2AP_VERSION STREQUAL "E2AP_V3")
+  target_include_directories(proxy_agent_ws PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v3_01/ie/asn/")
+else()
+  message(FATAL_ERROR "E2AP Unknown version selected")
+endif()
+
 
 
 
