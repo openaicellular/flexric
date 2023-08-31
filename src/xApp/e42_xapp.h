@@ -48,9 +48,9 @@
 #include <stdatomic.h>
 
 #ifdef E2AP_V1
-#define HANDLE_MSG_NUM 32 // 31 + e42_update_e2_node
+#define HANDLE_MSG_NUM 32 // 31 + E42-UPDATE-E2-NODE
 #elif  E2AP_V2
-#define HANDLE_MSG_NUM 34
+#define HANDLE_MSG_NUM 35 // 34 + E42-UPDATE-E2-NODE
 #elif  E2AP_V3
 #define HANDLE_MSG_NUM 43
 #else

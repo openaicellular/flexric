@@ -40,13 +40,11 @@ INTEGER_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
              */
             switch(*buf) {
             case 0x00: 
-              if((buf[1] & 0x80) == 0)
-                continue;
-              break;
+	        if((buf[1] & 0x80) == 0) continue;
+                break;
             case 0xff: 
-              if((buf[1] & 0x80))
-                continue;
-              break;
+            	if((buf[1] & 0x80)) continue;
+                break;
             }
             break;
         }

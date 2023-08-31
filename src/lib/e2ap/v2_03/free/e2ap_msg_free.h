@@ -177,5 +177,9 @@ void e2ap_free_e42_ric_subscription_delete_request(e42_ric_subscription_delete_r
 void e2ap_free_e42_ric_control_request_msg(e2ap_msg_t* msg);
 void e2ap_free_e42_ric_control_request(e42_ric_control_request_t* ctrl);
 
+// xApp -> iApp
+void e2ap_free_e42_update_e2_node_msg(e2ap_msg_t* msg);
+//void e2ap_free_e42_update_e2_node(e42_update_e2_node_t* sr);
+
 #endif
 

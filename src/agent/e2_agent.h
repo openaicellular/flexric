@@ -47,7 +47,7 @@
 #ifdef E2AP_V1
 #define NUM_HANDLE_MSG 32 // 31 + E42-UPDATE-E2-NODE
 #elif E2AP_V2 
-#define NUM_HANDLE_MSG 34
+#define NUM_HANDLE_MSG 35 // 34 + E42-UPDATE-E2-NODE
 #elif E2AP_V3 
 #define NUM_HANDLE_MSG 43
 #else
