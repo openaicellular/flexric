@@ -7,6 +7,7 @@ from helpers import sm_configs_to_e2_statuses, \
                     sm_configs_to_sm_filters, \
                     CallbackHelper, ts_grouping, promscale_jsonize
 
+from configs import msg_dispatcher
 import polars as pl
 import json, snappy, requests, traceback, queue
 from concurrent.futures import ThreadPoolExecutor
@@ -159,8 +160,6 @@ def subscriber(sm_configs, report_checkpoint):
                 status['is_on'] = True
                 for status_type in list(status.keys()):
                     if status_type != 'is_on':
-                        # TODO: Check if messages within the same SM,
-                        # can arrive at different intervals, or not?
                         status[status_type] = getattr(
                             ric, f"report_{status_type.lower()}_sm"
                         )(
@@ -204,8 +203,8 @@ def subscriber(sm_configs, report_checkpoint):
 ################
 # STATS WRITER #
 ################
-def write(idx, is_running, msg_queue, session, promscale_url,
-          min_batch_size=16, labels_key='labels'):
+def write(idx, is_running, msg_queue, obj_store,
+          min_batch_size, session, promscale_url, labels_key='labels'):
     # For reporting Througput & HOL-sojourn when exiting
     pushes_count, total_samples, total_sojourn = 0, 0, 0
 
@@ -221,19 +220,18 @@ def write(idx, is_running, msg_queue, session, promscale_url,
     while True:
         try:
             cur_size = msg_queue.qsize()
+
             msgs = [msg_queue.get(timeout=1) for _ in range(cur_size)]
+            preproc_msgs = [p_msg 
+                            for msg in msgs
+                            for p_msg in msg_dispatcher(msg, obj_store)]
+            msgs.extend(preproc_msgs)
 
-            # TODO: put your stateful pre-processor here:
-            # STATE = {'key': [values]} is stored across function calls
-            # - initializing STATE inside stats_writer(), 
-            # - and pass STATE into write().
-
-            msgs_df.vstack(pl.DataFrame(msgs, schema=msg_dtype), 
-                           in_place=True)
+            msgs_df.vstack(pl.DataFrame(msgs, schema=msg_dtype), in_place=True)
         except queue.Empty:
             print(f"[PUSHER-{idx}] Timeout while dequeuing!")
-        except Exception as e:
-            print(f"[PUSHER-{idx}] Exception caught:", e)
+        except Exception:
+            traceback.print_exc()
 
         try:
             if not is_running.value:
@@ -277,7 +275,8 @@ def write(idx, is_running, msg_queue, session, promscale_url,
     print(f"[PUSHER-{idx}] {total_samples} records \
           with AVG(HOL-sojourn) = {total_sojourn//pushes_count} (ms).")
 
-def stats_writer(is_running, msg_queue, promscale_url, is_db, num_threads=2):
+def stats_writer(is_running, msg_queue, promscale_url, is_db, 
+                 num_threads=2, batch_size=16):
     # Session (connection pool) shared between threads
     session = requests.Session()
     session.mount('http://', requests.adapters.HTTPAdapter(
@@ -293,19 +292,21 @@ def stats_writer(is_running, msg_queue, promscale_url, is_db, num_threads=2):
     signal.signal(signal.SIGINT, writer_sighandler)
 
     # ThreadPool-based writing to PromScale
+    OBJECT_STORE = {}
     labels_key = 'labels' if is_db else 'tests'
     with ThreadPoolExecutor(num_threads) as executor:
         for idx in range(num_threads):
-            executor.submit(write, idx, is_running, msg_queue,
-                            session, promscale_url, labels_key=labels_key)
+            executor.submit(write, idx, is_running, msg_queue, OBJECT_STORE,
+                            batch_size, session, promscale_url, 
+                            labels_key=labels_key)
 
     # When exit, draining the queues
     try:
         print("[Ctrl+C] Clearing the shared queues...")
         while not msg_queue.empty():
             msg_queue.get()
-    except Exception as e:
-        print("[StatsWriter] Exception caught:", e)
+    except Exception:
+        traceback.print_exc()
     finally:
         session.close()
 
@@ -327,7 +328,11 @@ if __name__ == '__main__':
     stats_writer_proc = Process(target=stats_writer,
                                 args=(is_running, msg_queue,
                                       CONFIGS['promscale_url'],
-                                      CONFIGS['database_mode']))
+                                      CONFIGS['database_mode']),
+                                kwargs={'num_threads': \
+                                        CONFIGS['writer_threads_count'],
+                                        'batch_size': \
+                                        CONFIGS['writer_batch_size']})
 
     signal.signal(signal.SIGINT, subscriber_sighandler)
     stats_writer_proc.start()
