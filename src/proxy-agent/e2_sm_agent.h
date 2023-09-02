@@ -38,7 +38,7 @@ typedef struct ctrl_ev_reply_t {
 typedef struct ctrl_ev_t {
   int           sm_id;      
   ric_gen_id_t  ric_id; // XX: proably too be removed as we do not use anymore this mechansim of correlation data passing
-  sm_ag_if_wr_t req;
+  sm_ag_if_wr_ctrl_t req;
 } ctrl_ev_t;
 /* 
  * next_msg_t is a container for the next message to be sent in the state machine of I/O module for RAN. 

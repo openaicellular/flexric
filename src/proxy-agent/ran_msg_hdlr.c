@@ -101,10 +101,13 @@ static next_msg_t handle_ran_config(proxy_agent_t * proxy, ran_msg_t ranmsg, ran
 
   set_E2setup_sts(true);
   next_msg_t ret_msg = { .type_id = RAN_E2_CONFIG_FWD};
+  ran_ind_t ind = get_ringbuffer_data();
   if (proxy->ran_if.ser->decode_e2setup(&ranmsg, &ret_msg.config_msg.global_e2_node_id) == false){
     lwsl_err("Error parsing json message for setup request from RAN. Discarding msg\n");
     ret_msg.type_id = RAN_E2_NONE;
   }
+  ind.global_e2_node_id = cp_global_e2_node_id(&ret_msg.config_msg.global_e2_node_id);
+  put_ringbuffer_data(ind);
   return ret_msg;
 }
 

@@ -1,0 +1,23 @@
+{
+    "message": "qos_flow_get",
+    "qos_flow_list": [
+        {
+            "ran_ue_id": 1,
+            "pdu_session_id": 1,
+            "sst": 1,
+            "sd": 0,
+            "qfi_list": [
+                {
+                    "qfi": 1,
+                    "5qi": 9
+                }
+            ],
+            "dl_total_bytes": 27151776,
+            "ul_total_bytes": 226422
+        }
+    ],
+    "timestamp": 94000,
+    "message_id": "id#1",
+    "time": 94
+}
+

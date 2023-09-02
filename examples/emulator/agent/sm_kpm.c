@@ -22,6 +22,10 @@ gnb_e2sm_t fill_gnb_data(void)
   gnb.guami.amf_set_id = (rand() % 2^10) + 0;
   gnb.guami.amf_ptr = (rand() % 2^6) + 0;
 
+  gnb.ran_ue_id = calloc(1, sizeof(uint64_t));
+  assert(gnb.ran_ue_id != NULL && "Memory exhausted");
+  *gnb.ran_ue_id = (rand() % 2^64) + 0;
+
   return gnb;
 }
 

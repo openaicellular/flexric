@@ -80,9 +80,10 @@ char* copy_ba_to_str(const byte_array_t* ba)
   if (ba->len < 1)
     return NULL;
 
-  char* str = calloc(ba->len, sizeof(char));
+  char* str = calloc(ba->len + 1, sizeof(char));
   assert(str != NULL && "memory exhausted\n");
   memcpy(str, ba->buf, ba->len);
+  str[ba->len] = '\0';
   return str;
 }
 

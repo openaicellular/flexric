@@ -1,0 +1,197 @@
+{
+    "message": "config_get",
+    "version": "2021-12-17",
+    "type": "ENB",
+    "name": "ENB",
+    "logs": {
+        "layers": {
+            "PHY": {
+                "level": "error",
+                "max_size": 0,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "MAC": {
+                "level": "error",
+                "max_size": 0,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "RLC": {
+                "level": "error",
+                "max_size": 0,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "PDCP": {
+                "level": "error",
+                "max_size": 0,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "RRC": {
+                "level": "debug",
+                "max_size": 1,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "NAS": {
+                "level": "debug",
+                "max_size": 1,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "S1AP": {
+                "level": "error",
+                "max_size": 0,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "NGAP": {
+                "level": "debug",
+                "max_size": 1,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "GTPU": {
+                "level": "error",
+                "max_size": 0,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "X2AP": {
+                "level": "error",
+                "max_size": 0,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "XnAP": {
+                "level": "debug",
+                "max_size": 1,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "M2AP": {
+                "level": "error",
+                "max_size": 0,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "LPPa": {
+                "level": "error",
+                "max_size": 0,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            },
+            "NRPPa": {
+                "level": "error",
+                "max_size": 0,
+                "key": false,
+                "crypto": false,
+                "payload": false
+            }
+        },
+        "bcch": false,
+        "signal": false,
+        "cch": false,
+        "rep": false,
+        "dci_size": false,
+        "csi": false,
+        "cell_meas": false,
+        "count": 8192
+    },
+    "tai": 13506.807,
+    "global_gnb_id": {
+        "plmn": "50501",
+        "gnb_id_bits": 28,
+        "gnb_id": 3590,
+        "gnb_name": "gnb0000e06"
+    },
+    "nr_cells": {
+        "1": {
+            "n_antenna_dl": 1,
+            "n_antenna_ul": 1,
+            "n_layer_dl": 1,
+            "n_layer_ul": 0,
+            "gain": 0,
+            "ul_disabled": false,
+            "rf_port": 0,
+            "dl_qam": 256,
+            "ul_qam": 256,
+            "n_id_nrcell": 500,
+            "band": 78,
+            "dl_nr_arfcn": 632628,
+            "ul_nr_arfcn": 632628,
+            "dl_freq": 3489420000,
+            "ul_freq": 3489420000,
+            "n_rb_dl": 106,
+            "n_rb_ul": 106,
+            "ssb_nr_arfcn": 631968,
+            "dl_mu": 1,
+            "ul_mu": 1,
+            "ssb_mu": 1,
+            "mode": "TDD",
+            "prach_sequence_index": 1,
+            "gbr": {
+                "dl_limit": 19537920,
+                "ul_limit": 5698560
+            },
+            "plmn_list": [
+                {
+                    "plmn_ids": [
+                        "50501"
+                    ],
+                    "reserved": false,
+                    "tac": 1,
+                    "nssai": [
+                        {
+                            "sst": 1
+                        },
+                        {
+                            "sst": 1,
+                            "sd": 0
+                        },
+                        {
+                            "sst": 1,
+                            "sd": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "rx_channels": [
+        {
+            "gain": 60,
+            "freq": 3489.42,
+            "port": 0
+        }
+    ],
+    "tx_channels": [
+        {
+            "gain": 89.75,
+            "freq": 3489.42,
+            "port": 0
+        }
+    ],
+    "rf_ports": [
+        {
+            "sample_rate": 46080000
+        }
+    ],
+    "message_id": "id#1",
+    "time": 13506.802
+}
