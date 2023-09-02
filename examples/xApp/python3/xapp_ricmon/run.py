@@ -63,9 +63,11 @@ class MACCallback(ric.mac_cb, CallbackHelper):
                 # Report the latencies
                 if self.report_checkpoint > 0:
                     self.report_maxlatency(tstamp_ms, ricmont_ms)
-            except Exception as e:
-                print("[MAC-callback] Exception caught:", e)
+            except ConnectionResetError:
+                print("[MACCallback] No message_queue to use. Ctrl+C?")
                 return
+            except Exception:
+                traceback.print_exc()
 
 class PDCPCallback(ric.pdcp_cb, CallbackHelper):
     # Define Python class 'constructor'
@@ -106,9 +108,11 @@ class PDCPCallback(ric.pdcp_cb, CallbackHelper):
                 # Report the latencies
                 if self.report_checkpoint > 0:
                     self.report_maxlatency(tstamp_ms, ricmont_ms)
-            except Exception as e:
-                print("[PDCP-callback] Exception caught:", e)
+            except ConnectionResetError:
+                print("[PDCPCallback] No message_queue to use. Ctrl+C?")
                 return
+            except Exception:
+                traceback.print_exc()
 
 def subscriber(sm_configs, report_checkpoint):
     # From sm_configs to E2-Nodes' status book
@@ -133,6 +137,9 @@ def subscriber(sm_configs, report_checkpoint):
     ric.init()
     global is_running
     while True:
+        # [Hack] Temporary fix memory leak!
+        time.sleep(1)
+
         # First: Extract the list of "ON" conns_ids
         conns = ric.conn_e2_nodes()
         conns_ids = {
