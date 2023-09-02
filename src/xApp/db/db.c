@@ -132,7 +132,7 @@ bool init_db_xapp(db_xapp_t* db,
   assert(db_params != NULL);
 
   init_db_gen(&db->handler, db_params);
-  assert(&db->handler != NULL && "&db->handler == NULL");
+  assert(db->handler != NULL && "Initialization of db connection failed\n");
 
   init_tsnq(&db->q, sizeof(e2_node_ag_if_t));
 

@@ -40,12 +40,14 @@ void read_mac_setup_sm(void* data)
 sm_ag_if_ans_t write_ctrl_mac_sm(void const* data)
 {
   mac_ctrl_req_data_t* mac_req_ctrl = (mac_ctrl_req_data_t* )data;
-  sm_ag_if_wr_t wr = {.type = CONTROL_SM_AG_IF_WR,
-                            .ctrl.type = MAC_CTRL_REQ_V0};
-  wr.ctrl.mac_ctrl.hdr = cp_mac_ctrl_hdr(&mac_req_ctrl->hdr);
-  wr.ctrl.mac_ctrl.msg = cp_mac_ctrl_msg(&mac_req_ctrl->msg);
-  // TODO: should not give sm_ag_if_wr_t
-  fwd_e2_ran_ctrl(&get_proxy_agent()->ran_if, wr);
+  sm_ag_if_wr_ctrl_t ctrl = {.type = MAC_CTRL_REQ_V0};
+  ctrl.mac_ctrl.hdr = cp_mac_ctrl_hdr(&mac_req_ctrl->hdr);
+  ctrl.mac_ctrl.msg = cp_mac_ctrl_msg(&mac_req_ctrl->msg);
+  
+  ctrl_ev_t ctrl_ev = { .sm_id  = SM_MAC_ID, 
+                        .req = ctrl,
+                        .ric_id = {0}};
+  fwd_e2_ran_ctrl(&get_proxy_agent()->ran_if, ctrl_ev);
 
   sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0};
   ans.ctrl_out.type = MAC_AGENT_IF_CTRL_ANS_V0;

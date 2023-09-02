@@ -298,29 +298,13 @@ void fwd_ran_e2_ctrl_reply (e2_agent_t *e2_if, ctrl_ev_reply_t reply)
    */
 }
 
-void fwd_e2_ran_ctrl (ran_if_t *ran_if, sm_ag_if_wr_t in)
+void fwd_e2_ran_ctrl (ran_if_t *ran_if, ctrl_ev_t in)
 {
   notif_e2_ran_event_t msg = {
     .type = E2_CTRL_EVENT,
-    .ctrl_ev.req = in, 
-    .ctrl_ev.sm_id = 0,
-    .ctrl_ev.ric_id = {0}
+    .ctrl_ev = in
   };
-  assert(msg.ctrl_ev.req.type == CONTROL_SM_AG_IF_WR);
-  switch (msg.ctrl_ev.req.ctrl.type)
-  {
-    case MAC_CTRL_REQ_V0:
-      msg.ctrl_ev.sm_id  = SM_MAC_ID; 
-      break;
-    case RLC_CTRL_REQ_V0:
-    case PDCP_CTRL_REQ_V0:
-    case SLICE_CTRL_REQ_V0:
-    case TC_CTRL_REQ_V0:
-    case GTP_CTRL_REQ_V0:
-    default:
-      assert (0!=0 && "unsupported message type in CTRL\n");
-  }
-
+  
   notif_send_ran_event(ran_if, &msg);
 }
 
