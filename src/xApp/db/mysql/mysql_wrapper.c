@@ -2407,7 +2407,7 @@ static void write_kpm_frm1_stats(MYSQL* conn,
 
     meas_data_lst_t meas_data = msg->meas_data_lst[i];
     if (msg->meas_info_lst_len != meas_data.meas_record_len) {
-      printf("meas_info_lst_len != meas_record_len, cannot write kpm ind frm1 to sqlite3 db\n");
+      printf("meas_info_lst_len != meas_record_len, cannot write kpm ind frm1 to MySQL db\n");
       break;
     }
 
@@ -2595,6 +2595,7 @@ void init_db_mysql(MYSQL** conn, db_params_t const* db_params)
   {
     fprintf(stderr, "Fatal: connecting to mySQL: %s\n", mysql_error(*conn));
     mysql_close(*conn);
+    *conn = NULL; // Do not use the handler after it has been closed. 
     return;
   }
   printf("[MySQL]: Connection Successful\n");

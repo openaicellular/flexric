@@ -84,13 +84,15 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
     } else if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE) {
       for (size_t i = 0; i < kpm->msg.frm_3.ue_meas_report_lst_len; i++) {
         if (kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type == GNB_UE_ID_E2SM) {
-          printf("UE ID type %d, amf_ue_ngap_id %ld\n",
+          printf("UE ID: type %d, amf_ue_ngap_id %ld ",
                  kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type,
                  kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id
-          );
+                 );
+          if (kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id)
+            printf("ran_ue_id %ld", *kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id);
+          printf("\n");
         }
         if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst_len > 0) {
-          // TODO: need to get the all meas data
           size_t meas_data_idx = 0;
           if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].incomplete_flag) {
             if (*kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].incomplete_flag == TRUE_ENUM_VALUE)
@@ -115,7 +117,6 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
     }
 
   }
-  //printf("UE ID %ld \n ", ue_id.gnb.amf_ue_ngap_id);
 }
 
 static

@@ -6,6 +6,7 @@
  */
 
 #include "ran_msg_hdlr.h"
+#include "ser_ran.h"
 
 typedef struct ringbuffer_t {
   ran_ind_t data[1];

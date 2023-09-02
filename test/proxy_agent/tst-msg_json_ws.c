@@ -12,33 +12,60 @@ ran_ind_t expected1, expected2, expected3, expected4;
 
 static void initialize_expected1 (void) 
 {
-  memset(&expected1, 0,  sizeof(ran_ind_t));
-  expected1.cells_stats[0].cell_id = 1;
-  expected1.n_connected_ue = 0;
+  memset(&expected1, 0, sizeof(ran_ind_t));
+  expected1.ran_stats.cells[0].cell_id = 1;
+  expected1.ran_stats.len_cell = 1;
+  expected1.ran_stats_flags.cells_stats_flags[0].cell_id = true;
+  expected1.ran_stats_flags.cells_stats_flags[0].dl_bitrate = true;
+  expected1.ran_stats_flags.cells_stats_flags[0].ul_bitrate = true;
+  expected1.ran_stats_flags.cells_stats_flags[0].dl_tx = true;
+  expected1.ran_stats_flags.cells_stats_flags[0].ul_tx = true;
+  expected1.ran_stats_flags.cells_stats_flags[0].dl_retx = true;
+  expected1.ran_stats_flags.cells_stats_flags[0].ul_retx = true;
+  expected1.ran_stats_flags.cells_stats_flags[0].dl_sched_users_min = true;
 };
 
 static void initialize_expected2 (void) 
 {
   memset(&expected2, 0,  sizeof(ran_ind_t));
-  expected2.cells_stats[0].cell_id = 1;
-  expected2.cells_stats[0].dl_bitrate = 100;
-  expected2.cells_stats[0].ul_bitrate = 120;
-  expected2.n_connected_ue = 0;
+  expected2.ran_stats.cells[0].cell_id = 1;
+  expected2.ran_stats.len_cell = 1;
+  expected2.ran_stats_flags.cells_stats_flags[0].cell_id = true;
+  expected2.ran_stats.cells[0].dl_bitrate = 100;
+  expected2.ran_stats_flags.cells_stats_flags[0].dl_bitrate = true;
+  expected2.ran_stats.cells[0].ul_bitrate = 120;
+  expected2.ran_stats_flags.cells_stats_flags[0].ul_bitrate = true;
+  expected2.ran_stats_flags.cells_stats_flags[0].dl_tx = true;
+  expected2.ran_stats_flags.cells_stats_flags[0].ul_tx = true;
+  expected2.ran_stats_flags.cells_stats_flags[0].dl_retx = true;
+  expected2.ran_stats_flags.cells_stats_flags[0].ul_retx = true;
+  expected2.ran_stats_flags.cells_stats_flags[0].dl_sched_users_min = true;
 };
 
 static void initialize_expected3 (void) 
 {
-  memset(&expected3, 0,  sizeof(ran_ind_t));
+  memset(&expected3, 0, sizeof(ran_ind_t));
 };
 
 static void initialize_expected4 (void) 
 {
-  memset(&expected4, 0,  sizeof(ran_ind_t));
+  memset(&expected4, 0, sizeof(ran_ind_t));
+  expected4.ue_stats[0].time = 0;
+  expected4.ue_stats[0].enb_ue_id = 0;
+  expected4.ue_stats[0].ran_ue_id = 2;
+  expected4.ue_stats[0].mme_ue_id = 0;
+  expected4.ue_stats[0].amf_ue_id = 2;
+  expected4.ue_stats[0].linked_enb_ue_id = 0;
+  expected4.ue_stats[0].linked_ran_ue_id = 0;
   expected4.ue_stats[0].rnti = 17922;
-  expected4.ue_stats[0].cell[0].cell_id = 1;
-  expected4.ue_stats[0].cell[0].ul_phr = 38;
-  expected4.ue_stats[0].cell[0].cqi = 12;
-  expected4.n_connected_ue = 1;
+  expected4.ue_stats[0].cell_flags[0].cell_id = true;
+  expected4.ue_stats[0].cells[0].cell_id = 1;
+  expected4.ue_stats[0].cell_flags[0].ul_phr = true;
+  expected4.ue_stats[0].cells[0].ul_phr = 38;
+  expected4.ue_stats[0].cell_flags[0].cqi = true;
+  expected4.ue_stats[0].cells[0].cqi = 12;
+  expected4.ue_stats[0].len_cell = 1;
+  expected4.len_ue_stats = 1;
 };
 
 struct test_t
@@ -48,8 +75,9 @@ struct test_t
 }; 
 
 // test1: 'stats' reply when no ue is connected
-// test2: 'ue_get' reply when no ue is connected
-// test3: 'ue_get' reply when ue is connected but no stats requested from proxy_agent. This is an error in formulation of the request, stats need to be
+// test2: 'stats' reply when ue is connected
+// test3: 'ue_get' reply when no ue is connected
+// test4: 'ue_get' reply when ue is connected but no stats requested from proxy_agent. This is an error in formulation of the request, stats need to be
 //        requested always.
 
 static struct test_t tests[] =
@@ -71,7 +99,44 @@ static struct test_t tests[] =
 
 static bool cmp_ind_t_msg (ran_ind_t in, ran_ind_t *expected) 
 {
-  return (memcmp(&in, expected, sizeof(in)) == 0) ? true : false;
+  bool ret = (memcmp(&in, expected, sizeof(in)) == 0) ? true : false;
+  if (ret == false)
+  {
+    printf("Difference was in (");
+    if (memcmp( &in.ran_stats,
+                &expected->ran_stats,
+                sizeof(in.ran_stats) != 0))
+      printf("ran_stats");
+            
+    if (memcmp(&in.ran_stats_flags,
+                &expected->ran_stats_flags,
+                sizeof(in.ran_stats)) != 0)
+      printf(" ran_stats_flags");
+
+    if (memcmp(&in.ue_stats,
+                &expected->ue_stats, 
+                sizeof(in.ue_stats)) != 0)
+      printf(" ue_stats");
+                    
+    if (in.len_ue_stats != expected->len_ue_stats)
+      printf(" n_connected_ue");
+
+    if (in.len_qos_flow_stats != expected->len_qos_flow_stats)
+      printf(" qos_flow_stats_len");
+     
+    if (memcmp(&in.qos_flow_stats,
+                &expected->qos_flow_stats, 
+                sizeof(in.qos_flow_stats)) != 0)
+      printf(" qos_flow_stats");
+
+    if (memcmp(&in.qos_flow_stats_flags,
+                &expected->qos_flow_stats_flags, 
+                sizeof(in.qos_flow_stats_flags)) != 0)
+      printf(" qos_flow_stats_flags");
+
+    printf(")\n");
+  }
+  return ret;
 }
 
 int main()
@@ -96,31 +161,34 @@ int main()
               ser->decode_indication_stats(&in_msg, &out);
               
     if (tmp_ret == false){
-      printf ("FAIL decoding on test(%ld): \"%s\"\n", i, tests[i].json);
+      printf ("FAIL decoding on test(%ld). Input was:\"%s\"\n", i, tests[i].json);
       ret_status = EXIT_FAILURE;
       continue;
     }  
     if (cmp_ind_t_msg(out, tests[i].expected) == false) {
-      printf ("FAIL value mismatch on test(%ld): \"%s\"\n", i, tests[i].json);
+      printf ("FAIL value mismatch on test(%ld). Input was:\"%s\"\n", i, tests[i].json);
       ret_status = EXIT_FAILURE;
       continue;
     }
   }
-  sm_ag_if_wr_t write_msg = {.type = CONTROL_SM_AG_IF_WR,
-     .ctrl.type = MAC_CTRL_REQ_V0,
-     .ctrl.mac_ctrl.hdr.dummy = 0,
-     .ctrl.mac_ctrl.msg = {
+
+  sm_ag_if_wr_ctrl_t ctrl_msg = {
+     .type = MAC_CTRL_REQ_V0,
+     .mac_ctrl.hdr.dummy = 0,
+     .mac_ctrl.msg = {
         .ran_conf_len = 1}
   };
-  write_msg.ctrl.mac_ctrl.msg.ran_conf = calloc(sizeof(mac_conf_t), 1);
-  write_msg.ctrl.mac_ctrl.msg.ran_conf[0].rnti = 1;
-  write_msg.ctrl.mac_ctrl.msg.ran_conf[0].pusch_mcs = 1;
-  write_msg.ctrl.mac_ctrl.msg.ran_conf[0].isset_pusch_mcs = true;
+  ctrl_msg.mac_ctrl.msg.ran_conf = calloc(sizeof(mac_conf_t), 1);
+  ctrl_msg.mac_ctrl.msg.ran_conf[0].rnti = 1;
+  ctrl_msg.mac_ctrl.msg.ran_conf[0].pusch_mcs = 1;
+  ctrl_msg.mac_ctrl.msg.ran_conf[0].isset_pusch_mcs = true;
   char *expected = "{\"message\":\"config_set\",\"cells\":[{\"cell_id\":1,\"pusch_mcs\":1}],\"message_id\":\"1\"}";
-  const char *p = ser->encode_ctrl(1, write_msg);
+  const char *p = ser->encode_ctrl(1, ctrl_msg);
   if (strcmp(p, expected)){
     printf ("FAIL encoding CTRL mismatch: Got '%s', expected '%s'\n", p, expected);
     ret_status = EXIT_FAILURE;
   }
+  free(ctrl_msg.mac_ctrl.msg.ran_conf);
+
   return ret_status;
 }
