@@ -63,7 +63,7 @@ class MACCallback(ric.mac_cb, CallbackHelper):
                 # Report the latencies
                 if self.report_checkpoint > 0:
                     self.report_maxlatency(tstamp_ms, ricmont_ms)
-            except ConnectionResetError:
+            except (ConnectionResetError, BrokenPipeError):
                 print("[MACCallback] No message_queue to use. Ctrl+C?")
                 return
             except Exception:
@@ -108,7 +108,7 @@ class PDCPCallback(ric.pdcp_cb, CallbackHelper):
                 # Report the latencies
                 if self.report_checkpoint > 0:
                     self.report_maxlatency(tstamp_ms, ricmont_ms)
-            except ConnectionResetError:
+            except (ConnectionResetError, BrokenPipeError):
                 print("[PDCPCallback] No message_queue to use. Ctrl+C?")
                 return
             except Exception:
@@ -134,7 +134,7 @@ def subscriber(sm_configs, report_checkpoint):
                                   report_checkpoint)
 
     # Now, let us handle multiple E2-Node subscriptions
-    ric.init()
+    ric.init(['', '-c', 'nodb.conf'])
     global is_running
     while True:
         # [Hack] Temporary fix memory leak!
