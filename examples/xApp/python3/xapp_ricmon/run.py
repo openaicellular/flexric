@@ -134,7 +134,6 @@ def subscriber(sm_configs, report_checkpoint):
                                   report_checkpoint)
 
     # Now, let us handle multiple E2-Node subscriptions
-    ric.init(['', '-c', 'nodb.conf'])
     global is_running
     while True:
         # [Hack] Temporary fix memory leak!
@@ -341,6 +340,8 @@ if __name__ == '__main__':
                                         'batch_size': \
                                         CONFIGS['writer_batch_size']})
 
+    # Move ric.init() out to override FlexApp sig-handler
+    ric.init(['', '-c', 'nodb.conf'])
     signal.signal(signal.SIGINT, subscriber_sighandler)
     stats_writer_proc.start()
     subscriber(CONFIGS['sm_configs'], CONFIGS['callback_report_checkpoint'])
