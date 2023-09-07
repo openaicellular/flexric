@@ -45,7 +45,7 @@ class KPMCallback(ric.kpm_cb):
 ####  GENERAL 
 ####################
 
-ric.init()
+ric.init(sys.argv)
 
 conn = ric.conn_e2_nodes()
 assert(len(conn) > 0)
