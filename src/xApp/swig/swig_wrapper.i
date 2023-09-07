@@ -99,9 +99,13 @@
 /* fix 'cu_du_id' as a <long unsigned int>-vector pointer (in C++) */
 %typemap(out) std::vector<long unsigned int> * {
     if ($1 == NULL || $1->size() == 0) {
-        $result = PyLong_FromLong((long) 0);
+        $result = PyUnicode_FromString("0");
     } else {
-        $result = PyLong_FromUnsignedLong((*$1)[0]);
+        std::string result_str = std::to_string((*$1)[0]);
+        for (unsigned int i = 1; i < $1->size(); ++i) {
+            result_str += "-" + std::to_string((*$1)[i]);
+        }
+        $result = PyUnicode_FromString(result_str.c_str());
     }
 }
 

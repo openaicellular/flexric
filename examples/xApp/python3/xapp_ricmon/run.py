@@ -57,7 +57,7 @@ class MACCallback(ric.mac_cb, CallbackHelper):
                             'mcc': f"{e2_id[0]}",
                             'mnc': f"{e2_id[1]}",
                             'nb_id': f"{e2_id[2]}",
-                            'cu_du_id': f"{e2_id[3]}"
+                            'cu_du_id': e2_id[3]
                         })
 
                 # Report the latencies
@@ -102,7 +102,7 @@ class PDCPCallback(ric.pdcp_cb, CallbackHelper):
                             'mcc': f"{e2_id[0]}",
                             'mnc': f"{e2_id[1]}",
                             'nb_id': f"{e2_id[2]}",
-                            'cu_du_id': f"{e2_id[3]}"
+                            'cu_du_id': e2_id[3]
                         })
 
                 # Report the latencies
