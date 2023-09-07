@@ -55,7 +55,6 @@
 #include "../global_consts.h"
 
 #include "util/conversions.h"
-#include "util/bit_string.h"
 #include "util/ngran_types.h"
 
 static inline
