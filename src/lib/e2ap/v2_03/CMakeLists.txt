@@ -12,6 +12,9 @@ if(E2AP_ENCODING STREQUAL "ASN")
                           $<TARGET_OBJECTS:e2ap_msg_enc_obj>
                           $<TARGET_OBJECTS:e2ap_msg_dec_obj>
                           $<TARGET_OBJECTS:e2ap_msg_free_obj>
+                          $<TARGET_OBJECTS:e2ap_ie_obj>
+                          $<TARGET_OBJECTS:e2_conv_obj>
+                          $<TARGET_OBJECTS:3gpp_derived_ie_obj>
                           )
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS")

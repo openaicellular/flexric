@@ -11,7 +11,6 @@ set(SM_ENCODING_KPM_SRC
                       kpm_sm_ric.c 
                       kpm_sm_agent.c 
                       ../../../util/byte_array.c 
-                      ../../../util/conversions.c
                       ../../../util/alg_ds/alg/defer.c 
                       ../../../util/alg_ds/alg/eq_float.c 
                       ../../../util/alg_ds/ds/seq_container/seq_arr.c 
@@ -30,6 +29,8 @@ if(SM_ENCODING_KPM STREQUAL "ASN")
     enc/kpm_enc_asn.c 
     dec/kpm_dec_asn.c 
     ie/kpm_data_ie.c
+
+    $<TARGET_OBJECTS:e2_conv_obj>
     $<TARGET_OBJECTS:e2ap_ran_func_obj>
     $<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
     $<TARGET_OBJECTS:kpm_ric_info_common_obj>

@@ -400,7 +400,8 @@ void test_setup_rquest()
   global_e2_node_id_t id = {
     .type = type,
     .plmn = plmn,
-    .nb_id = 0,
+    .nb_id.nb_id = 0,
+    .nb_id.unused = 0,
   };
 
   const size_t len_rf = 1;
@@ -798,7 +799,8 @@ void test_e42_setup_response()
   global_e2_node_id_t id = {
     .type = type,
     .plmn = plmn,
-    .nb_id = 0,
+    .nb_id.nb_id = 0,
+    .nb_id.unused = 0,
   };
 
 
@@ -858,7 +860,8 @@ void test_e42_subscription_request()
   global_e2_node_id_t id = {
     .type = type,
     .plmn = plmn,
-    .nb_id = 0,
+    .nb_id.nb_id = 0,
+    .nb_id.unused = 0
   };
 
   const ric_gen_id_t ric_id = {.ric_req_id = 0,
@@ -944,9 +947,9 @@ void test_e42_control_request()
   global_e2_node_id_t id = {
     .type = type,
     .plmn = plmn,
-    .nb_id = 0,
+    .nb_id.nb_id = 0,
+    .nb_id.unused = 0,
   };
-
 
   const ric_gen_id_t ric_id = {.ric_req_id = 0,
                           .ric_inst_id = 2,

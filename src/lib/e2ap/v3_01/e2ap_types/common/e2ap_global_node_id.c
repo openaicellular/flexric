@@ -41,9 +41,9 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
     if(eq_e2ap_plmn(&m0->plmn, &m1->plmn) == false)
       return false;
 
-    if(m0->nb_id != m1->nb_id)
+    if(eq_e2ap_gnb_id(m0->nb_id, m1->nb_id) == false)
       return false;
-
+    
     return true;
   } else if ((NODE_IS_CU(m0->type) || NODE_IS_DU(m0->type)) && (NODE_IS_CU(m1->type) || NODE_IS_DU(m1->type))) {
     // compare gNB/eNB-CU/DU
@@ -54,10 +54,10 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
 
     if(eq_e2ap_plmn(&m0->plmn, &m1->plmn) == false)
       return false;
-
-    if(m0->nb_id != m1->nb_id)
+      
+    if(eq_e2ap_gnb_id(m0->nb_id, m1->nb_id) == false)
       return false;
-
+    
     if(*m0->cu_du_id != *m1->cu_du_id)
       return false;
 
@@ -68,13 +68,12 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
     if(eq_e2ap_plmn(&m0->plmn, &m1->plmn) == false)
       return false;
 
-    if(m0->nb_id != m1->nb_id)
+    if(eq_e2ap_gnb_id(m0->nb_id, m1->nb_id) == false)
       return false;
-
+    
     return true;
   }
 }
-
 
 global_e2_node_id_t cp_global_e2_node_id(global_e2_node_id_t const* src)
 {
@@ -84,6 +83,7 @@ global_e2_node_id_t cp_global_e2_node_id(global_e2_node_id_t const* src)
   dst.type = src->type;
   dst.plmn = cp_e2ap_plmn(&src->plmn);
   dst.nb_id = src->nb_id;
+
   if (src->cu_du_id != NULL) {
     dst.cu_du_id = calloc(1, sizeof(uint64_t));
     assert(dst.cu_du_id != NULL && "memory exhausted");
@@ -126,10 +126,15 @@ int cmp_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
     if(rc != 0)
       return rc;
 
-    if (m0->nb_id < m1->nb_id)
+    if (m0->nb_id.nb_id < m1->nb_id.nb_id)
       return -1;
-    else if(m0->nb_id > m1->nb_id)
+    else if(m0->nb_id.nb_id > m1->nb_id.nb_id)
       return 1;
+
+    if (m0->nb_id.unused < m1->nb_id.unused)
+      return 1;
+    else if(m0->nb_id.unused > m1->nb_id.unused)
+      return -1;
 
     return 0;
   } else if ((NODE_IS_CU(m0->type) || NODE_IS_DU(m0->type)) && (NODE_IS_CU(m1->type) || NODE_IS_DU(m1->type))) {
@@ -143,10 +148,15 @@ int cmp_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
     if(rc != 0)
       return rc;
 
-    if (m0->nb_id < m1->nb_id)
+    if (m0->nb_id.nb_id < m1->nb_id.nb_id)
       return -1;
-    else if(m0->nb_id > m1->nb_id)
+    else if(m0->nb_id.nb_id > m1->nb_id.nb_id)
       return 1;
+
+    if (m0->nb_id.unused < m1->nb_id.unused)
+      return 1;
+    else if(m0->nb_id.unused > m1->nb_id.unused)
+      return -1;
 
     if (*m0->cu_du_id < *m1->cu_du_id)
       return -1;
@@ -161,10 +171,15 @@ int cmp_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
     if(rc != 0)
       return rc;
 
-    if (m0->nb_id < m1->nb_id)
+    if (m0->nb_id.nb_id < m1->nb_id.nb_id)
       return -1;
-    else if(m0->nb_id > m1->nb_id)
+    else if(m0->nb_id.nb_id > m1->nb_id.nb_id)
       return 1;
+
+    if (m0->nb_id.unused < m1->nb_id.unused)
+      return 1;
+    else if(m0->nb_id.unused > m1->nb_id.unused)
+      return -1;
 
     return 0;
   }
@@ -181,7 +196,4 @@ int cmp_global_e2_node_id_wrapper(const void* m0_v, const void* m1_v)
 
   return cmp_global_e2_node_id(m0,m1);
 }
-
-
-
 

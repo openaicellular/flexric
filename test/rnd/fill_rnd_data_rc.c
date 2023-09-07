@@ -1078,7 +1078,9 @@ gnb_e2sm_t fill_gnb_data(void)
   case GNB_GLOBAL_TYPE_ID:
     gnb.global_ng_ran_node_id->global_gnb_id.plmn_id = (e2sm_plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
 //    gnb.global_ng_ran_node_id->global_gnb_id.type = GNB_TYPE_ID;
-    gnb.global_ng_ran_node_id->global_gnb_id.gnb_id = (rand() % 4294967296) + 0;
+    gnb.global_ng_ran_node_id->global_gnb_id.gnb_id.nb_id = (rand() % 4294967296) + 0;
+    gnb.global_ng_ran_node_id->global_gnb_id.gnb_id.unused = rand() % 11;
+     gnb.global_ng_ran_node_id->global_gnb_id.gnb_id.nb_id &= (0xFFFFFFFF & (32 - gnb.global_ng_ran_node_id->global_gnb_id.gnb_id.unused)); 
     break;
   
   case NG_ENB_GLOBAL_TYPE_ID:
@@ -1206,7 +1208,10 @@ ng_enb_e2sm_t fill_ng_enb_data(void)
   case GNB_GLOBAL_TYPE_ID:
     ng_enb.global_ng_ran_node_id->global_gnb_id.plmn_id = (e2sm_plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
     //ng_enb.global_ng_ran_node_id->global_gnb_id.type = GNB_TYPE_ID;
-    ng_enb.global_ng_ran_node_id->global_gnb_id.gnb_id = (rand() % 4294967296) + 0;
+    ng_enb.global_ng_ran_node_id->global_gnb_id.gnb_id.nb_id = (rand() % 4294967296) + 0;
+    ng_enb.global_ng_ran_node_id->global_gnb_id.gnb_id.unused = (rand() % 11);
+    ng_enb.global_ng_ran_node_id->global_gnb_id.gnb_id.nb_id &= (0xFFFFFFFF >> ( 32 - ng_enb.global_ng_ran_node_id->global_gnb_id.gnb_id.unused)); 
+
     break;
   
   case NG_ENB_GLOBAL_TYPE_ID:

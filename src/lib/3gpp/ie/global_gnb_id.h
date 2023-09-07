@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-
+#include "e2ap_gnb_id.h"
 #include "plmn_identity.h"
 
 // 
@@ -21,7 +21,7 @@ typedef struct {
     e2sm_plmn_t plmn_id;
     gnb_type_id_e type;
     union {
-        uint32_t gnb_id;  // bit string size (22..32) ask Mikel
+       e2ap_gnb_id_t gnb_id; 
     };
 } global_gnb_id_t;
 

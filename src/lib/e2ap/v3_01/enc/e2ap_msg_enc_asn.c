@@ -1414,7 +1414,9 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
 
     const e2ap_plmn_t* plmn = &sr->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
-    MACRO_GNB_ID_TO_BIT_STRING(sr->id.nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
+    //MACRO_GNB_ID_TO_BIT_STRING(sr->id.nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
+    e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID = cp_gnb_id_to_bit_string(sr->id.nb_id);
+
     setup_rid->value.choice.GlobalE2node_ID.choice.gNB = e2gnb;
     rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
     assert(rc == 0);
@@ -1425,7 +1427,8 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
     e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
     const e2ap_plmn_t* plmn = &sr->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
-    MACRO_ENB_ID_TO_BIT_STRING(sr->id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
+    // ToDo: consider unused bits
+    MACRO_ENB_ID_TO_BIT_STRING(sr->id.nb_id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.eNB = e2enb;
     rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
     assert(rc == 0);
@@ -2945,7 +2948,9 @@ struct E2AP_PDU* e2ap_enc_e42_subscription_request_asn_pdu(const e42_ric_subscri
 
     const e2ap_plmn_t *plmn = &e42_sr->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
-    MACRO_GNB_ID_TO_BIT_STRING(e42_sr->id.nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
+    //MACRO_GNB_ID_TO_BIT_STRING(e42_sr->id.nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
+    e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID = cp_gnb_id_to_bit_string(e42_sr->id.nb_id);
+
     setup_rid->value.choice.GlobalE2node_ID.choice.gNB = e2gnb;
     rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
     assert(rc == 0);
@@ -2956,7 +2961,8 @@ struct E2AP_PDU* e2ap_enc_e42_subscription_request_asn_pdu(const e42_ric_subscri
     e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
     const e2ap_plmn_t* plmn = &e42_sr->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
-    MACRO_ENB_ID_TO_BIT_STRING(e42_sr->id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
+    // ToDo: consider unused bits 
+    MACRO_ENB_ID_TO_BIT_STRING(e42_sr->id.nb_id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.eNB = e2enb;
     rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
     assert(rc == 0);
@@ -3159,7 +3165,8 @@ struct E2AP_PDU* e2ap_enc_e42_setup_response_asn_pdu(const e42_setup_response_t*
 
       const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
-      MACRO_GNB_ID_TO_BIT_STRING(src_id->nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
+      //MACRO_GNB_ID_TO_BIT_STRING(src_id->nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
+      e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID = cp_gnb_id_to_bit_string(src_id->nb_id);
 
       conn_item->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_gNB;
       conn_item->value.choice.GlobalE2node_ID.choice.gNB = e2gnb;
@@ -3172,7 +3179,8 @@ struct E2AP_PDU* e2ap_enc_e42_setup_response_asn_pdu(const e42_setup_response_t*
       e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
       const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
-      MACRO_ENB_ID_TO_BIT_STRING(src_id->nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
+      // ToDo: consider unused biits
+      MACRO_ENB_ID_TO_BIT_STRING(src_id->nb_id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
 
       conn_item->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_eNB;
       conn_item->value.choice.GlobalE2node_ID.choice.eNB = e2enb;
@@ -3353,7 +3361,9 @@ E2AP_PDU_t* e2ap_enc_e42_control_request_asn_pdu(const e42_ric_control_request_t
 
     const e2ap_plmn_t* plmn = &e42_ric_req->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
-    MACRO_GNB_ID_TO_BIT_STRING(e42_ric_req->id.nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
+   // MACRO_GNB_ID_TO_BIT_STRING(e42_ric_req->id.nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
+    e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID = cp_gnb_id_to_bit_string(e42_ric_req->id.nb_id);
+
     setup_rid->value.choice.GlobalE2node_ID.choice.gNB = e2gnb;
     rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
     assert(rc == 0);
@@ -3364,7 +3374,8 @@ E2AP_PDU_t* e2ap_enc_e42_control_request_asn_pdu(const e42_ric_control_request_t
     e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
     const e2ap_plmn_t* plmn = &e42_ric_req->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
-    MACRO_ENB_ID_TO_BIT_STRING(e42_ric_req->id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
+    // ToDo: consider unused bits
+    MACRO_ENB_ID_TO_BIT_STRING(e42_ric_req->id.nb_id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.eNB = e2enb;
     rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
     assert(rc == 0);

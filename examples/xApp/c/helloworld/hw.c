@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     if (NODE_IS_MONOLITHIC(ran_type))
       printf("E2 node %ld info: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n",
              i,
-             nodes.n[i].id.nb_id,
+             nodes.n[i].id.nb_id.nb_id,
              nodes.n[i].id.plmn.mcc,
              nodes.n[i].id.plmn.mnc,
              nodes.n[i].id.plmn.mnc_digit_len,
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     else
       printf("E2 node %ld info: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %lu\n",
              i,
-             nodes.n[i].id.nb_id,
+             nodes.n[i].id.nb_id.nb_id,
              nodes.n[i].id.plmn.mcc,
              nodes.n[i].id.plmn.mnc,
              nodes.n[i].id.plmn.mnc_digit_len,

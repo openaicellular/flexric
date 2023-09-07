@@ -40,6 +40,7 @@ set(XAPP_SRC
   msg_dispatcher_xapp.c
   ../sm/agent_if/read/sm_ag_if_rd.c
  
+  $<TARGET_OBJECTS:e2_conv_obj>
   $<TARGET_OBJECTS:e2ap_ep_obj> 
   $<TARGET_OBJECTS:e2ap_ap_obj>
   $<TARGET_OBJECTS:msg_hand_obj>
@@ -94,8 +95,8 @@ if(E2AP_ENCODING STREQUAL "ASN")
 
           add_library(e42_xapp_shared SHARED # STATIC or SHARED
             ${XAPP_SRC}
-            ../util/conversions.c
             $<TARGET_OBJECTS:e2ap_asn1_obj>
+            $<TARGET_OBJECTS:e2_conv_obj>
             )
 
 	 target_compile_options(e42_xapp_shared PRIVATE "-DASN_DISABLE_OER_SUPPORT" -fPIC)

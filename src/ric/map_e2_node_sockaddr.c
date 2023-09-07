@@ -153,7 +153,7 @@ sctp_info_t find_map_e2_node_sad(map_e2_node_sockaddr_t* m, global_e2_node_id_t 
 
   sctp_info_t* s = assoc_value(tree, it);  
 
-  printf("[NEAR-RIC]: nb_id %d port = %d  \n", id->nb_id, s->addr.sin_port);
+  printf("[NEAR-RIC]: nb_id %d port = %d  \n", id->nb_id.nb_id, s->addr.sin_port);
 
   return *s;
 }

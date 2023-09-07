@@ -411,7 +411,7 @@ void e2_event_loop_ric(near_ric_t* ric)
 
           if(msg.type == E2_SETUP_REQUEST){
             global_e2_node_id_t* id = &msg.u_msgs.e2_stp_req.id;
-            printf("Received message with id = %d, port = %d \n", id->nb_id, e.msg.info.addr.sin_port);
+            printf("Received message with id = %d, port = %d \n", id->nb_id.nb_id, e.msg.info.addr.sin_port);
             e2ap_reg_sock_addr_ric(&ric->ep, id, &e.msg.info);
           }
 
@@ -586,7 +586,7 @@ uint16_t report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id,
 
   byte_array_t ba_msg = e2ap_enc_subscription_request_ric(&ric->ap, &sr); 
 
-  printf("[NEAR-RIC]: Report Service Asked from nb_id = %d \n", id->nb_id);
+  printf("[NEAR-RIC]: Report Service Asked from nb_id = %d \n", id->nb_id.nb_id);
 
   e2ap_send_bytes_ric(&ric->ep, id, ba_msg);
    

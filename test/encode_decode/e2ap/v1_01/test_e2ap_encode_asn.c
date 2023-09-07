@@ -275,7 +275,8 @@ void test_e2_setup_request()
   global_e2_node_id_t id = {
     .type = type,
     .plmn = plmn,
-    .nb_id = 0,
+    .nb_id.nb_id = 0,
+    .nb_id.unused= 0,
   };
 
   const size_t len_rf = 1;
