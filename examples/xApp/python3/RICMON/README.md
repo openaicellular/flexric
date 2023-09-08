@@ -6,7 +6,7 @@ For now, compiling FlexApp using Python3.8 share object and headers is still OK.
 
 ### A. Setup in 3 simple fast steps
 1. Checkout the `ricmon-xapp` branch on the BubbleRAN's FlexRIC repo.
-2. Install FlexRIC using the default option.
+2. Install FlexRIC using the default option, with one exception: Toggle `XAPP_PYTHON_ML = ON`.
 3. Then, navigate to `$FLEXRIC_PATH/examples/xApp/python3/RICMON/` to install the necessary Python packages with the following command:
     * `pip install -r requirements.txt`
 
