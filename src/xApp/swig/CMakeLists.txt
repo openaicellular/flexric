@@ -7,7 +7,7 @@ PROJECT(XAPP_SDK)
 CMAKE_POLICY(SET CMP0078 NEW) 
 CMAKE_POLICY(SET CMP0086 NEW) 
 
-FIND_PACKAGE(SWIG 4.0 REQUIRED)
+FIND_PACKAGE(SWIG 4.1 REQUIRED)
 
 #find_package (Python3 COMPONENTS Interpreter Development)
 
@@ -28,6 +28,10 @@ SET_PROPERTY(SOURCE swig_wrapper.i PROPERTY CPLUSPLUS ON)
 
 option(XAPP_PYTHON_SWIG "Build xApps in Python" ON)
 message(STATUS "Build xApps in Python: ${XAPP_PYTHON_SWIG}")
+if(XAPP_PYTHON_SWIG)
+  option(XAPP_PYTHON_ML "Enable AI/ML xApps in Python" OFF)
+  message(STATUS "Enable AI/ML xApps in Python: ${XAPP_PYTHON_ML}")
+endif()
 option(XAPP_GO_SWIG "Build xApp in Golang" OFF)
 message(STATUS "Build xApp in Golang: ${XAPP_GO_SWIG}")
 option(XAPP_JAVA_SWIG "Build xApp in Java" OFF)
@@ -39,10 +43,15 @@ message(STATUS "uild xApp in Javascript: ${XAPP_JAVASCRIPT_SWIG}")
 
 #PYTHON compilation
 if(XAPP_PYTHON_SWIG)
-  FIND_PACKAGE(Python3 REQUIRED)
-  FIND_PACKAGE(PythonLibs)
-  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-#  list(APPEND XAPP_LANG_LIST "python")
+  if(XAPP_PYTHON_ML)
+    FIND_PACKAGE(Python 3.11 REQUIRED)
+    FIND_PACKAGE(PythonLibs 3.11 REQUIRED)
+  else()
+    FIND_PACKAGE(Python 3.8 REQUIRED)
+    FIND_PACKAGE(PythonLibs 3.8 REQUIRED)
+  endif()
+  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS})
+  message(STATUS "PYTHON_INCLUDE_PATH ${PYTHON_INCLUDE_DIRS}")
   SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE python SOURCES
       swig_wrapper.i
       swig_wrapper.cpp
@@ -108,6 +117,20 @@ if(XAPP_PYTHON_SWIG)
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_moni.py")
 
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_kpm_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_kpm_moni.py")
+
+  if(XAPP_PYTHON_ML)
+    # RICMon xApp
+    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/_xapp_sdk.so")
+    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/xapp_sdk.py")
+    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/helpers.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/helpers.py")
+    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/configs.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/configs.py")
+    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/nodb.conf" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/nodb.conf")
+    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/run.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/run.py")
+  endif()
 
   # I do not like this solution at all but it is not my code ...
   target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter )
