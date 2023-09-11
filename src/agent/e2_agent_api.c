@@ -51,7 +51,7 @@ void* static_start_agent(void* a)
 static
 global_e2_node_id_t init_ge2ni(e2ap_ngran_node_t ran_type, e2ap_plmn_t plmn, int nb_id, int cu_du_id)
 {
-  global_e2_node_id_t ge2ni =  {.type = ran_type, .plmn = plmn, .nb_id = nb_id, .cu_du_id = NULL};
+  global_e2_node_id_t ge2ni =  {.type = ran_type, .plmn = plmn, .nb_id.nb_id = nb_id, .nb_id.unused = 0, .cu_du_id = NULL};
 
   if (E2AP_NODE_IS_CU(ran_type) || E2AP_NODE_IS_DU(ran_type)) {
     assert(cu_du_id > 0);

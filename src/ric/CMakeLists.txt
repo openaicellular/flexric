@@ -45,6 +45,7 @@ set(RIC_SRC
             $<TARGET_OBJECTS:msg_hand_obj> 
             $<TARGET_OBJECTS:e2ap_ds_obj>
             $<TARGET_OBJECTS:e2ap_alg_obj>
+            $<TARGET_OBJECTS:e2_conv_obj>
             $<TARGET_OBJECTS:e2_conf_obj>
             $<TARGET_OBJECTS:e2_time_obj>
             $<TARGET_OBJECTS:e2ap_msg_enc_obj>
@@ -61,6 +62,8 @@ if(E2AP_ENCODING STREQUAL "ASN")
             ${RIC_SRC}
             $<TARGET_OBJECTS:e42_iapp>
             $<TARGET_OBJECTS:e2ap_asn1_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+
             )
 
   add_library(near_ric_test 

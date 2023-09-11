@@ -30,6 +30,9 @@
 // The scope for BIT_STRING is defined in the CMakeLists.txt. Sorry.
 #include <BIT_STRING.h>
 
+#include "../lib/3gpp/ie/e2ap_gnb_id.h"
+
+
 /* Endianness conversions for 16 and 32 bits integers from host to network order */
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 # define hton_int32(x)   \
@@ -466,31 +469,12 @@ do {                                                                    \
             ((bITsTRING)->buf[7]);                                      \
 } while (0)
 
-/* Global gNB ID
-   TS 38.413, clause 9.3.1.6
-*/
-// Macro gNB for e2ap
-#define MACRO_GNB_ID_TO_BIT_STRING(mACRO, bITsTRING)    \
-do {                                                    \
-    (bITsTRING)->buf = calloc(4, sizeof(uint8_t));      \
-    (bITsTRING)->buf[0] = ((mACRO) >> 20);              \
-    (bITsTRING)->buf[1] = (mACRO) >> 12;                \
-    (bITsTRING)->buf[2] = (mACRO) >> 4;                 \
-    (bITsTRING)->buf[3] = ((mACRO) & 0x0f) << 4;        \
-    (bITsTRING)->size = 4;                              \
-    (bITsTRING)->bits_unused = 0;                       \
-} while(0)
+// Global gNB ID
+// TS 38.413, clause 9.3.1.6
 
-#define BIT_STRING_TO_MACRO_GNB_ID(aSN, vALUE)            \
-do {                                                      \
-    assert((aSN)->bits_unused == 0);                      \
-    vALUE = ((aSN)->buf[0] << 20) | ((aSN)->buf[1] << 12) \
-          | ((aSN)->buf[2] << 4) | ((aSN)->buf[3] >> 4);  \
-} while(0)
+BIT_STRING_t cp_gnb_id_to_bit_string( e2ap_gnb_id_t src);
 
-BIT_STRING_t cp_macro_gnb_id_to_bit_string(uint32_t val);
-
-uint32_t cp_macro_gnb_id_to_u32(BIT_STRING_t src);
+e2ap_gnb_id_t cp_bit_string_to_gnb_id(BIT_STRING_t src);
 
 
 /* NR CGI
@@ -528,10 +512,11 @@ BIT_STRING_t cp_macro_enb_id_to_bit_string(uint32_t val);
 
 uint32_t cp_macro_enb_id_to_u32(BIT_STRING_t src);
 
+/*
 BIT_STRING_t cp_macro_gnb_id_to_bit_string(uint32_t val);
 
 uint32_t cp_macro_gnb_id_to_u32(BIT_STRING_t src);
-
+*/
 
 /* NR CGI
    TS 38.413 section 9.3.1.7

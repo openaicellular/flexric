@@ -18,7 +18,7 @@ global_gnb_id_t dec_global_gnb_id_asn(const GlobalGNB_ID_t * global_gnb_id_asn)
   if (global_gnb_id_asn->gNB_ID.present == GNB_ID_PR_gNB_ID)
   {
     global_gnb_id.type = GNB_TYPE_ID;
-    global_gnb_id.gnb_id = cp_macro_gnb_id_to_u32(global_gnb_id_asn->gNB_ID.choice.gNB_ID);
+    global_gnb_id.gnb_id = cp_bit_string_to_gnb_id(global_gnb_id_asn->gNB_ID.choice.gNB_ID);
   }
   else
   {

@@ -114,40 +114,76 @@ uint64_t cp_nr_cell_id_to_u64(BIT_STRING_t src)
     return dst;
 }
 
-BIT_STRING_t cp_macro_gnb_id_to_bit_string(uint32_t val)
+BIT_STRING_t cp_gnb_id_to_bit_string( e2ap_gnb_id_t src)
 {
-    BIT_STRING_t dst = {0}; 
-    dst.bits_unused = 0; // unused_bit;
-    dst.size = 4;
-    dst.buf = calloc(dst.size, sizeof(uint8_t)); 
-    assert(dst.buf != NULL);
+//  - copied from 3GPP 36.423 (X2AP) IEs
+// -- note: ie-Extensions removed
+// -- Note: to avoid duplicate names with XnAP, GNB-ID renamed ENGNB-ID, GlobalGNB-ID renamed
+// GlobalenGNB-ID
+// -- **************************************************************
+// ENGNB-ID ::= CHOICE {
+// gNB-ID BIT STRING (SIZE (22..32)),
+// }
+  assert(src.unused < 11); // [22 .. 32]  bits
+  uint32_t const tmp = src.nb_id >> (31 - src.unused);                        //
+  assert( tmp == 0 && "Some bits are not set to zero and value would be lost");
 
-    dst.buf[0] = val;
-    dst.buf[1] = val >> 8;
-    dst.buf[2] = val >> 16;
-    dst.buf[3] = val >> 24; 
+  BIT_STRING_t dst = {0};
+  dst.bits_unused = src.unused%8;
+  uint32_t const bytes = src.unused > 7 ? 3 : 4;
 
-    return dst;
+  dst.buf = calloc(1, sizeof(uint8_t)*bytes);
+  assert(dst.buf != NULL && "Memory exhausted");
+  dst.size = bytes;
+
+  if(bytes == 3){
+    src.unused -= 8; 
+    dst.buf[0] = 0xFF & (src.nb_id >> (16 - src.unused )); 
+    dst.buf[1] = 0xFF & (src.nb_id >> (8 - src.unused)); 
+    const uint8_t m = 0xFF >> src.unused;
+    dst.buf[2] = (src.nb_id & m) << src.unused; 
+  } else { // bytes == 4
+    dst.buf[0] = 0xFF & (src.nb_id >> (24 - src.unused)); 
+    dst.buf[1] = 0xFF & (src.nb_id >> (16 - src.unused)); 
+    dst.buf[2] = 0xFF & (src.nb_id >> (8 - src.unused)); 
+    const uint8_t m = 0xFF >> src.unused;
+    dst.buf[3] = (src.nb_id & m) << src.unused; 
+  }
+
+  return dst;
 }
 
-uint32_t cp_macro_gnb_id_to_u32(BIT_STRING_t src)
+e2ap_gnb_id_t cp_bit_string_to_gnb_id(BIT_STRING_t src)
 {
-    assert(src.bits_unused == 0);
-    assert(src.size == 4);
-    assert(src.buf != NULL);
+  assert(src.size < 5 && "Max. 32 bits permited [22..32]");
+  assert(src.size == 3 || src.size == 4);
 
-    uint64_t dst = {0}; 
-    
-    dst = src.buf[3] << 24 | src.buf[2] << 16 | src.buf[1] << 8 | src.buf[0];
+  assert(src.bits_unused < 8);
 
-    return dst;
+ e2ap_gnb_id_t dst = {0};
+
+  if(src.size == 3){
+    assert(src.bits_unused < 3 && "Min. 22 bits");
+    uint32_t const b0 = ((uint32_t)(src.buf[0]) << (16 - src.bits_unused) ); 
+    uint32_t const b1 = ((uint32_t)(src.buf[1]) << (8 - src.bits_unused) ); 
+    uint32_t const b2 = ((uint32_t)(src.buf[2]) >> src.bits_unused); 
+    dst.nb_id = b0 | b1 | b2;
+  } else { //src.size == 4
+    uint32_t const b0 = ((uint32_t)(src.buf[0]) << (24 - src.bits_unused) ); 
+    uint32_t const b1 = ((uint32_t)(src.buf[1]) << (16 - src.bits_unused) ); 
+    uint32_t const b2 = ((uint32_t)(src.buf[2]) << (8 - src.bits_unused) ); 
+    uint32_t const b3 = ((uint32_t)(src.buf[3]) >> src.bits_unused); 
+    dst.nb_id = b0 | b1 | b2 | b3;
+  }
+
+  dst.unused = src.bits_unused + (src.size == 3 ? 8 : 0);
+  return dst;
 }
-
 
 
 BIT_STRING_t cp_eutra_cell_id_to_bit_string(uint32_t val)
 {
-    assert(val < 268435456); // val << 2^28
+    assert(val < 268435456); // val << 28
 
     BIT_STRING_t dst = {0}; 
     dst.bits_unused = 4; // unused_bit;

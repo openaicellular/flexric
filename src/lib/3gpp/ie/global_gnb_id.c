@@ -17,10 +17,12 @@ bool eq_global_gnb_id(global_gnb_id_t const * m0, global_gnb_id_t const * m1)
     switch (m0->type)
     {
     case GNB_TYPE_ID:
-        if (m0->gnb_id != m1->gnb_id)
+      {if (m0->gnb_id.nb_id != m1->gnb_id.nb_id)
+          return false;
+       else if (m0->gnb_id.unused != m1->gnb_id.unused)
           return false;
         break;
-    
+      } 
     default:
         assert(false && "Unknown gNB ID Type");
     }

@@ -1,5 +1,6 @@
 set(3GPP_DERIVED_IE_SRCS
   e2sm_gummei.c
+  e2ap_gnb_id.c
   enb.c
   en_gnb.c
   eutra_cgi.c

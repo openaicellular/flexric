@@ -464,8 +464,14 @@ void test_setup_request()
   global_e2_node_id_t id = {
     .type = type,
     .plmn = plmn,
-    .nb_id = 0,
+    //.nb_id = 18042893,
+    //.unused_bits_nb_id = 7,
+    //.nb_id = 4521984,
+    //.unused_bits_nb_id = 9,
+    .nb_id.nb_id = rand(),  
+    .nb_id.unused = rand()%11,  
   };
+  id.nb_id.nb_id &= (0xFFFFFFFF >> id.nb_id.unused);  
 
   const size_t len_rf = 1;
   ran_function_t* ran_func_item = calloc(len_rf, sizeof(ran_function_t));
@@ -896,7 +902,8 @@ void test_e42_setup_response()
   global_e2_node_id_t id = {
     .type = type,
     .plmn = plmn,
-    .nb_id = 0,
+    .nb_id.nb_id = 0,
+    .nb_id.unused = 0
   };
 
 
@@ -957,7 +964,8 @@ void test_e42_subscription_request()
   global_e2_node_id_t id = {
     .type = type,
     .plmn = plmn,
-    .nb_id = 0,
+    .nb_id.nb_id = 0,
+    .nb_id.unused = 0
   };
 
   const ric_gen_id_t ric_id = {.ric_req_id = 0,
@@ -1043,7 +1051,9 @@ void test_e42_control_request()
   global_e2_node_id_t id = {
     .type = type,
     .plmn = plmn,
-    .nb_id = 0,
+    .nb_id.nb_id = 0,
+    .nb_id.unused = 0
+
   };
 
 

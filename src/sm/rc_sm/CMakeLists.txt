@@ -6,7 +6,6 @@ set(SM_ENCODING_RC_SRC
   rc_sm_agent.c 
   rc_sm_ric.c 
   ../../util/byte_array.c 
-  ../../util/conversions.c
   ../../util/alg_ds/alg/defer.c 
   ../../util/alg_ds/alg/eq_float.c 
   ../../util/alg_ds/ds/seq_container/seq_arr.c 
@@ -31,6 +30,8 @@ elseif(SM_ENCODING_RC STREQUAL "ASN" )
     $<TARGET_OBJECTS:e2ap_ran_func_obj>
     $<TARGET_OBJECTS:e2sm_rc_asn1_obj>
     $<TARGET_OBJECTS:e2sm_rc_ir_obj>
+    $<TARGET_OBJECTS:e2_conv_obj>
+
     $<TARGET_OBJECTS:3gpp_derived_ie_obj>
     $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
     $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
