@@ -10,7 +10,6 @@
 #include <sys/time.h>
 #include <libgen.h>
 
-#include "util/conversions.h"
 #include "proxy-agent/ser_ran.h"
 #include "proxy-agent/ran_msg_hdlr.h"
 #include "util/alg_ds/alg/defer.h"

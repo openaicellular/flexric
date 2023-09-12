@@ -79,37 +79,25 @@ endif()
 target_compile_definitions(e2_proxy_agent PRIVATE PROXY_AGENT)
 target_compile_definitions(e2_proxy_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 
-if(KPM_VERSION STREQUAL "KPM_V2")
-    set(KPM_SRC ../../src/sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie.c)
-elseif(KPM_VERSION STREQUAL "KPM_V3")
-    set(KPM_SRC ../../src/sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.c)
-else()
-    message(FATAL_ERROR "Unknown KPM version")
-endif()
-
-add_library(proxy_agent_rf_obj OBJECT
-        e2_sm_mac_agent.c
-        e2_sm_kpm_agent.c
-        # for testing
-        ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
-        ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
-        ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_kpm.c
-        ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_mac.c
-        ${KPM_SRC}
-        )
-
-target_compile_definitions(proxy_agent_rf_obj PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
-
 add_executable(proxy_agent_ws
               proxy_agent.c
               proxy_agent_conf.c
               ran_msg_hdlr.c
               e2_sm_agent.c
+              e2_sm_mac_agent.c
+              e2_sm_kpm_agent.c
               json_ser_ran.c
               ringbuffer.c
               notif_e2_ran.c
               ws_io_ran.c
-              $<TARGET_OBJECTS:proxy_agent_rf_obj>
+
+              # for testing
+              ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_kpm.c
+              ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_mac.c
+
+              ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
+              ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
+
               )
 
 target_link_libraries(proxy_agent_ws
@@ -117,6 +105,7 @@ target_link_libraries(proxy_agent_ws
                       e2_proxy_agent
                       -pthread -lsctp -ldl ${LIBWEBSOCKETS_LIBRARIES} ${LIBJSON-C_LIBRARIES})
 
+target_compile_definitions(proxy_agent_ws PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 
 
 
