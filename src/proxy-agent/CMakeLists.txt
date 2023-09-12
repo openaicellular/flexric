@@ -20,6 +20,16 @@ find_package(PkgConfig)
 pkg_check_modules(LIBWEBSOCKETS REQUIRED libwebsockets>3.0.0 libwebsockets<4.0.0)
 pkg_check_modules(LIBJSON-C REQUIRED json-c<1.0.0 json-c>0.13.0)
 
+if(E2AP_VERSION STREQUAL "E2AP_V1")
+    include_directories("${CMAKE_SOURCE_DIR}/src/lib/e2ap/v1_01/ie/asn/")
+elseif(E2AP_VERSION STREQUAL "E2AP_V2")
+    include_directories("${CMAKE_SOURCE_DIR}/src/lib/e2ap/v2_03/ie/asn/")
+elseif(E2AP_VERSION STREQUAL "E2AP_V3")
+    include_directories("${CMAKE_SOURCE_DIR}/src/lib/e2ap/v3_01/ie/asn/")
+else()
+    message(FATAL_ERROR "E2AP Unknown version selected")
+endif()
+
 set(E2_AGENT_BLD_LIB  "STATIC")
 
 set(E2_PROXY_AGENT_SRC 
@@ -32,20 +42,16 @@ set(E2_PROXY_AGENT_SRC
     ${CMAKE_SOURCE_DIR}/src/agent/e2_agent_api.c
     ${CMAKE_SOURCE_DIR}/src/agent/plugin_agent.c
     ${CMAKE_SOURCE_DIR}/src/agent/not_handler_agent.c
+    ${CMAKE_SOURCE_DIR}/src/agent/gen_msg_agent.c
     ${CMAKE_SOURCE_DIR}/src/sm/sm_proc_data.c
     # we do below to avoid having a specific proxy_agent library for configuration parsing code
-    ${CMAKE_SOURCE_DIR}/src/util/conf_file.c 
-    # for testing
-    ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
-    ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_kpm.c
-    ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_mac.c
-    ${KPM_SRC}
+    ${CMAKE_SOURCE_DIR}/src/util/conf_file.c
   )
 if(E2AP_ENCODING STREQUAL "ASN")
   add_library(e2_proxy_agent
               STATIC  
-              ${E2_PROXY_AGENT_SRC} 
-              $<TARGET_OBJECTS:e2ap_ie_obj> 
+              ${E2_PROXY_AGENT_SRC}
+              $<TARGET_OBJECTS:e2ap_ie_obj>
               $<TARGET_OBJECTS:e2ap_asn1_obj>
               $<TARGET_OBJECTS:e2ap_ap_obj>
               $<TARGET_OBJECTS:e2ap_ep_obj>
@@ -58,7 +64,14 @@ if(E2AP_ENCODING STREQUAL "ASN")
               $<TARGET_OBJECTS:e2ap_msg_enc_obj>
               $<TARGET_OBJECTS:e2ap_msg_dec_obj>
               $<TARGET_OBJECTS:e2ap_msg_free_obj>
-              $<TARGET_OBJECTS:e2_ngran_obj>    
+              $<TARGET_OBJECTS:e2_ngran_obj>
+              $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+              $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
+              $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
+              $<TARGET_OBJECTS:sm_common_ie_obj>
+              $<TARGET_OBJECTS:sm_common_dec_asn_obj>
+              $<TARGET_OBJECTS:sm_common_enc_asn_obj>
+              $<TARGET_OBJECTS:e2sm_common_ie_obj>
               )
 else()
   message(FATAL_ERROR "Error, while compiling the agent" )
@@ -66,36 +79,44 @@ endif()
 target_compile_definitions(e2_proxy_agent PRIVATE PROXY_AGENT)
 target_compile_definitions(e2_proxy_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 
+if(KPM_VERSION STREQUAL "KPM_V2")
+    set(KPM_SRC ../../src/sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie.c)
+elseif(KPM_VERSION STREQUAL "KPM_V3")
+    set(KPM_SRC ../../src/sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.c)
+else()
+    message(FATAL_ERROR "Unknown KPM version")
+endif()
+
+add_library(proxy_agent_rf_obj OBJECT
+        e2_sm_mac_agent.c
+        e2_sm_kpm_agent.c
+        # for testing
+        ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
+        ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
+        ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_kpm.c
+        ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_mac.c
+        ${KPM_SRC}
+        )
+
+target_compile_definitions(proxy_agent_rf_obj PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 
 add_executable(proxy_agent_ws
               proxy_agent.c
               proxy_agent_conf.c
               ran_msg_hdlr.c
               e2_sm_agent.c
-              e2_sm_mac_agent.c
-              e2_sm_kpm_agent.c
               json_ser_ran.c
               ringbuffer.c
               notif_e2_ran.c
               ws_io_ran.c
-              ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
+              $<TARGET_OBJECTS:proxy_agent_rf_obj>
               )
 
-target_compile_definitions(proxy_agent_ws PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 target_link_libraries(proxy_agent_ws
                       PUBLIC
                       e2_proxy_agent
                       -pthread -lsctp -ldl ${LIBWEBSOCKETS_LIBRARIES} ${LIBJSON-C_LIBRARIES})
 
-if(E2AP_VERSION STREQUAL "E2AP_V1")
-  target_include_directories(proxy_agent_ws PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v1_01/ie/asn/")
-elseif(E2AP_VERSION STREQUAL "E2AP_V2")
-  target_include_directories(proxy_agent_ws PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v2_03/ie/asn/")
-elseif(E2AP_VERSION STREQUAL "E2AP_V3")
-  target_include_directories(proxy_agent_ws PRIVATE "${CMAKE_SOURCE_DIR}/src/lib/e2ap/v3_01/ie/asn/")
-else()
-  message(FATAL_ERROR "E2AP Unknown version selected")
-endif()
 
 
 

@@ -9,6 +9,7 @@ target_link_libraries(test_msg_json
               $<TARGET_OBJECTS:e2ap_ds_obj>
               $<TARGET_OBJECTS:e2ap_types_obj>
               $<TARGET_OBJECTS:e2ap_alg_obj>
+              $<TARGET_OBJECTS:3gpp_derived_ie_obj>
                -pthread -lsctp -ldl -lwebsockets -ljson-c)
 
 add_executable(test_perfmsg_json
@@ -22,6 +23,7 @@ target_link_libraries(test_perfmsg_json
         $<TARGET_OBJECTS:e2ap_ds_obj>
         $<TARGET_OBJECTS:e2ap_types_obj>
         $<TARGET_OBJECTS:e2ap_alg_obj>
+        $<TARGET_OBJECTS:3gpp_derived_ie_obj>
         -pthread -lsctp -ldl -lwebsockets -ljson-c)
 
 
