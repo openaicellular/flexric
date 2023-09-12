@@ -23,11 +23,11 @@ typedef struct{
 
 } meas_info_format_1_lst_t;
 
+meas_info_format_1_lst_t cp_meas_info_format_1_lst(meas_info_format_1_lst_t const* src);
+
 void free_meas_info_frm_1(meas_info_format_1_lst_t* src);
 
 bool eq_meas_info_frm_1(meas_info_format_1_lst_t const * m0, meas_info_format_1_lst_t const * m1);
-
-meas_info_format_1_lst_t cp_meas_info_frm_1(const meas_info_format_1_lst_t * src);
 
 #ifdef __cplusplus
 }

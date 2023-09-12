@@ -32,6 +32,7 @@ typedef struct {
 
 } meas_record_lst_t;
 
+meas_record_lst_t cp_meas_record_lst(meas_record_lst_t const* src);
 
 typedef struct {
     size_t                    meas_record_len;  // [1, 65535]
@@ -39,6 +40,8 @@ typedef struct {
 	enum_value_e	         *incomplete_flag;  // OPTIONAL, Indicates that the measurements record is not reliable.
 
 } meas_data_lst_t;
+
+meas_data_lst_t cp_meas_data_lst(meas_data_lst_t const* src);
 
 bool eq_meas_data_lst(meas_data_lst_t const* m0, meas_data_lst_t const* m1);
 

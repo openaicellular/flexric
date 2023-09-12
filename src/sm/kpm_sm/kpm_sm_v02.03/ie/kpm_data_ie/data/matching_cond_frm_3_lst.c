@@ -35,19 +35,25 @@ bool eq_matching_cond_frm_3(matching_condition_format_3_lst_t const * m0, matchi
 
 
   // Matching Condition Type
-  if (m0->cond_type != m1->cond_type)
+  if (m0->cond_type != m1->cond_type){
+    assert(0!=0 && "For debugging purposes");
     return false;
+  }
 
   switch (m0->cond_type)
   {
   case LABEL_INFO:
-    if (eq_label_info(&m0->label_info_lst, &m1->label_info_lst) != true)
+    if (eq_label_info(&m0->label_info_lst, &m1->label_info_lst) != true){
+    assert(0!=0 && "For debugging purposes");
       return false;
+    }
     break;
 
   case TEST_INFO:
-    if (eq_test_info(&m0->test_info_lst, &m1->test_info_lst) != true)
+    if (eq_test_info(&m0->test_info_lst, &m1->test_info_lst) != true){
+    assert(0!=0 && "For debugging purposes");
       return false;
+    }
     break;
   
   default:
@@ -56,8 +62,10 @@ bool eq_matching_cond_frm_3(matching_condition_format_3_lst_t const * m0, matchi
 
 
   // Logical OR
-  if ((m0->logical_OR != NULL || m1->logical_OR != NULL) && *m0->logical_OR != *m1->logical_OR)
+  if ((m0->logical_OR != NULL || m1->logical_OR != NULL) && *m0->logical_OR != *m1->logical_OR){
+    assert(0!=0 && "For debugging purposes");
     return false;
+  }
 
   return true;
 }
@@ -74,7 +82,7 @@ matching_condition_format_3_lst_t cp_kpm_matching_cond_frm_3(matching_condition_
   switch (dst.cond_type)
   {
   case LABEL_INFO:
-    cp_label_info(&dst.label_info_lst, &src->label_info_lst);
+    dst.label_info_lst = cp_label_info(&src->label_info_lst);
     break;
 
   case TEST_INFO:
@@ -87,7 +95,7 @@ matching_condition_format_3_lst_t cp_kpm_matching_cond_frm_3(matching_condition_
 
 
   // Logical OR
-  if (src->logical_OR) {
+  if (src->logical_OR != NULL) {
     dst.logical_OR = malloc (sizeof(dst.logical_OR));
     *dst.logical_OR = *src->logical_OR; 
   }

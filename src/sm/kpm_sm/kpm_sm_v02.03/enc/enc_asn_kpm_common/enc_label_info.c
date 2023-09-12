@@ -82,7 +82,10 @@ LabelInfoItem_t * kpm_enc_label_info_asn(const label_info_lst_t * label_info)
       assert(false && "not implemented");
     }
     if (label_info->avg != NULL) {
-      assert(false && "not implemented");
+      assert(*label_info->avg == TRUE_ENUM_VALUE && "has only one value (true)");
+      label_info_asn->measLabel.avg = malloc (sizeof(*(label_info_asn->measLabel.avg)));
+      assert (label_info_asn->measLabel.avg!= NULL && "Memory exhausted");
+      *label_info_asn->measLabel.avg = 0; // or TRUE type
     }
 
     return label_info_asn;

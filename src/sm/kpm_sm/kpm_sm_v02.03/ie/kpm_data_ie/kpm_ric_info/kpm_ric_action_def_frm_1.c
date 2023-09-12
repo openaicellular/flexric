@@ -90,7 +90,7 @@ kpm_act_def_format_1_t cp_kpm_action_def_frm_1(const kpm_act_def_format_1_t * sr
     
   for (size_t i = 0; i<dst.meas_info_lst_len; i++)
   {
-    dst.meas_info_lst[i] = cp_meas_info_frm_1(&src->meas_info_lst[i]);
+    dst.meas_info_lst[i] = cp_meas_info_format_1_lst(&src->meas_info_lst[i]);
   }
 
 

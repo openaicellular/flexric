@@ -47,11 +47,12 @@ typedef struct{
   uint8_t   			  *mimoModeIndex;    /* OPTIONAL, 1 = SU-MIMO, 2 = MU-MIMO  ask Mikel */
 } label_info_lst_t;
 
+//void cp_label_info(label_info_lst_t *dst, label_info_lst_t const *src);
+label_info_lst_t cp_label_info(label_info_lst_t const *src);
 
-
-void cp_label_info(label_info_lst_t *dst, label_info_lst_t const *src);
-void free_label_info(label_info_lst_t *l);
 bool eq_label_info(const label_info_lst_t *l1, const label_info_lst_t *l2);
+
+void free_label_info(label_info_lst_t *l);
 
 #ifdef __cplusplus
 }

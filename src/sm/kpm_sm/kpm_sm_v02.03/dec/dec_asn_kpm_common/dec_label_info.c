@@ -9,6 +9,12 @@ label_info_lst_t kpm_dec_label_info_asn(const MeasurementLabel_t * meas_label_as
     assert(meas_label_asn != NULL);
 
     label_info_lst_t label_info = {0};
+    if(meas_label_asn->noLabel != NULL){
+      label_info.noLabel = calloc(1, sizeof(enum_value_e));
+      assert(label_info.noLabel != NULL && "Memory exhausted");
+      // Only ONE type supported
+      *label_info.noLabel = TRUE_ENUM_VALUE;
+    }
 
     // if (meas_label_asn->noLabel == 0)
     // {
@@ -83,7 +89,10 @@ label_info_lst_t kpm_dec_label_info_asn(const MeasurementLabel_t * meas_label_as
         assert(false && "not implemented");
     }
     if (meas_label_asn->avg != NULL) {
-        assert(false && "not implemented");
+      label_info.avg = calloc(1, sizeof(enum_value_e));
+      assert(label_info.avg != NULL && "Memory exhausted");
+      // Only ONE type supported
+      *label_info.avg = TRUE_ENUM_VALUE;
     }
 
     return label_info;

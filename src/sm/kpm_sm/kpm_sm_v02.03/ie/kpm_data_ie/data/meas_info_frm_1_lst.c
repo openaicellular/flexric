@@ -40,7 +40,7 @@ bool eq_meas_info_frm_1(meas_info_format_1_lst_t const * m0, meas_info_format_1_
     return true;
 }
 
-meas_info_format_1_lst_t cp_meas_info_frm_1(const meas_info_format_1_lst_t * src)
+meas_info_format_1_lst_t cp_meas_info_format_1_lst(meas_info_format_1_lst_t const* src)
 {
   assert(src != NULL);
 
@@ -48,17 +48,17 @@ meas_info_format_1_lst_t cp_meas_info_frm_1(const meas_info_format_1_lst_t * src
 
   // Meas Type
   dst.meas_type = cp_meas_type(&src->meas_type);
-      
-  // Label Information
+
+  assert(src->label_info_lst_len > 0);
+
+  // [1, 2147483647]
   dst.label_info_lst_len = src->label_info_lst_len;
-      
-  dst.label_info_lst = calloc(src->label_info_lst_len, sizeof(label_info_lst_t));
-  memcpy (dst.label_info_lst, src->label_info_lst, src->label_info_lst_len * sizeof(label_info_lst_t));
-      
-      
-  for (size_t j = 0; j < src->label_info_lst_len; j++)
-  {
-    cp_label_info(&dst.label_info_lst[j], &src->label_info_lst[j]);  
+  dst.label_info_lst = calloc(dst.label_info_lst_len, sizeof(label_info_lst_t));
+  assert(dst.label_info_lst != NULL && "Memory exhausted");
+
+  // 8.3.11
+  for(size_t i = 0; i < dst.label_info_lst_len; ++i){
+    dst.label_info_lst[i] = cp_label_info(&src->label_info_lst[i]);
   }
 
   return dst;
