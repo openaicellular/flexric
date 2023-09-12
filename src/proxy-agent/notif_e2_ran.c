@@ -252,7 +252,7 @@ void fwd_e2_ran_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id)
 
 void fwd_ran_e2_setup_request(e2_agent_t *e2_if, global_e2_node_id_t ge2ni) 
 {
-  lwsl_info("Sending E2 Setup request from ran id %d. timeout of 3 seconds.\n", ge2ni.nb_id);
+  lwsl_info("Sending E2 Setup request from ran id %d. timeout of 3 seconds.\n", ge2ni.nb_id.nb_id);
   e2_if->global_e2_node_id = ge2ni;
   e2_setup_request_t sr = generate_setup_request_from_ran(e2_if, ge2ni); 
   defer({ e2ap_free_setup_request(&sr);  } );

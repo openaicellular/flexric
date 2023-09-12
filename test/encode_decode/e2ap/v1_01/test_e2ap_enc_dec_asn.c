@@ -1021,7 +1021,8 @@ void test_e42_update_e2_node()
   global_e2_node_id_t id = {
       .type = type,
       .plmn = plmn,
-      .nb_id = 0,
+      .nb_id.nb_id = 0,
+      .nb_id.unused = 0
   };
 
 

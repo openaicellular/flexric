@@ -1061,7 +1061,7 @@ void to_sql_string_kpm_meas_data(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
@@ -1108,7 +1108,7 @@ void to_sql_string_kpm_meas_data(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
@@ -1155,7 +1155,7 @@ void to_sql_string_kpm_meas_data(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
@@ -1246,7 +1246,7 @@ void to_sql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_info_len
@@ -1336,7 +1336,7 @@ void to_sql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_info_len
@@ -1454,7 +1454,7 @@ void to_sql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
@@ -1506,7 +1506,7 @@ void to_sql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
@@ -1593,7 +1593,7 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,"GNB_UE_ID_E2SM"
@@ -1657,7 +1657,7 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,"ENB_UE_ID_E2SM"

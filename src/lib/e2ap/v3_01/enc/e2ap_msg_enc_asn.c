@@ -3524,7 +3524,8 @@ struct E2AP_PDU* e2ap_enc_e42_update_e2_node_asn_pdu(const e42_update_e2_node_t*
 
       const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2gnb->global_gNB_ID.plmn_id);
-      MACRO_GNB_ID_TO_BIT_STRING(src_id->nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
+      // MACRO_GNB_ID_TO_BIT_STRING(src_id->nb_id, &e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
+      e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID = cp_gnb_id_to_bit_string(src_id->nb_id);
 
       conn_item->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_gNB;
       conn_item->value.choice.GlobalE2node_ID.choice.gNB = e2gnb;
@@ -3537,7 +3538,8 @@ struct E2AP_PDU* e2ap_enc_e42_update_e2_node_asn_pdu(const e42_update_e2_node_t*
       e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
       const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
-      MACRO_ENB_ID_TO_BIT_STRING(src_id->nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
+      // ToDo: consider unused bits
+      MACRO_ENB_ID_TO_BIT_STRING(src_id->nb_id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
 
       conn_item->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_eNB;
       conn_item->value.choice.GlobalE2node_ID.choice.eNB = e2enb;

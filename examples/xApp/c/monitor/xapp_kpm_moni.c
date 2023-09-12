@@ -69,7 +69,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
     //ue_id = cp_ue_id_e2sm(&kpm->msg.frm_3.meas_report_per_ue[0].ue_meas_report_lst);
     printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
            now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime,
-           e2_node->type, e2_node->nb_id);
+           e2_node->type, e2_node->nb_id.nb_id);
     if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE) {
       for (size_t i = 0; i < kpm->msg.frm_1.meas_data_lst_len; i++) {
         for (size_t j = 0; j < kpm->msg.frm_1.meas_data_lst[i].meas_record_len; j++) {

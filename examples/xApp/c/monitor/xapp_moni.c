@@ -62,49 +62,49 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 //    aggr_tstamp_mac += now - rd->ind.mac.msg.tstamp;
 //    if (count_mac == count_max) {
 //      printf("MAC ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
-//             aggr_tstamp_mac/count_max, e2_node->type, e2_node->nb_id);
+//             aggr_tstamp_mac/count_max, e2_node->type, e2_node->nb_id.nb_id);
 //      count_mac = 0;
 //      aggr_tstamp_mac = 0;
 //    }
     printf("MAC ind_msg latency = %lu from E2-node type %d ID %d\n",
-           now - rd->ind.mac.msg.tstamp, e2_node->type, e2_node->nb_id);
+           now - rd->ind.mac.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
   } else if (rd->ind.type == RLC_STATS_V0) {
 //    count_rlc += 1;
 //    aggr_tstamp_rlc += now - rd->ind.rlc.msg.tstamp;
 //    if (count_rlc == count_max) {
 //      printf("RLC ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
-//             aggr_tstamp_rlc/count_max, e2_node->type, e2_node->nb_id);
+//             aggr_tstamp_rlc/count_max, e2_node->type, e2_node->nb_id.nb_id);
 //      count_rlc = 0;
 //      aggr_tstamp_rlc = 0;
 //    }
     printf("RLC ind_msg latency = %lu from E2-node type %d ID %d\n",
-           now - rd->ind.rlc.msg.tstamp, e2_node->type, e2_node->nb_id);
+           now - rd->ind.rlc.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
   } else if (rd->ind.type == PDCP_STATS_V0) {
 //    count_pdcp += 1;
 //    aggr_tstamp_pdcp += now - rd->ind.pdcp.msg.tstamp;
 //    if (count_pdcp == count_max) {
 //      printf("PDCP ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
-//             aggr_tstamp_pdcp/count_max, e2_node->type, e2_node->nb_id);
+//             aggr_tstamp_pdcp/count_max, e2_node->type, e2_node->nb_id.nb_id);
 //      count_pdcp = 0;
 //      aggr_tstamp_pdcp = 0;
 //    }
     printf("PDCP ind_msg latency = %lu from E2-node type %d ID %d\n",
-           now - rd->ind.pdcp.msg.tstamp, e2_node->type, e2_node->nb_id);
+           now - rd->ind.pdcp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
 //  } else if (rd->ind.type == GTP_STATS_V0) {
 //    printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
-//           now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id);
+//           now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
   } else if (rd->ind.type == KPM_STATS_V3_0) {
     if (rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime) {
 //      count_kpm += 1;
 //      aggr_tstamp_kpm += now - rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime;
 //      if (count_kpm == count_max) {
 //        printf("KPM ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
-//               aggr_tstamp_kpm/count_max, e2_node->type, e2_node->nb_id);
+//               aggr_tstamp_kpm/count_max, e2_node->type, e2_node->nb_id.nb_id);
 //        count_kpm = 0;
 //        aggr_tstamp_kpm = 0;
 //      }
       printf("KPM ind_msg latency = %lu from E2-node type %d ID %d\n",
-             now - rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime, e2_node->type, e2_node->nb_id);
+             now - rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime, e2_node->type, e2_node->nb_id.nb_id);
 //      kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
 //      if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE) {
 //        for (size_t i = 0; i < kpm->msg.frm_1.meas_data_lst_len; i++) {
@@ -443,20 +443,20 @@ int main(int argc, char *argv[])
         // TODO: send subscription request to new e2 node
         for (size_t i = 0; i < cur_nodes_len; i++) {
           //printf("/////////////// new E2 node list, idx %ld, nb_id %d, type %s //////////////\n", i,
-          //       cur_nodes.n[i].id.nb_id, get_e2ap_ngran_name(cur_nodes.n[i].id.type));
+          //       cur_nodes.n[i].id.nb_id.nb_id, get_e2ap_ngran_name(cur_nodes.n[i].id.type));
           e2ap_ngran_node_t cur_type = cur_nodes.n[i].id.type;
-          uint32_t cur_nb_id = cur_nodes.n[i].id.nb_id;
+          uint32_t cur_nb_id = cur_nodes.n[i].id.nb_id.nb_id;
           bool new_type = 1;
           bool new_nb_id = 1;
           // compare the type between old and new e2 nodes list
           for (size_t j = 0; j < nodes_len; j++) {
             //printf("/////////////// old E2 node list, idx %ld, nb_id %d, type %s //////////////\n", j,
-            //       nodes.n[j].id.nb_id, get_ngran_name(nodes.n[j].id.type));
+            //       nodes.n[j].id.nb_id.nb_id, get_ngran_name(nodes.n[j].id.type));
             if (nodes.n[j].id.type == cur_type) new_type = 0;
-            if (nodes.n[j].id.nb_id == cur_nb_id) new_nb_id = 0;
+            if (nodes.n[j].id.nb_id.nb_id == cur_nb_id) new_nb_id = 0;
           }
           if (new_type || new_nb_id) {
-            printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id, get_e2ap_ngran_name(cur_nodes.n[i].id.type));
+            printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id.nb_id, get_e2ap_ngran_name(cur_nodes.n[i].id.type));
             send_subscription_req(&cur_nodes.n[i], i, handle);
           }
         }

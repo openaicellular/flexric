@@ -55,5 +55,7 @@ set(e2ap_src_types
   )
 
 add_library(e2ap_types_obj OBJECT 
-                       ${e2ap_src_types} 
-                        ) 
+                       ${e2ap_src_types}
+                        )
+
+target_link_libraries(e2ap_types_obj PRIVATE e2_conv_obj)

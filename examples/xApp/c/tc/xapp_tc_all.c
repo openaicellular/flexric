@@ -56,7 +56,7 @@ void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 
   int64_t now = time_now_us();
   printf("RLC ind_msg latency = %ld from E2-node type %d ID %d\n",
-         now - rd->ind.rlc.msg.tstamp, e2_node->type, e2_node->nb_id);
+         now - rd->ind.rlc.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
 
   rlc_ind_msg_t const* msg = &rd->ind.rlc.msg;
 

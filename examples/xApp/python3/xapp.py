@@ -57,7 +57,7 @@ class KPMCallback(ric.kpm_cb):
         #               f"measName = {measName}, "
         #               f"measRecord = {measRecord}, "
         #               f"meas_recordtype = {meas_recordtype}, "
-        #               f"from E2 node type = {ind.id.type} nb_id = {ind.id.nb_id}")
+        #               f"from E2 node type = {ind.id.type} nb_id = {ind.id.nb_id.nb_id}")
         kpm_ind_to_dict_json(ind, t_now, ind.id)
 
 
@@ -105,7 +105,7 @@ def kpm_ind_to_dict_json(ind, t_now, id):
     # find e2 node idx
     n_idx = -1
     for n in e2nodes:
-        if n.id.nb_id == id.nb_id:
+        if n.id.nb_id.nb_id == id.nb_id.nb_id:
             if n.id.type == id.type:
                 n_idx = e2nodes.index(n)
 
@@ -127,7 +127,7 @@ def kpm_ind_to_dict_json(ind, t_now, id):
     kpm_stats = global_kpm_stats[n_idx]
 
     # e2 node id
-    kpm_stats["RAN"]["nb_id"] = id.nb_id
+    kpm_stats["RAN"]["nb_id"] = id.nb_id.nb_id
     kpm_stats["RAN"]["ran_type"] = get_ngran_name(id.type)
 
     # initial
@@ -367,7 +367,7 @@ class MACCallback(ric.mac_cb):
             t_now = time.time_ns() / 1000.0
             t_mac = ind.tstamp / 1.0
             t_diff = t_now - t_mac
-            # print(f"MAC Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id}")
+            # print(f"MAC Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id.nb_id}")
             # print('MAC rnti = ' + str(ind.ue_stats[0].rnti))
 
 ####################
@@ -392,7 +392,7 @@ def slice_ind_to_dict_json(ind, id):
     # find e2 node idx
     n_idx = -1
     for n in e2nodes:
-        if n.id.nb_id == id.nb_id:
+        if n.id.nb_id.nb_id == id.nb_id.nb_id:
             if n.id.type == id.type:
                 n_idx = e2nodes.index(n)
                 break
@@ -414,7 +414,7 @@ def slice_ind_to_dict_json(ind, id):
     slice_stats = global_slice_stats[n_idx]
 
     # RAN - e2 node id
-    slice_stats["RAN"]["nb_id"] = id.nb_id
+    slice_stats["RAN"]["nb_id"] = id.nb_id.nb_id
     slice_stats["RAN"]["ran_type"] = get_ngran_name(id.type)
     # RAN - dl
     dl_dict = slice_stats["RAN"]["dl"]
@@ -503,7 +503,7 @@ def slice_ind_to_dict_json(ind, id):
     ind_dict = slice_stats
     ind_json = json.dumps(ind_dict)
 
-    json_fname = "rt_slice_stats_nb_id" + str(id.nb_id)+ ".json"
+    json_fname = "rt_slice_stats_nb_id" + str(id.nb_id.nb_id)+ ".json"
     with open(json_fname, "w") as outfile:
         outfile.write(ind_json)
     # print(ind_dict)
@@ -845,7 +845,7 @@ def print_e2_nodes():
         # if conn[i].id.cu_du_id:
         #     cu_du_id = conn[i].id.cu_du_id
         info = [i,
-                conn[i].id.nb_id,
+                conn[i].id.nb_id.nb_id,
                 conn[i].id.plmn.mcc,
                 conn[i].id.plmn.mnc,
                 get_ngran_name(conn[i].id.type)]
@@ -853,7 +853,7 @@ def print_e2_nodes():
         e2nodes_data.append(info)
     print(tabulate(e2nodes_data, headers=e2nodes_col_names, tablefmt="grid"))
     # print("E2 node : "
-    #       "nb_id " + str(e2node.id.nb_id) + ",",
+    #       "nb_id " + str(e2node.id.nb_id.nb_id) + ",",
     #       "mcc " + str(e2node.id.plmn.mcc) + ",",
     #       "mnc " + str(e2node.id.plmn.mnc) + ",",
     #       "mnc_digit_len " + str(e2node.id.plmn.mnc_digit_len) + ",",
@@ -1142,7 +1142,7 @@ def end():
         ric.rm_report_kpm_sm(kpm_hndlr[i])
 
     for n in e2nodes:
-        json_fname = "rt_slice_stats_nb_id" + str(n.id.nb_id)+ ".json"
+        json_fname = "rt_slice_stats_nb_id" + str(n.id.nb_id.nb_id)+ ".json"
         with open(json_fname, "w") as outfile:
             outfile.write(json.dumps({}))
 

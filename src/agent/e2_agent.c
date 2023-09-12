@@ -437,7 +437,7 @@ void e2_event_loop_agent(e2_agent_t* ag)
           if (*e.p_ev == SETUP_REQUEST_PENDING_EVENT)
           {
             consume_fd(e.fd);
-            printf("Sending E2 Setup request from ran id %d. Timeout of 3 seconds.\n", ag->global_e2_node_id.nb_id);
+            printf("Sending E2 Setup request from ran id %d. Timeout of 3 seconds.\n", ag->global_e2_node_id.nb_id.nb_id);
             e2_setup_request_t sr = generate_setup_request_from_ran(ag, ag->global_e2_node_id);
             defer({ e2ap_free_setup_request(&sr);  } );
             byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr);

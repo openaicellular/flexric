@@ -39,7 +39,7 @@ void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 
   int64_t now = time_now_us();
   printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
-         now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id);
+         now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
 }
 
 int main(int argc, char *argv[])

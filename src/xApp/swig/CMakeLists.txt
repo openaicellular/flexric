@@ -48,6 +48,7 @@ if(XAPP_PYTHON_SWIG)
       $<TARGET_OBJECTS:e2ap_ran_func_obj>
       $<TARGET_OBJECTS:e2ap_plmn_obj>
       $<TARGET_OBJECTS:e2ap_global_node_id_obj>
+      $<TARGET_OBJECTS:e2_conv_obj>
       #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
       ../../sm/mac_sm/ie/mac_data_ie.c
       ../../sm/rlc_sm/ie/rlc_data_ie.c
@@ -70,6 +71,7 @@ if(XAPP_GO_SWIG)
       $<TARGET_OBJECTS:e2ap_ran_func_obj>
       $<TARGET_OBJECTS:e2ap_plmn_obj>
       $<TARGET_OBJECTS:e2ap_global_node_id_obj>
+      $<TARGET_OBJECTS:e2_conv_obj>
       #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
       ../../sm/mac_sm/ie/mac_data_ie.c
       ../../sm/rlc_sm/ie/rlc_data_ie.c

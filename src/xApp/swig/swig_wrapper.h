@@ -10,6 +10,7 @@
 #include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"
 #include "../../lib/e2ap/e2ap_plmn_wrapper.h"
 #include "../../lib/e2ap/e2ap_ran_function_wrapper.h"
+#include "../../lib/3gpp/ie/e2ap_gnb_id.h"
 
 #include "../../sm/mac_sm/ie/mac_data_ie.h"
 #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
@@ -31,7 +32,7 @@ struct RanFunction{
 struct swig_global_e2_node_id_t {
   e2ap_ngran_node_t type;
   e2ap_plmn_t plmn;
-  uint32_t nb_id;
+  e2ap_gnb_id_t nb_id;
   std::vector<long unsigned int> cu_du_id;
 };
 

@@ -153,7 +153,8 @@ void sm_cb_mac(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   ind.id.plmn.mcc = e2_node->plmn.mcc;
   ind.id.plmn.mnc = e2_node->plmn.mnc;
   ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
-  ind.id.nb_id = e2_node->nb_id;
+  ind.id.nb_id.nb_id = e2_node->nb_id.nb_id;
+  ind.id.nb_id.unused = e2_node->nb_id.unused;
   size_t cuduid_idx = 0;
   if (e2_node->cu_du_id) {
     while (e2_node->cu_du_id[cuduid_idx]) {
@@ -240,7 +241,8 @@ void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   ind.id.plmn.mcc = e2_node->plmn.mcc;
   ind.id.plmn.mnc = e2_node->plmn.mnc;
   ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
-  ind.id.nb_id = e2_node->nb_id;
+  ind.id.nb_id.nb_id = e2_node->nb_id.nb_id;
+  ind.id.nb_id.unused = e2_node->nb_id.unused;
   size_t cuduid_idx = 0;
   if (e2_node->cu_du_id) {
     while (e2_node->cu_du_id[cuduid_idx]) {
@@ -325,7 +327,8 @@ void sm_cb_pdcp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   ind.id.plmn.mcc = e2_node->plmn.mcc;
   ind.id.plmn.mnc = e2_node->plmn.mnc;
   ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
-  ind.id.nb_id = e2_node->nb_id;
+  ind.id.nb_id.nb_id = e2_node->nb_id.nb_id;
+  ind.id.nb_id.unused = e2_node->nb_id.unused;
   size_t cuduid_idx = 0;
   if (e2_node->cu_du_id) {
     while (e2_node->cu_du_id[cuduid_idx]) {
@@ -407,7 +410,8 @@ void sm_cb_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   ind.id.plmn.mcc = e2_node->plmn.mcc;
   ind.id.plmn.mnc = e2_node->plmn.mnc;
   ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
-  ind.id.nb_id = e2_node->nb_id;
+  ind.id.nb_id.nb_id = e2_node->nb_id.nb_id;
+  ind.id.nb_id.unused = e2_node->nb_id.unused;
   size_t cuduid_idx = 0;
   if (e2_node->cu_du_id) {
     while (e2_node->cu_du_id[cuduid_idx]) {

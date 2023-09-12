@@ -7,6 +7,7 @@ target_link_libraries(test_bimap_bug
               $<TARGET_OBJECTS:e2ap_alg_obj>
               $<TARGET_OBJECTS:pending_events_obj>
               $<TARGET_OBJECTS:e2ap_types_obj>
+              $<TARGET_OBJECTS:3gpp_derived_ie_obj>
               -pthread -lsctp -ldl)
 enable_testing()
 add_test(Unit_test_bimap_bug test_bimap_bug)

@@ -221,6 +221,7 @@ namespace std {
 %include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"
 %include "../../lib/e2ap/e2ap_plmn_wrapper.h"
 %include "../../lib/e2ap/e2ap_ran_function_wrapper.h"
+%include "../../lib/3gpp/ie/e2ap_gnb_id.h"
 
 
 #ifdef E2AP_V1

@@ -622,13 +622,13 @@ e2ap_msg_t e2ap_handle_e42_update_e2_node_xapp(e42_xapp_t* xapp, const e2ap_msg_
   for(size_t i = 0; i < update_nodes_len; ++i) {
     global_e2_node_id_t const id = cp_global_e2_node_id(&sr->nodes[i].id);
     if (!find_reg_e2_node(&xapp->e2_nodes, &id)) {
-      //printf("[xApp]: haven't registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id);
+      //printf("[xApp]: haven't registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id.nb_id);
       const size_t len = sr->nodes[i].len_rf;
       ran_function_t* rf = sr->nodes[i].ack_rf;
       add_reg_e2_node(&xapp->e2_nodes, &id, len, rf);
       printf("[xApp]: Registered E2 Nodes = %ld \n",   sz_reg_e2_node(&xapp->e2_nodes) );
     } else {
-      printf("[xApp]: Already registered E2 Node, nb_id = %d\n", sr->nodes[i].id.nb_id);
+      printf("[xApp]: Already registered E2 Node, nb_id = %d\n", sr->nodes[i].id.nb_id.nb_id);
     }
   }
 
