@@ -32,23 +32,6 @@
 #include <signal.h>
 #include <pthread.h>
 
-static
-byte_array_t copy_str_to_ba(const char* str)
-{
-  assert(str != NULL);
-
-  size_t const sz = strlen(str);
-  byte_array_t dst = {.len = sz };
-  dst.buf = calloc(sz ,sizeof(uint8_t) );
-  assert(dst.buf != NULL);
-
-  memcpy(dst.buf, str, sz);
-
-  return dst;
-}
-
-//static
-//ue_id_e2sm_t ue_id;
 
 static
 pthread_mutex_t mtx;
@@ -61,61 +44,147 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   assert(rd->ind.type == KPM_STATS_V3_0);
 
   kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
+  kpm_ric_ind_hdr_format_1_t const* hdr_frm_1 = &ind->hdr.kpm_ric_ind_hdr_format_1;
 
   int64_t now = time_now_us();
 
   {
     lock_guard(&mtx);
-    //ue_id = cp_ue_id_e2sm(&kpm->msg.frm_3.meas_report_per_ue[0].ue_meas_report_lst);
-    printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
-           now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime,
+
+    static int counter = 1;
+    printf("%7d, KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+           counter, now - hdr_frm_1->collectStartTime,
            e2_node->type, e2_node->nb_id.nb_id);
-    if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE) {
-      for (size_t i = 0; i < kpm->msg.frm_1.meas_data_lst_len; i++) {
-        for (size_t j = 0; j < kpm->msg.frm_1.meas_data_lst[i].meas_record_len; j++) {
-          if (kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].value == INTEGER_MEAS_VALUE)
-            printf("meas record INTEGER_MEAS_VALUE value %d\n", kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].int_val);
-          else if (kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].value == REAL_MEAS_VALUE)
-            printf("meas record REAL_MEAS_VALUE value %f\n", kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].real_val);
+    if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE)
+    {
+      kpm_ind_msg_format_1_t const* msg_frm_1 = &ind->msg.frm_1;
+      for (size_t i = 0; i < msg_frm_1->meas_data_lst_len; i++) {
+        for (size_t j = 0; j < msg_frm_1->meas_data_lst[i].meas_record_len; j++) {
+          if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == INTEGER_MEAS_VALUE)
+            printf("meas record INTEGER_MEAS_VALUE value %d\n",msg_frm_1->meas_data_lst[i].meas_record_lst[j].int_val);
+          else if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == REAL_MEAS_VALUE)
+            printf("meas record REAL_MEAS_VALUE value %f\n", msg_frm_1->meas_data_lst[i].meas_record_lst[j].real_val);
           else
             printf("meas record NO_VALUE_MEAS_VALUE value\n");
         }
       }
-    } else if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE) {
-      for (size_t i = 0; i < kpm->msg.frm_3.ue_meas_report_lst_len; i++) {
-        if (kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type == GNB_UE_ID_E2SM) {
-          printf("UE ID: type %d, amf_ue_ngap_id %ld ",
-                 kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type,
-                 kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id
-                 );
-          if (kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id)
-            printf("ran_ue_id %ld", *kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id);
-          printf("\n");
+    } else if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE)
+    {
+      kpm_ind_msg_format_3_t const* msg_frm_3 = &ind->msg.frm_3;
+      // Reported list of measurements per UE
+      for (size_t i = 0; i < msg_frm_3->ue_meas_report_lst_len; i++)
+      {
+        switch (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.type)
+        {
+          case GNB_UE_ID_E2SM:
+            printf("UE ID type = gNB, amf_ue_ngap_id = %lu\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id);
+            break;
+
+          case GNB_DU_UE_ID_E2SM:
+            printf("UE ID type = gNB-DU, gnb_cu_ue_f1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb_du.gnb_cu_ue_f1ap);
+            break;
+
+          case GNB_CU_UP_UE_ID_E2SM:
+            printf("UE ID type = gNB-CU-UP, gnb_cu_cp_ue_e1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb_cu_up.gnb_cu_cp_ue_e1ap);
+            break;
+
+          default:
+            assert(false && "UE ID type not yet implemented");
         }
-        if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst_len > 0) {
-          size_t meas_data_idx = 0;
-          if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].incomplete_flag) {
-            if (*kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].incomplete_flag == TRUE_ENUM_VALUE)
-              printf("No UE connected to E2-Node, meas_data incomplete_flag == TRUE_ENUM_VALUE\n");
-          } else if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst_len == kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_len) {
-            size_t rec_data_len = kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_len;
-            for (size_t j = 0; j < rec_data_len; j++) {
-              if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst[j].meas_type.type == NAME_MEAS_TYPE &&
-                  kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_lst[j].value == REAL_MEAS_VALUE) {
-                printf("MeasName %s, MeasData %lf\n",
-                       kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst[j].meas_type.name.buf,
-                       kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_lst[j].real_val
-                );
+
+        kpm_ind_msg_format_1_t const* msg_frm_1 = &msg_frm_3->meas_report_per_ue[i].ind_msg_format_1;
+
+        // UE Measurements per granularity period
+        for (size_t j = 0; j<msg_frm_1->meas_data_lst_len; j++)
+        {
+          for (size_t z = 0; z<msg_frm_1->meas_data_lst[j].meas_record_len; z++)
+          {
+            if (msg_frm_1->meas_info_lst_len > 0)
+            {
+              switch (msg_frm_1->meas_info_lst[z].meas_type.type)
+              {
+                case NAME_MEAS_TYPE:
+                {
+                  // Get the Measurement Name
+                  char meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len + 1];
+                  memcpy(meas_info_name_str, msg_frm_1->meas_info_lst[z].meas_type.name.buf, msg_frm_1->meas_info_lst[z].meas_type.name.len);
+                  meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len] = '\0';
+
+                  // Get the value of the Measurement
+                  switch (msg_frm_1->meas_data_lst[j].meas_record_lst[z].value)
+                  {
+                    case REAL_MEAS_VALUE:
+                    {
+                      if (strcmp(meas_info_name_str, "DRB.RlcSduDelayDl") == 0)
+                      {
+                        printf("DRB.RlcSduDelayDl = %.2f [μs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+                      }
+                      else if (strcmp(meas_info_name_str, "DRB.UEThpDl") == 0)
+                      {
+                        printf("DRB.UEThpDl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+                      }
+                      else if (strcmp(meas_info_name_str, "DRB.UEThpUl") == 0)
+                      {
+                        printf("DRB.UEThpUl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+                      }
+                      else
+                      {
+                        assert(false && "Measurement Name not yet implemented");
+                      }
+
+                      break;
+                    }
+
+
+                    case INTEGER_MEAS_VALUE:
+                    {
+                      if (strcmp(meas_info_name_str, "RRU.PrbTotDl") == 0)
+                      {
+                        printf("RRU.PrbTotDl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                      }
+                      else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
+                      {
+                        printf("RRU.PrbTotUl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                      }
+                      else if (strcmp(meas_info_name_str, "DRB.PdcpSduVolumeDL") == 0)
+                      {
+                        printf("DRB.PdcpSduVolumeDL = %d [kb]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                      }
+                      else if (strcmp(meas_info_name_str, "DRB.PdcpSduVolumeUL") == 0)
+                      {
+                        printf("DRB.PdcpSduVolumeUL = %d [kb]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                      }
+                      else
+                      {
+                        assert(false && "Measurement Name not yet implemented");
+                      }
+
+                      break;
+                    }
+
+                    default:
+                      assert("Value not recognized");
+                  }
+
+                  break;
+                }
+
+                default:
+                  assert(false && "Measurement Type not yet implemented");
               }
             }
+
+
+            if (msg_frm_1->meas_data_lst[j].incomplete_flag && *msg_frm_1->meas_data_lst[j].incomplete_flag == TRUE_ENUM_VALUE)
+              printf("Measurement Record not reliable");
           }
         }
       }
-      //printf("Sojourn time %lf \n",kpm->msg.frm_3.meas_report_per_ue[0].ind_msg_format_1.meas_data_lst[0].meas_record_lst[0].real_val);
     } else {
       printf("unknown kpm ind format\n");
     }
 
+    counter++;
   }
 }
 
@@ -137,7 +206,7 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
 
   dst.meas_type.type = NAME_MEAS_TYPE;
   // ETSI TS 128 552
-  dst.meas_type.name = copy_str_to_ba(  action );
+  dst.meas_type.name = cp_str_to_ba(action);
 
   dst.label_info_lst_len = 1;
   dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
@@ -154,7 +223,7 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
 {
   kpm_act_def_format_1_t dst = {0};
 
-  dst.gran_period_ms = 100;
+  dst.gran_period_ms = 1000;
 
   // [1, 65535]
   size_t count = 0;
@@ -164,7 +233,7 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
   dst.meas_info_lst_len = count;
   dst.meas_info_lst = calloc(count, sizeof(meas_info_format_1_lst_t));
   assert(dst.meas_info_lst != NULL && "Memory exhausted");
-  printf("count %ld\n", count);
+
   for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
     dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action[i]);
   }
@@ -183,20 +252,22 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
   dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
   assert(dst.matching_cond_lst != NULL && "Memory exhausted");
 
-  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
-  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
-  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
+  // Filter connected UEs by S-NSSAI criteria
+  dst.matching_cond_lst[0].test_info_lst.test_cond_type = S_NSSAI_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.S_NSSAI = TRUE_TEST_COND_TYPE;
 
   dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
   assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
+  *dst.matching_cond_lst[0].test_info_lst.test_cond = EQUAL_TEST_COND;
 
   dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
   assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
   *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
   dst.matching_cond_lst[0].test_info_lst.int_value = malloc(sizeof(int64_t));
   assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.int_value = 0;
+  *dst.matching_cond_lst[0].test_info_lst.int_value = 1;
+
+  printf("[xApp]: Filter UEs by S-NSSAI criteria where SST = %lu\n", *dst.matching_cond_lst[0].test_info_lst.int_value);
 
   // Action definition Format 1
   dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
@@ -261,16 +332,39 @@ int main(int argc, char *argv[])
     defer({ free_kpm_sub_data(&kpm_sub); });
 
     // KPM Event Trigger
-    uint64_t period_ms = 100;
+    uint64_t period_ms = 1000;
     kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
+    printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
 
     // KPM Action Definition
     kpm_sub.sz_ad = 1;
     kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
     assert(kpm_sub.ad != NULL && "Memory exhausted");
-    const char *act[] = {"DRB.RlcSduDelayDl", "DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI", NULL}; // TS 34.425 clause 4.4.6
+
     format_action_def_e act_type = FORMAT_4_ACTION_DEFINITION;
-    *kpm_sub.ad = gen_act_def(act, act_type);
+
+    switch (n->id.type)
+    {
+    case ngran_gNB: ;
+      const char *act_gnb[] = {"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl", NULL}; // 3GPP TS 28.552
+      *kpm_sub.ad = gen_act_def(act_gnb, act_type);
+      break;
+
+    case ngran_gNB_CU: ;
+      const char *act_gnb_cu[] = {"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", NULL}; // 3GPP TS 28.552
+      *kpm_sub.ad = gen_act_def(act_gnb_cu, act_type);
+      break;
+
+    case ngran_gNB_DU: ;
+      const char *act_gnb_du[] = {"DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl", NULL}; // 3GPP TS 28.552
+      *kpm_sub.ad = gen_act_def(act_gnb_du, act_type);
+      break;
+
+    default:
+      assert(false && "NG-RAN Type not yet implemented");
+    }
+
+
 
     const int KPM_ran_function = 2;
 
