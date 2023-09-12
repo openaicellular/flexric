@@ -34,7 +34,7 @@ void fill_pdcp_ind_data(pdcp_ind_data_t* ind)
 
   pdcp_ind_msg_t* ind_msg = &ind->msg; 
 
-  ind_msg->len = abs(rand()%8);
+  ind_msg->len = abs(rand()%10);
   ind_msg->tstamp = time_now_us();
 
   if(ind_msg->len > 0){
@@ -64,7 +64,7 @@ void fill_pdcp_ind_data(pdcp_ind_data_t* ind)
     rb->rxsdu_bytes = abs(rand()%mod);    /* number of bytes of SDUs received */
     rb->rxsdu_pkts =  rb->rxsdu_bytes != 0 ? rb->rxsdu_bytes - rand()%rb->rxsdu_bytes : 0;     /* number of SDUs received */
 
-    rb->rnti= abs(rand()%mod);
+    rb->rnti= i;
     rb->mode= abs(rand()%3);               /* 0: PDCP AM, 1: PDCP UM, 2: PDCP TM */
     rb->rbid= abs(rand()%11);
   }

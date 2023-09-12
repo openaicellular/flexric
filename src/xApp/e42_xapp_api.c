@@ -64,7 +64,6 @@ void init_xapp_api(fr_args_t const* args)
   assert(xapp == NULL && "The init_xapp_api function can only be called once");
   assert(args != NULL);
 
-  // Signal handler
   signal(SIGINT, sig_handler);
 
   xapp = init_e42_xapp(args);

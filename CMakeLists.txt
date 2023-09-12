@@ -366,6 +366,15 @@ if (XAPP_PYTHON_SWIG)
   install(TARGETS e42_xapp_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
+if(XAPP_PYTHON_ML)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/helpers.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/configs.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/nodb.conf
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/run.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages)
+endif()
+
 if (XAPP_GO_SWIG)
   install(PROGRAMS
           ${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/go_helloworld

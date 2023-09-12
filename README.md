@@ -30,7 +30,7 @@ Below is the list of features available in this version divided per component an
 
   On Ubuntu, you might want to use [this PPA](https://apt.kitware.com/) to install an up-to-date version.
 
-- SWIG (at least  v.4.0). 
+- SWIG (at least  v.4.1)
 
   We use SWIG as an interface generator to enable the multi-language feature (i.e., C/C++ and Python) for the xApps. Please, check your SWIG version (i.e, `swig
   -version`) and install it from scratch if necessary as described here: https://swig.org/svn.html or via the code below: 
@@ -38,10 +38,10 @@ Below is the list of features available in this version divided per component an
   ```bash
   git clone https://github.com/swig/swig.git
   cd swig
-  git checkout release-4.1
+  git checkout v4.1.1
   ./autogen.sh
   ./configure --prefix=/usr/
-  make -j8
+  make
   make install
   ```
 
@@ -98,11 +98,11 @@ sudo snap install go --channel=1.19/stable
   $ mkdir build
   $ cd build
   # to use SQLite DB
-  $ cmake .. -DEMU_AGENT_INSTALL=TRUE -DNEAR_RIC_INSTALL=TRUE -DUNIT_TEST=TRUE -DXAPP_C_INSTALL=TRUE -DXAPP_DB=SQLITE3_XAPP -DXAPP_PYTHON_INSTALL=TRUE
-  # to use MYSQL DB
-  $ cmake .. -DEMU_AGENT_INSTALL=TRUE -DNEAR_RIC_INSTALL=TRUE -DUNIT_TEST=TRUE -DXAPP_C_INSTALL=TRUE -DXAPP_DB=MYSQL_XAPP -DXAPP_PYTHON_INSTALL=TRUE
+  $ cmake -DXAPP_DB=SQLITE3_XAPP ..
+  # to use MYSQL DB (default)
+  $ cmake -DXAPP_DB=MYSQL_XAPP ..
   # to not use DB
-  $ cmake .. -DEMU_AGENT_INSTALL=TRUE -DNEAR_RIC_INSTALL=TRUE -DUNIT_TEST=TRUE -DXAPP_C_INSTALL=TRUE -DXAPP_DB=NONE_XAPP -DXAPP_PYTHON_INSTALL=TRUE
+  $ cmake -DXAPP_DB=NONE_XAPP ..
   $ make -j
   ```
 
