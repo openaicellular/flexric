@@ -90,9 +90,11 @@ void stop_ind_event(e2_agent_t* ag, ric_gen_id_t id)
   free(fd);
 }
 
-void init_handle_msg_agent(handle_msg_fp_agent (*handle_msg)[30])
+void init_handle_msg_agent(size_t len, handle_msg_fp_agent (*handle_msg)[len])
 {
-  memset((*handle_msg), 0, sizeof(handle_msg_fp_agent)*30);
+  assert(len == NONE_E2_MSG_TYPE);
+
+  memset((*handle_msg), 0, sizeof(handle_msg_fp_agent)*len);
 
   (*handle_msg)[RIC_SUBSCRIPTION_REQUEST] = e2ap_handle_subscription_request_agent;
   (*handle_msg)[RIC_SUBSCRIPTION_DELETE_REQUEST] =  e2ap_handle_subscription_delete_request_agent;
@@ -314,7 +316,9 @@ e2ap_msg_t e2ap_handle_control_request_agent(e2_agent_t* ag, const e2ap_msg_t* m
 
   ric_control_acknowledge_t ric_ctrl_ack = {.ric_id = ctrl_req->ric_id,
                                             .call_process_id = NULL,
+#ifdef E2AP_V1
                                             .status = RIC_CONTROL_STATUS_SUCCESS,
+#endif                                            
                                             .control_outcome = ba_ctrl_ans } ;
 
   printf("[E2-AGENT]: CONTROL ACKNOWLEDGE sent\n");
@@ -366,6 +370,11 @@ e2ap_msg_t e2ap_handle_setup_response_agent(e2_agent_t* ag, const e2ap_msg_t* ms
   pending_event_t ev = SETUP_REQUEST_PENDING_EVENT;
   stop_pending_event(ag,ev);
 
+#if defined(E2AP_V2) || defined(E2AP_V3)
+  assert(ag->trans_id_setup_req > 0 && "Receiving an E2 SETUP-RESPONSE, eventhough not E2 SETUP-REQUEST not sent from this E2 Node" );
+  printf("[E2-AGENT]: Transaction ID E2 SETUP-REQUEST %u E2 SETUP-RESPONSE %u \n", --ag->trans_id_setup_req, msg->u_msgs.e2_stp_resp.trans_id);
+  ag->trans_id_setup_req = 0;
+#endif
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans; 
 }

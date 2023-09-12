@@ -25,10 +25,9 @@
 #define MSG_HANDLER_IAPP
 
 #include "e42_iapp.h"
-#include "lib/ap/type_defs.h"
+#include "lib/e2ap/type_defs_wrapper.h"
 
-
-void init_handle_msg_iapp(handle_msg_fp_iapp (*handle_msg)[31]);
+void init_handle_msg_iapp(size_t len, handle_msg_fp_iapp (*handle_msg)[len]);
 
 e2ap_msg_t e2ap_msg_handle_iapp(e42_iapp_t* iapp, const e2ap_msg_t* msg);
 

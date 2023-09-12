@@ -19,13 +19,12 @@
  *      contact@openairinterface.org
  */
 
-
-
 #ifndef PENDING_EVENT_RIC_H
 #define PENDING_EVENT_RIC_H
 
-#include "lib/pending_events.h"
-#include "lib/ap/e2ap_types/common/ric_gen_id.h"
+#include "pending_events.h"
+
+#include "e2ap/ric_gen_id_wrapper.h"
 
 typedef struct
 {

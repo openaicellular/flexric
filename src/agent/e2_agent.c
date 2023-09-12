@@ -25,10 +25,9 @@
 #include "msg_handler_agent.h"
 #include "not_handler_agent.h"
 #include "lib/async_event.h"
-#include "lib/ap/e2ap_ap.h"
-#include "lib/ap/free/e2ap_msg_free.h"
-#include "sm/mac_sm/mac_sm_agent.h"
-#include "sm/rlc_sm/rlc_sm_agent.h"
+#include "lib/e2ap/e2ap_ap_wrapper.h"
+#include "lib/e2ap/e2ap_msg_free_wrapper.h"
+#include "gen_msg_agent.h"
 #include "util/alg_ds/alg/alg.h"
 #include "util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "util/compare.h"
@@ -39,90 +38,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-/*
-// Equality file descriptors
-static inline
-bool eq_fd_pair(const void* key1, const void* key2 )
-{
-  assert(key1 != NULL);
-  assert(key2 != NULL);
-
-  fd_pair_t* fd1 = (fd_pair_t*)key1;
-  fd_pair_t* fd2 = (fd_pair_t*)key2;
-
-  assert(fd1->r > 0 && "File descriptors must be larger than zero");
-  assert(fd2->r > 0 && "File descriptors must be larger than zero");
-
-  assert(fd1->w > 0 && "File descriptors must be larger than zero");
-  assert(fd2->w > 0 && "File descriptors must be larger than zero");
-
-  return eq_fd(&fd1->r, &fd2->r) && eq_fd(&fd1->w, &fd2->w);
-}
-*/
-
-/*
-// Comparation file descriptors
-static inline
-int cmp_fd_pair(void const* fd_v1, void const* fd_v2)
-{
-  assert(fd_v1 != NULL);
-  assert(fd_v2 != NULL);
- fd_pair_t* fd1 = (fd_pair_t*)fd_v1;
- fd_pair_t* fd2 = (fd_pair_t*)fd_v2;
-
-  assert(fd1->r > 0&& "File descriptors must be larger than zero");
-  assert(fd2->r > 0&& "File descriptors must be larger than zero");
-
-  assert(fd1->w > 0&& "File descriptors must be larger than zero");
-  assert(fd2->w > 0&& "File descriptors must be larger than zero");
-
-  int cmp = cmp_fd(&fd1->r, &fd2->r);
-  if(cmp != 0)
-    return cmp;
-
-  return cmp_fd(&fd1->w, &fd2->w);
-}
-*/
-
-#ifndef PROXY_AGENT
-static
-e2_setup_request_t generate_setup_request(e2_agent_t* ag)
-{
-  assert(ag != NULL);
-
-  const size_t len_rf = assoc_size(&ag->plugin.sm_ds);
-  assert(len_rf > 0 && "No RAN function/service model registered. Check if the Service Models are located at shared library paths, default location is /usr/local/flexric/");
-
-  ran_function_t* ran_func = calloc(len_rf, sizeof(*ran_func));
-  assert(ran_func != NULL);
-
-  e2_setup_request_t sr = {
-    .id = ag->global_e2_node_id,
-    .ran_func_item = ran_func,
-    .len_rf = len_rf,
-    .comp_conf_update = NULL,
-    .len_ccu = 0
-  };
-
-  void* it = assoc_front(&ag->plugin.sm_ds);
-  for(size_t i = 0; i < len_rf; ++i){
-    sm_agent_t* sm = assoc_value(&ag->plugin.sm_ds, it);
-    assert(sm->ran_func_id == *(uint16_t*)assoc_key(&ag->plugin.sm_ds, it) && "RAN function mismatch");
-
-    sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
-    assert(sm->ran_func_id == def.rf.id);
-
-    if(def.len_rfd > 0)
-      free(def.ran_fun_def);
-
-    ran_func[i] = def.rf;
-
-    it = assoc_next(&ag->plugin.sm_ds ,it);
-  }
-  assert(it == assoc_end(&ag->plugin.sm_ds) && "Length mismatch");
-  return sr;
-}
-#endif
 
 static
 ric_indication_t generate_aindication(e2_agent_t* ag, sm_ind_data_t* data, aind_event_t* ai_ev)
@@ -205,8 +120,8 @@ void free_pending_agent(e2_agent_t* ag)
   assert(ag != NULL);
   bi_map_free(&ag->pending);
   #ifdef PROXY_AGENT
-  int const rc = pthread_mutex_destroy(&ag->pend_mtx);                                              
-  assert(rc == 0);  
+  int const rc = pthread_mutex_destroy(&ag->pend_mtx);
+  assert(rc == 0);
   #endif
 }
 
@@ -227,13 +142,13 @@ void init_pending_events(e2_agent_t* ag)
   bi_map_init(&ag->pending, fd_sz, event_sz, cmp_fd, cmp_pending_event, free_fd, free_pending_ev );
 
 #ifdef PROXY_AGENT
-  pthread_mutexattr_t attr = {0};                                                                  
-#ifdef DEBUG                                                                                       
-  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);                                      
-#endif                                                                                             
-                                                                                                   
-  int rc = pthread_mutex_init(&ag->pend_mtx, &attr);                                              
-  assert(rc == 0);    
+  pthread_mutexattr_t attr = {0};
+#ifdef DEBUG
+  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+#endif
+
+  int rc = pthread_mutex_init(&ag->pend_mtx, &attr);
+  assert(rc == 0);
 #endif
 }
 
@@ -249,13 +164,13 @@ void init_correlation_data(e2_agent_t* ag)
               cmp_fd, cmp_correlation_ev,
               free_fd, free_correlation_ev);
 
-  pthread_mutexattr_t attr = {0};                                                                  
-#ifdef DEBUG                                                                                       
-  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);                                      
-#endif                                                                                             
-                                                                                                   
-  int rc = pthread_mutex_init(&ag->corr_mtx, &attr);                                              
-  assert(rc == 0);    
+  pthread_mutexattr_t attr = {0};
+#ifdef DEBUG
+  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+#endif
+
+  int rc = pthread_mutex_init(&ag->corr_mtx, &attr);
+  assert(rc == 0);
 }
 
 static inline
@@ -339,7 +254,7 @@ static inline
 bool ind_event(e2_agent_t* ag, int fd, ind_event_t** i_ev)
 {
   assert(*i_ev == NULL);
-  
+
   #ifdef PROXY_AGENT
   lock_guard(&ag->mtx_ind_event);
   #endif
@@ -385,7 +300,7 @@ bool pend_event(e2_agent_t* ag, int fd, pending_event_t** p_ev)
 
   assert(it != end_it);
   *p_ev = assoc_value(&ag->pending.left ,it);
-  
+
   #ifdef PROXY_AGENT
   rc = pthread_mutex_unlock(&ag->pend_mtx);
   assert(rc == 0);
@@ -522,8 +437,8 @@ void e2_event_loop_agent(e2_agent_t* ag)
           if (*e.p_ev == SETUP_REQUEST_PENDING_EVENT)
           {
             consume_fd(e.fd);
-            printf("Sending E2 Setup request from ran id %d. Timeout of 3 seconds.\n", ag->global_e2_node_id.nb_id);
-            e2_setup_request_t sr = generate_setup_request_from_ran(ag, ag->global_e2_node_id); 
+            printf("Sending E2 Setup request from ran id %d. Timeout of 3 seconds.\n", ag->global_e2_node_id.nb_id.nb_id);
+            e2_setup_request_t sr = generate_setup_request_from_ran(ag, ag->global_e2_node_id);
             defer({ e2ap_free_setup_request(&sr);  } );
             byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr);
             defer({free_byte_array(ba); } );
@@ -542,16 +457,16 @@ void e2_event_loop_agent(e2_agent_t* ag)
           #else
           if (*e.p_ev == SETUP_REQUEST_PENDING_EVENT)
           {
-            
+
             printf("timeout on E2 Setup request: sending again E2 setup\n");
-            
+
             // Resend the setup request message
-            e2_setup_request_t sr = generate_setup_request(ag); 
+            e2_setup_request_t sr = gen_setup_request(&ag->ap.version.type, ag);
             defer({ e2ap_free_setup_request(&sr); } );
 
             printf("[E2AP] Resending Setup Request after timeout\n");
-            byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr); 
-            defer({ free_byte_array(ba); } ); 
+            byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr);
+            defer({ free_byte_array(ba); } );
 
             e2ap_send_bytes_agent(&ag->ep, ba);
 
@@ -602,7 +517,8 @@ e2_agent_t* e2_init_agent(const char* addr, int port, global_e2_node_id_t ge2nid
 
   init_ap(&ag->ap.base.type);
 
-  init_handle_msg_agent(&ag->handle_msg);
+  ag->sz_handle_msg = sizeof(ag->handle_msg)/sizeof(ag->handle_msg[0]);
+  init_handle_msg_agent(ag->sz_handle_msg, &ag->handle_msg);
 
   init_plugin_ag(&ag->plugin, libs_dir, io);
 
@@ -612,9 +528,17 @@ e2_agent_t* e2_init_agent(const char* addr, int port, global_e2_node_id_t ge2nid
 
   init_tsq(&ag->aind, sizeof(aind_event_t));
 
-  #ifdef PROXY_AGENT
+#if defined(E2AP_V2) || defined (E2AP_V3)
+  // Read RAN
+  assert(io.read_setup_ran != NULL);
+  ag->read_setup_ran = io.read_setup_ran;
+
+  ag->trans_id_setup_req = 0;
+#endif
+
+#ifdef PROXY_AGENT
   init_correlation_data(ag);
-  #endif
+#endif
 
   ag->global_e2_node_id = ge2nid;
   ag->stop_token = false;
@@ -628,15 +552,12 @@ void e2_start_agent(e2_agent_t* ag)
   assert(ag != NULL);
 #ifndef PROXY_AGENT
   // Resend the subscription request message
-  e2_setup_request_t sr = generate_setup_request(ag); 
-//  defer({ e2ap_free_setup_request(&sr);  } );
+  e2_setup_request_t sr = gen_setup_request(&ag->ap.version.type, ag);
+  defer({ e2ap_free_setup_request(&sr);  } );
 
   printf("[E2-AGENT]: Sending setup request\n");
   byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr); 
-  defer({free_byte_array(ba); } ); 
-  e2ap_free_setup_request(&sr);
-
-  e2ap_send_bytes_agent(&ag->ep, ba);
+  defer({free_byte_array(ba); } );
 
   // A pending event is created along with a timer of 3000 ms,
   // after which an event will be generated
@@ -645,7 +566,10 @@ void e2_start_agent(e2_agent_t* ag)
   int fd_timer = create_timer_ms_asio_agent(&ag->io, wait_ms, wait_ms); 
   //printf("fd_timer with value created == %d\n", fd_timer);
 
-  bi_map_insert(&ag->pending, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev)); 
+  bi_map_insert(&ag->pending, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev));
+
+  // Send the message
+  e2ap_send_bytes_agent(&ag->ep, ba);
 #endif
 
   e2_event_loop_agent(ag);
@@ -730,56 +654,6 @@ void e2_async_event_agent(e2_agent_t* ag, uint32_t ric_req_id, void* ind_data)
   assert(rc != 0);
 }
 
-/*
-void e2_async_agent(e2_agent_t* ag, uint32_t ric_req_id)
-{
-  assert(ag != NULL);
-
-  ind_event_t tmp = {.ric_id.ric_req_id = ric_req_id,
-                     .sm = NULL,
-                     .action_id = 0 };
-
-  void* start_r = NULL;
-  void* end_r = NULL;
-  void* it_r = NULL;
-  int num = 5;
-  while(num > 0){
-
-    int rc = pthread_mutex_lock(&ag->mtx_ind_event);
-    assert(rc == 0);
-
-    start_r = assoc_rb_tree_front(&ag->ind_event.right);
-    end_r = assoc_rb_tree_end(&ag->ind_event.right);
-    it_r = find_if_rb_tree(&ag->ind_event.right, start_r, end_r, &tmp, eq_ind_event_ric_req_id);
-    if(it_r != end_r) break;
-
-    rc = pthread_mutex_unlock(&ag->mtx_ind_event);
-    assert(rc == 0);
-
-    num -= 1;
-    // Give some time to propagate the subscription request and be sure
-    // it has been writen in the ind_event ds.
-    usleep(10);
-  }
-
-  assert(it_r != end_r && "ric_rec_id not found");
-  ind_event_t* ind_ev = assoc_rb_tree_key(&ag->ind_event.right, it_r);
-  int fd_write = ind_ev->fd_write;
-  int rc = pthread_mutex_unlock(&ag->mtx_ind_event);
-  assert(rc == 0);
-
-  assert(fd_write > 0);
-  int num_char = 32;
-  char str[num_char];
-  memset(str, '\0', num_char);
-  rc = snprintf(str, num_char ,"%u\n", ric_req_id );
-  assert(rc > 0 && rc < num_char -1);
-
-  rc = write(fd_write, str, rc);
-  assert(rc != 0);
-}
-*/
-
 //////////////////////////////////
 /////////////////////////////////
 
@@ -842,7 +716,4 @@ void e2_send_control_failure(e2_agent_t* ag, const ric_control_failure_t* cf)
   e2ap_send_bytes_agent(&ag->ep, ba);
   free_byte_array(ba);
 }
-
-
-
 

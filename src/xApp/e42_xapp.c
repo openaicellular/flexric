@@ -31,8 +31,8 @@
 #include "pending_event_xapp.h"
 
 #include "../lib/pending_events.h"
-#include "../lib/ap/e2ap_ap.h"
-#include "../lib/ap/free/e2ap_msg_free.h"
+#include "../lib/e2ap/e2ap_ap_wrapper.h"
+#include "../lib/e2ap/e2ap_msg_free_wrapper.h"
 
 #include "../util/alg_ds/alg/alg.h"
 #include "../util/alg_ds/ds/seq_container/seq_generic.h"
@@ -46,7 +46,7 @@
 #include "../sm/slice_sm/slice_sm_id.h"
 #include "../sm/tc_sm/tc_sm_id.h"
 #include "../sm/gtp_sm/gtp_sm_id.h"
-#include "../sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../sm/rc_sm/rc_sm_id.h"
 
 #include "../../test/rnd/fill_rnd_data_rc.h"
@@ -194,7 +194,8 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 
   init_ap(&xapp->ap.base.type);
 
-  init_handle_msg_xapp(&xapp->handle_msg);
+  xapp->sz_handle_msg = sizeof(xapp->handle_msg)/sizeof(xapp->handle_msg[0]);;
+  init_handle_msg_xapp(xapp->sz_handle_msg, &xapp->handle_msg);
 
   sm_io_ag_ran_t io = init_io_ag_ran();
 
@@ -355,6 +356,7 @@ void send_subscription_request(e42_xapp_t* xapp, global_e2_node_id_t* id, ric_ge
 {
   assert(xapp != NULL);
   assert(id != NULL);
+  printf("E42_RIC_SUBSCRIPTION_REQUEST %d \n", E42_RIC_SUBSCRIPTION_REQUEST);
   assert(xapp->handle_msg[E42_RIC_SUBSCRIPTION_REQUEST]!= NULL);
 
   sm_ric_t* sm = sm_plugin_ric(&xapp->plugin_ric, ric_id.ran_func_id);
@@ -491,13 +493,14 @@ void send_control_request(e42_xapp_t* xapp, global_e2_node_id_t* id, ric_gen_id_
                                        .id = cp_global_e2_node_id(id),
                                        .ctrl_req = ctrl_req 
                                       };
-  defer({ e2ap_free_e42_ric_control_request(&e42_cr);};);
 
   e2ap_msg_t msg = {.type = E42_RIC_CONTROL_REQUEST,
                     .u_msgs.e42_ric_ctrl_req = e42_cr 
                     };
 
   xapp->handle_msg[E42_RIC_CONTROL_REQUEST](xapp, &msg);
+
+  e2ap_free_e42_ric_control_request(&e42_cr);
 }
 
 sm_ans_xapp_t control_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t ran_func_id, void* ctrl_msg)

@@ -9,6 +9,18 @@ else()
   message(FATAL_ERROR "Unknown type")
 endif()
 
+if(KPM_VERSION STREQUAL "KPM_V2")
+    set(KPM_VERSION_SRC
+            ../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie.c
+            )
+elseif(KPM_VERSION STREQUAL "KPM_V3")
+    set(KPM_VERSION_SRC
+            ../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+            )
+else()
+    message(FATAL_ERROR "Unknown KPM version")
+endif()
+
 if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
   set(XAPP_SRC
             e2ap_xapp.c
@@ -26,6 +38,7 @@ if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
             msg_dispatcher_xapp.c
             ../sm/agent_if/read/sm_ag_if_rd.c
 
+            $<TARGET_OBJECTS:e2_conv_obj>
             $<TARGET_OBJECTS:e2ap_ep_obj>
             $<TARGET_OBJECTS:e2ap_ap_obj>
             $<TARGET_OBJECTS:msg_hand_obj>
@@ -40,7 +53,7 @@ if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
             $<TARGET_OBJECTS:e42_xapp_db_obj>
 
             # KPM SM
-            ../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+            ${KPM_VERSION_SRC}
             ../../test/rnd/fill_rnd_data_kpm.c
             #$<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
             $<TARGET_OBJECTS:kpm_ric_info_common_obj>
@@ -51,6 +64,7 @@ if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
             ../../test/rnd/fill_rnd_data_rc.c
             $<TARGET_OBJECTS:e2sm_rc_ir_obj>
             $<TARGET_OBJECTS:e2sm_common_ie_obj>
+            $<TARGET_OBJECTS:3gpp_common_ie_obj>
             $<TARGET_OBJECTS:sm_common_ie_obj>
             $<TARGET_OBJECTS:3gpp_derived_ie_obj>
             $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
@@ -60,7 +74,7 @@ if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
             $<TARGET_OBJECTS:sm_common_ie_obj>
 
 
-      ../util/e2ap_ngran_type.c
+            ../util/e2ap_ngran_type.c
             ../sm/mac_sm/ie/mac_data_ie.c
             ../sm/rlc_sm/ie/rlc_data_ie.c
             ../sm/pdcp_sm/ie/pdcp_data_ie.c
@@ -84,6 +98,7 @@ else()
             act_proc.c
             msg_dispatcher_xapp.c
             ../sm/agent_if/read/sm_ag_if_rd.c
+            $<TARGET_OBJECTS:e2_conv_obj>
             $<TARGET_OBJECTS:e2ap_ep_obj>
             $<TARGET_OBJECTS:e2ap_ap_obj>
             $<TARGET_OBJECTS:msg_hand_obj>
@@ -97,7 +112,7 @@ else()
             $<TARGET_OBJECTS:pending_events_obj>
 
             # KPM SM
-            ../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
+            ${KPM_VERSION_SRC}
             ../../test/rnd/fill_rnd_data_kpm.c
             #$<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
             $<TARGET_OBJECTS:kpm_ric_info_common_obj>
@@ -108,6 +123,7 @@ else()
             ../../test/rnd/fill_rnd_data_rc.c
             $<TARGET_OBJECTS:e2sm_rc_ir_obj>
             $<TARGET_OBJECTS:e2sm_common_ie_obj>
+            $<TARGET_OBJECTS:3gpp_common_ie_obj>
             $<TARGET_OBJECTS:sm_common_ie_obj>
             $<TARGET_OBJECTS:3gpp_derived_ie_obj>
             $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
@@ -117,7 +133,7 @@ else()
             $<TARGET_OBJECTS:sm_common_ie_obj>
 
 
-      ../util/e2ap_ngran_type.c
+            ../util/e2ap_ngran_type.c
             ../sm/mac_sm/ie/mac_data_ie.c
             ../sm/rlc_sm/ie/rlc_data_ie.c
             ../sm/pdcp_sm/ie/pdcp_data_ie.c
@@ -137,13 +153,22 @@ if(E2AP_ENCODING STREQUAL "ASN")
 
           add_library(e42_xapp_shared SHARED # STATIC or SHARED
             ${XAPP_SRC}
-	          ../util/conversions.c
             $<TARGET_OBJECTS:e2ap_asn1_obj>
+            $<TARGET_OBJECTS:e2_conv_obj>
             )
           target_link_libraries(e42_xapp_shared $<TARGET_OBJECTS:e2_time_obj>)
 
 	 target_compile_options(e42_xapp_shared PRIVATE "-DASN_DISABLE_OER_SUPPORT" -fPIC)
-	 target_include_directories(e42_xapp_shared PRIVATE "../lib/ap/ie/asn")
+
+if(E2AP_VERSION STREQUAL "E2AP_V1")
+	target_include_directories(e42_xapp_shared PRIVATE "../lib/e2ap/v1_01/ie/asn")
+elseif(E2AP_VERSION STREQUAL "E2AP_V2")
+	target_include_directories(e42_xapp_shared PRIVATE "../lib/e2ap/v2_03/ie/asn")
+elseif(E2AP_VERSION STREQUAL "E2AP_V3")
+	target_include_directories(e42_xapp_shared PRIVATE "../lib/e2ap/v3_01/ie/asn")
+else()
+  message(FATAL_ERROR "E2AP unknown version")
+endif()
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
   add_library(e42_xapp ${XAPP_BLD_LIB} # STATIC or SHARED
@@ -157,8 +182,8 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
 
 endif()
 
-target_compile_definitions(e42_xapp PRIVATE ${E2AP_ENCODING} ${XAPP_DB} )
-target_compile_definitions(e42_xapp_shared PRIVATE ${E2AP_ENCODING} ${XAPP_DB} )
+target_compile_definitions(e42_xapp PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB}  ${KPM_VERSION})
+target_compile_definitions(e42_xapp_shared PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB}  ${KPM_VERSION})
 
 
 #string(TIMESTAMP NOW "%Y-%m-%dT%H:%M:%SZ")

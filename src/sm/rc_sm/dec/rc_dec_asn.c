@@ -181,8 +181,8 @@
 
 #include "../ie/asn/RANFunctionDefinition-Control-Action-Item.h"
 
-#include "../../../lib/sm/dec_asn_sm_common/dec_ue_id.h" 
-#include "../../../lib/sm/dec_asn_sm_common/dec_cell_global_id.h"
+#include "../../../lib/sm/dec/dec_ue_id.h" 
+#include "../../../lib/sm/dec/dec_cell_global_id.h"
 
 
 #include <string.h>

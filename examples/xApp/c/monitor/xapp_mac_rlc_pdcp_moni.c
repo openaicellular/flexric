@@ -37,7 +37,7 @@ void sm_cb_mac(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 
   int64_t now = time_now_us();
   printf("MAC ind_msg latency = %ld from E2-node type %d ID %d\n",
-         now - rd->ind.mac.msg.tstamp, e2_node->type, e2_node->nb_id);
+         now - rd->ind.mac.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
 }
 
 static
@@ -50,7 +50,7 @@ void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 
   int64_t now = time_now_us();
   printf("RLC ind_msg latency = %ld from E2-node type %d ID %d\n",
-         now - rd->ind.rlc.msg.tstamp, e2_node->type, e2_node->nb_id);
+         now - rd->ind.rlc.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
 }
 
 static
@@ -63,7 +63,7 @@ void sm_cb_pdcp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 
   int64_t now = time_now_us();
   printf("PDCP ind_msg latency = %ld from E2-node type %d ID %d\n",
-         now - rd->ind.pdcp.msg.tstamp, e2_node->type, e2_node->nb_id);
+         now - rd->ind.pdcp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
 }
 
 int main(int argc, char *argv[])

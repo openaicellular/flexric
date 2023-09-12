@@ -5,7 +5,7 @@
 
 #include "e2_node.h"
 
-#include "../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "../lib/e2ap/e2ap_global_node_id_wrapper.h"
 #include "../util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "../util/alg_ds/alg/alg.h"
 

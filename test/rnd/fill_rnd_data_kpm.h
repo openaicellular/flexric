@@ -22,7 +22,7 @@
 #ifndef FILL_RND_DATA_KPM_V3_H
 #define FILL_RND_DATA_KPM_V3_H
 
-#include "../../src/sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
+#include "../../src/sm/kpm_sm/kpm_data_ie_wrapper.h"
 
 kpm_event_trigger_def_t fill_kpm_event_trigger_def(void);
   

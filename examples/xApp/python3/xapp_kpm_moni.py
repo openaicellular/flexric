@@ -38,7 +38,7 @@ class KPMCallback(ric.kpm_cb):
                   f"measName = {measName}, "
                   f"measRecord = {measRecord}, "
                   f"meas_recordtype = {meas_recordtype}, "
-                  f"from E2 node type = {ind.id.type} nb_id = {ind.id.nb_id}")
+                  f"from E2 node type = {ind.id.type} nb_id = {ind.id.nb_id.nb_id}")
 
 
 ####################

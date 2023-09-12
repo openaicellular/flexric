@@ -6,7 +6,6 @@ set(SM_ENCODING_RC_SRC
   rc_sm_agent.c 
   rc_sm_ric.c 
   ../../util/byte_array.c 
-  ../../util/conversions.c
   ../../util/alg_ds/alg/defer.c 
   ../../util/alg_ds/alg/eq_float.c 
   ../../util/alg_ds/ds/seq_container/seq_arr.c 
@@ -24,13 +23,15 @@ elseif(SM_ENCODING_RC STREQUAL "ASN" )
   add_subdirectory(ie/ir)
 
   set(SM_ENCODING_RC_SRC_ASN
-    # This dependency sucks!
-    ../../lib/ap/e2ap_types/common/e2ap_ran_function.c
     ${SM_ENCODING_RC_SRC}
     enc/rc_enc_asn.c 
     dec/rc_dec_asn.c 
+    # This dependency sucks!
+    $<TARGET_OBJECTS:e2ap_ran_func_obj>
     $<TARGET_OBJECTS:e2sm_rc_asn1_obj>
     $<TARGET_OBJECTS:e2sm_rc_ir_obj>
+    $<TARGET_OBJECTS:e2_conv_obj>
+
     $<TARGET_OBJECTS:3gpp_derived_ie_obj>
     $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
     $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
@@ -69,6 +70,6 @@ else()
   message(FATAL_ERROR "Unknown SM encoding type ")
 endif()
 
-target_compile_definitions(rc_sm PUBLIC ${SM_ENCODING_RC})
-target_compile_definitions(rc_sm_static PUBLIC ${SM_ENCODING_RC})
+target_compile_definitions(rc_sm PUBLIC ${SM_ENCODING_RC} ${E2AP_VERSION} ${KPM_VERSION}  )
+target_compile_definitions(rc_sm_static PUBLIC ${SM_ENCODING_RC} ${E2AP_VERSION} ${KPM_VERSION}   )
 

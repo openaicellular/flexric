@@ -374,7 +374,6 @@ char* get_near_ric_ip(fr_args_t const* args)
     return strdup(args->ip);
 
   char* line = NULL;
-  defer({free(line);});
   size_t len = 0;
   ssize_t read;
 
@@ -385,7 +384,7 @@ char* get_near_ric_ip(fr_args_t const* args)
     exit(EXIT_FAILURE);
   }
   
-  defer({fclose(fp); } );
+ // defer({fclose(fp); } );
   
   char ip_addr[24] = {0};
   while ((read = getline(&line, &len, fp)) != -1) {
@@ -405,7 +404,9 @@ char* get_near_ric_ip(fr_args_t const* args)
     printf("IP address string invalid = %s Check the config file\n",ip_addr);
     exit(EXIT_FAILURE);
   }
-  
+ 
+  free(line);
+  fclose(fp); 
   return strdup(ip_addr);
 }
 

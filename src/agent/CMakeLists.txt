@@ -6,7 +6,6 @@ else()
   message(FATAL_ERROR "Unknown type")
 endif()
 
-
 set(E2_AGENT_SRC 
             asio_agent.c
             e2ap_agent.c
@@ -17,10 +16,12 @@ set(E2_AGENT_SRC
             e2_agent_api.c
             plugin_agent.c
             not_handler_agent.c
+            gen_msg_agent.c
             ../sm/sm_proc_data.c
             $<TARGET_OBJECTS:e2ap_ap_obj>
             $<TARGET_OBJECTS:e2ap_ep_obj>
             $<TARGET_OBJECTS:e2ap_ds_obj>
+            $<TARGET_OBJECTS:e2_conv_obj>
             $<TARGET_OBJECTS:e2ap_alg_obj>
             $<TARGET_OBJECTS:e2_conf_obj>
             $<TARGET_OBJECTS:pending_events_obj>
@@ -29,11 +30,17 @@ set(E2_AGENT_SRC
             $<TARGET_OBJECTS:e2ap_msg_dec_obj>
             $<TARGET_OBJECTS:e2ap_msg_free_obj>
             $<TARGET_OBJECTS:e2_ngran_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
+            $<TARGET_OBJECTS:sm_common_ie_obj>
+            $<TARGET_OBJECTS:sm_common_dec_asn_obj>
+            $<TARGET_OBJECTS:sm_common_enc_asn_obj>
+            $<TARGET_OBJECTS:e2sm_common_ie_obj>
   )
 
 if(E2AP_ENCODING STREQUAL "ASN")
 
-  #    add_library(e2_agent ${E2_AGENT_BLD_LIB} #STATIC or SHARED
   add_library(e2_agent STATIC  #STATIC or SHARED
             ${E2_AGENT_SRC}
             $<TARGET_OBJECTS:e2ap_ie_obj>
@@ -44,11 +51,7 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS")
           add_library(e2_agent ${E2_AGENT_BLD_LIB} #STATIC or SHARED
             ${E2_AGENT_SRC}
            )
-
           #bundle_static_library(e2_agent libflatccrt_d.a)
-
-
-
 else()
   message(FATAL_ERROR "Error, while compiling the agent" )
 endif()
@@ -69,5 +72,5 @@ if(${BUILDING_LIBRARY} STREQUAL "DYNAMIC" )
 
 endif()
 
-target_compile_definitions(e2_agent PRIVATE ${E2AP_ENCODING})
+target_compile_definitions(e2_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION} )
 

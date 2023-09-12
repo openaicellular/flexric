@@ -1,7 +1,7 @@
 #ifndef E2SM_RC_CTRL_HDR_FRMT_1_E2SM_RC_H
 #define E2SM_RC_CTRL_HDR_FRMT_1_E2SM_RC_H
 
-#include "../../../../lib/sm/sm_common_ie/ue_id.h"
+#include "../../../../lib/sm/ie/ue_id.h"
 
 typedef enum{
   ACCEPT_RIC_CTRL_DECISION , 

@@ -84,12 +84,19 @@ e2_nodes_api_t e2_nodes_near_ric_api(void)
 
   seq_arr_t arr = conn_e2_nodes(ric); 
 
-  e2_nodes_api_t ans = {.len = seq_size(&arr)};  
+  size_t const sz = seq_size(&arr);
+  e2_nodes_api_t ans = {.len = sz};  
 
  if(ans.len > 0){
   ans.n = calloc(ans.len, sizeof(e2_node_t)); 
   assert(ans.n != NULL && "Memory exhausted");
  }
+/*
+ for(size_t i = 0; i < sz; ++i){
+    e2_node_t* n = (e2_node_t*)seq_at(&arr, i);  
+    ans.n[i] = cp_e2_node(n);
+ }
+*/
 
  void* it = seq_front(&arr);
  void* end = seq_end(&arr);
@@ -102,6 +109,7 @@ e2_nodes_api_t e2_nodes_near_ric_api(void)
   it = seq_next(&arr, it);
  }
 
+ 
   seq_free(&arr, NULL);
   return ans;
 }

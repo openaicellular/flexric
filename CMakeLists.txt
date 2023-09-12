@@ -4,6 +4,38 @@ project(Flexric VERSION 0.0.1 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 11)
 
+###
+### Reduce compile time
+###
+
+# use ccache if available
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  message(STATUS "Found ccache in ${CCACHE_PROGRAM}")
+  set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+else()
+  message(STATUS "Ccache not found, please consider installing it for faster compilation running the command: sudo apt install -y ccache")
+endif()
+
+#Unity build
+set(UNITY_BUILD ON)
+set(UNITY_BUILD_BATCH_SIZE 10)
+# cmake -GNinja -DCMAKE_UNITY_BUILD=ON -DCMAKE_CXX_COMPILER=clang++-DCMAKE_CXX_FLAGS="-fuse-ld=lld -ftime-trace"
+
+SET(CMAKE_EXPORT_COMPILE_COMMANDS ON )
+# For YouCompleteMe configuration
+file(CREATE_LINK
+  "${CMAKE_BINARY_DIR}/compile_commands.json"
+  "${CMAKE_SOURCE_DIR}/compile_commands.json"
+  SYMBOLIC
+)
+
+###
+### Scan build
+###
+# mkdir build && cd build && scan-build cmake .. && scan-build make -j8 && scan-view /tmp/scan-buildXXXXX-1
+
 set(default_build_type "Debug")
 
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
@@ -15,37 +47,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
-set(COMPILER "GCC" CACHE STRING "Compiler selection")
-set_property(CACHE COMPILER PROPERTY STRINGS "GCC" "CLANG")
-
-if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
-  # using Clang
-  add_compile_options("-fblocks;")
-  add_link_options("-lBlocksRuntime;")
-  #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  # using GCC
-  #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-  # using Intel C++
-  #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  # using Visual Studio C++
-endif()
-
-set(BUILDING_LIBRARY "STATIC" CACHE STRING "Static or dynamic library")
-set_property(CACHE BUILDING_LIBRARY PROPERTY STRINGS "STATIC" "DYNAMIC")
-message(STATUS "Selected LIBRARY TYPE: ${BUILDING_LIBRARY}")
-
+#set(COMPILER "GCC" CACHE STRING "Compiler selection")
+#set_property(CACHE COMPILER PROPERTY STRINGS "GCC" "CLANG")
 
 ########
-### xApp 
+### SANITIZER
 ########
 
-set(XAPP_DB "MYSQL_XAPP" CACHE STRING "xApp DB")
-set_property(CACHE XAPP_DB PROPERTY STRINGS "MYSQL_XAPP" "SQLITE3_XAPP" "NONE_XAPP")
-message(STATUS "Selected xApp DB : ${XAPP_DB}")
-
-########
-### SANITIZER 
-########
+#https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110157
 
 set(SANITIZER "NONE" CACHE STRING "Sanitizers")
 set_property(CACHE SANITIZER PROPERTY STRINGS "NONE" "ADDRESS" "THREAD")
@@ -61,6 +70,68 @@ elseif(${SANITIZER} STREQUAL "STACK")
   add_compile_options("-fstack-protector-all")
   add_link_options("-fstack-protector-all")
 endif()
+
+
+########
+### Compiler
+########
+
+if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
+  # using Clang
+  add_compile_options("-fblocks;")
+  add_link_options("-lBlocksRuntime;")
+
+  if(${SANITIZER} STREQUAL "ADDRESS")
+    message(FATAL_ERROR "ASan not supported by CLANG as FlexRIC uses blocks e.g., defer. Use gcc or unselect the sanitizer")
+  endif()
+
+  # using GCC
+elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+  # sudo update-alternatives --config gcc
+  if(CMAKE_C_COMPILER_VERSION STREQUAL "11.3.0")
+    message(FATAL_ERROR "Due to bug in gcc 11.3.0 when implementing C11 _Generics, it does not compile FlexRIC.
+    Alternatively use gcc-10, gcc-12 or gcc-13 e.g., sudo update-alternatives --config gcc ")
+  elseif(${SANITIZER} STREQUAL "ADDRESS")
+    if(NOT CMAKE_C_COMPILER_VERSION STREQUAL "10.4.0")
+      message(FATAL_ERROR "ASan not supported by newer versions of gcc when using nested functions needed e.g., defer.
+      Change the compiler to gcc-10 using e.g., sudo update-alternatives --config gcc")
+    endif()
+  endif()
+
+  #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+  # using Intel C++
+  #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # using Visual Studio C++
+endif()
+
+set(BUILDING_LIBRARY "STATIC" CACHE STRING "Static or dynamic library")
+set_property(CACHE BUILDING_LIBRARY PROPERTY STRINGS "STATIC" "DYNAMIC")
+message(STATUS "Selected LIBRARY TYPE: ${BUILDING_LIBRARY}")
+
+########
+### CppCheck
+#######
+option(CPP_CHECK "CppCheck" OFF)
+if(CPP_CHECK)
+  set(CMAKE_C_CPPCHECK "cppcheck")
+endif()
+
+########
+### Clang Tidy
+#######
+option(Clang_Tidy "Clang Tidy" OFF)
+if(Clang_Tidy)
+  set(CMAKE_C_CLANG_TIDY clang-tidy -checks=-*,readability-*)
+endif()
+
+########
+### xApp 
+########
+
+set(XAPP_DB "MYSQL_XAPP" CACHE STRING "xApp DB")
+set_property(CACHE XAPP_DB PROPERTY STRINGS "MYSQL_XAPP" "SQLITE3_XAPP" "NONE_XAPP")
+message(STATUS "Selected xApp DB : ${XAPP_DB}")
+
 
 option(CODE_COVERAGE "Code coverage" OFF)
 if(CODE_COVERAGE)
@@ -93,7 +164,7 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(BUILDING_LIBRARY STREQUAL "STATIC")
-  add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;") #-fopt-info
+  add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-Warray-bounds;-Wempty-body;") #-fopt-info
 elseif(BUILDING_LIBRARY STREQUAL "DYNAMIC")
   # -fPIC flag
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -103,10 +174,42 @@ else()
 endif()
 
 
+#######
+## E2AP encoding and versioning
+#######
+
 set(E2AP_ENCODING "ASN" CACHE STRING "The E2AP encoding to use")
 set_property(CACHE E2AP_ENCODING PROPERTY STRINGS "ASN" "FLATBUFFERS")
 message(STATUS "Selected E2AP_ENCODING: ${E2AP_ENCODING}")
 
+set(E2AP_VERSION "E2AP_V2" CACHE STRING "E2AP version")
+set_property(CACHE E2AP_VERSION PROPERTY STRINGS "E2AP_V1" "E2AP_V2" "E2AP_V3")
+message(STATUS "Selected E2AP_VERSION: ${E2AP_VERSION}")
+
+if(E2AP_VERSION STREQUAL "E2AP_V1")
+  add_library(e2ap_ran_func_obj OBJECT
+              src/lib/e2ap/v1_01/e2ap_types/common/e2ap_ran_function.c )
+  add_library(e2ap_plmn_obj OBJECT
+              src/lib/e2ap/v1_01/e2ap_types/common/e2ap_plmn.c )
+  add_library(e2ap_global_node_id_obj OBJECT
+              src/lib/e2ap/v1_01/e2ap_types/common/e2ap_global_node_id.c )
+elseif(E2AP_VERSION STREQUAL "E2AP_V2")
+  add_library(e2ap_ran_func_obj OBJECT
+              src/lib/e2ap/v2_03/e2ap_types/common/e2ap_ran_function.c )
+  add_library(e2ap_plmn_obj OBJECT
+              src/lib/e2ap/v2_03/e2ap_types/common/e2ap_plmn.c )
+  add_library(e2ap_global_node_id_obj OBJECT
+              src/lib/e2ap/v2_03/e2ap_types/common/e2ap_global_node_id.c )
+elseif(E2AP_VERSION STREQUAL "E2AP_V3")
+  add_library(e2ap_ran_func_obj OBJECT
+              src/lib/e2ap/v3_01/e2ap_types/common/e2ap_ran_function.c )
+  add_library(e2ap_plmn_obj OBJECT
+              src/lib/e2ap/v3_01/e2ap_types/common/e2ap_plmn.c )
+  add_library(e2ap_global_node_id_obj OBJECT
+              src/lib/e2ap/v3_01/e2ap_types/common/e2ap_global_node_id.c )
+else()
+  message(FATAL_ERROR "E2AP Unknown version selected")
+endif()
 
 #######
 ## Service Models 
@@ -118,6 +221,10 @@ add_definitions(-DSERVICE_MODEL_DIR_PATH="${SM_DIR_PATH}/")
 set(SM_ENCODING_KPM "ASN" CACHE STRING "The KPM SM encoding to use")
 set_property(CACHE SM_ENCODING_KPM PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
 message(STATUS "Selected KPM SM_ENCODING: ${SM_ENCODING_KPM}")
+
+set(KPM_VERSION "KPM_V2" CACHE STRING "The KPM SM version to use")
+set_property(CACHE KPM_VERSION PROPERTY STRINGS "KPM_V2" "KPM_V3")
+message(STATUS "Selected KPM Version: ${KPM_VERSION}")
 
 # RC service Model encoding definitions
 set(SM_ENCODING_RC "ASN" CACHE STRING "The RC SM encoding to use")
@@ -185,15 +292,6 @@ add_subdirectory(test)
 
 # Build SWIG interface
 #add_subdirectory(src/xApp/swig)
-
-SET(CMAKE_EXPORT_COMPILE_COMMANDS ON )
-# For YouCompleteMe configuration
-IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
-  EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
-  )
-ENDIF()
 
 
 ###

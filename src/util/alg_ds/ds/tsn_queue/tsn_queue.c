@@ -89,7 +89,7 @@ void* wait_and_pop_tsnq(tsnq_t* q, void* (*f)(void*) )
   pthread_mutex_lock(&q->mtx);
 
   int rc = 0;
-  while(seq_size(&q->r) == 0 && rc == 0 && q->stop_token == false) {
+  while((seq_size(&q->r) == 0) && rc == 0 && q->stop_token == false) {
     rc = pthread_cond_wait(&q->cv, &q->mtx);
   }
 

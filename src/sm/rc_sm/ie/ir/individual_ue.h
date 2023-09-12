@@ -2,7 +2,7 @@
 #define INDIVIDUAL_UE_E2RC_H
 
 #include "ran_param.h"
-#include "../../../../lib/sm/sm_common_ie/ue_id.h"
+#include "../../../../lib/sm/ie/ue_id.h"
 
 
 typedef struct{

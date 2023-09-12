@@ -23,9 +23,9 @@
 #ifndef E42_IAPP_API_H
 #define E42_IAPP_API_H 
 
-#include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
-#include "../../lib/ap/e2ap_types/common/e2ap_ran_function.h"
-#include "../../lib/ap/type_defs.h"    
+#include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"
+#include "../../lib/e2ap/e2ap_ran_function_wrapper.h"
+#include "../../lib/e2ap/type_defs_wrapper.h"    
 #include "near_ric_if.h"
 
 #include <stdint.h>

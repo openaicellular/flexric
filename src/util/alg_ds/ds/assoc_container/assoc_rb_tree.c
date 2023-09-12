@@ -418,8 +418,8 @@ void* assoc_rb_tree_extract(assoc_rb_tree_t* tree, void* key)
   assert(z_node != tree->dummy && "Trying to extract a key not found in the tree" );
   
   assoc_color_e original_color = z_node->color;
-  assoc_node_t* x_node = z_node;
-  assoc_node_t* y_node = z_node;
+  assoc_node_t* x_node = NULL; //z_node;
+  assoc_node_t* y_node = NULL; //z_node;
   if(z_node->left == tree->dummy){
     x_node = z_node->right;
     transplant(tree, z_node, z_node->right);

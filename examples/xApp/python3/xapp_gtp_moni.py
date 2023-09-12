@@ -19,7 +19,7 @@ class GTPCallback(ric.gtp_cb):
             t_now = time.time_ns() / 1000.0
             t_gtp = ind.tstamp / 1.0
             t_diff = t_now - t_gtp
-            print(f"GTP Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id}")
+            print(f"GTP Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id.nb_id}")
 
 ####################
 ####  GENERAL 

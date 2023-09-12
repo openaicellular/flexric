@@ -512,7 +512,7 @@ int to_mysql_string_mac_ue(global_e2_node_id_t const* id, mac_ue_stats_impl_t* s
                               id->plmn.mcc,
                               id->plmn.mnc,
                               id->plmn.mnc_digit_len,
-                              id->nb_id,
+                              id->nb_id.nb_id,
                               id->cu_du_id ? c_cu_du_id : c_null,
                               stats->frame,
                               stats->slot,
@@ -624,7 +624,7 @@ int to_mysql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_
                                     id->plmn.mcc,
                                     id->plmn.mnc,
                                     id->plmn.mnc_digit_len,
-                                    id->nb_id,
+                                    id->nb_id.nb_id,
                                     id->cu_du_id ? c_cu_du_id : c_null,
                                     rlc->txpdu_pkts,
                                     rlc->txpdu_bytes,
@@ -714,7 +714,7 @@ int to_mysql_string_pdcp_rb(global_e2_node_id_t const* id, pdcp_radio_bearer_sta
                     id->plmn.mcc,
                     id->plmn.mnc,
                     id->plmn.mnc_digit_len,
-                    id->nb_id,
+                    id->nb_id.nb_id,
                     id->cu_du_id ? c_cu_du_id : c_null,
                     pdcp->txpdu_pkts,
                     pdcp->txpdu_bytes,
@@ -779,7 +779,7 @@ int to_mysql_string_slice_rb(global_e2_node_id_t const* id, ul_dl_slice_conf_t c
                   "%.2f,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u2.mbps_reference/edf.guaranteed_prbs
                   "%.2f"  // dl->slice[i]->params.u.edf.max_replenish
                   ")",
-                  tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                  tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id.nb_id,
                   id->cu_du_id ? c_cu_du_id : c_null,
                   0, sched_name, 0, c_null, c_null, c_null, c_null, 0.00, 0.00, 0.00);
     assert(rc < (int)max && "Not enough space in the char array to write all the data");
@@ -818,7 +818,7 @@ int to_mysql_string_slice_rb(global_e2_node_id_t const* id, ul_dl_slice_conf_t c
                   "%d,"    // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u2.mbps_reference/edf.guaranteed_prbs
                   "%.2f"  // dl->slice[i]->params.u.edf.max_replenish
                   ")"
-                  ,tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                  ,tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id.nb_id,
                   id->cu_du_id ? c_cu_du_id : c_null,
                   slices->len_slices, c_null,
                   s->id, label, params_type, c_null, sched,
@@ -847,7 +847,7 @@ int to_mysql_string_slice_rb(global_e2_node_id_t const* id, ul_dl_slice_conf_t c
                     "%.2f,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u2.mbps_reference/edf.guaranteed_prbs
                     "%.2f"  // dl->slice[i]->params.u.edf.max_replenish
                     ")",
-                    tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                    tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id.nb_id,
                     id->cu_du_id ? c_cu_du_id : c_null,
                     slices->len_slices, c_null,
                     s->id, label, params_type, params_type_conf, sched,
@@ -874,7 +874,7 @@ int to_mysql_string_slice_rb(global_e2_node_id_t const* id, ul_dl_slice_conf_t c
                     "%.2f,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u2.mbps_reference/edf.guaranteed_prbs
                     "%.2f"  // dl->slice[i]->params.u.edf.max_replenish
                     ")",
-                    tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                    tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id.nb_id,
                     id->cu_du_id ? c_cu_du_id : c_null,
                     slices->len_slices, c_null,
                     s->id, label, params_type, params_type_conf, sched,
@@ -902,7 +902,7 @@ int to_mysql_string_slice_rb(global_e2_node_id_t const* id, ul_dl_slice_conf_t c
                   "%d,"  // dl->slice[i]->params.u.sta.pos_high/nvs.u.rate.u2.mbps_reference/edf.guaranteed_prbs
                   "%d"  // dl->slice[i]->params.u.edf.max_replenish
                   ")",
-                  tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                  tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id.nb_id,
                   id->cu_du_id ? c_cu_du_id : c_null,
                   slices->len_slices, c_null,
                   s->id, label, params_type, c_null, sched,
@@ -944,7 +944,7 @@ int to_mysql_string_ue_slice_rb(global_e2_node_id_t const* id, ue_slice_conf_t c
                   "%d,"    // ues[i]->rnti
                   "%d"     // ues[i]->dl_id
                   ")",
-                  tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                  tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id.nb_id,
                   id->cu_du_id ? c_cu_du_id : c_null,
                   ues->len_ue_slice, -1, -1);
     assert(rc < (int)max && "Not enough space in the char array to write all the data");
@@ -964,7 +964,7 @@ int to_mysql_string_ue_slice_rb(global_e2_node_id_t const* id, ue_slice_conf_t c
                 "%d,"    // ues[i]->rnti
                 "%d"     // ues[i]->dl_id
                 ")",
-                tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id,
+                tstamp, id->type, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len, id->nb_id.nb_id,
                 id->cu_du_id ? c_cu_du_id : c_null,
                 ues->len_ue_slice, u->rnti, u->dl_id);
   assert(rc < (int)max && "Not enough space in the char array to write all the data");
@@ -1005,7 +1005,7 @@ int to_mysql_string_gtp_NGUT(global_e2_node_id_t const* id,gtp_ngu_t_stats_t* gt
                           id->plmn.mcc,
                           id->plmn.mnc,
                           id->plmn.mnc_digit_len,
-                          id->nb_id,
+                          id->nb_id.nb_id,
                           id->cu_du_id ? c_cu_du_id : c_null,
                           gtp->teidgnb,
                           gtp->rnti,
@@ -1085,7 +1085,7 @@ void to_mysql_string_kpm_meas_data(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
@@ -1132,7 +1132,7 @@ void to_mysql_string_kpm_meas_data(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
@@ -1179,7 +1179,7 @@ void to_mysql_string_kpm_meas_data(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
@@ -1270,7 +1270,7 @@ void to_mysql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_info_len
@@ -1357,7 +1357,7 @@ void to_mysql_string_kpm_meas_info(global_e2_node_id_t const* id,
             ,id->plmn.mcc
             ,id->plmn.mnc
             ,id->plmn.mnc_digit_len
-            ,id->nb_id
+            ,id->nb_id.nb_id
             ,id->cu_du_id ? c_cu_du_id : c_null
             ,ric_ind_frmt + 1
             ,sql_str_kpm.meas_info_len
@@ -1447,7 +1447,7 @@ void to_mysql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_info_len
@@ -1565,7 +1565,7 @@ void to_mysql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
@@ -1618,7 +1618,7 @@ void to_mysql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
@@ -1705,7 +1705,7 @@ void to_mysql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,"GNB_UE_ID_E2SM"
@@ -1769,7 +1769,7 @@ void to_mysql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             ,id->plmn.mcc
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
-                            ,id->nb_id
+                            ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
                             ,ric_ind_frmt + 1
                             ,"ENB_UE_ID_E2SM"

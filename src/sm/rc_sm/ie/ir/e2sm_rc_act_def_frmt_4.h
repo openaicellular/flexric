@@ -1,7 +1,7 @@
 #ifndef E2SM_RAN_CONTROL_ACTION_DEFINITION_FORMAT_4
 #define E2SM_RAN_CONTROL_ACTION_DEFINITION_FORMAT_4
 
-#include "../../../../lib/sm/sm_common_ie/ue_id.h"
+#include "../../../../lib/sm/ie/ue_id.h"
 #include "seq_ins_style_multiple_action.h"
 
 #include <stdbool.h>

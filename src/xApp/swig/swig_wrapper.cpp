@@ -11,11 +11,7 @@
 #include "../../sm/rlc_sm/rlc_sm_id.h"
 #include "../../sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../sm/gtp_sm/gtp_sm_id.h"
-
 #include "../../sm/slice_sm/slice_sm_id.h"
-
-#include "../../sm/kpm_sm_v03.00/kpm_sm_id.h"
-
 #include "../../util/conf_file.h"
 
 
@@ -47,9 +43,6 @@ const char* convert_period(Interval  inter_arg)
   }
 
 }
-
-
-
 
 void init(std::vector<std::string>& argv)
 {
@@ -95,7 +88,6 @@ bool try_stop()
 std::vector<E2Node> conn_e2_nodes(void)
 {
   e2_node_arr_t arr = e2_nodes_xapp_api();
-   
 
   std::vector<E2Node> x;
 
@@ -127,7 +119,7 @@ std::vector<E2Node> conn_e2_nodes(void)
 
       tmp_ran.id = rf.id;
       tmp_ran.rev = rf.rev;
-      tmp_ran.def = rf.definition;
+      tmp_ran.def = rf.def;
       // TODO: oid
 
       ran_func.push_back(tmp_ran);// [j] = rf;
@@ -161,7 +153,8 @@ void sm_cb_mac(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   ind.id.plmn.mcc = e2_node->plmn.mcc;
   ind.id.plmn.mnc = e2_node->plmn.mnc;
   ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
-  ind.id.nb_id = e2_node->nb_id;
+  ind.id.nb_id.nb_id = e2_node->nb_id.nb_id;
+  ind.id.nb_id.unused = e2_node->nb_id.unused;
   size_t cuduid_idx = 0;
   if (e2_node->cu_du_id) {
     while (e2_node->cu_du_id[cuduid_idx]) {
@@ -248,7 +241,8 @@ void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   ind.id.plmn.mcc = e2_node->plmn.mcc;
   ind.id.plmn.mnc = e2_node->plmn.mnc;
   ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
-  ind.id.nb_id = e2_node->nb_id;
+  ind.id.nb_id.nb_id = e2_node->nb_id.nb_id;
+  ind.id.nb_id.unused = e2_node->nb_id.unused;
   size_t cuduid_idx = 0;
   if (e2_node->cu_du_id) {
     while (e2_node->cu_du_id[cuduid_idx]) {
@@ -333,7 +327,8 @@ void sm_cb_pdcp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   ind.id.plmn.mcc = e2_node->plmn.mcc;
   ind.id.plmn.mnc = e2_node->plmn.mnc;
   ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
-  ind.id.nb_id = e2_node->nb_id;
+  ind.id.nb_id.nb_id = e2_node->nb_id.nb_id;
+  ind.id.nb_id.unused = e2_node->nb_id.unused;
   size_t cuduid_idx = 0;
   if (e2_node->cu_du_id) {
     while (e2_node->cu_du_id[cuduid_idx]) {
@@ -415,7 +410,8 @@ void sm_cb_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   ind.id.plmn.mcc = e2_node->plmn.mcc;
   ind.id.plmn.mnc = e2_node->plmn.mnc;
   ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
-  ind.id.nb_id = e2_node->nb_id;
+  ind.id.nb_id.nb_id = e2_node->nb_id.nb_id;
+  ind.id.nb_id.unused = e2_node->nb_id.unused;
   size_t cuduid_idx = 0;
   if (e2_node->cu_du_id) {
     while (e2_node->cu_du_id[cuduid_idx]) {

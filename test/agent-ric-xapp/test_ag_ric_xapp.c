@@ -24,7 +24,7 @@
 #include "../../src/xApp/e42_xapp_api.h"
 #include "../../src/sm/slice_sm/slice_sm_id.h"
 #include "../../src/sm/gtp_sm/gtp_sm_id.h"
-#include "../../src/sm/kpm_sm_v03.00/kpm_sm_id.h"
+#include "../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../../src/sm/rc_sm/rc_sm_id.h"
 #include "../../src/util/alg_ds/alg/defer.h"
 #include "../../src/util/time_now_us.h"
@@ -38,6 +38,7 @@
 #include "../rnd/fill_rnd_data_tc.h"
 #include "../rnd/fill_rnd_data_kpm.h"
 #include "../rnd/fill_rnd_data_slice.h"
+#include "../rnd/fill_rnd_data_e2_setup_req.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -60,6 +61,15 @@ void read_e2_setup_rc(void* data)
   rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
   rc->ran_func_def = fill_rc_ran_func_def();
 }
+
+#if defined(E2AP_V2) || defined(E2AP_V3)
+static
+void read_e2_setup_ran(void* data)
+{
+  assert(data != NULL);
+  *(e2ap_node_component_config_add_t*)data = fill_e2ap_node_component_config_add();
+}
+#endif
 
 static
 void read_ind_mac(void* ind)
@@ -383,7 +393,7 @@ void sm_cb_mac(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 
   int64_t now = time_now_us();
   printf("MAC ind_msg latency = %ld μs from E2-node type %d ID %d\n",
-         now - rd->ind.mac.msg.tstamp, id->type, id->nb_id);
+         now - rd->ind.mac.msg.tstamp, id->type, id->nb_id.nb_id);
 }
 
 static
@@ -396,7 +406,7 @@ void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
   int64_t now = time_now_us();
 
   printf("RLC ind_msg latency = %ld μs from E2-node type %d ID %d\n",
-         now - rd->ind.rlc.msg.tstamp, id->type, id->nb_id);
+         now - rd->ind.rlc.msg.tstamp, id->type, id->nb_id.nb_id);
 }
 
 //void sm_cb_pdcp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
@@ -407,7 +417,7 @@ void sm_cb_rlc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 //
 //  int64_t now = time_now_us();
 //
-//  printf("PDCP ind_msg latency = %ld μs from nb_id %d\n", now - rd->ind.pdcp.msg.tstamp, id->nb_id);
+//  printf("PDCP ind_msg latency = %ld μs from nb_id %d\n", now - rd->ind.pdcp.msg.tstamp, id->nb_id.nb_id);
 //}
 
 static
@@ -419,7 +429,7 @@ void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 
   int64_t now = time_now_us();
   printf("GTP ind_msg latency = %ld μs from E2-node type %d ID %d\n",
-         now - rd->ind.gtp.msg.tstamp, id->type, id->nb_id);
+         now - rd->ind.gtp.msg.tstamp, id->type, id->nb_id.nb_id);
 }
 //
 //static
@@ -430,7 +440,7 @@ void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 //  assert(rd->ind.type == SLCIE_STATS_V3_0);
 //
 //  int64_t now = time_now_us();
-//  printf("SLICE ind_msg latency = %ld μs from nb_id %d\n", now - rd->ind.slice.msg.tstamp, id->nb_id);
+//  printf("SLICE ind_msg latency = %ld μs from nb_id %d\n", now - rd->ind.slice.msg.tstamp, id->nb_id.nb_id);
 //}
 
 static
@@ -444,7 +454,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 
   int64_t now = time_now_us();
   printf("KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
-         now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime, id->type, id->nb_id);
+         now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime, id->type, id->nb_id.nb_id);
 }
 
 static
@@ -456,7 +466,7 @@ void sm_cb_rc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
 
   rc_rd_ind_data_t const* rc = &rd->ind.rc;
   (void)rc;
-  printf("RAN Control Indication data arrived from E2-node type %d ID %d\n", id->type, id->nb_id);
+  printf("RAN Control Indication data arrived from E2-node type %d ID %d\n", id->type, id->nb_id.nb_id);
 }
 
 
@@ -494,7 +504,7 @@ sm_ag_if_wr_t create_assoc_slice(void)
   ctrl_msg.ctrl.type = SLICE_CTRL_REQ_V0;
   ctrl_msg.ctrl.slice_req_ctrl.hdr.dummy = 2;
   slice_ctrl_msg_t* sl_ctrl_msg = &ctrl_msg.ctrl.slice_req_ctrl.msg;
- 
+
   sl_ctrl_msg->type = SLICE_CTRL_SM_V0_UE_SLICE_ASSOC;
 
   ue_slice_conf_t* ue_slice = &sl_ctrl_msg->u.ue_slice;
@@ -529,6 +539,11 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
   //  READ: E2 Setup
   dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
   dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_rc;
+
+  //  READ: E2 Setup RAN
+#if defined(E2AP_V2) || defined(E2AP_V3)
+  dst.read_setup_ran = read_e2_setup_ran;
+#endif
 
   // WRITE: CONTROL
   dst.write_ctrl_tbl[SLICE_CTRL_REQ_V0] = write_ctrl_slice;

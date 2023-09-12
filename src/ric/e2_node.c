@@ -31,7 +31,8 @@ void init_e2_node(e2_node_t* n, global_e2_node_id_t const* id, size_t len_acc, a
   assert(n != NULL);
   n->id.type = id->type;
   n->id.plmn = id->plmn;
-  n->id.nb_id = id->nb_id;
+  n->id.nb_id.nb_id = id->nb_id.nb_id;
+  n->id.nb_id.unused = id->nb_id.unused;
   if (id->cu_du_id) {
     n->id.cu_du_id = calloc(1, sizeof(uint64_t));
     assert(n->id.cu_du_id != NULL && "memory exhausted");

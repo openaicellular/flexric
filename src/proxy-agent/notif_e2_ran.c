@@ -10,8 +10,8 @@
 #include "notif_e2_ran.h"
 #include "lib/async_event.h"
 
-#include "lib/ap/e2ap_types/ric_control_ack.h"
-#include "lib/ap/free/e2ap_msg_free.h"
+#include "lib/e2ap/ric_control_ack_wrapper.h"
+#include "lib/e2ap/e2ap_msg_free_wrapper.h"
 #include "lib/correlation_events.h"
 #include "util/alg_ds/alg/defer.h"
 #include "util/alg_ds/ds/lock_guard/lock_guard.h"
@@ -80,6 +80,7 @@ ric_subscription_response_t generate_subscription_response(ric_gen_id_t const* r
 /* 
  * Creates the message `E2 setup request` from RAN
  */
+#ifdef E2AP_V1
 e2_setup_request_t 
 generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
 {
@@ -93,7 +94,7 @@ generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
   void* it = assoc_front(&ag->plugin.sm_ds);
   for(size_t i = 0; i < all_rf; ++i){
     sm_agent_t* sm = assoc_value( &ag->plugin.sm_ds, it);
-    if (is_sm_whitelisted(sm->ran_func_id))
+    if (is_sm_whitelisted(sm->info.id()))
       whitelisted_rf++;
     it = assoc_next(&ag->plugin.sm_ds, it);
   }
@@ -112,21 +113,26 @@ generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
   size_t whitelisted_idx = 0;
   for(size_t i = 0; i < all_rf; ++i){
     sm_agent_t* sm = assoc_value( &ag->plugin.sm_ds, it);
-    assert(sm->ran_func_id == *(uint16_t*)assoc_key(&ag->plugin.sm_ds, it) && "RAN function mismatch");
+    assert(sm->info.id() == *(uint16_t*)assoc_key(&ag->plugin.sm_ds, it) && "RAN function mismatch");
     
-    if (!is_sm_whitelisted(sm->ran_func_id))
+    if (!is_sm_whitelisted(sm->info.id()))
     {
       it = assoc_next(&ag->plugin.sm_ds, it);
       continue;
     }
 
     sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
-    assert(sm->ran_func_id == def.rf.id);
+    // Pass memory ownership
+    ran_func[whitelisted_idx].def.len = def.len_rfd;
+    ran_func[whitelisted_idx].def.buf = def.ran_fun_def;
 
-    if(def.len_rfd > 0)
-      free(def.ran_fun_def);
+    ran_func[whitelisted_idx].id = sm->info.id();
+    ran_func[whitelisted_idx].rev = sm->info.rev();
 
-    ran_func[whitelisted_idx] = def.rf;
+    ran_func[whitelisted_idx].oid = calloc(1, sizeof(byte_array_t));
+    assert(ran_func[whitelisted_idx].oid != NULL && "Memory exhausted");
+    *ran_func[whitelisted_idx].oid = cp_str_to_ba(sm->info.oid());
+
     whitelisted_idx++;
 
     it = assoc_next(&ag->plugin.sm_ds, it);
@@ -135,6 +141,56 @@ generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
 
   return sr;
 }
+#elif defined(E2AP_V2) || defined (E2AP_V3)
+e2_setup_request_t generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
+{
+  assert(ag != NULL);
+
+  const size_t len_rf = assoc_size(&ag->plugin.sm_ds);
+  assert(len_rf > 0 && "No RAN function/service model registered. Check if the Service Models are located at shared library paths, default location is /usr/local/flexric/");
+
+  ran_function_t* ran_func = calloc(len_rf, sizeof(*ran_func));
+  assert(ran_func != NULL);
+
+  // ToDO: Transaction ID needs to be considered within the pending messages
+  e2_setup_request_t sr = {
+    .trans_id = ag->trans_id_setup_req++,
+    .id = ge2ni,
+    .ran_func_item = ran_func,
+    .len_rf = len_rf,
+  };
+
+  void* it = assoc_front(&ag->plugin.sm_ds);
+  for(size_t i = 0; i < len_rf; ++i){
+    sm_agent_t* sm = assoc_value(&ag->plugin.sm_ds, it);
+    assert(sm->info.id() == *(uint16_t*)assoc_key(&ag->plugin.sm_ds, it) && "RAN function mismatch");
+
+    sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
+    // Pass memory ownership
+    ran_func[i].def.len = def.len_rfd;
+    ran_func[i].def.buf = def.ran_fun_def;
+
+    ran_func[i].id = sm->info.id();
+    ran_func[i].rev = sm->info.rev();
+    ran_func[i].oid = cp_str_to_ba(sm->info.oid());
+    it = assoc_next(&ag->plugin.sm_ds ,it);
+  }
+  assert(it == assoc_end(&ag->plugin.sm_ds) && "Length mismatch");
+
+  // E2 Node Component Configuration Addition List
+  // ToDO: This needs to be filled by the RAN
+  sr.len_cca = 1;
+  sr.comp_conf_add = calloc(sr.len_cca, sizeof(e2ap_node_component_config_add_t));
+  assert(sr.comp_conf_add != NULL && "Memory exhausted");
+
+  assert(ag->read_setup_ran != NULL);
+  ag->read_setup_ran(sr.comp_conf_add);
+
+ return sr;
+}
+#else
+static_assert(0!=0, "Unknown E2AP version");
+#endif
 
 // ------------------------E2AP  API ---------------------------------------------------
 static void* create_notif_e2_ran_event(void* it)
@@ -173,7 +229,7 @@ void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long initia
   notif_e2_ran_event_t msg = {
     .type = E2_ADD_SUBSCRIPTION_TIMER_EVENT,
     .subs_ev.time_ms = interval_ms ,
-    .subs_ev.sm_id = ev.sm->ran_func_id,
+    .subs_ev.sm_id = ev.sm->info.id(),
     .subs_ev.ric_action_id = ev.action_id,
     .subs_ev.ric_id = ev.ric_id,
     .subs_ev.act_def = ev.act_def
@@ -196,7 +252,7 @@ void fwd_e2_ran_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id)
 
 void fwd_ran_e2_setup_request(e2_agent_t *e2_if, global_e2_node_id_t ge2ni) 
 {
-  lwsl_info("Sending E2 Setup request from ran id %d. timeout of 3 seconds.\n", ge2ni.nb_id);
+  lwsl_info("Sending E2 Setup request from ran id %d. timeout of 3 seconds.\n", ge2ni.nb_id.nb_id);
   e2_if->global_e2_node_id = ge2ni;
   e2_setup_request_t sr = generate_setup_request_from_ran(e2_if, ge2ni); 
   defer({ e2ap_free_setup_request(&sr);  } );
@@ -272,19 +328,23 @@ void fwd_ran_e2_ctrl_reply (e2_agent_t *e2_if, ctrl_ev_reply_t reply)
 
   // XXX: handle the 3 cases for status to be reported to ric:  RIC_CONTROL_STATUS_SUCCESS,  RIC_CONTROL_STATUS_REJECTED,  RIC_CONTROL_STATUS_FAILED
   // for now we handle just one SUCCESS/FAILURE
+  assert(reply.ans.type == CTRL_OUTCOME_SM_AG_IF_ANS_V0);
+#ifdef E2AP_V1
   ric_control_status_t ret_sts;
-  if ( reply.ans.type == CTRL_OUTCOME_SM_AG_IF_ANS_V0 && reply.ans.ctrl_out.type == MAC_AGENT_IF_CTRL_ANS_V0)
+  if (reply.ans.ctrl_out.type == MAC_AGENT_IF_CTRL_ANS_V0)
     ret_sts = (reply.ans.ctrl_out.mac.ans == MAC_CTRL_OUT_OK) ? RIC_CONTROL_STATUS_SUCCESS: RIC_CONTROL_STATUS_FAILED;
   else
     assert (0!=0 && "unsupported service model for CTRL procedure\n");
-    
+#endif
   sm_ctrl_out_data_t ctrl_ans = {.len_out = 0, .ctrl_out =NULL};
   
   byte_array_t* ba_ctrl_ans = ba_from_ctrl_out(&ctrl_ans);
   ric_control_acknowledge_t ctrl_ack = {    
     .ric_id = corr->ric_id,
     .call_process_id = NULL,
+#ifdef E2AP_V1
     .status = ret_sts,
+#endif
     .control_outcome = ba_ctrl_ans 
     } ;
   byte_array_t ba = e2ap_enc_control_acknowledge_ag(&e2_if->ap, &ctrl_ack); 

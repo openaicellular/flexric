@@ -1,9 +1,8 @@
 #ifndef SEQ_UE_INFO_E2SM_RC_H
 #define SEQ_UE_INFO_E2SM_RC_H
 
-
-#include "../../../../lib/sm/sm_common_ie/cell_global_id.h"
-#include "../../../../lib/sm/sm_common_ie/ue_id.h"
+#include "../../../../lib/sm/ie/cell_global_id.h"
+#include "../../../../lib/sm/ie/ue_id.h"
 #include "../../../../util/byte_array.h"
 
 // From 9.2.1.4.4

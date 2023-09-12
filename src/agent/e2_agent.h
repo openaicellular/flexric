@@ -19,8 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
-
 #ifndef E2_AGENT_H
 #define E2_AGENT_H
 
@@ -30,9 +28,6 @@
 
 #include "util/conf_file.h"
 #include "util/e2ap_ngran_types.h"
-
-#include "lib/ap/global_consts.h"
-#include "lib/ap/type_defs.h"
 
 #include "asio_agent.h"
 #include "e2ap_agent.h"
@@ -49,6 +44,17 @@
 #include <stdatomic.h>
 #include <stdbool.h>
 
+#ifdef E2AP_V1
+#define NUM_HANDLE_MSG 32 // 31 + E42-UPDATE-E2-NODE
+#elif E2AP_V2 
+#define NUM_HANDLE_MSG 35 // 34 + E42-UPDATE-E2-NODE
+#elif E2AP_V3 
+#define NUM_HANDLE_MSG 44 // 43 + E42-UPDATE-E2-NODE
+#else
+static_assert(0!=0, "Unknown E2AP version");
+#endif
+
+
 typedef struct e2_agent_s e2_agent_t;
 
 typedef e2ap_msg_t (*handle_msg_fp_agent)(struct e2_agent_s*, const e2ap_msg_t* msg) ;
@@ -58,7 +64,9 @@ typedef struct e2_agent_s
   e2ap_ep_ag_t ep; 
   e2ap_agent_t ap;
   asio_agent_t io;
-  handle_msg_fp_agent handle_msg[30]; // 26 E2AP + 4 E42AP note that not all the slots will be occupied
+
+  size_t sz_handle_msg;
+  handle_msg_fp_agent handle_msg[NUM_HANDLE_MSG]; // 26 E2AP + 4 E42AP note that not all the slots will be occupied
 
   // Registered SMs
   plugin_ag_t plugin;
@@ -74,6 +82,12 @@ typedef struct e2_agent_s
 
   // Aperiodic Indication events
   tsq_t aind; // aind_event_t Events that occurred 
+
+#if defined(E2AP_V2) || defined (E2AP_V3)
+  // Read RAN 
+  void (*read_setup_ran)(void* data);
+  _Atomic uint32_t trans_id_setup_req;
+#endif
 
   atomic_bool stop_token;
   atomic_bool agent_stopped;
@@ -116,6 +130,7 @@ void e2_send_control_failure(e2_agent_t* ag, const ric_control_failure_t* cf);
 
 ////////////////////////////////////////////////
 
+#undef NUM_HANDLE_MSG 
 
 #endif
 

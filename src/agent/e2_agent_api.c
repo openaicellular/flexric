@@ -19,8 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
-
 #include "e2_agent_api.h"
 
 #include <assert.h>                                        // for assert
@@ -28,8 +26,8 @@
 #include <stdlib.h>
 #include <stdio.h>                                         // for NULL
 #include "e2_agent.h"                                      // for e2_free_agent
-#include "lib/ap/e2ap_types/common/e2ap_global_node_id.h"  // for global_e2_...
-#include "lib/ap/e2ap_types/common/e2ap_plmn.h"            // for plmn_t
+#include "lib/e2ap/e2ap_global_node_id_wrapper.h"  // for global_e2_...
+#include "lib/e2ap/e2ap_plmn_wrapper.h"            // for plmn_t
 #include "util/e2ap_ngran_types.h"                              // for ngran_gNB
 #include "util/conf_file.h"
 
@@ -53,7 +51,7 @@ void* static_start_agent(void* a)
 static
 global_e2_node_id_t init_ge2ni(e2ap_ngran_node_t ran_type, e2ap_plmn_t plmn, int nb_id, int cu_du_id)
 {
-  global_e2_node_id_t ge2ni =  {.type = ran_type, .plmn = plmn, .nb_id = nb_id, .cu_du_id = NULL};
+  global_e2_node_id_t ge2ni =  {.type = ran_type, .plmn = plmn, .nb_id.nb_id = nb_id, .nb_id.unused = 0, .cu_du_id = NULL};
 
   if (E2AP_NODE_IS_CU(ran_type) || E2AP_NODE_IS_DU(ran_type)) {
     assert(cu_du_id > 0);

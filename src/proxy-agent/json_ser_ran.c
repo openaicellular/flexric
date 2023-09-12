@@ -16,7 +16,7 @@
 
 #include "util/conversions.h"
 #include "util/alg_ds/alg/defer.h"
-#include "lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "lib/e2ap/e2ap_global_node_id_wrapper.h"
 #include "sm/mac_sm/mac_sm_id.h"
 
 #include "ran_if.h"
@@ -449,7 +449,8 @@ static bool json_decode_ran_config_get(const ran_msg_t *in_msg, ran_config_t *ou
 
   // parse object `global_gnb_id`
   out->global_e2_node_id.cu_du_id = NULL;
-  out->global_e2_node_id.nb_id = 0;
+  out->global_e2_node_id.nb_id.nb_id = 0;
+  out->global_e2_node_id.nb_id.unused = 0;
   out->global_e2_node_id.plmn.mcc = 0;
   out->global_e2_node_id.plmn.mnc = 0;
   out->global_e2_node_id.plmn.mnc_digit_len = 0;
@@ -468,7 +469,8 @@ static bool json_decode_ran_config_get(const ran_msg_t *in_msg, ran_config_t *ou
   if (!json_object_object_get_ex(item, "gnb_id", &gnb_id))
     return false;
 
-  out->global_e2_node_id.nb_id = json_object_get_int(gnb_id);
+  out->global_e2_node_id.nb_id.nb_id = json_object_get_int(gnb_id);
+  out->global_e2_node_id.nb_id.unused = 0;
 
   // TODO: omitted `cells`
   // TODO: omitted `nb_cells`

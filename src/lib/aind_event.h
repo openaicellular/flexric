@@ -22,7 +22,7 @@
 #ifndef APERIODIC_INDICATION_EVENT_MIR_H 
 #define APERIODIC_INDICATION_EVENT_MIR_H
 
-#include "ap/e2ap_types/common/ric_gen_id.h"  // for ric_gen_id_t
+#include "e2ap/ric_gen_id_wrapper.h"
 #include "../sm/sm_agent.h"
 #include <stdint.h>
 

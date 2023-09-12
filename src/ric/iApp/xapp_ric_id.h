@@ -22,7 +22,7 @@
 #ifndef XAPP_RIC_ID_H
 #define XAPP_RIC_ID_H 
 
-#include "../../lib/ap/e2ap_types/common/ric_gen_id.h"
+#include "../../lib/e2ap/ric_gen_id_wrapper.h"
 #include <stdbool.h>
 #include <stdint.h>
 

@@ -22,7 +22,7 @@
 #ifndef CORRELATION_EVENTS_H
 #define CORRELATION_EVENTS_H
 
-#include "lib/ap/e2ap_types/common/ric_gen_id.h"
+#include "lib/e2ap/v1_01/e2ap_types/common/ric_gen_id.h"
 
 typedef struct correlation_event_t
 {

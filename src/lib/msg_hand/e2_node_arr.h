@@ -26,10 +26,8 @@
 extern "C" {
 #endif
 
-
 #include <stdint.h>
-
-#include "../ap/e2ap_types/e2_node_connected.h"
+#include "../e2ap/e2_node_connected_wrapper.h"
 
 typedef struct{
   uint8_t len;
