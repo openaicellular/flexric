@@ -2662,8 +2662,8 @@ e2ap_msg_t e2ap_msg_dec_asn(e2ap_asn_t* asn, byte_array_t ba)
   //printf("Decoding message type = %d \n", msg_type);
   assert(asn->dec_msg[msg_type] != NULL);
   e2ap_msg_t msg = asn->dec_msg[msg_type](pdu);
-//  xer_fprint(stdout, &asn_DEF_E2AP_PDU, pdu);
-//  fflush(stdout);
+  xer_fprint(stdout, &asn_DEF_E2AP_PDU, pdu);
+  fflush(stdout);
   ASN_STRUCT_FREE(asn_DEF_E2AP_PDU,pdu);
   return msg; 
 }
