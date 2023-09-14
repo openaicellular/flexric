@@ -15,9 +15,9 @@ import sys
 class ServiceModelEnum(Enum):
     MAC = "mac_sm"
     SLICE = "slice_sm"
-    KPM = "kpm_sm"
+    # KPM = "kpm_sm"
 ServiceModel: ServiceModelEnum
-ServiceModel = ServiceModelEnum.KPM
+ServiceModel = ServiceModelEnum.SLICE
 
 class SubTTIEnum(Enum):
     ms1 = ric.Interval_ms_1
@@ -27,39 +27,45 @@ class SubTTIEnum(Enum):
 SubTimeInterval: SubTTIEnum
 SubTimeInterval = SubTTIEnum.ms10
 
+class SliceTypeEnum(Enum):
+    ADDMOD = "ADDMOD"
+    DELETE = "DEL"
+    ASSOC_UE = "ASSOC_UE"
+SliceType: SliceTypeEnum
+SliceType = SliceTypeEnum.ADDMOD
 
 ####################
 #### MAC INDICATION CALLBACK
 ####################
 # Create a callback for KPM which derived it from C++ class kpm_cb
-class KPMCallback(ric.kpm_cb):
-    def __init__(self):
-        # Inherit C++ kpm_cb class
-        ric.kpm_cb.__init__(self)
-    # Create an override C++ method
-    def handle(self, ind):
-        t_now = int(time.time() * 1000000)
-        # # MeasData
-        # ts = -1
-        # if len(ind.MeasData) > 0:
-        #     if len(ind.MeasData[0].measRecord) > 0:
-        #         ts = ind.MeasData[0].measRecord[0].real_val
-        #
-        # # MeasInfo
-        # for i in range(0, ind.MeasInfo_len):
-        #     meas_infotype = ind.MeasInfo[i].meas_type
-        #     measName = ind.MeasInfo[i].measName
-        #     measID = ind.MeasInfo[i].measID
-        #     measRecord = ind.MeasData[0].measRecord[i].real_val
-        #     meas_recordtype = ind.MeasData[0].measRecord[i].type # need to check why type is equal to 0 when is real
-        #     print(f"KPM ind_msg latency = {t_now - ts} us, "
-        #               f"meas_infotype = {meas_infotype}, "
-        #               f"measName = {measName}, "
-        #               f"measRecord = {measRecord}, "
-        #               f"meas_recordtype = {meas_recordtype}, "
-        #               f"from E2 node type = {ind.id.type} nb_id = {ind.id.nb_id.nb_id}")
-        kpm_ind_to_dict_json(ind, t_now, ind.id)
-
+# class KPMCallback(ric.kpm_cb):
+#     def __init__(self):
+#         # Inherit C++ kpm_cb class
+#         ric.kpm_cb.__init__(self)
+#     # Create an override C++ method
+#     def handle(self, ind):
+#         t_now = int(time.time() * 1000000)
+#         # # MeasData
+#         # ts = -1
+#         # if len(ind.MeasData) > 0:
+#         #     if len(ind.MeasData[0].measRecord) > 0:
+#         #         ts = ind.MeasData[0].measRecord[0].real_val
+#         #
+#         # # MeasInfo
+#         # for i in range(0, ind.MeasInfo_len):
+#         #     meas_infotype = ind.MeasInfo[i].meas_type
+#         #     measName = ind.MeasInfo[i].measName
+#         #     measID = ind.MeasInfo[i].measID
+#         #     measRecord = ind.MeasData[0].measRecord[i].real_val
+#         #     meas_recordtype = ind.MeasData[0].measRecord[i].type # need to check why type is equal to 0 when is real
+#         #     print(f"KPM ind_msg latency = {t_now - ts} us, "
+#         #               f"meas_infotype = {meas_infotype}, "
+#         #               f"measName = {measName}, "
+#         #               f"measRecord = {measRecord}, "
+#         #               f"meas_recordtype = {meas_recordtype}, "
+#         #               f"from E2 node type = {ind.id.type} nb_id = {ind.id.nb_id.nb_id}")
+#         kpm_ind_to_dict_json(ind, t_now, ind.id)
+#
 
 ####################
 ####  GLOBAL VALUE
@@ -68,13 +74,13 @@ e2nodes = 0
 MAX_E2_NODES = 10
 slice_hndlr = []
 mac_hndlr = []
-kpm_hndlr = []
+# kpm_hndlr = []
 slice_cb = [0 for i in range(0, MAX_E2_NODES)]
 mac_cb = [0 for i in range(0, MAX_E2_NODES)]
-kpm_cb = [0 for i in range(0, MAX_E2_NODES)]
+# kpm_cb = [0 for i in range(0, MAX_E2_NODES)]
 mac_cb_idx = 0
 slice_cb_idx = 0
-kpm_cb_idx = 0
+# kpm_cb_idx = 0
 
 # TODO: only support one UE
 graph_dl_thr_val_arr = [[] for i in range(0, MAX_E2_NODES)]
@@ -84,177 +90,177 @@ graph_add = [0 for i in range(0, MAX_E2_NODES)]
 ####################
 ####  KPM INDICATION MSG TO JSON
 ####################
+#
+# kpm_stats_struct = {
+#     "Latency" : {},
+#     "RAN" : {
+#         "nb_id" : {},
+#         "ran_type" : {},
+#     },
+#     "UE" : {
+#         "num_of_meas" : {},
+#         "Measurement" : {}
+#     }
+# }
 
-kpm_stats_struct = {
-    "Latency" : {},
-    "RAN" : {
-        "nb_id" : {},
-        "ran_type" : {},
-    },
-    "UE" : {
-        "num_of_meas" : {},
-        "Measurement" : {}
-    }
-}
-
-global global_kpm_stats
-global_kpm_stats = [kpm_stats_struct for i in range(0, MAX_E2_NODES)]
-
-def kpm_ind_to_dict_json(ind, t_now, id):
-    global e2nodes
-    # find e2 node idx
-    n_idx = -1
-    for n in e2nodes:
-        if n.id.nb_id.nb_id == id.nb_id.nb_id:
-            if n.id.type == id.type:
-                n_idx = e2nodes.index(n)
-
-                break
-    if n_idx == -1:
-        print("cannot find e2 node idx")
-        return
-
-    global global_kpm_stats
-    global_kpm_stats[n_idx] = {
-        "Latency" : {},
-        "RAN" : {
-            "nb_id" : {},
-            "ran_type" : {},
-        },
-        "UEs" : []
-    }
-
-    kpm_stats = global_kpm_stats[n_idx]
-
-    # e2 node id
-    kpm_stats["RAN"]["nb_id"] = id.nb_id.nb_id
-    kpm_stats["RAN"]["ran_type"] = get_ngran_name(id.type)
-
-    # initial
-    kpm_dict = kpm_stats
-
-    # latency
-    if ind.MeasData_len > 0:
-        if ind.MeasData[0].measRecord_len > 0:
-            t_diff = t_now - ind.MeasData[0].measRecord[0].real_val
-            kpm_dict.update({"Latency" :  t_diff})
-
-    # measurement data for each UE
-    for ue in range(0, ind.MeasData_len):
-        ue_dict = {
-            "num_of_meas" : 0,
-            "Measurement" : [],
-        }
-
-        # get measurement value
-        meas_record_arr = []
-        num_of_meas_record = ind.MeasData[ue].measRecord_len
-        ue_dict.update({"num_of_meas" : num_of_meas_record})
-        for i in range(0, num_of_meas_record):
-            value = "null"
-            if ind.MeasData[ue].measRecord[i].type == 0:
-                value = ind.MeasData[ue].measRecord[i].real_val
-            elif ind.MeasData[ue].measRecord[i].type == 1:
-                value = ind.MeasData[ue].measRecord[i].int_val
-            else:
-                value = "null"
-            meas_record_arr.append(value)
-
-        # get measurement name
-        meas_name_arr = []
-        if ind.MeasInfo_len > 0:
-            num_of_meas_info = ind.MeasInfo_len
-            for i in range(0, num_of_meas_info):
-                name = ind.MeasInfo[i].measName
-                meas_name_arr.append(name)
-
-        # store measurement name and value to global_kpm_stats
-        # store the first UE's current measurement value to graph
-        graph_dl_thr_val_cur = -1
-        graph_ul_thr_val_cur = -1
-        for mrecord, mname in zip(meas_record_arr, meas_name_arr):
-            meas_dict = {
-                "name": mname,
-                "value": mrecord
-            }
-            ue_dict["Measurement"].append(meas_dict)
-            if ue == 0 and str(mname).rstrip('\x00') == "dl_thr":
-                graph_dl_thr_val_cur = round(float(mrecord/1000000), 2)
-            if ue == 0 and str(mname).rstrip('\x00') == "ul_thr":
-                graph_ul_thr_val_cur = round(float(mrecord/1000000), 2)
-        kpm_dict["UEs"].append(ue_dict)
-
-        # add value per 100*sample rate
-        global graph_dl_thr_val_arr, graph_ul_thr_val_arr, graph_add
-        if ue == 0 and graph_add[n_idx]%10 == 0:
-            graph_dl_thr_val_arr[n_idx].append(graph_dl_thr_val_cur)
-            graph_ul_thr_val_arr[n_idx].append(graph_ul_thr_val_cur)
-    graph_add[n_idx] += 1
-
-
-len_table_str = 0
-def print_kpm_stats(n_idx):
-    global global_kpm_stats
-    kpm_stats = global_kpm_stats[n_idx]
-    # RAN
-    kpm_stats_table = []
-    kpm_ind_col_names = []
-    if len(kpm_stats["UEs"]) > 0:
-        len_meas = int(kpm_stats["UEs"][0]["num_of_meas"])
-        kpm_ind_col_names.append("Latency (us)")
-        kpm_ind_col_names.append("UE - rnti")
-        for i in range(0, len_meas):
-            meas_name_str = str(kpm_stats["UEs"][0]["Measurement"][i]["name"]).rstrip('\x00')
-            # print(meas_name_str)
-            if meas_name_str == "timestamp" or meas_name_str == "rnti":
-                continue
-
-            meas_name_unit = ""
-            if meas_name_str == "dl_thr" or meas_name_str == "ul_thr":
-                meas_name_unit = meas_name_str + " (Mbps)"
-            elif meas_name_str == "dl_tx" or meas_name_str == "ul_tx":
-                meas_name_unit = meas_name_str + " (Bytes)"
-            elif meas_name_str == "dl_bler":
-                meas_name_unit = meas_name_str + " (%)"
-            else:
-                meas_name_unit = meas_name_str
-            if len(meas_name_unit) > 0:
-                kpm_ind_col_names.append(meas_name_unit)
-    # print(kpm_ind_col_names)
-
-    lat = kpm_stats["Latency"]
-    for ue in range(0, len(kpm_stats["UEs"])):
-        len_meas = int(kpm_stats["UEs"][ue]["num_of_meas"])
-
-        info = [lat]
-        rnti = -1
-        tmp_value = []
-        for i in range(0, len_meas):
-            meas_name_str = str(kpm_stats["UEs"][ue]["Measurement"][i]["name"]).rstrip('\x00')
-            # print(meas_name_str)
-            if meas_name_str == "timestamp":
-                continue
-            elif meas_name_str == "rnti":
-                rnti = kpm_stats["UEs"][ue]["Measurement"][i]["value"]
-                info.append(rnti)
-            elif meas_name_str == "dl_thr" or meas_name_str == "ul_thr":
-                print_value = round(float(kpm_stats["UEs"][ue]["Measurement"][i]["value"])/1000000, 2)
-                tmp_value.append(print_value)
-            else:
-                print_value = kpm_stats["UEs"][ue]["Measurement"][i]["value"]
-                tmp_value.append(print_value)
-
-        for v in tmp_value:
-            info.append(v)
-        if len(info) > 0:
-            kpm_stats_table.append(info)
-
-    global len_table_str
-    print_table = tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid")
-    table_str = str(print_table).ljust(len(print_table))
-    len_table_str = len(print_table)
-    print(table_str, end="\r")
-    print("\n")
+# global global_kpm_stats
+# global_kpm_stats = [kpm_stats_struct for i in range(0, MAX_E2_NODES)]
+#
+# def kpm_ind_to_dict_json(ind, t_now, id):
+#     global e2nodes
+#     # find e2 node idx
+#     n_idx = -1
+#     for n in e2nodes:
+#         if n.id.nb_id.nb_id == id.nb_id.nb_id:
+#             if n.id.type == id.type:
+#                 n_idx = e2nodes.index(n)
+#
+#                 break
+#     if n_idx == -1:
+#         print("cannot find e2 node idx")
+#         return
+#
+#     global global_kpm_stats
+#     global_kpm_stats[n_idx] = {
+#         "Latency" : {},
+#         "RAN" : {
+#             "nb_id" : {},
+#             "ran_type" : {},
+#         },
+#         "UEs" : []
+#     }
+#
+#     kpm_stats = global_kpm_stats[n_idx]
+#
+#     # e2 node id
+#     kpm_stats["RAN"]["nb_id"] = id.nb_id.nb_id
+#     kpm_stats["RAN"]["ran_type"] = get_ngran_name(id.type)
+#
+#     # initial
+#     kpm_dict = kpm_stats
+#
+#     # latency
+#     if ind.MeasData_len > 0:
+#         if ind.MeasData[0].measRecord_len > 0:
+#             t_diff = t_now - ind.MeasData[0].measRecord[0].real_val
+#             kpm_dict.update({"Latency" :  t_diff})
+#
+#     # measurement data for each UE
+#     for ue in range(0, ind.MeasData_len):
+#         ue_dict = {
+#             "num_of_meas" : 0,
+#             "Measurement" : [],
+#         }
+#
+#         # get measurement value
+#         meas_record_arr = []
+#         num_of_meas_record = ind.MeasData[ue].measRecord_len
+#         ue_dict.update({"num_of_meas" : num_of_meas_record})
+#         for i in range(0, num_of_meas_record):
+#             value = "null"
+#             if ind.MeasData[ue].measRecord[i].type == 0:
+#                 value = ind.MeasData[ue].measRecord[i].real_val
+#             elif ind.MeasData[ue].measRecord[i].type == 1:
+#                 value = ind.MeasData[ue].measRecord[i].int_val
+#             else:
+#                 value = "null"
+#             meas_record_arr.append(value)
+#
+#         # get measurement name
+#         meas_name_arr = []
+#         if ind.MeasInfo_len > 0:
+#             num_of_meas_info = ind.MeasInfo_len
+#             for i in range(0, num_of_meas_info):
+#                 name = ind.MeasInfo[i].measName
+#                 meas_name_arr.append(name)
+#
+#         # store measurement name and value to global_kpm_stats
+#         # store the first UE's current measurement value to graph
+#         graph_dl_thr_val_cur = -1
+#         graph_ul_thr_val_cur = -1
+#         for mrecord, mname in zip(meas_record_arr, meas_name_arr):
+#             meas_dict = {
+#                 "name": mname,
+#                 "value": mrecord
+#             }
+#             ue_dict["Measurement"].append(meas_dict)
+#             if ue == 0 and str(mname).rstrip('\x00') == "dl_thr":
+#                 graph_dl_thr_val_cur = round(float(mrecord/1000000), 2)
+#             if ue == 0 and str(mname).rstrip('\x00') == "ul_thr":
+#                 graph_ul_thr_val_cur = round(float(mrecord/1000000), 2)
+#         kpm_dict["UEs"].append(ue_dict)
+#
+#         # add value per 100*sample rate
+#         global graph_dl_thr_val_arr, graph_ul_thr_val_arr, graph_add
+#         if ue == 0 and graph_add[n_idx]%10 == 0:
+#             graph_dl_thr_val_arr[n_idx].append(graph_dl_thr_val_cur)
+#             graph_ul_thr_val_arr[n_idx].append(graph_ul_thr_val_cur)
+#     graph_add[n_idx] += 1
+#
+#
+# len_table_str = 0
+# def print_kpm_stats(n_idx):
+#     global global_kpm_stats
+#     kpm_stats = global_kpm_stats[n_idx]
+#     # RAN
+#     kpm_stats_table = []
+#     kpm_ind_col_names = []
+#     if len(kpm_stats["UEs"]) > 0:
+#         len_meas = int(kpm_stats["UEs"][0]["num_of_meas"])
+#         kpm_ind_col_names.append("Latency (us)")
+#         kpm_ind_col_names.append("UE - rnti")
+#         for i in range(0, len_meas):
+#             meas_name_str = str(kpm_stats["UEs"][0]["Measurement"][i]["name"]).rstrip('\x00')
+#             # print(meas_name_str)
+#             if meas_name_str == "timestamp" or meas_name_str == "rnti":
+#                 continue
+#
+#             meas_name_unit = ""
+#             if meas_name_str == "dl_thr" or meas_name_str == "ul_thr":
+#                 meas_name_unit = meas_name_str + " (Mbps)"
+#             elif meas_name_str == "dl_tx" or meas_name_str == "ul_tx":
+#                 meas_name_unit = meas_name_str + " (Bytes)"
+#             elif meas_name_str == "dl_bler":
+#                 meas_name_unit = meas_name_str + " (%)"
+#             else:
+#                 meas_name_unit = meas_name_str
+#             if len(meas_name_unit) > 0:
+#                 kpm_ind_col_names.append(meas_name_unit)
+#     # print(kpm_ind_col_names)
+#
+#     lat = kpm_stats["Latency"]
+#     for ue in range(0, len(kpm_stats["UEs"])):
+#         len_meas = int(kpm_stats["UEs"][ue]["num_of_meas"])
+#
+#         info = [lat]
+#         rnti = -1
+#         tmp_value = []
+#         for i in range(0, len_meas):
+#             meas_name_str = str(kpm_stats["UEs"][ue]["Measurement"][i]["name"]).rstrip('\x00')
+#             # print(meas_name_str)
+#             if meas_name_str == "timestamp":
+#                 continue
+#             elif meas_name_str == "rnti":
+#                 rnti = kpm_stats["UEs"][ue]["Measurement"][i]["value"]
+#                 info.append(rnti)
+#             elif meas_name_str == "dl_thr" or meas_name_str == "ul_thr":
+#                 print_value = round(float(kpm_stats["UEs"][ue]["Measurement"][i]["value"])/1000000, 2)
+#                 tmp_value.append(print_value)
+#             else:
+#                 print_value = kpm_stats["UEs"][ue]["Measurement"][i]["value"]
+#                 tmp_value.append(print_value)
+#
+#         for v in tmp_value:
+#             info.append(v)
+#         if len(info) > 0:
+#             kpm_stats_table.append(info)
+#
+#     global len_table_str
+#     print_table = tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid")
+#     table_str = str(print_table).ljust(len(print_table))
+#     len_table_str = len(print_table)
+#     print(table_str, end="\r")
+#     print("\n")
 
 def print_dl_ul_graph(n_idx):
     def main(stdscr):
@@ -601,7 +607,7 @@ conf_static_slices = {
 }
 
 conf_nvs_slices_rate1 = {
-    "num_of_slices" : 2,
+    "num_of_slices" : 1,
     "slice_sched_algo" : "NVS",
     "slices" : [
         {
@@ -943,7 +949,8 @@ def print_slice_stats(n_idx):
 mod_slice_conf_col_names = ["slice_id", "label", "slice_sched_algo", "slice_algo_param1", "slice_algo_param2", "slice_algo_param3", "ue_sched_algo"]
 del_slice_conf_col_names = ["slice_id"]
 assoc_ue_conf_col_names = ["rnti", "assoc_slice_id"]
-def print_slice_conf(type, conf):
+def print_slice_conf(type_enum, conf):
+    type = type_enum.value
     if type == "ADDMOD":
         # RAN
         mod_slice_conf_table = []
@@ -1014,6 +1021,12 @@ def print_slice_conf(type, conf):
                 assoc_ue_slice_conf_table.append(info)
         print(tabulate(assoc_ue_slice_conf_table, headers=assoc_ue_conf_col_names))
 
+def print_slice_conf_json(conf):
+    # TODO: need to process multi e2 nodes
+    json_formatted_str = json.dumps(conf, indent=2)
+    print(json_formatted_str)
+
+
 def subscribe_sm(n_idx, enum_sm, tti_enum):
     global e2nodes
     # default tti is 10 ms
@@ -1040,14 +1053,14 @@ def subscribe_sm(n_idx, enum_sm, tti_enum):
         hndlr = ric.report_slice_sm(e2nodes[n_idx].id, tti, slice_cb[slice_cb_idx])
         slice_hndlr.append(hndlr)
         slice_cb_idx+=1
-    elif sub_sm_str == "kpm_sm":
-        global kpm_cb
-        global kpm_cb_idx
-        kpm_cb[kpm_cb_idx] = KPMCallback()
-        global kpm_hndlr
-        hndlr = ric.report_kpm_sm(e2nodes[n_idx].id, tti, kpm_cb[kpm_cb_idx])
-        kpm_hndlr.append(hndlr)
-        kpm_cb_idx+=1
+    # elif sub_sm_str == "kpm_sm":
+    #     global kpm_cb
+    #     global kpm_cb_idx
+    #     kpm_cb[kpm_cb_idx] = KPMCallback()
+    #     global kpm_hndlr
+    #     hndlr = ric.report_kpm_sm(e2nodes[n_idx].id, tti, kpm_cb[kpm_cb_idx])
+    #     kpm_hndlr.append(hndlr)
+    #     kpm_cb_idx+=1
     else:
         print("unknown sm")
 
@@ -1110,22 +1123,31 @@ def send_slice_ctrl_msg(n_idx, cmd, conf):
 ####################
 ####  GET STATS in JSON
 ####################
-def print_slice_stats_json():
+def print_slice_stats_json(n_idx):
     # TODO: need to process multi e2 nodes
     global global_slice_stats
-    print(global_slice_stats)
+    s = global_slice_stats[n_idx]
+    json_formatted_str = json.dumps(s, indent=2)
+    print(json_formatted_str)
 
-def print_kpm_stats_json():
-    # TODO: need to process multi e2 nodes
-    global global_kpm_stats
-    print(global_kpm_stats)
-
-def print_kpm_stats_loop(n_idx, n_loop):
+def print_slice_stats_loop(n_idx, n_loop):
     global len_table_str
     for i in range(0, n_loop):
         os.system('cls' if os.name == 'nt' else 'clear')
-        print_kpm_stats(n_idx)
+        print_slice_stats(n_idx)
         time.sleep(1)
+
+# def print_kpm_stats_json():
+#     # TODO: need to process multi e2 nodes
+#     global global_kpm_stats
+#     print(global_kpm_stats)
+
+# def print_kpm_stats_loop(n_idx, n_loop):
+#     global len_table_str
+#     for i in range(0, n_loop):
+#         os.system('cls' if os.name == 'nt' else 'clear')
+#         print_kpm_stats(n_idx)
+#         time.sleep(1)
 
 ####################
 ####  END
@@ -1137,9 +1159,9 @@ def end():
     global mac_hndlr
     for i in range(0, len(mac_hndlr)):
         ric.rm_report_mac_sm(mac_hndlr[i])
-    global kpm_hndlr
-    for i in range(0, len(kpm_hndlr)):
-        ric.rm_report_kpm_sm(kpm_hndlr[i])
+    # global kpm_hndlr
+    # for i in range(0, len(kpm_hndlr)):
+    #     ric.rm_report_kpm_sm(kpm_hndlr[i])
 
     for n in e2nodes:
         json_fname = "rt_slice_stats_nb_id" + str(n.id.nb_id.nb_id)+ ".json"
