@@ -42,13 +42,16 @@ typedef enum {
   e2ap_ngran_gNB_CU    = 5,
   e2ap_ngran_eNB_DU    = 6,
   e2ap_ngran_gNB_DU    = 7,
-  e2ap_ngran_eNB_MBMS_STA  = 8
+  e2ap_ngran_eNB_MBMS_STA  = 8,
+  e2ap_ngran_gNB_CUCP  = 9,
+  e2ap_ngran_gNB_CUUP  = 10
 } e2ap_ngran_node_t;
 
 #define E2AP_NODE_IS_MONOLITHIC(nOdE_TyPe) ((nOdE_TyPe) == e2ap_ngran_eNB    || (nOdE_TyPe) == e2ap_ngran_ng_eNB    || (nOdE_TyPe) == e2ap_ngran_gNB)
-#define E2AP_NODE_IS_CU(nOdE_TyPe)         ((nOdE_TyPe) == e2ap_ngran_eNB_CU || (nOdE_TyPe) == e2ap_ngran_ng_eNB_CU || (nOdE_TyPe) == e2ap_ngran_gNB_CU)
+#define E2AP_NODE_IS_CU(nOdE_TyPe)         ((nOdE_TyPe) == e2ap_ngran_eNB_CU || (nOdE_TyPe) == e2ap_ngran_ng_eNB_CU || (nOdE_TyPe) == e2ap_ngran_gNB_CU || (nOdE_TyPe) == e2ap_ngran_gNB_CUCP || (nOdE_TyPe) == e2ap_ngran_gNB_CUUP)
 #define E2AP_NODE_IS_DU(nOdE_TyPe)         ((nOdE_TyPe) == e2ap_ngran_eNB_DU || (nOdE_TyPe) == e2ap_ngran_gNB_DU)
 #define E2AP_NODE_IS_MBMS(nOdE_TyPe)       ((nOdE_TyPe) == e2ap_ngran_eNB_MBMS_STA)
+#define E2AP_NODE_IS_CUUP(nOdE_TyPe) ((nOdE_TyPe) == e2ap_ngran_gNB_CUUP)
 
 char* get_e2ap_ngran_name(e2ap_ngran_node_t ran_type);
 

@@ -97,7 +97,7 @@ target_link_libraries(emu_agent_gnb_cu
                         -ldl)
 
 target_compile_definitions(emu_agent_gnb_cu PRIVATE TEST_AGENT_GNB_CU
-                                                    TEST_AGENT_RAN_TYPE=e2ap_ngran_gNB_CU
+                                                    TEST_AGENT_RAN_TYPE=e2ap_ngran_gNB_CUUP
                                                     TEST_AGENT_MCC=505
                                                     TEST_AGENT_MNC=1
                                                     TEST_AGENT_MNC_DIG_LEN=2

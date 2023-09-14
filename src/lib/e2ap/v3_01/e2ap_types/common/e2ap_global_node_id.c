@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id_t* m1)
 {
@@ -33,46 +34,22 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
 
   if(m0 == NULL || m1 == NULL) return false;
 
-  if (E2AP_NODE_IS_MONOLITHIC(m0->type) && E2AP_NODE_IS_MONOLITHIC(m1->type)) {
-    // compare gNB/eNB
-    if(m0->type != m1->type)
-      return false;
+  if(m0->type != m1->type)
+     return false;
 
-    if(eq_e2ap_plmn(&m0->plmn, &m1->plmn) == false)
-      return false;
-
-    if(eq_e2ap_gnb_id(m0->nb_id, m1->nb_id) == false)
-      return false;
-    
-    return true;
-  } else if ((E2AP_NODE_IS_CU(m0->type) || E2AP_NODE_IS_DU(m0->type)) && (E2AP_NODE_IS_CU(m1->type) || E2AP_NODE_IS_DU(m1->type))) {
-    // compare gNB/eNB-CU/DU
-    if(m0->cu_du_id == NULL || m1->cu_du_id == NULL) return false;
-
-    if(m0->type != m1->type)
-      return false;
-
-    if(eq_e2ap_plmn(&m0->plmn, &m1->plmn) == false)
-      return false;
+  if(eq_e2ap_plmn(&m0->plmn, &m1->plmn) == false)
+    return false;
       
-    if(eq_e2ap_gnb_id(m0->nb_id, m1->nb_id) == false)
-      return false;
-    
+  if(eq_e2ap_gnb_id(m0->nb_id, m1->nb_id) == false)
+    return false;
+
+  if (E2AP_NODE_IS_CUUP(m0->type) || E2AP_NODE_IS_DU(m0->type)) {
+    assert(m0->cu_du_id != NULL && m1->cu_du_id != NULL );
     if(*m0->cu_du_id != *m1->cu_du_id)
       return false;
-
-    return true;
-  } else {
-    // compare gNB/eNB and gNB/eNB-CU/DU
-    // avoid diff type with same plmn/nb_id
-    if(eq_e2ap_plmn(&m0->plmn, &m1->plmn) == false)
-      return false;
-
-    if(eq_e2ap_gnb_id(m0->nb_id, m1->nb_id) == false)
-      return false;
-    
-    return true;
   }
+
+  return true;
 }
 
 global_e2_node_id_t cp_global_e2_node_id(global_e2_node_id_t const* src)
@@ -115,75 +92,34 @@ int cmp_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
   assert(m0 != NULL);
   assert(m1 != NULL);
 
-  if (E2AP_NODE_IS_MONOLITHIC(m0->type) && E2AP_NODE_IS_MONOLITHIC(m1->type)) {
-    // compare gNB/eNB
-    if (m0->type < m1->type)
-      return -1;
-    else if(m0->type > m1->type)
-      return 1;
+  if (m0->type < m1->type)
+    return -1;
+  else if(m0->type > m1->type)
+    return 1;
 
-    int rc = cmp_e2ap_plmn(&m0->plmn, &m1->plmn);
-    if(rc != 0)
-      return rc;
+  int rc = cmp_e2ap_plmn(&m0->plmn, &m1->plmn);
+  if(rc != 0)
+    return rc;
 
-    if (m0->nb_id.nb_id < m1->nb_id.nb_id)
-      return -1;
-    else if(m0->nb_id.nb_id > m1->nb_id.nb_id)
-      return 1;
+  if (m0->nb_id.nb_id < m1->nb_id.nb_id)
+    return -1;
+  else if(m0->nb_id.nb_id > m1->nb_id.nb_id)
+    return 1;
 
-    if (m0->nb_id.unused < m1->nb_id.unused)
-      return 1;
-    else if(m0->nb_id.unused > m1->nb_id.unused)
-      return -1;
+  if (m0->nb_id.unused < m1->nb_id.unused)
+    return 1;
+  else if(m0->nb_id.unused > m1->nb_id.unused)
+    return -1;
 
-    return 0;
-  } else if ((E2AP_NODE_IS_CU(m0->type) || E2AP_NODE_IS_DU(m0->type)) && (E2AP_NODE_IS_CU(m1->type) || E2AP_NODE_IS_DU(m1->type))) {
-    // compare gNB/eNB-CU/DU
-    if (m0->type < m1->type)
-      return -1;
-    else if(m0->type > m1->type)
-      return 1;
-
-    int rc = cmp_e2ap_plmn(&m0->plmn, &m1->plmn);
-    if(rc != 0)
-      return rc;
-
-    if (m0->nb_id.nb_id < m1->nb_id.nb_id)
-      return -1;
-    else if(m0->nb_id.nb_id > m1->nb_id.nb_id)
-      return 1;
-
-    if (m0->nb_id.unused < m1->nb_id.unused)
-      return 1;
-    else if(m0->nb_id.unused > m1->nb_id.unused)
-      return -1;
-
+  if (E2AP_NODE_IS_CUUP(m0->type) || E2AP_NODE_IS_DU(m0->type) ) {
+    assert(m0->cu_du_id != NULL && m1->cu_du_id != NULL);
     if (*m0->cu_du_id < *m1->cu_du_id)
       return -1;
     else if(*m0->cu_du_id > *m1->cu_du_id)
       return 1;
-
-    return 0;
-  } else {
-    // compare gNB/eNB and gNB/eNB-CU/DU
-    // avoid diff type with same plmn/nb_id
-    int rc = cmp_e2ap_plmn(&m0->plmn, &m1->plmn);
-    if(rc != 0)
-      return rc;
-
-    if (m0->nb_id.nb_id < m1->nb_id.nb_id)
-      return -1;
-    else if(m0->nb_id.nb_id > m1->nb_id.nb_id)
-      return 1;
-
-    if (m0->nb_id.unused < m1->nb_id.unused)
-      return 1;
-    else if(m0->nb_id.unused > m1->nb_id.unused)
-      return -1;
-
-    return 0;
   }
 
+  return 0;
 }
 
 int cmp_global_e2_node_id_wrapper(const void* m0_v, const void* m1_v)

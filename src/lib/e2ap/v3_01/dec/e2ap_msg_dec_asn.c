@@ -483,7 +483,7 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      id->type = e2ap_ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CUUP;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id  != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
@@ -1098,7 +1098,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
    
     if (e2gnb->gNB_CU_UP_ID) {
-      id->type = e2ap_ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CUUP;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
@@ -1421,7 +1421,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     sr->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      sr->id.type = e2ap_ngran_gNB_CU;
+      sr->id.type = e2ap_ngran_gNB_CUUP;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, sr->id.cu_du_id);
@@ -2476,7 +2476,7 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
       if (e2gnb->gNB_CU_UP_ID) {
-        dst->id.type = e2ap_ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CUUP;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
@@ -2616,7 +2616,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
     E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
 
     e2_node_connected_t* dst = &sr->nodes[i];
-    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
     assert(src->id == ProtocolIE_ID_id_GlobalE2node_ID);
     assert(src->criticality == Criticality_reject);
     assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
@@ -2631,7 +2631,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
       if (e2gnb->gNB_CU_UP_ID) {
-        dst->id.type = e2ap_ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CUUP;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);

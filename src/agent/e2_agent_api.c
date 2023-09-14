@@ -53,12 +53,13 @@ global_e2_node_id_t init_ge2ni(e2ap_ngran_node_t ran_type, e2ap_plmn_t plmn, int
 {
   global_e2_node_id_t ge2ni =  {.type = ran_type, .plmn = plmn, .nb_id.nb_id = nb_id, .nb_id.unused = 0, .cu_du_id = NULL};
 
-  if (E2AP_NODE_IS_CU(ran_type) || E2AP_NODE_IS_DU(ran_type)) {
+  if (E2AP_NODE_IS_CUUP(ran_type) || E2AP_NODE_IS_DU(ran_type)) {
     assert(cu_du_id > 0);
     ge2ni.cu_du_id = calloc(1, sizeof(uint64_t));
     assert(ge2ni.cu_du_id != NULL && "memory exhausted");
     *ge2ni.cu_du_id = cu_du_id;
   } else if(E2AP_NODE_IS_MONOLITHIC(ran_type)){
+  } else if(E2AP_NODE_IS_CU(ran_type)){
   } else {
     assert(0 != 0 && "not support RAN type\n");
   }

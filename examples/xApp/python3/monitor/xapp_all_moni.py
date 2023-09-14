@@ -286,7 +286,7 @@ def send_subscription_req(nodes):
         send_pdcp_sub_req(nodes.id, tti)
         action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
         send_kpm_sub_req(nodes.id, tti, action)
-    elif nodes.id.type == ric.e2ap_ngran_gNB_CU:
+    elif nodes.id.type == ric.e2ap_ngran_gNB_CUUP:
         send_pdcp_sub_req(nodes.id, tti)
         action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"]
         send_kpm_sub_req(nodes.id, tti, action)

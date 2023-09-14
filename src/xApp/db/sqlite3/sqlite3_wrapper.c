@@ -44,7 +44,7 @@ void create_mac_ue_table(sqlite3* db)
   // ToDo: PRIMARY KEY UNIQUE
   char* sql_mac = "DROP TABLE IF EXISTS MAC_UE;"
   "CREATE TABLE MAC_UE(tstamp INT CHECK(tstamp > 0)," 
-                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                        "e2node_mcc INT,"
                        "e2node_mnc INT,"
                        "e2node_mnc_digit_len INT,"
@@ -103,7 +103,7 @@ void create_rlc_bearer_table(sqlite3* db)
   // ToDo: PRIMARY KEY UNIQUE
   char* sql_rlc = "DROP TABLE IF EXISTS RLC_bearer;"
   "CREATE TABLE RLC_bearer(tstamp INT CHECK(tstamp > 0)," 
-                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                             "e2node_mcc INT,"
                             "e2node_mnc INT,"
                             "e2node_mnc_digit_len INT,"
@@ -157,7 +157,7 @@ void create_pdcp_bearer_table(sqlite3* db)
   // ToDo: PRIMARY KEY UNIQUE
   char* sql_pdcp = "DROP TABLE IF EXISTS PDCP_bearer;"
   "CREATE TABLE PDCP_bearer(tstamp INT CHECK(tstamp > 0)," 
-                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                        "e2node_mcc INT,"
                        "e2node_mnc INT,"
                        "e2node_mnc_digit_len INT,"
@@ -194,7 +194,7 @@ void create_slice_table(sqlite3* db)
   char* sql_slice = "DROP TABLE IF EXISTS SLICE;"
                     "CREATE TABLE SLICE("\
                     "tstamp INT CHECK(tstamp > 0),"\
-                    "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"\
+                    "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"\
                     "e2node_mcc INT,"\
                     "e2node_mnc INT,"\
                     "e2node_mnc_digit_len INT,"\
@@ -223,7 +223,7 @@ void create_ue_slice_table(sqlite3* db)
   char* sql_ue_slice = "DROP TABLE IF EXISTS UE_SLICE;"
                     "CREATE TABLE UE_SLICE("\
                     "tstamp INT CHECK(tstamp > 0),"\
-                    "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"\
+                    "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"\
                     "e2node_mcc INT,"\
                     "e2node_mnc INT,"\
                     "e2node_mnc_digit_len INT,"\
@@ -244,7 +244,7 @@ void create_gtp_table(sqlite3* db)
   // ToDo: PRIMARY KEY UNIQUE
   char* sql_gtp = "DROP TABLE IF EXISTS GTP_NGUT;"
   "CREATE TABLE GTP_NGUT(tstamp INT CHECK(tstamp > 0)," 
-                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                             "e2node_mcc INT,"
                             "e2node_mnc INT,"
                             "e2node_mnc_digit_len INT,"
@@ -265,7 +265,7 @@ void create_kpm_table(sqlite3* db) {
   // kpm_ind_msg_format_3_t
   char *sql_kpm_meas_data = "DROP TABLE IF EXISTS KPM_IND_MEAS_DATA;"
                             "CREATE TABLE KPM_IND_MEAS_DATA(tstamp INT,"
-                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                             "e2node_mcc INT,"
                             "e2node_mnc INT,"
                             "e2node_mnc_digit_len INT,"
@@ -289,7 +289,7 @@ void create_kpm_table(sqlite3* db) {
   // kpm_ind_msg_format_3_t
   char *sql_kpm_meas_info_frm1 = "DROP TABLE IF EXISTS KPM_IND_MEAS_INFO;"
                                  "CREATE TABLE KPM_IND_MEAS_INFO(tstamp INT,"
-                                 "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                                 "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                                  "e2node_mcc INT,"
                                  "e2node_mnc INT,"
                                  "e2node_mnc_digit_len INT,"
@@ -337,7 +337,7 @@ void create_kpm_table(sqlite3* db) {
   // kpm_ind_msg_format_3_t
   char *sql_kpm_meas_data_info = "DROP TABLE IF EXISTS KPM_IND_MEAS_DATA_INFO;"
                                  "CREATE TABLE KPM_IND_MEAS_DATA_INFO(tstamp INT,"
-                                 "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                                 "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                                  "e2node_mcc INT,"
                                  "e2node_mnc INT,"
                                  "e2node_mnc_digit_len INT,"
@@ -368,7 +368,7 @@ void create_kpm_table(sqlite3* db) {
   // kpm_ind_msg_format_3_t: ue_id_e2sm_t
   char *sql_kpm_ue_id_e2sm = "DROP TABLE IF EXISTS KPM_IND_UE_ID_E2SM;"
                              "CREATE TABLE KPM_IND_UE_ID_E2SM(tstamp INT,"
-                             "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                             "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                              "e2node_mcc INT,"
                              "e2node_mnc INT,"
                              "e2node_mnc_digit_len INT,"
