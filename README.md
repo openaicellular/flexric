@@ -26,7 +26,7 @@ Below is the list of features available in this version divided per component an
 
 1.1 Install prerequisites
 
-- A *recent* CMake (at least v3.15). 
+- A *recent* CMake (at least v3.22). 
 
   On Ubuntu, you might want to use [this PPA](https://apt.kitware.com/) to install an up-to-date version.
 
