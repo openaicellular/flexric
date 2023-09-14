@@ -83,6 +83,7 @@ add_executable(proxy_agent_ws
               proxy_agent.c
               proxy_agent_conf.c
               ran_msg_hdlr.c
+              e2_read_setup_ran.c
               e2_sm_agent.c
               e2_sm_mac_agent.c
               e2_sm_kpm_agent.c
@@ -94,6 +95,7 @@ add_executable(proxy_agent_ws
               # for testing
               ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_kpm.c
               ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_mac.c
+              ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_e2_setup_req.c
 
               ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
               ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
