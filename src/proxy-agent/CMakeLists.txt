@@ -16,6 +16,9 @@
 # Integration tested with version 0.13.1 on Ubuntu 20.
 # Manuals: API https://github.com/json-c/json-c/wiki, examples: https://github.com/rbtylee/tutorial-jsonc/blob/master/tutorial/index.md 
 
+# TODO: cannot build proxy_agent when the gcc is 10, need to solve the global variable static_user,
+# TODO: reorganize the including header files
+
 find_package(PkgConfig)
 pkg_check_modules(LIBWEBSOCKETS REQUIRED libwebsockets>3.0.0 libwebsockets<4.0.0)
 pkg_check_modules(LIBJSON-C REQUIRED json-c<1.0.0 json-c>0.13.0)
@@ -78,6 +81,7 @@ else()
 endif()
 target_compile_definitions(e2_proxy_agent PRIVATE PROXY_AGENT)
 target_compile_definitions(e2_proxy_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
+#target_compile_options(e2_proxy_agent PRIVATE -fcommon) # need to remove should not use static_user as global variable
 
 add_executable(proxy_agent_ws
               proxy_agent.c
@@ -87,6 +91,7 @@ add_executable(proxy_agent_ws
               e2_sm_agent.c
               e2_sm_mac_agent.c
               e2_sm_kpm_agent.c
+              e2_sm_rc_agent.c
               json_ser_ran.c
               ringbuffer.c
               notif_e2_ran.c
@@ -96,6 +101,7 @@ add_executable(proxy_agent_ws
               ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_kpm.c
               ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_mac.c
               ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_e2_setup_req.c
+              ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_rc.c
 
               ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
               ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
@@ -108,6 +114,7 @@ target_link_libraries(proxy_agent_ws
                       -pthread -lsctp -ldl ${LIBWEBSOCKETS_LIBRARIES} ${LIBJSON-C_LIBRARIES})
 
 target_compile_definitions(proxy_agent_ws PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
+#target_compile_options(proxy_agent_ws PRIVATE -fcommon) # need to remove should not use static_user as global variable
 
 
 

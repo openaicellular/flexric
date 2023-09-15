@@ -10,6 +10,7 @@
 #include "e2_sm_agent.h"
 #include "e2_sm_mac_agent.h"
 #include "e2_sm_kpm_agent.h"
+#include "e2_sm_rc_agent.h"
 #include "ran_if.h"
 #include "proxy_agent.h"
 #include "ran_msg_hdlr.h"
@@ -53,7 +54,7 @@ void init_read_setup_tbl(read_e2_setup_fp (*read_setup_tbl)[SM_AGENT_IF_E2_SETUP
   (*read_setup_tbl)[TC_AGENT_IF_E2_SETUP_ANS_V0] = NULL ;
   (*read_setup_tbl)[GTP_AGENT_IF_E2_SETUP_ANS_V0] = NULL ;
   (*read_setup_tbl)[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_kpm_setup_sm ;
-  (*read_setup_tbl)[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = NULL;
+  (*read_setup_tbl)[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_rc_setup_sm;
 }
 
 static

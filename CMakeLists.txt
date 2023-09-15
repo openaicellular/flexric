@@ -284,6 +284,17 @@ message(STATUS "Build and install unit test: ${UNIT_TEST}")
 
 option(RAN_WITH_WS "Build and install proxy-agent to support websocket interface of RAN" OFF)
 message(STATUS "Build and install proxy-agent to support websocket interface of RAN: ${RAN_WITH_WS}")
+if (RAN_WITH_WS)
+  set(SM_KPM ON)
+  set(SM_RC ON)
+  set(SM_MAC ON)
+  set(SM_RLC OFF)
+  set(SM_PDCP OFF)
+  set(SM_SLICE OFF)
+  set(SM_TC OFF)
+  set(SM_GTP OFF)
+endif()
+
 
 include_directories(src)
 add_subdirectory(src)
@@ -298,16 +309,55 @@ add_subdirectory(test)
 # Install the Service models
 ###
 
-message(STATUS "install prefix path ${CMAKE_INSTALL_PREFIX}/flexric")
+message(STATUS "Install prefix path ${CMAKE_INSTALL_PREFIX}/flexric")
 include(GNUInstallDirs)
-install(TARGETS mac_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS rlc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS pdcp_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS slice_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS tc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS gtp_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS kpm_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS rc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+option(SM_MAC "Install MAC SM" ON)
+message(STATUS "Install MAC SM: ${SM_MAC}")
+if (SM_MAC)
+  install(TARGETS mac_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_RLC "Install RLC SM" ON)
+message(STATUS "Install RLC SM: ${SM_RLC}")
+if (SM_RLC)
+  install(TARGETS rlc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_PDCP "Install PDCP SM" ON)
+message(STATUS "Install PDCP SM: ${SM_PDCP}")
+if (SM_PDCP)
+  install(TARGETS pdcp_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_SLICE "Install SLICE SM" ON)
+message(STATUS "Install SLICE SM: ${SM_SLICE}")
+if (SM_SLICE)
+  install(TARGETS slice_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_TC "Install TC SM" ON)
+message(STATUS "Install TC SM: ${SM_TC}")
+if (SM_TC)
+  install(TARGETS tc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_GTP "Install GTP SM" ON)
+message(STATUS "Install GTP SM: ${SM_GTP}")
+if (SM_GTP)
+  install(TARGETS gtp_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_KPM "Install KPM SM" ON)
+message(STATUS "Install KPM SM: ${SM_KPM}")
+if (SM_KPM)
+  install(TARGETS kpm_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_RC "Install RC SM" ON)
+message(STATUS "Install RC SM: ${SM_RC}")
+if (SM_RC)
+  install(TARGETS rc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
 
 ###
 # Install the configuration file
