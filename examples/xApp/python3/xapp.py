@@ -1114,7 +1114,8 @@ def init():
 ####################
 # cmd = "ADDMOD", "DEL", "ASSOC_UE"
 # conf = conf_nvs_slices, conf_delete_slices, conf_assoc_ue_slice
-def send_slice_ctrl_msg(n_idx, cmd, conf):
+def send_slice_ctrl_msg(n_idx, type_enum, conf):
+    cmd = type_enum.value
     msg = fill_slice_ctrl_msg(cmd, conf)
     global e2nodes
     ric.control_slice_sm(e2nodes[n_idx].id, msg)
