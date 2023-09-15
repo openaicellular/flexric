@@ -368,6 +368,23 @@ void send_report_sm(global_e2_node_id_t* id,
 static
 void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* handle) {
   // send subscription request to each e2 nodes
+  if (E2AP_NODE_IS_MONOLITHIC(n[n_idx].id.type))
+    printf("E2 node idx %ld info: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n",
+           n_idx,
+           n[n_idx].id.nb_id.nb_id,
+           n[n_idx].id.plmn.mcc,
+           n[n_idx].id.plmn.mnc,
+           n[n_idx].id.plmn.mnc_digit_len,
+           get_e2ap_ngran_name(n[n_idx].id.type));
+  else
+    printf("E2 node idx %ld info: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %lu\n",
+           n_idx,
+           n[n_idx].id.nb_id.nb_id,
+           n[n_idx].id.plmn.mcc,
+           n[n_idx].id.plmn.mnc,
+           n[n_idx].id.plmn.mnc_digit_len,
+           get_e2ap_ngran_name(n[n_idx].id.type),
+           *n[n_idx].id.cu_du_id);
   for (size_t j = 0; j < n->len_rf; j++)
     printf("Registered E2 node idx %ld, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
 
