@@ -125,7 +125,7 @@ BIT_STRING_t cp_gnb_id_to_bit_string( e2ap_gnb_id_t src)
 // gNB-ID BIT STRING (SIZE (22..32)),
 // }
   assert(src.unused < 11); // [22 .. 32]  bits
-  uint32_t const tmp = src.nb_id >> (31 - src.unused);                        //
+  uint64_t const tmp = (uint64_t)src.nb_id >> (32 - src.unused);                        //
   assert( tmp == 0 && "Some bits are not set to zero and value would be lost");
 
   BIT_STRING_t dst = {0};
