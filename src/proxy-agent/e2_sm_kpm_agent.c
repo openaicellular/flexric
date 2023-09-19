@@ -319,8 +319,8 @@ void read_kpm_sm(void* data)
     kpm->ind.msg.frm_3 = fill_kpm_ind_msg_frm_3_sta(act_def->frm_4.action_def_format_1, &temp);
   } else {
     printf("Not supported action definition type %d, fill the dummy indication msg\n", act_def->type);
-    kpm->ind.hdr = fill_kpm_ind_hdr();
-    kpm->ind.msg = fill_kpm_ind_msg();
+    kpm->ind.hdr = fill_rnd_kpm_ind_hdr();
+    kpm->ind.msg = fill_rnd_kpm_ind_msg();
   }
 }
 

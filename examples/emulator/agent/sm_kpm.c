@@ -177,7 +177,7 @@ void read_kpm_sm(void* data)
   if (kpm->act_def->type == FORMAT_1_ACTION_DEFINITION) {
     kpm->ind.hdr = fill_kpm_ind_hdr_sta();
     kpm->ind.msg.type = FORMAT_1_INDICATION_MESSAGE;
-    kpm->ind.msg.frm_1 = fill_kpm_ind_msg_frm_1(kpm->act_def->frm_1);
+    kpm->ind.msg.frm_1 = fill_rnd_kpm_ind_msg_frm_1(kpm->act_def->frm_1);
   } else if (kpm->act_def->type == FORMAT_4_ACTION_DEFINITION) {
 
     if(kpm->act_def->frm_4.matching_cond_lst[0].test_info_lst.test_cond_type == CQI_TEST_COND_TYPE
