@@ -71,7 +71,37 @@ subscribe_timer_t on_subscription_kpm_sm_ag(sm_agent_t const* sm_agent, const sm
   // Only 1 supported
   kpm_act_def_t* tmp = calloc(1, sizeof(kpm_act_def_t));
   assert(tmp != NULL && "Memory exhausted");
-  *tmp = kpm_dec_action_def(&sm->enc, data->len_ad, data->action_def);
+
+ // Hack! 
+  if(data->len_ad == 4) {
+	  printf("Hacking FlexRIC's KPM V2... Do not do this in production\n");
+	  tmp->type = FORMAT_1_ACTION_DEFINITION; 
+	  tmp->frm_1.meas_info_lst_len = 1;
+	  tmp->frm_1.meas_info_lst = calloc(1, sizeof(meas_info_format_1_lst_t));
+	  assert(tmp->frm_1.meas_info_lst != NULL && "Memory exhausted");
+	  tmp->frm_1.meas_info_lst->meas_type.type = ID_MEAS_TYPE;
+	  tmp->frm_1.meas_info_lst->meas_type.id = 0;
+
+	  tmp->frm_1.meas_info_lst->label_info_lst_len = 1;
+	  tmp->frm_1.meas_info_lst->label_info_lst = calloc(1, sizeof(label_info_lst_t));
+
+	  tmp->frm_1.meas_info_lst->label_info_lst->noLabel = calloc(1, sizeof(enum_value_e)); 
+	  *tmp->frm_1.meas_info_lst->label_info_lst->noLabel = TRUE_ENUM_VALUE; 
+
+
+	  tmp->frm_1.gran_period_ms = 100;  // 8.3.8 [0, 4294967295]
+	  tmp->frm_1.cell_global_id = NULL; // 8.3.20 - OPTIONAL
+	  tmp->frm_1.meas_bin_range_info_lst_len = 0; // [0, 65535]
+	  tmp->frm_1.meas_bin_info_lst = NULL;
+	 
+	  timer.ms = 3000; 
+  } else {
+	  assert(0!=0);
+  	*tmp = kpm_dec_action_def(&sm->enc, data->len_ad, data->action_def);
+ }
+  
+  
+  
 
   timer.act_def = tmp; 
 

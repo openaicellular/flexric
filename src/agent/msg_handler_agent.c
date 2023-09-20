@@ -183,6 +183,7 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   ev.act_def = t.act_def;
 
   if(t.ms > 0){
+    printf("[E2 AGENT]: Periodic event requested with periodicity %ld\n", t.ms);
     // Periodic indication message generated i.e., every 5 ms
     assert(t.ms < 10001 && "Subscription for granularity larger than 10 seconds requested? ");
     int fd_timer = create_timer_ms_asio_agent(&ag->io, t.ms, t.ms); 
@@ -195,7 +196,9 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   } else if(t.ms == 0){
     // Aperiodic indication generated i.e., the RAN will generate it via 
     // void async_event_agent_api(uint32_t ric_req_id, void* ind_data);
-    lock_guard(&ag->mtx_ind_event);
+    
+	  printf("[E2 AGENT]: Aperiodic event requested \n" );
+	  lock_guard(&ag->mtx_ind_event);
     int fd = 0;
     bi_map_insert(&ag->ind_event, &fd, sizeof(int), &ev, sizeof(ev));
   } else {
@@ -256,6 +259,26 @@ e2ap_msg_t e2ap_handle_control_request_agent(e2_agent_t* ag, const e2ap_msg_t* m
   assert(msg->type == RIC_CONTROL_REQUEST);
  
   ric_control_request_t const* ctrl_req = &msg->u_msgs.ric_ctrl_req;
+
+  if(ctrl_req->ack_req == NULL){
+    printf("Invalid FlexRIC  RIC_CONTROL_REQUEST converting to  RIC_CONTROL_REQUEST_ACK\n" );
+    ((ric_control_request_t*)ctrl_req)->ack_req = calloc(1, sizeof(ric_control_ack_req_t));  
+    assert(ctrl_req->ack_req != NULL && "Memory exhausted");
+  }
+	 
+  if(*ctrl_req->ack_req != RIC_CONTROL_REQUEST_ACK){
+    printf("Invalid  RIC_CONTROL_REQUEST converting to  RIC_CONTROL_REQUEST_ACK\n" );
+    *((ric_control_request_t*)ctrl_req)->ack_req = RIC_CONTROL_REQUEST_ACK;
+  }
+
+  for(int i = 0; i < 64; ++i){
+   printf("RIC Control messgae received \n"); 
+  }
+
+
+
+
+
   assert(ctrl_req->ack_req != NULL && *ctrl_req->ack_req == RIC_CONTROL_REQUEST_ACK );
 
   sm_ctrl_req_data_t data = {.ctrl_hdr = ctrl_req->hdr.buf,
