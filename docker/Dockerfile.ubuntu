@@ -1,0 +1,129 @@
+#/*
+# * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+# * contributor license agreements.  See the NOTICE file distributed with
+# * this work for additional information regarding copyright ownership.
+# * The OpenAirInterface Software Alliance licenses this file to You under
+# * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+# * except in compliance with the License.
+# * You may obtain a copy of the License at
+# *
+# *      http://www.openairinterface.org/?page_id=698
+# *
+# * Unless required by applicable law or agreed to in writing, software
+# * distributed under the License is distributed on an "AS IS" BASIS,
+# * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# * See the License for the specific language governing permissions and
+# * limitations under the License.
+# *-------------------------------------------------------------------------------
+# * For more information about the OpenAirInterface (OAI) Software Alliance:
+# *      contact@openairinterface.org
+# */
+#---------------------------------------------------------------------
+#
+# Dockerfile for the FlexRic service
+#   Valid for Ubuntu-20.04 (focal)
+#             Ubuntu-22.04 (jammy)
+#
+#---------------------------------------------------------------------
+# BASE IMAGE
+#---------------------------------------------------------------------
+ARG BASE_IMAGE=ubuntu:focal
+FROM $BASE_IMAGE as flexric-base
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Paris
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes \
+      psmisc \
+      cmake \
+      build-essential \
+      libsctp-dev \
+      python3 \
+      cmake-curses-gui \
+      libpcre2-dev \
+      python3-dev \
+      automake \
+      bison \
+      flex \
+      libtool \
+      git \
+# we need to downgrade the gcc version to 10 when building on jammy.
+# on focal, should be OK.
+     gcc-10 \
+     g++-10 \
+  && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 20 \
+  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 20 \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/swig/swig.git && \
+    cd swig/ && \
+    ./autogen.sh && \
+    ./configure --prefix=/usr/ && \
+    make -j `nproc` && \
+    make install && \
+    ldconfig && \
+    git clean -x -d -ff
+
+RUN git clone https://github.com/mouse07410/asn1c && \
+    cd asn1c/ && \
+    git checkout vlm_master && \
+    autoreconf -iv && \
+    ./configure --prefix /usr/local/ && \
+    make -j `nproc` && \
+    make install && \
+    ldconfig && \
+    git clean -x -d -ff
+
+#---------------------------------------------------------------------
+# BUILDER IMAGE
+#---------------------------------------------------------------------
+FROM flexric-base as flexric-builder
+# Copying source code
+WORKDIR /flexric
+COPY . /flexric
+
+WORKDIR /flexric/_build
+RUN cmake .. && \
+    make -j `nproc` && \
+    make install && \
+    ldconfig 
+
+#---------------------------------------------------------------------
+# TARGET IMAGE
+#---------------------------------------------------------------------
+FROM $BASE_IMAGE as flexric
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Paris
+# We install some debug tools for the moment in addition of mandatory libraries
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes \
+      libsctp1 \
+      tzdata \
+      psmisc \
+      net-tools \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /flexric/bin
+COPY --from=flexric-builder \
+   /flexric/_build/examples/ric/nearRT-RIC \
+   /flexric/_build/examples/xApp/c/monitor/xapp_kpm_moni \
+   /flexric/_build/examples/xApp/c/monitor/xapp_gtp_moni \
+   /flexric/_build/examples/xApp/c/monitor/xapp_mac_rlc_pdcp_moni \
+   ./
+
+WORKDIR /usr/local/etc/flexric
+COPY --from=flexric-builder \
+   /usr/local/etc/flexric/flexric.conf \
+   ./
+
+WORKDIR /usr/local/lib/flexric/
+COPY --from=flexric-builder \
+    /usr/local/lib/flexric/*.* \
+    ./
+
+WORKDIR /flexric
+RUN ldd /flexric/bin/* && \
+    ldd /usr/local/lib/flexric/*.so
