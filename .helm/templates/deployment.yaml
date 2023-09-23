@@ -19,11 +19,6 @@ spec:
         - name: config-volume
           configMap:
             name: config-{{ .Values.service.name }}
-            items:
-              - key: flexric_conf
-                path: flexric.conf
-                mode: 420
-            defaultMode: 420
       restartPolicy: Always
       dnsPolicy: ClusterFirst
       securityContext: { }
@@ -37,3 +32,4 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /usr/local/etc/flexric/flexric.conf
+              subPath: flexric_conf
