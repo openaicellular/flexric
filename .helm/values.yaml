@@ -6,7 +6,7 @@ service:
   name: flexric
   port: 36421
   type: NodePort
-  node_port: 32218
+  node_port: node_port #must be within range 30000 - 32767
 image:
   repository: repo_image_url
   tag: image_tag
