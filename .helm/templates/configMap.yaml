@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.service_name }}-environment-variables
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.service_name }}
+data:
+  {{- range $key, $val := .Values.configmap_data }}   # configmap_data must be a key/value content
+  {{ $key }}: {{ $val | quote }}
+  {{- end}}
