@@ -166,7 +166,7 @@ Once you can build your own image with above steps, you can deploy it onto a run
 $ helm intall --set image.repository=<REPO_IMAGE_URL> --set image.tag=<IMAGE_TAG> flexric ./.helm
 ```
 
-Example value of REPO_IMAGE_URL is `172.24.56.102:5000/flexric` and that of IMAGE_TAG is `latest`. Note that you need to make sure the namespace with name `oai-ric-test` (or whatever you choose must be updated in file `values.yaml`) needs to exist. 
+Example value of REPO_IMAGE_URL is `192.168.5.10:5000/flexric` and that of IMAGE_TAG is `latest`. Note that you need to make sure the namespace with name `oai-ric` (or whatever you choose must be updated in file `values.yaml`) needs to exist. 
 
 ## 3. Integration with RAN and example of deployment
 
