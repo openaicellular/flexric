@@ -8,8 +8,8 @@ service:
   type: NodePort
   node_port: 32218
 image:
-  repository: {{ requiredEnv "REPO_IMAGE_URL" }}
-  tag: {{ requiredEnv "IMAGE_TAG" }}
+  repository: repo_image_url
+  tag: image_tag
 configmap_data:
   flexric_conf: |-
     [NEAR-RIC]
