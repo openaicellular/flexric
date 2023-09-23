@@ -13,5 +13,4 @@ spec:
       name: sctp
       nodePort: {{ .Values.service.node_port }}
   selector:
-    matchLabels:
       app: {{ .Values.service.name }}

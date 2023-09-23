@@ -6,10 +6,10 @@ service:
   name: flexric
   port: 36421
   type: NodePort
-  node_port: {{ requiredEnv "NODE_PORT" }}
+  node_port: 36218
 image:
-  repository: {{ requiredEnv "REPO_URL" }}
-  tag: {{ requiredEnv "IMAGE_NAME" }}
+  repository: {{ requiredEnv "REPO_IMAGE_URL" }}
+  tag: {{ requiredEnv "IMAGE_TAG" }}
 configmap_data:
   flexric_conf: |-
     [NEAR-RIC]
