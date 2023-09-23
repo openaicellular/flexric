@@ -14,6 +14,5 @@ configmap_data:
   flexric_conf: |-
     [NEAR-RIC]
     NEAR_RIC_IP = 0.0.0.0
-
     [XAPP]
     DB_DIR = /tmp/
