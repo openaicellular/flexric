@@ -9,7 +9,7 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      protocol: STCP
+      protocol: SCTP
       name: sctp
       nodePort: {{ .Values.service.node_port }}
   selector:
