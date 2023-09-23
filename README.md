@@ -107,6 +107,8 @@ feature. From the build directory it is sufficent to launch `ctest` to launch th
 
 ## 2. Usage/deployment
 
+2.1 Standalone
+
 Before starting the nearRT-RIC, check that the IP address where your nearRT-RIC will be listening is the desired one at `/usr/local/etc/flexric/flexric.conf`.
 Infact the default configuration assumes all the components are located in the same localhost. 
 
@@ -155,6 +157,16 @@ At this point, FlexRIC is working correctly in your computer and you have alread
 The latency that you observe in your monitor xApp is the latency from the E2 Agent to the nearRT-RIC and xApp. In modern computers the latency should be less
 than 200 microsecond s or 50x faster than the O-RAN specified maximum nearRT-RIC latency of 10 ms.
 Additionally, all the data received in the xApp is also written to /tmp/xapp_db in case that offline data processing is wanted (e.g., Machine Learning/Artificial Intelligence applications). Please, check the example folder for other working xApp use cases.
+
+2.1 Via Helm
+
+Once you can build your own image with above steps, you can deploy it onto a running K8s cluster with Helm v3. Just need to run this command:
+
+```bash
+$ helm intall --set image.repository=<REPO_IMAGE_URL> --set image.tag=<IMAGE_TAG> flexric ./.helm
+```
+
+Example value of REPO_IMAGE_URL is `172.24.56.102:5000/flexric` and that of IMAGE_TAG is `latest`. Note that you need to make sure the namespace with name `oai-ric-test` (or whatever you choose must be updated in file `values.yaml`) needs to exist. 
 
 ## 3. Integration with RAN and example of deployment
 
