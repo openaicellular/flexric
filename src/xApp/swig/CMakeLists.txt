@@ -157,7 +157,8 @@ if(XAPP_GO_SWIG)
 
   TARGET_COMPILE_DEFINITIONS(xapp_sdk_go PRIVATE XAPP_LANG_GO ${E2AP_ENCODING} ${E2AP_VERSION})
   # Compile the Swig wrapper for Go
-  SET_PROPERTY(TARGET xapp_sdk_go PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk_go.so -w312 -w314 ${E2AP_VERSION})
+  SET_PROPERTY(TARGET xapp_sdk_go PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION})
+  SET_PROPERTY(TARGET xapp_sdk_go PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk_go.so -w312 -w314)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
 
   #Check if go.mod exists
