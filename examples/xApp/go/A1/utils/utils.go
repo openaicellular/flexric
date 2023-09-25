@@ -296,10 +296,8 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 }
 
 // ------------------------------------------------------------------------ //
-//
 //	SliceIndToDictJSON function for storing the latest indication message to the global structure
 //	This function is called by the callback function in order to store the latest indication message
-//
 // ------------------------------------------------------------------------ //
 func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 	Mutex.Lock()
@@ -439,9 +437,7 @@ func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 }
 
 // ------------------------------------------------------------------------ //
-//
 //	CreateSlice function for creating a slice
-//
 // ------------------------------------------------------------------------ //
 func CreateSlice(sliceParams Slice, sliceSchedAlgo string) xapp.Fr_slice_t {
 	newSlice := xapp.NewFr_slice_t()
@@ -538,9 +534,7 @@ func CreateSlice(sliceParams Slice, sliceSchedAlgo string) xapp.Fr_slice_t {
 }
 
 // ------------------------------------------------------------------------ //
-//
 //	Function for returning the appropriate Int for the RAN Name
-//
 // ------------------------------------------------------------------------ //
 func RanNametoInt(value string) int {
 	switch value {
@@ -567,7 +561,6 @@ func RanNametoInt(value string) int {
 }
 
 // ------------------------------------------------------------------------ //
-//
 //	Definition of the Slicing Request
 //
 //	- SliceAlgoParams is a struct for storing the slice algorithm parameters
@@ -576,7 +569,6 @@ func RanNametoInt(value string) int {
 //	- Request is a struct for storing the request
 //
 //	The Requests are used to request a control message to the RIC
-//
 // ------------------------------------------------------------------------ //
 type SliceAlgoParams struct {
 	PosLow  int `json:"pos_low,omitempty"`
@@ -617,9 +609,7 @@ type Request struct {
 }
 
 // ------------------------------------------------------------------------ //
-//
 //	FillSliceCtrlMsg function for filling the control message
-//
 // ------------------------------------------------------------------------ //
 func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 	msg := xapp.NewSlice_ctrl_msg_t()
@@ -701,22 +691,17 @@ func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 }
 
 // ------------------------------------------------------------------------ //
-//
 //	Define Global Variables for the xApp API Server
-//
 //	The APIs are used to receive policies and sent the current state from/to the Non-RT RIC
-//
 // ------------------------------------------------------------------------ //
 var Router *gin.Engine
 var Srv *http.Server
 var ServerFinished bool
 
 // ------------------------------------------------------------------------ //
-//
 //	Global structures for Policy configuration
 //	- PolicyConfiguration: the latest policy configuration
 //	- PrevPolicyConfiguration: the previous policy configuration
-//
 // ------------------------------------------------------------------------ //
 var PolicyConfiguration Configuration
 var PrevPolicyConfiguration Configuration
@@ -789,9 +774,7 @@ var Initialized bool = false
 
 
 // ------------------------------------------------------------------------ //
-//
 //	ParseXAppConfig function for parsing the xApp configuration
-//
 // ------------------------------------------------------------------------ //
 func ParseXAppConfig(name string) (string, int) {
 	cfg, err := ini.Load(name)
