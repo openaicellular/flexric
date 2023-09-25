@@ -821,10 +821,8 @@ var FinishChannel chan bool
 // Configuration represents the JSON configuration received by the first server.
 
 // ------------------------------------------------------------------------ //
-//
 //	Configuration struct for storing the xApp policy configuration
 //	coming from the Non-RT RIC via the APIs
-//
 // ------------------------------------------------------------------------ //
 type Configuration struct {
 	PolicyID   int             `json:"PolicyId,omitempty"`
@@ -852,10 +850,8 @@ type StatementConfig struct {
 }
 
 // ------------------------------------------------------------------------ //
-//
 //	PolicyEnforcementCallback function for enforcing the policy
 //	The calback function is defined in the xApp
-//
 // ------------------------------------------------------------------------ //
 type PolicyEnforcementCallback func(Configuration)
 
@@ -962,16 +958,16 @@ func OpenA1Apis(policyEnforceCallback PolicyEnforcementCallback, conf string) {
 	// ----------------------- Wait for Finish Command ----------------------- //
 	<-FinishChannel
 
-	log.Println("Shutdown Client ...")
+	log.Println("Shutdown API server ...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := Srv.Shutdown(ctx); err != nil {
-		log.Fatal("Client Shutdown:", err)
+		log.Fatal("Server Shutdown:", err)
 	}
 	select {
 	case <-ctx.Done():
-		log.Println("timeout of 5 seconds.")
+		log.Println("Timeout of 10 seconds.")
 	}
-	log.Println("Client exiting")
+	log.Println("Server exiting")
 }
