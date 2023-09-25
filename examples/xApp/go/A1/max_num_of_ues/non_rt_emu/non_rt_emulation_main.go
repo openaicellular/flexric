@@ -33,7 +33,7 @@ type StatementConfig struct {
 	MaxNumberOfUEs int `json:"maxNumberOfUes"`
 }
 
-var server1URL = "http://localhost:9000/api/policy"
+var server1URL = "http://127.0.0.1:7000/api/policy"
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
@@ -65,7 +65,7 @@ func main() {
 
 
 	// finish
-	url := "http://localhost:9000/api/finish"
+	url := "http://127.0.0.1:7000/api/finish"
 
 	// Create the request body (if needed)
 	// requestBody := []byte(`{"key": "value"}`)

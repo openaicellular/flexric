@@ -723,69 +723,69 @@ var PrevPolicyConfiguration Configuration
 var Initialized bool = false
 
 
-// ------------------------------------------------------------------------ //
-//
-//	Use only in DEBUG mode
-//	Function to initialize the network with one normal slice (id=0) and one idle slice (id=2)
-//
-// ------------------------------------------------------------------------ //
-func InitNetwork() {
-	// ----------------------- SLICE CTRL ADD ----------------------- //
-	// Normal slice
-	s1_params := SliceAlgoParams{PctRsvd: 0.5}
-	s1 := Slice{
-		Id:              0,
-		Label:           "s1",
-		UeSchedAlgo:     "PF",
-		Type:            "SLICE_SM_NVS_V0_CAPACITY",
-		SliceAlgoParams: s1_params}
+// // ------------------------------------------------------------------------ //
+// //
+// //	Use only in DEBUG mode
+// //	Function to initialize the network with one normal slice (id=0) and one idle slice (id=2)
+// //
+// // ------------------------------------------------------------------------ //
+// func InitNetwork() {
+// 	// ----------------------- SLICE CTRL ADD ----------------------- //
+// 	// Normal slice
+// 	s1_params := SliceAlgoParams{PctRsvd: 0.5}
+// 	s1 := Slice{
+// 		Id:              0,
+// 		Label:           "s1",
+// 		UeSchedAlgo:     "PF",
+// 		Type:            "SLICE_SM_NVS_V0_CAPACITY",
+// 		SliceAlgoParams: s1_params}
 
-	// Idle slice
-	s2_params := SliceAlgoParams{PctRsvd: 0.05}
-	s2 := Slice{
-		Id:              2,
-		Label:           "idle",
-		UeSchedAlgo:     "PF",
-		Type:            "SLICE_SM_NVS_V0_CAPACITY",
-		SliceAlgoParams: s2_params}
+// 	// Idle slice
+// 	s2_params := SliceAlgoParams{PctRsvd: 0.05}
+// 	s2 := Slice{
+// 		Id:              2,
+// 		Label:           "idle",
+// 		UeSchedAlgo:     "PF",
+// 		Type:            "SLICE_SM_NVS_V0_CAPACITY",
+// 		SliceAlgoParams: s2_params}
 
-	// Request to add the slices
-	addNvsSlicesCap := Request{
-		NumSlices:      2,
-		SliceSchedAlgo: "NVS",
-		Slices:         []Slice{s1, s2},
-	}
+// 	// Request to add the slices
+// 	addNvsSlicesCap := Request{
+// 		NumSlices:      2,
+// 		SliceSchedAlgo: "NVS",
+// 		Slices:         []Slice{s1, s2},
+// 	}
 
-	// Send the ADDMOD control message to the RIC
-	msg := FillSliceCtrlMsg("ADDMOD", addNvsSlicesCap)
-	xapp.Control_slice_sm(Conn.Get(NodeIdx).GetId(), msg)
-	time.Sleep(1 * time.Second)
+// 	// Send the ADDMOD control message to the RIC
+// 	msg := FillSliceCtrlMsg("ADDMOD", addNvsSlicesCap)
+// 	xapp.Control_slice_sm(Conn.Get(NodeIdx).GetId(), msg)
+// 	time.Sleep(1 * time.Second)
 
-	// ----------------------- SLICE CTRL ASSOC ----------------------- //
-	// Check that ues exist in the network
-	for int(ReadSliceStats("num_of_ues", -1).(int32)) == 0 {
-		fmt.Println("Waiting for UEs to connect to the network")
-		time.Sleep(1 * time.Second)
-	}
+// 	// ----------------------- SLICE CTRL ASSOC ----------------------- //
+// 	// Check that ues exist in the network
+// 	for int(ReadSliceStats("num_of_ues", -1).(int32)) == 0 {
+// 		fmt.Println("Waiting for UEs to connect to the network")
+// 		time.Sleep(1 * time.Second)
+// 	}
 
-	// Associate the UEs with the normal slice
-	rntis := ReadSliceStats("rntis", -1)
+// 	// Associate the UEs with the normal slice
+// 	rntis := ReadSliceStats("rntis", -1)
 
-	assocRnti := rntis.([]uint16)[0]
-	fmt.Printf("Associating rnti = %d\n", assocRnti)
-	ue := Ue{
-		Rnti:           assocRnti,
-		AssocDlSliceId: 0,
-	}
-	assocUeSlice := Request{
-		NumUes: 1,
-		Ues:    []Ue{ue},
-	}
-	// Send the ASSOC_UE_SLICE control message to the RIC
-	msg2 := FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
-	xapp.Control_slice_sm(Conn.Get(NodeIdx).GetId(), msg2)
-	time.Sleep(1 * time.Second)
-}
+// 	assocRnti := rntis.([]uint16)[0]
+// 	fmt.Printf("Associating rnti = %d\n", assocRnti)
+// 	ue := Ue{
+// 		Rnti:           assocRnti,
+// 		AssocDlSliceId: 0,
+// 	}
+// 	assocUeSlice := Request{
+// 		NumUes: 1,
+// 		Ues:    []Ue{ue},
+// 	}
+// 	// Send the ASSOC_UE_SLICE control message to the RIC
+// 	msg2 := FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
+// 	xapp.Control_slice_sm(Conn.Get(NodeIdx).GetId(), msg2)
+// 	time.Sleep(1 * time.Second)
+// }
 
 
 // ------------------------------------------------------------------------ //
@@ -793,7 +793,7 @@ func InitNetwork() {
 //	ParseXAppConfig function for parsing the xApp configuration
 //
 // ------------------------------------------------------------------------ //
-func ParseXAppConfig(name string) (string, string) {
+func ParseXAppConfig(name string) (string, int) {
 	cfg, err := ini.Load(name)
 	if err != nil {
 		log.Fatalf("Fail to read file: %v", err)

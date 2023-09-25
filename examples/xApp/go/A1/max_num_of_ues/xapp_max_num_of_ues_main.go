@@ -109,7 +109,7 @@ func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration) {
 				Ues:    uesToBeAssoc,
 			}
 			msg := utils.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
-			xapp.Control_slice_sm(utils.Conn.Get(utils.NodeIdx).GetId(), msg)
+			xapp.Control_slice_sm(Conn.Get(NodeIdx).GetId(), msg)
 			time.Sleep(1000 * time.Millisecond)
 
 			// Policy is not enforced yet. We let the loop to continue to check if everything is ok
@@ -172,7 +172,7 @@ func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration) {
 					Ues:    uesToBeAssoc,
 				}
 				msg := utils.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
-				xapp.Control_slice_sm(utils.Conn.Get(utils.NodeIdx).GetId(), msg)
+				xapp.Control_slice_sm(Conn.Get(NodeIdx).GetId(), msg)
 				time.Sleep(1 * time.Second)
 
 				// Policy is not enforced yet. We let the loop to continue to check if everything is ok
@@ -205,17 +205,21 @@ func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration) {
 
 }
 
+// Global Variables
+var Conn xapp.E2NodeVector
+var NodeIdx int
+var Hndlr int
+
 // ------------------------------------------------------------------------ //
 //  MAIN
 // ------------------------------------------------------------------------ //
-
 func main() {
 	// ----------------------- Initialization ----------------------- //
 	args := []string{"", "-c", "maxnues.conf"}
-	xapp.Init(args)
+	xapp.Init(xapp.SlToStrVec(args))
 
 	// Connect
-	Conn := xapp.Conn_e2_nodes()
+	Conn = xapp.Conn_e2_nodes()
 
 	var nodes_len int64 = Conn.Size()
 
@@ -225,23 +229,17 @@ func main() {
 
 	fmt.Printf("Connected E2 nodes = %d\n", nodes_len)
 
-	NodeIdx := 0
+	NodeIdx = 0
 
 	// ----------------------- SLICE Indication ----------------------- //
 	inner := SLICECallback{}
 	callback := xapp.NewDirectorSlice_cb(inner)
-	Hndlr := xapp.Report_slice_sm(Conn.Get(NodeIdx).GetId(), xapp.Interval_ms_5, callback)
+	Hndlr = xapp.Report_slice_sm(Conn.Get(NodeIdx).GetId(), xapp.Interval_ms_5, callback)
 	
 	time.Sleep(1 * time.Second)
 
-	// ----------------------- Network Initialization ----------------------- //
-	if utils.XAppConfVar.Mode == "DEBUG" {
-		fmt.Println("[Mode]: DEBUG. Initializing the network...")
-		utils.InitNetwork()
-	}
-
 	// ----------------------- Gin Client ----------------------- //
-	utils.OpenA1Apis(PolicyEnforcementCallback)
+	utils.OpenA1Apis(PolicyEnforcementCallback, "maxnues.conf")
 
 	// ----------------------- END ----------------------- //
 	xapp.Rm_report_slice_sm(Hndlr)

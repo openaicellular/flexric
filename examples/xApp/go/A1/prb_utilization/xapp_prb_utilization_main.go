@@ -288,18 +288,23 @@ func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
 	}
 }
 
+// Global Variables
+var Conn xapp.E2NodeVector
+var NodeIdx int
+var Hndlr int
+
 // ------------------------------------------------------------------------ //
 //  MAIN
-// ------------------------------------------------------------------------ //
-
+// ------------------------------------------------------------------------ //s
 func main() {
 	// ----------------------- Initialization ----------------------- //
-	utils.Init()
+	args := []string{"", "-c", "prbutil.conf"}
+	xapp.Init(xapp.SlToStrVec(args))
 
 	// Connect
-	utils.Conn = xapp.Conn_e2_nodes()
+	Conn = xapp.Conn_e2_nodes()
 
-	var nodes_len int64 = utils.Conn.Size()
+	var nodes_len int64 = Conn.Size()
 
 	if nodes_len <= 0 {
 		panic(fmt.Sprintf("panic"))
@@ -307,7 +312,7 @@ func main() {
 
 	fmt.Printf("Connected E2 nodes = %d\n", nodes_len)
 
-	utils.NodeIdx = 0
+	NodeIdx = 0
 
 	MultipleUeStatistics = MultiUeStats{
 		Stats:    make(map[RNTI]UeStats),
@@ -324,19 +329,19 @@ func main() {
 	// ----------------------- SLICE Indication ----------------------- //
 	innerSlice := SLICECallback{}
 	callbackSlice := xapp.NewDirectorSlice_cb(innerSlice)
-	HndlrSlice := xapp.Report_slice_sm(utils.Conn.Get(utils.NodeIdx).GetId(), xapp.Interval_ms_10, callbackSlice)
+	HndlrSlice := xapp.Report_slice_sm(Conn.Get(NodeIdx).GetId(), xapp.Interval_ms_10, callbackSlice)
 	time.Sleep(1 * time.Second)
 
 	// ----------------------- MAC Indication ----------------------- //
 	innerMac := MACCallback{}
 	callbackMac := xapp.NewDirectorMac_cb(innerMac)
-	HndlrMac := xapp.Report_mac_sm(utils.Conn.Get(utils.NodeIdx).GetId(), xapp.Interval_ms_10, callbackMac)
+	HndlrMac := xapp.Report_mac_sm(Conn.Get(NodeIdx).GetId(), xapp.Interval_ms_10, callbackMac)
 	time.Sleep(1 * time.Second)
 
 	// ----------------------- GTP Indication ----------------------- //
 	innerGtp := GTPCallback{}
 	callbackGtp := xapp.NewDirectorGtp_cb(innerGtp)
-	HndlrGtp := xapp.Report_gtp_sm(utils.Conn.Get(utils.NodeIdx).GetId(), xapp.Interval_ms_10, callbackGtp)
+	HndlrGtp := xapp.Report_gtp_sm(Conn.Get(NodeIdx).GetId(), xapp.Interval_ms_10, callbackGtp)
 	time.Sleep(1 * time.Second)
 
 	time.Sleep(500 * time.Second)
