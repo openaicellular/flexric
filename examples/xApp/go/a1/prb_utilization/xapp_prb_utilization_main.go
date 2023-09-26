@@ -2,7 +2,7 @@ package main
 
 import "C"
 import (
-	utils "build/examples/xApp/go/A1/utils"
+	slice "build/examples/xApp/go/a1/utils/slice"
 	xapp "build/examples/xApp/go/xapp_sdk"
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
@@ -105,10 +105,10 @@ type SLICECallback struct {
 
 func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 	// store ind to global structure
-	utils.SliceIndToDictJSON(ind)
+	slice.SliceIndToDictJSON(ind)
 
 	// read and store the number of UEs
-	Rntis := utils.ReadSliceStats("rntis", -1).([]uint16)
+	Rntis := slice.ReadSliceStats("rntis", -1).([]uint16)
 
 	Mutex.Lock()
 	// store the num of UEs

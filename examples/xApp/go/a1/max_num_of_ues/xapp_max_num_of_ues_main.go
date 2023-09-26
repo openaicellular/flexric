@@ -2,7 +2,8 @@ package main
 
 import "C"
 import (
-	utils "build/examples/xApp/go/A1/utils"
+	api "build/examples/xApp/go/a1/utils/api"
+	slice "build/examples/xApp/go/a1/utils/slice"
 	xapp "build/examples/xApp/go/xapp_sdk"
 
 	"fmt"
@@ -21,7 +22,7 @@ type SLICECallback struct {
 }
 
 func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
-	utils.SliceIndToDictJSON(ind)
+	slice.SliceIndToDictJSON(ind)
 }
 
 // ------------------------------------------------------------------------ //
@@ -37,11 +38,11 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 //	to read the current state of the RAN (indication messages) and apply control acions.
 //
 // ------------------------------------------------------------------------ //
-func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration) {
+func PolicyEnforcementCallback(PolicyConfiguration api.Configuration) {
 	PolicyEnforced := false
 	numOfAttempts := 0
 	for PolicyEnforced == false {
-		if utils.ServerFinished {
+		if api.ServerFinished {
 			fmt.Println("[Policy]: Server finished. Exiting...")
 			return
 		}
@@ -61,7 +62,7 @@ func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration) {
 		// Consider reading all the desired values at once in a single iteration.
 		// Otherwise, inconsistencies may occur if the global structure is updated between multiple readings
 
-		reading := utils.ReadSliceStats("multiple_rntis_num_of_ues", -1).(interface{})
+		reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", -1).(interface{})
 
 		curNumOfUes := reading.(map[string]interface{})["num_of_normal_ues"].(int)
 		fmt.Println("[Policy]: Curr Num of UEs:", curNumOfUes, ", Max Num of UEs:", maxNumOfUes)
@@ -93,9 +94,9 @@ func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration) {
 
 			// Associate the extra UEs to the idle slice
 			// Create a structure with the extra UEs
-			uesToBeAssoc := []utils.Ue{}
+			uesToBeAssoc := []slice.Ue{}
 			for i := 0; i < numOfExtraUes; i++ {
-				ue := utils.Ue{
+				ue := slice.Ue{
 					Rnti:           extraUesRntis[i],
 					AssocDlSliceId: 2,
 				}
@@ -104,11 +105,11 @@ func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration) {
 			}
 
 			// Associate the UEs to the slice
-			assocUeSlice := utils.Request{
+			assocUeSlice := slice.Request{
 				NumUes: numOfExtraUes,
 				Ues:    uesToBeAssoc,
 			}
-			msg := utils.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
+			msg := slice.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
 			xapp.Control_slice_sm(Conn.Get(NodeIdx).GetId(), msg)
 			time.Sleep(1000 * time.Millisecond)
 
@@ -157,9 +158,9 @@ func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration) {
 
 				// Associate the UEs to the slice
 				// Create a structure with the UEs to be associated
-				uesToBeAssoc := []utils.Ue{}
+				uesToBeAssoc := []slice.Ue{}
 				for i := 0; i < numOfUesToBeAssociated; i++ {
-					ue := utils.Ue{
+					ue := slice.Ue{
 						Rnti:           uesToBeAssociatedRntis[i],
 						AssocDlSliceId: sliceId,
 					}
@@ -167,11 +168,11 @@ func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration) {
 					uesToBeAssoc = append(uesToBeAssoc, ue)
 				}
 
-				assocUeSlice := utils.Request{
+				assocUeSlice := slice.Request{
 					NumUes: numOfUesToBeAssociated,
 					Ues:    uesToBeAssoc,
 				}
-				msg := utils.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
+				msg := slice.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
 				xapp.Control_slice_sm(Conn.Get(NodeIdx).GetId(), msg)
 				time.Sleep(1 * time.Second)
 
@@ -201,7 +202,7 @@ func PolicyEnforcementCallback(PolicyConfiguration utils.Configuration) {
 	}
 
 	// Update the previous policy configuration
-	utils.PrevPolicyConfiguration = PolicyConfiguration
+	api.PrevPolicyConfiguration = PolicyConfiguration
 
 }
 
@@ -239,7 +240,7 @@ func main() {
 	time.Sleep(1 * time.Second)
 
 	// ----------------------- Gin Client ----------------------- //
-	utils.OpenA1Apis(PolicyEnforcementCallback, "maxnues.conf")
+	api.OpenA1Apis(PolicyEnforcementCallback, "maxnues.conf")
 
 	// ----------------------- END ----------------------- //
 	xapp.Rm_report_slice_sm(Hndlr)
