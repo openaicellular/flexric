@@ -21,7 +21,6 @@ import (
 // ------------------------------------------------------------------------ //
 var Router *gin.Engine
 var Srv *http.Server
-var ServerFinished bool
 
 // ------------------------------------------------------------------------ //
 //	Global structures for Policy configuration
@@ -29,8 +28,8 @@ var ServerFinished bool
 //	- PrevPolicyConfiguration: the previous policy configuration
 // ------------------------------------------------------------------------ //
 var PolicyConfiguration Configuration
-var PrevPolicyConfiguration Configuration
 var Initialized bool = false
+var PolicyEnforced = false
 
 
 // ------------------------------------------------------------------------ //
@@ -135,18 +134,8 @@ func OpenA1Apis(policyEnforceCallback PolicyEnforcementCallback, conf string) {
 			return
 		}
 
-		if Initialized == true {
-			// Update the previous policy configuration
-			PrevPolicyConfiguration = PolicyConfiguration
-		}
-
 		// Store the received policy configuration
 		PolicyConfiguration = config
-
-		// Show that xApp is initialized
-		if Initialized == false {
-			Initialized = true
-		}
 
 		// Call the callback function for enforcing the policy
 		go policyEnforceCallback(PolicyConfiguration)
