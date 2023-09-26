@@ -219,7 +219,27 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 			fmt.Println("ERROR: Invalid sliceId")
 			return nil
 		}
+	case "find_idle":
+		Mutex.Lock()
+		defer Mutex.Unlock()
+
+		if len(SliceStats.RAN.DL.Slices) == 0 {
+			return "Slices array is empty"
+		}
+
+		for _, slice := range SliceStats.RAN.DL.Slices {
+			if slice.UeSchedAlgo == "PF" {
+				if slice.SliceAlgoParams.Type == "SLICE_SM_NVS_V0_CAPACITY" {
+					if slice.SliceAlgoParams.PctRsvd == 0.05 {
+						return slice.Index
+					}
+				}
+			}
+		}
+		return -1
 	case "multiple_rntis_num_of_ues":
+		// sliceId is the idle found before
+		//
 		// Take multiple output items from the global structure
 		// - normal_rntis: return all RNTIs associated with the normal slice
 		// - num_of_normal_ues: return the number of UEs associated with the normal slice
@@ -241,7 +261,7 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 			currAssocDlSliceIdInt := int(b)
 
 			// If the current UE is associated with the normal slice, append the RNTI to the list
-			if currAssocDlSliceIdInt == 0 {
+			if currAssocDlSliceIdInt != sliceId { // different than idle
 				rntis = append(rntis, currUe.Rnti)
 			}
 		}
@@ -262,7 +282,7 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 			currAssocDlSliceIdInt := int(b)
 
 			// If the current UE is associated with the idle slice, append the RNTI to the list
-			if currAssocDlSliceIdInt == 2 {
+			if currAssocDlSliceIdInt == sliceId { // equal to idle
 				rntis = append(rntis, currUe.Rnti)
 			}
 		}

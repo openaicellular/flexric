@@ -39,8 +39,13 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 //
 // ------------------------------------------------------------------------ //
 func PolicyEnforcementCallback(PolicyConfiguration api.Configuration) {
-	// STEP 1: Check if there is an idle slice and if there is create it
-
+	// STEP 1: Check if there is an idle slice and if no create it
+	idleSliceId := slice.ReadSliceStats("find_idle", -1).(int)
+	if idleSliceId != -1 {
+		fmt.Printf("Found slice with index %d and PctRsvd = 0.05\n", idleSliceId)
+	} else {
+		fmt.Println("No slice found with PctRsvd = 0.05")
+	}
 
 	// STEP 2: Enforce the policy
 
@@ -99,7 +104,7 @@ func PolicyEnforcementCallback(PolicyConfiguration api.Configuration) {
 		for i := 0; i < numOfExtraUes; i++ {
 			ue := slice.Ue{
 				Rnti:           extraUesRntis[i],
-				AssocDlSliceId: 2,
+				AssocDlSliceId: idleSliceId,
 			}
 
 			uesToBeAssoc = append(uesToBeAssoc, ue)
@@ -115,6 +120,7 @@ func PolicyEnforcementCallback(PolicyConfiguration api.Configuration) {
 		time.Sleep(1000 * time.Millisecond)
 
 		// Policy is not enforced yet
+
 	} else if curNumOfUes < maxNumOfUes {
 		// Find if there are UEs in the idle slice that can be associated to the slice
 		fmt.Println("[Policy]: Policy is enforced. Less UEs than max num allowed")
