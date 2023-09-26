@@ -43,6 +43,9 @@ add_library(e2ap_alg_obj OBJECT
 add_library(e2_conf_obj OBJECT 
                         conf_file.c
                         )
+if(RAN_WITH_WS)
+    target_compile_definitions(e2_conf_obj PRIVATE PROXY_AGENT)
+endif()
 
 add_library(e2_conv_obj OBJECT 
                         conversions.c
