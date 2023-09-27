@@ -219,24 +219,6 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 			fmt.Println("ERROR: Invalid sliceId")
 			return nil
 		}
-	case "find_idle":
-		Mutex.Lock()
-		defer Mutex.Unlock()
-
-		if len(SliceStats.RAN.DL.Slices) == 0 {
-			return "Slices array is empty"
-		}
-
-		for _, slice := range SliceStats.RAN.DL.Slices {
-			if slice.UeSchedAlgo == "PF" {
-				if slice.SliceAlgoParams.Type == "SLICE_SM_NVS_V0_CAPACITY" {
-					if slice.SliceAlgoParams.PctRsvd == 0.05 {
-						return slice.Index
-					}
-				}
-			}
-		}
-		return -1
 	case "multiple_rntis_num_of_ues":
 		// sliceId is the idle found before
 		//
@@ -307,6 +289,27 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 		return nil
 	}
 }
+
+func FindIdleSlice() int {
+	Mutex.Lock()
+	defer Mutex.Unlock()
+
+	if len(SliceStats.RAN.DL.Slices) == 0 {
+		return -1
+	}
+
+	for _, sl := range SliceStats.RAN.DL.Slices {
+		if sl.UeSchedAlgo == "PF" {
+			if sl.SliceAlgoParams.Type == "SLICE_SM_NVS_V0_CAPACITY" {
+				if sl.SliceAlgoParams.PctRsvd == 0.05 {
+					return int(sl.Index)
+				}
+			}
+		}
+	}
+	return -1
+}
+	
 
 // ------------------------------------------------------------------------ //
 //	SliceIndToDictJSON function for storing the latest indication message to the global structure

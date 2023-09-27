@@ -40,19 +40,46 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 // ------------------------------------------------------------------------ //
 func PolicyEnforcementCallback(PolicyConfiguration api.Configuration) {
 	// STEP 1: Check if there is an idle slice and if no create it
-	idleSliceId := slice.ReadSliceStats("find_idle", -1).(int)
+	idleSliceId := slice.FindIdleSlice()
+
 	if idleSliceId != -1 {
 		fmt.Printf("Found slice with index %d and PctRsvd = 0.05\n", idleSliceId)
 	} else {
 		fmt.Println("No slice found with PctRsvd = 0.05")
+
+		// Create Idle slice
+		algoParams := slice.SliceAlgoParams{PctRsvd: 0.05}
+		idleSlice := slice.Slice{
+			Id:              2, // TODO: Do this dynamically to find a free id
+			Label:           "idle",
+			UeSchedAlgo:     "PF",
+			Type:            "SLICE_SM_NVS_V0_CAPACITY",
+			SliceAlgoParams: algoParams}
+
+		// Request to add the slices
+		idleNvsSlicesCap := slice.Request{
+			NumSlices:      1,
+			SliceSchedAlgo: "NVS",
+			Slices:         []slice.Slice{idleSlice},
+		}
+
+		// Send the ADDMOD control message to the RIC
+		msg := slice.FillSliceCtrlMsg("ADDMOD", idleNvsSlicesCap)
+		xapp.Control_slice_sm(Conn.Get(NodeIdx).GetId(), msg)
+		
+		time.Sleep(1 * time.Second)
+
+		// ensure the slice is created
+		idleSliceId = slice.FindIdleSlice()
+		if idleSliceId != -1 {
+			fmt.Printf("Found slice with index %d and PctRsvd = 0.05\n", idleSliceId)
+		} else {
+			fmt.Println("Error creating idle slice")
+			return
+		}
 	}
 
 	// STEP 2: Enforce the policy
-
-	// Get the number of UEs in the network
-	//numOfUes := readSliceStats("num_of_ues", -1).(uint)
-	//numOfUes := rand.Intn(10)
-	//fmt.Println("[Policy]: Number of UEs in the network:", numOfUes)
 	fmt.Println("\n[Policy]:------------------ Enforcement -------------------------")
 	cellId := PolicyConfiguration.Scope.CellID
 	sliceId := PolicyConfiguration.Scope.SliceID
