@@ -21,15 +21,8 @@ import (
 // ------------------------------------------------------------------------ //
 var Router *gin.Engine
 var Srv *http.Server
-
-// ------------------------------------------------------------------------ //
-//	Global structures for Policy configuration
-//	- PolicyConfiguration: the latest policy configuration
-//	- PrevPolicyConfiguration: the previous policy configuration
-// ------------------------------------------------------------------------ //
-var PolicyConfiguration Configuration
-var Initialized bool = false
 var PolicyEnforced = false
+var FinishChannel chan bool
 
 
 // ------------------------------------------------------------------------ //
@@ -55,9 +48,6 @@ func ParseXAppConfig(name string) (string, int) {
 	return a1IP, a1Port
 }
 
-
-// Channel Variable for finishing the xApp
-var FinishChannel chan bool
 
 // xApp policy configuration API
 // Configuration represents the JSON configuration received by the first server.
@@ -134,11 +124,8 @@ func OpenA1Apis(policyEnforceCallback PolicyEnforcementCallback, conf string) {
 			return
 		}
 
-		// Store the received policy configuration
-		PolicyConfiguration = config
-
 		// Call the callback function for enforcing the policy
-		go policyEnforceCallback(PolicyConfiguration)
+		go policyEnforceCallback(config)
 
 		// Send the JSON response
 		c.JSON(http.StatusOK, gin.H{

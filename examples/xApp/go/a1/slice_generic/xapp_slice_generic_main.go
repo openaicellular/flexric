@@ -41,14 +41,14 @@ func PolicyEnforcementCallback(PolicyConfiguration api.Configuration) {
 
 	// Send the control request
 	msg := slice.FillSliceCtrlMsg(controlType, controlRequest)
-	xapp.Control_slice_sm(Conn.Get(NodeIdx).GetId(), msg)
+	xapp.Control_slice_sm(Conn.Get(0).GetId(), msg)
 	time.Sleep(1 * time.Second)
 }
 
 // Global Variables
 var Conn xapp.E2NodeVector
-var NodeIdx int
 var Hndlr int
+var SliceSmHandlers []int
 
 // ------------------------------------------------------------------------ //
 //  MAIN
@@ -69,21 +69,27 @@ func main() {
 
 	fmt.Printf("Connected E2 nodes = %d\n", nodes_len)
 
-	NodeIdx = 0
-
-	// ----------------------- SLICE Indication ----------------------- //
-	inner := SLICECallback{}
-	callback := xapp.NewDirectorSlice_cb(inner)
-	Hndlr = xapp.Report_slice_sm(Conn.Get(NodeIdx).GetId(), xapp.Interval_ms_5, callback)
 	
-	time.Sleep(1 * time.Second)
+	for i:=0 ; i <= int(Conn.Size()-1); i++ {
+		// ----------------------- Slice Indication ----------------------- //
+		innerSlice := SLICECallback{}
+		callbackSlice := xapp.NewDirectorSlice_cb(innerSlice)
+		HndlrSlice := xapp.Report_slice_sm(Conn.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackSlice)
+
+		// Append values to the slice
+		SliceSmHandlers = append(SliceSmHandlers, HndlrSlice)
+
+		time.Sleep(1 * time.Second)
+	}
 
 	// ----------------------- Gin Client ----------------------- //
 	api.OpenA1Apis(PolicyEnforcementCallback, "slgeneric.conf")
 
 	// ----------------------- END ----------------------- //
-	xapp.Rm_report_slice_sm(Hndlr)
-	// --------------------------------------------------------- //
+	// unsubscribe from sms
+	for _, value := range SliceSmHandlers {
+		xapp.Rm_report_slice_sm(value)
+	}
 
 	// Stop the xApp. Avoid deadlock.
 	for xapp.Try_stop() == false {
