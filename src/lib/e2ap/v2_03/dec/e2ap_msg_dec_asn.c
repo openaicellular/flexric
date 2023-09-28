@@ -676,7 +676,8 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
     const RICaction_Admitted_ItemIEs_t *ai = (const RICaction_Admitted_ItemIEs_t *)act_adm_list->value.choice.RICaction_Admitted_List.list.array[i];
 
     assert(ai->id == ProtocolIE_ID_id_RICaction_Admitted_Item);
-    assert(ai->criticality == Criticality_reject);
+    // Check ASN definition to see the ignore
+    assert(ai->criticality == Criticality_ignore);
     assert(ai->value.present == RICaction_Admitted_ItemIEs__value_PR_RICaction_Admitted_Item);
 
     ric_action_admitted_t* dst = &sr->admitted[i];
@@ -932,7 +933,7 @@ e2ap_msg_t e2ap_dec_indication(const E2AP_PDU_t* pdu)
 
   assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
   assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_RICindication);
-  assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
+  assert(pdu->choice.initiatingMessage->criticality == Criticality_ignore);
   assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICindication); 
 
   const RICindication_t* out = &pdu->choice.initiatingMessage->value.choice.RICindication;
@@ -1351,7 +1352,7 @@ e2ap_msg_t e2ap_dec_control_failure(const E2AP_PDU_t* pdu)
       *cf->call_process_id = copy_ostring_to_ba(cf_ie->value.choice.RICcallProcessID);
     } else if (cf_ie->id == ProtocolIE_ID_id_Cause){
       //Cause. Mandatory
-      assert(cf_ie->criticality == Criticality_reject);
+      assert(cf_ie->criticality == Criticality_ignore);
       assert(cf_ie->value.present == RICcontrolFailure_IEs__value_PR_Cause); 
       cf->cause = copy_cause(cf_ie->value.choice.Cause); 
     } else if (cf_ie->id ==  ProtocolIE_ID_id_RICcontrolOutcome){
