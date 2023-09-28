@@ -123,37 +123,51 @@ e2ap_node_comp_id_t e2ap_dec_node_component_id(e2ap_node_comp_interface_type_e i
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeNG:
       assert(interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeNG != NULL);
+      
+      dst.type = NG_E2AP_NODE_COMP_INTERFACE_TYPE;
       dst.ng_amf_name = copy_ostring_to_ba(cid->choice.e2nodeComponentInterfaceTypeNG->amf_name);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeXn:
       assert(interface_type == XN_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeXn != NULL);
       assert(false && "interfaceTypeXn not Implemented");
+
+      dst.type = XN_E2AP_NODE_COMP_INTERFACE_TYPE; 
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeE1:
       assert(interface_type == E1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeE1 != NULL);
+
+      dst.type = E1_E2AP_NODE_COMP_INTERFACE_TYPE; 
       asn_INTEGER2ulong(&cid->choice.e2nodeComponentInterfaceTypeE1->gNB_CU_UP_ID, &dst.e1_gnb_cu_up_id);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeF1:
       assert(interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeF1 != NULL);
+
+      dst.type = F1_E2AP_NODE_COMP_INTERFACE_TYPE;
       asn_INTEGER2ulong(&cid->choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, &dst.f1_gnb_du_id);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeW1:
       assert(interface_type == W1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeW1 != NULL);
+
+      dst.type = W1_E2AP_NODE_COMP_INTERFACE_TYPE; 
       asn_INTEGER2ulong(&cid->choice.e2nodeComponentInterfaceTypeW1->ng_eNB_DU_ID, &dst.w1_ng_enb_du_id);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeS1:
       assert(interface_type == S1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeS1 != NULL);
+
+      dst.type = S1_E2AP_NODE_COMP_INTERFACE_TYPE; 
       dst.s1_mme_name = copy_ostring_to_ba(cid->choice.e2nodeComponentInterfaceTypeS1->mme_name);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeX2:
       assert(interface_type == X2_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeX2 != NULL);
       assert(false && "interfaceTypeX2 not Implemented");
+
+      dst.type = X2_E2AP_NODE_COMP_INTERFACE_TYPE; 
       break;
     default:
       assert(0!=0 && "Invalid code path");

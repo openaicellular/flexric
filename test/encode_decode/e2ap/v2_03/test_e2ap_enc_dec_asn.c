@@ -492,13 +492,21 @@ void test_setup_request()
 
   // Mandatory
   // 9.2.26
-  comp_conf_add[0].e2_node_comp_interface_type =  NG_E2AP_NODE_COMP_INTERFACE_TYPE; //  rand() % END_E2AP_NODE_COMP_INTERFACE_TYPE; 
+  comp_conf_add[0].e2_node_comp_interface_type = F1_E2AP_NODE_COMP_INTERFACE_TYPE; //  NG_E2AP_NODE_COMP_INTERFACE_TYPE; //  rand() % END_E2AP_NODE_COMP_INTERFACE_TYPE; 
 
   // Bug !!! Optional in specs, Mandatory in asn
   // 9.2.32
  // comp_conf_add[0].e2_node_comp_id = NULL;
+  if(comp_conf_add[0].e2_node_comp_interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE){
+comp_conf_add[0].e2_node_comp_id.type =  NG_E2AP_NODE_COMP_INTERFACE_TYPE;
   const char ng_amf_name[] = "NG AMF NAME";
   comp_conf_add[0].e2_node_comp_id.ng_amf_name = copy_str_to_ba(ng_amf_name);
+  } else if (comp_conf_add[0].e2_node_comp_interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE){
+    comp_conf_add[0].e2_node_comp_id.type = F1_E2AP_NODE_COMP_INTERFACE_TYPE;
+    comp_conf_add[0].e2_node_comp_id.f1_gnb_du_id = 17;
+  } else {
+    assert(0!=0 && "Not implemented");
+  }
 
   // Mandatory
   // 9.2.27
