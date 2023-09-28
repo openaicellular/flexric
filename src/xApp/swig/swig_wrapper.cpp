@@ -12,6 +12,7 @@
 #include "../../sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../sm/gtp_sm/gtp_sm_id.h"
 #include "../../sm/slice_sm/slice_sm_id.h"
+#include "../../sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../../util/conf_file.h"
 
 
@@ -26,9 +27,16 @@
 static
 bool initialized = false;
 
+std::string ByteArrayToString(const byte_array_t* ba) {
+  if (ba && ba->buf && ba->len > 0) {
+    return std::string(reinterpret_cast<char*>(ba->buf), ba->len);
+  } else {
+    return "";
+  }
+}
 
 static
-const char* convert_period(Interval  inter_arg)
+const char* convert_period_to_char(Interval  inter_arg)
 {
   if(inter_arg == Interval::ms_1 ){
     return "1_ms";
@@ -38,8 +46,34 @@ const char* convert_period(Interval  inter_arg)
     return "5_ms";
   } else if(inter_arg == Interval::ms_10) {
     return "10_ms";
+  } else if(inter_arg == Interval::ms_100) {
+    return "100_ms";
+  } else if(inter_arg == Interval::ms_1000) {
+    return "1000_ms";
   } else {
     assert(0 != 0 && "Unknown type");
+  }
+
+}
+
+static
+uint64_t convert_period_to_uint(Interval  inter_arg)
+{
+  // unit: ms
+  if(inter_arg == Interval::ms_1 ){
+    return 1;
+  } else if (inter_arg == Interval::ms_2) {
+    return 2;
+  } else if(inter_arg == Interval::ms_5) {
+    return 5;
+  } else if(inter_arg == Interval::ms_10) {
+    return 10;
+  } else if(inter_arg == Interval::ms_100) {
+    return 100;
+  } else if(inter_arg == Interval::ms_1000) {
+    return 1000;
+  } else {
+    assert(0 != 0 && "Unknown period_ms");
   }
 
 }
@@ -187,7 +221,7 @@ int report_mac_sm(swig_global_e2_node_id_t* id, Interval inter_arg, mac_cb* hand
 
   hndlr_mac_cb = handler;
 
-  const char* period = convert_period(inter_arg);
+  const char* period = convert_period_to_char(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
   sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_MAC_ID, (void*)period, sm_cb_mac);
@@ -277,7 +311,7 @@ int report_rlc_sm(swig_global_e2_node_id_t* id, Interval inter_arg, rlc_cb* hand
 
   hndlr_rlc_cb = handler;
 
-  const char* period = convert_period(inter_arg);
+  const char* period = convert_period_to_char(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
   sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_RLC_ID, (void*)period, sm_cb_rlc);
@@ -362,7 +396,7 @@ int report_pdcp_sm(swig_global_e2_node_id_t* id, Interval inter_arg, pdcp_cb* ha
 
   hndlr_pdcp_cb = handler;
 
-  const char* period = convert_period(inter_arg);
+  const char* period = convert_period_to_char(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
   sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_PDCP_ID, (void*)period, sm_cb_pdcp);
@@ -462,7 +496,7 @@ int report_slice_sm(swig_global_e2_node_id_t* id, Interval inter_arg, slice_cb* 
 
   hndlr_slice_cb = handler;
 
-  const char* period = convert_period(inter_arg);
+  const char* period = convert_period_to_char(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
   sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_SLICE_ID, (void*)period, sm_cb_slice);
@@ -612,7 +646,7 @@ int report_gtp_sm(swig_global_e2_node_id_t* id, Interval inter_arg, gtp_cb* hand
 
   hndlr_gtp_cb = handler;
 
-  const char* period = convert_period(inter_arg);
+  const char* period = convert_period_to_char(inter_arg);
 
   global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
   sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id , SM_GTP_ID, (void*)period, sm_cb_gtp);
@@ -636,119 +670,265 @@ void rm_report_gtp_sm(int handler)
 
 }
 
-/////////////////////////////////////
+//////////////////////////////////////
 // KPM SM
 /////////////////////////////////////
+
+static
+kpm_cb* hndlr_kpm_cb;
+
+static
+void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
+{
+  assert(rd != NULL);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == KPM_STATS_V3_0);
+  assert(hndlr_kpm_cb != NULL);
+
+  kpm_ind_data_t const* data = &rd->ind.kpm.ind;
+
+  swig_kpm_ind_data_t swig_data;
+
+  swig_data.id.type = e2_node->type;
+  swig_data.id.plmn.mcc = e2_node->plmn.mcc;
+  swig_data.id.plmn.mnc = e2_node->plmn.mnc;
+  swig_data.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
+  swig_data.id.nb_id = e2_node->nb_id;
+  size_t cuduid_idx = 0;
+  if (e2_node->cu_du_id) {
+    while (e2_node->cu_du_id[cuduid_idx]) {
+      swig_data.id.cu_du_id.push_back(e2_node->cu_du_id[cuduid_idx]);
+      cuduid_idx++;
+    }
+  }
+
+  // Header
+  swig_data.hdr.type = data->hdr.type;
+  kpm_ric_ind_hdr_format_1_t const* hdr_frm1 = &data->hdr.kpm_ric_ind_hdr_format_1;
+  swig_data.hdr.kpm_ric_ind_hdr_format_1.collectStartTime = hdr_frm1->collectStartTime;
+  if (hdr_frm1->fileformat_version) {
+    swig_data.hdr.kpm_ric_ind_hdr_format_1.len_fileformat_version = hdr_frm1->fileformat_version->len;
+    swig_data.hdr.kpm_ric_ind_hdr_format_1.fileformat_version = ByteArrayToString(hdr_frm1->fileformat_version);
+  }
+  if (hdr_frm1->sender_name) {
+    swig_data.hdr.kpm_ric_ind_hdr_format_1.len_sender_name = hdr_frm1->sender_name->len;
+    swig_data.hdr.kpm_ric_ind_hdr_format_1.sender_name = ByteArrayToString(hdr_frm1->sender_name);
+  }
+  if (hdr_frm1->sender_type) {
+    swig_data.hdr.kpm_ric_ind_hdr_format_1.len_sender_type = hdr_frm1->sender_type->len;
+    swig_data.hdr.kpm_ric_ind_hdr_format_1.sender_type = ByteArrayToString(hdr_frm1->fileformat_version);
+  }
+  if (hdr_frm1->vendor_name) {
+    swig_data.hdr.kpm_ric_ind_hdr_format_1.len_vendor_name = hdr_frm1->vendor_name->len;
+    swig_data.hdr.kpm_ric_ind_hdr_format_1.vendor_name = ByteArrayToString(hdr_frm1->vendor_name);
+  }
+
+#ifdef XAPP_LANG_PYTHON
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+#endif
+
+  hndlr_kpm_cb->handle(&swig_data);
+
+#ifdef XAPP_LANG_PYTHON
+  PyGILState_Release(gstate);
+#endif
+}
+
+static
+meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
+{
+  meas_info_format_1_lst_t dst;
+
+  dst.meas_type.type = meas_type_t::NAME_MEAS_TYPE;
+  // ETSI TS 128 552
+  dst.meas_type.name = cp_str_to_ba(action);
+
+  dst.label_info_lst_len = 1;
+  dst.label_info_lst = static_cast<label_info_lst_t*>(calloc(1, sizeof(label_info_lst_t)));
+  assert(dst.label_info_lst != NULL && "Memory exhausted");
+  dst.label_info_lst[0].noLabel = static_cast<enum_value_e*>(calloc(1, sizeof(enum_value_e)));
+  assert(dst.label_info_lst[0].noLabel != NULL && "Memory exhausted");
+  *dst.label_info_lst[0].noLabel = TRUE_ENUM_VALUE;
+
+  return dst;
+}
+
+static
+kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
+{
+  kpm_act_def_format_1_t dst;
+
+  dst.gran_period_ms = 1000;
+
+  // [1, 65535]
+  size_t count = 0;
+  while (action[count] != NULL) {
+    count++;
+  }
+  dst.meas_info_lst_len = count;
+  dst.meas_info_lst = static_cast<meas_info_format_1_lst_t*>(calloc(count, sizeof(meas_info_format_1_lst_t)));
+  assert(dst.meas_info_lst != NULL && "Memory exhausted");
+
+  for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
+    dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action[i]);
+  }
+
+  dst.cell_global_id = NULL;
+  dst.meas_bin_range_info_lst_len = 0;
+  dst.meas_bin_info_lst = NULL;
+
+
+  return dst;
+}
+
+static
+kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
+{
+  kpm_act_def_format_4_t dst;
+
+  // [1, 32768]
+  dst.matching_cond_lst_len = 1;
+
+  dst.matching_cond_lst = static_cast<matching_condition_format_4_lst_t*>(calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t)));
+  assert(dst.matching_cond_lst != NULL && "Memory exhausted");
+
+  // Filter connected UEs by S-NSSAI criteria
+  dst.matching_cond_lst[0].test_info_lst.test_cond_type = S_NSSAI_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.S_NSSAI = TRUE_TEST_COND_TYPE;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond = static_cast<test_cond_e*>(calloc(1, sizeof(test_cond_e)));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond = EQUAL_TEST_COND;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value = static_cast<test_cond_value_e*>(calloc(1, sizeof(test_cond_value_e)));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
+  dst.matching_cond_lst[0].test_info_lst.int_value = static_cast<int64_t*>(malloc(sizeof(int64_t)));
+  assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.int_value = 1;
+
+  printf("[xApp]: Filter UEs by S-NSSAI criteria where SST = %lu\n", *dst.matching_cond_lst[0].test_info_lst.int_value);
+
+  // Action definition Format 1
+  dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
+
+  return dst;
+}
+
+static
+kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm)
+{
+  kpm_act_def_t dst;
+
+  if (act_frm == FORMAT_1_ACTION_DEFINITION) {
+    dst.type = FORMAT_1_ACTION_DEFINITION;
+    dst.frm_1 = gen_act_def_frmt_1(act);
+  } else if (act_frm == FORMAT_4_ACTION_DEFINITION) {
+    dst.type = FORMAT_4_ACTION_DEFINITION;
+    dst.frm_4 = gen_act_def_frmt_4(act);
+  } else {
+    assert(0!=0 && "not support action definition type");
+  }
+
+  return dst;
+}
+
+static
+kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
+{
+  kpm_event_trigger_def_t dst;
+
+  dst.type = FORMAT_1_RIC_EVENT_TRIGGER;
+  dst.kpm_ric_event_trigger_format_1.report_period_ms = period;
+
+  return dst;
+}
+
+int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter_arg, std::vector<std::string>& action, kpm_cb* handler)
+{
+  assert(id != NULL);
+  assert(handler != NULL);
+
+  hndlr_kpm_cb = handler;
+
+  char** c_action = new char*[action.size() + 1];
+  for (size_t i = 0; i < action.size() + 1; ++i) {
+    if (i == action.size())
+      c_action[i] = NULL;
+    else {
+      c_action[i] = new char[strlen(action[i].c_str()) + 1];
+      strcpy(c_action[i], action[i].c_str());
+    }
+
+  }
+  printf("[xApp]: generating action definition from the list of required measurement data:\n");
+  for (size_t i = 0; i < action.size() + 1; ++i) {
+    std::cout << c_action[i] << std::endl;
+  }
+
+  kpm_sub_data_t kpm_sub = {};
+
+  // KPM Event Trigger
+  const uint64_t period_ms = convert_period_to_uint(inter_arg);
+  kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
+  printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
+
+  // KPM Action Definition
+  kpm_sub.sz_ad = 1;
+  kpm_sub.ad = static_cast<kpm_act_def_t*>(calloc(1, sizeof(kpm_act_def_t)));
+  assert(kpm_sub.ad != NULL && "Memory exhausted");
+
+  format_action_def_e act_type = FORMAT_4_ACTION_DEFINITION; // act_def.type
+
+  *kpm_sub.ad = gen_act_def(const_cast<const char**>(c_action), act_type);
+  // TODO: need to fix, initialize kpm_sub with 0 value
+
+//  switch (id.type)
+//  {
+//    case e2ap_ngran_gNB: ;
+//      const char *act_gnb[] = {"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl", NULL}; // 3GPP TS 28.552
+//      *kpm_sub.ad = gen_act_def(act_gnb, act_type);
+//      break;
 //
-//static
-//kpm_cb* hndlr_kpm_cb;
+//    case e2ap_ngran_gNB_CU: ;
+//      const char *act_gnb_cu[] = {"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", NULL}; // 3GPP TS 28.552
+//      *kpm_sub.ad = gen_act_def(act_gnb_cu, act_type);
+//      break;
 //
-//static
-//void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
-//{
-//  assert(rd != NULL);
-//  assert(rd->type == KPM_STATS_V0);
-//  assert(hndlr_kpm_cb != NULL);
+//    case e2ap_ngran_gNB_DU: ;
+//      const char *act_gnb_du[] = {"DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl", NULL}; // 3GPP TS 28.552
+//      *kpm_sub.ad = gen_act_def(act_gnb_du, act_type);
+//      break;
 //
-//  kpm_ind_data_t const* data = &rd->kpm_stats;
-//
-//  swig_kpm_ind_msg_t ind;
-//
-//  ind.id.type = e2_node->type;
-//  ind.id.plmn.mcc = e2_node->plmn.mcc;
-//  ind.id.plmn.mnc = e2_node->plmn.mnc;
-//  ind.id.plmn.mnc_digit_len = e2_node->plmn.mnc_digit_len;
-//  ind.id.nb_id = e2_node->nb_id;
-//  size_t cuduid_idx = 0;
-//  if (e2_node->cu_du_id) {
-//    while (e2_node->cu_du_id[cuduid_idx]) {
-//      ind.id.cu_du_id.push_back(e2_node->cu_du_id[cuduid_idx]);
-//      cuduid_idx++;
-//    }
+//    default:
+//      assert(false && "NG-RAN Type not yet implemented");
 //  }
-//
-//  ind.MeasData_len = data->msg.MeasData_len;
-//
-//  for (size_t i = 0; i < data->msg.MeasData_len; ++i) {
-//    swig_adapter_MeasDataItem_t item;
-//    item.measRecord_len = data->msg.MeasData[i].measRecord_len;
-//    item.incompleteFlag = data->msg.MeasData[i].incompleteFlag;
-//
-//    for (size_t j = 0; j < data->msg.MeasData[i].measRecord_len; ++j) {
-//      swig_adapter_MeasRecord_t record;
-//
-//      // swig_MeasRecordType type;
-//      // type.
-//
-//      // record.type = data->msg.MeasData[i].measRecord[j].type;
-//      record.int_val = data->msg.MeasData[i].measRecord[j].int_val;
-//      record.real_val = data->msg.MeasData[i].measRecord[j].real_val;
-//      item.measRecord.push_back(record);
-//    }
-//
-//    ind.MeasData.push_back(item);
-//  }
-//
-//  ind.MeasInfo_len = data->msg.MeasInfo_len;
-//
-//  if (data->msg.MeasInfo_len > 0) {
-//    for (size_t i = 0; i < data->msg.MeasInfo_len; ++i) {
-//      swig_MeasInfo_t info;
-//      info.meas_type = data->msg.MeasInfo[i].meas_type;
-//
-//      byte_array_t measName;
-//      measName = data->msg.MeasInfo[i].measName;
-//
-//      std::string name(measName.buf, measName.buf + measName.len);
-//
-//      info.measName = name;
-//      info.measID = data->msg.MeasInfo[i].measID;
-//      //info.labelInfo = data->msg.MeasInfo[i].labelInfo;
-//      info.labelInfo_len = data->msg.MeasInfo[i].labelInfo_len;
-//      ind.MeasInfo.push_back(info);
-//    }
-//  }
-//
-//  //ind.granulPeriod = data->msg.granulPeriod;
-//
-//
-//#ifdef XAPP_LANG_PYTHON
-//  PyGILState_STATE gstate;
-//  gstate = PyGILState_Ensure();
-//#endif
-//
-//  hndlr_kpm_cb->handle(&ind);
-//
-//#ifdef XAPP_LANG_PYTHON
-//  PyGILState_Release(gstate);
-//#endif
-//}
-//
-//int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter_arg, kpm_cb* handler)
-//{
-//  assert(id != NULL);
-//  assert(handler != NULL);
-//
-//  hndlr_kpm_cb = handler;
-//
-//  const char* period = convert_period(inter_arg);
-//
-//  global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
-//  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_KPM_ID, period, sm_cb_kpm);
-//  assert(ans.success == true);
-//  return ans.u.handle;
-//}
-//
-//void rm_report_kpm_sm(int handler)
-//{
-//#ifdef XAPP_LANG_PYTHON
-//  PyGILState_STATE gstate;
-//  gstate = PyGILState_Ensure();
-//#endif
-//
-//  rm_report_sm_xapp_api(handler);
-//
-//#ifdef XAPP_LANG_PYTHON
-//  PyGILState_Release(gstate);
-//#endif
-//}
+
+  global_e2_node_id_t* e2node_id = (global_e2_node_id_t*)id;
+  sm_ans_xapp_t ans = report_sm_xapp_api(e2node_id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
+  assert(ans.success == true);
+
+  // Deallocate memory for the char** array
+  for (size_t i = 0; i < action.size() + 1; ++i) {
+    delete[] c_action[i];
+  }
+  delete[] c_action;
+//  free_kpm_sub_data(&kpm_sub);
+
+  return ans.u.handle;
+}
+
+void rm_report_kpm_sm(int handler)
+{
+#ifdef XAPP_LANG_PYTHON
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+#endif
+
+  rm_report_sm_xapp_api(handler);
+
+#ifdef XAPP_LANG_PYTHON
+  PyGILState_Release(gstate);
+#endif
+}

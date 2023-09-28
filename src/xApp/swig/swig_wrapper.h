@@ -17,6 +17,7 @@
 #include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"
 #include "../../sm/slice_sm/ie/slice_data_ie.h"
 #include "../../sm/gtp_sm/ie/gtp_data_ie.h"
+#include "../../sm/kpm_sm/kpm_data_ie_wrapper.h"
 
 //////////////////////////////////////
 // General    
@@ -52,6 +53,8 @@ enum class Interval {
   ms_2,
   ms_5,
   ms_10,
+  ms_100,
+  ms_1000,
 };
 
 //////////////////////////////////////
@@ -181,6 +184,176 @@ struct gtp_cb {
 int report_gtp_sm(swig_global_e2_node_id_t* id, Interval inter, gtp_cb* handler);
 
 void rm_report_gtp_sm(int);
+
+//////////////////////////////////////
+// KPM SM
+/////////////////////////////////////
+//
+//typedef struct {
+//    size_t                    meas_record_len;  // [1, 65535]
+//    std::vector<meas_record_lst_t>        meas_record_lst;
+//    std::vector<enum_value_e>	         incomplete_flag;  // OPTIONAL, Indicates that the measurements record is not reliable.
+//
+//} swig_meas_data_lst_t;
+//
+//typedef union {
+//    byte_array_t name; // 8.3.9
+//    uint16_t id; // 8.3.10
+//} meas_type_u;
+//
+//typedef struct {
+//    enum {NAME_MEAS_TYPE, ID_MEAS_TYPE, END_MEAS_TYPE} type;
+//    meas_type_u u;
+//} swig_meas_type_t;
+//
+//////typedef struct{
+//////    enum_value_e  	    *noLabel;			/* OPTIONAL */
+//////    e2sm_plmn_t         *plmn_id;   		/* OPTIONAL */
+//////    S_NSSAI_t       	  *sliceID;			/* OPTIONAL */
+//////    uint8_t            	  *fiveQI;			/* OPTIONAL */
+//////    uint8_t               *qFI;				/* OPTIONAL, INTEGER (0..63, …) */
+//////    uint8_t        	      *qCI;	    		/* OPTIONAL */
+//////    uint8_t        	      *qCImax;			/* OPTIONAL */
+//////    uint8_t        	      *qCImin;			/* OPTIONAL */
+//////    uint8_t	              *aRPmax;			/* OPTIONAL, INTEGER (1.. 15, …) */
+//////    uint8_t	              *aRPmin;			/* OPTIONAL, INTEGER (1.. 15, …) */
+//////    uint16_t	          *bitrateRange;	/* OPTIONAL */
+//////    uint16_t	          *layerMU_MIMO;	/* OPTIONAL */
+//////    enum_value_e  	      *sUM;	    		/* OPTIONAL */
+//////    uint16_t              *distBinX;		/* OPTIONAL */
+//////    uint16_t	          *distBinY;		/* OPTIONAL */
+//////    uint16_t	          *distBinZ;		/* OPTIONAL */
+//////    enum_value_e  	      *preLabelOverride;	/* OPTIONAL */
+//////    start_end_ind_e	      *startEndInd;		/* OPTIONAL */
+//////    enum_value_e  	      *min;	    		/* OPTIONAL */
+//////    enum_value_e  	      *max;	    		/* OPTIONAL */
+//////    enum_value_e          *avg;	    		/* OPTIONAL */
+//////    uint16_t  			  *ssbIndex;		/* OPTIONAL */
+//////    uint16_t  			  *nonGoB_beamformModeIndex;  /* OPTIONAL */
+//////    uint8_t   			  *mimoModeIndex;    /* OPTIONAL, 1 = SU-MIMO, 2 = MU-MIMO  ask Mikel */
+//////} swig_label_info_lst_t;
+//
+//typedef struct{
+//    swig_meas_type_t meas_type;
+//    size_t label_info_lst_len;  // [1, 2147483647]
+//    std::vector<label_info_lst_t> label_info_lst;  // 8.3.11
+//} swig_meas_info_format_1_lst_t;
+//
+//typedef struct {
+//    size_t                    meas_data_lst_len; // [1, 65535]
+//    std::vector<swig_meas_data_lst_t>          meas_data_lst;
+//
+//    size_t                    meas_info_lst_len; // [0, 65535]
+//    std::vector<swig_meas_info_format_1_lst_t> meas_info_lst;    // OPTIONAL, meas_info_lst_len can be zero
+//
+//    std::vector<unsigned long>  gran_period_ms;  // 8.3.8  -  OPTIONAL
+//
+//} swig_kpm_ind_msg_format_1_t;
+////
+////typedef struct {
+////    meas_type_t meas_type;
+////
+////    size_t matching_cond_lst_len;  // [1, 32768]
+////    std::vector<matching_condition_format_3_lst_t> matching_cond_lst;
+////
+////    size_t ue_id_matched_lst_len;  // [0, 65535]
+////    std::vector<ue_id_e2sm_t> ue_id_matched_lst;
+////
+////    size_t ue_id_gran_period_lst_len;  // [0, 65535]
+////    std::vector<ue_id_gran_period_lst_t> ue_id_gran_period_lst;  // not yet implemented in ASN.1 - possible extension
+////
+////} meas_info_cond_ue_lst_t;
+////
+////typedef struct {
+////    size_t                    meas_data_lst_len; // [1, 65535]
+////    std::vector<swig_meas_data_lst_t>          meas_data_lst;
+////
+////    size_t                    meas_info_cond_ue_lst_len;  // [1, 65535]
+////    std::vector<swig_meas_info_cond_ue_lst_t>  meas_info_cond_ue_lst;
+////
+////    std::vector<unsigned long>  gran_period_ms;  // 8.3.8  -  OPTIONAL  (1..4294967295)
+////
+////} swig_kpm_ind_msg_format_2_t;
+////
+////typedef struct {
+////    ue_id_e2sm_t ue_meas_report_lst;  // 8.3.24
+////
+////    swig_kpm_ind_msg_format_1_t ind_msg_format_1;  // 8.2.1.4.1; measurement data per ue
+////
+////} swig_meas_report_per_ue_t;
+////
+////typedef struct {
+////    size_t ue_meas_report_lst_len;  // [1, 65535]
+////    std::vector<swig_meas_report_per_ue_t> meas_report_per_ue;
+////} swig_kpm_ind_msg_format_3_t;
+//
+//typedef struct{
+//    format_ind_msg_e type;
+//    swig_kpm_ind_msg_format_1_t frm_1;  // 8.2.1.4.1
+//    kpm_ind_msg_format_2_t frm_2;  // 8.2.1.4.2
+//    kpm_ind_msg_format_3_t frm_3;  // 8.2.1.4.3
+//    swig_global_e2_node_id_t id;
+//} swig_kpm_ind_msg_t;
+
+typedef struct {
+    uint64_t collectStartTime;  // 8.3.12
+    size_t len_fileformat_version;
+    std::string fileformat_version;  /* OPTIONAL */
+    size_t len_sender_name;
+    std::string sender_name;         /* OPTIONAL */
+    size_t len_sender_type;
+    std::string sender_type;         /* OPTIONAL */
+    size_t len_vendor_name;
+    std::string vendor_name;         /* OPTIONAL */
+} swig_kpm_ric_ind_hdr_format_1_t;
+
+typedef struct {
+    format_ind_hdr_e type;
+    swig_kpm_ric_ind_hdr_format_1_t kpm_ric_ind_hdr_format_1;
+} swig_kpm_ind_hdr_t;
+
+typedef struct {
+    swig_kpm_ind_hdr_t hdr;
+//    kpm_ind_msg_t msg;
+    swig_global_e2_node_id_t id;
+} swig_kpm_ind_data_t;
+
+struct kpm_cb {
+    virtual void handle(swig_kpm_ind_data_t* a) = 0;
+    virtual ~kpm_cb() {}
+};
+
+//typedef struct{
+//    size_t meas_info_lst_len;  // [1, 65535]
+//    std::vector<swig_meas_info_format_1_lst_t> meas_info_lst;
+//
+//    uint32_t gran_period_ms;  // 8.3.8 [0, 4294967295]
+//
+//    std::vector<cell_global_id_t> cell_global_id; // 8.3.20 - OPTIONAL
+//
+//    size_t meas_bin_range_info_lst_len; // [0, 65535]
+//    std::vector<meas_bin_range_info_lst_t> meas_bin_info_lst;
+//
+//} swig_kpm_act_def_format_1_t ;
+//
+//typedef struct {
+//    size_t matching_cond_lst_len;  // [1, 32768]
+//    std::vector<matching_condition_format_4_lst_t> matching_cond_lst;
+//    kpm_act_def_format_1_t action_def_format_1;  // 8.2.1.2.1
+//} swig_kpm_act_def_format_4_t;
+//
+//typedef struct{
+//    format_action_def_e type;
+//    swig_kpm_act_def_format_1_t frm_1;  // 8.2.1.2.1
+////    kpm_act_def_format_2_t frm_2;  // 8.2.1.2.2
+////    kpm_act_def_format_3_t frm_3;  // 8.2.1.2.3
+//    swig_kpm_act_def_format_4_t frm_4;  // 8.2.1.2.4
+////    kpm_act_def_format_5_t frm_5;  // 8.2.1.2.5
+//} swig_kpm_act_def_t;
+
+int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter, std::vector<std::string>& action, kpm_cb* handler);
+
+void rm_report_kpm_sm(int);
 
 #endif
 

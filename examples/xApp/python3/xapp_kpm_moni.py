@@ -19,26 +19,20 @@ class KPMCallback(ric.kpm_cb):
         ric.kpm_cb.__init__(self)
     # Create an override C++ method 
     def handle(self, ind):
-        now = int(time.time() * 1000000)
-        ts = 0
-        # MeasData
-        if len(ind.MeasData) > 0:
-            if len(ind.MeasData[0].measRecord) > 0:
-                ts = ind.MeasData[0].measRecord[0].real_val
+        if ind.hdr:
+            t_now = time.time_ns() / 1000.0
+            t_kpm = ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime / 1.0
+            t_diff = t_now - t_kpm
+            print(f"KPM Indication tstamp {t_now} diff {t_diff} E2-node type {ind.id.type} nb_id {ind.id.nb_id.nb_id}")
+            if ind.hdr.kpm_ric_ind_hdr_format_1.fileformat_version:
+                print(f"fileformat_version {ind.hdr.kpm_ric_ind_hdr_format_1.fileformat_version}")
+            if ind.hdr.kpm_ric_ind_hdr_format_1.sender_name:
+                print(f"sender_name {ind.hdr.kpm_ric_ind_hdr_format_1.sender_name}")
+            if ind.hdr.kpm_ric_ind_hdr_format_1.sender_type:
+                print(f"sender_type {ind.hdr.kpm_ric_ind_hdr_format_1.sender_type}")
+            if ind.hdr.kpm_ric_ind_hdr_format_1.vendor_name:
+                print(f"vendor_name {ind.hdr.kpm_ric_ind_hdr_format_1.vendor_name}")
 
-        # MeasInfo
-        for i in range(0, ind.MeasInfo_len):
-            meas_infotype = ind.MeasInfo[i].meas_type
-            measName = ind.MeasInfo[i].measName
-            measID = ind.MeasInfo[i].measID
-            measRecord = ind.MeasData[0].measRecord[i].real_val
-            meas_recordtype = ind.MeasData[0].measRecord[i].type # need to check why type is equal to 0 when is real
-            print(f"KPM ind_msg latency = {now - ts} us, "
-                  f"meas_infotype = {meas_infotype}, "
-                  f"measName = {measName}, "
-                  f"measRecord = {measRecord}, "
-                  f"meas_recordtype = {meas_recordtype}, "
-                  f"from E2 node type = {ind.id.type} nb_id = {ind.id.nb_id.nb_id}")
 
 
 ####################
@@ -64,7 +58,8 @@ kpm_hndlr = []
 
 for i in range(0, len(conn)):
     kpm_cb = KPMCallback()
-    hndlr = ric.report_kpm_sm(conn[i].id, ric.Interval_ms_5, kpm_cb)
+    action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
+    hndlr = ric.report_kpm_sm(conn[i].id, ric.Interval_ms_1000, action, kpm_cb)
     kpm_hndlr.append(hndlr)
     time.sleep(1)
 
