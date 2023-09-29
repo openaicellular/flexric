@@ -970,7 +970,13 @@ static kpm_ric_ind_hdr_format_1_t fill_rnd_kpm_ind_hdr_frm_1(void)
   kpm_ric_ind_hdr_format_1_t hdr_frm_1 = {0};
 
   int64_t t = time_now_us();
+#ifdef KPM_V2
+  hdr_frm_1.collectStartTime = t / 1000000; // needs to be truncated to 32 bits to arrive to a resolution of seconds
+#elif defined(KPM_V3)
   hdr_frm_1.collectStartTime = t;
+#else
+  static_assert(0!=0, "Unknown KPM version");
+#endif
   
   hdr_frm_1.fileformat_version = NULL;
   

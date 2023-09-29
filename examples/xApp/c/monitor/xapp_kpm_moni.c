@@ -52,9 +52,20 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
     lock_guard(&mtx);
 
     static int counter = 1;
-    printf("%7d, KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+#ifdef KPM_V2
+    // collectStartTime (32bit) unit is second
+    printf("%7d, KPM v2 ind_msg latency > %ld s (minimum time unit is in second) from E2-node type %d ID %d\n",
+           counter, now/1000000 - hdr_frm_1->collectStartTime,
+           e2_node->type, e2_node->nb_id.nb_id);
+#elif defined(KPM_V3)
+    // collectStartTime (64bit) unit is micro-second
+    printf("%7d, KPM v3 ind_msg latency = %ld μs from E2-node type %d ID %d\n",
            counter, now - hdr_frm_1->collectStartTime,
            e2_node->type, e2_node->nb_id.nb_id);
+#else
+    static_assert(0!=0, "Unknown KPM version");
+#endif
+
     if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE)
     {
       kpm_ind_msg_format_1_t const* msg_frm_1 = &kpm->msg.frm_1;
