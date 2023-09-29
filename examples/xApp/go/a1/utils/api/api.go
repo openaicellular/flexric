@@ -3,6 +3,7 @@ package utils
 import "C"
 import (
 	slice "build/examples/xApp/go/a1/utils/slice"
+	policy "build/examples/xApp/go/a1/utils/policy"
 
 	"fmt"
 	"log"
@@ -11,7 +12,6 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"gopkg.in/ini.v1"
 )
 
 
@@ -24,68 +24,6 @@ var Srv *http.Server
 var PolicyEnforced = false
 var FinishChannel chan bool
 
-
-// ------------------------------------------------------------------------ //
-//	ParseXAppConfig function for parsing the xApp configuration
-// ------------------------------------------------------------------------ //
-func ParseXAppConfig(name string) (string, int) {
-	cfg, err := ini.Load(name)
-	if err != nil {
-		log.Fatalf("Fail to read file: %v", err)
-	}
-
-	xappSection, err := cfg.GetSection("XAPP")
-	if err != nil {
-		log.Fatalf("Failed to get XAPP section: %v", err)
-	}
-
-	a1IP := xappSection.Key("A1_IP").String()
-	a1Port := xappSection.Key("A1_PORT").MustInt()
-
-	fmt.Printf("A1_IP: %s\n", a1IP)
-	fmt.Printf("A1_PORT: %d\n", a1Port)
-
-	return a1IP, a1Port
-}
-
-
-// xApp policy configuration API
-// Configuration represents the JSON configuration received by the first server.
-
-// ------------------------------------------------------------------------ //
-//	Configuration struct for storing the xApp policy configuration
-//	coming from the Non-RT RIC via the APIs
-// ------------------------------------------------------------------------ //
-type Configuration struct {
-	PolicyID   int             `json:"PolicyId,omitempty"`
-	PolicyType string          `json:"PolicyType,omitempty"`
-	Scope      ScopeConfig     `json:"scope,omitempty"`
-	Statement  StatementConfig `json:"statement,omitempty"`
-}
-
-type ScopeConfig struct {
-	SliceID int `json:"sliceId,omitempty"`
-	CellID  int `json:"cellId,omitempty"`
-}
-
-type StatementConfig struct {
-	// -----  For ORAN xApps -----------------//
-	MaxNumberOfUEs int `json:"maxNumberOfUes,omitempty"`
-
-	// -----  For Br (Non-ORAN) xApps --------//
-	// Type of the Control Request
-	//     string: "ADDMOD", "DEL", "ASSOC_UE_SLICE"
-	CtrlType string `json:"type,omitempty"`
-
-	// Requested Structure
-	CtrlRequest slice.Request `json:"request,omitempty"`
-}
-
-// ------------------------------------------------------------------------ //
-//	PolicyEnforcementCallback function for enforcing the policy
-//	The calback function is defined in the xApp
-// ------------------------------------------------------------------------ //
-type PolicyEnforcementCallback func(Configuration)
 
 // ------------------------------------------------------------------------ //
 //
@@ -101,28 +39,28 @@ type PolicyEnforcementCallback func(Configuration)
 //  - conf: name of configuration file
 //
 // ------------------------------------------------------------------------ //
-func OpenA1Apis(policyEnforceCallback PolicyEnforcementCallback, conf string) {
+// TODO: add a parameter for evaluating that the received policy is the desired based on the xApp logic
+func OpenA1Apis(policyEnforceCallback policy.PolicyEnforcementCallback, a1IP string, a1Port int) {
 
 	// Create the channel for receiving the finish command
 	FinishChannel = make(chan bool)
 
-	// Parse A1 parameters
-	A1IP, A1Port := ParseXAppConfig(conf)
-
+	// Gin server
 	gin.SetMode(gin.ReleaseMode)
-
 	Router = gin.Default()
 
 	// [API 1]: POST /api/policy
 	// Receive the policy configuration from the Non-RT RIC
 	Router.POST("/api/policy", func(c *gin.Context) {
-		var config Configuration
+		var config policy.Configuration
 		if err := c.ShouldBindJSON(&config); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
+		
+		// TODO: Evaluate that the received policy is the desired based on the xApp logic
 
 		// Call the callback function for enforcing the policy
 		go policyEnforceCallback(config)
@@ -137,7 +75,7 @@ func OpenA1Apis(policyEnforceCallback PolicyEnforcementCallback, conf string) {
 	// Receive the finish command from the Non-RT RIC
 	Router.POST("api/finish", func(c *gin.Context) {
 
-		fmt.Println("Received finish command in Client")
+		fmt.Println("Received finish command")
 
 		// Send the JSON response
 		response := map[string]interface{}{
@@ -161,7 +99,7 @@ func OpenA1Apis(policyEnforceCallback PolicyEnforcementCallback, conf string) {
 
 	// ----------------------- Gin Server ----------------------- //
 	Srv = &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", A1IP, A1Port),
+		Addr:    fmt.Sprintf("%s:%d", a1IP, a1Port),
 		Handler: Router,
 	}
 
@@ -188,4 +126,5 @@ func OpenA1Apis(policyEnforceCallback PolicyEnforcementCallback, conf string) {
 		log.Println("Timeout of 3 seconds.")
 	}
 	log.Println("Server exiting")
+
 }

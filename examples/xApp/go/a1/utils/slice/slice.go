@@ -11,6 +11,15 @@ import (
 	"sync"
 )
 
+// ------------------------------------------------------------------------ //
+//	SLICE INDICATION CALLBACK
+// ------------------------------------------------------------------------ //
+type SLICECallback struct {
+}
+
+func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
+	SliceIndToDictJSON(ind)
+}
 
 // ------------------------------------------------------------------------ //
 //
