@@ -624,6 +624,7 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
   sr->ric_id.ran_func_id = ran_func->value.choice.RANfunctionID;
 
   // RIC Action Admitted List
+  // [1-16]
   const RICsubscriptionResponse_IEs_t* act_adm_list = out->protocolIEs.list.array[2];
 
   assert(act_adm_list->id == ProtocolIE_ID_id_RICactions_Admitted);
@@ -651,68 +652,71 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
   }
 
   // RIC Actions Not Admitted Lists
-  const RICsubscriptionResponse_IEs_t* act_not_adm_list = out->protocolIEs.list.array[3];
-  assert(act_not_adm_list->id == ProtocolIE_ID_id_RICactions_NotAdmitted);
-  assert(act_not_adm_list->criticality == Criticality_reject);
-  assert(act_not_adm_list->value.present == RICsubscriptionResponse_IEs__value_PR_RICaction_NotAdmitted_List);
+  // [0-16]
+  if(out->protocolIEs.list.count > 3){ 
+    const RICsubscriptionResponse_IEs_t* act_not_adm_list = out->protocolIEs.list.array[3];
+    assert(act_not_adm_list->id == ProtocolIE_ID_id_RICactions_NotAdmitted);
+    assert(act_not_adm_list->criticality == Criticality_reject);
+    assert(act_not_adm_list->value.present == RICsubscriptionResponse_IEs__value_PR_RICaction_NotAdmitted_List);
 
-  const size_t sz_not_ad = act_not_adm_list->value.choice.RICaction_NotAdmitted_List.list.count;
-  sr->not_admitted = calloc(sz_not_ad, sizeof(ric_action_not_admitted_t));
+    const size_t sz_not_ad = act_not_adm_list->value.choice.RICaction_NotAdmitted_List.list.count;
+    assert(sz_not_ad < 17);
+    sr->not_admitted = calloc(sz_not_ad, sizeof(ric_action_not_admitted_t));
 
-  for(size_t i = 0; i < sz_not_ad; ++i){
-    // RIC Action ID. Mandatory
-    const RICaction_NotAdmitted_ItemIEs_t* nai = (const RICaction_NotAdmitted_ItemIEs_t*)act_not_adm_list->value.choice.RICaction_NotAdmitted_List.list.array[i];
+    for(size_t i = 0; i < sz_not_ad; ++i){
+      // RIC Action ID. Mandatory
+      const RICaction_NotAdmitted_ItemIEs_t* nai = (const RICaction_NotAdmitted_ItemIEs_t*)act_not_adm_list->value.choice.RICaction_NotAdmitted_List.list.array[i];
 
-    assert(nai->id == ProtocolIE_ID_id_RICaction_NotAdmitted_Item);	
-    assert(nai->criticality == Criticality_reject);
-    assert(nai->value.present == RICaction_NotAdmitted_ItemIEs__value_PR_RICaction_NotAdmitted_Item);
-    ric_action_not_admitted_t* dst = &sr->not_admitted[i];  
-    const RICaction_NotAdmitted_Item_t* src = &nai->value.choice.RICaction_NotAdmitted_Item;
-    dst->ric_act_id = src->ricActionID;
-    // Cause. Mandatory 
-    switch( src->cause.present ) {
-      case Cause_PR_NOTHING:{
-                              assert(0 != 0 && "Not Implemented!");
-                              break;
-                            }
-      case Cause_PR_ricRequest: {
-                                  assert(src->cause.choice.ricRequest < 11);
-
-                                  dst->cause.ricRequest = src->cause.choice.ricRequest; 
-                                  dst->cause.present = CAUSE_RICREQUEST;
-                                  break;
-                                }
-      case Cause_PR_ricService: {
-                                  assert(src->cause.choice.ricService < 3);
-                                  dst->cause.ricService = src->cause.choice.ricService;
-                                  dst->cause.present = CAUSE_RICSERVICE;
-                                  break;
-                                }
-      case Cause_PR_transport:{
-                                assert(src->cause.choice.transport < 2);
-                                dst->cause.transport = src->cause.choice.transport;
-                                dst->cause.present = CAUSE_TRANSPORT;
+      assert(nai->id == ProtocolIE_ID_id_RICaction_NotAdmitted_Item);	
+      assert(nai->criticality == Criticality_reject);
+      assert(nai->value.present == RICaction_NotAdmitted_ItemIEs__value_PR_RICaction_NotAdmitted_Item);
+      ric_action_not_admitted_t* dst = &sr->not_admitted[i];  
+      const RICaction_NotAdmitted_Item_t* src = &nai->value.choice.RICaction_NotAdmitted_Item;
+      dst->ric_act_id = src->ricActionID;
+      // Cause. Mandatory 
+      switch( src->cause.present ) {
+        case Cause_PR_NOTHING:{
+                                assert(0 != 0 && "Not Implemented!");
                                 break;
                               }
-      case Cause_PR_protocol:{
-                               assert(src->cause.choice.protocol < 7);
-                               dst->cause.protocol = src->cause.choice.protocol;
-                               dst->cause.present = CAUSE_PROTOCOL;
-                               break;
-                             }
-      case Cause_PR_misc:{
-                           assert(src->cause.choice.misc < 4);
-                           dst->cause.misc = src->cause.choice.misc;
-                           dst->cause.present = CAUSE_MISC;
-                           break;
-                         }
-      default: {
-                 assert(0!= 0 && "Invalid code path. Error caused assigned");
-                 break;
-               }
+        case Cause_PR_ricRequest: {
+                                    assert(src->cause.choice.ricRequest < 11);
+
+                                    dst->cause.ricRequest = src->cause.choice.ricRequest; 
+                                    dst->cause.present = CAUSE_RICREQUEST;
+                                    break;
+                                  }
+        case Cause_PR_ricService: {
+                                    assert(src->cause.choice.ricService < 3);
+                                    dst->cause.ricService = src->cause.choice.ricService;
+                                    dst->cause.present = CAUSE_RICSERVICE;
+                                    break;
+                                  }
+        case Cause_PR_transport:{
+                                  assert(src->cause.choice.transport < 2);
+                                  dst->cause.transport = src->cause.choice.transport;
+                                  dst->cause.present = CAUSE_TRANSPORT;
+                                  break;
+                                }
+        case Cause_PR_protocol:{
+                                 assert(src->cause.choice.protocol < 7);
+                                 dst->cause.protocol = src->cause.choice.protocol;
+                                 dst->cause.present = CAUSE_PROTOCOL;
+                                 break;
+                               }
+        case Cause_PR_misc:{
+                             assert(src->cause.choice.misc < 4);
+                             dst->cause.misc = src->cause.choice.misc;
+                             dst->cause.present = CAUSE_MISC;
+                             break;
+                           }
+        default: {
+                   assert(0!= 0 && "Invalid code path. Error caused assigned");
+                   break;
+                 }
+      }
     }
   }
-
   return ret;
 }
 
