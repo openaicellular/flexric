@@ -2,8 +2,8 @@ package utils
 
 import "C"
 import (
-	slice "build/examples/xApp/go/a1/utils/slice"
-	policy "build/examples/xApp/go/a1/utils/policy"
+	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
+	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 
 	"fmt"
 	"log"

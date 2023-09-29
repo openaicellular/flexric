@@ -2,7 +2,7 @@ package main
 
 import "C"
 import (
-	slice "build/examples/xApp/go/a1/utils/slice"
+	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
 	xapp "build/examples/xApp/go/xapp_sdk"
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"

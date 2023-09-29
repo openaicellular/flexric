@@ -1,10 +1,10 @@
 package callbacks
 
 import (
-	slice "build/examples/xApp/go/a1/utils/slice"
+	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
 	xapp "build/examples/xApp/go/xapp_sdk"
-	policy "build/examples/xApp/go/a1/utils/policy"
-	sm "build/examples/xApp/go/a1/utils/sm"
+	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
+	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
 	
 	"fmt"
 	"time"

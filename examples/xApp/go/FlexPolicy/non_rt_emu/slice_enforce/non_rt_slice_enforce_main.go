@@ -14,8 +14,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	slice "build/examples/xApp/go/a1/utils/slice"
-	policy "build/examples/xApp/go/a1/utils/policy"
+	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
+	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 )
 
 var server1URL = "http://127.0.0.1:7000/api/policy"

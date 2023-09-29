@@ -1,7 +1,7 @@
 package policy
 
 import (
-	slice "build/examples/xApp/go/a1/utils/slice"
+	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
 )
 // xApp policy configuration API
 // Configuration represents the JSON configuration received by the first server.

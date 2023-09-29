@@ -2,7 +2,7 @@ package lifycycle
 
 import (
 	xapp "build/examples/xApp/go/xapp_sdk"
-	slice "build/examples/xApp/go/a1/utils/slice"
+	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
 	"strings"
 	"time"
 )
