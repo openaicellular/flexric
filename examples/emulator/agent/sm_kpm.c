@@ -17,7 +17,7 @@ gnb_e2sm_t fill_gnb_data(void)
   // Mandatory
   //GUAMI 6.2.3.17 
   gnb.guami.plmn_id = (e2sm_plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
-  
+
   gnb.guami.amf_region_id = (rand() % 2^8) + 0;
   gnb.guami.amf_set_id = (rand() % 2^10) + 0;
   gnb.guami.amf_ptr = (rand() % 2^6) + 0;
@@ -36,13 +36,18 @@ ue_id_e2sm_t fill_ue_id_data(void)
   return ue_id_data;
 }
 
+static
+float txsdu_avg_time_to_tx; 
+
 static 
 kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(void)
 {
+
   kpm_ind_msg_format_1_t msg_frm_1 = {0};
 
+
   // Measurement Data
-  uint32_t num_drbs = 2;
+  uint32_t num_drbs = 1;
   msg_frm_1.meas_data_lst_len = num_drbs;  // (rand() % 65535) + 1;
   msg_frm_1.meas_data_lst = calloc(msg_frm_1.meas_data_lst_len, sizeof(*msg_frm_1.meas_data_lst));
   assert(msg_frm_1.meas_data_lst != NULL && "Memory exhausted" );
@@ -53,9 +58,10 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1(void)
     msg_frm_1.meas_data_lst[i].meas_record_lst = calloc(msg_frm_1.meas_data_lst[i].meas_record_len, sizeof(meas_record_lst_t));
     assert(msg_frm_1.meas_data_lst[i].meas_record_lst != NULL && "Memory exhausted" );
 
+    txsdu_avg_time_to_tx += 1000.0; 
     for (size_t j = 0; j < msg_frm_1.meas_data_lst[i].meas_record_len; j++){
       msg_frm_1.meas_data_lst[i].meas_record_lst[j].value = REAL_MEAS_VALUE; // rand()%END_MEAS_VALUE;
-      msg_frm_1.meas_data_lst[i].meas_record_lst[j].real_val = (rand() % 256) + 0.1;
+      msg_frm_1.meas_data_lst[i].meas_record_lst[j].real_val = (double)((int64_t)txsdu_avg_time_to_tx % 16000);
     }
   }
 
@@ -165,7 +171,8 @@ void read_kpm_sm(void* data)
     kpm->ind.msg.type = FORMAT_3_INDICATION_MESSAGE;
     kpm->ind.msg.frm_3 = fill_kpm_ind_msg_frm_3_sta();
   } else {
-     kpm->ind.hdr = fill_kpm_ind_hdr(); 
+     printf("Not reading RLC Sojourn time but just random data \n");
+     kpm->ind.hdr = fill_kpm_ind_hdr_sta(); // fill_kpm_ind_hdr(); 
      kpm->ind.msg = fill_kpm_ind_msg(); 
   }
 }

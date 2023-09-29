@@ -2401,7 +2401,7 @@ e2sm_rc_ctrl_msg_t rc_dec_ctrl_msg_asn(size_t len, uint8_t const ctrl_msg[len])
   assert(len > 0);
 
   E2SM_RC_ControlMessage_t src = {0};
-  defer({  ASN_STRUCT_RESET(asn_DEF_E2SM_RC_ControlMessage, &src); });
+  defer({ ASN_STRUCT_RESET(asn_DEF_E2SM_RC_ControlMessage, &src); });
   E2SM_RC_ControlMessage_t* src_ref = &src;
 
   asn_dec_rval_t const ret = aper_decode(NULL, & asn_DEF_E2SM_RC_ControlMessage, (void **)&src_ref, ctrl_msg, len, 0, 0);

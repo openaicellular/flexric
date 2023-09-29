@@ -271,14 +271,6 @@ e2ap_msg_t e2ap_handle_control_request_agent(e2_agent_t* ag, const e2ap_msg_t* m
     *((ric_control_request_t*)ctrl_req)->ack_req = RIC_CONTROL_REQUEST_ACK;
   }
 
-  for(int i = 0; i < 64; ++i){
-   printf("RIC Control messgae received \n"); 
-  }
-
-
-
-
-
   assert(ctrl_req->ack_req != NULL && *ctrl_req->ack_req == RIC_CONTROL_REQUEST_ACK );
 
   sm_ctrl_req_data_t data = {.ctrl_hdr = ctrl_req->hdr.buf,

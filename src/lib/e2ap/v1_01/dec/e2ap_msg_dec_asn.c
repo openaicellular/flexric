@@ -2405,13 +2405,21 @@ E2AP_PDU_t* e2ap_create_pdu(const uint8_t* buffer, int buffer_len)
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2AP_PDU, (void**)&pdu, buffer, buffer_len);
   //printf("rval.code = %d\n", rval.code);
-  //fprintf(stdout, "length of data %ld\n", rval.consumed);
+  // fprintf(stdout, "Length of data %ld\n", rval.consumed);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGEND_BASIC_PER syntax?");
   return pdu;
 }
 
 e2ap_msg_t e2ap_msg_dec_asn(e2ap_asn_t* asn, byte_array_t ba)
 {
+  fprintf(stderr, "Bytes arrived %d \n", ba.len);
+
+  for(size_t i = 0; i < ba.len; ++i){
+    fprintf(stderr, " %02hhx \n", ba.buf[i]);
+  }
+  fprintf(stderr, " \n\n");
+
+
   assert(ba.buf != NULL && ba.len > 0);
   E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
   assert(pdu != NULL);
