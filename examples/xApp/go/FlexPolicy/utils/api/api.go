@@ -63,6 +63,7 @@ func OpenA1Apis(policyEnforceCallback policy.PolicyEnforcementCallback, a1IP str
 		// TODO: Evaluate that the received policy is the desired based on the xApp logic
 
 		// Call the callback function for enforcing the policy
+		// TODO: Do it in a function that will call the callback function on an interval e.g. every 1 sec until it is enforced
 		go policyEnforceCallback(config)
 
 		// Send the JSON response

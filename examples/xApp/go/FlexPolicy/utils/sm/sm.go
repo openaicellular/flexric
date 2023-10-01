@@ -1,16 +1,18 @@
-package lifycycle
+package sm
 
 import (
 	xapp "build/examples/xApp/go/xapp_sdk"
 	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
+	mac "build/examples/xApp/go/FlexPolicy/utils/mac"
 	"strings"
 	"time"
 )
 
 // Service Model subscription
 var E2Nodes xapp.E2NodeVector
-var SliceSmHandlers []int
 
+var SliceSmHandlers []int
+var MacSmHandlers []int
 
 func SmSubscription(sms []string) {
 	// Iterating over smList
@@ -18,7 +20,20 @@ func SmSubscription(sms []string) {
 		switch strings.TrimSpace(item) {
 		case "MAC":
 
-			// Do something when item is MAC
+			// Do something when item is SLICE
+			for i:=0 ; i <= int(E2Nodes.Size()-1); i++ {
+
+				// ----------------------- MAC Indication ----------------------- //
+				innerMac := mac.MACCallback{}
+				callbackMac := xapp.NewDirectorMac_cb(innerMac)
+				HndlrMac := xapp.Report_mac_sm(E2Nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackMac)
+
+				// Append values to the slice
+				MacSmHandlers = append(MacSmHandlers, HndlrMac)
+
+				time.Sleep(1 * time.Second)
+				
+			}
 
 		case "SLICE":
 
@@ -51,11 +66,12 @@ func SmUnsubscription(sms []string) {
 		switch strings.TrimSpace(item) {
 		case "MAC":
 
-			// Do something when item is MAC
+			for _, value := range MacSmHandlers {
+				xapp.Rm_report_mac_sm(value)
+			}
 
 		case "SLICE":
 
-			// unsubscribe from sms
 			for _, value := range SliceSmHandlers {
 				xapp.Rm_report_slice_sm(value)
 			}
