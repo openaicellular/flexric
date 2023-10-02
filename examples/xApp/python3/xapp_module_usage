@@ -17,7 +17,22 @@
 +-------+---------+-------+-------+------------+
 ```
 
-3. Get slice conf by giving e2 node idx
+3. Subscribe to service model
+use function subscribe_sm(e2node_idx, sm_name, report_period, action_definition)
+- e2node_idx: the index of connected e2 nodes
+- sm_name: service model name, e.g., xapp.ServiceModel.MAC/SLICE/KPM
+- report_period: service model name, e.g., xapp.SubTimeInterval.ms1/2/5/10/100/1000
+- action_definition: a list of required measurement data, e.g., xapp.action, note: only needs for KPM SM
+```
+# O-RAN SM
+>>> xapp.subscribe_sm(0, xapp.ServiceModel.KPM, xapp.SubTimeInterval.ms1000, xapp.action)
+
+# Customized SM
+>>> xapp.subscribe_sm(0, xapp.ServiceModel.MAC, xapp.SubTimeInterval.ms10)
+>>> xapp.subscribe_sm(0, xapp.ServiceModel.SLICE, xapp.SubTimeInterval.ms10)
+```
+
+4. Get slice conf by giving e2 node idx
 ```
 >>> xapp.print_slice_stats(0)
 +---------+------------+------------+------------------+--------------------+---------------------+---------------------+---------------------+------------------+
@@ -35,20 +50,20 @@
 +--------+------------------+
 ```
 
-4. Send slice control msg
+5. Send slice control msg
 use function send_slice_ctrl_msg(e2node_idx, cmd, conf)
 - e2node_idx: the index of connected e2 nodes
 - cmd, conf: the command and config of control message
-  - "ADDMOD", xapp.conf_static_slices
-  - "ADDMOD", xapp.conf_nvs_slices
-  - "ADDMOD", xapp.conf_nvs_slices_rate1
-  - "ADDMOD", xapp.conf_nvs_slices_rate2
-  - "ADDMOD", xapp.conf_nvs_slices_cap2
-  - "ADDMOD", xapp.conf_nvs_slices_cap3
-  - "ADDMOD", xapp.conf_edf_slices
-  - "ADDMOD", xapp.conf_reset_slices
-  - "DEL", xapp.conf_delete_slices
-  - "ASSOC_UE", xapp.conf_assoc_ue_slice
+  - xapp.SliceTypeEnum.ADDMOD, xapp.conf_static_slices
+  - xapp.SliceTypeEnum.ADDMOD, xapp.conf_nvs_slices
+  - xapp.SliceTypeEnum.ADDMOD, xapp.conf_nvs_slices_rate1
+  - xapp.SliceTypeEnum.ADDMOD, xapp.conf_nvs_slices_rate2
+  - xapp.SliceTypeEnum.ADDMOD, xapp.conf_nvs_slices_cap2
+  - xapp.SliceTypeEnum.ADDMOD, xapp.conf_nvs_slices_cap3
+  - xapp.SliceTypeEnum.ADDMOD, xapp.conf_edf_slices
+  - xapp.SliceTypeEnum.ADDMOD, xapp.conf_reset_slices
+  - xapp.SliceTypeEnum.DELETE, xapp.conf_delete_slices
+  - xapp.SliceTypeEnum.ASSOC_UE, xapp.conf_assoc_ue_slice
 ```
 >>> xapp.print_slice_conf("ADDMOD", xapp.conf_nvs_slices_cap2)
   slice_id  label    slice_sched_algo    slice_algo_param1    slice_algo_param2    slice_algo_param3    ue_sched_algo
@@ -56,10 +71,10 @@ use function send_slice_ctrl_msg(e2node_idx, cmd, conf)
          0  s1       NVS-CAPACITY        pct_rsvd:0.7         null                 null                 PF
          2  s2       NVS-CAPACITY        pct_rsvd:0.29        null                 null                 PF
 
->>> xapp.send_slice_ctrl_msg(0, "ADDMOD", xapp.conf_nvs_slices_cap2)
+>>> xapp.send_slice_ctrl_msg(0, xapp.SliceTypeEnum.ADDMOD, xapp.conf_nvs_slices_cap2)
 ```
 
-5. Finish
+6. Finish
 ```
 >>> xapp.end() -> delete subscription of slice and mac sm for each e2 node
 ```
