@@ -56,9 +56,19 @@ func main() {
 	rntis := slice.ReadSliceStats("rntis", -1)
 	fmt.Println("RNTIS: ",rntis)
 
-	time.Sleep(10 * time.Second)
+	rntiSlice, ok := rntis.([]uint16)
+	if !ok {
+		fmt.Println("The interface{} does not contain a slice of int.")
+		return
+	}
+
+	time.Sleep(5 * time.Second)
+
+
+
+
 	// ----------------- First Policy ----------------- //
-	s1_params_nvs := slice.SliceAlgoParams{PctRsvd: 0.5}
+	s1_params_nvs := slice.SliceAlgoParams{PctRsvd: 0.25}
 	s1_nvs := slice.Slice{
 		Id:          0,
 		Label:       "s1",
@@ -69,7 +79,7 @@ func main() {
 	// Idle slice
 	s2_params_nvs := slice.SliceAlgoParams{PctRsvd: 0.05}
 	s2_nvs := slice.Slice{
-		Id:          2,
+		Id:          1,
 		Label:       "idle",
 		UeSchedAlgo: "PF",
 		Type:        "SLICE_SM_NVS_V0_CAPACITY",
@@ -103,12 +113,16 @@ func main() {
 		log.Println("Configuration sent successfully, [controlType]: ", controlType)
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(5 * time.Second)
+
+
+
+
 
 	// ----------------- Second Policy ----------------- //
 	ue := slice.Ue{
-		Rnti:           0,
-		AssocDlSliceId: 2,
+		Rnti:           rntiSlice[0],
+		AssocDlSliceId: 1,
 	}
 	assocUeSlice := slice.Request{
 		NumUes: 1,
@@ -136,11 +150,14 @@ func main() {
 		log.Println("Configuration sent successfully, [controlType]: ", controlType)
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(5 * time.Second)
+
+
+
 
 	// ----------------- Third Policy ----------------- //
 	ue = slice.Ue{
-		Rnti:           0,
+		Rnti:           rntiSlice[0],
 		AssocDlSliceId: 0,
 	}
 	assocUeSlice = slice.Request{
@@ -169,7 +186,11 @@ func main() {
 		log.Println("Configuration sent successfully, [controlType]: ", controlType)
 	}
 
-	time.Sleep(10 * time.Second)
+
+	time.Sleep(5 * time.Second)
+
+
+
 
 	// ----------------- Finish ----------------- //
 	url := "http://127.0.0.1:7000/api/finish"

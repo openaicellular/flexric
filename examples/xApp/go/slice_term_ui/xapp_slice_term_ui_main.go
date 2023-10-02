@@ -628,8 +628,8 @@ func main() {
 		normalSliceNumUes := readSliceStats("num_of_ues", sliceId).(int)
 		normalSliceRntis := readSliceStats("rntis", sliceId)
 		
-		idleSliceNumUes := readSliceStats("num_of_ues", 2).(int)
-		idleSliceRntis := readSliceStats("rntis", 2)
+		idleSliceNumUes := readSliceStats("num_of_ues", 1).(int)
+		idleSliceRntis := readSliceStats("rntis", 1)
 
 		// Print Slice A information
 		printSliceInfo(wrapper, centerX, centerY-3, "[Slice 0]:", normalSliceRntis.([]uint16), normalSliceNumUes)
