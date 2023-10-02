@@ -308,14 +308,11 @@ func FindIdleSlice() int {
 	}
 
 	for _, sl := range SliceStats.RAN.DL.Slices {
-		if sl.UeSchedAlgo == "PF" {
-			if sl.SliceAlgoParams.Type == "SLICE_SM_NVS_V0_CAPACITY" {
-				if sl.SliceAlgoParams.PctRsvd == 0.05 {
-					return int(sl.Index)
-				}
-			}
+		if sl.Label == "idle" {
+			return int(sl.Index)
 		}
 	}
+
 	return -1
 }
 	

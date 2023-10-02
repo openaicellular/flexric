@@ -25,14 +25,23 @@ func CallbackMaxNumUes(PolicyConfiguration policy.Configuration) {
 	idleSliceId := slice.FindIdleSlice()
 
 	if idleSliceId != -1 {
-		fmt.Printf("Found slice with index %d and PctRsvd = 0.05\n", idleSliceId)
+		//fmt.Printf("Found slice with index %d and PctRsvd = 0.05\n", idleSliceId)
 	} else {
-		fmt.Println("No slice found with PctRsvd = 0.05")
+		fmt.Println("No slice idle slice")
+
+		// Adjust the zero slice first
+		s1_params_nvs := slice.SliceAlgoParams{PctRsvd: 0.25}
+		s1_nvs := slice.Slice{
+			Id:          0,
+			Label:       "s1",
+			UeSchedAlgo: "PF",
+			Type:        "SLICE_SM_NVS_V0_CAPACITY",
+			SliceAlgoParams: s1_params_nvs}
 
 		// Create Idle slice
 		algoParams := slice.SliceAlgoParams{PctRsvd: 0.05}
 		idleSlice := slice.Slice{
-			Id:              2, // TODO: Do this dynamically to find a free id
+			Id:              1, // TODO: Do this dynamically to find a free id
 			Label:           "idle",
 			UeSchedAlgo:     "PF",
 			Type:            "SLICE_SM_NVS_V0_CAPACITY",
@@ -40,9 +49,9 @@ func CallbackMaxNumUes(PolicyConfiguration policy.Configuration) {
 
 		// Request to add the slices
 		idleNvsSlicesCap := slice.Request{
-			NumSlices:      1,
+			NumSlices:      2,
 			SliceSchedAlgo: "NVS",
-			Slices:         []slice.Slice{idleSlice},
+			Slices:         []slice.Slice{s1_nvs, idleSlice},
 		}
 
 		// Send the ADDMOD control message to the RIC
@@ -75,7 +84,7 @@ func CallbackMaxNumUes(PolicyConfiguration policy.Configuration) {
 	// Consider reading all the desired values at once in a single iteration.
 	// Otherwise, inconsistencies may occur if the global structure is updated between multiple readings
 
-	reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", -1).(interface{})
+	reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", idleSliceId).(interface{})
 
 	curNumOfUes := reading.(map[string]interface{})["num_of_normal_ues"].(int)
 	fmt.Println("[Policy]: Curr Num of UEs:", curNumOfUes, ", Max Num of UEs:", maxNumOfUes)
@@ -125,9 +134,12 @@ func CallbackMaxNumUes(PolicyConfiguration policy.Configuration) {
 			NumUes: numOfExtraUes,
 			Ues:    uesToBeAssoc,
 		}
-		msg := slice.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
-		xapp.Control_slice_sm(sm.E2Nodes.Get(0).GetId(), msg)
-		time.Sleep(1000 * time.Millisecond)
+
+		for i:=0 ; i <= int(sm.E2Nodes.Size()-1); i++ {
+			msg := slice.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
+			xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msg)
+			time.Sleep(1000 * time.Millisecond)
+		}
 
 		// Policy is not enforced yet
 
@@ -185,9 +197,12 @@ func CallbackMaxNumUes(PolicyConfiguration policy.Configuration) {
 				NumUes: numOfUesToBeAssociated,
 				Ues:    uesToBeAssoc,
 			}
-			msg := slice.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
-			xapp.Control_slice_sm(sm.E2Nodes.Get(0).GetId(), msg)
-			time.Sleep(1 * time.Second)
+
+			for i:=0 ; i <= int(sm.E2Nodes.Size()-1); i++ {
+				msg := slice.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
+				xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msg)
+				time.Sleep(1 * time.Second)
+			}
 
 		} else {
 			// There are no UEs in the idle slice that can be associated to the slice
