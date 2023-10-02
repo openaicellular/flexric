@@ -178,7 +178,7 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   e42_xapp_t* xapp = calloc(1, sizeof(*xapp));
   assert(xapp != NULL && "Memory exhausted");
 
-  uint32_t const port = 36422;
+  uint32_t const port = 36423;
 
   char* addr = get_near_ric_ip(args);
   defer({ free(addr); } );

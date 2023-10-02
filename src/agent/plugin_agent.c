@@ -339,6 +339,11 @@ sm_agent_t* sm_plugin_ag(plugin_ag_t* p, uint16_t key)
 
   lock_guard(&p->sm_ds_mtx);
 
+  if(key == 1){
+	  printf("RAN function %d not found in the registry, assumming value is 2 i.e., KPM \n", key);
+	  key = 2;
+  }
+
   void* start_it = assoc_front(&p->sm_ds);
   void* end_it = assoc_end(&p->sm_ds);
   void* it = find_if(&p->sm_ds, start_it, end_it, &key, eq_ran_func_id); 

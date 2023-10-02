@@ -90,7 +90,7 @@ void init_agent_api(int mcc,
   const e2ap_plmn_t plmn = {.mcc = mcc, .mnc = mnc, .mnc_digit_len = mnc_digit_len};
   global_e2_node_id_t ge2ni = init_ge2ni(ran_type, plmn, nb_id, cu_du_id ); 
 
-  const int e2ap_server_port = 36421;
+  const int e2ap_server_port = 36422;
 
   char* ran_type_str = get_ngran_name(ran_type);
   char str[128] = {0};

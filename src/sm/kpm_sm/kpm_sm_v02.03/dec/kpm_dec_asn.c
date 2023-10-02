@@ -77,12 +77,142 @@ kpm_event_trigger_def_t kpm_dec_event_trigger_asn(size_t len, uint8_t const ev_t
 }
 
 
+
+
+////// HACK for OSC. Do not use this. Ever.
+////// HACK for OSC. Do not use this. Ever.
+////// HACK for OSC. Do not use this. Ever.
+////// HACK for OSC. Do not use this. Ever.
+////// HACK for OSC. Do not use this. Ever.
+////// HACK for OSC. Do not use this. Ever.
+
+static
+byte_array_t copy_str_to_ba(const char* str)
+{
+  assert(str != NULL);
+
+  size_t const sz = strlen(str);
+  byte_array_t dst = {.len = sz };
+  dst.buf = calloc(sz ,sizeof(uint8_t) );
+  assert(dst.buf != NULL);
+
+  memcpy(dst.buf, str, sz);
+
+  return dst;
+}
+
+
+
+static
+meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
+{
+  meas_info_format_1_lst_t dst = {0};
+
+  dst.meas_type.type = NAME_MEAS_TYPE;
+  // ETSI TS 128 552
+  dst.meas_type.name = copy_str_to_ba(  action );
+
+  dst.label_info_lst_len = 1;
+  dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
+  assert(dst.label_info_lst != NULL && "Memory exhausted");
+  dst.label_info_lst[0].noLabel = calloc(1, sizeof(enum_value_e));
+  assert(dst.label_info_lst[0].noLabel != NULL && "Memory exhausted");
+  *dst.label_info_lst[0].noLabel = TRUE_ENUM_VALUE;
+
+  return dst;
+}
+
+static
+kpm_act_def_format_1_t gen_act_def_frmt_1(const char* action)
+{
+  kpm_act_def_format_1_t dst = {0};
+
+  dst.gran_period_ms = 100;
+
+  // [1, 65535]
+  dst.meas_info_lst_len = 1;
+  dst.meas_info_lst = calloc(1, sizeof(meas_info_format_1_lst_t));
+  assert(dst.meas_info_lst != NULL && "Memory exhausted");
+
+  *dst.meas_info_lst = gen_meas_info_format_1_lst(action);
+
+  return dst;
+}
+
+static
+kpm_act_def_format_4_t gen_act_def_frmt_4(const char* action)
+{
+  kpm_act_def_format_4_t dst = {0};
+
+  // [1, 32768]
+  dst.matching_cond_lst_len = 1;
+
+  dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
+  assert(dst.matching_cond_lst != NULL && "Memory exhausted");
+
+  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
+  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
+  dst.matching_cond_lst[0].test_info_lst.int_value = malloc(sizeof(int64_t));
+  assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.int_value = 0;
+
+  // Action definition Format 1
+  dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
+
+  return dst;
+}
+
+
+static
+kpm_act_def_t gen_act_def(const char* act)
+{
+  kpm_act_def_t dst = {0};
+
+  dst.type = FORMAT_4_ACTION_DEFINITION;
+  dst.frm_4 = gen_act_def_frmt_4(act);
+  return dst;
+}
+
+////// END HACK for OSC. Do not use this. Ever.
+////// END HACK for OSC. Do not use this. Ever.
+////// END HACK for OSC. Do not use this. Ever.
+////// END HACK for OSC. Do not use this. Ever.
+////// END HACK for OSC. Do not use this. Ever.
+////// END HACK for OSC. Do not use this. Ever.
+////// END HACK for OSC. Do not use this. Ever.
+
+
+
+
+
+
+
+
+
+
+
 kpm_act_def_t kpm_dec_action_def_asn(size_t len, uint8_t const action_def[len]) 
 {
   assert(len>0);
   assert(action_def != NULL);
 
   kpm_act_def_t ret = {0};
+  // Hack for OSC RIC
+  if(len == 1){
+    const char act[] = "DRB.RlcSduDelayDl";
+    ret = gen_act_def(act);
+    return ret;
+  }
+
 
   E2SM_KPM_ActionDefinition_t *pdu = calloc(1, sizeof(E2SM_KPM_ActionDefinition_t));
   assert( pdu !=NULL && "Memory exhausted" );

@@ -256,6 +256,18 @@ e2ap_msg_t e2ap_handle_control_request_agent(e2_agent_t* ag, const e2ap_msg_t* m
   assert(msg->type == RIC_CONTROL_REQUEST);
  
   ric_control_request_t const* ctrl_req = &msg->u_msgs.ric_ctrl_req;
+
+  if(ctrl_req->ack_req == NULL){
+    printf("Invalid FlexRIC  RIC_CONTROL_REQUEST converting to  RIC_CONTROL_REQUEST_ACK\n" );
+    ((ric_control_request_t*)ctrl_req)->ack_req = calloc(1, sizeof(ric_control_ack_req_t));
+    assert(ctrl_req->ack_req != NULL && "Memory exhausted");
+  }
+
+  if(*ctrl_req->ack_req != RIC_CONTROL_REQUEST_ACK){
+    printf("Invalid  RIC_CONTROL_REQUEST converting to  RIC_CONTROL_REQUEST_ACK\n" );
+    *((ric_control_request_t*)ctrl_req)->ack_req = RIC_CONTROL_REQUEST_ACK;
+  }
+
   assert(ctrl_req->ack_req != NULL && *ctrl_req->ack_req == RIC_CONTROL_REQUEST_ACK );
 
   sm_ctrl_req_data_t data = {.ctrl_hdr = ctrl_req->hdr.buf,

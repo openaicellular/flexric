@@ -36,13 +36,16 @@ ue_id_e2sm_t fill_rnd_ue_id_data(void)
   return ue_id_data;
 }
 
+static
+float txsdu_avg_time_to_tx;
+
 static 
 kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(void)
 {
   kpm_ind_msg_format_1_t msg_frm_1 = {0};
 
   // Measurement Data
-  uint32_t num_drbs = 2;
+  uint32_t num_drbs = 1;
   msg_frm_1.meas_data_lst_len = num_drbs;  // (rand() % 65535) + 1;
   msg_frm_1.meas_data_lst = calloc(msg_frm_1.meas_data_lst_len, sizeof(*msg_frm_1.meas_data_lst));
   assert(msg_frm_1.meas_data_lst != NULL && "Memory exhausted" );
@@ -53,9 +56,10 @@ kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(void)
     msg_frm_1.meas_data_lst[i].meas_record_lst = calloc(msg_frm_1.meas_data_lst[i].meas_record_len, sizeof(meas_record_lst_t));
     assert(msg_frm_1.meas_data_lst[i].meas_record_lst != NULL && "Memory exhausted" );
 
+    txsdu_avg_time_to_tx += 1000.0;
     for (size_t j = 0; j < msg_frm_1.meas_data_lst[i].meas_record_len; j++){
       msg_frm_1.meas_data_lst[i].meas_record_lst[j].value = REAL_MEAS_VALUE; // rand()%END_MEAS_VALUE;
-      msg_frm_1.meas_data_lst[i].meas_record_lst[j].real_val = (rand() % 256) + 0.1;
+      msg_frm_1.meas_data_lst[i].meas_record_lst[j].real_val = txsdu_avg_time_to_tx; //  (rand() % 256) + 0.1;
     }
   }
 
