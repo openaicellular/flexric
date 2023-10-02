@@ -217,6 +217,11 @@ kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(kpm_act_def_format_1_t act_def
     }
   }
 
+  // Granularity Period - OPTIONAL: (1..4294967295)
+  msg_frm_1.gran_period_ms = calloc(1, sizeof(*msg_frm_1.gran_period_ms));
+  assert(msg_frm_1.gran_period_ms != NULL && "Memory exhausted");
+  *msg_frm_1.gran_period_ms = act_def_fr1.gran_period_ms;
+
   return msg_frm_1;
 }
 
