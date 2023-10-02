@@ -12,6 +12,14 @@ var Mutex sync.Mutex
 // Global variable to store the stats of UEs
 var MultipleUeStatistics MultiUeStats
 
+type UeThroughputCalculationMetrics struct {
+	DLAggtbsSt int
+	ULAggtbsSt int
+	Count      int
+	DLThr      int
+	ULThr      int
+}
+
 type UePrbCalculationMetrics struct {
 	DLRbCount     int
 	DiffDlSlotSt  int
@@ -30,6 +38,7 @@ type UeStats struct {
 	Teidgnb        uint
 	PrbUtilisation int
 	UePrbMetrics   UePrbCalculationMetrics
+	UeThrMetrics   UeThroughputCalculationMetrics
 }
 
 type RNTI uint
@@ -174,4 +183,63 @@ func Calculate_UE_PRB_utilisation() {
 
 	Mutex.Unlock()
 
+}
+
+
+// TotalPrbUtilization function to calculate the total prb utilisation
+func TotalThroughput() (int, int) {
+	var TotalDlThroughput, TotalUlThroughput int
+
+	Mutex.Lock()
+	for _, ue := range MultipleUeStatistics.Stats {
+		TotalDlThroughput += ue.UeThrMetrics.DLThr
+		TotalUlThroughput += ue.UeThrMetrics.ULThr
+	}
+	Mutex.Unlock()
+
+	return TotalDlThroughput, TotalUlThroughput
+}
+
+
+func CalculateUeThroughput(){
+
+	mac.Mutex.Lock()
+	ind := mac.MacStats.Indication
+	mac.Mutex.Unlock()
+
+
+	Mutex.Lock()
+
+	// iterate over the number of UEs
+	for i := 0; i < int(ind.GetUe_stats().Size()); i++ {
+
+		Rnti := RNTI(ind.GetUe_stats().Get(i).GetRnti())
+		DLAggtbsSt := int(ind.GetUe_stats().Get(i).GetDl_aggr_tbs())
+		ULAggtbsSt := int(ind.GetUe_stats().Get(i).GetUl_aggr_tbs())
+
+		// Check if the UE RNTI exists in the map
+		if ue, ok := MultipleUeStatistics.Stats[Rnti]; ok {
+
+			// Store the first indication messages
+			if ue.UeThrMetrics.Count == 0 {
+				ue.UeThrMetrics.DLAggtbsSt = DLAggtbsSt
+				ue.UeThrMetrics.ULAggtbsSt = ULAggtbsSt
+			}
+
+			// Wait for 1 second to get the last indication messages
+			ue.UeThrMetrics.Count++
+
+			if ue.UeThrMetrics.Count == 101 {
+
+				ue.UeThrMetrics.DLThr = (int((int(ind.GetUe_stats().Get(i).GetDl_aggr_tbs()) - ue.UeThrMetrics.DLAggtbsSt) * 8)) / 1000000
+				ue.UeThrMetrics.ULThr = (int((int(ind.GetUe_stats().Get(i).GetUl_aggr_tbs()) - ue.UeThrMetrics.ULAggtbsSt) * 8)) / 1000000
+				ue.UeThrMetrics.Count = 0
+
+			}
+
+			MultipleUeStatistics.Stats[Rnti] = ue
+		}
+	}
+
+	Mutex.Unlock()
 }

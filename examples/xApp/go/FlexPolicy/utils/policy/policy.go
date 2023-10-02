@@ -26,6 +26,7 @@ type StatementConfig struct {
 	// -----  For ORAN xApps -----------------//
 	MaxNumberOfUEs int `json:"maxNumberOfUes,omitempty"`
 	MacPrbUtilisation int `json:"macPrbUtilisation,omitempty"`
+	MaxThroughput int `json:"maxThroughput,omitempty"` 
 
 	// -----  For Br (Non-ORAN) xApps --------//
 	// Type of the Control Request
