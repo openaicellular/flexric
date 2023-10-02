@@ -66,9 +66,6 @@ if(XAPP_PYTHON_SWIG)
       $<TARGET_OBJECTS:e2ap_plmn_obj>
       $<TARGET_OBJECTS:e2ap_global_node_id_obj>
       $<TARGET_OBJECTS:e2_conv_obj>
-      ${KPM_VERSION_SRC}
-      $<TARGET_OBJECTS:kpm_ric_info_common_obj>
-      $<TARGET_OBJECTS:kpm_ric_info_obj>
       ../../sm/mac_sm/ie/mac_data_ie.c
       ../../sm/rlc_sm/ie/rlc_data_ie.c
       ../../sm/pdcp_sm/ie/pdcp_data_ie.c
@@ -78,6 +75,18 @@ if(XAPP_PYTHON_SWIG)
       ../../util/byte_array.c
       ../../util/alg_ds/alg/eq_float.c
       ../../util/e2ap_ngran_type.c
+      ${KPM_VERSION_SRC}
+      $<TARGET_OBJECTS:kpm_ric_info_common_obj>
+      $<TARGET_OBJECTS:kpm_ric_info_obj>
+      $<TARGET_OBJECTS:e2sm_common_ie_obj>
+      $<TARGET_OBJECTS:3gpp_common_ie_obj>
+      $<TARGET_OBJECTS:sm_common_ie_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
+      $<TARGET_OBJECTS:sm_common_dec_asn_obj>
+      $<TARGET_OBJECTS:sm_common_enc_asn_obj>
+      $<TARGET_OBJECTS:sm_common_ie_obj>
       )
 endif()
 
@@ -91,9 +100,6 @@ if(XAPP_GO_SWIG)
       $<TARGET_OBJECTS:e2ap_plmn_obj>
       $<TARGET_OBJECTS:e2ap_global_node_id_obj>
       $<TARGET_OBJECTS:e2_conv_obj>
-      ${KPM_VERSION_SRC}
-      $<TARGET_OBJECTS:kpm_ric_info_common_obj>
-      $<TARGET_OBJECTS:kpm_ric_info_obj>
       ../../sm/mac_sm/ie/mac_data_ie.c
       ../../sm/rlc_sm/ie/rlc_data_ie.c
       ../../sm/pdcp_sm/ie/pdcp_data_ie.c
@@ -102,9 +108,21 @@ if(XAPP_GO_SWIG)
       ../../sm/gtp_sm/ie/gtp_data_ie.c
       ../../util/byte_array.c
       ../../util/alg_ds/alg/eq_float.c
+      ../../util/e2ap_ngran_type.c
       ../../
+      ${KPM_VERSION_SRC}
+      $<TARGET_OBJECTS:kpm_ric_info_common_obj>
+      $<TARGET_OBJECTS:kpm_ric_info_obj>
+      $<TARGET_OBJECTS:e2sm_common_ie_obj>
+      $<TARGET_OBJECTS:3gpp_common_ie_obj>
+      $<TARGET_OBJECTS:sm_common_ie_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
+      $<TARGET_OBJECTS:sm_common_dec_asn_obj>
+      $<TARGET_OBJECTS:sm_common_enc_asn_obj>
+      $<TARGET_OBJECTS:sm_common_ie_obj>
       )
-
 endif()
 
 #PYTHON compilation

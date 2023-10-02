@@ -723,6 +723,163 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
     swig_data.hdr.kpm_ric_ind_hdr_format_1.vendor_name = ByteArrayToString(hdr_frm1->vendor_name);
   }
 
+  // Message
+  swig_data.msg.type = data->msg.type;
+  if (swig_data.msg.type == FORMAT_1_INDICATION_MESSAGE) {
+    kpm_ind_msg_format_1_t const* msg = &data->msg.frm_1;
+    // swig_meas_data_lst_t
+    swig_data.msg.frm_1.meas_data_lst_len = msg->meas_data_lst_len;
+    for (size_t j = 0; j < swig_data.msg.frm_1.meas_data_lst_len; j++) {
+      swig_meas_data_lst_t tmp_data;
+      meas_data_lst_t const* meas_data = &msg->meas_data_lst[j];
+      tmp_data.meas_record_len = meas_data->meas_record_len;
+      for (size_t m = 0; m < tmp_data.meas_record_len; m++) {
+        swig_meas_record_lst_t tmp_record;
+        meas_record_lst_t const* meas_record = &meas_data->meas_record_lst[m];
+        tmp_record.value = meas_record->value;
+        if (tmp_record.value == INTEGER_MEAS_VALUE) {
+          tmp_record.int_val = meas_record->int_val;
+        } else if (tmp_record.value == REAL_MEAS_VALUE) {
+          tmp_record.real_val = meas_record->real_val;
+        } else if (tmp_record.value == NO_VALUE_MEAS_VALUE) {
+          tmp_record.no_value = "NULL";
+        } else {
+          assert(0 != 0 && "Unknown meas record");
+        }
+
+        tmp_data.meas_record_lst.emplace_back(tmp_record);
+      }
+      // incomplete_flag
+      tmp_data.incomplete_flag = END_ENUM_VALUE;
+      if (meas_data->incomplete_flag && *meas_data->incomplete_flag == TRUE_ENUM_VALUE) {
+        tmp_data.incomplete_flag = *meas_data->incomplete_flag;
+      }
+
+      swig_data.msg.frm_1.meas_data_lst.emplace_back(tmp_data);
+    }
+
+    // swig_meas_info_format_1_lst_t
+    swig_data.msg.frm_1.meas_info_lst_len = msg->meas_info_lst_len;
+    for (size_t j = 0; j < swig_data.msg.frm_1.meas_info_lst_len; j++) {
+      swig_meas_info_format_1_lst_t tmp_info;
+      meas_info_format_1_lst_t const* meas_info = &msg->meas_info_lst[j];
+      if (meas_info->meas_type.type == meas_type_t::NAME_MEAS_TYPE) {
+        tmp_info.meas_type.type = swig_meas_type_e::NAME_MEAS_TYPE;
+        tmp_info.meas_type.name_len = meas_info->meas_type.name.len;
+        tmp_info.meas_type.name = ByteArrayToString(&meas_info->meas_type.name);
+      } else if (meas_info->meas_type.type == meas_type_t::ID_MEAS_TYPE) {
+        tmp_info.meas_type.type = swig_meas_type_e::ID_MEAS_TYPE;
+        tmp_info.meas_type.id = meas_info->meas_type.id;
+      } else {
+        assert(0!=0 && "Unknown meas type");
+      }
+
+      swig_data.msg.frm_1.meas_info_lst.emplace_back(tmp_info);
+    }
+
+    // gran_period_ms
+    size_t idx = 0;
+    if (msg->gran_period_ms) {
+      while (msg->gran_period_ms[idx]) {
+        swig_data.msg.frm_1.gran_period_ms.push_back(msg->gran_period_ms[idx]);
+        idx++;
+      }
+    }
+
+  } else if (swig_data.msg.type == FORMAT_3_INDICATION_MESSAGE) {
+    kpm_ind_msg_format_3_t const* msg = &data->msg.frm_3;
+    swig_data.msg.frm_3.ue_meas_report_lst_len = msg->ue_meas_report_lst_len;
+    for (size_t i = 0; i < swig_data.msg.frm_3.ue_meas_report_lst_len; i++) { // swig_meas_report_per_ue_t
+      swig_meas_report_per_ue_t tmp;
+      meas_report_per_ue_t const* meas_ue = &msg->meas_report_per_ue[i];
+      // swig_ue_id_e2sm_t
+      tmp.ue_meas_report_lst.type = meas_ue->ue_meas_report_lst.type;
+      if (tmp.ue_meas_report_lst.type == GNB_UE_ID_E2SM) {
+        tmp.ue_meas_report_lst.gnb.amf_ue_ngap_id = meas_ue->ue_meas_report_lst.gnb.amf_ue_ngap_id;
+        tmp.ue_meas_report_lst.gnb.guami.plmn_id.mcc = meas_ue->ue_meas_report_lst.gnb.guami.plmn_id.mcc;
+        tmp.ue_meas_report_lst.gnb.guami.plmn_id.mnc = meas_ue->ue_meas_report_lst.gnb.guami.plmn_id.mnc;
+        tmp.ue_meas_report_lst.gnb.guami.plmn_id.mnc_digit_len = meas_ue->ue_meas_report_lst.gnb.guami.plmn_id.mnc_digit_len;
+        tmp.ue_meas_report_lst.gnb.guami.amf_region_id = meas_ue->ue_meas_report_lst.gnb.guami.amf_region_id;
+        tmp.ue_meas_report_lst.gnb.guami.amf_set_id = meas_ue->ue_meas_report_lst.gnb.guami.amf_set_id;
+        tmp.ue_meas_report_lst.gnb.guami.amf_ptr = meas_ue->ue_meas_report_lst.gnb.guami.amf_ptr;
+        tmp.ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst_len = meas_ue->ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst_len;
+        // TODO: copy uint32_t *gnb_cu_ue_f1ap_lst
+        tmp.ue_meas_report_lst.gnb.gnb_cu_cp_ue_e1ap_lst_len = meas_ue->ue_meas_report_lst.gnb.gnb_cu_cp_ue_e1ap_lst_len;
+        // TODO: copy uint32_t *gnb_cu_cp_ue_e1ap_lst
+        // TODO: copy uint64_t *ran_ue_id ...
+      } else if (tmp.ue_meas_report_lst.type == GNB_DU_UE_ID_E2SM) {
+        tmp.ue_meas_report_lst.gnb_du.gnb_cu_ue_f1ap = meas_ue->ue_meas_report_lst.gnb_du.gnb_cu_ue_f1ap;
+      } else if (tmp.ue_meas_report_lst.type == GNB_CU_UP_UE_ID_E2SM) {
+        tmp.ue_meas_report_lst.gnb_cu_up.gnb_cu_cp_ue_e1ap = meas_ue->ue_meas_report_lst.gnb_cu_up.gnb_cu_cp_ue_e1ap;
+      } else {
+        assert(0!=0 && "Not support UE ID type, do not handle swig_data.msg to callback");
+      }
+
+      // swig_kpm_ind_msg_format_1_t
+      tmp.ind_msg_format_1.meas_data_lst_len = meas_ue->ind_msg_format_1.meas_data_lst_len;
+      for (size_t j = 0; j < tmp.ind_msg_format_1.meas_data_lst_len; j++) { // swig_meas_data_lst_t
+        swig_meas_data_lst_t tmp_data;
+        meas_data_lst_t const* meas_data = &meas_ue->ind_msg_format_1.meas_data_lst[j];
+        tmp_data.meas_record_len = meas_data->meas_record_len;
+        for (size_t m = 0; m < tmp_data.meas_record_len; m++) {
+          swig_meas_record_lst_t tmp_record;
+          meas_record_lst_t const* meas_record = &meas_data->meas_record_lst[m];
+          tmp_record.value = meas_record->value;
+          if (tmp_record.value == INTEGER_MEAS_VALUE) {
+            tmp_record.int_val = meas_record->int_val;
+          } else if (tmp_record.value == REAL_MEAS_VALUE) {
+            tmp_record.real_val = meas_record->real_val;
+          } else if (tmp_record.value == NO_VALUE_MEAS_VALUE) {
+            tmp_record.no_value = "NULL";
+          } else {
+            assert(0 != 0 && "Unknown meas record");
+          }
+
+          tmp_data.meas_record_lst.emplace_back(tmp_record);
+        }
+        // incomplete_flag
+        tmp_data.incomplete_flag = END_ENUM_VALUE;
+        if (meas_data->incomplete_flag && *meas_data->incomplete_flag == TRUE_ENUM_VALUE) {
+          tmp_data.incomplete_flag = *meas_data->incomplete_flag;
+        }
+
+        tmp.ind_msg_format_1.meas_data_lst.emplace_back(tmp_data);
+      }
+
+      tmp.ind_msg_format_1.meas_info_lst_len = meas_ue->ind_msg_format_1.meas_info_lst_len;
+      for (size_t j = 0; j < tmp.ind_msg_format_1.meas_info_lst_len; j++) { // swig_meas_info_format_1_lst_t
+        swig_meas_info_format_1_lst_t tmp_info;
+        meas_info_format_1_lst_t const* meas_info = &meas_ue->ind_msg_format_1.meas_info_lst[j];
+        if (meas_info->meas_type.type == meas_type_t::NAME_MEAS_TYPE) {
+          tmp_info.meas_type.type = swig_meas_type_e::NAME_MEAS_TYPE;
+          tmp_info.meas_type.name_len = meas_info->meas_type.name.len;
+          tmp_info.meas_type.name = ByteArrayToString(&meas_info->meas_type.name);
+        } else if (meas_info->meas_type.type == meas_type_t::ID_MEAS_TYPE) {
+          tmp_info.meas_type.type = swig_meas_type_e::ID_MEAS_TYPE;
+          tmp_info.meas_type.id = meas_info->meas_type.id;
+        } else {
+          assert(0!=0 && "Unknown meas type");
+        }
+
+        tmp.ind_msg_format_1.meas_info_lst.emplace_back(tmp_info);
+      }
+
+      // gran_period_ms
+      size_t idx = 0;
+      if (meas_ue->ind_msg_format_1.gran_period_ms) {
+        while (meas_ue->ind_msg_format_1.gran_period_ms[idx]) {
+          tmp.ind_msg_format_1.gran_period_ms.push_back(meas_ue->ind_msg_format_1.gran_period_ms[idx]);
+          idx++;
+        }
+      }
+
+
+      swig_data.msg.frm_3.meas_report_per_ue.emplace_back(tmp);
+    }
+
+  } else {
+    printf("Not support indication message format %d, do not handle swig_data.msg to callback\n", swig_data.msg.type);
+  }
 #ifdef XAPP_LANG_PYTHON
   PyGILState_STATE gstate;
   gstate = PyGILState_Ensure();
