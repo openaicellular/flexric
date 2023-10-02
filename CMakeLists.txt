@@ -428,7 +428,7 @@ endif()
 if (XAPP_GO_SWIG)
   install(PROGRAMS
           ${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/go_helloworld
-          ${CMAKE_BINARY_DIR}/examples/xApp/go/slice/go_xapp_slice_moni_ctrl
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/slice_moni_ctrl/go_xapp_slice_moni_ctrl
           DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
