@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 
+#ifdef TEST_AGENT_GNB
 static 
 gnb_e2sm_t fill_rnd_gnb_data(void)
 {
@@ -28,14 +29,125 @@ gnb_e2sm_t fill_rnd_gnb_data(void)
 
   return gnb;
 }
+#endif
+
+#ifdef TEST_AGENT_GNB_DU
+static
+gnb_du_e2sm_t fill_rnd_gnb_du_data(void)
+{
+  gnb_du_e2sm_t gnb_du = {0};
+  gnb_du.gnb_cu_ue_f1ap = (rand() % 4294967296) + 0;
+
+  gnb_du.ran_ue_id = calloc(1, sizeof(*gnb_du.ran_ue_id));
+  *gnb_du.ran_ue_id = (rand() % 2^64) + 0;
+
+  return gnb_du;
+}
+#endif
+
+#ifdef TEST_AGENT_GNB_CU
+static
+gnb_cu_up_e2sm_t fill_rnd_gnb_cu_up_data(void)
+{
+  gnb_cu_up_e2sm_t gnb_cu_up = {0};
+  gnb_cu_up.gnb_cu_cp_ue_e1ap = (rand() % 4294967296) + 0;
+
+  gnb_cu_up.ran_ue_id = calloc(1, sizeof(*gnb_cu_up.ran_ue_id));
+  *gnb_cu_up.ran_ue_id = (rand() % 2^64) + 0;
+
+  return gnb_cu_up;
+}
+#endif
+
+#ifdef TEST_AGENT_ENB
+static
+enb_e2sm_t fill_rnd_enb_data(void)
+{
+  enb_e2sm_t enb = {0};
+
+  // 6.2.3.26
+  // Mandatory
+  // MME UE S1AP ID
+  enb.mme_ue_s1ap_id = (rand() % 4294967296) + 0;
+
+  // 6.2.3.18
+  // Mandatory
+  // GUMMEI
+  enb.gummei.plmn_id = (e2sm_plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
+  enb.gummei.mme_group_id = (rand() % 2^16) + 0;
+  enb.gummei.mme_code = (rand() % 2^8) + 0;
+
+  // 6.2.3.23
+  // C-ifDCSetup
+  // MeNB UE X2AP ID
+  enb.enb_ue_x2ap_id = calloc(1, sizeof(uint16_t));
+  assert(enb.enb_ue_x2ap_id != NULL && "Memory exhausted");
+  *enb.enb_ue_x2ap_id = (rand() % 4095) + 1;
+
+  // 6.2.3.24
+  // C-ifDCSetup
+  // MeNB UE X2AP ID Extension
+  enb.enb_ue_x2ap_id_extension = calloc(1, sizeof(uint16_t));
+  assert(enb.enb_ue_x2ap_id_extension != NULL && "Memory exhausted");
+  *enb.enb_ue_x2ap_id_extension = (rand() % 4095) + 1;
+
+  // 6.2.3.9
+  // C-ifDCSetup
+  // Global eNB ID
+  enb.global_enb_id = calloc(1, sizeof(*enb.global_enb_id));
+  assert(enb.global_enb_id != NULL && "Memory exhausted");
+
+  enb.global_enb_id->plmn_id = (e2sm_plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
+
+  enb.global_enb_id->type = MACRO_ENB_TYPE_ID;  // rand()%END_ENB_TYPE_ID;
+
+  switch (enb.global_enb_id->type)
+  {
+    case MACRO_ENB_TYPE_ID:
+      enb.global_enb_id->macro_enb_id = (rand() % 2^20) + 0;
+      break;
+
+    case HOME_ENB_TYPE_ID:
+      enb.global_enb_id->home_enb_id = (rand() % 2^28) + 0;
+      break;
+
+      /* Possible extensions: */
+      // case SHORT_MACRO_ENB_TYPE_ID:
+      //   enb.global_enb_id->short_macro_enb_id = (rand() % 2^18) + 0;
+      //   break;
+
+      // case LONG_MACRO_ENB_TYPE_ID:
+      //   enb.global_enb_id->long_macro_enb_id = (rand() % 2^21) + 0;
+      //   break;
+
+    default:
+      break;
+  }
+
+  return enb;
+}
+#endif
 
 static 
 ue_id_e2sm_t fill_rnd_ue_id_data(void)
 {
   ue_id_e2sm_t ue_id_data = {0};
 
-  ue_id_data.type = GNB_UE_ID_E2SM;
-  ue_id_data.gnb = fill_rnd_gnb_data();
+#ifdef TEST_AGENT_GNB
+    ue_id_data.type = GNB_UE_ID_E2SM;
+    ue_id_data.gnb = fill_rnd_gnb_data();
+#elif defined(TEST_AGENT_GNB_DU)
+    ue_id_data.type = GNB_DU_UE_ID_E2SM;
+    ue_id_data.gnb_du = fill_rnd_gnb_du_data();
+#elif defined(TEST_AGENT_GNB_CU)
+    ue_id_data.type = GNB_CU_UP_UE_ID_E2SM;
+    ue_id_data.gnb_cu_up = fill_rnd_gnb_cu_up_data();
+#elif defined(TEST_AGENT_ENB)
+    ue_id_data.type = ENB_UE_ID_E2SM;
+    ue_id_data.enb = fill_rnd_enb_data();
+#else
+  static_assert(0!=0, "not support TEST_AGENT_RAN_TYPE");
+#endif
 
   return ue_id_data;
 }
