@@ -4,6 +4,8 @@ import "C"
 import (
 	"encoding/json"
 	xapp "build/examples/xApp/go/xapp_sdk"
+	mac "build/examples/xApp/go/FlexPolicy/utils/mac"
+
 	"fmt"
 	"log"
 	"os"
@@ -14,6 +16,7 @@ import (
 
 	"sync"
 	"github.com/rthornton128/goncurses"
+	//"strings"
 )
 
 var router *gin.Engine
@@ -506,43 +509,25 @@ func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 }
 
 
+// Indication Callback MAC Function
+type MACCallback struct {
 
-// ------------------------------------------------------------------------ //
-//  xApp configuration parser
-// ------------------------------------------------------------------------ //
-// type xAppConf struct {
-// 	XappManagerServer  string `json:"xapp-manager-server"`
-// 	Mode   string    `json:"mode"`
-// }
+}
 
-// var xappConf xAppConf
-
-// func parseXappConfig() {
-// 	// Open the JSON file
-// 	file, err := os.Open("xapp_config.json")
-// 	if err != nil {
-// 		fmt.Println("Error:", err)
-// 		return
-// 	}
-// 	defer file.Close()
-
-// 	// Create a decoder to read the JSON data
-// 	decoder := json.NewDecoder(file)
-
-// 	// Parse JSON data into a struct
-// 	err = decoder.Decode(&xappConf)
-// 	if err != nil {
-// 		fmt.Println("Error:", err)
-// 		return
-// 	}
-
-// 	// Access the parsed data
-// 	fmt.Println("xappManagerServer:", xappConf.XappManagerServer)
-// 	fmt.Println("mode:", xappConf.Mode)
-// }
+func (mac_cb MACCallback) Handle(ind xapp.Swig_mac_ind_msg_t) {
+	mac.Calculate_UE_PRB_utilisation(ind)
+	mac.CalculateUeThroughput(ind)
+}
 
 
 var end bool = false
+
+// Global or main-scope variables to hold past metrics.
+var prbData []int
+var thptData []int
+
+const maxDataPoints = 10  // Number of past data points to display.
+
 
 // ------------------------------------------------------------------------ //
 //  MAIN
@@ -573,8 +558,15 @@ func main() {
 	// ----------------------- SLICE INDICATION----------------------- //
 	inner := SLICECallback{}
 	callback := xapp.NewDirectorSlice_cb(inner)
-	hndlr := xapp.Report_slice_sm(conn.Get(nodeIdx).GetId(), xapp.Interval_ms_5, callback)
+	hndlr := xapp.Report_slice_sm(conn.Get(nodeIdx).GetId(), xapp.Interval_ms_10, callback)
 	time.Sleep(1 * time.Second)
+
+	// ----------------------- MAC Indication ----------------------- //
+	innerMac := MACCallback{}
+	callbackMac := xapp.NewDirectorMac_cb(innerMac)
+	HndlrMac := xapp.Report_mac_sm(conn.Get(nodeIdx).GetId(), xapp.Interval_ms_10, callbackMac)
+
+
 
 	// ---------------- Print Slice - UE Association ---------------- //
 	// Initialize ncurses
@@ -631,6 +623,25 @@ func main() {
 		idleSliceNumUes := readSliceStats("num_of_ues", 1).(int)
 		idleSliceRntis := readSliceStats("rntis", 1)
 
+		// Universal statistics
+		CurrDlThpt, _ := mac.TotalThroughput()
+		CurrPrbUtilization := mac.TotalPrbUtilization()
+
+		// Update the historical data
+		updateHistoricalData(&prbData, CurrPrbUtilization, maxDataPoints)
+		updateHistoricalData(&thptData, CurrDlThpt, maxDataPoints)
+
+		// // Print universal metrics at fixed positions as a time-series
+		// printTimeSeries(wrapper, 2, 2, "DL Throughput (Mbps):", thptData)
+		// printTimeSeries(wrapper, 2, 4, "PRB Utilization (%):", prbData)
+
+		// Print bar plots
+		// printBarPlot(wrapper, 3, 6, "Throughput Bar:", thptData, 50)
+		// printBarPlot(wrapper, 3, 8, "PRB Utilization Bar:", prbData, 100)
+		printTimeSeriesPlot(wrapper, 2, 10, "DL Throughput (Mbps):", thptData, 70)
+		printTimeSeriesPlot(wrapper, 2, 20, "PRB Utilization (%):", prbData, 100)
+
+
 		// Print Slice A information
 		printSliceInfo(wrapper, centerX, centerY-3, "[Slice 0]:", normalSliceRntis.([]uint16), normalSliceNumUes)
 
@@ -649,6 +660,9 @@ func main() {
 
 	// ----------------------- END ----------------------- //
 	xapp.Rm_report_slice_sm(hndlr)
+	xapp.Rm_report_mac_sm(HndlrMac)
+
+
 	// --------------------------------------------------------- //
 	// Stop the xApp. Avoid deadlock.
 	for xapp.Try_stop() == false {
@@ -670,5 +684,107 @@ func printSliceInfo(stdscr *goncurses.Window, x int, y int, title string, rntis 
 	}
 	stdscr.MovePrint(y+2, x, rntis_string)
 
+}
+
+// Update the array holding historical data.
+func updateHistoricalData(data *[]int, newValue int, maxLength int) {
+	*data = append(*data, newValue)
+	if len(*data) > maxLength {
+		*data = (*data)[1:]
+	}
+}
+
+// Print the time-series data.
+func printTimeSeries(stdscr *goncurses.Window, x int, y int, title string, data []int) {
+	dataStr := "  "
+	for _, value := range data {
+		dataStr += fmt.Sprintf("%d, ", value)
+	}
+	stdscr.MovePrint(y, x, title + dataStr)
+}
+
+// // New function to print bar plots
+// func printBarPlot(stdscr *goncurses.Window, x int, y int, title string, data []int, maxVal int) {
+//     stdscr.MovePrint(y, x, title)
+//     scalingFactor := maxVal / 5
+//     for _, value := range data {
+//         numChars := value / scalingFactor
+//         bar := strings.Repeat("█", numChars)
+//         stdscr.MovePrint(y+1, x, bar)
+//         y += 2  // Increment y-coordinate for the next bar
+//     }
+// }
+
+
+// func printTimeSeriesPlot(stdscr *goncurses.Window, startX int, startY int, title string, data []int, maxVal int) {
+//     stdscr.MovePrint(startY, startX, title)
+
+//     maxBarHeight := 5  // Height of each bar in terms of number of characters
+//     maxBarValue := maxVal
+
+//     // Loop through data and print bars vertically
+//     for x, value := range data {
+//         scaledValue := (value * maxBarHeight) / maxBarValue
+//         for y := 0; y < scaledValue; y++ {
+//             stdscr.MovePrint(startY + maxBarHeight - y - 1, startX + x * 2, "|")
+//         }
+//     }
+// }
+
+
+// func printTimeSeriesPlot(stdscr *goncurses.Window, startX int, startY int, title string, data []int, maxVal int) {
+//     stdscr.MovePrint(startY, startX, title)
+
+//     maxBarHeight := 5  // Height of each bar in terms of number of characters
+//     maxBarValue := maxVal
+
+//     // Loop through data and print bars vertically
+//     for x, value := range data {
+//         scaledValue := (value * maxBarHeight) / maxBarValue
+//         for y := 0; y < scaledValue; y++ {
+//             stdscr.MovePrint(startY + maxBarHeight - y - 1, startX + x * 2, "|")
+//         }
+//         if scaledValue > 0 {
+//             // Print the actual value at the top of each bar
+//             stdscr.MovePrint(startY + maxBarHeight - scaledValue, startX + x * 2, fmt.Sprintf("%d", value))
+//         }
+//     }
+// }
+
+func printTimeSeriesPlot(stdscr *goncurses.Window, startX int, startY int, title string, data []int, maxVal int) {
+    // Convert string to goncurses.Char
+    horizontalBorder := goncurses.Char('-')
+    verticalBorder := goncurses.Char('|')
+    corner := goncurses.Char('+')
+
+    stdscr.MovePrint(startY-1, startX-1, title)
+
+    maxBarHeight := 5  // Height of each bar in terms of number of characters
+    maxBarValue := maxVal
+    stepSize := 3  // Number of horizontal steps between each x-axis point
+
+    // Draw border
+    stdscr.MovePrint(startY, startX-1, string(corner))
+    stdscr.HLine(startY, startX, horizontalBorder, len(data)*stepSize)
+    stdscr.MovePrint(startY, startX+len(data)*stepSize, string(corner))
+    stdscr.VLine(startY+1, startX-1, verticalBorder, maxBarHeight)
+    stdscr.VLine(startY+1, startX+len(data)*stepSize, verticalBorder, maxBarHeight)
+
+    // Loop through data and print bars vertically
+    for x, value := range data {
+        scaledValue := (value * maxBarHeight) / maxBarValue
+        for y := 0; y < scaledValue; y++ {
+            stdscr.MovePrint(startY + maxBarHeight - y, startX + x * stepSize, "|")
+        }
+        if scaledValue > 0 {
+            // Print the actual value at the top of each bar
+            stdscr.MovePrint(startY + maxBarHeight - scaledValue - 1, startX + x * stepSize, fmt.Sprintf("%d", value))
+        }
+    }
+
+    // Close bottom border
+    stdscr.MovePrint(startY + maxBarHeight + 1, startX-1, string(corner))
+    stdscr.HLine(startY + maxBarHeight + 1, startX, horizontalBorder, len(data)*stepSize)
+    stdscr.MovePrint(startY + maxBarHeight + 1, startX+len(data)*stepSize, string(corner))
 }
 
