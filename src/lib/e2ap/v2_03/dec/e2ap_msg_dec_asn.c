@@ -534,7 +534,11 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     //BIT_STRING_TO_MACRO_GNB_ID(&, id->nb_id);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      id->type = ngran_gNB_CUUP;
+  // This is an abuse but the standard does not define how to 
+  // differentiate between ngran_gNB_CU and ngran_gNB
+  // Here we do not know if it is a real CUUP or a CU. Assuming CU
+      //id->type = ngran_gNB_CUUP;
+      id->type = ngran_gNB_CU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id  != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
@@ -1154,7 +1158,11 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      id->type = ngran_gNB_CUUP;
+  // This is an abuse but the standard does not define how to 
+  // differentiate between ngran_gNB_CU and ngran_gNB
+  // Here we do not know if it is a real CUUP or a CU. Assuming CU
+      //id->type = ngran_gNB_CUUP;
+      id->type = ngran_gNB_CU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
@@ -1477,7 +1485,11 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     sr->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      sr->id.type = ngran_gNB_CUUP;
+  // This is an abuse but the standard does not define how to 
+  // differentiate between ngran_gNB_CU and ngran_gNB
+  // Here we do not know if it is a real CUUP or a CU. Assuming CU
+//      sr->id.type = ngran_gNB_CUUP;
+      sr->id.type = ngran_gNB_CU;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, sr->id.cu_du_id);
@@ -2436,7 +2448,11 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
 
 
       if (e2gnb->gNB_CU_UP_ID) {
-        dst->id.type = ngran_gNB_CUUP;
+        // This is an abuse but the standard does not define how to 
+        // differentiate between ngran_gNB_CU and ngran_gNB
+        // Here we do not know if it is a real CUUP or a CU. Assuming CU
+        //dst->id.type = ngran_gNB_CUUP;
+        dst->id.type = ngran_gNB_CU;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);

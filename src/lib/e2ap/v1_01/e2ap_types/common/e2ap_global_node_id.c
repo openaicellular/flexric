@@ -43,7 +43,9 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
   if(eq_e2ap_gnb_id(m0->nb_id, m1->nb_id) == false)
     return false;
 
-  if (NODE_IS_CUUP(m0->type) || NODE_IS_DU(m0->type)) {
+  // This is an abuse but the standard does not define how to 
+  // differentiate between ngran_gNB_CU and ngran_gNB
+  if (NODE_IS_CU(m0->type) || NODE_IS_CUUP(m0->type) || NODE_IS_DU(m0->type)) {
     assert(m0->cu_du_id != NULL && m1->cu_du_id != NULL ); 
     if(*m0->cu_du_id != *m1->cu_du_id)
       return false;
@@ -111,7 +113,9 @@ int cmp_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
   else if(m0->nb_id.unused > m1->nb_id.unused)
     return -1;
 
-  if (NODE_IS_CUUP(m0->type) || NODE_IS_DU(m0->type) ) {
+  // This is an abuse but the standard does not define how to 
+  // differentiate between ngran_gNB_CU and ngran_gNB
+  if ( NODE_IS_CU(m0->type) || NODE_IS_CUUP(m0->type) || NODE_IS_DU(m0->type) ) {
     assert(m0->cu_du_id != NULL && m1->cu_du_id != NULL);
     if (*m0->cu_du_id < *m1->cu_du_id)
       return -1;
