@@ -1,13 +1,24 @@
-package prb
+package mac
 
 import (
 	"sync"
-	mac "build/examples/xApp/go/FlexPolicy/utils/mac"
-	"fmt"
+	//"fmt"
+	xapp "build/examples/xApp/go/xapp_sdk"
 )
 
+// Initialization function for the package
+func init() {
+	
+	// Initialize the MultipleUeStatistics global variable
+	MultipleUeStatistics = MultiUeStats{
+		Stats:    make(map[RNTI]UeStats),  // Initialize an empty map for UeStats
+		NumOfUEs: 0,                        // Initialize the number of UEs to 0
+	}
+}
+
 // Mutex for locking the global structure
-var Mutex sync.Mutex
+var PrbMutex sync.Mutex
+var ThptMutex sync.Mutex
 
 // Global variable to store the stats of UEs
 var MultipleUeStatistics MultiUeStats
@@ -58,26 +69,20 @@ var (
 
 // TotalPrbUtilization function to calculate the total prb utilisation
 func TotalPrbUtilization() int {
-	var TotalPrbUtil int
+	TotalPrbUtil := 0
 
-	Mutex.Lock()
+	PrbMutex.Lock()
 	for _, ue := range MultipleUeStatistics.Stats {
 		TotalPrbUtil += ue.PrbUtilisation
 	}
-	Mutex.Unlock()
+	PrbMutex.Unlock()
 
 	return TotalPrbUtil
 }
 
 
-func Calculate_UE_PRB_utilisation() {
 
-	mac.Mutex.Lock()
-	ind := mac.MacStats.Indication
-	mac.Mutex.Unlock()
-
-
-	Mutex.Lock()
+func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
 
 	// iterate over the number of UEs
 	for i := 0; i < int(ind.GetUe_stats().Size()); i++ {
@@ -169,7 +174,7 @@ func Calculate_UE_PRB_utilisation() {
 				// fmt.Println("numerology", scs)
 				// fmt.Println("Number of resource blocks", (int(float64(cell_BandWidth)/float64(12*scs)))-5)
 
-				fmt.Println("Rnti: ", Rnti, ", Teidupf: ", ue.Teidupf, ", Teidgnb: ", ue.Teidgnb, ", Qfi: ", ue.Qfi, "Prb Util: ", Load, " %")
+				//fmt.Println("Rnti: ", Rnti, ", Teidupf: ", ue.Teidupf, ", Teidgnb: ", ue.Teidgnb, ", Qfi: ", ue.Qfi, "Prb Util: ", Load, " %")
 
 				ue.UePrbMetrics.DLRbCount = 0
 				ue.UePrbMetrics.DiffDlSlotSt = 0
@@ -178,37 +183,51 @@ func Calculate_UE_PRB_utilisation() {
 			}
 
 			MultipleUeStatistics.Stats[Rnti] = ue
+		} else {
+			MultipleUeStatistics.Stats[Rnti] = UeStats{
+				
+				PrbUtilisation: 0,
+				UePrbMetrics: UePrbCalculationMetrics{
+					DLRbCount:     0,
+					DiffDlSlotSt:  0,
+					DiffDlSlotEnd: 0,
+					DlFrameSt:     0,
+					DlSlotSt:      0,
+					DlAggrPrbSt:   0,
+					NumberOfSlots: 0,
+					DiffDlFr:      0,
+				},
+				UeThrMetrics: UeThroughputCalculationMetrics{
+					DLAggtbsSt: 0,
+					ULAggtbsSt: 0,
+					Count:      0,
+					DLThr:      0,
+					ULThr:      0,
+				},
+			}
 		}
 	}
-
-	Mutex.Unlock()
-
 }
 
 
 // TotalPrbUtilization function to calculate the total prb utilisation
 func TotalThroughput() (int, int) {
-	var TotalDlThroughput, TotalUlThroughput int
+	TotalDlThroughput, TotalUlThroughput := 0, 0
 
-	Mutex.Lock()
+	PrbMutex.Lock()
 	for _, ue := range MultipleUeStatistics.Stats {
 		TotalDlThroughput += ue.UeThrMetrics.DLThr
 		TotalUlThroughput += ue.UeThrMetrics.ULThr
 	}
-	Mutex.Unlock()
+	PrbMutex.Unlock()
 
 	return TotalDlThroughput, TotalUlThroughput
 }
 
 
-func CalculateUeThroughput(){
+func CalculateUeThroughput(ind xapp.Swig_mac_ind_msg_t){
 
-	mac.Mutex.Lock()
-	ind := mac.MacStats.Indication
-	mac.Mutex.Unlock()
-
-
-	Mutex.Lock()
+	ThptMutex.Lock()
 
 	// iterate over the number of UEs
 	for i := 0; i < int(ind.GetUe_stats().Size()); i++ {
@@ -241,5 +260,5 @@ func CalculateUeThroughput(){
 		}
 	}
 
-	Mutex.Unlock()
+	ThptMutex.Unlock()
 }

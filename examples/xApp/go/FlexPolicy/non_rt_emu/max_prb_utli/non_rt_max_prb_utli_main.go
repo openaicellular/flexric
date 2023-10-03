@@ -18,13 +18,12 @@ import (
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 )
 
-
 var server1URL = "http://127.0.0.1:7000/api/policy"
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 20; i++ {
 		maxPrbUtil := rand.Intn(100)
 
 		config := policy.Configuration{

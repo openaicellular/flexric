@@ -5,8 +5,8 @@ import (
 	xapp "build/examples/xApp/go/xapp_sdk"
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
-	prb "build/examples/xApp/go/FlexPolicy/utils/prb"
 	api "build/examples/xApp/go/FlexPolicy/utils/api"
+	mac "build/examples/xApp/go/FlexPolicy/utils/mac"
 
 	"fmt"
 	"time"
@@ -28,10 +28,19 @@ func CallbackMaxThroughput(PolicyConfiguration policy.Configuration) {
 	} else {
 		fmt.Println("No slice found with PctRsvd = 0.05")
 
+		// Adjust the zero slice first
+		s1_params_nvs := slice.SliceAlgoParams{PctRsvd: 0.25}
+		s1_nvs := slice.Slice{
+			Id:          0,
+			Label:       "s1",
+			UeSchedAlgo: "PF",
+			Type:        "SLICE_SM_NVS_V0_CAPACITY",
+			SliceAlgoParams: s1_params_nvs}
+
 		// Create Idle slice
 		algoParams := slice.SliceAlgoParams{PctRsvd: 0.05}
 		idleSlice := slice.Slice{
-			Id:              2, // TODO: Do this dynamically to find a free id
+			Id:              1, // TODO: Do this dynamically to find a free id
 			Label:           "idle",
 			UeSchedAlgo:     "PF",
 			Type:            "SLICE_SM_NVS_V0_CAPACITY",
@@ -39,9 +48,9 @@ func CallbackMaxThroughput(PolicyConfiguration policy.Configuration) {
 
 		// Request to add the slices
 		idleNvsSlicesCap := slice.Request{
-			NumSlices:      1,
+			NumSlices:      2,
 			SliceSchedAlgo: "NVS",
-			Slices:         []slice.Slice{idleSlice},
+			Slices:         []slice.Slice{s1_nvs, idleSlice},
 		}
 
 		// Send the ADDMOD control message to the RIC
@@ -75,8 +84,7 @@ func CallbackMaxThroughput(PolicyConfiguration policy.Configuration) {
 	// Otherwise, inconsistencies may occur if the global structure is updated between multiple readings
 
 	
-	prb.CalculateUeThroughput()
-	CurrDlThpt, _ := prb.TotalThroughput()
+	CurrDlThpt, _ := mac.TotalThroughput()
 
 	reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", -1).(interface{})
 	fmt.Println("[Policy]: Curr DL thgpt:", CurrDlThpt, ", Max DL thgpt:", maxThroughput)

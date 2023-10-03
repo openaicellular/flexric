@@ -5,8 +5,8 @@ import (
 	xapp "build/examples/xApp/go/xapp_sdk"
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
-	prb "build/examples/xApp/go/FlexPolicy/utils/prb"
 	api "build/examples/xApp/go/FlexPolicy/utils/api"
+	mac "build/examples/xApp/go/FlexPolicy/utils/mac"
 
 	"fmt"
 	"time"
@@ -28,10 +28,19 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 	} else {
 		fmt.Println("No slice found with PctRsvd = 0.05")
 
+		// Adjust the zero slice first
+		s1_params_nvs := slice.SliceAlgoParams{PctRsvd: 0.25}
+		s1_nvs := slice.Slice{
+			Id:          0,
+			Label:       "s1",
+			UeSchedAlgo: "PF",
+			Type:        "SLICE_SM_NVS_V0_CAPACITY",
+			SliceAlgoParams: s1_params_nvs}
+
 		// Create Idle slice
 		algoParams := slice.SliceAlgoParams{PctRsvd: 0.05}
 		idleSlice := slice.Slice{
-			Id:              2, // TODO: Do this dynamically to find a free id
+			Id:              1, // TODO: Do this dynamically to find a free id
 			Label:           "idle",
 			UeSchedAlgo:     "PF",
 			Type:            "SLICE_SM_NVS_V0_CAPACITY",
@@ -39,9 +48,9 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 
 		// Request to add the slices
 		idleNvsSlicesCap := slice.Request{
-			NumSlices:      1,
+			NumSlices:      2,
 			SliceSchedAlgo: "NVS",
-			Slices:         []slice.Slice{idleSlice},
+			Slices:         []slice.Slice{s1_nvs, idleSlice},
 		}
 
 		// Send the ADDMOD control message to the RIC
@@ -75,13 +84,13 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 	// Otherwise, inconsistencies may occur if the global structure is updated between multiple readings
 
 	
-	prb.Calculate_UE_PRB_utilisation()
-	CurrPrbUtilization := prb.TotalPrbUtilization()
 
-	reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", -1).(interface{})
+	CurrPrbUtilization := mac.TotalPrbUtilization()
+
+	reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", idleSliceId).(interface{})
 	fmt.Println("[Policy]: Curr PRB util:", CurrPrbUtilization, ", Max PRB util:", maxPrbUtilization)
 
-
+ 
 	// Check if the number of UEs in the slice is greater than the maximum number of UEs allowed in the slice
 	if CurrPrbUtilization > maxPrbUtilization {
 		// TODO: do this with a method in apis only if it is changes its value not writing every time
@@ -90,7 +99,13 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 		fmt.Println("[Policy]: Decision: DELETE 1 extra UE to reduce PRB utilisation")
 
 		// Delete randomly one extra UE by associating it to the idle slice
-		numOfExtraUes := 1
+		curNumOfUes := reading.(map[string]interface{})["num_of_normal_ues"].(int)
+		
+		if curNumOfUes > 0 {
+			numOfExtraUes := 1
+		} else {
+			numOfExtraUes := 0
+		}
 
 		// Get the RNTIs of the UEs in the slice
 		sliceRntis := reading.(map[string]interface{})["normal_rntis"].([]uint16)
