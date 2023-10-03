@@ -86,7 +86,7 @@ func CallbackMaxThroughput(PolicyConfiguration policy.Configuration) {
 	
 	CurrDlThpt, _ := mac.TotalThroughput()
 
-	reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", -1).(interface{})
+	reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", idleSliceId).(interface{})
 	fmt.Println("[Policy]: Curr DL thgpt:", CurrDlThpt, ", Max DL thgpt:", maxThroughput)
 
 
@@ -98,7 +98,14 @@ func CallbackMaxThroughput(PolicyConfiguration policy.Configuration) {
 		fmt.Println("[Policy]: Decision: DELETE 1 extra UE to reduce Throughput")
 
 		// Delete randomly one extra UE by associating it to the idle slice
-		numOfExtraUes := 1
+		curNumOfUes := reading.(map[string]interface{})["num_of_normal_ues"].(int)
+		
+		var numOfExtraUes int
+		if curNumOfUes > 0 {
+			numOfExtraUes = 1
+		} else {
+			numOfExtraUes = 0
+		}
 
 		// Get the RNTIs of the UEs in the slice
 		sliceRntis := reading.(map[string]interface{})["normal_rntis"].([]uint16)

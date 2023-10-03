@@ -24,8 +24,9 @@ var server1URL = "http://127.0.0.1:7000/api/policy"
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	for i := 0; i < 2; i++ {
-		maxThroughput := rand.Intn(100)
+	thps := []int{100, 80, 30, 90, 30, 90, 30, 90, 30, 90}
+
+	for _, maxThroughput := range thps { 
 
 		config := policy.Configuration{
 			PolicyID:   2,
