@@ -177,7 +177,7 @@ for i in range(0, len(conn)):
 
     if ric.e2ap_ngran_gNB == ran_type:
         action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
-    elif ric.e2ap_ngran_gNB_CUUP == ran_type:
+    elif ric.e2ap_ngran_gNB_CU == ran_type:
         action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"]
     elif ric.e2ap_ngran_gNB_DU == ran_type:
         action = ["DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
