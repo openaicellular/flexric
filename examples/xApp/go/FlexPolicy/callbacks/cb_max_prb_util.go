@@ -83,13 +83,11 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 	// Consider reading all the desired values at once in a single iteration.
 	// Otherwise, inconsistencies may occur if the global structure is updated between multiple readings
 
-	
-
 	CurrPrbUtilization := mac.TotalPrbUtilization()
 
 	reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", idleSliceId).(interface{})
-	fmt.Println("[Policy]: Curr PRB util:", CurrPrbUtilization, ", Max PRB util:", maxPrbUtilization)
-
+	//fmt.Println("[Policy]: Curr PRB util:", CurrPrbUtilization, ", Max PRB util:", maxPrbUtilization)
+	fmt.Println("[Policy]: PRB:", CurrPrbUtilization, " / ", maxPrbUtilization, " %")
  
 	// Check if the number of UEs in the slice is greater than the maximum number of UEs allowed in the slice
 	if CurrPrbUtilization > maxPrbUtilization {
@@ -101,10 +99,11 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 		// Delete randomly one extra UE by associating it to the idle slice
 		curNumOfUes := reading.(map[string]interface{})["num_of_normal_ues"].(int)
 		
+		var numOfExtraUes int
 		if curNumOfUes > 0 {
-			numOfExtraUes := 1
+			numOfExtraUes = 1
 		} else {
-			numOfExtraUes := 0
+			numOfExtraUes = 0
 		}
 
 		// Get the RNTIs of the UEs in the slice

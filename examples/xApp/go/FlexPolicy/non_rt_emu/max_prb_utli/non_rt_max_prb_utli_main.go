@@ -23,8 +23,9 @@ var server1URL = "http://127.0.0.1:7000/api/policy"
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	for i := 0; i < 20; i++ {
-		maxPrbUtil := rand.Intn(100)
+	prbs := []int{100, 80, 20, 90, 20, 90, 20, 90, 20, 90}
+
+	for _, maxPrbUtil := range prbs { 
 
 		config := policy.Configuration{
 			PolicyID:   2,
@@ -42,7 +43,7 @@ func main() {
 		if err != nil {
 			log.Printf("Failed to send configuration: %s", err)
 		} else {
-			log.Println("Configuration sent successfully, [maxNumberOfUes]: ", maxPrbUtil)
+			log.Println("Configuration sent successfully, [maxPrbUtil]: ", maxPrbUtil)
 		}
 
 		time.Sleep(10 * time.Second)
