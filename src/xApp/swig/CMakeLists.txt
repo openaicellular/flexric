@@ -40,6 +40,14 @@ message(STATUS "uild xApp in Javascript: ${XAPP_JAVASCRIPT_SWIG}")
 
 #set(XAPP_LANG_LIST)
 
+if(KPM_VERSION STREQUAL "KPM_V2")
+  set(KPM_VERSION_SRC ../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie.c)
+elseif(KPM_VERSION STREQUAL "KPM_V3")
+  set(KPM_VERSION_SRC ../../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.c)
+else()
+  message(FATAL_ERROR "Unknown KPM version")
+endif()
+
 #PYTHON compilation
 if(XAPP_PYTHON_SWIG)
   if(XAPP_PYTHON_ML)
@@ -58,7 +66,6 @@ if(XAPP_PYTHON_SWIG)
       $<TARGET_OBJECTS:e2ap_plmn_obj>
       $<TARGET_OBJECTS:e2ap_global_node_id_obj>
       $<TARGET_OBJECTS:e2_conv_obj>
-      #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
       ../../sm/mac_sm/ie/mac_data_ie.c
       ../../sm/rlc_sm/ie/rlc_data_ie.c
       ../../sm/pdcp_sm/ie/pdcp_data_ie.c
@@ -68,6 +75,18 @@ if(XAPP_PYTHON_SWIG)
       ../../util/byte_array.c
       ../../util/alg_ds/alg/eq_float.c
       ../../util/e2ap_ngran_type.c
+      ${KPM_VERSION_SRC}
+      $<TARGET_OBJECTS:kpm_ric_info_common_obj>
+      $<TARGET_OBJECTS:kpm_ric_info_obj>
+      $<TARGET_OBJECTS:e2sm_common_ie_obj>
+      $<TARGET_OBJECTS:3gpp_common_ie_obj>
+      $<TARGET_OBJECTS:sm_common_ie_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
+      $<TARGET_OBJECTS:sm_common_dec_asn_obj>
+      $<TARGET_OBJECTS:sm_common_enc_asn_obj>
+      $<TARGET_OBJECTS:sm_common_ie_obj>
       )
 endif()
 
@@ -81,7 +100,6 @@ if(XAPP_GO_SWIG)
       $<TARGET_OBJECTS:e2ap_plmn_obj>
       $<TARGET_OBJECTS:e2ap_global_node_id_obj>
       $<TARGET_OBJECTS:e2_conv_obj>
-      #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
       ../../sm/mac_sm/ie/mac_data_ie.c
       ../../sm/rlc_sm/ie/rlc_data_ie.c
       ../../sm/pdcp_sm/ie/pdcp_data_ie.c
@@ -90,16 +108,28 @@ if(XAPP_GO_SWIG)
       ../../sm/gtp_sm/ie/gtp_data_ie.c
       ../../util/byte_array.c
       ../../util/alg_ds/alg/eq_float.c
+      ../../util/e2ap_ngran_type.c
       ../../
+      ${KPM_VERSION_SRC}
+      $<TARGET_OBJECTS:kpm_ric_info_common_obj>
+      $<TARGET_OBJECTS:kpm_ric_info_obj>
+      $<TARGET_OBJECTS:e2sm_common_ie_obj>
+      $<TARGET_OBJECTS:3gpp_common_ie_obj>
+      $<TARGET_OBJECTS:sm_common_ie_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
+      $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
+      $<TARGET_OBJECTS:sm_common_dec_asn_obj>
+      $<TARGET_OBJECTS:sm_common_enc_asn_obj>
+      $<TARGET_OBJECTS:sm_common_ie_obj>
       )
-
 endif()
 
 #PYTHON compilation
 if(XAPP_PYTHON_SWIG)
 
-  TARGET_COMPILE_DEFINITIONS(xapp_sdk PRIVATE XAPP_LANG_PYTHON ${E2AP_ENCODING} ${E2AP_VERSION})
-  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION})
+  TARGET_COMPILE_DEFINITIONS(xapp_sdk PRIVATE XAPP_LANG_PYTHON ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
+  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION} ${KPM_VERSION})
   SWIG_LINK_LIBRARIES(xapp_sdk ${PYTHON_LIBRARIES})
 
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/_xapp_sdk.so")
@@ -155,9 +185,9 @@ endif()
 #GOLANG compilation
 if(XAPP_GO_SWIG)
 
-  TARGET_COMPILE_DEFINITIONS(xapp_sdk_go PRIVATE XAPP_LANG_GO ${E2AP_ENCODING} ${E2AP_VERSION})
+  TARGET_COMPILE_DEFINITIONS(xapp_sdk_go PRIVATE XAPP_LANG_GO ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
   # Compile the Swig wrapper for Go
-  SET_PROPERTY(TARGET xapp_sdk_go PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION})
+  SET_PROPERTY(TARGET xapp_sdk_go PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION} ${KPM_VERSION})
   SET_PROPERTY(TARGET xapp_sdk_go PROPERTY SWIG_COMPILE_OPTIONS -intgosize 64 -use-shlib -soname xapp_sdk_go.so -w312 -w314)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
 

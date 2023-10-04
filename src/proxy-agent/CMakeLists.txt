@@ -48,7 +48,6 @@ set(E2_PROXY_AGENT_SRC
     ${CMAKE_SOURCE_DIR}/src/agent/gen_msg_agent.c
     ${CMAKE_SOURCE_DIR}/src/sm/sm_proc_data.c
     # we do below to avoid having a specific proxy_agent library for configuration parsing code
-    ${CMAKE_SOURCE_DIR}/src/util/conf_file.c
   )
 if(E2AP_ENCODING STREQUAL "ASN")
   add_library(e2_proxy_agent
