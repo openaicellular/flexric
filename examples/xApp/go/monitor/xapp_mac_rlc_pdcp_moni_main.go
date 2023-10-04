@@ -14,7 +14,7 @@ type MACCallback struct {
 }
 
 func (mac_cb MACCallback) Handle(ind xapp.Swig_mac_ind_msg_t) {
-	if ind.Getmac_stats().Size() > 0 {
+	if ind.GetUe_stats().Size() > 0 {
 		nowTime := time.Now().UnixNano()/1000   //in microseconds
 		indTime := ind.GetTstamp() / 1.0
 		diff := nowTime - indTime
@@ -28,7 +28,7 @@ type RLCCallback struct {
 }
 
 func (rlc_cb RLCCallback) Handle(ind xapp.Swig_rlc_ind_msg_t) {
-	if ind.Getrlc_stats().Size() > 0 {
+	if ind.GetRb_stats().Size() > 0 {
 		nowTime := time.Now().UnixNano()/1000   //in microseconds
 		indTime := ind.GetTstamp() / 1.0
 		diff := nowTime - indTime
@@ -42,7 +42,7 @@ type PDCPCallback struct {
 }
 
 func (pdcp_cb PDCPCallback) Handle(ind xapp.Swig_pdcp_ind_msg_t) {
-	if ind.Getpdcp_stats().Size() > 0 {
+	if ind.GetRb_stats().Size() > 0 {
 		nowTime := time.Now().UnixNano()/1000   //in microseconds
 		indTime := ind.GetTstamp() / 1.0
 		diff := nowTime - indTime
@@ -74,8 +74,8 @@ func main() {
 	var handleSlice1[]int
 	var handleSlice2[]int
 
-	i = 0
-	for ; i <= nodes.Size()-1; i++ {
+	
+	for i := 0; i <= int(nodes.Size()-1); i++ {
 		// ----------------------- MAC Indication ----------------------- //
 		innerMac := MACCallback{}
 		callbackMac := xapp.NewDirectorMac_cb(innerMac)
@@ -83,7 +83,7 @@ func main() {
 
 		//------------------------ RLC Indication ----------------------- //
         
-		innerRlc := RLCallback{}
+		innerRlc := RLCCallback{}
 		callbackRlc := xapp.NewDirectorRlc_cb(innerRlc)
 		HndlrRlc := xapp.Report_rlc_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackRlc)
         
@@ -97,15 +97,12 @@ func main() {
 		handleSlice = append(handleSlice, HndlrMac)
 		handleSlice1 = append(handleSlice1, HndlrRlc)
 		handleSlice2 = append(handleSlice2, HndlrPdcp)
-
-		time.Sleep(1 * time.Second)
 	}
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// ----- STEP 5: Exit ----- //
 	// Mac SM Unsubscribe
-	i = 0
 	for _, value := range handleSlice {
 		xapp.Rm_report_mac_sm(value)
 	}

@@ -5,62 +5,10 @@ import (
 	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
 	xapp "build/examples/xApp/go/xapp_sdk"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
-	"net/http"
+	
 	"sync"
 	"time"
 )
-
-// Define Prometheus metrics for the fields
-var (
-	qfi = promauto.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "ue_stats_qfi",
-			Help: "Qfi for each RNTI",
-		},
-		[]string{"rnti"}, // labels
-	)
-	teidupf = promauto.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "ue_stats_tied_upf",
-			Help: "Teidupf for each RNTI",
-		},
-		[]string{"rnti"}, // labels
-	)
-	teidgnb = promauto.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "ue_stats_tied_gnb",
-			Help: "Teidgnb for each RNTI",
-		},
-		[]string{"rnti"}, // labels
-	)
-	prbUtilisation = promauto.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "ue_stats_prb_utilisation",
-			Help: "PrbUtilisation for each RNTI",
-		},
-		[]string{"rnti"}, // labels
-	)
-)
-
-func ExposeMetricsPrometheus() {
-	Mutex.Lock()
-	for rnti, ueStats := range MultipleUeStatistics.Stats {
-		// convert rnti to a string
-		rntiStr := fmt.Sprint(rnti)
-
-		qfi.WithLabelValues(rntiStr).Set(float64(ueStats.Qfi))
-		teidupf.WithLabelValues(rntiStr).Set(float64(ueStats.Teidupf))
-		teidgnb.WithLabelValues(rntiStr).Set(float64(ueStats.Teidgnb))
-		prbUtilisation.WithLabelValues(rntiStr).Set(float64(ueStats.PrbUtilisation))
-	}
-	Mutex.Unlock()
-
-	time.Sleep(1 * time.Second)
-}
 
 // Mutex for locking the global structure
 var Mutex sync.Mutex
@@ -317,13 +265,6 @@ func main() {
 		NumOfUEs: 0,
 	}
 
-	go ExposeMetricsPrometheus()
-
-	go func() {
-		http.Handle("/metrics", promhttp.Handler())
-		http.ListenAndServe(":2112", nil)
-	}()
-
 	// ----------------------- SLICE Indication ----------------------- //
 	innerSlice := SLICECallback{}
 	callbackSlice := xapp.NewDirectorSlice_cb(innerSlice)
@@ -342,7 +283,7 @@ func main() {
 	HndlrGtp := xapp.Report_gtp_sm(Conn.Get(NodeIdx).GetId(), xapp.Interval_ms_10, callbackGtp)
 	time.Sleep(1 * time.Second)
 
-	time.Sleep(500 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// ----------------------- END ----------------------- //
 	xapp.Rm_report_slice_sm(HndlrSlice)
