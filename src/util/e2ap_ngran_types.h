@@ -52,6 +52,12 @@ typedef enum {
 #define E2AP_NODE_IS_DU(nOdE_TyPe)         ((nOdE_TyPe) == e2ap_ngran_eNB_DU || (nOdE_TyPe) == e2ap_ngran_gNB_DU)
 #define E2AP_NODE_IS_MBMS(nOdE_TyPe)       ((nOdE_TyPe) == e2ap_ngran_eNB_MBMS_STA)
 #define E2AP_NODE_IS_CUUP(nOdE_TyPe) ((nOdE_TyPe) == e2ap_ngran_gNB_CUUP)
+#define GTPV1_U_PORT_NUMBER (2152)
+
+typedef enum { non_dynamic, dynamic } fiveQI_type_t;
+typedef enum { CPtype = 0, UPtype } E1_t;
+
+#define maxSRBs 4
 
 char* get_e2ap_ngran_name(e2ap_ngran_node_t ran_type);
 
