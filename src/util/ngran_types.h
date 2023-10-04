@@ -55,5 +55,10 @@ char* get_ngran_name(ngran_node_t n);
 #define NODE_IS_DU(nOdE_TyPe)         ((nOdE_TyPe) == ngran_eNB_DU || (nOdE_TyPe) == ngran_gNB_DU)
 #define NODE_IS_MBMS(nOdE_TyPe)       ((nOdE_TyPe) == ngran_eNB_MBMS_STA)
 #define NODE_IS_CUUP(nOdE_TyPe) ((nOdE_TyPe) == ngran_gNB_CUUP)
+#define GTPV1_U_PORT_NUMBER (2152)
 
+typedef enum { non_dynamic, dynamic } fiveQI_type_t;
+typedef enum { CPtype = 0, UPtype } E1_t;
+
+#define maxSRBs 4
 #endif
