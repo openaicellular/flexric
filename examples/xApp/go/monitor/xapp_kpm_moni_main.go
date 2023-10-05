@@ -72,9 +72,9 @@ func main() {
         callback := xapp.NewDirectorKpm_cb(inner)
         if xapp.E2ap_ngran_gNB == ranTypeNameInt {
             actionSlice = []string{"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"}
-        } else if xapp.E2ap_ngran_gNB_DU == ranTypeNameInt {
-            actionSlice = []string{"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"}
         } else if xapp.E2ap_ngran_gNB_CU == ranTypeNameInt {
+            actionSlice = []string{"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"}
+        } else if xapp.E2ap_ngran_gNB_DU == ranTypeNameInt {
             actionSlice = []string{"DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"}
         } else if xapp.E2ap_ngran_eNB == ranTypeNameInt {
             fmt.Printf("not yet implemented eNB\n") //TODO

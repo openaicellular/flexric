@@ -1,4 +1,3 @@
-import xapp_sdk as ric
 import time
 import pdb
 import json
@@ -10,6 +9,12 @@ import math
 from enum import Enum
 import os
 import sys
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+# print("Current Directory:", cur_dir)
+sdk_path = cur_dir + "/../xapp_sdk/"
+sys.path.append(sdk_path)
+
+import xapp_sdk as ric
 
 action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
 
