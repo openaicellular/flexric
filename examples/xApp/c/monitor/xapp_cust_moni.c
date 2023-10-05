@@ -22,6 +22,11 @@
 #include "../../../../src/xApp/e42_xapp_api.h"
 #include "../../../../src/util/alg_ds/alg/defer.h"
 #include "../../../../src/util/time_now_us.h"
+#include "../../../../src/sm/mac_sm/mac_sm_id.h"
+#include "../../../../src/sm/rlc_sm/rlc_sm_id.h"
+#include "../../../../src/sm/pdcp_sm/pdcp_sm_id.h"
+#include "../../../../src/sm/gtp_sm/gtp_sm_id.h"
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -66,6 +71,19 @@ void sm_cb_pdcp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
          now - rd->ind.pdcp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
 }
 
+static
+void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
+{
+  assert(rd != NULL);
+  assert(rd->type ==INDICATION_MSG_AGENT_IF_ANS_V0);
+
+  assert(rd->ind.type == GTP_STATS_V0);
+
+  int64_t now = time_now_us();
+  printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
+         now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
+}
+
 int main(int argc, char *argv[])
 {
   fr_args_t args = init_fr_args(argc, argv);
@@ -82,14 +100,17 @@ int main(int argc, char *argv[])
   printf("Connected E2 nodes = %d\n", nodes.len);
 
   // MAC indication
-  const char* i_0 = "5_ms";
+  const char* i_mac = "5_ms";
   sm_ans_xapp_t* mac_handle = NULL;
   // RLC indication
-  const char* i_1 = "5_ms";
+  const char* i_rlc = "5_ms";
   sm_ans_xapp_t* rlc_handle = NULL;
   // PDCP indication
-  const char* i_2 = "5_ms";
+  const char* i_pdcp = "5_ms";
   sm_ans_xapp_t* pdcp_handle = NULL;
+  // GTP indication
+  const char* i_gtp = "5_ms";
+  sm_ans_xapp_t* gtp_handle = NULL;
 
   if(nodes.len > 0){
     mac_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) ); 
@@ -98,6 +119,8 @@ int main(int argc, char *argv[])
     assert(rlc_handle  != NULL);
     pdcp_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) ); 
     assert(pdcp_handle  != NULL);
+    gtp_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) );
+    assert(gtp_handle  != NULL);
   }
 
   for (int i = 0; i < nodes.len; i++) {
@@ -105,14 +128,18 @@ int main(int argc, char *argv[])
     for (size_t j = 0; j < n->len_rf; j++)
       printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
 
-    mac_handle[i] = report_sm_xapp_api(&nodes.n[i].id, 142, (void*)i_0, sm_cb_mac);
+    mac_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_MAC_ID, (void*)i_mac, sm_cb_mac);
     assert(mac_handle[i].success == true);
 
-    rlc_handle[i] = report_sm_xapp_api(&nodes.n[i].id, 143, (void*)i_1, sm_cb_rlc);
+    rlc_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_RLC_ID, (void*)i_rlc, sm_cb_rlc);
     assert(rlc_handle[i].success == true);
 
-    pdcp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, 144, (void*)i_2, sm_cb_pdcp);
+    pdcp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_PDCP_ID, (void*)i_pdcp, sm_cb_pdcp);
     assert(pdcp_handle[i].success == true);
+
+    gtp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_GTP_ID, (void*)i_gtp, sm_cb_gtp);
+    assert(gtp_handle[i].success == true);
+    sleep(1);
   }
 
   sleep(10);
@@ -123,12 +150,15 @@ int main(int argc, char *argv[])
     rm_report_sm_xapp_api(mac_handle[i].u.handle);
     rm_report_sm_xapp_api(rlc_handle[i].u.handle);
     rm_report_sm_xapp_api(pdcp_handle[i].u.handle);
+    rm_report_sm_xapp_api(gtp_handle[i].u.handle);
+    sleep(1);
   }
 
   if(nodes.len > 0){
     free(mac_handle);
     free(rlc_handle);
     free(pdcp_handle);
+    free(gtp_handle);
   }
 
   //Stop the xApp
