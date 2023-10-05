@@ -602,54 +602,6 @@ func main() {
 	}()
 
 	
-	// for end==false {
-	// 	// Create a wrapper screen with dimensions based on the terminal size
-	// 	wrapper := stdscr.Sub(0, 0, 0, 0)
-
-	// 	// Clear the wrapper screen
-	// 	wrapper.Clear()
-
-	// 	// Get the dimensions of the wrapper screen
-	// 	height, width := wrapper.MaxYX()
-
-	// 	// Calculate the vertical and horizontal center positions
-	// 	centerY := height / 2
-	// 	centerX := width / 4
-		
-	// 	// Update the slices
-	// 	normalSliceNumUes := readSliceStats("num_of_ues", sliceId).(int)
-	// 	normalSliceRntis := readSliceStats("rntis", sliceId)
-		
-	// 	idleSliceNumUes := readSliceStats("num_of_ues", 1).(int)
-	// 	idleSliceRntis := readSliceStats("rntis", 1)
-
-	// 	// Universal statistics
-	// 	CurrDlThpt, _ := mac.TotalThroughput()
-	// 	CurrPrbUtilization := mac.TotalPrbUtilization()
-
-	// 	// Update the historical data
-	// 	updateHistoricalData(&prbData, CurrPrbUtilization, maxDataPoints)
-	// 	updateHistoricalData(&thptData, CurrDlThpt, maxDataPoints)
-
-	// 	printTimeSeriesPlot(wrapper, 2, 10, "DL Throughput (Mbps):", thptData, 70)
-	// 	printTimeSeriesPlot(wrapper, 2, 20, "PRB Utilization (%):", prbData, 100)
-
-
-	// 	// Print Slice A information
-	// 	printSliceInfo(wrapper, centerX, centerY-3, "[Slice 0]:", normalSliceRntis.([]uint16), normalSliceNumUes)
-
-	// 	// Print Slice B information
-	// 	printSliceInfo(wrapper, centerX, centerY+3, "[Slice Idle]:", idleSliceRntis.([]uint16), idleSliceNumUes)
-
-	// 	// Refresh the screen to display changes
-	// 	stdscr.Refresh()
-
-	// 	// Refresh the wrapper screen to display changes
-	// 	wrapper.Refresh()
-
-	// 	// Wait for a short duration
-	// 	time.Sleep(1000 * time.Millisecond)
-	// }
 	for end==false {
 		// Create a wrapper screen with dimensions based on the terminal size
 		wrapper := stdscr.Sub(0, 0, 0, 0)
@@ -744,44 +696,6 @@ func printTimeSeries(stdscr *goncurses.Window, x int, y int, title string, data 
 	}
 	stdscr.MovePrint(y, x, title + dataStr)
 }
-
-
-// func printTimeSeriesPlot(stdscr *goncurses.Window, startX int, startY int, title string, data []int, maxVal int) {
-//     // Convert string to goncurses.Char
-//     horizontalBorder := goncurses.Char('-')
-//     verticalBorder := goncurses.Char('|')
-//     corner := goncurses.Char('+')
-
-//     stdscr.MovePrint(startY-1, startX-1, title)
-
-//     maxBarHeight := 5  // Height of each bar in terms of number of characters
-//     maxBarValue := maxVal
-//     stepSize := 3  // Number of horizontal steps between each x-axis point
-
-//     // Draw border
-//     stdscr.MovePrint(startY, startX-1, string(corner))
-//     stdscr.HLine(startY, startX, horizontalBorder, len(data)*stepSize)
-//     stdscr.MovePrint(startY, startX+len(data)*stepSize, string(corner))
-//     stdscr.VLine(startY+1, startX-1, verticalBorder, maxBarHeight)
-//     stdscr.VLine(startY+1, startX+len(data)*stepSize, verticalBorder, maxBarHeight)
-
-//     // Loop through data and print bars vertically
-//     for x, value := range data {
-//         scaledValue := (value * maxBarHeight) / maxBarValue
-//         for y := 0; y < scaledValue; y++ {
-//             stdscr.MovePrint(startY + maxBarHeight - y, startX + x * stepSize, "|")
-//         }
-//         if scaledValue > 0 {
-//             // Print the actual value at the top of each bar
-//             stdscr.MovePrint(startY + maxBarHeight - scaledValue - 1, startX + x * stepSize, fmt.Sprintf("%d", value))
-//         }
-//     }
-
-//     // Close bottom border
-//     stdscr.MovePrint(startY + maxBarHeight + 1, startX-1, string(corner))
-//     stdscr.HLine(startY + maxBarHeight + 1, startX, horizontalBorder, len(data)*stepSize)
-//     stdscr.MovePrint(startY + maxBarHeight + 1, startX+len(data)*stepSize, string(corner))
-// }
 
 
 func printTimeSeriesPlot(stdscr *goncurses.Window, startX int, startY int, title string, data []int, maxVal int) {
