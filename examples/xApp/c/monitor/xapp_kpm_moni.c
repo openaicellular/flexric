@@ -64,9 +64,9 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
       case GNB_UE_ID_E2SM:
         if (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst != NULL)
         {
-          for (size_t i = 0; i < msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst_len; i++)
+          for (size_t j = 0; j < msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst_len; j++)
           {
-            printf("UE ID type = gNB-CU, gnb_cu_ue_f1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst[i]);
+            printf("UE ID type = gNB-CU, gnb_cu_ue_f1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst[j]);
           }
         }
         else
@@ -120,7 +120,8 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
                 }
                 else
                 {
-                  assert(false && "Measurement Name not yet implemented");
+                  printf("Measurement Name not yet implemented\n");
+                  //assert(false && "Measurement Name not yet implemented");
                 }
 
                 break;
@@ -147,7 +148,8 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
                 }
                 else
                 {
-                  assert(false && "Measurement Name not yet implemented");
+                  printf("Measurement Name not yet implemented\n");
+                  //assert(false && "Measurement Name not yet implemented");
                 }
 
                 break;
