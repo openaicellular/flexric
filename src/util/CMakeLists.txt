@@ -40,9 +40,15 @@ add_library(e2ap_alg_obj OBJECT
                         $<TARGET_OBJECTS:e2ap_ds_obj>
                         )
 
-add_library(e2_conf_obj OBJECT 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LibConfig REQUIRED libconfig)
+add_library(e2_conf_obj OBJECT
                         conf_file.c
                         )
+target_include_directories(e2_conf_obj PRIVATE ${LibConfig_INCLUDE_DIR})
+target_link_libraries(e2_conf_obj PRIVATE ${LibConfig_LIBRARY})
+
+
 if(RAN_WITH_WS)
     target_compile_definitions(e2_conf_obj PRIVATE PROXY_AGENT)
 endif()

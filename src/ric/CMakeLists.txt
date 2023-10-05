@@ -65,6 +65,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
             $<TARGET_OBJECTS:3gpp_derived_ie_obj>
 
             )
+  target_link_libraries(near_ric -lconfig)
 
   add_library(near_ric_test 
             ${RIC_BLD_LIB}# STATIC or SHARED
@@ -72,6 +73,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
             $<TARGET_OBJECTS:e42_iapp>
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             )
+  target_link_libraries(near_ric_test -lconfig)
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
   add_library(near_ric 

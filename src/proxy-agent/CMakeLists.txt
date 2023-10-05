@@ -78,6 +78,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
 else()
   message(FATAL_ERROR "Error, while compiling the agent" )
 endif()
+target_link_libraries(e2_proxy_agent -lconfig)
 target_compile_definitions(e2_proxy_agent PRIVATE PROXY_AGENT)
 target_compile_definitions(e2_proxy_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 #target_compile_options(e2_proxy_agent PRIVATE -fcommon) # need to remove should not use static_user as global variable
