@@ -176,13 +176,12 @@ subscribe_timer_t on_subscription_kpm_sm_ag(sm_agent_t const* sm_agent, const sm
 	  const char act[] = "DRB.RlcSduDelayDl";
 	  *tmp = gen_act_def(act);
 
-	  timer.ms = 100;
   } else {
   	*tmp = kpm_dec_action_def(&sm->enc, data->len_ad, data->action_def);
  }
 
 //  *tmp = kpm_dec_action_def(&sm->enc, data->len_ad, data->action_def);
-
+  timer.ms = 1000;
   timer.act_def = tmp; 
 
   return timer;

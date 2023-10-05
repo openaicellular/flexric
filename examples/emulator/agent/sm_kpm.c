@@ -57,6 +57,10 @@ kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(void)
     assert(msg_frm_1.meas_data_lst[i].meas_record_lst != NULL && "Memory exhausted" );
 
     txsdu_avg_time_to_tx += 1000.0;
+    if(txsdu_avg_time_to_tx > 32000.0 )
+	txsdu_avg_time_to_tx = 0.0; 
+
+
     for (size_t j = 0; j < msg_frm_1.meas_data_lst[i].meas_record_len; j++){
       msg_frm_1.meas_data_lst[i].meas_record_lst[j].value = REAL_MEAS_VALUE; // rand()%END_MEAS_VALUE;
       msg_frm_1.meas_data_lst[i].meas_record_lst[j].real_val = txsdu_avg_time_to_tx; //  (rand() % 256) + 0.1;
