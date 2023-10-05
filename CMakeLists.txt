@@ -392,10 +392,9 @@ if (XAPP_C)
   # hw
   install(TARGETS xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR})
   # monitor
-  install(TARGETS xapp_moni
-      xapp_mac_rlc_pdcp_moni
-      xapp_gtp_moni
-      xapp_kpm_moni
+  install(TARGETS xapp_all_moni
+      xapp_cust_moni
+      xapp_oran_moni
       DESTINATION ${CMAKE_INSTALL_BINDIR})
   # slice ctrl
   install(TARGETS xapp_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR})
