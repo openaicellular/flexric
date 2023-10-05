@@ -403,15 +403,20 @@ endif ()
 
 if (XAPP_PYTHON_SWIG)
   install(FILES
-      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp.py
-      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk.py
-      ${CMAKE_BINARY_DIR}/examples/xApp/python3/_xapp_sdk.so
-      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_moni.py
-      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_gtp_moni.py
-      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_kpm_moni.py
-      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py
-      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py
-      DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages)
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/xapp_sdk.py
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/_xapp_sdk.so
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/xapp_sdk)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_all_moni.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_oran_moni.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_cust_moni.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/monitor)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/control/xapp_slice_moni_ctrl.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/control)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/interactive/xapp.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/interactive)
   install(TARGETS e42_xapp_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 

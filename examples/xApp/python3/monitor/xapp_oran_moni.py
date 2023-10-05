@@ -1,10 +1,15 @@
-import xapp_sdk as ric
 import time
 import os
 import pdb
 import time
 import signal
 import sys
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+# print("Current Directory:", cur_dir)
+sdk_path = cur_dir + "/../xapp_sdk/"
+sys.path.append(sdk_path)
+
+import xapp_sdk as ric
 
 exit_flag = False
 
@@ -166,12 +171,27 @@ for i in range(0, len(conn)):
 ####################
 
 kpm_hndlr = []
-
+n_hndlr = 0
 for i in range(0, len(conn)):
+    ran_type = conn[i].id.type
+
+    if ric.e2ap_ngran_gNB == ran_type:
+        action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
+    elif ric.e2ap_ngran_gNB_CU == ran_type:
+        action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"]
+    elif ric.e2ap_ngran_gNB_DU == ran_type:
+        action = ["DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
+    elif ric.e2ap_ngran_eNB == ran_type: ## TODO
+        print("not yet implemented, do not subscribe to eNB\n")
+        continue
+    else:
+        print(f"NG-RAN Type {ran_type} not yet implemented\n")
+        exit()
+
     kpm_cb = KPMCallback()
-    action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
     hndlr = ric.report_kpm_sm(conn[i].id, ric.Interval_ms_1000, action, kpm_cb)
     kpm_hndlr.append(hndlr)
+    n_hndlr += 1
     time.sleep(1)
 
 
@@ -179,7 +199,7 @@ time.sleep(10)
 
 ### End
 
-for i in range(0, len(kpm_hndlr)):
+for i in range(0, n_hndlr):
     ric.rm_report_kpm_sm(kpm_hndlr[i])
 
 # Avoid deadlock. ToDo revise architecture 

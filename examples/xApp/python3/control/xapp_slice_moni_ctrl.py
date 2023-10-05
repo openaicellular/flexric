@@ -1,8 +1,15 @@
-import xapp_sdk as ric
 import time
-import pdb
+import os
 import json
+import pdb
+import csv
 import sys
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+# print("Current Directory:", cur_dir)
+sdk_path = cur_dir + "/../xapp_sdk/"
+sys.path.append(sdk_path)
+
+import xapp_sdk as ric
 
 ####################
 ####  SLICE INDICATION MSG TO JSON
@@ -126,11 +133,11 @@ class SLICECallback(ric.slice_cb):
     # Override C++ method: virtual void handle(swig_slice_ind_msg_t a) = 0;
     def handle(self, ind):
         # Print swig_slice_ind_msg_t
-        #if (ind.slice_stats.dl.len_slices > 0):
+        # if (ind.slice_stats.dl.len_slices > 0):
         #     print('SLICE Indication tstamp = ' + str(ind.tstamp))
         #     print('SLICE STATE: len_slices = ' + str(ind.slice_stats.dl.len_slices))
         #     print('SLICE STATE: sched_name = ' + str(ind.slice_stats.dl.sched_name[0]))
-        #if (ind.ue_slice_stats.len_ue_slice > 0):
+        # if (ind.ue_slice_stats.len_ue_slice > 0):
         #    print('UE ASSOC SLICE STATE: len_ue_slice = ' + str(ind.ue_slice_stats.len_ue_slice))
         slice_ind_to_dict_json(ind)
 
@@ -406,7 +413,7 @@ node_idx = 0
 ####################
 
 slice_cb = SLICECallback()
-hndlr = ric.report_slice_sm(conn[node_idx].id, ric.Interval_ms_5, slice_cb)
+hndlr = ric.report_slice_sm(conn[node_idx].id, ric.Interval_ms_10, slice_cb)
 time.sleep(5)
 
 ####################

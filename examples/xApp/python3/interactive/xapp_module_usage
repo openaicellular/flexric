@@ -28,8 +28,8 @@ use function subscribe_sm(e2node_idx, sm_name, report_period, action_definition)
 >>> xapp.subscribe_sm(0, xapp.ServiceModel.KPM, xapp.SubTimeInterval.ms1000, xapp.action)
 
 # Customized SM
->>> xapp.subscribe_sm(0, xapp.ServiceModel.MAC, xapp.SubTimeInterval.ms10)
->>> xapp.subscribe_sm(0, xapp.ServiceModel.SLICE, xapp.SubTimeInterval.ms10)
+>>> xapp.subscribe_sm(0, xapp.ServiceModel.MAC, xapp.SubTimeInterval.ms10, 0)
+>>> xapp.subscribe_sm(0, xapp.ServiceModel.SLICE, xapp.SubTimeInterval.ms10, 0)
 ```
 
 4. Get slice conf by giving e2 node idx
