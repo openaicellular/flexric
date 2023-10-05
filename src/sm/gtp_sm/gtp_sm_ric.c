@@ -61,6 +61,10 @@ sm_subs_data_t on_subscription_gtp_sm_ric(sm_ric_t const* sm_ric, void* cmd)
     gtp.et.ms = 5;
   } else if (strncmp(cmd, "10_ms", max_str_sz) == 0 ) {
     gtp.et.ms = 10;
+  } else if (strncmp(cmd, "100_ms", max_str_sz) == 0 ) {
+    gtp.et.ms = 100;
+  } else if (strncmp(cmd, "1000_ms", max_str_sz) == 0 ) {
+    gtp.et.ms = 1000;
   } else {
     assert(0 != 0 && "Invalid input");
   }

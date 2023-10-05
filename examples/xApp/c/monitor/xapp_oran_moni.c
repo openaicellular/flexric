@@ -24,6 +24,7 @@
 #include "../../../../src/util/time_now_us.h"
 #include "../../../../src/util/e2ap_ngran_types.h"
 #include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
+#include "../../../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -103,6 +104,9 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 
           case GNB_DU_UE_ID_E2SM:
             printf("UE ID type = gNB-DU, gnb_cu_ue_f1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb_du.gnb_cu_ue_f1ap);
+            break;
+          case GNB_CU_UP_UE_ID_E2SM:
+            printf("UE ID type = gNB-CU, gnb_cu_cp_ue_e1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb_cu_up.gnb_cu_cp_ue_e1ap);
             break;
 
           default:
@@ -339,7 +343,7 @@ int main(int argc, char *argv[])
     kpm_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) ); 
     assert(kpm_handle  != NULL);
   }
-
+  int n_handle;
   for (int i = 0; i < nodes.len; i++) {
     e2_node_connected_t* n = &nodes.n[i];
     for (size_t j = 0; j < n->len_rf; j++)
@@ -380,24 +384,31 @@ int main(int argc, char *argv[])
       *kpm_sub.ad = gen_act_def(act_gnb_du, act_type);
       break;
 
+    case e2ap_ngran_eNB: ;
+      // TODO: implement e2ap_ngran_eNB
+      printf("NOT IMPLEMENT ACTIONS FOR ENB, DO NOT SEND SUBSCRIPTION REQUEST\n");
+      break;
+
     default:
       assert(false && "NG-RAN Type not yet implemented");
     }
 
+    // TODO: implement e2ap_ngran_eNB
+    if (n->id.type != e2ap_ngran_eNB) {
+      kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
+      assert(kpm_handle[i].success == true);
+      n_handle += 1;
+    }
 
-
-    const int KPM_ran_function = 2;
-
-    kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm);
-    assert(kpm_handle[i].success == true);
   }
 
   sleep(5);
 
 
-  for(int i = 0; i < nodes.len; ++i){
+  for(int i = 0; i < n_handle; ++i){
     // Remove the handle previously returned
-    rm_report_sm_xapp_api(kpm_handle[i].u.handle);
+    if (kpm_handle)
+      rm_report_sm_xapp_api(kpm_handle[i].u.handle);
   }
 
   if(nodes.len > 0){

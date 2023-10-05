@@ -131,29 +131,24 @@ if(XAPP_PYTHON_SWIG)
   TARGET_COMPILE_DEFINITIONS(xapp_sdk PRIVATE XAPP_LANG_PYTHON ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
   SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION} ${KPM_VERSION})
   SWIG_LINK_LIBRARIES(xapp_sdk ${PYTHON_LIBRARIES})
+  # xapp_sdk
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/_xapp_sdk.so")
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/xapp_sdk.py")
+  # monitor
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/monitor/xapp_cust_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_cust_moni.py")
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/monitor/xapp_all_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_all_moni.py")
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/monitor/xapp_oran_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_oran_moni.py")
+  # control
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/control/xapp_slice_moni_ctrl.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/control/xapp_slice_moni_ctrl.py")
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/control/watch_slice_stats" "${CMAKE_BINARY_DIR}/examples/xApp/python3/control/watch_slice_stats")
+  # interactive
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/interactive/xapp.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/interactive/xapp.py")
 
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/_xapp_sdk.so")
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk.py")
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_mac_rlc_pdcp_moni.py")
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_slice_moni_ctrl.py")
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/watch_slice_stats" "${CMAKE_BINARY_DIR}/examples/xApp/python3/watch_slice_stats")
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_gtp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_gtp_moni.py")
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp.py")
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_moni.py")
-
-  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/xapp_kpm_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_kpm_moni.py")
 
   if(XAPP_PYTHON_ML)
     # RICMon xApp
-    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/_xapp_sdk.so")
-    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/xapp_sdk.py")
+    # add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/_xapp_sdk.so")
+    # add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/xapp_sdk.py")
     add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/helpers.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/helpers.py")
     add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different

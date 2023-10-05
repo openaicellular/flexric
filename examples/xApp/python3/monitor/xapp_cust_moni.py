@@ -1,9 +1,14 @@
-import xapp_sdk as ric
 import time
 import os
 import pdb
 import csv
 import sys
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+# print("Current Directory:", cur_dir)
+sdk_path = cur_dir + "/../xapp_sdk/"
+sys.path.append(sdk_path)
+
+import xapp_sdk as ric
 
 ####################
 #### MAC INDICATION CALLBACK
@@ -73,6 +78,23 @@ class PDCPCallback(ric.pdcp_cb):
             # print('PDCP rnti = '+ str(ind.rb_stats[0].rnti))
 
 ####################
+#### GTP INDICATION CALLBACK
+####################
+
+# Create a callback for GTP which derived it from C++ class gtp_cb
+class GTPCallback(ric.gtp_cb):
+    def __init__(self):
+        # Inherit C++ gtp_cb class
+        ric.gtp_cb.__init__(self)
+    # Create an override C++ method
+    def handle(self, ind):
+        if len(ind.gtp_stats) > 0:
+            t_now = time.time_ns() / 1000.0
+            t_gtp = ind.tstamp / 1.0
+            t_diff = t_now - t_gtp
+            print(f"GTP Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id.nb_id}")
+
+####################
 ####  GENERAL 
 ####################
 if __name__ == '__main__':
@@ -90,6 +112,7 @@ if __name__ == '__main__':
     mac_hndlr = []
     rlc_hndlr = []
     pdcp_hndlr = []
+    gtp_hndlr = []
 
     # Start
     ric.init(sys.argv)
@@ -113,6 +136,11 @@ if __name__ == '__main__':
         pdcp_cb = PDCPCallback()
         hndlr = ric.report_pdcp_sm(conn[i].id, ric.Interval_ms_1, pdcp_cb)
         pdcp_hndlr.append(hndlr)
+        # GTP
+        gtp_cb = GTPCallback()
+        hndlr = ric.report_gtp_sm(conn[i].id, ric.Interval_ms_1, gtp_cb)
+        gtp_hndlr.append(hndlr)
+        time.sleep(1)
 
     time.sleep(10)
 
@@ -125,6 +153,9 @@ if __name__ == '__main__':
 
     for i in range(0, len(pdcp_hndlr)):
         ric.rm_report_pdcp_sm(pdcp_hndlr[i])
+
+    for i in range(0, len(gtp_hndlr)):
+        ric.rm_report_gtp_sm(gtp_hndlr[i])
 
     # Avoid deadlock. ToDo revise architecture
     while ric.try_stop == 0:
