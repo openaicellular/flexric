@@ -1696,11 +1696,11 @@ void write_mac_stats(sqlite3* db, global_e2_node_id_t const* id, mac_ind_data_t 
 
   mac_ind_msg_t const* ind_msg_mac = &ind->msg; 
 
-  char buffer[2048] = {0};
+  char buffer[4096] = {0};
   int pos = 0;
 
   for(size_t i = 0; i < ind_msg_mac->len_ue_stats; ++i){
-    pos += to_sql_string_mac_ue(id, &ind_msg_mac->ue_stats[i], ind_msg_mac->tstamp, buffer + pos, 2048 - pos);
+    pos += to_sql_string_mac_ue(id, &ind_msg_mac->ue_stats[i], ind_msg_mac->tstamp, buffer + pos, 4096 - pos);
   }
 
   insert_db(db, buffer);
