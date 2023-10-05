@@ -362,8 +362,13 @@ endif()
 ###
 # Install the configuration file
 ###
+# Find all *.conf files recursively in the source directory
+file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/conf_files/*.conf")
 
-install(FILES flexric.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
+# Add these to the install command
+install(FILES ${CONF_FILES}
+        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
+
 enable_testing()
 
 ###
@@ -438,7 +443,7 @@ if (XAPP_GO_SWIG)
 
   # Add these to the install command
   install(FILES ${CONF_FILES}
-          DESTINATION ${CMAKE_INSTALL_BINDIR})
+          DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
 
 endif()
 

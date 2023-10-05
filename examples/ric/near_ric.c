@@ -21,7 +21,7 @@
 
 
 #include "../../src/ric/near_ric_api.h"
-
+#include "../../src/util/alg_ds/alg/defer.h"
 #include <arpa/inet.h>
 #include <assert.h>
 #include <signal.h>
@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
   signal(SIGINT, sig_handler);
 
   fr_args_t args = init_fr_args(argc, argv);
+  defer({ free_fr_args(&args); });
  
   // Init the RIC
   init_near_ric_api(&args);

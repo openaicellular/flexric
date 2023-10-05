@@ -75,20 +75,16 @@ static inline void* static_start_agent(void* a)
   return NULL;
 }
 
-static void init_e2if(proxy_agent_t *p) 
+static void init_e2if(proxy_agent_t *p, fr_args_t e2args)
 {
   sm_io_ag_ran_t io = init_io_proxy_ag();
-  const int e2ap_server_port = 36421;
-  char* server_ip_str = get_near_ric_ip(&p->conf.e2args);
   // Caveats on e2_init_agent(): 
   // e2_init_agent() has been modified to not have automatically generate e2setup at init time.
   // The initialization of e2_if->ran_if field in a direct way as below is a trick to avoid modifing the 
   // e2_init_agent() signature. 
   global_e2_node_id_t ge2ni_unused; 
-  p->e2_if = e2_init_agent(server_ip_str, e2ap_server_port, ge2ni_unused, io, p->conf.e2args.libs_dir);
-  p->e2_if->ran_if = &p->ran_if; 
-
-  free(server_ip_str);
+  p->e2_if = e2_init_agent(e2args.ip, e2args.e2_port, ge2ni_unused, io, p->conf.e2args.libs_dir);
+  p->e2_if->ran_if = &p->ran_if;
 
   const int rc = pthread_create(&thrd_agent, NULL, static_start_agent, p->e2_if);
   assert(rc == 0);
@@ -100,7 +96,7 @@ static proxy_agent_t * init_proxy_agent(int argc, char *argv[])
   assert(proxy_agent!= NULL);
  
   ws_initconf(&proxy_agent->conf, argc, argv);
-  init_e2if(proxy_agent);
+  init_e2if(proxy_agent, proxy_agent->conf.e2args);
   notif_init_ran(&proxy_agent->ran_if); 
   init_indication_event(&proxy_agent->ran_if.ind_event);
   

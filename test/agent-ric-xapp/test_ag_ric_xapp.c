@@ -572,6 +572,7 @@ int main(int argc, char *argv[])
   sm_io_ag_ran_t io = init_sm_io_ag_ran(); // {.read = read_RAN, .write = write_RAN};
 
   fr_args_t args = init_fr_args(argc, argv);  // Parse arguments
+  defer({ free_fr_args(&args); });
   
   init_agent_api(mcc, mnc, mnc_digit_len, nb_id, cu_du_id, ran_type, io, &args);
   sleep(1);

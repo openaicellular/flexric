@@ -85,6 +85,7 @@ tc_ctrl_msg_t gen_add_osi_cls(void)
 int main(int argc, char* argv[])
 {
   fr_args_t args = init_fr_args(argc, argv);
+  defer({ free_fr_args(&args); });
   //Init the xApp
   init_xapp_api(&args);
   poll(NULL, 0, 1000);

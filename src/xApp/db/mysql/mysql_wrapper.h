@@ -23,7 +23,7 @@
 #define MUSQL_WRAPPER_XAPP_H
 
 #include <mysql/mysql.h>
-#include "../db_params.h"
+#include "../../../util/conf_file.h"
 #include "../../../sm/agent_if/read/sm_ag_if_rd.h"
 #include "../../../lib/e2ap/e2ap_global_node_id_wrapper.h"
 

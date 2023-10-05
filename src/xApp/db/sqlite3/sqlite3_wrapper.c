@@ -1921,8 +1921,8 @@ void init_db_sqlite3(sqlite3** db, db_params_t const* db_params)
   assert(db_params != NULL);
 
   char db_filename[256] = {0};
-  if (strlen(db_params->dir) && strlen(db_params->db_name)) {
-    int n = snprintf(db_filename, 255, "%s%s", db_params->dir, db_params->db_name);
+  if (strlen(db_params->dir) && strlen(db_params->filename)) {
+    int n = snprintf(db_filename, 255, "%s%s", db_params->dir, db_params->filename);
     assert(n < 256 && "Overflow");
   }
   printf("[SQLite3]: Filename = %s \n", db_filename);

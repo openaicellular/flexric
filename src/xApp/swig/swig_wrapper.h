@@ -22,6 +22,8 @@
 //////////////////////////////////////
 // General    
 /////////////////////////////////////
+//#define MAX_NUM_CUST_SM 6
+//#define MAX_NUM_ORAN_SM 2
 
 struct RanFunction{
   byte_array_t def;
@@ -41,6 +43,32 @@ struct E2Node {
   swig_global_e2_node_id_t id;
   std::vector<RanFunction> ran_func;
 };
+//
+//typedef struct {
+//  std::string name;
+//  std::string time;
+//} swig_sub_cust_sm_t;
+//
+//typedef struct {
+//  std::string name;
+//  int32_t time;
+//  int32_t format;
+//  int32_t act_len;
+//  std::vector<std::string> actions;
+//} swig_sub_oran_sm_t;
+//
+//struct swig_fr_args_t {
+//  std::string ip;
+//  int32_t e42_port;
+//
+//  std::string conf_file;
+//  std::string libs_dir;
+//
+//  int32_t sub_cust_sm_len;
+//  swig_sub_cust_sm_t sub_cust_sm[MAX_NUM_CUST_SM];
+//  int32_t sub_oran_sm_len;
+//  swig_sub_oran_sm_t sub_oran_sm[MAX_NUM_ORAN_SM];
+//};
 
 void init(std::vector<std::string>& argv);
 

@@ -2603,7 +2603,7 @@ void init_db_mysql(MYSQL** conn, db_params_t const* db_params)
 
   // drop exists db in server
   char cmd_drop_db[512] = "DROP DATABASE IF EXISTS ";
-  strcat(cmd_drop_db, db_params->db_name);
+  strcat(cmd_drop_db, db_params->filename);
   printf("[MySQL]: %s\n", cmd_drop_db);
   if(mysql_query(*conn, cmd_drop_db))
     mysql_finish_with_error(*conn);
@@ -2611,7 +2611,7 @@ void init_db_mysql(MYSQL** conn, db_params_t const* db_params)
 
   // create db in server
   char cmd_create_db[512] = "CREATE DATABASE IF NOT EXISTS ";
-  strcat(cmd_create_db, db_params->db_name);
+  strcat(cmd_create_db, db_params->filename);
   printf("[MySQL]: %s\n", cmd_create_db);
   if(mysql_query(*conn, cmd_create_db))
     mysql_finish_with_error(*conn);
@@ -2619,7 +2619,7 @@ void init_db_mysql(MYSQL** conn, db_params_t const* db_params)
 
   // use db created db
   char cmd_use_db[512] = "USE ";
-  strcat(cmd_use_db, db_params->db_name);
+  strcat(cmd_use_db, db_params->filename);
   printf("[MySQL]: %s\n", cmd_use_db);
 
   //////

@@ -126,19 +126,19 @@ if __name__ == '__main__':
     for i in range(0, len(conn)):
         # MAC
         mac_cb = MACCallback()
-        hndlr = ric.report_mac_sm(conn[i].id, ric.Interval_ms_1, mac_cb)
+        hndlr = ric.report_mac_sm(conn[i].id, ric.Interval_ms_1000, mac_cb)
         mac_hndlr.append(hndlr)
         # RLC
         rlc_cb = RLCCallback()
-        hndlr = ric.report_rlc_sm(conn[i].id, ric.Interval_ms_1, rlc_cb)
+        hndlr = ric.report_rlc_sm(conn[i].id, ric.Interval_ms_1000, rlc_cb)
         rlc_hndlr.append(hndlr)
         # PDCP
         pdcp_cb = PDCPCallback()
-        hndlr = ric.report_pdcp_sm(conn[i].id, ric.Interval_ms_1, pdcp_cb)
+        hndlr = ric.report_pdcp_sm(conn[i].id, ric.Interval_ms_1000, pdcp_cb)
         pdcp_hndlr.append(hndlr)
         # GTP
         gtp_cb = GTPCallback()
-        hndlr = ric.report_gtp_sm(conn[i].id, ric.Interval_ms_1, gtp_cb)
+        hndlr = ric.report_gtp_sm(conn[i].id, ric.Interval_ms_1000, gtp_cb)
         gtp_hndlr.append(hndlr)
         time.sleep(1)
 

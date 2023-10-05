@@ -23,7 +23,7 @@
 #ifndef SQLITE3_WRAPPER_XAPP_H
 #define SQLITE3_WRAPPER_XAPP_H 
 
-#include "../db_params.h"
+#include "../../../util/conf_file.h"
 #include "../../../sm/agent_if/read/sm_ag_if_rd.h"
 #include "../../../lib/e2ap/e2ap_global_node_id_wrapper.h" 
 

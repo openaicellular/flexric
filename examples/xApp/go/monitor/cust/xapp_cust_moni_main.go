@@ -96,22 +96,22 @@ func main() {
 		// ----------------------- MAC Indication ----------------------- //
 		innerMac := MACCallback{}
 		callbackMac := xapp.NewDirectorMac_cb(innerMac)
-		HndlrMac := xapp.Report_mac_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackMac)
+		HndlrMac := xapp.Report_mac_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_1000, callbackMac)
 
 		//------------------------ RLC Indication ----------------------- //
 		innerRlc := RLCCallback{}
 		callbackRlc := xapp.NewDirectorRlc_cb(innerRlc)
-		HndlrRlc := xapp.Report_rlc_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackRlc)
+		HndlrRlc := xapp.Report_rlc_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_1000, callbackRlc)
         
 		//------------------------ PDCP Indication ----------------------- //
 		innerPdcp := PDCPCallback{}
 		callbackPdcp := xapp.NewDirectorPdcp_cb(innerPdcp)
-		HndlrPdcp := xapp.Report_pdcp_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackPdcp)
+		HndlrPdcp := xapp.Report_pdcp_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_1000, callbackPdcp)
 
 		// ----------------------- GTP Indication ----------------------- //
         innerGtp := GTPCallback{}
         callbackGtp := xapp.NewDirectorGtp_cb(innerGtp)
-        HndlrGtp := xapp.Report_gtp_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackGtp)
+        HndlrGtp := xapp.Report_gtp_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_1000, callbackGtp)
 
 		// Append values to the slice
 		handleSlice = append(handleSlice, HndlrMac)

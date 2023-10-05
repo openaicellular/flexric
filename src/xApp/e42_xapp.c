@@ -52,8 +52,6 @@
 #include "../../test/rnd/fill_rnd_data_rc.h"
 #include "../../test/rnd/fill_rnd_data_kpm.h"
 
-#include "db/db_params.h"
-
 #include <assert.h>
 #include <time.h>
 #include <stdio.h>
@@ -179,14 +177,9 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   e42_xapp_t* xapp = calloc(1, sizeof(*xapp));
   assert(xapp != NULL && "Memory exhausted");
 
-  uint32_t const port = 36422;
+  printf("[xApp]: nearRT-RIC IP Address = %s, PORT = %d\n", args->ip, args->e42_port);
 
-  char* addr = get_near_ric_ip(args);
-  defer({ free(addr); } );
-
-  printf("[xApp]: nearRT-RIC IP Address = %s, PORT = %d\n", addr, port);
-
-  e2ap_init_ep_xapp(&xapp->ep, addr, port);
+  e2ap_init_ep_xapp(&xapp->ep, args->ip, args->e42_port);
 
   init_asio_xapp(&xapp->io); 
 
@@ -213,16 +206,14 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
   init_msg_dispatcher(&xapp->msg_disp);
 
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
-  db_params_t db_params = {0};
   // Check DB is enabled for this xApp
-  db_params.enable = get_conf_db_enable(args);
-  printf("[xApp]: DB_ENABLE = %s\n", db_params.enable?"TRUE":"FALSE");
-  if (db_params.enable) {
-    get_db_params(args, &db_params);
-    bool t = init_db_xapp(&xapp->db, &db_params);
+  printf("[xApp]: DB_ENABLE = %s\n", args->db_params.enable?"TRUE":"FALSE");
+  if (args->db_params.enable) {
+    bool t = init_db_xapp(&xapp->db, &args->db_params);
     assert(t == true && "init db failed\n");
+  } else {
+    printf("[xApp]: do not initial database\n");
   }
-  free_db_params(&db_params);
 #endif
   xapp->connected = false;
   xapp->stop_token = false;

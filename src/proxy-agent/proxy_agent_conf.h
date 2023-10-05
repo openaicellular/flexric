@@ -5,6 +5,7 @@
 #include <libwebsockets.h>
 
 #include "util/conf_file.h"
+#include "util/alg_ds/alg/defer.h"
 #include "ws_io_ran.h"
 
 struct proxy_conf_t

@@ -101,6 +101,31 @@ void init(std::vector<std::string>& argv)
   //  }
 
   fr_args_t args = init_fr_args(argv.size(), c_argv);
+//  swig_fr_args_t swig_args;
+//  swig_args.ip = args.ip;
+//  swig_args.e42_port = args.e42_port;
+//  swig_args.conf_file = args.conf_file;
+//  swig_args.libs_dir = args.libs_dir;
+//  swig_args.sub_cust_sm_len = args.sub_cust_sm_len;
+//  for (int32_t i = 0; i < swig_args.sub_cust_sm_len; ++i) {
+//    swig_args.sub_cust_sm[i].name = args.sub_cust_sm[i].name;
+//    swig_args.sub_cust_sm[i].time = args.sub_cust_sm[i].time;
+//  }
+//  swig_args.sub_oran_sm_len = args.sub_oran_sm_len;
+//  for (int32_t i = 0; i < swig_args.sub_oran_sm_len; ++i) {
+//    swig_args.sub_oran_sm[i].name = args.sub_oran_sm[i].name;
+//    swig_args.sub_oran_sm[i].time = args.sub_oran_sm[i].time;
+//    swig_args.sub_oran_sm[i].format = args.sub_oran_sm[i].format;
+//    swig_args.sub_oran_sm[i].act_len = args.sub_oran_sm[i].act_len;
+//    for (int32_t j = 0; j < swig_args.sub_oran_sm[i].act_len; ++j) {
+//      if (args.sub_oran_sm[i].actions[j])
+//        swig_args.sub_oran_sm[i].actions.push_back(args.sub_oran_sm[i].actions[j]);
+//    }
+////    printf("[SWIG]: generating action definition from the list of required measurement data:\n");
+////    for (int32_t j = 0; j < swig_args.sub_oran_sm[i].act_len; ++j) {
+////      std::cout << swig_args.sub_oran_sm[i].actions[j] << std::endl;
+////    }
+//  }
 
   // Deallocate memory for the char** array
   for (size_t i = 0; i < argv.size(); ++i) {
@@ -112,6 +137,7 @@ void init(std::vector<std::string>& argv)
   initialized = true;
 
   init_xapp_api(&args);
+  free_fr_args(&args);
 }
 
 bool try_stop()
