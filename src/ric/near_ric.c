@@ -223,7 +223,7 @@ near_ric_t* init_near_ric(fr_args_t const* args)
   char* addr = get_near_ric_ip(args);
   defer({ free(addr); } );
 
-  const int port = 36421;
+  const int port = 36422;
   printf("[NEAR-RIC]: nearRT-RIC IP Address = %s, PORT = %d\n", addr, port);
   e2ap_init_ep_ric(&ric->ep, addr, port);
 
