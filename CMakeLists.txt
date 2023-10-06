@@ -436,7 +436,8 @@ if (XAPP_GO_SWIG)
           ${CMAKE_BINARY_DIR}/examples/xApp/go/FlexPolicy/go_xapp_flex_policy
           ${CMAKE_BINARY_DIR}/examples/xApp/go/slice_term_ui/go_xapp_slice_term_ui
           ${CMAKE_BINARY_DIR}/examples/xApp/go/prb_utilization/go_xapp_prb_utilization
-          ${CMAKE_BINARY_DIR}/examples/xApp/go/kpm/go_xapp_kpm_moni
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/monitor/oran/go_xapp_oran_moni
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/monitor/cust/go_xapp_cust_moni
           DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 

@@ -50,6 +50,21 @@ func (pdcp_cb PDCPCallback) Handle(ind xapp.Swig_pdcp_ind_msg_t) {
 	}	
 }
 
+// Indication Callback GTP Function
+type GTPCallback struct {
+
+}
+
+func (gtp_cb GTPCallback) Handle(ind xapp.Swig_gtp_ind_msg_t) {
+	if ind.GetGtp_stats().Size() > 0 {
+		nowTime := time.Now().UnixNano()/1000   //in microseconds
+		indTime := ind.GetTstamp() / 1.0
+		diff := nowTime - indTime
+		fmt.Printf("GTP Indication latency %f microsecs\n", float64(diff))
+	}
+}
+
+
 
 // ------------------------------------------------------------------------ //
 //	MAIN
@@ -73,6 +88,7 @@ func main() {
 	var handleSlice []int
 	var handleSlice1[]int
 	var handleSlice2[]int
+	var handleSlice3[]int
 
 	
 	for i := 0; i <= int(nodes.Size()-1); i++ {
@@ -93,10 +109,16 @@ func main() {
 		callbackPdcp := xapp.NewDirectorPdcp_cb(innerPdcp)
 		HndlrPdcp := xapp.Report_pdcp_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackPdcp)
 
+		// ----------------------- GTP Indication ----------------------- //
+        innerGtp := GTPCallback{}
+        callbackGtp := xapp.NewDirectorGtp_cb(innerGtp)
+        HndlrGtp := xapp.Report_gtp_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackGtp)
+
 		// Append values to the slice
 		handleSlice = append(handleSlice, HndlrMac)
 		handleSlice1 = append(handleSlice1, HndlrRlc)
 		handleSlice2 = append(handleSlice2, HndlrPdcp)
+		handleSlice3 = append(handleSlice3, HndlrGtp)
 	}
 
 	time.Sleep(10 * time.Second)
@@ -112,6 +134,9 @@ func main() {
 	for _, value := range handleSlice2 {
 		xapp.Rm_report_pdcp_sm(value)
 	}
+	for _, value := range handleSlice3 {
+        xapp.Rm_report_gtp_sm(value)
+    }
 
 	// E42 Teardown
 	for xapp.Try_stop() == false {
