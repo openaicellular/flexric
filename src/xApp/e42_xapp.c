@@ -330,7 +330,7 @@ void free_e42_xapp(e42_xapp_t* xapp)
   free_msg_dispatcher(&xapp->msg_disp);
 
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
-  if(&xapp->db.handler != NULL){
+  if(xapp->db.handler != NULL){
     close_db_xapp(&xapp->db);
   }
 #endif
