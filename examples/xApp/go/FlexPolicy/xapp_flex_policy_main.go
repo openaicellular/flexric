@@ -23,7 +23,7 @@ func main() {
 
 	// Parse A1 parameters
 	conf := os.Args[2]
-	A1IP, A1Port, smList, xappID := parser.ParseXAppConfig(conf)
+	A1IP, A1Port, smList, policyID := parser.ParseXAppConfig(conf)
 
 	// Connect
 	sm.E2Nodes = xapp.Conn_e2_nodes()
@@ -40,9 +40,9 @@ func main() {
 	sm.SmSubscription(smList)
 
 	// find callback id
-	callback := callbacks.FindCallback(xappID)
+	callback := callbacks.FindCallback(policyID)
 	if callback == nil {
-		fmt.Printf("xApp Callback with given ID %s not found.\n", xappID)
+		fmt.Printf("xApp Callback with given ID %s not found.\n", policyID)
 	} else{
 		api.OpenA1Apis(callback, A1IP, A1Port)
 	}

@@ -14,7 +14,12 @@ var E2Nodes xapp.E2NodeVector
 var SliceSmHandlers []int
 var MacSmHandlers []int
 
+var SmList []string
+
 func SmSubscription(sms []string) {
+
+	SmList = sms
+
 	// Iterating over smList
 	for _, item := range sms {
 		switch strings.TrimSpace(item) {
@@ -80,4 +85,47 @@ func SmUnsubscription(sms []string) {
 			// Do something
 		}
 	}
+}
+
+
+var Feedback FeedbackType
+
+// globad structure for feedback api
+type FeedbackType struct {
+	MacExists bool
+	MacFeedback mac.MacStorage
+	SliceExists bool
+	SliceFeedback slice.SliceStatsDict
+	PolicyEnforced bool
+}
+
+func FillFeedback(PolicyEnforced bool) FeedbackType{
+	
+
+	MacBool := false
+	SliceBool := false 
+	for _, val := range SmList {
+		switch strings.TrimSpace(val) {
+		case "MAC":
+			MacBool = true
+
+		case "SLICE":
+			SliceBool = true
+
+		default:
+			// Do something
+		}
+	}
+
+
+	// Fill the feedback structure
+	FeedBack := FeedbackType{
+		MacExists: MacBool,
+		MacFeedback: mac.DeepCopyMacStorage(mac.MacStats),
+		SliceExists: SliceBool,
+		SliceFeedback: slice.DeepCopySliceStatsDict(slice.SliceStats),
+		PolicyEnforced: PolicyEnforced,
+	}
+
+	return FeedBack
 }

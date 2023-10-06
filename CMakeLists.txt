@@ -433,8 +433,12 @@ if (XAPP_GO_SWIG)
   install(PROGRAMS
           ${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/go_helloworld
           ${CMAKE_BINARY_DIR}/examples/xApp/go/slice_moni_ctrl/go_xapp_slice_moni_ctrl
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/FlexPolicy/go_xapp_flex_policy
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/slice_term_ui/go_xapp_slice_term_ui
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/prb_utilization/go_xapp_prb_utilization
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/kpm/go_xapp_kpm_moni
           DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif ()
+endif()
 
 # make uninstall
 add_custom_target("uninstall" COMMENT "Uninstall installed files")

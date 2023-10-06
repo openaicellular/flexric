@@ -2,8 +2,9 @@ package utils
 
 import "C"
 import (
-	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
+
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
+	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
 
 	"fmt"
 	"log"
@@ -90,12 +91,12 @@ func OpenA1Apis(policyEnforceCallback policy.PolicyEnforcementCallback, a1IP str
 
 	// [API 3]: GET /api/slice/stats
 	// Send the current state to the Non-RT RIC
-	Router.GET("/api/slice/stats", func(c *gin.Context) {
+	Router.GET("/api/feedback", func(c *gin.Context) {
 		// lock
-		slice.Mutex.Lock()
-		c.JSON(http.StatusOK, slice.SliceStats)
+		//slice.Mutex.Lock()
+		c.JSON(http.StatusOK, sm.FillFeedback(PolicyEnforced))
 		// unlock
-		slice.Mutex.Unlock()
+		//slice.Mutex.Unlock()
 	})
 
 	// ----------------------- Gin Server ----------------------- //

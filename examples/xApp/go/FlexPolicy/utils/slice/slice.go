@@ -91,6 +91,8 @@ var SliceStats SliceStatsDict
 // Mutex for locking the global structure SliceStatsDict
 var Mutex sync.Mutex
 
+
+
 // ------------------------------------------------------------------------ //
 //
 //	 ReadSliceStats function for reading desired stats items from the global structure
@@ -710,4 +712,55 @@ func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 	}
 
 	return msg
+}
+
+// Deep copy functions for each nested struct
+func DeepCopySliceStatsDict(original SliceStatsDict) SliceStatsDict {
+	Mutex.Lock()
+
+	CopiedSliceStats := SliceStatsDict{
+		RAN: deepCopyRANStats(original.RAN),
+		UE:  deepCopyUeStats(original.UE),
+	}
+
+	Mutex.Unlock()
+	return CopiedSliceStats
+}
+
+func deepCopyRANStats(original RANStats) RANStats {
+	return RANStats{
+		DL: deepCopyDlStats(original.DL),
+		UL: original.UL, // Deep copy UL if necessary
+	}
+}
+
+func deepCopyDlStats(original DlStats) DlStats {
+	copiedSlices := make([]SliceDictionary, len(original.Slices))
+	for i, slice := range original.Slices {
+		copiedSlices[i] = deepCopySliceDictionary(slice)
+	}
+	return DlStats{
+		NumOfSlices:    original.NumOfSlices,
+		SliceSchedAlgo: original.SliceSchedAlgo,
+		UeSchedAlgo:    original.UeSchedAlgo,
+		Slices:         copiedSlices,
+	}
+}
+
+func deepCopySliceDictionary(original SliceDictionary) SliceDictionary {
+	return SliceDictionary{
+		Index:           original.Index,
+		Label:           original.Label,
+		UeSchedAlgo:     original.UeSchedAlgo,
+		SliceAlgoParams: original.SliceAlgoParams, // Assuming SliceAlgorithmParams has no pointers or slices
+	}
+}
+
+func deepCopyUeStats(original UeStats) UeStats {
+	copiedUes := make([]UeDictionary, len(original.Ues))
+	copy(copiedUes, original.Ues)
+	return UeStats{
+		NumOfUes: original.NumOfUes,
+		Ues:      copiedUes,
+	}
 }

@@ -16,6 +16,7 @@ import (
 	"io/ioutil"
 
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
+	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
 )
 
 var server1URL = "http://127.0.0.1:7000/api/policy"
@@ -49,15 +50,43 @@ func main() {
 		time.Sleep(10 * time.Second)
 	}
 
+	// ----------------- GET Feedback ----------------- //
+	resp, err := http.Get("http://127.0.0.1:7000/api/feedback")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	} 
+		
+	fmt.Println("GET Feedback")
+	
+	defer resp.Body.Close()
 
-	// finish
+	
+	err = json.NewDecoder(resp.Body).Decode(&sm.Feedback)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	// Marshal the interface back to JSON with indentation
+	prettyJSON, err := json.MarshalIndent(sm.Feedback, "", "    ")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	// Convert the byte slice to a string and print it
+	fmt.Println(string(prettyJSON))
+
+
+	// ----------------- finish ----------------- //
 	url := "http://127.0.0.1:7000/api/finish"
 
 	// Create the request body (if needed)
 	// requestBody := []byte(`{"key": "value"}`)
 
 	// Send the POST request
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(nil)) // Replace nil with requestBody if you have a request body
+	resp, err = http.Post(url, "application/json", bytes.NewBuffer(nil)) // Replace nil with requestBody if you have a request body
 	if err != nil {
 		fmt.Println("Error sending request:", err)
 		return

@@ -16,7 +16,7 @@ func ParseXAppConfig(name string) (string, int, []string, string) {
 		log.Fatalf("Fail to read file: %v", err)
 	}
 
-	xappSection, err := cfg.GetSection("XAPP")
+	xappSection, err := cfg.GetSection("XAPP-A1")
 	if err != nil {
 		log.Fatalf("Failed to get XAPP section: %v", err)
 	}
@@ -24,7 +24,7 @@ func ParseXAppConfig(name string) (string, int, []string, string) {
 	a1IP := xappSection.Key("A1_IP").String()
 	a1Port := xappSection.Key("A1_PORT").MustInt()
 	sm := xappSection.Key("SM").String()
-	xappID := xappSection.Key("XAPP_ID").String()
+	policyID := xappSection.Key("POLICY").String()
 
 	// Parsing SM as a list, even if it contains a single item
 	smList := strings.Split(strings.TrimSpace(sm), ", ")
@@ -32,7 +32,7 @@ func ParseXAppConfig(name string) (string, int, []string, string) {
 	fmt.Printf("A1_IP: %s\n", a1IP)
 	fmt.Printf("A1_PORT: %d\n", a1Port)
 	fmt.Printf("SM: %v\n", smList)
-	fmt.Printf("XAPP_ID: %s\n", xappID)
+	fmt.Printf("POLICY: %s\n", policyID)
 
-	return a1IP, a1Port, smList, xappID
+	return a1IP, a1Port, smList, policyID
 }

@@ -14,9 +14,9 @@ type MACCallback struct {
 }
 
 func (mac_cb MACCallback) Handle(ind xapp.Swig_mac_ind_msg_t) {
-	fillMacStorage(ind)
 	Calculate_UE_PRB_utilisation(ind)
 	CalculateUeThroughput(ind)
+	fillMacStorage(ind)
 }
 
 // Definition of the global structure for storing the latest indication message
@@ -24,6 +24,8 @@ type MacStorage struct {
 	UeStats  UeStatsType
 	Id IdType
 	Tstampt TstamptType
+	GlobalPrbUtil int 
+	GlobalDlThroughput int
 }
 
 type IdType struct {
@@ -90,6 +92,7 @@ func fillMacStorage(ind xapp.Swig_mac_ind_msg_t) {
 	MacStats.UeStats.Capacity = ind.GetUe_stats().Capacity()
 	MacStats.UeStats.IsEmpty = ind.GetUe_stats().IsEmpty()
 
+	MacStats.UeStats.MACStatsVector = []MACStatsType{}
 
 	for i := 0; i < int(MacStats.UeStats.Size); i++ {
 		var macStats MACStatsType
@@ -132,7 +135,33 @@ func fillMacStorage(ind xapp.Swig_mac_ind_msg_t) {
 	}
 
 	// todo more
+	MacStats.GlobalPrbUtil = TotalPrbUtilization()
+	MacStats.GlobalDlThroughput, _ = TotalThroughput()
 
 	Mutex.Unlock()
 
+}
+
+func DeepCopyMacStorage(original MacStorage) MacStorage {
+	Mutex.Lock()
+	copied := MacStorage{
+		UeStats:           DeepCopyUeStats(original.UeStats),
+		Id:                original.Id, // Assuming IdType has no pointers or slices
+		Tstampt:           original.Tstampt, // Assuming TstamptType has no pointers or slices
+		GlobalPrbUtil:     original.GlobalPrbUtil,
+		GlobalDlThroughput:  original.GlobalDlThroughput,
+	}
+	Mutex.Unlock()
+	return copied
+}
+
+func DeepCopyUeStats(original UeStatsType) UeStatsType {
+	copied := UeStatsType{
+		Size:           original.Size,
+		Capacity:       original.Capacity,
+		IsEmpty:        original.IsEmpty,
+		MACStatsVector: make([]MACStatsType, len(original.MACStatsVector)),
+	}
+	copy(copied.MACStatsVector, original.MACStatsVector)
+	return copied
 }

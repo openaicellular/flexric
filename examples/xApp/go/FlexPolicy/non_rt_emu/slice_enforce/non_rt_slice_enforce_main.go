@@ -16,6 +16,7 @@ import (
 
 	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
+	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
 )
 
 var server1URL = "http://127.0.0.1:7000/api/policy"
@@ -23,30 +24,33 @@ var server1URL = "http://127.0.0.1:7000/api/policy"
 func main() {
 	time.Sleep(3 * time.Second)
 
-	// ----------------- GET SliceStats ----------------- //
-	resp, err := http.Get("http://127.0.0.1:7000/api/slice/stats")
+	// ----------------- GET Feedback ----------------- //
+	resp, err := http.Get("http://127.0.0.1:7000/api/feedback")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	} 
 		
-	fmt.Println("GET SliceStats")
+	fmt.Println("GET Feedback")
 	
 	defer resp.Body.Close()
 
 	
-	err = json.NewDecoder(resp.Body).Decode(&slice.SliceStats)
+	err = json.NewDecoder(resp.Body).Decode(&sm.Feedback)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
 	// Marshal the interface back to JSON with indentation
-	prettyJSON, err := json.MarshalIndent(slice.SliceStats, "", "    ")
+	prettyJSON, err := json.MarshalIndent(sm.Feedback, "", "    ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
+
+
+	slice.SliceStats = sm.Feedback.SliceFeedback
 
 	// Convert the byte slice to a string and print it
 	fmt.Println(string(prettyJSON))
