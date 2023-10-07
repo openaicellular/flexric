@@ -13,19 +13,16 @@ import (
 	"os"
 )
 
-// ------------------------------------------------------------------------ //
-//  MAIN
-// ------------------------------------------------------------------------ //
 func main() {
 
-	// ----------------------- Initialization ----------------------- //
+	// Initialization
 	xapp.Init(xapp.SlToStrVec(os.Args))
 
 	// Parse A1 parameters
 	conf := os.Args[2]
 	A1IP, A1Port, smList, policyID := parser.ParseXAppConfig(conf)
 
-	// Connect
+	// E2 Connect
 	sm.E2Nodes = xapp.Conn_e2_nodes()
 
 	var nodes_len int64 = sm.E2Nodes.Size()
@@ -39,10 +36,10 @@ func main() {
 	// Subscribe to the SMs
 	sm.SmSubscription(smList)
 
-	// find callback id
+	// find policy callback id
 	callback := callbacks.FindCallback(policyID)
 	if callback == nil {
-		fmt.Printf("xApp Callback with given ID %s not found.\n", policyID)
+		fmt.Printf("Policy Callback with given ID %s not found.\n", policyID)
 	} else{
 		api.OpenA1Apis(callback, A1IP, A1Port)
 	}

@@ -81,8 +81,9 @@ func TotalPrbUtilization() int {
 }
 
 
-
 func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
+
+	PrbMutex.Lock()
 
 	// iterate over the number of UEs
 	for i := 0; i < int(ind.GetUe_stats().Size()); i++ {
@@ -207,6 +208,8 @@ func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
 			}
 		}
 	}
+
+	PrbMutex.Unlock()
 }
 
 
@@ -214,12 +217,12 @@ func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
 func TotalThroughput() (int, int) {
 	TotalDlThroughput, TotalUlThroughput := 0, 0
 
-	PrbMutex.Lock()
+	ThptMutex.Lock()
 	for _, ue := range MultipleUeStatistics.Stats {
 		TotalDlThroughput += ue.UeThrMetrics.DLThr
 		TotalUlThroughput += ue.UeThrMetrics.ULThr
 	}
-	PrbMutex.Unlock()
+	ThptMutex.Unlock()
 
 	return TotalDlThroughput, TotalUlThroughput
 }

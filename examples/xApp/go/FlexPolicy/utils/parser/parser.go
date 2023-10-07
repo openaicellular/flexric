@@ -7,9 +7,8 @@ import (
 	"fmt"
 )
 
-// ------------------------------------------------------------------------ //
-//	ParseXAppConfig function for parsing the xApp configuration
-// ------------------------------------------------------------------------ //
+
+//	ParseXAppConfig function for parsing the xApp A1 configuration
 func ParseXAppConfig(name string) (string, int, []string, string) {
 	cfg, err := ini.Load(name)
 	if err != nil {

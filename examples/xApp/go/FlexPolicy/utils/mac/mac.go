@@ -22,8 +22,8 @@ func (mac_cb MACCallback) Handle(ind xapp.Swig_mac_ind_msg_t) {
 // Definition of the global structure for storing the latest indication message
 type MacStorage struct {
 	UeStats  UeStatsType
-	Id IdType
-	Tstampt TstamptType
+	Id IdType // TODO: fill it
+	Tstampt TstamptType // TODO: fill it
 	GlobalPrbUtil int 
 	GlobalDlThroughput int
 }
@@ -134,9 +134,10 @@ func fillMacStorage(ind xapp.Swig_mac_ind_msg_t) {
 		MacStats.UeStats.MACStatsVector = append(MacStats.UeStats.MACStatsVector, macStats)
 	}
 
-	// todo more
+	
 	MacStats.GlobalPrbUtil = TotalPrbUtilization()
 	MacStats.GlobalDlThroughput, _ = TotalThroughput()
+	// TODO: add more
 
 	Mutex.Unlock()
 

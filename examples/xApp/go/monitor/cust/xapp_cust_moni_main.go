@@ -92,19 +92,18 @@ func main() {
 
 	
 	for i := 0; i <= int(nodes.Size()-1); i++ {
+
 		// ----------------------- MAC Indication ----------------------- //
 		innerMac := MACCallback{}
 		callbackMac := xapp.NewDirectorMac_cb(innerMac)
 		HndlrMac := xapp.Report_mac_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackMac)
 
 		//------------------------ RLC Indication ----------------------- //
-        
 		innerRlc := RLCCallback{}
 		callbackRlc := xapp.NewDirectorRlc_cb(innerRlc)
 		HndlrRlc := xapp.Report_rlc_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackRlc)
         
 		//------------------------ PDCP Indication ----------------------- //
-
 		innerPdcp := PDCPCallback{}
 		callbackPdcp := xapp.NewDirectorPdcp_cb(innerPdcp)
 		HndlrPdcp := xapp.Report_pdcp_sm(nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackPdcp)
@@ -119,6 +118,7 @@ func main() {
 		handleSlice1 = append(handleSlice1, HndlrRlc)
 		handleSlice2 = append(handleSlice2, HndlrPdcp)
 		handleSlice3 = append(handleSlice3, HndlrGtp)
+		
 	}
 
 	time.Sleep(10 * time.Second)

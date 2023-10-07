@@ -56,7 +56,7 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 	// read and store the number of UEs
 	Rntis := slice.ReadSliceStats("rntis", -1).([]uint16)
 
-	//Mutex.Lock()
+	Mutex.Lock()
 	// store the num of UEs
 	MultipleUeStatistics.NumOfUEs = len(Rntis)
 
@@ -70,7 +70,7 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 			MultipleUeStatistics.Stats[rnti] = UeStats{}
 		}
 	}
-	//Mutex.Unlock()
+	Mutex.Unlock()
 }
 
 // ------------------------------------------------------------------------ //
@@ -83,7 +83,7 @@ type GTPCallback struct {
 
 func (gtp_cb GTPCallback) Handle(ind xapp.Swig_gtp_ind_msg_t) {
 
-	//Mutex.Lock()
+	Mutex.Lock()
 
 	// iterate over the number of UEs
 	for i := 0; i < int(ind.GetGtp_stats().Size()); i++ {
@@ -102,7 +102,7 @@ func (gtp_cb GTPCallback) Handle(ind xapp.Swig_gtp_ind_msg_t) {
 			MultipleUeStatistics.Stats[Rnti] = ue
 		}
 	}
-	//Mutex.Unlock()
+	Mutex.Unlock()
 
 }
 
@@ -116,11 +116,11 @@ type MACCallback struct {
 
 func (mac_cb MACCallback) Handle(ind xapp.Swig_mac_ind_msg_t) {
 
-	//Mutex.Lock()
+	Mutex.Lock()
 
 	Calculate_UE_PRB_utilisation(ind)
 
-	//Mutex.Unlock()
+	Mutex.Unlock()
 }
 
 // Global variable for the bandwidth and numerology

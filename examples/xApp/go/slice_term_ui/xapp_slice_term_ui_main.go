@@ -631,7 +631,7 @@ func main() {
 		updateHistoricalData(&prbData, CurrPrbUtilization, maxDataPoints)
 		updateHistoricalData(&thptData, CurrDlThpt, maxDataPoints)
 	
-		printTimeSeriesPlot(wrapper, int(float64(width)*0.05), int(float64(height)*0.1), "DL Throughput (Mbps):", thptData, 100) // max throughput is 70Mbps
+		printTimeSeriesPlot(wrapper, int(float64(width)*0.05), int(float64(height)*0.1), "DL Throughput (Mbps):", thptData, 100) // max throughput
 		printTimeSeriesPlot(wrapper, int(float64(width)*0.05), int(float64(height)*0.6), "PRB Utilization (%):", prbData, 100) // max prb
 
 		// Adjust the vertical position to prevent overlap

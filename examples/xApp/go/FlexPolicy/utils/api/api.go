@@ -31,13 +31,13 @@ var FinishChannel chan bool
 //	OpenA1Apis function for starting the xApp server APIs
 //
 //	APIs:
-//	- /api/policy: for receiving the policy configuration
-//	- /api/finish: for receiving the finish command
-//	- /api/slice/stats: for sending the current state to the Non-RT RIC
+//	- /api/policy:   for receiving the policy configuration
+//	- /api/finish:   for receiving the finish command to terminate
+//	- /api/feedback: for sending the current state to the Non-RT RIC
 //
 //	Input Variables:
 //	- policyEnforceCallback: the callback function for enforcing the policy
-//  - conf: name of configuration file
+//  - a1IP, a1Port: IP and port for the xApp API server
 //
 // ------------------------------------------------------------------------ //
 // TODO: add a parameter for evaluating that the received policy is the desired based on the xApp logic
@@ -62,6 +62,7 @@ func OpenA1Apis(policyEnforceCallback policy.PolicyEnforcementCallback, a1IP str
 		}
 		
 		// TODO: Evaluate that the received policy is the desired based on the xApp logic
+		// or support multiple policies
 
 		// Call the callback function for enforcing the policy
 		// TODO: Do it in a function that will call the callback function on an interval e.g. every 1 sec until it is enforced
@@ -89,14 +90,10 @@ func OpenA1Apis(policyEnforceCallback policy.PolicyEnforcementCallback, a1IP str
 		FinishChannel <- true
 	})
 
-	// [API 3]: GET /api/slice/stats
+	// [API 3]: GET /api/feedback
 	// Send the current state to the Non-RT RIC
 	Router.GET("/api/feedback", func(c *gin.Context) {
-		// lock
-		//slice.Mutex.Lock()
 		c.JSON(http.StatusOK, sm.FillFeedback(PolicyEnforced))
-		// unlock
-		//slice.Mutex.Unlock()
 	})
 
 	// ----------------------- Gin Server ----------------------- //
