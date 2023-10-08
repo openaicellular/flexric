@@ -67,14 +67,17 @@ This folder contains all the necessary utility functions to realize the policy e
 
 1. **Build Repo with Go enabled**
     ```bash
-    Build FlexRIC repository with XAPP_GO_SWIG=ON
+    mkdir build && cd build
+    cmake ../ -DXAPP_GO_SWIG=ON && make -j && sudo make install
     ```
 
 2. **Run E2 Nodes and RIC**
     Prepare the environment appropriately by running the E2 Nodes and the Near-RT RIC
     ```
+    # terminal 1: start E2 Node agent
     ./build/examples/emulator/agent/emu_agent_gnb
-    ...
+    
+    # terminal 2: start nearRT-RIC
     ./build/examples/ric/nearRT-RIC 
     ```
 
@@ -85,18 +88,16 @@ This folder contains all the necessary utility functions to realize the policy e
 
     For example:
     ```bash
-    go_xapp_flex_policy -c examples/xApp/go/FlexPolicy/conf_files/slice_enforce.conf 
+    go_xapp_flex_policy -c /usr/local/bin/a1_slice_enforce.conf
     ```
 4. **Execute Non-RT RIC emulator**
     ```bash
-    cd build/examples/xApp/go/FlexPolicy/non_rt_emu/.../path/to/policy
-    ./go_non_rt_policy 
+    go_non_rt_policy 
     ```
 
     For example:
     ```
-    cd build/examples/xApp/go/FlexPolicy/non_rt_emu/slice_enforce/
-    ./go_non_rt_slice_enforce 
+    go_non_rt_slice_enforce
     ```
 
 ---

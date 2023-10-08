@@ -20,7 +20,7 @@ import (
 )
 
 
-var server1URL = "http://127.0.0.1:7000/api/policy"
+var server1URL = "http://127.0.0.10:7000/api/policy"
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
@@ -53,7 +53,7 @@ func main() {
 
 
 	// ----------------- GET Feedback ----------------- //
-	resp, err := http.Get("http://127.0.0.1:7000/api/feedback")
+	resp, err := http.Get("http://127.0.0.10:7000/api/feedback")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -82,7 +82,7 @@ func main() {
 
 
 	// ----------------- finish ----------------- //
-	url := "http://127.0.0.1:7000/api/finish"
+	url := "http://127.0.0.10:7000/api/finish"
 
 	// Create the request body (if needed)
 	// requestBody := []byte(`{"key": "value"}`)
