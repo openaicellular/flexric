@@ -1,7 +1,7 @@
 package policy
 
 import (
-	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
+	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
 )
 // xApp policy configuration API
 // Configuration represents the JSON configuration received by the first server.
@@ -11,24 +11,24 @@ import (
 //	coming from the Non-RT RIC via the APIs
 // ------------------------------------------------------------------------ //
 type Configuration struct {
-	PolicyID   int             `json:"PolicyId,omitempty"`
+	PolicyID   int16           `json:"PolicyId,omitempty"`
 	PolicyType string          `json:"PolicyType,omitempty"`
 	Scope      ScopeConfig     `json:"scope,omitempty"`
 	Statement  StatementConfig `json:"statement,omitempty"`
 }
 
 type ScopeConfig struct {
-	SliceID int `json:"sliceId,omitempty"`
-	CellID  int `json:"cellId,omitempty"`
+	SliceID int16 `json:"sliceId,omitempty"`
+	CellID  int16 `json:"cellId,omitempty"`
 }
 
 type StatementConfig struct {
 	// -----  For ORAN xApps -----------------//
-	MaxNumberOfUEs int `json:"maxNumberOfUes,omitempty"`
-	MacPrbUtilisation int `json:"macPrbUtilisation,omitempty"`
-	MaxThroughput int `json:"maxThroughput,omitempty"` 
+	MaxNumberOfUEs int16 `json:"maxNumberOfUes,omitempty"`
+	MacPrbUtilisation int16 `json:"macPrbUtilisation,omitempty"`
+	MaxThroughput int16 `json:"maxThroughput,omitempty"` 
 
-	// -----  For Br (Non-ORAN) xApps --------//
+	// -----  For Custom xApps --------//
 	// Type of the Control Request
 	//     string: "ADDMOD", "DEL", "ASSOC_UE_SLICE"
 	CtrlType string `json:"type,omitempty"`
@@ -39,6 +39,6 @@ type StatementConfig struct {
 
 // ------------------------------------------------------------------------ //
 //	PolicyEnforcementCallback function for enforcing the policy
-//	The calback function is defined in the xApp
+//	The calback functions are defined in the callbacks folder
 // ------------------------------------------------------------------------ //
 type PolicyEnforcementCallback func(Configuration)

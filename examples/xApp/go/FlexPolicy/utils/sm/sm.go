@@ -2,8 +2,8 @@ package sm
 
 import (
 	xapp "build/examples/xApp/go/xapp_sdk"
-	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
-	mac "build/examples/xApp/go/FlexPolicy/utils/mac"
+	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
+	mac "build/examples/xApp/go/FlexPolicy/utils/sm/mac"
 	"strings"
 	"time"
 )

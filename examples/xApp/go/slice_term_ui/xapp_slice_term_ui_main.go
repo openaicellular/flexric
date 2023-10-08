@@ -4,7 +4,7 @@ import "C"
 import (
 	"encoding/json"
 	xapp "build/examples/xApp/go/xapp_sdk"
-	mac "build/examples/xApp/go/FlexPolicy/utils/mac"
+	mac "build/examples/xApp/go/FlexPolicy/utils/sm/mac"
 
 	"fmt"
 	"log"

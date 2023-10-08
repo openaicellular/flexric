@@ -1,7 +1,7 @@
 package callbacks
 
 import (
-	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
+	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
 	xapp "build/examples/xApp/go/xapp_sdk"
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
@@ -19,8 +19,8 @@ func CallbackSliceEnforce(PolicyConfiguration policy.Configuration) {
 
 	// STEP 1: Scope
 	fmt.Println("\n[Policy]:------------------ Enforcement -------------------------")
-	cellId := PolicyConfiguration.Scope.CellID
-	sliceId := PolicyConfiguration.Scope.SliceID
+	cellId := int(PolicyConfiguration.Scope.CellID)
+	sliceId := int(PolicyConfiguration.Scope.SliceID)
 	fmt.Println("[Policy]: Cell Id:", cellId, ", Slice Id:", sliceId)
 	fmt.Println("[Policy]: Control Type:", PolicyConfiguration.Statement.CtrlType)
 

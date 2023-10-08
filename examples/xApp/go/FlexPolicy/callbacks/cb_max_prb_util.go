@@ -1,13 +1,13 @@
 package callbacks
 
 import (
-	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
 	xapp "build/examples/xApp/go/xapp_sdk"
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
 	api "build/examples/xApp/go/FlexPolicy/utils/api"
-	mac "build/examples/xApp/go/FlexPolicy/utils/mac"
-
+	mac "build/examples/xApp/go/FlexPolicy/utils/sm/mac"
+	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
+	
 	"fmt"
 	"time"
 	"math/rand"
@@ -72,12 +72,12 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 
 	// STEP 2: Enforce the policy
 	fmt.Println("\n[Policy]:------------------ Enforcement -------------------------")
-	cellId := PolicyConfiguration.Scope.CellID
-	sliceId := PolicyConfiguration.Scope.SliceID
+	cellId := int(PolicyConfiguration.Scope.CellID)
+	sliceId := int(PolicyConfiguration.Scope.SliceID)
 	fmt.Println("[Policy]: Cell Id:", cellId, ", Slice Id:", sliceId)
 
 	// Get the maximum and current number of UEs allowed in the slice
-	maxPrbUtilization := PolicyConfiguration.Statement.MacPrbUtilisation
+	maxPrbUtilization := int(PolicyConfiguration.Statement.MacPrbUtilisation)
 
 	// At this point and only, read the global structure
 	// Consider reading all the desired values at once in a single iteration.

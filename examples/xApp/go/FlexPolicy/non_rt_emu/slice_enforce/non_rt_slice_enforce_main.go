@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
+	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
 )

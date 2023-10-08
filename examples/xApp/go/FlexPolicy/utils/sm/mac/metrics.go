@@ -12,7 +12,7 @@ func init() {
 	// Initialize the MultipleUeStatistics global variable
 	MultipleUeStatistics = MultiUeStats{
 		Stats:    make(map[RNTI]UeStats),  // Initialize an empty map for UeStats
-		NumOfUEs: 0,                        // Initialize the number of UEs to 0
+		NumOfUEs: 0,                       // Initialize the number of UEs to 0
 	}
 }
 

@@ -24,7 +24,7 @@ var server1URL = "http://127.0.0.1:7000/api/policy"
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	prbs := []int{100, 80, 20, 90, 20, 90, 20, 90, 20, 90}
+	prbs := []int16{100, 80, 20, 90, 20, 90, 20, 90, 20, 90}
 
 	for _, maxPrbUtil := range prbs { 
 

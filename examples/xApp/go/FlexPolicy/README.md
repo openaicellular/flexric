@@ -29,11 +29,12 @@ FlexPolicy/
 │   └── ...                        # More clients for other policy types
 ├── utils/                         # Utility functions
 │   ├── api/                       # A1 server APIs utils
-│   ├── mac/                       # Mac service model utils
 │   ├── parser/                    # A1 params parser from conf file 
 │   ├── policy/                    # A1 Policy utils
-│   ├── slice/                     # Slice service model utils
-│   ├── sm/                        # Service model utils
+│   └── sm/                        # Service model utils
+│       ├── slice/                 # Slice service model utils
+│       ├── mac/                   # Mac service model utils
+│       └── sm.go                  # SM subscription utils
 ├── README.md                      # README
 └── xapp_flex_policy_main.go       # FlexPolicy Main Function
 ```

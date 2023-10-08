@@ -2,7 +2,7 @@ package main
 
 import "C"
 import (
-	slice "build/examples/xApp/go/FlexPolicy/utils/slice"
+	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
 	xapp "build/examples/xApp/go/xapp_sdk"
 	"fmt"
 	"os"

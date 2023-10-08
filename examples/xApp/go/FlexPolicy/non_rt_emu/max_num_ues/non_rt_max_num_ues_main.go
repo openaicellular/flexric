@@ -16,24 +16,8 @@ import (
 	"io/ioutil"
 
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
+	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 )
-
-// Configuration represents the JSON configuration received by the first server.
-type Configuration struct {
-	PolicyID   int                    `json:"PolicyId"`
-	PolicyType string                 `json:"PolicyType"`
-	Scope      ScopeConfig            `json:"scope"`
-	Statement  StatementConfig        `json:"statement"`
-}
-
-type ScopeConfig struct {
-	SliceID int `json:"sliceId"`
-	CellID  int `json:"cellId"`
-}
-
-type StatementConfig struct {
-	MaxNumberOfUEs int `json:"maxNumberOfUes"`
-}
 
 var server1URL = "http://127.0.0.1:7000/api/policy"
 
@@ -41,16 +25,16 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	for i := 0; i < 10; i++ {
-		maxNumOfUes := rand.Intn(2)
+		maxNumOfUes := int16(rand.Intn(2))
 
-		config := Configuration{
+		config := policy.Configuration{
 			PolicyID:   2,
 			PolicyType: "maxNumberOfUes",
-			Scope: ScopeConfig{
+			Scope: policy.ScopeConfig{
 				SliceID: 0,
 				CellID:  3584,
 			},
-			Statement: StatementConfig{
+			Statement: policy.StatementConfig{
 				MaxNumberOfUEs: maxNumOfUes,
 			},
 		}
@@ -116,7 +100,7 @@ func main() {
 	fmt.Println("POST request sent successfully")
 }
 
-func sendConfiguration(config Configuration) error {
+func sendConfiguration(config policy.Configuration) error {
 	payload, err := json.Marshal(config)
 	if err != nil {
 		return err
