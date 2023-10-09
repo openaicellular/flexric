@@ -31,7 +31,9 @@
 
 typedef struct{
   assoc_rb_tree_t tree; // key: uint16_t xapp_id | value: sctp_info_t  
-  pthread_mutex_t mtx;
+  // It is read when dispatching by E2AP RIC INDICATION msgs, 
+  // while written when new subscriptions arrived 
+  pthread_rwlock_t rw;
 } map_xapps_sockaddr_t ; 
 
 void init_map_xapps_sad(map_xapps_sockaddr_t* m);
