@@ -51,5 +51,10 @@ typedef struct
   };
 } async_event_t;
 
+typedef struct{
+  async_event_t ev[64];
+  int len;
+} async_event_arr_t;
+
 #endif
 

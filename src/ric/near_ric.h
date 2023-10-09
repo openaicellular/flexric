@@ -28,6 +28,7 @@ e* For more information about the OpenAirInterface (OAI) Software Alliance:
 #include "util/alg_ds/ds/seq_container/seq_generic.h"
 #include "util/alg_ds/ds/assoc_container/assoc_generic.h"
 #include "util/alg_ds/ds/assoc_container/bimap.h"
+#include "util/alg_ds/ds/task_man/task_manager.h"
 #include "util/conf_file.h"
 #include "sm/sm_ric.h"
 #include "plugin_ric.h"
@@ -75,6 +76,10 @@ typedef struct near_ric_s
   // Pending events
   bi_map_t pending; // left: fd, right: pending_event_ric_t   
   pthread_mutex_t pend_mtx;
+
+  // Task manager/Thread pool
+  // It processes the Indication messages in parallel
+  task_manager_t man;
 
   atomic_bool server_stopped;
   atomic_bool stop_token;

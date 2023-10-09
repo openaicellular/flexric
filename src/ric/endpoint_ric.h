@@ -46,7 +46,7 @@ void e2ap_send_bytes_ric(const e2ap_ep_ric_t* ep, global_e2_node_id_t const* id,
 
 void e2ap_send_sctp_msg_ric(const e2ap_ep_ric_t* ep, sctp_msg_t* msg);
 
-void e2ap_reg_sock_addr_ric(e2ap_ep_ric_t* ric, global_e2_node_id_t* id, sctp_info_t* s);
+void e2ap_reg_sock_addr_ric(e2ap_ep_ric_t* ric, global_e2_node_id_t const* id, sctp_info_t const* s);
 
 global_e2_node_id_t* e2ap_rm_sock_addr_ric(e2ap_ep_ric_t* ric, sctp_info_t const* s);
 

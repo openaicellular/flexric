@@ -99,3 +99,10 @@ target_compile_definitions(near_ric PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION}  ${K
 
 target_compile_definitions(near_ric_test PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION} )
 target_compile_definitions(near_ric_test PRIVATE TEST_AGENT_RIC)
+
+########
+### nearRT-RIC Task Manager 
+########
+target_compile_definitions(near_ric PRIVATE TASK_MAN_NUMBER_THREADS=${NUM_THREADS_RIC})
+target_compile_definitions(near_ric_test PRIVATE TASK_MAN_NUMBER_THREADS=${NUM_THREADS_RIC})
+
