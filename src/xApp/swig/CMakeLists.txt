@@ -231,6 +231,8 @@ if(XAPP_GO_SWIG)
   # This variable will hold the paths to all the Go binaries
   set(GO_BINARIES "")
 
+
+
   # Gather all Go _main.go files in examples/xApp/go directory recursively
   file(GLOB_RECURSE GO_MAIN_FILES RELATIVE ${CMAKE_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/examples/xApp/go/*/*_main.go")
 
@@ -265,6 +267,8 @@ if(XAPP_GO_SWIG)
     # Add the path to the Go binary to the list of binaries
     list(APPEND GO_BINARIES "${CMAKE_BINARY_DIR}/${GO_APP_DIR}/${PREFIXED_EXECUTABLE_NAME}")
   endforeach()
+
+  set(GO_BINARIES "${GO_BINARIES}" CACHE INTERNAL "List of Go binaries")
 
   #Comment this line to build it from the directory
   ADD_DEPENDENCIES(xapp_sdk_go e42_xapp_shared)

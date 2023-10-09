@@ -430,11 +430,18 @@ if(XAPP_PYTHON_ML)
 endif()
 
 if (XAPP_GO_SWIG)
-  install(PROGRAMS
-          ${CMAKE_BINARY_DIR}/examples/xApp/go/helloworld/go_helloworld
-          ${CMAKE_BINARY_DIR}/examples/xApp/go/slice/go_xapp_slice_moni_ctrl
+  install(PROGRAMS ${GO_BINARIES}
           DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif ()
+
+  # Find all *.conf files recursively in the source directory
+  file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/examples/xApp/go/*.conf")
+
+  # Add these to the install command
+  install(FILES ${CONF_FILES}
+          DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+endif()
+
 
 # make uninstall
 add_custom_target("uninstall" COMMENT "Uninstall installed files")
