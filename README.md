@@ -62,7 +62,7 @@ sudo apt install libsctp-dev python3.8 cmake-curses-gui libpcre2-dev python3-dev
 sudo apt install libmysqlclient-dev mysql-server
 ```
 
-- If you are using the option in cmake `-DRAN_WITH_WS=ON`, you need to also install the following packages:
+- If you are using the option in cmake `-DPROXY_AGENT=ON`, you need to also install the following packages:
 ```bash
 sudo apt install libwebsockets-dev libjson-c-dev
 ```

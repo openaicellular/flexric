@@ -50,6 +50,7 @@ target_link_libraries(e2_conf_obj PRIVATE ${LibConfig_LIBRARY})
 
 
 if(RAN_WITH_WS)
+if(PROXY_AGENT)
     target_compile_definitions(e2_conf_obj PRIVATE PROXY_AGENT)
 endif()
 
