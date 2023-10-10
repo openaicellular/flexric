@@ -353,6 +353,8 @@ void get_xApp_DB(fr_args_t* args, config_t cfg)
       args->db_params.enable = false;
     }
 
+    if (!args->db_params.enable)
+      return;
     if (!config_setting_lookup_string(db_settings, "ip", &ip) ||
         !config_setting_lookup_string(db_settings, "dir", &dir) ||
           !config_setting_lookup_string(db_settings, "filename", &filename))
@@ -473,8 +475,11 @@ fr_args_t init_fr_args(int argc, char* argv[])
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
     // xApp_DB
     get_xApp_DB(&args, cfg);
-    printf("[LibConf]: xApp_DB enable: %d, ip: %s, dir: %s, filename: %s\n", args.db_params.enable, args.db_params.ip,
-           args.db_params.dir, args.db_params.filename);
+    if (args.db_params.enable)
+      printf("[LibConf]: xApp_DB enable: %d, ip: %s, dir: %s, filename: %s\n", args.db_params.enable, args.db_params.ip,
+             args.db_params.dir, args.db_params.filename);
+    else
+      printf("[LibConf]: xApp_DB enable: %d\n", args.db_params.enable);
 #ifdef MYSQL_XAPP
     printf("[LibConf]: xApp_DB user: %s, pass: %s\n", args.db_params.user, args.db_params.pass);
 #endif
