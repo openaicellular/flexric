@@ -452,6 +452,11 @@ if (XAPP_GO_SWIG)
   install(FILES ${CONF_FILES}
           DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
 
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/xapp_sdk.go
+          DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 endif()
 
 
