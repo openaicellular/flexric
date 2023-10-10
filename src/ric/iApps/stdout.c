@@ -103,7 +103,7 @@ void print_mac_stats(mac_ind_msg_t const* msg )
   count_mac += 1;
   aggr_tstamp_mac += now - msg->tstamp;
   if (count_mac == count_max) {
-    printf("Time diff at iApp (MAC SM) = %ld \n", now - msg->tstamp);
+    // printf("Time diff at iApp (MAC SM) = %ld \n", now - msg->tstamp);
     count_mac = 0;
     aggr_tstamp_mac = 0;
   }

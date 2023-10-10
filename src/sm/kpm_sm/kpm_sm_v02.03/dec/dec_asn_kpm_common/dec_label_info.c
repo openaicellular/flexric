@@ -12,22 +12,14 @@ label_info_lst_t kpm_dec_label_info_asn(const MeasurementLabel_t * meas_label_as
     if(meas_label_asn->noLabel != NULL){
       label_info.noLabel = calloc(1, sizeof(enum_value_e));
       assert(label_info.noLabel != NULL && "Memory exhausted");
+    //     /* specification mentions that if 'noLabel' is included, other elements in the same datastructure 
+    //     * 'LabelInfoItem_t' shall not be included.
+    //     */
       // Only ONE type supported
       *label_info.noLabel = TRUE_ENUM_VALUE;
     }
 
-    // if (meas_label_asn->noLabel == 0)
-    // {
-    //     label_info->noLabel = TRUE_ENUM_VALUE;
  
-    //     /* specification mentions that if 'noLabel' is included, other elements in the same datastructure 
-    //     * 'LabelInfoItem_t' shall not be included.
-    //     */
-
-    //     return label_info;
-    // }
-
-
     if (meas_label_asn->plmnID != NULL) {
         label_info.plmn_id = calloc(1, sizeof( e2sm_plmn_t ));  
         assert(label_info.plmn_id != NULL && "Memory exhausted");

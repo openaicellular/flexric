@@ -82,12 +82,8 @@ void init_map_ric_id(map_ric_id_t* map)
 {
   assert(map != NULL);
 
-  pthread_mutexattr_t *mtx_attr = NULL;
-#ifdef DEBUG
-  *mtx_attr = PTHREAD_MUTEX_ERRORCHECK; 
-#endif
-
-  int rc = pthread_mutex_init(&map->mtx, mtx_attr);
+  pthread_rwlockattr_t attr = {0};
+  int rc = pthread_rwlock_init(&map->rw, &attr);
   assert(rc == 0);
 
   size_t key_sz_1 = sizeof(e2_node_ric_req_t);
@@ -100,8 +96,12 @@ void free_map_ric_id(map_ric_id_t* map)
 {
   assert(map != NULL);
 
-  int rc = pthread_mutex_destroy(&map->mtx);
+ // int rc = pthread_mutex_destroy(&map->mtx);
+ // assert(rc == 0);
+
+  int const rc = pthread_rwlock_destroy(&map->rw);
   assert(rc == 0);
+
 
   bi_map_free(&map->bimap);
 //  assoc_free(&map->tree);
@@ -133,8 +133,9 @@ void add_map_ric_id(map_ric_id_t* map, e2_node_ric_req_t* node, xapp_ric_id_t* x
   assert(node != NULL);
   assert(x != NULL);
 
-  // The lock must be already acquired
-//  lock_guard(&map->mtx);
+  // WARNING: The lock must be already acquired when calling this function
+  //int rc = pthread_rwlock_wrlock(&map->rw);
+  //assert(rc == 0);
 
   assoc_rb_tree_t* left = &map->bimap.left; 
 
@@ -144,6 +145,7 @@ void add_map_ric_id(map_ric_id_t* map, e2_node_ric_req_t* node, xapp_ric_id_t* x
   assert(it == end && "ric_req_id already in the map");
 
   bi_map_insert(&map->bimap, node, sizeof(e2_node_ric_req_t), x, sizeof(xapp_ric_id_t));
+
 }
 
 void rm_map_ric_id(map_ric_id_t* map, e2_node_ric_req_t* node)
@@ -151,12 +153,16 @@ void rm_map_ric_id(map_ric_id_t* map, e2_node_ric_req_t* node)
   assert(map != NULL);
   assert(node != NULL);
 
-  lock_guard(&map->mtx);
+  int rc = pthread_rwlock_wrlock(&map->rw);
+  assert(rc == 0);
 
   xapp_ric_id_t* id = bi_map_extract_left(&map->bimap, node, sizeof( e2_node_ric_req_t )); //  &ric_req_id, sizeof(uint16_t));
 //  xapp_ric_id_t* id = assoc_extract(&map->tree ,&ric_req_id);
 
   free(id);
+
+  rc = pthread_rwlock_unlock(&map->rw);
+  assert(rc == 0);
 }
 
 xapp_ric_id_t find_xapp_map_ric_id(map_ric_id_t* map, uint16_t ric_req_id)
@@ -164,7 +170,9 @@ xapp_ric_id_t find_xapp_map_ric_id(map_ric_id_t* map, uint16_t ric_req_id)
   assert(map != NULL);
   assert(ric_req_id > 0 );
 
-  lock_guard(&map->mtx);
+  //lock_guard(&map->mtx);
+  int rc = pthread_rwlock_rdlock(&map->rw);
+  assert(rc == 0);
 
   assoc_rb_tree_t* left = &map->bimap.left; 
 
@@ -177,15 +185,20 @@ xapp_ric_id_t find_xapp_map_ric_id(map_ric_id_t* map, uint16_t ric_req_id)
   it = find_if(left , it, end, &dummy_node, eq_e2_node_ric_req );
   assert(it != end && "Not found RIC Request ID");
 
-  xapp_ric_id_t* id = assoc_value(left, it);
-  return *id;
+  xapp_ric_id_t const id = *(xapp_ric_id_t*)assoc_value(left, it);
+
+  rc = pthread_rwlock_unlock(&map->rw);
+  assert(rc == 0);
+
+  return id;
 }
 
 e2_node_ric_req_t find_ric_req_map_ric_id(map_ric_id_t* map, xapp_ric_id_t* x)
 {
   assert(map != NULL);
 
-  lock_guard(&map->mtx);
+  int rc = pthread_rwlock_rdlock(&map->rw);
+  assert(rc == 0);
 
   assoc_rb_tree_t* r = &map->bimap.right; 
 
@@ -194,7 +207,11 @@ e2_node_ric_req_t find_ric_req_map_ric_id(map_ric_id_t* map, xapp_ric_id_t* x)
   it = find_if(r , it, end, x , eq_xapp_ric_gen_id_wrapper);
   assert(it != end && "Not found xApp RIC ID ");
 
-  e2_node_ric_req_t* id = assoc_value(r, it);
-  return *id;
+  e2_node_ric_req_t const id = *(e2_node_ric_req_t*)assoc_value(r, it);
+
+  rc = pthread_rwlock_unlock(&map->rw);
+  assert(rc == 0);
+
+  return id;
 }
 

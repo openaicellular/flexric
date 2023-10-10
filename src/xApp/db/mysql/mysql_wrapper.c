@@ -47,7 +47,7 @@ void create_mac_ue_table(MYSQL* conn)
     mysql_finish_with_error(conn);
   if(mysql_query(conn, "CREATE TABLE MAC_UE("
                        "tstamp BIGINT CHECK(tstamp > 0),"
-                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                        "e2node_mcc INT,"
                        "e2node_mnc INT,"
                        "e2node_mnc_digit_len INT,"
@@ -108,7 +108,7 @@ void create_rlc_bearer_table(MYSQL* conn)
     mysql_finish_with_error(conn);
   char* sql_rlc = "CREATE TABLE RLC_bearer("
                   "tstamp BIGINT CHECK(tstamp > 0),"
-                  "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                  "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                   "e2node_mcc INT,"
                   "e2node_mnc INT,"
                   "e2node_mnc_digit_len INT,"
@@ -166,7 +166,7 @@ void create_pdcp_bearer_table(MYSQL* conn)
     mysql_finish_with_error(conn);
   char* sql_pdcp = "CREATE TABLE PDCP_bearer("
                    "tstamp BIGINT CHECK(tstamp > 0),"
-                   "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                   "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                    "e2node_mcc INT,"
                    "e2node_mnc INT,"
                    "e2node_mnc_digit_len INT,"
@@ -207,7 +207,7 @@ void create_slice_table(MYSQL* conn)
     mysql_finish_with_error(conn);
   char* sql_slice = "CREATE TABLE SLICE("
                     "tstamp BIGINT CHECK(tstamp > 0),"
-                    "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                    "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                     "e2node_mcc INT,"
                     "e2node_mnc INT,"
                     "e2node_mnc_digit_len INT,"
@@ -240,7 +240,7 @@ void create_ue_slice_table(MYSQL* conn)
     mysql_finish_with_error(conn);
   char* sql_ue_slice = "CREATE TABLE UE_SLICE("
                        "tstamp BIGINT CHECK(tstamp > 0),"
-                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                        "e2node_mcc INT,"
                        "e2node_mnc INT,"
                        "e2node_mnc_digit_len INT,"
@@ -265,7 +265,7 @@ void create_gtp_table(MYSQL* conn)
     mysql_finish_with_error(conn);
   char* sql_gtp = "CREATE TABLE GTP_NGUT("
                   "tstamp BIGINT CHECK(tstamp > 0),"
-                  "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                  "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                   "e2node_mcc INT,"
                   "e2node_mnc INT,"
                   "e2node_mnc_digit_len INT,"
@@ -290,7 +290,7 @@ void create_kpm_table(MYSQL* conn)
     mysql_finish_with_error(conn);
   char* sql_kpm_meas_data = "CREATE TABLE KPM_IND_MEAS_DATA("
                             "tstamp BIGINT CHECK(tstamp > 0),"
-                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                             "e2node_mcc INT,"
                             "e2node_mnc INT,"
                             "e2node_mnc_digit_len INT,"
@@ -316,7 +316,7 @@ void create_kpm_table(MYSQL* conn)
     mysql_finish_with_error(conn);
   char* sql_kpm_meas_info_frm1 = "CREATE TABLE KPM_IND_MEAS_INFO("
                                  "tstamp BIGINT CHECK(tstamp > 0),"
-                                 "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                                 "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                                  "e2node_mcc INT,"
                                  "e2node_mnc INT,"
                                  "e2node_mnc_digit_len INT,"
@@ -366,7 +366,7 @@ void create_kpm_table(MYSQL* conn)
     mysql_finish_with_error(conn);
   char* sql_kpm_meas_data_info = "CREATE TABLE KPM_IND_MEAS_DATA_INFO("
                                  "tstamp BIGINT CHECK(tstamp > 0),"
-                                 "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                                 "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                                  "e2node_mcc INT,"
                                  "e2node_mnc INT,"
                                  "e2node_mnc_digit_len INT,"
@@ -397,7 +397,7 @@ void create_kpm_table(MYSQL* conn)
     mysql_finish_with_error(conn);
   char* sql_kpm_ue_id_e2sm = "CREATE TABLE KPM_IND_UE_ID_E2SM("
                              "tstamp BIGINT CHECK(tstamp > 0),"
-                             "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                             "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
                              "e2node_mcc INT,"
                              "e2node_mnc INT,"
                              "e2node_mnc_digit_len INT,"

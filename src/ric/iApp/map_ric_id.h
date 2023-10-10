@@ -39,8 +39,7 @@ typedef struct
 
   bi_map_t bimap; // left: key:   e2_node_ric_req_t | value: xapp_ric_id_t
                   // right: key:  xapp_ric_id_t | value: e2_node_ric_req_t  
-
-  pthread_mutex_t mtx;
+  pthread_rwlock_t rw;
 } map_ric_id_t;
 
 

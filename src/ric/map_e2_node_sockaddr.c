@@ -106,8 +106,10 @@ void add_map_e2_node_sad(map_e2_node_sockaddr_t* m, global_e2_node_id_t const* i
   it = find_if(right, it, end, id, eq_sctp_info_wrapper);
   assert(it == end && "SCTP info already registered in the tree");
 #endif
-  
-  bi_map_insert(&m->map, id, sizeof(global_e2_node_id_t), s, sizeof(sctp_info_t));
+
+  // Need a copy as global_e2_node_id_t may have allocated memory in the heap that will be freed by caller 
+  global_e2_node_id_t id_cp = cp_global_e2_node_id(id); 
+  bi_map_insert(&m->map, &id_cp, sizeof(global_e2_node_id_t), s, sizeof(sctp_info_t));
 }
 
 sctp_info_t* rm_map_e2_node_sad(map_e2_node_sockaddr_t* m, global_e2_node_id_t* id)

@@ -15,7 +15,7 @@ if (UNIT_TEST)
 endif()
 
 
-add_library(e2ap_ds_obj OBJECT 
+add_library(e2ap_ds_obj OBJECT
                         byte_array.c 
                         alg_ds/ds/seq_container/seq_arr.c
                         alg_ds/ds/seq_container/seq_ring.c
@@ -24,6 +24,7 @@ add_library(e2ap_ds_obj OBJECT
                         alg_ds/ds/assoc_container/assoc_reg.c
                         alg_ds/ds/tsn_queue/tsn_queue.c
                         alg_ds/ds/tsq/tsq.c
+                        alg_ds/ds/task_man/task_manager.c
                         )
 
 add_library(e2ap_alg_obj OBJECT 

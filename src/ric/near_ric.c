@@ -132,12 +132,10 @@ void load_default_pub_sub_ric(near_ric_t* ric)
   void* end_it = assoc_end(&ric->plugin.sm_ds);
   while(it != end_it){
     const uint16_t *ran_func_id = assoc_key(&ric->plugin.sm_ds, it);
-#if 0
-    // for MWC 2023 we remove log.txt in this quick way
+#ifdef STDOUT_LOG
     subs_ric_t std_listener = {.name = "stdout listener", .fp = notify_stdout_listener };
     register_listeners_for_ran_func_id(ric, ran_func_id, std_listener);
 #endif
-
     subs_ric_t redis_listener = {.name = "redis listener", .fp = notify_redis_listener };
     register_listeners_for_ran_func_id(ric, ran_func_id, redis_listener);
 
@@ -246,6 +244,10 @@ near_ric_t* init_near_ric(fr_args_t const* args)
 
   near_ric_if_t ric_if = {.type = ric};
   init_iapp_api(args->ip, args->e42_port, ric_if);
+
+  uint32_t const num_threads = TASK_MAN_NUMBER_THREADS;
+  printf("[NEAR-RIC]: Initializing Task Manager with %u threads \n", num_threads);
+  init_task_manager(&ric->man, num_threads);
 
   ric->req_id = 1021; // 0 could be a sign of a bug
   ric->stop_token = false;
@@ -359,34 +361,82 @@ bool pend_event(near_ric_t* ric, int fd, pending_event_t** p_ev)
 
 
 static
-async_event_t next_asio_event_ric(near_ric_t* ric)
+async_event_arr_t next_asio_event_ric(near_ric_t* ric)
 {
   assert(ric != NULL);
 
-  int const fd = event_asio_ric(&ric->io);
+  fd_read_t const fd_read = event_asio_ric(&ric->io);
+  assert(fd_read.len > -2 && fd_read.len < 65);
 
-  async_event_t e = {.type = UNKNOWN_EVENT,
-                     .fd = fd};
+  async_event_arr_t arr = {0};
 
-  if(fd == -1){ // no event happened. Just for checking the stop_token condition
-    e.type = CHECK_STOP_TOKEN_EVENT;
-  } else if (net_pkt(&ric->ep.base, fd) == true){
-
-    e.msg = e2ap_recv_msg_ric(&ric->ep);
-    if(e.msg.type == SCTP_MSG_NOTIFICATION ){
-      e.type = SCTP_CONNECTION_SHUTDOWN_EVENT;
-    } else if (e.msg.type == SCTP_MSG_PAYLOAD){
-       e.type = SCTP_MSG_ARRIVED_EVENT;
-    } else { 
-      assert(0!=0 && "Unknown type");
-    }
-
-  } else if (pend_event(ric, fd, &e.p_ev) == true){
-    e.type = PENDING_EVENT;
-  } else{
-    assert( 0!=0 && "Unknown event happened!");
+  // No event happened. Just for checking the stop_token condition
+  // Early return
+  if(fd_read.len == -1){
+    arr.ev[0].type = CHECK_STOP_TOKEN_EVENT;
+    arr.len = 1;
+    return arr;
   }
-  return e;
+
+  arr.len = fd_read.len;
+  for(int i = 0; i < arr.len; ++i){
+    async_event_t* dst = &arr.ev[i];
+    if (net_pkt(&ric->ep.base, fd_read.fd[i]) == true){
+      dst->msg = e2ap_recv_msg_ric(&ric->ep);
+      if(dst->msg.type == SCTP_MSG_NOTIFICATION ){
+        dst->type = SCTP_CONNECTION_SHUTDOWN_EVENT;
+      } else if (dst->msg.type == SCTP_MSG_PAYLOAD){
+        dst->type = SCTP_MSG_ARRIVED_EVENT;
+      } else {
+        assert(0!=0 && "Unknown type");
+      }
+    } else if (pend_event(ric,fd_read.fd[i], &dst->p_ev) == true){
+      dst->type = PENDING_EVENT;
+    } else {
+      assert( 0!=0 && "Unknown event happened!");
+    }
+  }
+
+  return arr;
+}
+
+typedef struct{
+  near_ric_t* ric;
+  sctp_msg_t msg;
+} ric_sctp_msg_t ;
+
+// This task will run in parallel
+static
+void sctp_msg_arrived_event(void* arg)
+{
+  assert(arg != NULL);
+
+  ric_sctp_msg_t* ric_ev = (ric_sctp_msg_t*)arg;
+  defer({free(ric_ev);});
+
+  near_ric_t* ric = ric_ev->ric;
+  sctp_msg_t const* sctp_msg = &ric_ev->msg;
+  defer({free_sctp_msg((sctp_msg_t*)sctp_msg);});
+
+  e2ap_msg_t const msg = e2ap_msg_dec_ric(&ric->ap, sctp_msg->ba);
+  defer({e2ap_msg_free_ric(&ric->ap, (e2ap_msg_t*)&msg); } );
+
+  if(msg.type == E2_SETUP_REQUEST){
+    global_e2_node_id_t const* id = &msg.u_msgs.e2_stp_req.id;
+    printf("Received message with id = %d, port = %d \n", id->nb_id.nb_id, sctp_msg->info.addr.sin_port);
+    e2ap_reg_sock_addr_ric(&ric->ep, id, &sctp_msg->info);
+  }
+
+  e2ap_msg_t ans = e2ap_msg_handle_ric(ric, &msg);
+  defer({e2ap_msg_free_ric(&ric->ap, &ans);});
+
+  if(ans.type != NONE_E2_MSG_TYPE){
+    sctp_msg_t sctp_msg2 = { .info = sctp_msg->info };
+    defer({free_sctp_msg(&sctp_msg2);});
+
+    sctp_msg2.ba = e2ap_msg_enc_ric(&ric->ap, &ans);
+    e2ap_send_sctp_msg_ric(&ric->ep, &sctp_msg2);
+  }
 }
 
 static
@@ -395,59 +445,47 @@ void e2_event_loop_ric(near_ric_t* ric)
   assert(ric != NULL);
   while(ric->stop_token == false){ 
 
-    async_event_t e = next_asio_event_ric(ric);
-    assert(e.type != UNKNOWN_EVENT && "Unknown event triggered ");
+    async_event_arr_t arr = next_asio_event_ric(ric);
+    assert(arr.len > 0 && arr.len < 65);
+    for(int i = 0; i < arr.len; ++i){
+      async_event_t e = arr.ev[i];
+      assert(e.type != UNKNOWN_EVENT && "Unknown event triggered ");
 
     switch(e.type)
     {
-      case SCTP_MSG_ARRIVED_EVENT:
+        case SCTP_MSG_ARRIVED_EVENT:
         {
-          defer({free_sctp_msg(&e.msg);});
+          ric_sctp_msg_t* ric_sctp = calloc(1, sizeof( ric_sctp_msg_t));
+          assert(ric_sctp != NULL && "Memory exhausted");
+          ric_sctp->ric = ric;
+          // Pass ownership
+          ric_sctp->msg = e.msg;
+          task_t t = {.args = ric_sctp, .func = sctp_msg_arrived_event};
+          // Execute tasks in parallel
+          async_task_manager(&ric->man, t);
+          break;
+        }
+        case PENDING_EVENT:
+          {
+            printf("Pending event timeout happened. Communication with E2 Node lost?\n");
+            consume_fd(e.fd);
 
-          e2ap_msg_t msg = e2ap_msg_dec_ric(&ric->ap, e.msg.ba); 
-          defer({e2ap_msg_free_ric(&ric->ap, &msg); } );
-
-          if(msg.type == E2_SETUP_REQUEST){
-            global_e2_node_id_t* id = &msg.u_msgs.e2_stp_req.id;
-            printf("Received message with id = %d, port = %d \n", id->nb_id.nb_id, e.msg.info.addr.sin_port);
-            e2ap_reg_sock_addr_ric(&ric->ep, id, &e.msg.info);
+            break;
+          }
+        case SCTP_CONNECTION_SHUTDOWN_EVENT:
+          {
+            defer({free_sctp_msg(&e.msg);});
+            notification_handle_ric(ric, &e.msg);
+            break;
+          }
+        case CHECK_STOP_TOKEN_EVENT:
+          {
+            break;
           }
 
-          e2ap_msg_t ans = e2ap_msg_handle_ric(ric, &msg);
-          defer({ e2ap_msg_free_ric(&ric->ap, &ans); } );
-
-          if(ans.type != NONE_E2_MSG_TYPE){
-
-            sctp_msg_t sctp_msg = { .info = e.msg.info }; 
-
-            sctp_msg.ba = e2ap_msg_enc_ric(&ric->ap, &ans); 
-            defer({free_sctp_msg(&sctp_msg); } );
-
-            e2ap_send_sctp_msg_ric(&ric->ep, &sctp_msg);
-          }
-
-          break;
-        }
-      case PENDING_EVENT:
-        {
-          printf("Pending event timeout happened. Communication with E2 Node lost? Event n.%d\n", *e.p_ev);
-          consume_fd(e.fd);
-
-          break;
-        }
-      case SCTP_CONNECTION_SHUTDOWN_EVENT: 
-        {
-          defer({free_sctp_msg(&e.msg);});
-          notification_handle_ric(ric, &e.msg);
-          break;
-        }
-      case CHECK_STOP_TOKEN_EVENT:
-        {
-          break;
-        }
-
-      default:
-        assert(0!=0 && "Unknown event happened");
+        default:
+          assert(0!=0 && "Unknown event happened");
+      }
     }
   }
   ric->server_stopped = true; 
@@ -477,6 +515,9 @@ void free_near_ric(near_ric_t* ric)
     sleep(1);
   }
 
+  void (*clean)(void*) = NULL;
+  free_task_manager(&ric->man, clean);
+
   e2ap_free_ep_ric(&ric->ep);
 
   free_plugin_ric(&ric->plugin); 
@@ -494,6 +535,8 @@ void free_near_ric(near_ric_t* ric)
   bi_map_free(&ric->pending);
 
   stop_iapp_api();
+
+
 
   free(ric);
 }

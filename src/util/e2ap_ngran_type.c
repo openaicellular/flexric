@@ -17,6 +17,8 @@ char* get_e2ap_ngran_name(e2ap_ngran_node_t ran_type)
     case e2ap_ngran_eNB_DU: return "ngran_eNB_DU";
     case e2ap_ngran_gNB_DU: return "ngran_gNB_DU";
     case e2ap_ngran_eNB_MBMS_STA: return "ngran_eNB_MBMS_STA";
+    case e2ap_ngran_gNB_CUCP: return "ngran_gNB_CUCP";
+    case e2ap_ngran_gNB_CUUP: return "ngran_gNB_CUUP";
     default: return NULL;
   }
 }

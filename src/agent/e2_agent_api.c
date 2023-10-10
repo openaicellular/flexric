@@ -53,7 +53,9 @@ global_e2_node_id_t init_ge2ni(e2ap_ngran_node_t ran_type, e2ap_plmn_t plmn, int
 {
   global_e2_node_id_t ge2ni =  {.type = ran_type, .plmn = plmn, .nb_id.nb_id = nb_id, .nb_id.unused = 0, .cu_du_id = NULL};
 
-  if (E2AP_NODE_IS_CU(ran_type) || E2AP_NODE_IS_DU(ran_type)) {
+  // NODE_IS_CU is an abuse, but there is no way in the standard to differentitate
+  // between NODE_IS_GNB and NODE_IS_CU. Blame the standard
+  if (E2AP_NODE_IS_CU(ran_type) || E2AP_NODE_IS_CUUP(ran_type) || E2AP_NODE_IS_DU(ran_type)) {
     assert(cu_du_id > 0);
     ge2ni.cu_du_id = calloc(1, sizeof(uint64_t));
     assert(ge2ni.cu_du_id != NULL && "memory exhausted");

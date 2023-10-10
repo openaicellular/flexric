@@ -162,14 +162,15 @@ sctp_msg_t e2ap_recv_sctp_msg(e2ap_ep_t* ep)
 
   from.ba.len = 32*1024;
   from.ba.buf = malloc(32*1024);
-
   assert(from.ba.buf != NULL && "Memory exhausted");
 
   socklen_t len = sizeof(from.info.addr);
   int msg_flags = 0;
 
   lock_guard(&((e2ap_ep_t*)ep)->mtx);
-  int const rc = sctp_recvmsg(ep->fd, from.ba.buf, from.ba.len, (struct sockaddr*)&from.info.addr, &len, &from.info.sri, &msg_flags);
+  int const rc = sctp_recvmsg(ep->fd, from.ba.buf, from.ba.len,
+                              (struct sockaddr *)&from.info.addr, &len,
+                              &from.info.sri, &msg_flags);
   assert(rc > -1 && rc != 0 && rc < (int)from.ba.len);
 
   if(msg_flags & MSG_NOTIFICATION){

@@ -125,6 +125,13 @@ if(Clang_Tidy)
 endif()
 
 ########
+### NUM_THREADS 
+########
+set(NUM_THREADS_RIC "2" CACHE STRING "Number of threads in the RIC's task manager")
+
+
+
+########
 ### xApp 
 ########
 
