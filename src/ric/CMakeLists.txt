@@ -23,6 +23,8 @@ endif()
     #)
 #endif()
 
+SET(STDOUT_LOG OFF)
+
 set(RIC_SRC 
             e2ap_ric.c
             e2_node.c
@@ -66,6 +68,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
 
             )
   target_link_libraries(near_ric -lconfig)
+  target_compile_definitions(near_ric PRIVATE ${STDOUT_LOG})
 
   add_library(near_ric_test 
             ${RIC_BLD_LIB}# STATIC or SHARED
@@ -74,6 +77,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             )
   target_link_libraries(near_ric_test -lconfig)
+  target_compile_definitions(near_ric_test PRIVATE ${STDOUT_LOG})
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
   add_library(near_ric 

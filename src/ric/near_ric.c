@@ -132,10 +132,10 @@ void load_default_pub_sub_ric(near_ric_t* ric)
   void* end_it = assoc_end(&ric->plugin.sm_ds);
   while(it != end_it){
     const uint16_t *ran_func_id = assoc_key(&ric->plugin.sm_ds, it);
-
+#ifdef STDOUT_LOG
     subs_ric_t std_listener = {.name = "stdout listener", .fp = notify_stdout_listener };
     register_listeners_for_ran_func_id(ric, ran_func_id, std_listener);
-
+#endif
     subs_ric_t redis_listener = {.name = "redis listener", .fp = notify_redis_listener };
     register_listeners_for_ran_func_id(ric, ran_func_id, redis_listener);
 
