@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #define FR_CONF_FILE_LEN 128
 #define MAX_NUM_CUST_SM 6
-#define MAX_NUM_ORAN_SM 2
+#define MAX_NUM_ORAN_SM 8 // consider diff ran type
 
 typedef struct {
     char* name;
@@ -16,6 +16,7 @@ typedef struct {
     char* name;
     int32_t time;
     int32_t format;
+    char* ran_type;
     int32_t act_len;
     char** actions;
 } sub_oran_sm_t;

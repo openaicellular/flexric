@@ -378,6 +378,9 @@ int main(int argc, char *argv[])
         // TODO: implement e2ap_ngran_eNB
         if (n->id.type == e2ap_ngran_eNB)
           continue;
+        if (strcasecmp(args.sub_oran_sm[j].ran_type, get_e2ap_ngran_name(n->id.type)))
+          continue;
+
         kpm_handle[n_handle] = report_sm_xapp_api(&nodes.n[i].id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
         assert(kpm_handle[n_handle].success == true);
         n_handle += 1;
@@ -388,7 +391,7 @@ int main(int argc, char *argv[])
 
   }
 
-  sleep(5);
+  sleep(10);
 
 
   for(int i = 0; i < n_handle; ++i){

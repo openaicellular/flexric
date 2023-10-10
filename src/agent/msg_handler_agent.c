@@ -220,8 +220,6 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
     assert(0!=0 && "Unknown subscritpion timer value");
   }
 
-  printf("[E2-AGENT]: RIC_SUBSCRIPTION_REQUEST rx\n");
-
   uint8_t const ric_act_id = sr->action[0].id;
   e2ap_msg_t ans = {.type = RIC_SUBSCRIPTION_RESPONSE, 
                     .u_msgs.ric_sub_resp = generate_subscription_response(&sr->ric_id, ric_act_id) };

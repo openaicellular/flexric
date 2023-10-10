@@ -418,7 +418,8 @@ void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* 
     // TODO: implement e2ap_ngran_eNB
     if (n->id.type == e2ap_ngran_eNB)
       continue;
-
+    if (strcasecmp(args.sub_oran_sm[i].ran_type, get_e2ap_ngran_name(n->id.type)))
+      continue;
     printf("xApp subscribes RAN Func ID %d in E2 node idx %ld\n", sm_id, n_idx);
     handle[c_handle] = report_sm_xapp_api(&n->id, sm_id, &kpm_sub, sm_cb_all);
     assert(handle[c_handle].success == true);

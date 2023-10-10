@@ -287,12 +287,14 @@ void get_Sub_SM_List(fr_args_t* args, config_t cfg)
       const char* name;
       int32_t time;
       int32_t format;
+      const char* ran_type;
       config_setting_t *actions_arr = config_setting_get_member(sub_sm_item, "actions");
 
       if (!config_setting_lookup_string(sub_sm_item, "name", &name) ||
           !config_setting_lookup_int(sub_sm_item, "time", &time) ||
           !config_setting_lookup_int(sub_sm_item, "format", &format) ||
-          actions_arr == NULL)
+          actions_arr == NULL ||
+          !config_setting_lookup_string(sub_sm_item, "ran_type", &ran_type))
         assert(0!=0 && "cannnot find name and time in Sub_ORAN_SM_List in .conf");
 
       args->sub_oran_sm[i].name = malloc(strlen(name) + 1);
@@ -301,10 +303,12 @@ void get_Sub_SM_List(fr_args_t* args, config_t cfg)
 //      printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args->sub_oran_sm[i].name, args->sub_oran_sm[i].time);
 
       args->sub_oran_sm[i].format = format;
+      args->sub_oran_sm[i].ran_type = malloc(strlen(ran_type) + 1);
+      strcpy(args->sub_oran_sm[i].ran_type, ran_type);
       int act_count = config_setting_length(actions_arr);
-      args->sub_oran_sm[i].act_len = act_count + 1;
+      args->sub_oran_sm[i].act_len = act_count + 1; // for C xApp, save the latest value as NULL
       args->sub_oran_sm[i].actions = malloc(args->sub_oran_sm[i].act_len * sizeof(char*));
-//      printf("[LibConf]: format %d, actions = ", format);
+      // printf("[LibConf]: ran type %s, format %d\n", args->sub_oran_sm[i].ran_type, format);
       for (int j = 0; j < args->sub_oran_sm[i].act_len; ++j) {
         if (j == act_count) {
           args->sub_oran_sm[i].actions[j] = NULL;
@@ -461,9 +465,9 @@ fr_args_t init_fr_args(int argc, char* argv[])
       printf("[LibConf]: Sub_CUST_SM Name: %s, Time: %s\n", args.sub_cust_sm[i].name, args.sub_cust_sm[i].time);
     for (int32_t i = 0; i < args.sub_oran_sm_len; i++) {
       printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args.sub_oran_sm[i].name, args.sub_oran_sm[i].time);
-      printf("[LibConf]: format %d, actions = ", args.sub_oran_sm[i].format);
+      printf("[LibConf]: format %d, RAN type %s, actions = ", args.sub_oran_sm[i].format,  args.sub_oran_sm[i].ran_type);
       for (int32_t j = 0; j < args.sub_oran_sm[i].act_len - 1; j++)
-        printf("%s, ", args.sub_oran_sm[i].actions[j]);
+        printf("%s ", args.sub_oran_sm[i].actions[j]);
       printf("\n");
     }
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
@@ -519,6 +523,7 @@ void free_fr_args(fr_args_t* args)
   }
   for (int32_t i = 0; i < args->sub_oran_sm_len; i++) {
     free(args->sub_oran_sm[i].name);
+    free(args->sub_oran_sm[i].ran_type);
     for (int32_t j = 0; j < args->sub_oran_sm[i].act_len; j++)
       free(args->sub_oran_sm[i].actions[j]);
   }
