@@ -382,7 +382,7 @@ enable_testing()
 # Install Near real-time RIC
 ###
 if (NEAR_RIC)
-  install(TARGETS nearRT-RIC DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS nearRT-RIC DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/ric)
 endif ()
 
 ###
@@ -390,9 +390,9 @@ endif ()
 ###
 
 if (EMU_AGENT)
-  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/e2agent)
   if (PROXY_AGENT)
-    install(TARGETS proxy_agent_ws DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(TARGETS proxy_agent_ws DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/e2agent)
   endif()
 endif ()
 
@@ -402,14 +402,14 @@ endif ()
 ###
 if (XAPP_C)
   # hw
-  install(TARGETS xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   # monitor
   install(TARGETS xapp_all_moni
       xapp_cust_moni
       xapp_oran_moni
-      DESTINATION ${CMAKE_INSTALL_BINDIR})
+      DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   # slice ctrl
-  install(TARGETS xapp_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS xapp_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
 endif ()
 
 
@@ -442,8 +442,13 @@ if(XAPP_PYTHON_ML)
 endif()
 
 if (XAPP_GO_SWIG)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/xapp_sdk.go
+          DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/go)
+
   install(PROGRAMS ${GO_BINARIES}
-          DESTINATION ${CMAKE_INSTALL_BINDIR})
+          DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/go)
 
   # Find all *.conf files recursively in the source directory
   file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/examples/xApp/go/*.conf")
@@ -451,11 +456,6 @@ if (XAPP_GO_SWIG)
   # Add these to the install command
   install(FILES ${CONF_FILES}
           DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
-
-  install(FILES
-          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
-          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/xapp_sdk.go
-          DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()
 
