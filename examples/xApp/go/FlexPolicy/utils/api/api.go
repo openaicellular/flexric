@@ -41,7 +41,7 @@ var FinishChannel chan bool
 //
 // ------------------------------------------------------------------------ //
 // TODO: add a parameter for evaluating that the received policy is the desired based on the xApp logic
-func OpenA1Apis(policyEnforceCallback policy.PolicyEnforcementCallback, a1IP string, a1Port int) {
+func OpenA1Apis(policyEnforceCallback policy.PolicyEnforcementCallback, a1IP string, a1Port string) {
 
 	// Create the channel for receiving the finish command
 	FinishChannel = make(chan bool)
@@ -98,7 +98,7 @@ func OpenA1Apis(policyEnforceCallback policy.PolicyEnforcementCallback, a1IP str
 
 	// ----------------------- Gin Server ----------------------- //
 	Srv = &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", a1IP, a1Port),
+		Addr:    fmt.Sprintf("%s:%s", a1IP, a1Port),
 		Handler: Router,
 	}
 
