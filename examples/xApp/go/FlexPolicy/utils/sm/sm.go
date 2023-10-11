@@ -5,6 +5,7 @@ import (
 	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
 	mac "build/examples/xApp/go/FlexPolicy/utils/sm/mac"
 	"fmt"
+	"time"
 )
 
 // Service Model subscription
@@ -23,7 +24,7 @@ func SmSubscription(custSm xapp.SwigSubCustSmVector, oranSm xapp.SwigSubOranSmVe
     globalOranSm = oranSm
 
 	
-	for i:=0 ; i <= int(E2Nodes.Size()-1); i++ {
+	for i:=0 ; i < int(E2Nodes.Size()); i++ {
 
 		// Custom SMs
         for j := 0; j < int(custSm.Size()); j++ {
@@ -38,6 +39,8 @@ func SmSubscription(custSm xapp.SwigSubCustSmVector, oranSm xapp.SwigSubOranSmVe
                 HndlrMac := xapp.Report_mac_sm(E2Nodes.Get(int(i)).GetId(), tti, callbackMac)
                 // Append values to the slice
 				MacSmHandlers = append(MacSmHandlers, HndlrMac)
+
+				time.Sleep(1 * time.Second)
             } else if smName == "RLC" {
                 // TODO: //------------------------ RLC Indication ----------------------- //
                 // innerRlc := RLCCallback{}
@@ -60,10 +63,12 @@ func SmSubscription(custSm xapp.SwigSubCustSmVector, oranSm xapp.SwigSubOranSmVe
 				// ----------------------- Slice Indication ----------------------- //
 				innerSlice := slice.SLICECallback{}
 				callbackSlice := xapp.NewDirectorSlice_cb(innerSlice)
-				HndlrSlice := xapp.Report_slice_sm(E2Nodes.Get(int(i)).GetId(), xapp.Interval_ms_10, callbackSlice)
+				HndlrSlice := xapp.Report_slice_sm(E2Nodes.Get(int(i)).GetId(), tti, callbackSlice)
 
 				// Append values to the slice
 				SliceSmHandlers = append(SliceSmHandlers, HndlrSlice)
+
+				time.Sleep(1 * time.Second)
 			} else {
                 fmt.Printf("not yet implemented function to send subscription for %s\n", smName)
             }
