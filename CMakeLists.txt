@@ -442,10 +442,10 @@ if(XAPP_PYTHON_ML)
 endif()
 
 if (XAPP_GO_SWIG)
+
   install(FILES
           ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
-          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/xapp_sdk.go
-          DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/go)
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}) # no need to put libxapp_sdk.go
 
   install(PROGRAMS ${GO_BINARIES}
           DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/go)
