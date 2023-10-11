@@ -23,6 +23,8 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <iostream>
+#include <map>
+#include <libconfig.h++>
 
 static
 bool initialized = false;
@@ -78,6 +80,75 @@ uint64_t convert_period_to_uint(Interval  inter_arg)
 
 }
 
+swig_fr_args_t global_swig_args;
+
+std::vector<swig_sub_cust_sm_t> get_cust_sm_conf()
+{
+  std::vector<swig_sub_cust_sm_t> ret;
+  for (int i = 0; i < global_swig_args.sub_cust_sm_len; i++) {
+    swig_sub_cust_sm_t tmp;
+    tmp.name = global_swig_args.sub_cust_sm[i].name;
+    tmp.time = global_swig_args.sub_cust_sm[i].time;
+    ret.push_back(tmp);
+  }
+  return ret;
+}
+
+std::vector<swig_sub_oran_sm_t> get_oran_sm_conf()
+{
+  std::vector<swig_sub_oran_sm_t> ret;
+  for (int i = 0; i < global_swig_args.sub_oran_sm_len; i++) {
+    swig_sub_oran_sm_t tmp;
+    tmp.name = global_swig_args.sub_oran_sm[i].name;
+    tmp.time = global_swig_args.sub_oran_sm[i].time;
+    tmp.format = global_swig_args.sub_oran_sm[i].format;
+    tmp.ran_type = global_swig_args.sub_oran_sm[i].ran_type;
+    tmp.act_len = global_swig_args.sub_oran_sm[i].act_len;
+    for (int j = 0; j < tmp.act_len; j++) {
+      tmp.actions.push_back(global_swig_args.sub_oran_sm[i].actions[j]);
+    }
+//    printf("[SWIG]: getting action definition from the saving configuration:\n");
+//    for (int32_t j = 0; j < tmp.act_len; ++j) {
+//      std::cout << tmp.actions[j] << std::endl;
+//    }
+    ret.push_back(tmp);
+  }
+  return ret;
+}
+
+std::map<std::string, std::string> get_conf(std::string sectionName)
+{
+  std::map<std::string, std::string> configMap;
+
+  libconfig::Config config;
+  try {
+    config.readFile(global_swig_args.conf_file.c_str());
+    const libconfig::Setting& root = config.getRoot();
+
+    if (!root.exists(sectionName.c_str())) {
+      std::cerr << "Error: Section '" << sectionName << "' not found in the configuration file." << std::endl;
+      return configMap;
+    }
+
+    const libconfig::Setting& section = root[sectionName.c_str()];
+    for (int i = 0; i < section.getLength(); ++i) {
+      const libconfig::Setting& setting = section[i];
+      std::string key = setting.getName();
+      std::string value;
+      section.lookupValue(key.c_str(), value);
+      configMap[key] = value;
+      // std::cout << key << ": " << value << std::endl;
+    }
+
+  } catch (const libconfig::FileIOException& e) {
+    std::cerr << "Error reading the configuration file: " << e.what() << std::endl;
+  } catch (const libconfig::ParseException& e) {
+    std::cerr << "Error parsing the configuration file at line " << e.getLine() << ": " << e.getError() << std::endl;
+  }
+
+  return configMap;
+}
+
 void init(std::vector<std::string>& argv)
 {
   assert(initialized == false && "Already initialized!");
@@ -102,30 +173,30 @@ void init(std::vector<std::string>& argv)
 
   fr_args_t args = init_fr_args(argv.size(), c_argv);
 //  swig_fr_args_t swig_args;
-//  swig_args.ip = args.ip;
-//  swig_args.e42_port = args.e42_port;
-//  swig_args.conf_file = args.conf_file;
-//  swig_args.libs_dir = args.libs_dir;
-//  swig_args.sub_cust_sm_len = args.sub_cust_sm_len;
-//  for (int32_t i = 0; i < swig_args.sub_cust_sm_len; ++i) {
-//    swig_args.sub_cust_sm[i].name = args.sub_cust_sm[i].name;
-//    swig_args.sub_cust_sm[i].time = args.sub_cust_sm[i].time;
-//  }
-//  swig_args.sub_oran_sm_len = args.sub_oran_sm_len;
-//  for (int32_t i = 0; i < swig_args.sub_oran_sm_len; ++i) {
-//    swig_args.sub_oran_sm[i].name = args.sub_oran_sm[i].name;
-//    swig_args.sub_oran_sm[i].time = args.sub_oran_sm[i].time;
-//    swig_args.sub_oran_sm[i].format = args.sub_oran_sm[i].format;
-//    swig_args.sub_oran_sm[i].act_len = args.sub_oran_sm[i].act_len;
-//    for (int32_t j = 0; j < swig_args.sub_oran_sm[i].act_len; ++j) {
-//      if (args.sub_oran_sm[i].actions[j])
-//        swig_args.sub_oran_sm[i].actions.push_back(args.sub_oran_sm[i].actions[j]);
+  global_swig_args.ip = args.ip;
+  global_swig_args.e42_port = args.e42_port;
+  global_swig_args.conf_file = args.conf_file;
+  global_swig_args.libs_dir = args.libs_dir;
+  global_swig_args.sub_cust_sm_len = args.sub_cust_sm_len;
+  for (int32_t i = 0; i < global_swig_args.sub_cust_sm_len; ++i) {
+    global_swig_args.sub_cust_sm[i].name = args.sub_cust_sm[i].name;
+    global_swig_args.sub_cust_sm[i].time = args.sub_cust_sm[i].time;
+  }
+  global_swig_args.sub_oran_sm_len = args.sub_oran_sm_len;
+  for (int32_t i = 0; i < global_swig_args.sub_oran_sm_len; ++i) {
+    global_swig_args.sub_oran_sm[i].name = args.sub_oran_sm[i].name;
+    global_swig_args.sub_oran_sm[i].time = args.sub_oran_sm[i].time;
+    global_swig_args.sub_oran_sm[i].format = args.sub_oran_sm[i].format;
+    global_swig_args.sub_oran_sm[i].ran_type = args.sub_oran_sm[i].ran_type;
+    global_swig_args.sub_oran_sm[i].act_len = args.sub_oran_sm[i].act_len - 1;
+    for (int32_t j = 0; j < global_swig_args.sub_oran_sm[i].act_len; ++j) {
+      global_swig_args.sub_oran_sm[i].actions.push_back(args.sub_oran_sm[i].actions[j]);
+    }
+//    printf("[SWIG]: generating action definition from the list of required measurement data:\n");
+//    for (int32_t j = 0; j < global_swig_args.sub_oran_sm[i].act_len; ++j) {
+//      std::cout << global_swig_args.sub_oran_sm[i].actions[j] << std::endl;
 //    }
-////    printf("[SWIG]: generating action definition from the list of required measurement data:\n");
-////    for (int32_t j = 0; j < swig_args.sub_oran_sm[i].act_len; ++j) {
-////      std::cout << swig_args.sub_oran_sm[i].actions[j] << std::endl;
-////    }
-//  }
+  }
 
   // Deallocate memory for the char** array
   for (size_t i = 0; i < argv.size(); ++i) {

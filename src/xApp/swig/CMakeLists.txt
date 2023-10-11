@@ -18,6 +18,10 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 #SET(CMAKE_SWIG_FLAGS "")
 #SET(CMAKE BUILD TYPE Debug)
 
+# libconf
+find_path(LibConfig_INCLUDE_DIR libconfig.h++)
+find_library(LibConfig_LIBRARY NAMES config++)
+
 # mysql db
 if(XAPP_DB STREQUAL "MYSQL_XAPP")
   link_directories(${LIBMYSQLCLIENT_LIBRARY_DIRS})
@@ -131,6 +135,8 @@ if(XAPP_PYTHON_SWIG)
   TARGET_COMPILE_DEFINITIONS(xapp_sdk PRIVATE XAPP_LANG_PYTHON ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
   SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION} ${KPM_VERSION})
   SWIG_LINK_LIBRARIES(xapp_sdk ${PYTHON_LIBRARIES})
+  SWIG_LINK_LIBRARIES(xapp_sdk ${LibConfig_LIBRARY})
+
   # xapp_sdk
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/_xapp_sdk.so")
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/xapp_sdk.py")
@@ -167,6 +173,7 @@ if(XAPP_PYTHON_SWIG)
 
   target_include_directories(xapp_sdk PRIVATE
       $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_INCLUDE_DIRS}>)
+  target_include_directories(xapp_sdk PRIVATE ${LibConfig_INCLUDE_DIR})
 
   SWIG_LINK_LIBRARIES(xapp_sdk
       e42_xapp_shared
@@ -204,6 +211,7 @@ if(XAPP_GO_SWIG)
 
   # Copy the necessary files to the build directory
   SWIG_LINK_LIBRARIES(xapp_sdk_go ${GO_LIBRARIES})
+  SWIG_LINK_LIBRARIES(xapp_sdk_go ${LibConfig_LIBRARY})
 
   # Copy go.mod, xapp_sdk.go and libxapp_sdk.so to the build directory
   # These 3 files are necessary to build the xApp
@@ -275,6 +283,7 @@ if(XAPP_GO_SWIG)
 
   target_include_directories(xapp_sdk_go PRIVATE
       $<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_INCLUDE_DIRS}>)
+  target_include_directories(xapp_sdk_go PRIVATE ${LibConfig_INCLUDE_DIR})
 
   SWIG_LINK_LIBRARIES(xapp_sdk_go
       e42_xapp_shared
