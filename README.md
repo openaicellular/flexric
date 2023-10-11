@@ -52,7 +52,7 @@ https://bit.ly/3uOXuCV
 
 - **Install common dependencies in Ubuntu:  (at least python3.8)**
   ```bash
-  sudo apt install libsctp-dev python3 cmake-curses-gui python3-dev pkg-config libconfig-dev
+  sudo apt install libsctp-dev python3 cmake-curses-gui python3-dev pkg-config libconfig-dev libconfig++-dev
   ```
 
 - **Install MySQL as a storage for xApps:**
