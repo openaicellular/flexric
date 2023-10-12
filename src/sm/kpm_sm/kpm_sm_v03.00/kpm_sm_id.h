@@ -26,7 +26,7 @@
  * Service Model ID (SM_KPM_ID) is needed for the agent as well as for the ric to ensure that they match. 
  * ID number chosen checking the already used one and adding one number. cfr. the other SMs in this package.
  */
-static const uint16_t SM_KPM_ID = 2; 
+static const uint16_t SM_KPM_ID = 1; 
 
 static const uint16_t SM_KPM_REV = 3; 
 
