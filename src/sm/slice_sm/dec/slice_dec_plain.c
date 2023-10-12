@@ -44,18 +44,18 @@ slice_ind_hdr_t slice_dec_ind_hdr_plain(size_t len, uint8_t const ind_hdr[len])
   return ret;
 }
 
-static
-uint8_t* end;
-
-static 
-uint8_t* begin;
-
-
-static
-bool it_within_layout(uint8_t const* it)
-{
-  return it >= begin && it < end;  
-}
+//static
+//uint8_t* end;
+//
+//static
+//uint8_t* begin;
+//
+//
+//static
+//bool it_within_layout(uint8_t const* it)
+//{
+//  return it >= begin && it < end;
+//}
 
 
 static inline
@@ -63,7 +63,7 @@ size_t fill_static(static_slice_t* sta, uint8_t const* it)
 {
   assert(it != NULL);
   assert(sta != NULL);
-  assert(it_within_layout(it) == true);
+//  assert(it_within_layout(it) == true);
 
   memcpy(&sta->pos_high, it, sizeof(sta->pos_high));
   it += sizeof(sta->pos_high);
@@ -383,16 +383,21 @@ slice_ind_msg_t slice_dec_ind_msg_plain(size_t len, uint8_t const ind_msg[len])
   slice_ind_msg_t ind = {0};
 
   uint8_t const* it = ind_msg;
-  begin = (uint8_t*)it;
-  end = begin + len;
-  size_t sz = fill_slice_conf(&ind.slice_conf, it);
-  it += sz;
+//  begin = (uint8_t*)it;
+//  end = begin + len;
+  size_t const sz_slice_conf = fill_slice_conf(&ind.slice_conf, it);
+  it += sz_slice_conf;
+  assert(it >= ind_msg && it < ind_msg + len && "iterator out of memory chunk");
 
-  sz = fill_ue_slice_conf(&ind.ue_slice_conf, it);
-  it += sz;
+  size_t const sz_ue_slice_conf = fill_ue_slice_conf(&ind.ue_slice_conf, it);
+  it += sz_ue_slice_conf;
+  assert(it >= ind_msg && it < ind_msg + len && "iterator out of memory chunk");
+
 
   memcpy(&ind.tstamp, it, sizeof(ind.tstamp));
-  it += sizeof(ind.tstamp);
+  size_t const sz_tstamp = sizeof(ind.tstamp);
+  it += sz_tstamp;
+  assert(len == sz_slice_conf + sz_ue_slice_conf + sz_tstamp);
 
   assert(ind_msg + len == it && "Data layout mismacth");
 
@@ -456,11 +461,13 @@ size_t fill_del_slice(del_slice_conf_t* conf, uint8_t const* it)
 
 slice_ctrl_msg_t slice_dec_ctrl_msg_plain(size_t len, uint8_t const ctrl_msg[len])
 {
-  slice_ctrl_msg_t ctrl = {0}; 
-  
+  slice_ctrl_msg_t ctrl = {0};
+  assert(len >0);
+  assert(ctrl_msg != NULL);
+
   uint8_t const* it = ctrl_msg; 
-  begin = (uint8_t*)ctrl_msg;
-  end = (uint8_t*)ctrl_msg + len;
+//  begin = (uint8_t*)ctrl_msg;
+//  end = (uint8_t*)ctrl_msg + len;
 
   memcpy(&ctrl.type, it, sizeof(ctrl.type));
   it += sizeof(ctrl.type);
