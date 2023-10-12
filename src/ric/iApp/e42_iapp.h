@@ -82,7 +82,7 @@ typedef struct e42_iapp_s
   atomic_bool stopped;
 } e42_iapp_t;
 
-e42_iapp_t* init_e42_iapp(const char* addr, near_ric_if_t ric_if); //, int port);
+e42_iapp_t* init_e42_iapp(const char* addr, int port, near_ric_if_t ric_if); //, int port);
 
 // Blocking call
 void start_e42_iapp(e42_iapp_t* iapp);

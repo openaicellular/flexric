@@ -8,26 +8,25 @@ static const enum lws_log_levels  default_log_level = LLL_USER | LLL_ERR | LLL_W
 bool ws_initconf(struct proxy_conf_t * conf, int argc, char *argv[])
 {
   conf->e2args = init_fr_args(argc, argv);
+  defer({ free_fr_args(&conf->e2args); });
   conf->retry_count = 0;
 
   conf->io_ran_conf.port = default_host_port;
   conf->io_ran_conf.logl = default_log_level;
 
-  char* amr_ip = get_conf_ran_ip(&conf->e2args);
-  if (amr_ip){
-    strncpy(conf->io_ran_conf.address, amr_ip, strlen(amr_ip));
-    printf("[E2 Agent]: get amr-ran ip %s from conf file %s\n", amr_ip, conf->e2args.conf_file);
-    free(amr_ip);
+  if (conf->e2args.proxy_ran_args.ip){
+    strncpy(conf->io_ran_conf.address, conf->e2args.proxy_ran_args.ip, strlen(conf->e2args.proxy_ran_args.ip));
+    printf("[E2-Proxy-Agent]: get amr-ran ip %s from conf file %s\n", conf->e2args.proxy_ran_args.ip, conf->e2args.conf_file);
   }
-  int retval;
-  if ((retval = get_conf_ran_port(&conf->e2args)) != -1){
-    printf("[E2 Agent]: got RAN port %d from conf file %s\n", retval, conf->e2args.conf_file);
-    conf->io_ran_conf.port = retval;
+
+  if (conf->e2args.proxy_ran_args.port != -1){
+    printf("[E2-Proxy-Agent]: got RAN port %d from conf file %s\n", conf->e2args.proxy_ran_args.port, conf->e2args.conf_file);
+    conf->io_ran_conf.port = conf->e2args.proxy_ran_args.port;
   }
   
-  if ((retval = get_conf_ran_logl(&conf->e2args)) != -1) {
-    printf("[E2 Agent]: got RAN log levels %d from conf file %s\n", retval, conf->e2args.conf_file);
-    conf->io_ran_conf.logl = get_conf_ran_logl(&conf->e2args);
+  if (conf->e2args.proxy_ran_args.logl != -1) {
+    printf("[E2-Proxy-Agent]: got RAN log levels %d from conf file %s\n", conf->e2args.proxy_ran_args.logl, conf->e2args.conf_file);
+    conf->io_ran_conf.logl = conf->e2args.proxy_ran_args.logl;
   }
   
   char *envar = getenv("WS_RAN_HOST");

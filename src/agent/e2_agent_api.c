@@ -53,7 +53,9 @@ global_e2_node_id_t init_ge2ni(e2ap_ngran_node_t ran_type, e2ap_plmn_t plmn, int
 {
   global_e2_node_id_t ge2ni =  {.type = ran_type, .plmn = plmn, .nb_id.nb_id = nb_id, .nb_id.unused = 0, .cu_du_id = NULL};
 
-  if (E2AP_NODE_IS_CU(ran_type) || E2AP_NODE_IS_DU(ran_type)) {
+  // NODE_IS_CU is an abuse, but there is no way in the standard to differentitate
+  // between NODE_IS_GNB and NODE_IS_CU. Blame the standard
+  if (E2AP_NODE_IS_CU(ran_type) || E2AP_NODE_IS_CUUP(ran_type) || E2AP_NODE_IS_DU(ran_type)) {
     assert(cu_du_id > 0);
     ge2ni.cu_du_id = calloc(1, sizeof(uint64_t));
     assert(ge2ni.cu_du_id != NULL && "memory exhausted");
@@ -84,16 +86,12 @@ void init_agent_api(int mcc,
   assert(nb_id > 0);
   assert(ran_type >= 0);
 
-  char* server_ip_str = get_near_ric_ip(args);
-
   const e2ap_plmn_t plmn = {.mcc = mcc, .mnc = mnc, .mnc_digit_len = mnc_digit_len};
   global_e2_node_id_t ge2ni = init_ge2ni(ran_type, plmn, nb_id, cu_du_id );
 
-  const int e2ap_server_port = 36421;
-
   char* ran_type_str = get_e2ap_ngran_name(ran_type);
   char str[128] = {0};
-  int it = sprintf(str, "[E2 AGENT]: nearRT-RIC IP Address = %s, PORT = %d, RAN type = %s, nb_id = %d", server_ip_str, e2ap_server_port, ran_type_str, nb_id);
+  int it = sprintf(str, "[E2 AGENT]: nearRT-RIC IP Address = %s, PORT = %d, RAN type = %s, nb_id = %d", args->ip, args->e2_port, ran_type_str, nb_id);
   assert(it > 0);
   if(ge2ni.cu_du_id != NULL){
     it = sprintf(str+it, ", cu_du_id = %ld\n", *ge2ni.cu_du_id);
@@ -105,12 +103,11 @@ void init_agent_api(int mcc,
   assert(it < 128);
   puts(str);
 
-  agent = e2_init_agent(server_ip_str, e2ap_server_port, ge2ni, io, args->libs_dir);
+  agent = e2_init_agent(args->ip, args->e2_port, ge2ni, io, args->libs_dir);
 
   // Spawn a new thread for the agent
   const int rc = pthread_create(&thrd_agent, NULL, static_start_agent, NULL);
   assert(rc == 0);
-  free(server_ip_str);
 }
 
 void stop_agent_api(void)

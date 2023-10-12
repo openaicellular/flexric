@@ -38,7 +38,7 @@ int64_t time_now_us(void)
 }
 
 
-e42_iapp_t* init_e42_iapp(const char* addr, near_ric_if_t ric_if)
+e42_iapp_t* init_e42_iapp(const char* addr, int port, near_ric_if_t ric_if)
 {
   assert(addr != NULL);
 //  assert(ric != NULL);
@@ -53,7 +53,6 @@ e42_iapp_t* init_e42_iapp(const char* addr, near_ric_if_t ric_if)
   // Emulator
   start_near_ric_iapp_gen(iapp->ric_if.type);
 
-  uint32_t const port = 36422;
   printf("[iApp]: nearRT-RIC IP Address = %s, PORT = %d\n", addr, port);
   e2ap_init_ep_iapp(&iapp->ep, addr, port);
 

@@ -4,37 +4,60 @@
 #include <stdint.h>
 #include <stdbool.h>
 #define FR_CONF_FILE_LEN 128
+#define MAX_NUM_CUST_SM 6
+#define MAX_NUM_ORAN_SM 8 // consider diff ran type
 
 typedef struct {
-  // Option 1: directly pass IP argument 
-  const char *ip;
+    char* name;
+    char* time;
+} sub_cust_sm_t;
 
-  // Option 2: read from file
+typedef struct {
+    char* name;
+    int32_t time;
+    int32_t format;
+    char* ran_type;
+    int32_t act_len;
+    char** actions;
+} sub_oran_sm_t;
+
+typedef struct{
+    bool enable;
+    char* ip;
+    char* dir;
+    char* filename;
+    char* user;
+    char* pass;
+} db_params_t;
+
+typedef struct {
+    char* ip;
+    int32_t port;
+    int32_t logl;
+} proxy_ran_args_t;
+
+typedef struct {
+  char *name;
+  char *ip;
+  int32_t e2_port;
+  int32_t e42_port;
+
   char conf_file[FR_CONF_FILE_LEN];
   char libs_dir[FR_CONF_FILE_LEN];
+
+  int32_t sub_cust_sm_len;
+  sub_cust_sm_t sub_cust_sm[MAX_NUM_CUST_SM];
+  int32_t sub_oran_sm_len;
+  sub_oran_sm_t sub_oran_sm[MAX_NUM_ORAN_SM];
+
+  db_params_t db_params;
+
+  proxy_ran_args_t proxy_ran_args;
 } fr_args_t;
 
 fr_args_t init_fr_args(int argc, char* argv[]);
 
-char* get_near_ric_ip(fr_args_t const*);
-
-char* get_conf_db_dir(fr_args_t const*);
-
-char* get_conf_db_name(fr_args_t const*);
-
-char* get_conf_db_user(fr_args_t const*);
-
-char* get_conf_db_pass(fr_args_t const*);
-
-bool get_conf_db_enable(fr_args_t const*);
-
-char* get_conf_db_ip(fr_args_t const*);
-
-char* get_conf_ran_ip(fr_args_t const*);
-
-int get_conf_ran_port(fr_args_t const* args);
-
-int get_conf_ran_logl(fr_args_t const* args);
+void free_fr_args(fr_args_t* args);
 
 #endif
 

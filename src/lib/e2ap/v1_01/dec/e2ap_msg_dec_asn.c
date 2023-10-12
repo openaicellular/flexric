@@ -370,7 +370,7 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
   E42RICsubscriptionRequest_IEs_t* node_src = out->protocolIEs.list.array[1];
 
   global_e2_node_id_t* id = &e42_sr->id;
-  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
   assert(node_src->id == ProtocolIE_ID_id_GlobalE2node_ID);
   assert(node_src->criticality == Criticality_reject);
   assert(node_src->value.present == E42RICsubscriptionRequest_IEs__value_PR_GlobalE2node_ID);
@@ -385,6 +385,9 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
+      // This is an abuse but the standard does not define how to
+      // differentiate between ngran_gNB_CU and ngran_gNB
+      // id->type = e2ap_ngran_gNB_CUUP;
       id->type = e2ap_ngran_gNB_CU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id  != NULL && "memory exhausted");
@@ -995,7 +998,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
   E42RICcontrolRequest_IEs_t* node_src = out->protocolIEs.list.array[1];
 
   global_e2_node_id_t* id = &e42_ctrl->id;
-  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
   assert(node_src->id == ProtocolIE_ID_id_GlobalE2node_ID);
   assert(node_src->criticality == Criticality_reject);
   assert(node_src->value.present == E42RICcontrolRequest_IEs__value_PR_GlobalE2node_ID);
@@ -1010,6 +1013,9 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     id->nb_id= cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
+      // This is an abuse but the standard does not define how to
+      // differentiate between ngran_gNB_CU and ngran_gNB
+      // id->type = e2ap_ngran_gNB_CUUP;
       id->type = e2ap_ngran_gNB_CU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
@@ -1303,7 +1309,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
 
   E2setupRequestIEs_t* setup_rid = out->protocolIEs.list.array[0];
 
-  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
   assert(setup_rid->id == ProtocolIE_ID_id_GlobalE2node_ID);
   assert(setup_rid->criticality == Criticality_reject);
   assert(setup_rid->value.present == E2setupRequestIEs__value_PR_GlobalE2node_ID);
@@ -1318,6 +1324,9 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     sr->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
+      // This is an abuse but the standard does not define how to
+      // differentiate between ngran_gNB_CU and ngran_gNB
+      // sr->id.type = e2ap_ngran_gNB_CUUP;
       sr->id.type = e2ap_ngran_gNB_CU;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
@@ -2155,7 +2164,7 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
     E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
 
     e2_node_connected_t* dst = &sr->nodes[i];
-    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
     assert(src->id == ProtocolIE_ID_id_GlobalE2node_ID);
     assert(src->criticality == Criticality_reject);
     assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
@@ -2170,6 +2179,9 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
       if (e2gnb->gNB_CU_UP_ID) {
+        // This is an abuse but the standard does not define how to
+        // differentiate between ngran_gNB_CU and ngran_gNB
+        // dst->id.type = e2ap_ngran_gNB_CUUP;
         dst->id.type = e2ap_ngran_gNB_CU;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
@@ -2314,7 +2326,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
     E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
 
     e2_node_connected_t* dst = &sr->nodes[i];
-    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
     assert(src->id == ProtocolIE_ID_id_GlobalE2node_ID);
     assert(src->criticality == Criticality_reject);
     assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
@@ -2329,7 +2341,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
       if (e2gnb->gNB_CU_UP_ID) {
-        dst->id.type = e2ap_ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CU; //e2ap_ngran_gNB_CUUP;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);

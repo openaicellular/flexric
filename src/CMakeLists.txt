@@ -1,6 +1,6 @@
 if (EMU_AGENT)
     add_subdirectory(agent)
-    if (RAN_WITH_WS)
+    if (PROXY_AGENT)
         add_subdirectory(proxy-agent)
     endif()
 endif()

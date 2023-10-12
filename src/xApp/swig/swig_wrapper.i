@@ -4,6 +4,7 @@
 %include "std_vector.i"
 %include "carrays.i"
 %include <typemaps.i>
+%include <std_map.i>
 
 %{
   #include "swig_wrapper.h"
@@ -238,6 +239,9 @@ func SlToStrVec(slice []string) (_swig_ret StringVector) {
 %feature("director") kpm_cb;
 
 namespace std {
+  %template(StringMap) std::map<std::string, std::string>;
+  %template(SwigSubOranSmVector) vector<swig_sub_oran_sm_t>;
+  %template(SwigSubCustSmVector) vector<swig_sub_cust_sm_t>;
   %template(IntVector) vector<int>;
   %template(E2NodeVector) vector<E2Node>;
   %template(RANVector) vector<RanFunction>;

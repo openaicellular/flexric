@@ -242,6 +242,7 @@ sm_ag_if_wr_t fill_slice_sm_ctrl_req(uint16_t ran_func_id, slice_ctrl_msg_e type
 int main(int argc, char *argv[])
 {
   fr_args_t args = init_fr_args(argc, argv);
+  defer({ free_fr_args(&args); });
 
   //Init the xApp
   init_xapp_api(&args);

@@ -22,29 +22,22 @@ func (c KPMCallback) Handle(ind xapp.Swig_kpm_ind_data_t) {
 	}
 }
 
-// need to remove this
-func RanNametoInt(value string) int {
-	switch value {
-	case "ngran_eNB":
-		return 0
-	case "ngran_ng_eNB":
-		return 1
-	case "ngran_gNB":
-		return 2
-	case "ngran_eNB_CU":
-		return 3
-	case "ngran_ng_eNB_CU":
-		return 4
-	case "ngran_gNB_CU":
-		return 5
-	case "ngran_eNB_DU":
-		return 6
-	case "ngran_gNB_DU":
-		return 7
-	case "ngran_eNB_MBMS_STA":
-		return 8
-	}
-	return -1
+func get_oran_tti(smTime int) xapp.Interval {
+	if smTime == 1 {
+	    return xapp.Interval_ms_1
+    } else if smTime == 2 {
+        return xapp.Interval_ms_2
+    } else if smTime == 5 {
+        return xapp.Interval_ms_5
+    } else if smTime == 10 {
+        return xapp.Interval_ms_10
+    } else if smTime == 100 {
+        return xapp.Interval_ms_100
+    } else if smTime == 1000 {
+        return xapp.Interval_ms_1000
+    } else {
+        panic("Unknown sm time\n")
+    }
 }
 
 // ------------------------------------------------------------------------ //
@@ -54,6 +47,14 @@ func RanNametoInt(value string) int {
 // ------------------------------------------------------------------------ //
 func main() {
 	xapp.Init(xapp.SlToStrVec(os.Args))
+	// Get custom conf section, ex: "xAPP_A1"
+// 	a1 := xapp.Get_conf("xApp_A1")
+//     a1ip := a1.Get("ip")
+//     a1port := a1.Get("port")
+//     a1policy := a1.Get("policy")
+//     fmt.Printf("A1: IP %s, PORT %s, POLICY %s\n", a1ip, a1port, a1policy)
+    // Get oran sm
+    oran_sm := xapp.Get_oran_sm_conf()
 
 	var nodes xapp.E2NodeVector = xapp.Conn_e2_nodes()
 	if nodes.Size() <= 0 {
@@ -65,29 +66,37 @@ func main() {
     n_handle := 0;
     for i := int64(0); i < nodes.Size(); i++ {
         e2Node := nodes.Get(int(i))
-        var ranTypeName string = xapp.Get_e2ap_ngran_name(e2Node.GetId().GetXtype()) //this need to be fixed
-        var ranTypeNameInt int = RanNametoInt(ranTypeName);
-        var actionSlice []string
-        inner := KPMCallback{}
-        callback := xapp.NewDirectorKpm_cb(inner)
-        if xapp.E2ap_ngran_gNB == ranTypeNameInt {
-            actionSlice = []string{"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"}
-        } else if xapp.E2ap_ngran_gNB_CU == ranTypeNameInt {
-            actionSlice = []string{"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"}
-        } else if xapp.E2ap_ngran_gNB_DU == ranTypeNameInt {
-            actionSlice = []string{"DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"}
-        } else if xapp.E2ap_ngran_eNB == ranTypeNameInt {
-            fmt.Printf("not yet implemented eNB\n") //TODO
-        } else {
-    	    panic("NG-RAN Type not yet implemented\n")
-        }
-
-        //TODO
-    	if xapp.E2ap_ngran_eNB != ranTypeNameInt {
-            hndlr := xapp.Report_kpm_sm(e2Node.GetId(), xapp.Interval_ms_1000, xapp.SlToStrVec(actionSlice), callback)
+        for j := 0; j < int(oran_sm.Size()); j++ {
+            smInfo := oran_sm.Get(j)
+            smName := smInfo.GetName()
+            if smName != "KPM" {
+                continue
+            }
+            smTime := smInfo.GetTime()
+            tti := get_oran_tti(smTime)
+            // format := smInfo.GetFormat()
+            ranType := smInfo.GetRan_type()
+            // actLen := smInfo.GetAct_len()
+            actions := smInfo.GetActions()
+            var actionSlice []string
+            for a := 0; a < int(actions.Size()); a++ {
+                actName := actions.Get(a)
+                actionSlice = append(actionSlice, actName)
+            }
+            // fmt.Println("Actions:", actionSlice)
+            var ranTypeName string = xapp.Get_e2ap_ngran_name(e2Node.GetId().GetXtype())
+            if ranTypeName == "ngran_eNB" {
+                continue
+            }
+            if ranTypeName != ranType {
+                continue
+            }
+            inner := KPMCallback{}
+            callback := xapp.NewDirectorKpm_cb(inner)
+            hndlr := xapp.Report_kpm_sm(e2Node.GetId(), tti, xapp.SlToStrVec(actionSlice), callback)
             kpmHndlr = append(kpmHndlr, hndlr)
             n_handle += 1
-	    }
+        }
 	}
     time.Sleep(10 * time.Second)
 

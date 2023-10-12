@@ -156,7 +156,8 @@ if(E2AP_ENCODING STREQUAL "ASN")
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             $<TARGET_OBJECTS:e2_conv_obj>
             )
-          target_link_libraries(e42_xapp_shared $<TARGET_OBJECTS:e2_time_obj>)
+          target_link_libraries(e42_xapp -lconfig)
+          target_link_libraries(e42_xapp_shared $<TARGET_OBJECTS:e2_time_obj> -lconfig)
 
 	 target_compile_options(e42_xapp_shared PRIVATE "-DASN_DISABLE_OER_SUPPORT" -fPIC)
 

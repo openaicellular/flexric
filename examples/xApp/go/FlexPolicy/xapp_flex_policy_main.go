@@ -3,7 +3,6 @@ package main
 import "C"
 import (
 	xapp "build/examples/xApp/go/xapp_sdk"
-	parser "build/examples/xApp/go/FlexPolicy/utils/parser"
 	callbacks "build/examples/xApp/go/FlexPolicy/callbacks"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
 	api "build/examples/xApp/go/FlexPolicy/utils/api"
@@ -19,9 +18,16 @@ func main() {
 	xapp.Init(xapp.SlToStrVec(os.Args))
 
 	// Parse A1 parameters
-	conf := os.Args[2]
-	A1IP, A1Port, smList, policyID := parser.ParseXAppConfig(conf)
+	a1 := xapp.Get_conf("xApp_A1")
+	A1IP := a1.Get("ip")
+	A1Port := a1.Get("port")
+	policyID := a1.Get("policy")
 
+	// Get sm
+    custSm := xapp.Get_cust_sm_conf()
+	oranSm := xapp.Get_oran_sm_conf()
+	fmt.Printf("A1: IP %s, PORT %s, POLICY %s\n", A1IP, A1Port, policyID)
+	
 	// E2 Connect
 	sm.E2Nodes = xapp.Conn_e2_nodes()
 
@@ -32,9 +38,9 @@ func main() {
 	}
 
 	fmt.Printf("Connected E2 nodes = %d\n", nodes_len)
-
+ 
 	// Subscribe to the SMs
-	sm.SmSubscription(smList)
+	sm.SmSubscription(custSm, oranSm)
 
 	// find policy callback id
 	callback := callbacks.FindCallback(policyID)
@@ -45,7 +51,7 @@ func main() {
 	}
 
 	// Unsubscribe from the SMs
-	sm.SmUnsubscription(smList)
+	sm.SmUnsubscription(custSm, oranSm)
 
 	// Stop the xApp. Avoid deadlock.
 	for xapp.Try_stop() == false {

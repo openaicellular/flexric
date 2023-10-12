@@ -83,21 +83,21 @@ This folder contains all the necessary utility functions to realize the policy e
 
 3. **Execute FlexPolicy giving a conf file**
     ```bash
-    go_xapp_flex_policy -c /path/to/conf_file
+    /path/to/go_xapp_flex_policy -c /path/to/conf_file
     ```
 
     For example:
     ```bash
-    go_xapp_flex_policy -c /usr/local/bin/a1_slice_enforce.conf
+    /usr/local/bin/flexric/xApp/go/go_xapp_flex_policy -c /usr/local/etc/flexric/a1_slice_enforce.conf
     ```
 4. **Execute Non-RT RIC emulator**
     ```bash
-    go_non_rt_policy 
+    /path/to/go_non_rt_policy 
     ```
 
     For example:
     ```
-    go_non_rt_slice_enforce
+    /usr/local/bin/flexric/xApp/go/go_non_rt_slice_enforce
     ```
 
 ---

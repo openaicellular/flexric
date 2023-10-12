@@ -27,6 +27,7 @@
 
 
 #include "../../../src/agent/e2_agent_api.h"
+#include "../../../src/util/alg_ds/alg/defer.h"
 #include "read_setup_ran.h"
 #include "sm_mac.h"
 #include "sm_rlc.h"
@@ -178,6 +179,7 @@ int main(int argc, char *argv[])
   sm_io_ag_ran_t io = init_io_ag();
 
   fr_args_t args = init_fr_args(argc, argv);
+  defer({ free_fr_args(&args); });
 
   if (E2AP_NODE_IS_MONOLITHIC(ran_type))
     printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n", nb_id, mcc, mnc, mnc_digit_len, get_e2ap_ngran_name(ran_type));

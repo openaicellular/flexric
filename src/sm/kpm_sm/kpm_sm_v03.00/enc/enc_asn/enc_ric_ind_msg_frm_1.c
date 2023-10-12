@@ -22,11 +22,6 @@ E2SM_KPM_IndicationMessage_Format1_t kpm_enc_ind_msg_frm_1_asn(const kpm_ind_msg
         assert(ind_msg_asn.measInfoList != NULL && "Memory exhausted");
         *ind_msg_asn.measInfoList = kpm_enc_meas_info_asn(ind_msg->meas_info_lst, ind_msg->meas_info_lst_len);
     }
-    else
-    {
-        ind_msg_asn.measInfoList->list.count = 0;  // ask Mikel, maybe there is no need for this
-    }
-
 
     //  3. Granularity Period  -  OPTIONAL
     if (ind_msg->gran_period_ms != NULL)

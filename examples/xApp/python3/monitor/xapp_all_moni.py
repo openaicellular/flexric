@@ -277,31 +277,96 @@ def send_kpm_sub_req(id, tti, action):
     key = gen_id_key(id)
     kpm_hndlr.setdefault(key, []).append(hndlr)
 
-def send_subscription_req(nodes):
-    tti = ric.Interval_ms_1000
-
-    if nodes.id.type == ric.e2ap_ngran_gNB:
-        send_mac_sub_req(nodes.id, tti)
-        send_rlc_sub_req(nodes.id, tti)
-        send_pdcp_sub_req(nodes.id, tti)
-        action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
-        send_kpm_sub_req(nodes.id, tti, action)
-    elif nodes.id.type == ric.e2ap_ngran_gNB_CU:
-        send_pdcp_sub_req(nodes.id, tti)
-        action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"]
-        send_kpm_sub_req(nodes.id, tti, action)
-    elif nodes.id.type == ric.e2ap_ngran_gNB_DU:
-        send_mac_sub_req(nodes.id, tti)
-        send_rlc_sub_req(nodes.id, tti)
-        action = ["DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
-        send_kpm_sub_req(nodes.id, tti, action)
-    elif nodes.id.type == ric.e2ap_ngran_eNB:
-        send_mac_sub_req(nodes.id, tti)
-        send_rlc_sub_req(nodes.id, tti)
-        send_pdcp_sub_req(nodes.id, tti)
+def get_cust_tti(tti):
+    if tti == "1_ms":
+        return ric.Interval_ms_1
+    elif tti == "2_ms":
+        return ric.Interval_ms_2
+    elif tti == "5_ms":
+        return ric.Interval_ms_5
+    elif tti == "10_ms":
+        return ric.Interval_ms_10
+    elif tti == "100_ms":
+        return ric.Interval_ms_100
+    elif tti == "1000_ms":
+        return ric.Interval_ms_1000
     else:
-        print(f"NG-RAN Type {ran_type} not yet implemented\n")
+        print(f"Unknown tti {tti}")
         exit()
+
+def get_oran_tti(tti):
+    if tti == 1:
+        return ric.Interval_ms_1
+    elif tti == 2:
+        return ric.Interval_ms_2
+    elif tti == 5:
+        return ric.Interval_ms_5
+    elif tti == 10:
+        return ric.Interval_ms_10
+    elif tti == 100:
+        return ric.Interval_ms_100
+    elif tti == 1000:
+        return ric.Interval_ms_1000
+    else:
+        print(f"Unknown tti {tti}")
+        exit()
+
+def send_subscription_req(nodes, cust_sm, oran_sm):
+    for sm_info in cust_sm:
+        sm_name = sm_info.name
+        sm_time = sm_info.time
+        tti = get_cust_tti(sm_time)
+
+        if sm_name == "MAC" and (nodes.id.type == ric.e2ap_ngran_gNB or nodes.id.type == ric.e2ap_ngran_gNB_DU or nodes.id.type == ric.e2ap_ngran_eNB):
+            print(f"<<<< Subscribe to {sm_name} with time period {sm_time} >>>>")
+            send_mac_sub_req(nodes.id, tti)
+        elif sm_name == "RLC" and (nodes.id.type == ric.e2ap_ngran_gNB or nodes.id.type == ric.e2ap_ngran_gNB_DU or nodes.id.type == ric.e2ap_ngran_eNB):
+            print(f"<<<< Subscribe to {sm_name} with time period {sm_time} >>>>")
+            send_rlc_sub_req(nodes.id, tti)
+        elif sm_name == "PDCP" and (nodes.id.type == ric.e2ap_ngran_gNB or nodes.id.type == ric.e2ap_ngran_gNB_CU or nodes.id.type == ric.e2ap_ngran_eNB):
+            print(f"<<<< Subscribe to {sm_name} with time period {sm_time} >>>>")
+            send_pdcp_sub_req(nodes.id, tti)
+        else:
+            print(f"not yet implemented function to send subscription for {sm_name}")
+
+    for sm_info in oran_sm:
+        sm_name = sm_info.name
+        sm_time = sm_info.time
+        tti = get_oran_tti(sm_time)
+        sm_format = sm_info.format
+        ran_type = sm_info.ran_type
+        act_len = sm_info.act_len
+        act = []
+        for act_name in sm_info.actions:
+            act.append(act_name)
+        if nodes.id.type == ric.e2ap_ngran_eNB:
+            continue
+        if ran_type == ric.get_e2ap_ngran_name(nodes.id.type):
+            send_kpm_sub_req(nodes.id, tti, act)
+
+
+        # if nodes.id.type == ric.e2ap_ngran_gNB:
+        #     send_mac_sub_req(nodes.id, tti)
+        #     send_rlc_sub_req(nodes.id, tti)
+        #     send_pdcp_sub_req(nodes.id, tti)
+        #     action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
+        #     send_kpm_sub_req(nodes.id, tti, action)
+        # elif nodes.id.type == ric.e2ap_ngran_gNB_CU:
+        #     send_pdcp_sub_req(nodes.id, tti)
+        #     action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"]
+        #     send_kpm_sub_req(nodes.id, tti, action)
+        # elif nodes.id.type == ric.e2ap_ngran_gNB_DU:
+        #     send_mac_sub_req(nodes.id, tti)
+        #     send_rlc_sub_req(nodes.id, tti)
+        #     action = ["DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
+        #     send_kpm_sub_req(nodes.id, tti, action)
+        # elif nodes.id.type == ric.e2ap_ngran_eNB:
+        #     send_mac_sub_req(nodes.id, tti)
+        #     send_rlc_sub_req(nodes.id, tti)
+        #     send_pdcp_sub_req(nodes.id, tti)
+        # else:
+        #     print(f"NG-RAN Type {ran_type} not yet implemented\n")
+        #     exit()
 
 
 ####################
@@ -399,6 +464,11 @@ def clean_hndlr(id):
 ####################
 
 ric.init(sys.argv)
+cust_sm = ric.get_cust_sm_conf()
+# for i in range(0, len(cust_sm)):
+#     print(cust_sm[i].name, cust_sm[i].time)
+oran_sm = ric.get_oran_sm_conf()
+
 signal.signal(signal.SIGINT, sig_handler)
 
 e2nodes = 0
@@ -427,7 +497,7 @@ rlc_hndlr = {}
 pdcp_hndlr = {}
 kpm_hndlr = {}
 for i in range(0, len(conn)):
-    send_subscription_req(conn[i])
+    send_subscription_req(conn[i], cust_sm, oran_sm)
     time.sleep(1)
 
 while True:
@@ -476,7 +546,7 @@ while True:
                                 break
                         if idx >= 0:
                             clean_hndlr(conn[idx].id)
-                            send_subscription_req(conn[idx])
+                            send_subscription_req(conn[idx], cust_sm, oran_sm)
                         else:
                             print(f"Error: cannot find E2 node idx from the set")
                         break

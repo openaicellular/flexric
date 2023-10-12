@@ -11,8 +11,6 @@ sys.path.append(sdk_path)
 
 import xapp_sdk as ric
 
-exit_flag = False
-
 ####################
 #### KPM INDICATION CALLBACK
 ####################
@@ -150,12 +148,29 @@ class KPMCallback(ric.kpm_cb):
 
 
 
+def get_oran_tti(tti):
+    if tti == 1:
+        return ric.Interval_ms_1
+    elif tti == 2:
+        return ric.Interval_ms_2
+    elif tti == 5:
+        return ric.Interval_ms_5
+    elif tti == 10:
+        return ric.Interval_ms_10
+    elif tti == 100:
+        return ric.Interval_ms_100
+    elif tti == 1000:
+        return ric.Interval_ms_1000
+    else:
+        print(f"Unknown tti {tti}")
+        exit()
 
 ####################
 ####  GENERAL 
 ####################
 
 ric.init(sys.argv)
+oran_sm = ric.get_oran_sm_conf()
 
 conn = ric.conn_e2_nodes()
 assert(len(conn) > 0)
@@ -172,27 +187,27 @@ for i in range(0, len(conn)):
 
 kpm_hndlr = []
 n_hndlr = 0
-for i in range(0, len(conn)):
-    ran_type = conn[i].id.type
-
-    if ric.e2ap_ngran_gNB == ran_type:
-        action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
-    elif ric.e2ap_ngran_gNB_CU == ran_type:
-        action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"]
-    elif ric.e2ap_ngran_gNB_DU == ran_type:
-        action = ["DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
-    elif ric.e2ap_ngran_eNB == ran_type: ## TODO
-        print("not yet implemented, do not subscribe to eNB\n")
+for sm_info in oran_sm:
+    sm_name = sm_info.name
+    if sm_name != "KPM":
         continue
-    else:
-        print(f"NG-RAN Type {ran_type} not yet implemented\n")
-        exit()
-
-    kpm_cb = KPMCallback()
-    hndlr = ric.report_kpm_sm(conn[i].id, ric.Interval_ms_1000, action, kpm_cb)
-    kpm_hndlr.append(hndlr)
-    n_hndlr += 1
-    time.sleep(1)
+    sm_time = sm_info.time
+    tti = get_oran_tti(sm_time)
+    sm_format = sm_info.format
+    ran_type = sm_info.ran_type
+    act_len = sm_info.act_len
+    act = []
+    for act_name in sm_info.actions:
+        act.append(act_name)
+    for i in range(0, len(conn)):
+        if conn[i].id.type == ric.e2ap_ngran_eNB:
+            continue
+        if ran_type == ric.get_e2ap_ngran_name(conn[i].id.type):
+            kpm_cb = KPMCallback()
+            hndlr = ric.report_kpm_sm(conn[i].id, tti, act, kpm_cb)
+            kpm_hndlr.append(hndlr)
+            n_hndlr += 1
+            time.sleep(1)
 
 
 time.sleep(10)

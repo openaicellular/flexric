@@ -21,7 +21,7 @@
 
 #include "../src/ric/near_ric_api.h"
 #include "../src/agent/e2_agent_api.h"
-
+#include "../src/util/alg_ds/alg/defer.h"
 #include "../rnd/fill_rnd_data_gtp.h"                  
 #include "../rnd/fill_rnd_data_tc.h"                  
 #include "../rnd/fill_rnd_data_mac.h"                  
@@ -227,6 +227,7 @@ int main(int argc, char *argv[])
   sm_io_ag_ran_t io = init_sm_io_ag_ran();
 
   fr_args_t args = init_fr_args(argc, argv);
+  defer({ free_fr_args(&args); });
   // Parse arguments
   init_agent_api( mcc, mnc, mnc_digit_len, nb_id, cu_du_id, ran_type, io, &args);
   sleep(1);

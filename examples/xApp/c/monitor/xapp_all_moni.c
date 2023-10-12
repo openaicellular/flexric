@@ -26,6 +26,7 @@
 #include "../../../../src/sm/rlc_sm/rlc_sm_id.h"
 #include "../../../../src/sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../../../src/sm/gtp_sm/gtp_sm_id.h"
+#include "../../../../src/sm/slice_sm/slice_sm_id.h"
 #include "../../../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../../../../src/util/e2ap_ngran_types.h"
 
@@ -325,84 +326,104 @@ kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm)
 
 size_t max_handle = 256;
 size_t c_handle = 0;
-static
-void send_report_sm(global_e2_node_id_t* id,
-                    size_t n_idx,
-                    sm_ans_xapp_t* handle,
-                    uint16_t num_sm,
-                    uint16_t* sm_id_arr)
-{
-  char* tti = "10_ms";
-  size_t sm_idx = 0;
-  size_t end_c_handle = c_handle + num_sm;
-  for(size_t j = c_handle; j < end_c_handle; j++){
-    uint16_t ran_func_id = sm_id_arr[sm_idx];
-    printf("xApp subscribes RAN Func ID %d in E2 node idx %ld\n", ran_func_id, n_idx);
-    if (ran_func_id == SM_KPM_ID){
-      kpm_sub_data_t kpm_sub = {0};
-      defer({ free_kpm_sub_data(&kpm_sub); });
-
-      // KPM Event Trigger
-      uint64_t period_ms = 10;
-      kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
-
-      // KPM Action Definition
-      kpm_sub.sz_ad = 1;
-      kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
-      assert(kpm_sub.ad != NULL && "Memory exhausted");
-      const char *act[] = {"DRB.RlcSduDelayDl", "DRB.IPThpDl.QCI", "DRB.IPThpUl.QCI", NULL}; // TS 34.425 clause 4.4.6
-      format_action_def_e act_type = FORMAT_4_ACTION_DEFINITION;
-      *kpm_sub.ad = gen_act_def(act, act_type);
-
-
-      handle[j] = report_sm_xapp_api(id, ran_func_id, &kpm_sub, sm_cb_all);
-    } else {
-      handle[j] = report_sm_xapp_api(id, ran_func_id, tti, sm_cb_all);
-    }
-    assert(handle[j].success == true);
-    c_handle+=1;
-    sm_idx+=1;
-  }
-}
 
 static
-void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* handle) {
+void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* handle, fr_args_t args) {
   // send subscription request to each e2 nodes
-  if (E2AP_NODE_IS_MONOLITHIC(n[n_idx].id.type))
+  if (E2AP_NODE_IS_MONOLITHIC(n->id.type))
     printf("E2 node idx %ld info: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n",
            n_idx,
-           n[n_idx].id.nb_id.nb_id,
-           n[n_idx].id.plmn.mcc,
-           n[n_idx].id.plmn.mnc,
-           n[n_idx].id.plmn.mnc_digit_len,
-           get_e2ap_ngran_name(n[n_idx].id.type));
+           n->id.nb_id.nb_id,
+           n->id.plmn.mcc,
+           n->id.plmn.mnc,
+           n->id.plmn.mnc_digit_len,
+           get_e2ap_ngran_name(n->id.type));
   else
     printf("E2 node idx %ld info: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %lu\n",
            n_idx,
-           n[n_idx].id.nb_id.nb_id,
-           n[n_idx].id.plmn.mcc,
-           n[n_idx].id.plmn.mnc,
-           n[n_idx].id.plmn.mnc_digit_len,
-           get_e2ap_ngran_name(n[n_idx].id.type),
-           *n[n_idx].id.cu_du_id);
+           n->id.nb_id.nb_id,
+           n->id.plmn.mcc,
+           n->id.plmn.mnc,
+           n->id.plmn.mnc_digit_len,
+           get_e2ap_ngran_name(n->id.type),
+           *n->id.cu_du_id);
   for (size_t j = 0; j < n->len_rf; j++)
     printf("Registered E2 node idx %ld, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
 
-  if (n->id.type == e2ap_ngran_gNB) {
-    uint16_t num_sm = 4;
-    uint16_t sm_id_arr[4] = {SM_MAC_ID, SM_RLC_ID, SM_PDCP_ID, SM_KPM_ID};
-    send_report_sm(&n->id, n_idx, handle, num_sm, sm_id_arr);
-  } else if (n->id.type == e2ap_ngran_gNB_CU) {
-    uint16_t num_sm = 1;
-    uint16_t sm_id_arr[1] = {SM_PDCP_ID};
-    send_report_sm(&n->id, n_idx, handle, num_sm, sm_id_arr);
-  } else if (n->id.type == e2ap_ngran_gNB_DU) {
-    uint16_t num_sm = 3;
-    uint16_t sm_id_arr[3] = {SM_MAC_ID, SM_RLC_ID, SM_KPM_ID};
-    send_report_sm(&n->id, n_idx, handle, num_sm, sm_id_arr);
-  } else {
-    printf("xApp doesn't support RAN type %d, do not send the subscription request\n", n->id.type);
-    return;
+  uint16_t num_cust_sm = args.sub_cust_sm_len;
+  for (int32_t i = 0; i < num_cust_sm; i++) {
+    uint16_t sm_id;
+    bool do_sub = false;
+    if (!strcasecmp(args.sub_cust_sm[i].name, "mac")) {
+      sm_id = SM_MAC_ID;
+      if (n->id.type == e2ap_ngran_gNB || n->id.type == e2ap_ngran_gNB_DU || n->id.type == e2ap_ngran_eNB)
+        do_sub = true;
+    } else if (!strcasecmp(args.sub_cust_sm[i].name, "rlc")) {
+      sm_id = SM_RLC_ID;
+      if (n->id.type == e2ap_ngran_gNB || n->id.type == e2ap_ngran_gNB_DU || n->id.type == e2ap_ngran_eNB)
+        do_sub = true;
+    } else if (!strcasecmp(args.sub_cust_sm[i].name, "pdcp")) {
+      sm_id = SM_PDCP_ID;
+      if (n->id.type == e2ap_ngran_gNB || n->id.type == e2ap_ngran_gNB_CU || n->id.type == e2ap_ngran_eNB)
+        do_sub = true;
+    } else if (!strcasecmp(args.sub_cust_sm[i].name, "gtp")) {
+      sm_id = SM_GTP_ID;
+      if (n->id.type == e2ap_ngran_gNB)
+        do_sub = true;
+    } else if (!strcasecmp(args.sub_cust_sm[i].name, "slice")) {
+      sm_id = SM_SLICE_ID;
+      if (n->id.type == e2ap_ngran_gNB || n->id.type == e2ap_ngran_eNB)
+        do_sub = true;
+    } else {
+      assert(0!=0 && "unknown SM in .conf");
+    }
+
+    if (!do_sub)
+      continue;
+    printf("xApp subscribes RAN Func ID %d in E2 node idx %ld\n", sm_id, n_idx);
+    handle[c_handle] = report_sm_xapp_api(&n->id, sm_id, (void*)args.sub_cust_sm[i].time, sm_cb_all);
+    assert(handle[c_handle].success == true);
+    c_handle+=1;
+  }
+
+  uint16_t num_oran_sm = args.sub_oran_sm_len;
+  for (int32_t i = 0; i < num_oran_sm; i++) {
+    uint16_t sm_id;
+    if (!strcasecmp(args.sub_oran_sm[i].name, "kpm")) {
+      sm_id = SM_KPM_ID;
+    } else {
+      assert(0!=0 && "unknown SM in .conf");
+    }
+    kpm_sub_data_t kpm_sub = {0};
+    defer({ free_kpm_sub_data(&kpm_sub); });
+
+    // KPM Event Trigger
+    uint64_t period_ms = args.sub_oran_sm[i].time;
+    kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
+
+    // KPM Action Definition
+    kpm_sub.sz_ad = 1;
+    kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
+    assert(kpm_sub.ad != NULL && "Memory exhausted");
+    format_action_def_e act_type;
+    if (args.sub_oran_sm[i].format == 1)
+      act_type = FORMAT_1_ACTION_DEFINITION;
+    else if (args.sub_oran_sm[i].format == 4)
+      act_type = FORMAT_4_ACTION_DEFINITION;
+    else
+      assert(0!=0 && "not supported action definition format");
+
+    *kpm_sub.ad = gen_act_def((const char**)args.sub_oran_sm[i].actions, act_type);
+
+    // TODO: implement e2ap_ngran_eNB
+    if (n->id.type == e2ap_ngran_eNB)
+      continue;
+    if (strcasecmp(args.sub_oran_sm[i].ran_type, get_e2ap_ngran_name(n->id.type)))
+      continue;
+    printf("xApp subscribes RAN Func ID %d in E2 node idx %ld\n", sm_id, n_idx);
+    handle[c_handle] = report_sm_xapp_api(&n->id, sm_id, &kpm_sub, sm_cb_all);
+    assert(handle[c_handle].success == true);
+    c_handle+=1;
   }
 }
 
@@ -410,6 +431,7 @@ int main(int argc, char *argv[])
 {
   srand(time(0));
   fr_args_t args = init_fr_args(argc, argv);
+  defer({ free_fr_args(&args); });
 
   //Init the xApp
   init_xapp_api(&args);
@@ -442,7 +464,7 @@ int main(int argc, char *argv[])
   e2_node_arr_t nodes = e2_nodes_xapp_api();
   defer({ free_e2_node_arr(&nodes); });
   for (size_t i = 0; i < nodes.len; i++) {
-    send_subscription_req(&nodes.n[i], i, handle);
+    send_subscription_req(&nodes.n[i], i, handle, args);
   }
 
   // case2: send subscription req to the new connected e2 node
@@ -474,7 +496,7 @@ int main(int argc, char *argv[])
           }
           if (new_type || new_nb_id) {
             printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id.nb_id, get_e2ap_ngran_name(cur_nodes.n[i].id.type));
-            send_subscription_req(&cur_nodes.n[i], i, handle);
+            send_subscription_req(&cur_nodes.n[i], i, handle, args);
           }
         }
       }

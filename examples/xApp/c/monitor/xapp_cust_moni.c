@@ -26,6 +26,7 @@
 #include "../../../../src/sm/rlc_sm/rlc_sm_id.h"
 #include "../../../../src/sm/pdcp_sm/pdcp_sm_id.h"
 #include "../../../../src/sm/gtp_sm/gtp_sm_id.h"
+#include "../../../../src/sm/slice_sm/slice_sm_id.h"
 
 
 #include <stdlib.h>
@@ -84,9 +85,23 @@ void sm_cb_gtp(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
          now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
 }
 
+static
+void sm_cb_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
+{
+  assert(rd != NULL);
+  assert(rd->type ==INDICATION_MSG_AGENT_IF_ANS_V0);
+
+  assert(rd->ind.type == SLICE_STATS_V0);
+
+  int64_t now = time_now_us();
+  printf("SLICE ind_msg latency = %ld from E2-node type %d ID %d\n",
+         now - rd->ind.slice.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
+}
+
 int main(int argc, char *argv[])
 {
   fr_args_t args = init_fr_args(argc, argv);
+  defer({ free_fr_args(&args); });
 
   //Init the xApp
   init_xapp_api(&args);
@@ -99,18 +114,12 @@ int main(int argc, char *argv[])
 
   printf("Connected E2 nodes = %d\n", nodes.len);
 
-  // MAC indication
-  const char* i_mac = "5_ms";
+  //Init SM handler
   sm_ans_xapp_t* mac_handle = NULL;
-  // RLC indication
-  const char* i_rlc = "5_ms";
   sm_ans_xapp_t* rlc_handle = NULL;
-  // PDCP indication
-  const char* i_pdcp = "5_ms";
   sm_ans_xapp_t* pdcp_handle = NULL;
-  // GTP indication
-  const char* i_gtp = "5_ms";
   sm_ans_xapp_t* gtp_handle = NULL;
+  sm_ans_xapp_t* slice_handle = NULL;
 
   if(nodes.len > 0){
     mac_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) ); 
@@ -121,36 +130,71 @@ int main(int argc, char *argv[])
     assert(pdcp_handle  != NULL);
     gtp_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) );
     assert(gtp_handle  != NULL);
+    slice_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) );
+    assert(slice_handle  != NULL);
   }
 
+  //Subscribe SMs for all the E2-nodes
   for (int i = 0; i < nodes.len; i++) {
     e2_node_connected_t* n = &nodes.n[i];
     for (size_t j = 0; j < n->len_rf; j++)
       printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
 
-    mac_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_MAC_ID, (void*)i_mac, sm_cb_mac);
-    assert(mac_handle[i].success == true);
+    for (int32_t j = 0; j < args.sub_cust_sm_len; j++) {
+      if (!strcasecmp(args.sub_cust_sm[j].name, "mac")) {
+        mac_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_MAC_ID, (void*)args.sub_cust_sm[j].time, sm_cb_mac);
+        assert(mac_handle[i].success == true);
 
-    rlc_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_RLC_ID, (void*)i_rlc, sm_cb_rlc);
-    assert(rlc_handle[i].success == true);
+      } else if (!strcasecmp(args.sub_cust_sm[j].name, "rlc")) {
+        rlc_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_RLC_ID, (void*)args.sub_cust_sm[j].time, sm_cb_rlc);
+        assert(rlc_handle[i].success == true);
 
-    pdcp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_PDCP_ID, (void*)i_pdcp, sm_cb_pdcp);
-    assert(pdcp_handle[i].success == true);
+      } else if (!strcasecmp(args.sub_cust_sm[j].name, "pdcp")) {
+        pdcp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_PDCP_ID, (void*)args.sub_cust_sm[j].time, sm_cb_pdcp);
+        assert(pdcp_handle[i].success == true);
 
-    gtp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_GTP_ID, (void*)i_gtp, sm_cb_gtp);
-    assert(gtp_handle[i].success == true);
+      } else if (!strcasecmp(args.sub_cust_sm[j].name, "gtp")) {
+        gtp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_GTP_ID, (void*)args.sub_cust_sm[j].time, sm_cb_gtp);
+        assert(gtp_handle[i].success == true);
+
+      } else if (!strcasecmp(args.sub_cust_sm[j].name, "slice")) {
+        slice_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_SLICE_ID, (void*)args.sub_cust_sm[j].time, sm_cb_slice);
+        assert(slice_handle[i].success == true);
+
+      } else {
+        assert(0!=0 && "unknown SM in .conf");
+      }
+    }
+
     sleep(1);
   }
 
   sleep(10);
 
 
-  for(int i = 0; i < nodes.len; ++i){
+  for(int i = 0; i < nodes.len; ++i) {
     // Remove the handle previously returned
-    rm_report_sm_xapp_api(mac_handle[i].u.handle);
-    rm_report_sm_xapp_api(rlc_handle[i].u.handle);
-    rm_report_sm_xapp_api(pdcp_handle[i].u.handle);
-    rm_report_sm_xapp_api(gtp_handle[i].u.handle);
+    for (int32_t j = 0; j < args.sub_cust_sm_len; j++) {
+      if (!strcasecmp(args.sub_cust_sm[j].name, "mac")) {
+        rm_report_sm_xapp_api(mac_handle[i].u.handle);
+
+      } else if (!strcasecmp(args.sub_cust_sm[j].name, "rlc")) {
+        rm_report_sm_xapp_api(rlc_handle[i].u.handle);
+
+      } else if (!strcasecmp(args.sub_cust_sm[j].name, "pdcp")) {
+        rm_report_sm_xapp_api(pdcp_handle[i].u.handle);
+
+      } else if (!strcasecmp(args.sub_cust_sm[j].name, "gtp")) {
+        rm_report_sm_xapp_api(gtp_handle[i].u.handle);
+
+      } else if (!strcasecmp(args.sub_cust_sm[j].name, "slice")) {
+        rm_report_sm_xapp_api(slice_handle[i].u.handle);
+
+      } else {
+        assert(0 != 0 && "unknown SM");
+      }
+    }
+
     sleep(1);
   }
 
@@ -159,6 +203,7 @@ int main(int argc, char *argv[])
     free(rlc_handle);
     free(pdcp_handle);
     free(gtp_handle);
+    free(slice_handle);
   }
 
   //Stop the xApp

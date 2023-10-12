@@ -46,6 +46,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
             $<TARGET_OBJECTS:e2ap_ie_obj>
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             )
+  target_link_libraries(e2_agent -lconfig)
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS")
           add_library(e2_agent ${E2_AGENT_BLD_LIB} #STATIC or SHARED
@@ -67,7 +68,8 @@ if(${BUILDING_LIBRARY} STREQUAL "DYNAMIC" )
                        PUBLIC  
                        -pthread 
                        -lsctp 
-                       -ldl 
+                       -ldl
+                       -lconfig
                        ) 
 
 endif()

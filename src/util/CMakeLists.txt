@@ -15,7 +15,7 @@ if (UNIT_TEST)
 endif()
 
 
-add_library(e2ap_ds_obj OBJECT 
+add_library(e2ap_ds_obj OBJECT
                         byte_array.c 
                         alg_ds/ds/seq_container/seq_arr.c
                         alg_ds/ds/seq_container/seq_ring.c
@@ -24,6 +24,7 @@ add_library(e2ap_ds_obj OBJECT
                         alg_ds/ds/assoc_container/assoc_reg.c
                         alg_ds/ds/tsn_queue/tsn_queue.c
                         alg_ds/ds/tsq/tsq.c
+                        alg_ds/ds/task_man/task_manager.c
                         )
 
 add_library(e2ap_alg_obj OBJECT 
@@ -40,10 +41,15 @@ add_library(e2ap_alg_obj OBJECT
                         $<TARGET_OBJECTS:e2ap_ds_obj>
                         )
 
-add_library(e2_conf_obj OBJECT 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LibConfig REQUIRED libconfig)
+add_library(e2_conf_obj OBJECT
                         conf_file.c
                         )
-if(RAN_WITH_WS)
+target_include_directories(e2_conf_obj PRIVATE ${LibConfig_INCLUDE_DIR})
+target_link_libraries(e2_conf_obj PRIVATE ${LibConfig_LIBRARY})
+target_compile_definitions(e2_conf_obj PRIVATE ${XAPP_DB})
+if(PROXY_AGENT)
     target_compile_definitions(e2_conf_obj PRIVATE PROXY_AGENT)
 endif()
 

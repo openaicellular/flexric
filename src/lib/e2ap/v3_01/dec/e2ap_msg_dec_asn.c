@@ -123,37 +123,51 @@ e2ap_node_comp_id_t e2ap_dec_node_component_id(e2ap_node_comp_interface_type_e i
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeNG:
       assert(interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeNG != NULL);
+      
+      dst.type = NG_E2AP_NODE_COMP_INTERFACE_TYPE;
       dst.ng_amf_name = copy_ostring_to_ba(cid->choice.e2nodeComponentInterfaceTypeNG->amf_name);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeXn:
       assert(interface_type == XN_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeXn != NULL);
       assert(false && "interfaceTypeXn not Implemented");
+
+      dst.type = XN_E2AP_NODE_COMP_INTERFACE_TYPE; 
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeE1:
       assert(interface_type == E1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeE1 != NULL);
+
+      dst.type = E1_E2AP_NODE_COMP_INTERFACE_TYPE; 
       asn_INTEGER2ulong(&cid->choice.e2nodeComponentInterfaceTypeE1->gNB_CU_UP_ID, &dst.e1_gnb_cu_up_id);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeF1:
       assert(interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeF1 != NULL);
+
+      dst.type = F1_E2AP_NODE_COMP_INTERFACE_TYPE;
       asn_INTEGER2ulong(&cid->choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, &dst.f1_gnb_du_id);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeW1:
       assert(interface_type == W1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeW1 != NULL);
+
+      dst.type = W1_E2AP_NODE_COMP_INTERFACE_TYPE; 
       asn_INTEGER2ulong(&cid->choice.e2nodeComponentInterfaceTypeW1->ng_eNB_DU_ID, &dst.w1_ng_enb_du_id);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeS1:
       assert(interface_type == S1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeS1 != NULL);
+
+      dst.type = S1_E2AP_NODE_COMP_INTERFACE_TYPE; 
       dst.s1_mme_name = copy_ostring_to_ba(cid->choice.e2nodeComponentInterfaceTypeS1->mme_name);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeX2:
       assert(interface_type == X2_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeX2 != NULL);
       assert(false && "interfaceTypeX2 not Implemented");
+
+      dst.type = X2_E2AP_NODE_COMP_INTERFACE_TYPE; 
       break;
     default:
       assert(0!=0 && "Invalid code path");
@@ -483,6 +497,9 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
+      // This is an abuse but the standard does not define how to
+      // differentiate between ngran_gNB_CU and ngran_gNB
+      // id->type = e2ap_ngran_gNB_CUUP;
       id->type = e2ap_ngran_gNB_CU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id  != NULL && "memory exhausted");
@@ -610,6 +627,7 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
   sr->ric_id.ran_func_id = ran_func->value.choice.RANfunctionID;
 
   // RIC Action Admitted List
+  // [1-16]
   const RICsubscriptionResponse_IEs_t* act_adm_list = out->protocolIEs.list.array[2];
 
   assert(act_adm_list->id == ProtocolIE_ID_id_RICactions_Admitted);
@@ -625,7 +643,9 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
     const RICaction_Admitted_ItemIEs_t *ai = (const RICaction_Admitted_ItemIEs_t *)act_adm_list->value.choice.RICaction_Admitted_List.list.array[i];
 
     assert(ai->id == ProtocolIE_ID_id_RICaction_Admitted_Item);
-    assert(ai->criticality == Criticality_reject);
+
+    // Check ASN definition to see the ignore
+    assert(ai->criticality == Criticality_ignore);
     assert(ai->value.present == RICaction_Admitted_ItemIEs__value_PR_RICaction_Admitted_Item);
 
     ric_action_admitted_t* dst = &sr->admitted[i];
@@ -635,68 +655,71 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
   }
 
   // RIC Actions Not Admitted Lists
-  const RICsubscriptionResponse_IEs_t* act_not_adm_list = out->protocolIEs.list.array[3];
-  assert(act_not_adm_list->id == ProtocolIE_ID_id_RICactions_NotAdmitted);
-  assert(act_not_adm_list->criticality == Criticality_reject);
-  assert(act_not_adm_list->value.present == RICsubscriptionResponse_IEs__value_PR_RICaction_NotAdmitted_List);
+  // [0-16]
+  if(out->protocolIEs.list.count > 3){ 
+    const RICsubscriptionResponse_IEs_t* act_not_adm_list = out->protocolIEs.list.array[3];
+    assert(act_not_adm_list->id == ProtocolIE_ID_id_RICactions_NotAdmitted);
+    assert(act_not_adm_list->criticality == Criticality_reject);
+    assert(act_not_adm_list->value.present == RICsubscriptionResponse_IEs__value_PR_RICaction_NotAdmitted_List);
 
-  const size_t sz_not_ad = act_not_adm_list->value.choice.RICaction_NotAdmitted_List.list.count;
-  sr->not_admitted = calloc(sz_not_ad, sizeof(ric_action_not_admitted_t));
+    const size_t sz_not_ad = act_not_adm_list->value.choice.RICaction_NotAdmitted_List.list.count;
+    assert(sz_not_ad < 17);
+    sr->not_admitted = calloc(sz_not_ad, sizeof(ric_action_not_admitted_t));
 
-  for(size_t i = 0; i < sz_not_ad; ++i){
-    // RIC Action ID. Mandatory
-    const RICaction_NotAdmitted_ItemIEs_t* nai = (const RICaction_NotAdmitted_ItemIEs_t*)act_not_adm_list->value.choice.RICaction_NotAdmitted_List.list.array[i];
+    for(size_t i = 0; i < sz_not_ad; ++i){
+      // RIC Action ID. Mandatory
+      const RICaction_NotAdmitted_ItemIEs_t* nai = (const RICaction_NotAdmitted_ItemIEs_t*)act_not_adm_list->value.choice.RICaction_NotAdmitted_List.list.array[i];
 
-    assert(nai->id == ProtocolIE_ID_id_RICaction_NotAdmitted_Item);	
-    assert(nai->criticality == Criticality_reject);
-    assert(nai->value.present == RICaction_NotAdmitted_ItemIEs__value_PR_RICaction_NotAdmitted_Item);
-    ric_action_not_admitted_t* dst = &sr->not_admitted[i];  
-    const RICaction_NotAdmitted_Item_t* src = &nai->value.choice.RICaction_NotAdmitted_Item;
-    dst->ric_act_id = src->ricActionID;
-    // Cause. Mandatory 
-    switch( src->cause.present ) {
-      case Cause_PR_NOTHING:{
-                              assert(0 != 0 && "Not Implemented!");
-                              break;
-                            }
-      case Cause_PR_ricRequest: {
-                                  assert(src->cause.choice.ricRequest < 11);
-
-                                  dst->cause.ricRequest = src->cause.choice.ricRequest; 
-                                  dst->cause.present = CAUSE_RICREQUEST;
-                                  break;
-                                }
-      case Cause_PR_ricService: {
-                                  assert(src->cause.choice.ricService < 3);
-                                  dst->cause.ricService = src->cause.choice.ricService;
-                                  dst->cause.present = CAUSE_RICSERVICE;
-                                  break;
-                                }
-      case Cause_PR_transport:{
-                                assert(src->cause.choice.transport < 2);
-                                dst->cause.transport = src->cause.choice.transport;
-                                dst->cause.present = CAUSE_TRANSPORT;
+      assert(nai->id == ProtocolIE_ID_id_RICaction_NotAdmitted_Item);	
+      assert(nai->criticality == Criticality_reject);
+      assert(nai->value.present == RICaction_NotAdmitted_ItemIEs__value_PR_RICaction_NotAdmitted_Item);
+      ric_action_not_admitted_t* dst = &sr->not_admitted[i];  
+      const RICaction_NotAdmitted_Item_t* src = &nai->value.choice.RICaction_NotAdmitted_Item;
+      dst->ric_act_id = src->ricActionID;
+      // Cause. Mandatory 
+      switch( src->cause.present ) {
+        case Cause_PR_NOTHING:{
+                                assert(0 != 0 && "Not Implemented!");
                                 break;
                               }
-      case Cause_PR_protocol:{
-                               assert(src->cause.choice.protocol < 7);
-                               dst->cause.protocol = src->cause.choice.protocol;
-                               dst->cause.present = CAUSE_PROTOCOL;
-                               break;
-                             }
-      case Cause_PR_misc:{
-                           assert(src->cause.choice.misc < 4);
-                           dst->cause.misc = src->cause.choice.misc;
-                           dst->cause.present = CAUSE_MISC;
-                           break;
-                         }
-      default: {
-                 assert(0!= 0 && "Invalid code path. Error caused assigned");
-                 break;
-               }
+        case Cause_PR_ricRequest: {
+                                    assert(src->cause.choice.ricRequest < 11);
+
+                                    dst->cause.ricRequest = src->cause.choice.ricRequest; 
+                                    dst->cause.present = CAUSE_RICREQUEST;
+                                    break;
+                                  }
+        case Cause_PR_ricService: {
+                                    assert(src->cause.choice.ricService < 3);
+                                    dst->cause.ricService = src->cause.choice.ricService;
+                                    dst->cause.present = CAUSE_RICSERVICE;
+                                    break;
+                                  }
+        case Cause_PR_transport:{
+                                  assert(src->cause.choice.transport < 2);
+                                  dst->cause.transport = src->cause.choice.transport;
+                                  dst->cause.present = CAUSE_TRANSPORT;
+                                  break;
+                                }
+        case Cause_PR_protocol:{
+                                 assert(src->cause.choice.protocol < 7);
+                                 dst->cause.protocol = src->cause.choice.protocol;
+                                 dst->cause.present = CAUSE_PROTOCOL;
+                                 break;
+                               }
+        case Cause_PR_misc:{
+                             assert(src->cause.choice.misc < 4);
+                             dst->cause.misc = src->cause.choice.misc;
+                             dst->cause.present = CAUSE_MISC;
+                             break;
+                           }
+        default: {
+                   assert(0!= 0 && "Invalid code path. Error caused assigned");
+                   break;
+                 }
+      }
     }
   }
-
   return ret;
 }
 
@@ -881,7 +904,7 @@ e2ap_msg_t e2ap_dec_indication(const E2AP_PDU_t* pdu)
 
   assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
   assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_RICindication);
-  assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
+  assert(pdu->choice.initiatingMessage->criticality == Criticality_ignore);
   assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICindication); 
 
   const RICindication_t* out = &pdu->choice.initiatingMessage->value.choice.RICindication;
@@ -1098,6 +1121,9 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
    
     if (e2gnb->gNB_CU_UP_ID) {
+      // This is an abuse but the standard does not define how to
+      // differentiate between ngran_gNB_CU and ngran_gNB
+      // id->type = e2ap_ngran_gNB_CUUP;
       id->type = e2ap_ngran_gNB_CU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
@@ -1300,7 +1326,7 @@ e2ap_msg_t e2ap_dec_control_failure(const E2AP_PDU_t* pdu)
       *cf->call_process_id = copy_ostring_to_ba(cf_ie->value.choice.RICcallProcessID);
     } else if (cf_ie->id == ProtocolIE_ID_id_Cause){
       //Cause. Mandatory
-      assert(cf_ie->criticality == Criticality_reject);
+      assert(cf_ie->criticality == Criticality_ignore);
       assert(cf_ie->value.present == RICcontrolFailure_IEs__value_PR_Cause); 
       cf->cause = copy_cause(cf_ie->value.choice.Cause); 
     } else if (cf_ie->id ==  ProtocolIE_ID_id_RICcontrolOutcome){
@@ -1421,6 +1447,9 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     sr->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
+      // This is an abuse but the standard does not define how to
+      // differentiate between ngran_gNB_CU and ngran_gNB
+      // sr->id.type = e2ap_ngran_gNB_CUUP;
       sr->id.type = e2ap_ngran_gNB_CU;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
@@ -2476,6 +2505,9 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
       if (e2gnb->gNB_CU_UP_ID) {
+        // This is an abuse but the standard does not define how to
+        // differentiate between ngran_gNB_CU and ngran_gNB
+        // dst->id.type = e2ap_ngran_gNB_CUUP;
         dst->id.type = e2ap_ngran_gNB_CU;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
@@ -2616,7 +2648,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
     E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
 
     e2_node_connected_t* dst = &sr->nodes[i];
-    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CU, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
     assert(src->id == ProtocolIE_ID_id_GlobalE2node_ID);
     assert(src->criticality == Criticality_reject);
     assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
@@ -2631,7 +2663,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
       if (e2gnb->gNB_CU_UP_ID) {
-        dst->id.type = e2ap_ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CU; // e2ap_ngran_gNB_CUUP
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);

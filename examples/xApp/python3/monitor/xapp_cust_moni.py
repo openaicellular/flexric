@@ -94,28 +94,46 @@ class GTPCallback(ric.gtp_cb):
             t_diff = t_now - t_gtp
             print(f"GTP Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id.nb_id}")
 
+def get_cust_tti(tti):
+    if tti == "1_ms":
+        return ric.Interval_ms_1
+    elif tti == "2_ms":
+        return ric.Interval_ms_2
+    elif tti == "5_ms":
+        return ric.Interval_ms_5
+    elif tti == "10_ms":
+        return ric.Interval_ms_10
+    elif tti == "100_ms":
+        return ric.Interval_ms_100
+    elif tti == "1000_ms":
+        return ric.Interval_ms_1000
+    else:
+        print(f"Unknown tti {tti}")
+        exit()
+
+mac_hndlr = []
+rlc_hndlr = []
+pdcp_hndlr = []
+gtp_hndlr = []
 ####################
 ####  GENERAL 
 ####################
 if __name__ == '__main__':
 
-    file_name = "ind_output.csv"
-    file_col = ['e2node-nb-id', 'e2node-ran-type', 'SM', 'latency']
+    # file_name = "ind_output.csv"
+    # file_col = ['e2node-nb-id', 'e2node-ran-type', 'SM', 'latency']
     # if file already exists, remove it
-    if os.path.exists(file_name):
-        os.remove(file_name)
-    # create new csv file and write headers
-    with open(file_name, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(file_col)
-
-    mac_hndlr = []
-    rlc_hndlr = []
-    pdcp_hndlr = []
-    gtp_hndlr = []
+    # if os.path.exists(file_name):
+    #     os.remove(file_name)
+    # # create new csv file and write headers
+    # with open(file_name, 'w', newline='') as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(file_col)
 
     # Start
     ric.init(sys.argv)
+    cust_sm = ric.get_cust_sm_conf()
+
     conn = ric.conn_e2_nodes()
     assert(len(conn) > 0)
     for i in range(0, len(conn)):
@@ -123,24 +141,41 @@ if __name__ == '__main__':
         print("Global E2 Node [" + str(i) + "]: PLMN MNC = " + str(conn[i].id.plmn.mnc))
 
 
-    for i in range(0, len(conn)):
-        # MAC
-        mac_cb = MACCallback()
-        hndlr = ric.report_mac_sm(conn[i].id, ric.Interval_ms_1, mac_cb)
-        mac_hndlr.append(hndlr)
-        # RLC
-        rlc_cb = RLCCallback()
-        hndlr = ric.report_rlc_sm(conn[i].id, ric.Interval_ms_1, rlc_cb)
-        rlc_hndlr.append(hndlr)
-        # PDCP
-        pdcp_cb = PDCPCallback()
-        hndlr = ric.report_pdcp_sm(conn[i].id, ric.Interval_ms_1, pdcp_cb)
-        pdcp_hndlr.append(hndlr)
-        # GTP
-        gtp_cb = GTPCallback()
-        hndlr = ric.report_gtp_sm(conn[i].id, ric.Interval_ms_1, gtp_cb)
-        gtp_hndlr.append(hndlr)
-        time.sleep(1)
+    for sm_info in cust_sm:
+        sm_name = sm_info.name
+        sm_time = sm_info.time
+        tti = get_cust_tti(sm_time)
+
+        if sm_name == "MAC":
+            for i in range(0, len(conn)):
+                # MAC
+                mac_cb = MACCallback()
+                hndlr = ric.report_mac_sm(conn[i].id, tti, mac_cb)
+                mac_hndlr.append(hndlr)
+                time.sleep(1)
+        elif sm_name == "RLC":
+            for i in range(0, len(conn)):
+                # RLC
+                rlc_cb = RLCCallback()
+                hndlr = ric.report_rlc_sm(conn[i].id, tti, rlc_cb)
+                rlc_hndlr.append(hndlr)
+                time.sleep(1)
+        elif sm_name == "PDCP":
+            for i in range(0, len(conn)):
+                # PDCP
+                pdcp_cb = PDCPCallback()
+                hndlr = ric.report_pdcp_sm(conn[i].id, tti, pdcp_cb)
+                pdcp_hndlr.append(hndlr)
+                time.sleep(1)
+        elif sm_name == "GTP":
+            for i in range(0, len(conn)):
+                # GTP
+                gtp_cb = GTPCallback()
+                hndlr = ric.report_gtp_sm(conn[i].id, tti, gtp_cb)
+                gtp_hndlr.append(hndlr)
+                time.sleep(1)
+        else:
+            print(f"not yet implemented function to send subscription for {sm_name}")
 
     time.sleep(10)
 

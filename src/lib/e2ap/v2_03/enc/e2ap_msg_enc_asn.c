@@ -578,7 +578,9 @@ struct E2AP_PDU* e2ap_enc_subscription_response_asn_pdu(const ric_subscription_r
     // RIC Action ID. Mandatory
     RICaction_Admitted_ItemIEs_t *ai = calloc(1,sizeof(RICaction_Admitted_ItemIEs_t));
     ai->id = ProtocolIE_ID_id_RICaction_Admitted_Item;
-    ai->criticality = Criticality_reject;
+
+    // Check ASN definition to see the ignore
+    ai->criticality =  Criticality_ignore;
     ai->value.present = RICaction_Admitted_ItemIEs__value_PR_RICaction_Admitted_Item;
     const ric_action_admitted_t* src = &sr->admitted[i];
     ai->value.choice.RICaction_Admitted_Item.ricActionID = src->ric_act_id; 
@@ -906,7 +908,7 @@ E2AP_PDU_t* e2ap_enc_indication_asn_pdu(const ric_indication_t* ind )
   pdu->present = E2AP_PDU_PR_initiatingMessage;
   pdu->choice.initiatingMessage = calloc(1,sizeof(InitiatingMessage_t));
   pdu->choice.initiatingMessage->procedureCode = ProcedureCode_id_RICindication;
-  pdu->choice.initiatingMessage->criticality = Criticality_reject;
+  pdu->choice.initiatingMessage->criticality = Criticality_ignore;
   pdu->choice.initiatingMessage->value.present = InitiatingMessage__value_PR_RICindication; 
 
   RICindication_t* out = &pdu->choice.initiatingMessage->value.choice.RICindication;
@@ -1233,7 +1235,7 @@ E2AP_PDU_t* e2ap_enc_control_failure_asn_pdu( const ric_control_failure_t* cf)
   //Cause. Mandatory
   RICcontrolFailure_IEs_t* ric_cause = calloc(1,sizeof(RICcontrolFailure_IEs_t)); 
   ric_cause->id = ProtocolIE_ID_id_Cause; 
-  ric_cause->criticality = Criticality_reject;
+  ric_cause->criticality = Criticality_ignore;
   ric_cause->value.present = RICcontrolFailure_IEs__value_PR_Cause; 
   ric_cause->value.choice.Cause = copy_cause(cf->cause); 
   rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, ric_cause);
@@ -1454,7 +1456,7 @@ byte_array_t e2ap_enc_setup_request_asn_msg(const e2ap_msg_t* msg)
 
 E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
 {
-  assert(sr->id.type == e2ap_ngran_gNB || sr->id.type == e2ap_ngran_gNB_CU || sr->id.type == e2ap_ngran_gNB_DU || sr->id.type == e2ap_ngran_eNB);
+  assert(sr->id.type == e2ap_ngran_gNB || sr->id.type == e2ap_ngran_gNB_CUUP || sr->id.type == e2ap_ngran_gNB_CU || sr->id.type == e2ap_ngran_gNB_DU || sr->id.type == e2ap_ngran_eNB);
   assert(sr->len_rf <= (size_t)MAX_NUM_RAN_FUNC_ID);
 
   // Message Type. Mandatory
@@ -1491,7 +1493,9 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
     GlobalE2node_gNB_ID_t *e2gnb = calloc(1, sizeof(GlobalE2node_gNB_ID_t));
     assert(e2gnb != NULL && "Memory exhasued");
     e2gnb->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
-    if (sr->id.type == e2ap_ngran_gNB_CU) {
+    // This is an abuse but the standard does not define how to
+    // differentiate between ngran_gNB_CU and ngran_gNB
+    if (sr->id.type == e2ap_ngran_gNB_CU || sr->id.type == e2ap_ngran_gNB_CUUP) {
       GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
       assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
       asn_uint642INTEGER(e2gnb_cu_up_id, *sr->id.cu_du_id);
@@ -2948,14 +2952,16 @@ struct E2AP_PDU* e2ap_enc_e42_subscription_request_asn_pdu(const e42_ric_subscri
   setup_rid->id = ProtocolIE_ID_id_GlobalE2node_ID;
   setup_rid->criticality = Criticality_reject;
   setup_rid->value.present = E42RICsubscriptionRequest_IEs__value_PR_GlobalE2node_ID;
-  assert(e42_sr->id.type == e2ap_ngran_gNB || e42_sr->id.type == e2ap_ngran_gNB_CU || e42_sr->id.type == e2ap_ngran_gNB_DU || e42_sr->id.type == e2ap_ngran_eNB);
+  assert(e42_sr->id.type == e2ap_ngran_gNB || e42_sr->id.type == e2ap_ngran_gNB_CUUP || e42_sr->id.type == e2ap_ngran_gNB_CU || e42_sr->id.type == e2ap_ngran_gNB_DU || e42_sr->id.type == e2ap_ngran_eNB);
   if (e42_sr->id.type != e2ap_ngran_eNB) {
     setup_rid->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_gNB;
 
     GlobalE2node_gNB_ID_t *e2gnb = calloc(1, sizeof(GlobalE2node_gNB_ID_t));
     assert(e2gnb != NULL && "Memory exhasued");
     e2gnb->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
-    if (e42_sr->id.type == e2ap_ngran_gNB_CU) {
+    // This is an abuse but the standard does not define how to
+    // differentiate between ngran_gNB_CU and ngran_gNB
+    if (e42_sr->id.type == e2ap_ngran_gNB_CU || e42_sr->id.type == e2ap_ngran_gNB_CUUP) {
       GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
       assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
       asn_uint642INTEGER(e2gnb_cu_up_id, *e42_sr->id.cu_du_id);
@@ -3167,12 +3173,14 @@ struct E2AP_PDU* e2ap_enc_e42_setup_response_asn_pdu(const e42_setup_response_t*
     conn_item->value.present = E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID;
 
     global_e2_node_id_t const* src_id = &sr->nodes[i].id;
-    assert(src_id->type == e2ap_ngran_gNB || src_id->type == e2ap_ngran_gNB_CU || src_id->type == e2ap_ngran_gNB_DU || src_id->type == e2ap_ngran_eNB);
+    assert(src_id->type == e2ap_ngran_gNB || src_id->type == e2ap_ngran_gNB_CUUP || src_id->type == e2ap_ngran_gNB_CU || src_id->type == e2ap_ngran_gNB_DU || src_id->type == e2ap_ngran_eNB);
     if (src_id->type != e2ap_ngran_eNB) {
       GlobalE2node_gNB_ID_t *e2gnb = calloc(1, sizeof(GlobalE2node_gNB_ID_t));
       assert(e2gnb != NULL && "Memory exhasued");
       e2gnb->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
-      if (src_id->type == e2ap_ngran_gNB_CU) {
+      // This is an abuse but the standard does not define how to
+      // differentiate between ngran_gNB_CU and ngran_gNB
+      if ( src_id->type == e2ap_ngran_gNB_CU || src_id->type == e2ap_ngran_gNB_CUUP) {
         GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
         assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
         asn_uint642INTEGER(e2gnb_cu_up_id, *src_id->cu_du_id);
@@ -3361,13 +3369,15 @@ E2AP_PDU_t* e2ap_enc_e42_control_request_asn_pdu(const e42_ric_control_request_t
   setup_rid->id = ProtocolIE_ID_id_GlobalE2node_ID;
   setup_rid->criticality = Criticality_reject;
   setup_rid->value.present = E42RICcontrolRequest_IEs__value_PR_GlobalE2node_ID;
-  assert(e42_ric_req->id.type == e2ap_ngran_gNB || e42_ric_req->id.type == e2ap_ngran_gNB_CU || e42_ric_req->id.type == e2ap_ngran_gNB_DU || e42_ric_req->id.type == e2ap_ngran_eNB);
+  assert(e42_ric_req->id.type == e2ap_ngran_gNB || e42_ric_req->id.type == e2ap_ngran_gNB_CUUP || e42_ric_req->id.type == e2ap_ngran_gNB_CU || e42_ric_req->id.type == e2ap_ngran_gNB_DU || e42_ric_req->id.type == e2ap_ngran_eNB);
   if (e42_ric_req->id.type != e2ap_ngran_eNB) {
     setup_rid->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_gNB;
     GlobalE2node_gNB_ID_t *e2gnb = calloc(1, sizeof(GlobalE2node_gNB_ID_t));
     assert(e2gnb != NULL && "Memory exhasued");
     e2gnb->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
-    if (e42_ric_req->id.type == e2ap_ngran_gNB_CU) {
+    // This is an abuse but the standard does not define how to
+    // differentiate between ngran_gNB_CU and ngran_gNB
+    if (e42_ric_req->id.type == e2ap_ngran_gNB_CU || e42_ric_req->id.type == e2ap_ngran_gNB_CUUP) {
       GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
       assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
       asn_uint642INTEGER(e2gnb_cu_up_id, *e42_ric_req->id.cu_du_id);
@@ -3525,12 +3535,12 @@ struct E2AP_PDU* e2ap_enc_e42_update_e2_node_asn_pdu(const e42_update_e2_node_t*
     conn_item->value.present = E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID;
 
     global_e2_node_id_t const* src_id = &sr->nodes[i].id;
-    assert(src_id->type == e2ap_ngran_gNB || src_id->type == e2ap_ngran_gNB_CU || src_id->type == e2ap_ngran_gNB_DU || src_id->type == e2ap_ngran_eNB);
+    assert(src_id->type == e2ap_ngran_gNB || src_id->type == e2ap_ngran_gNB_CUUP || src_id->type == e2ap_ngran_gNB_CU || src_id->type == e2ap_ngran_gNB_DU || src_id->type == e2ap_ngran_eNB);
     if (src_id->type != e2ap_ngran_eNB) {
       GlobalE2node_gNB_ID_t *e2gnb = calloc(1, sizeof(GlobalE2node_gNB_ID_t));
       assert(e2gnb != NULL && "Memory exhasued");
       e2gnb->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
-      if (src_id->type == e2ap_ngran_gNB_CU) {
+      if (src_id->type == e2ap_ngran_gNB_CUUP || src_id->type == e2ap_ngran_gNB_CU) {
         GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
         assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
         asn_uint642INTEGER(e2gnb_cu_up_id, *src_id->cu_du_id);

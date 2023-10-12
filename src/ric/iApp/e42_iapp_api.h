@@ -33,7 +33,7 @@
 
 typedef struct near_ric_s near_ric_t;
 
-void init_iapp_api(const char* addr, near_ric_if_t ric);
+void init_iapp_api(const char* addr, int port, near_ric_if_t ric);
   
 void stop_iapp_api(void);     
 

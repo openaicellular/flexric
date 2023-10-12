@@ -125,6 +125,13 @@ if(Clang_Tidy)
 endif()
 
 ########
+### NUM_THREADS 
+########
+set(NUM_THREADS_RIC "2" CACHE STRING "Number of threads in the RIC's task manager")
+
+
+
+########
 ### xApp 
 ########
 
@@ -282,9 +289,9 @@ message(STATUS "Build and install xAPP in C: ${XAPP_C}")
 option(UNIT_TEST "Build and install unit test" ON)
 message(STATUS "Build and install unit test: ${UNIT_TEST}")
 
-option(RAN_WITH_WS "Build and install proxy-agent to support websocket interface of RAN" OFF)
-message(STATUS "Build and install proxy-agent to support websocket interface of RAN: ${RAN_WITH_WS}")
-if (RAN_WITH_WS)
+option(PROXY_AGENT "Build and install proxy-agent to support websocket interface of RAN" OFF)
+message(STATUS "Build and install proxy-agent to support websocket interface of RAN: ${PROXY_AGENT}")
+if (PROXY_AGENT)
   set(SM_KPM ON)
   set(SM_RC ON)
   set(SM_MAC ON)
@@ -362,15 +369,20 @@ endif()
 ###
 # Install the configuration file
 ###
+# Find all *.conf files recursively in the source directory
+file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/conf_files/*.conf")
 
-install(FILES flexric.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
+# Add these to the install command
+install(FILES ${CONF_FILES}
+        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
+
 enable_testing()
 
 ###
 # Install Near real-time RIC
 ###
 if (NEAR_RIC)
-  install(TARGETS nearRT-RIC DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS nearRT-RIC DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/ric)
 endif ()
 
 ###
@@ -378,9 +390,9 @@ endif ()
 ###
 
 if (EMU_AGENT)
-  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR})
-  if (RAN_WITH_WS)
-    install(TARGETS proxy_agent_ws DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/e2agent)
+  if (PROXY_AGENT)
+    install(TARGETS proxy_agent_ws DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/e2agent)
   endif()
 endif ()
 
@@ -390,14 +402,14 @@ endif ()
 ###
 if (XAPP_C)
   # hw
-  install(TARGETS xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   # monitor
   install(TARGETS xapp_all_moni
       xapp_cust_moni
       xapp_oran_moni
-      DESTINATION ${CMAKE_INSTALL_BINDIR})
+      DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   # slice ctrl
-  install(TARGETS xapp_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS xapp_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
 endif ()
 
 
@@ -430,20 +442,20 @@ if(XAPP_PYTHON_ML)
 endif()
 
 if (XAPP_GO_SWIG)
+
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}) # no need to put libxapp_sdk.go
+
   install(PROGRAMS ${GO_BINARIES}
-          DESTINATION ${CMAKE_INSTALL_BINDIR})
+          DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/go)
 
   # Find all *.conf files recursively in the source directory
   file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/examples/xApp/go/*.conf")
 
   # Add these to the install command
   install(FILES ${CONF_FILES}
-          DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-  install(FILES
-          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
-          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/xapp_sdk.go
-          DESTINATION ${CMAKE_INSTALL_BINDIR})
+          DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
 
 endif()
 
