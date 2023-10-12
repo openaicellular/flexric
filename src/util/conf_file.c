@@ -20,9 +20,6 @@
 static
 const char* default_conf_file = "/usr/local/etc/flexric/ric.conf";
 
-static
-const char* default_libs_dir = "/usr/local/lib/flexric/";
-
 #ifdef PROXY_AGENT
 #include <libwebsockets.h>
 static
@@ -128,7 +125,7 @@ void print_usage(void)
   printf("    General options:\n");
   printf("  -h         : print usage\n");
   printf("  -c         : path to the config file\n");
-  printf("  -p         : path to the shared libs \n");
+//  printf("  -p         : path to the shared libs \n");
   printf(
       "\n");
   printf("Ex. -p /usr/local/lib/flexric/ -c /usr/local/etc/flexric/flexric.conf \n");
@@ -164,24 +161,24 @@ void parse_args(int argc, char* const* argv, fr_args_t* args)
 
                    break;
                  }
-      case 'p':{
-                 int const len = strlen(optarg);
-                 assert(len < FR_CONF_FILE_LEN - 1 );
-
-                 if(!is_directory(optarg)){
-                   printf("Error: %s is not a directory \n", optarg);  
-                   exit(EXIT_FAILURE);
-                 }
-                 if(optarg[len -1] != '/'){
-                   printf("Error: %s directory should finish with a / , e.g. /usr/local/flexric/  please add it\n", optarg);  
-                   exit(EXIT_FAILURE);
-                 }
-
-                 memset(args->libs_dir, '\0', FR_CONF_FILE_LEN);
-                 strncpy(args->libs_dir, optarg, len);
-
-                 break;
-               }
+//      case 'p':{
+//                 int const len = strlen(optarg);
+//                 assert(len < FR_CONF_FILE_LEN - 1 );
+//
+//                 if(!is_directory(optarg)){
+//                   printf("Error: %s is not a directory \n", optarg);
+//                   exit(EXIT_FAILURE);
+//                 }
+//                 if(optarg[len -1] != '/'){
+//                   printf("Error: %s directory should finish with a / , e.g. /usr/local/flexric/  please add it\n", optarg);
+//                   exit(EXIT_FAILURE);
+//                 }
+//
+//                 memset(args->libs_dir, '\0', FR_CONF_FILE_LEN);
+//                 strncpy(args->libs_dir, optarg, len);
+//
+//                 break;
+//               }
       case '?':{
                  printf("Error: unknown flag %c ??\n ",optopt);
                  print_usage();
@@ -201,11 +198,9 @@ void load_default_val(fr_args_t* args)
 {
   assert(args != NULL);
   assert(strlen(default_conf_file) < FR_CONF_FILE_LEN && "Path too long");
-  assert(strlen(default_libs_dir)  < FR_CONF_FILE_LEN && "Path too long");
 
   memset(args, '\0', sizeof(*args));
   strncpy(args->conf_file, default_conf_file, FR_CONF_FILE_LEN);
-  strncpy(args->libs_dir, default_libs_dir, FR_CONF_FILE_LEN);
 }
 
 static
@@ -217,6 +212,17 @@ void get_component_name(fr_args_t* args, config_t cfg)
 
   args->name = malloc(strlen(name) + 1);
   strcpy(args->name, name);
+}
+
+static
+void get_SM_DIR(fr_args_t* args, config_t cfg)
+{
+  const char* dir;
+  if (!config_lookup_string(&cfg, "SM_DIR", &dir))
+    assert(0!=0 && "SM_DIR is required in .conf");
+
+  args->libs_dir = malloc(strlen(dir) + 1);
+  strcpy(args->libs_dir, dir);
 }
 
 static
@@ -419,15 +425,14 @@ fr_args_t init_fr_args(int argc, char* argv[])
   fr_args_t args = {0};
   load_default_val(&args);
   if(argc > 1){
-    assert(argc < 6 && "Only -h -c -p flags supported");
+    assert(argc < 6 && "Only -h -c flags supported");
     assert(argv != NULL);
     parse_args(argc, argv, &args);
   }
-  assert(is_directory(args.libs_dir) == true && "Did you forget to: sudo make install ?");
-  assert(is_regular_file(args.conf_file) == true && "Did you forget to: sudo make install ?");
+  assert(is_regular_file(args.conf_file) == true && ".conf is not a file");
 
   printf("Setting the config -c file to %s\n",args.conf_file);
-  printf("Setting path -p for the shared libraries to %s\n",args.libs_dir);
+//  printf("Setting path -p for the shared libraries to %s\n",args.libs_dir);
 
   // Use libconf to parse .conf
   config_t cfg;
@@ -439,11 +444,18 @@ fr_args_t init_fr_args(int argc, char* argv[])
     assert(0!=0);
   }
 
+  // SM_DIR
+  get_SM_DIR(&args, cfg);
+  printf("[LibConf]: loading service models from SM_DIR: %s\n", args.libs_dir);
+  assert(is_directory(args.libs_dir) == true && "SM_DIR is not directory");
+
+  // Name
   get_component_name(&args, cfg);
   printf("[LibConf]: reading configuration for %s\n", args.name);
   // NearRT_RIC_IP
   get_NearRT_RIC_IP(&args, cfg);
   printf("[LibConf]: NearRT_RIC IP: %s\n", args.ip);
+
 
   if (!strcasecmp(args.name, "NearRT_RIC")) {
     // E2_Port
@@ -519,6 +531,8 @@ void free_db_params(db_params_t* params)
 void free_fr_args(fr_args_t* args)
 {
   assert(args != NULL);
+
+  free(args->libs_dir);
 
   free(args->name);
   free(args->ip);

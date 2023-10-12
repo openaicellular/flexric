@@ -37,13 +37,13 @@ typedef struct {
 } proxy_ran_args_t;
 
 typedef struct {
+  char conf_file[FR_CONF_FILE_LEN];
+  char* libs_dir;
+
   char *name;
   char *ip;
   int32_t e2_port;
   int32_t e42_port;
-
-  char conf_file[FR_CONF_FILE_LEN];
-  char libs_dir[FR_CONF_FILE_LEN];
 
   int32_t sub_cust_sm_len;
   sub_cust_sm_t sub_cust_sm[MAX_NUM_CUST_SM];
