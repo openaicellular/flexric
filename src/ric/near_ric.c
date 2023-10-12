@@ -757,7 +757,7 @@ void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, ui
 //  struct sockaddr_in const to = find_map_e2_node_sad(&ric->e2_node_sock, id);
   e2ap_send_bytes_ric(&ric->ep, id, ba_msg);
 
-  printf("[NEAR-RIC]: CONTROL SERVICE sent\n");
+  printf("[NEAR-RIC]: CONTROL SERVICE sent");
 
   e2ap_free_control_request_ric(&ric->ap, &ctrl_req);
   free_byte_array(ba_msg);
