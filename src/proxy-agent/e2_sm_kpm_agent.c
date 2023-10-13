@@ -284,8 +284,6 @@ matched_ues_t filter_ues_by_s_nssai_in_du_or_monolithic(test_cond_e const condit
     }
   }
 
-  assert(matched_ues.num_ues >= 1 && "The number of filtered UEs must be at least equal to 1");
-
   return matched_ues;
 }
 
