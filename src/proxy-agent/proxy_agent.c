@@ -94,8 +94,11 @@ static proxy_agent_t * init_proxy_agent(int argc, char *argv[])
 {
   proxy_agent = calloc(1, sizeof(proxy_agent_t));
   assert(proxy_agent!= NULL);
- 
-  ws_initconf(&proxy_agent->conf, argc, argv);
+
+  //printf("[E2-Proxy-Agent]: before ws_initconf(), ip %s, port %d, logl %d\n", proxy_agent->conf.io_ran_conf.address, proxy_agent->conf.io_ran_conf.port, proxy_agent->conf.io_ran_conf.logl);
+  proxy_agent->conf = ws_initconf(argc, argv);
+  defer({ free_fr_args(&proxy_agent->conf.e2args); });
+  printf("[E2-Proxy-Agent]: ws_initconf(), ip %s, port %d, logl %d\n", proxy_agent->conf.io_ran_conf.address, proxy_agent->conf.io_ran_conf.port, proxy_agent->conf.io_ran_conf.logl);
   init_e2if(proxy_agent, proxy_agent->conf.e2args);
   notif_init_ran(&proxy_agent->ran_if); 
   init_indication_event(&proxy_agent->ran_if.ind_event);

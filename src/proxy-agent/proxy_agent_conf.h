@@ -8,12 +8,12 @@
 #include "util/alg_ds/alg/defer.h"
 #include "ws_io_ran.h"
 
-struct proxy_conf_t
+typedef struct
  {
     uint16_t             retry_count;  /* WS: count of consecutive retries for connecting to the RAN (UNUSED)*/
     struct io_ran_conf_t io_ran_conf;  // RAN I/O module conf
     fr_args_t            e2args;       /* E2: cmdline args*/
-};
+} proxy_conf_t;
 
 /* 
  * Extract configuration for WS interface (RAN ipaddress/port, log levels) and for E2 interface 
@@ -28,9 +28,9 @@ struct proxy_conf_t
  * 
  * RETURNS: false if problem found with a configuration item, otherwise true
  */
-bool ws_initconf(struct proxy_conf_t * conf, int argc, char *argv[]);
+proxy_conf_t ws_initconf(int argc, char *argv[]);
 
 void ws_initconf_print_help(void);
 
-void ws_conf_print(struct proxy_conf_t * c);
+void ws_conf_print(proxy_conf_t * c);
 #endif
