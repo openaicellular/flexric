@@ -289,6 +289,7 @@ void create_kpm_table(sqlite3* db) {
                             "e2node_mnc_digit_len INT,"
                             "e2node_nb_id INT,"
                             "e2node_cu_du_id TEXT,"
+                            "ue_meas_report_idx INT,"
                             "ric_ind_format INT,"
                             "meas_data_len INT,"
                             "meas_data_idx INT,"
@@ -313,6 +314,7 @@ void create_kpm_table(sqlite3* db) {
                                  "e2node_mnc_digit_len INT,"
                                  "e2node_nb_id INT,"
                                  "e2node_cu_du_id TEXT,"
+                                 "ue_meas_report_idx INT,"
                                  "ric_ind_format INT,"
                                  "meas_info_len INT,"
                                  "meas_info_idx INT,"
@@ -361,6 +363,7 @@ void create_kpm_table(sqlite3* db) {
                                  "e2node_mnc_digit_len INT,"
                                  "e2node_nb_id INT,"
                                  "e2node_cu_du_id TEXT,"
+                                 "ue_meas_report_idx INT,"
                                  "ric_ind_format INT,"
                                  "meas_data_len INT,"
                                  "meas_data_idx INT,"
@@ -1088,6 +1091,7 @@ void to_sql_string_kpm_meas_data(global_e2_node_id_t const* id,
                                  enum_value_e* const incomplete_flag,
                                  format_ind_msg_e const ric_ind_frmt,
                                  uint64_t const timestamp,
+                                 size_t const ue_meas_report_idx,
                                  char* out,
                                  size_t out_len)
 {
@@ -1120,6 +1124,7 @@ void to_sql_string_kpm_meas_data(global_e2_node_id_t const* id,
                              "%d,"    //mnc_digit_len
                              "%d,"    //nb_id
                              "'%s',"  //cu_du_id
+                             "%ld,"   //ue_meas_report_idx
                              "%d,"    //format
                              "%ld,"   //meas_data_len
                              "%ld,"   //meas_data_idx
@@ -1139,6 +1144,7 @@ void to_sql_string_kpm_meas_data(global_e2_node_id_t const* id,
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_meas_report_idx
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
                             ,sql_str_kpm.meas_data_idx
@@ -1167,6 +1173,7 @@ void to_sql_string_kpm_meas_data(global_e2_node_id_t const* id,
                              "%d,"    //mnc_digit_len
                              "%d,"    //nb_id
                              "'%s',"  //cu_du_id
+                             "%ld,"   //ue_meas_report_idx
                              "%d,"    //format
                              "%ld,"   //meas_data_len
                              "%ld,"   //meas_data_idx
@@ -1186,6 +1193,7 @@ void to_sql_string_kpm_meas_data(global_e2_node_id_t const* id,
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_meas_report_idx
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
                             ,sql_str_kpm.meas_data_idx
@@ -1214,6 +1222,7 @@ void to_sql_string_kpm_meas_data(global_e2_node_id_t const* id,
                              "%d,"    //mnc_digit_len
                              "%d,"    //nb_id
                              "'%s',"  //cu_du_id
+                             "%ld,"   //ue_meas_report_idx
                              "%d,"    //format
                              "%ld,"   //meas_data_len
                              "%ld,"   //meas_data_idx
@@ -1233,6 +1242,7 @@ void to_sql_string_kpm_meas_data(global_e2_node_id_t const* id,
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_meas_report_idx
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
                             ,sql_str_kpm.meas_data_idx
@@ -1257,6 +1267,7 @@ void to_sql_string_kpm_meas_info(global_e2_node_id_t const* id,
                                  label_info_lst_t const label_info,
                                  format_ind_msg_e const ric_ind_frmt,
                                  uint64_t const timestamp,
+                                 size_t const ue_meas_report_idx,
                                  char* out,
                                  size_t out_len)
 {
@@ -1281,6 +1292,7 @@ void to_sql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             "%d,"    //mnc_digit_len
                             "%d,"    //nb_id
                             "'%s',"  //cu_du_id
+                            "%ld,"   //ue_meas_report_idx
                             "%d,"    //format
                             "%ld,"   //meas_info_len
                             "%ld,"   //meas_info_idx
@@ -1324,6 +1336,7 @@ void to_sql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_meas_report_idx
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_info_len
                             ,sql_str_kpm.meas_info_idx
@@ -1371,6 +1384,7 @@ void to_sql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             "%d,"    //mnc_digit_len
                             "%d,"    //nb_id
                             "'%s',"  //cu_du_id
+                            "%ld,"   //ue_meas_report_idx
                             "%d,"    //format
                             "%ld,"   //meas_info_len
                             "%ld,"   //meas_info_idx
@@ -1414,6 +1428,7 @@ void to_sql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_meas_report_idx
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_info_len
                             ,sql_str_kpm.meas_info_idx
@@ -1466,6 +1481,7 @@ void to_sql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
                                       enum_value_e* const incomplete_flag,
                                       format_ind_msg_e const ric_ind_frmt,
                                       uint64_t const timestamp,
+                                      size_t const ue_meas_report_idx,
                                       char* out,
                                       size_t out_len)
 {
@@ -1508,6 +1524,7 @@ void to_sql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
                             "%d,"    //mnc_digit_len
                             "%d,"    //nb_id
                             "'%s',"  //cu_du_id
+                            "%ld,"   //ue_meas_report_idx
                             "%d,"    //format
                             "%ld,"   //meas_data_len
                             "%ld,"   //meas_data_idx
@@ -1532,6 +1549,7 @@ void to_sql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_meas_report_idx
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
                             ,sql_str_kpm.meas_data_idx
@@ -1560,6 +1578,7 @@ void to_sql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
                             "%d,"    //mnc_digit_len
                             "%d,"    //nb_id
                             "'%s',"  //cu_du_id
+                            "%ld,"   //ue_meas_report_idx
                             "%d,"    //format
                             "%ld,"   //meas_data_len
                             "%ld,"   //meas_data_idx
@@ -1584,6 +1603,7 @@ void to_sql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_meas_report_idx
                             ,ric_ind_frmt + 1
                             ,sql_str_kpm.meas_data_len
                             ,sql_str_kpm.meas_data_idx
@@ -2017,7 +2037,8 @@ void write_kpm_frm1_stats(sqlite3* db,
                           global_e2_node_id_t const* id,
                           format_ind_msg_e const ric_ind_frmt,
                           kpm_ind_msg_format_1_t const* msg,
-                          uint64_t const timestamp)
+                          uint64_t const timestamp,
+                          size_t const ue_meas_report_idx)
 {
   assert(db != NULL);
   assert(msg != NULL);
@@ -2047,7 +2068,7 @@ void write_kpm_frm1_stats(sqlite3* db,
 
       // meas data
       memset(buffer, 0, sizeof(buffer));
-      to_sql_string_kpm_meas_data(id, sql_str_kpm, msg->gran_period_ms, meas_data.incomplete_flag, ric_ind_frmt, timestamp, buffer, 512);
+      to_sql_string_kpm_meas_data(id, sql_str_kpm, msg->gran_period_ms, meas_data.incomplete_flag, ric_ind_frmt, timestamp, ue_meas_report_idx, buffer, 512);
       insert_db(db, buffer);
 
       // meas info
@@ -2056,13 +2077,13 @@ void write_kpm_frm1_stats(sqlite3* db,
         if (*label_info.noLabel == TRUE_ENUM_VALUE)
           continue;
         memset(buffer, 0, sizeof(buffer));
-        to_sql_string_kpm_meas_info(id, sql_str_kpm, label_info, ric_ind_frmt, timestamp, buffer, 512);
+        to_sql_string_kpm_meas_info(id, sql_str_kpm, label_info, ric_ind_frmt, timestamp, ue_meas_report_idx, buffer, 512);
         insert_db(db, buffer);
       }
 
       // combine meas data with meas info
       memset(buffer, 0, sizeof(buffer));
-      to_sql_string_kpm_meas_data_info(id, sql_str_kpm, msg->gran_period_ms, meas_data.incomplete_flag, ric_ind_frmt, timestamp, buffer, 512);
+      to_sql_string_kpm_meas_data_info(id, sql_str_kpm, msg->gran_period_ms, meas_data.incomplete_flag, ric_ind_frmt, timestamp, ue_meas_report_idx, buffer, 512);
       insert_db(db, buffer);
 
     }
@@ -2094,7 +2115,7 @@ void write_kpm_frm3_stats(sqlite3* db,
 
     // kpm_ind_msg_format_1_t
     kpm_ind_msg_format_1_t const *meas_report = &msg->meas_report_per_ue[i].ind_msg_format_1;
-    write_kpm_frm1_stats(db, id, ric_ind_frmt, meas_report, timestamp);
+    write_kpm_frm1_stats(db, id, ric_ind_frmt, meas_report, timestamp, i);
   }
 
 }
@@ -2130,7 +2151,7 @@ void write_kpm_stats(sqlite3* db, global_e2_node_id_t const* id, kpm_ind_data_t 
   uint64_t const timestamp = ind->hdr.kpm_ric_ind_hdr_format_1.collectStartTime;
 
   if (msg->type == FORMAT_1_INDICATION_MESSAGE) {
-    write_kpm_frm1_stats(db, id, msg->type, &msg->frm_1, timestamp);
+    write_kpm_frm1_stats(db, id, msg->type, &msg->frm_1, timestamp, 999);
   } else if (msg->type == FORMAT_2_INDICATION_MESSAGE) {
     assert(0!=0);
   } else if (msg->type == FORMAT_3_INDICATION_MESSAGE) {
