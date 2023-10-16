@@ -2560,7 +2560,19 @@ static void write_kpm_frm1_stats(MYSQL* conn,
     for (size_t j = 0; j < meas_data.meas_record_len; j++) {
       meas_record_lst_t meas_record = meas_data.meas_record_lst[j];
       sql_str_kpm.meas_record_idx = j;
-      sql_str_kpm.meas_record = meas_record;
+      if (meas_record.value == INTEGER_MEAS_VALUE) {
+        sql_str_kpm.meas_record.value = INTEGER_MEAS_VALUE;
+        sql_str_kpm.meas_record.int_val = meas_record.int_val;
+      } else if (meas_record.value == REAL_MEAS_VALUE) {
+        sql_str_kpm.meas_record.value = REAL_MEAS_VALUE;
+        sql_str_kpm.meas_record.real_val = meas_record.real_val;
+      } else if (meas_record.value == NO_VALUE_MEAS_VALUE) {
+        sql_str_kpm.meas_record.value = NO_VALUE_MEAS_VALUE;
+        sql_str_kpm.meas_record.no_value = meas_record.no_value;
+      } else {
+        assert(0!=0 && "unknown meas record type");
+      }
+
       meas_info_format_1_lst_t meas_info = msg->meas_info_lst[j];
       sql_str_kpm.meas_info_idx = j;
       sql_str_kpm.meas_type = meas_info.meas_type;
