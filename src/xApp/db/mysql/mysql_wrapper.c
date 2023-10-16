@@ -1810,6 +1810,133 @@ void to_mysql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             );
     assert(rc < (int)max && "Not enough space in the char array to write all the data");
     return;
+  } else if (ue_id_e2sm_type == GNB_DU_UE_ID_E2SM) {
+    gnb_du_e2sm_t gnb_du = ue_id_e2sm.gnb_du;
+    int const rc = snprintf(out, max,
+                            "("
+                            "%lu,"   //tstamp
+                            "%d,"    //ngran_node
+                            "%d,"    //mcc
+                            "%d,"    //mnc
+                            "%d,"    //mnc_digit_len
+                            "%d,"    //nb_id
+                            "'%s',"  //cu_du_id
+                            "%d,"    //format
+                            "'%s',"  //ue_id_e2sm_type
+                            "%d,"    //guami_plmn_id_mcc
+                            "%d,"    //guami_plmn_id_mnc
+                            "%d,"    //guami_plmn_id_mnc_digit_len
+                            /// gnb.h ///
+                            "%ld,"   //amf_ue_ngap_id
+                            "%d,"    //guami_amf_region_id
+                            "%d,"    //amf_set_id
+                            "%d,"    //amf_ptr
+                            "%ld,"   //gnb_cu_ue_f1ap_lst_len
+                            "%d,"    //gnb_cu_ue_f1ap_lst
+                            "%ld,"   //gnb_cu_cp_ue_e1ap_lst_len
+                            "%d,"    //gnb_cu_cp_ue_e1ap_lst
+                            "%lu,"   //ran_ue_id
+                            "%u,"    //ng_ran_node_ue_xnap_id
+                            /// enb.h ///
+                            "%d,"    //mme_ue_s1ap_id
+                            "%d,"    //guami_mme_group_id
+                            "%d,"    //guami_mme_code
+                            "%d,"    //enb_ue_x2ap_id
+                            "%d"     //enb_ue_x2ap_id_extension
+                            ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id.nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null, ric_ind_frmt + 1
+                            ,"GNB_DU_UE_ID_E2SM"
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,(long int)-1
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,(long int)1
+                            ,gnb_du.gnb_cu_ue_f1ap
+                            ,(long int)-1
+                            ,-1
+                            ,gnb_du.ran_ue_id ? *gnb_du.ran_ue_id : 0
+                            ,0
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,-1
+                            );
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+    return;
+  } else if (ue_id_e2sm_type == GNB_CU_UP_UE_ID_E2SM) {
+    gnb_cu_up_e2sm_t gnb_cu = ue_id_e2sm.gnb_cu_up;
+    int const rc = snprintf(out, max,
+                            "("
+                            "%lu,"   //tstamp
+                            "%d,"    //ngran_node
+                            "%d,"    //mcc
+                            "%d,"    //mnc
+                            "%d,"    //mnc_digit_len
+                            "%d,"    //nb_id
+                            "'%s',"  //cu_du_id
+                            "%d,"    //format
+                            "'%s',"  //ue_id_e2sm_type
+                            "%d,"    //guami_plmn_id_mcc
+                            "%d,"    //guami_plmn_id_mnc
+                            "%d,"    //guami_plmn_id_mnc_digit_len
+                            /// gnb.h ///
+                            "%ld,"   //amf_ue_ngap_id
+                            "%d,"    //guami_amf_region_id
+                            "%d,"    //amf_set_id
+                            "%d,"    //amf_ptr
+                            "%ld,"   //gnb_cu_ue_f1ap_lst_len
+                            "%d,"    //gnb_cu_ue_f1ap_lst
+                            "%ld,"   //gnb_cu_cp_ue_e1ap_lst_len
+                            "%d,"    //gnb_cu_cp_ue_e1ap_lst
+                            "%lu,"   //ran_ue_id
+                            "%u,"    //ng_ran_node_ue_xnap_id
+                            /// enb.h ///
+                            "%d,"    //mme_ue_s1ap_id
+                            "%d,"    //guami_mme_group_id
+                            "%d,"    //guami_mme_code
+                            "%d,"    //enb_ue_x2ap_id
+                            "%d"     //enb_ue_x2ap_id_extension
+                            ")"
+                            ,timestamp
+                            ,id->type
+                            ,id->plmn.mcc
+                            ,id->plmn.mnc
+                            ,id->plmn.mnc_digit_len
+                            ,id->nb_id.nb_id
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ric_ind_frmt + 1
+                            ,"GNB_CU_UP_UE_ID_E2SM"
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,(long int)-1
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,(long int)-1
+                            ,-1
+                            ,(long int)1
+                            ,gnb_cu.gnb_cu_cp_ue_e1ap
+                            ,gnb_cu.ran_ue_id ? *gnb_cu.ran_ue_id : 0
+                            , 0
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,-1
+                            ,-1
+                            );
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+    return;
   } else if (ue_id_e2sm_type == ENB_UE_ID_E2SM) {
     enb_e2sm_t enb = ue_id_e2sm.enb;
     int const rc = snprintf(out, max,
@@ -2613,7 +2740,7 @@ void write_kpm_frm3_stats(MYSQL* conn,
   for (size_t i = 0; i < msg->ue_meas_report_lst_len; i++) {
     // ue_id_e2sm_t
     ue_id_e2sm_t ue_id_e2sm = msg->meas_report_per_ue[i].ue_meas_report_lst;
-    if (ue_id_e2sm.type == GNB_UE_ID_E2SM || ue_id_e2sm.type == ENB_UE_ID_E2SM) {
+    if (ue_id_e2sm.type == GNB_UE_ID_E2SM || ue_id_e2sm.type == GNB_DU_UE_ID_E2SM || ue_id_e2sm.type == GNB_CU_UP_UE_ID_E2SM || ue_id_e2sm.type == ENB_UE_ID_E2SM) {
       char buffer[2048] = "";
       if (kpm_ue_id_e2sm_count == 0)
         strcat(kpm_ue_id_e2sm_temp, kpm_buffer_ue_id_e2sm);
