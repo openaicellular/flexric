@@ -261,6 +261,24 @@ void create_gtp_table(sqlite3* db)
 void create_kpm_table(sqlite3* db) {
   assert(db != NULL);
 
+  // kpm_ric_ind_hdr_format_1_t
+  char* sql_kpm_hdr = "DROP TABLE IF EXISTS KPM_HDR;"
+                      "CREATE TABLE KPM_HDR(tstamp INT,"
+                      "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 11),"
+                      "e2node_mcc INT,"
+                      "e2node_mnc INT,"
+                      "e2node_mnc_digit_len INT,"
+                      "e2node_nb_id INT,"
+                      "e2node_cu_du_id TEXT,"
+                      "format INT,"
+                      "collectStartTime INT,"
+                      "fileformat_version TEXT,"
+                      "sender_name TEXT,"
+                      "sender_type TEXT,"
+                      "vendor_name TEXT"
+                      ");";
+  create_table(db, sql_kpm_hdr);
+
   // kpm_ind_msg_format_1_t: meas_data_lst_t + gran_period_ms
   // kpm_ind_msg_format_3_t
   char *sql_kpm_meas_data = "DROP TABLE IF EXISTS KPM_IND_MEAS_DATA;"
@@ -989,6 +1007,64 @@ int to_sql_string_gtp_NGUT(global_e2_node_id_t const* id,gtp_ngu_t_stats_t* gtp,
         );      
   assert(rc < (int)max && "Not enough space in the char array to write all the data");
   return rc;
+}
+
+static
+void to_mysql_string_kpm_hdr(global_e2_node_id_t const* id,
+                             format_ind_hdr_e const format,
+                             kpm_ric_ind_hdr_format_1_t const hdr,
+                             char* out,
+                             size_t out_len)
+{
+  assert(out != NULL);
+  const size_t max = 512;
+  assert(out_len >= max);
+
+  char* c_null = NULL;
+  char c_cu_du_id[26];
+  if (id->cu_du_id) {
+    int rc = snprintf(c_cu_du_id, 26, "%lu", *id->cu_du_id);
+    assert(rc < (int) max && "Not enough space in the char array to write all the data");
+  }
+
+  uint64_t const timestamp = hdr.collectStartTime;
+  const char* fileformat_version_str = hdr.fileformat_version ? (char*)hdr.fileformat_version->buf : "NULL";
+  const char* sender_name_str = hdr.sender_name ? (char*)hdr.sender_name->buf : "NULL";
+  const char* sender_type_str = hdr.sender_type ? (char*)hdr.sender_type->buf : "NULL";
+  const char* vendor_name_str = hdr.vendor_name ? (char*)hdr.vendor_name->buf : "NULL";
+
+  int const rc = snprintf(out, max,
+                          "INSERT INTO KPM_HDR VALUES("
+                          "%lu,"   //tstamp
+                          "%d,"    //ngran_node
+                          "%d,"    //mcc
+                          "%d,"    //mnc
+                          "%d,"    //mnc_digit_len
+                          "%d,"    //nb_id
+                          "'%s',"  //cu_du_id
+                          "%d,"    //format
+                          "%lu,"   // collectStartTime
+                          "'%s',"  // fileformat_version
+                          "'%s',"  // sender_name
+                          "'%s',"  // sender_type
+                          "'%s'"   // vendor_name
+                          ");"
+                          ,timestamp
+                          ,id->type
+                          ,id->plmn.mcc
+                          ,id->plmn.mnc
+                          ,id->plmn.mnc_digit_len
+                          ,id->nb_id.nb_id
+                          ,id->cu_du_id ? c_cu_du_id : c_null
+                          ,format + 1
+                          ,hdr.collectStartTime
+                          ,fileformat_version_str
+                          ,sender_name_str
+                          ,sender_type_str
+                          ,vendor_name_str
+                          );
+  assert(rc < (int)max && "Not enough space in the char array to write all the data");
+  return;
 }
 
 typedef struct {
@@ -1896,11 +1972,32 @@ void write_kpm_frm3_stats(sqlite3* db,
 
 }
 
+static
+void write_kpm_hdr_frm1_stats(sqlite3* db,
+                              global_e2_node_id_t const* id,
+                              kpm_ind_hdr_t const* hdr)
+{
+  assert(db != NULL);
+  assert(hdr != NULL);
+
+
+  if (hdr->type == FORMAT_1_INDICATION_HEADER) {
+    char buffer[512] = {0};
+    to_mysql_string_kpm_hdr(id, hdr->type, hdr->kpm_ric_ind_hdr_format_1, buffer, 512);
+    insert_db(db, buffer);
+  } else {
+    assert(0!=0 && "unknown KPM hdr format");
+  }
+
+}
+
 void write_kpm_stats(sqlite3* db, global_e2_node_id_t const* id, kpm_ind_data_t const* ind)
 {
 
   assert(db != NULL);
   assert(ind != NULL);
+
+  write_kpm_hdr_frm1_stats(db, id, &ind->hdr);
 
   kpm_ind_msg_t const* msg = &ind->msg;
   uint64_t const timestamp = ind->hdr.kpm_ric_ind_hdr_format_1.collectStartTime;
