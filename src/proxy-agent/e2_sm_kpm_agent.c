@@ -100,16 +100,16 @@ meas_record_lst_t fill_meas_value(meas_type_t meas_info_type, const amarisoft_ue
   // Get value based on Meas Info Name
   if (!strcmp(meas_info_name_str, "DRB.UEThpDl")) {
     meas_record.value = REAL_MEAS_VALUE;
-    meas_record.real_val = ue_stats->cells[0].dl_bitrate; // TODO:
+    meas_record.real_val = ue_stats->cells[0].dl_bitrate/1000; //Kbps // TODO:
   } else if (!strcmp(meas_info_name_str, "DRB.UEThpUl")) {
     meas_record.value = REAL_MEAS_VALUE;
-    meas_record.real_val = ue_stats->cells[0].ul_bitrate; // TODO:
+    meas_record.real_val = ue_stats->cells[0].ul_bitrate/1000; // Kbps // TODO:
   } else if (!strcmp(meas_info_name_str, "DRB.PdcpSduVolumeDL")) {
     meas_record.value = INTEGER_MEAS_VALUE;
-    meas_record.real_val = ue_stats->qos_flows[0].dl_total_bytes; // TODO:
+    meas_record.real_val = ue_stats->cells[0].dl_tx*8; // bits// TODO:
   } else if (!strcmp(meas_info_name_str, "DRB.PdcpSduVolumeUL")) {
     meas_record.value = INTEGER_MEAS_VALUE;
-    meas_record.real_val = ue_stats->qos_flows[0].ul_total_bytes; // TODO:
+    meas_record.real_val = ue_stats->cells[0].ul_tx*8; // bits TODO:
   } else {
     // TODO: need metrics from AMR and need mapping name from 3GPP
     printf("not implement value for measurement name %s\n", meas_info_name_str);

@@ -340,6 +340,7 @@ static bool json_decode_ran_indication_ue_get(const ran_msg_t *in_msg, ran_ind_t
         {"dl_bitrate"       , AMR_DT_DOUBLE , &out->ue_stats[idx].cells[j].dl_bitrate       , &out->ue_stats[idx].cell_flags[j].dl_bitrate},
         {"ul_bitrate"       , AMR_DT_DOUBLE , &out->ue_stats[idx].cells[j].ul_bitrate       , &out->ue_stats[idx].cell_flags[j].ul_bitrate},
         {"dl_tx"            , AMR_DT_INT    , &out->ue_stats[idx].cells[j].dl_tx            , &out->ue_stats[idx].cell_flags[j].dl_tx},
+        {"ul_tx"            , AMR_DT_INT    , &out->ue_stats[idx].cells[j].ul_tx            , &out->ue_stats[idx].cell_flags[j].ul_tx},
         {"dl_retx"          , AMR_DT_INT    , &out->ue_stats[idx].cells[j].dl_retx          , &out->ue_stats[idx].cell_flags[j].dl_retx},
         {"ul_retx"          , AMR_DT_INT    , &out->ue_stats[idx].cells[j].ul_retx          , &out->ue_stats[idx].cell_flags[j].ul_retx},
         {"dl_mcs"           , AMR_DT_DOUBLE , &out->ue_stats[idx].cells[j].dl_mcs           , &out->ue_stats[idx].cell_flags[j].dl_mcs},
