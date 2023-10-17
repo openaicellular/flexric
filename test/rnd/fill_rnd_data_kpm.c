@@ -981,19 +981,19 @@ static kpm_ric_ind_hdr_format_1_t fill_rnd_kpm_ind_hdr_frm_1(void)
   hdr_frm_1.fileformat_version = NULL;
   
   hdr_frm_1.sender_name = calloc(1, sizeof(byte_array_t));
-  hdr_frm_1.sender_name->buf = calloc(strlen("My OAI-CU") + 1, sizeof(char));
-  memcpy(hdr_frm_1.sender_name->buf, "My OAI-CU", strlen("My OAI-CU"));
-  hdr_frm_1.sender_name->len = strlen("My OAI-CU");
-  
+  hdr_frm_1.sender_name->buf = calloc(strlen("My E2-Node") + 1, sizeof(char));
+  memcpy(hdr_frm_1.sender_name->buf, "My E2-Node", strlen("My E2-Node"));
+  hdr_frm_1.sender_name->len = strlen("My E2-Node") + 1;
+
   hdr_frm_1.sender_type = calloc(1, sizeof(byte_array_t));
-  hdr_frm_1.sender_type->buf = calloc(strlen("CU") + 1, sizeof(char));
-  memcpy(hdr_frm_1.sender_type->buf, "CU", strlen("CU"));
-  hdr_frm_1.sender_type->len = strlen("CU");
-  
+  hdr_frm_1.sender_type->buf = calloc(strlen("E2-Node") + 1, sizeof(char));
+  memcpy(hdr_frm_1.sender_type->buf, "E2-Node", strlen("E2-Node"));
+  hdr_frm_1.sender_type->len = strlen("E2-Node") + 1;
+
   hdr_frm_1.vendor_name = calloc(1, sizeof(byte_array_t));
-  hdr_frm_1.vendor_name->buf = calloc(strlen("OAI") + 1, sizeof(char));
-  memcpy(hdr_frm_1.vendor_name->buf, "OAI", strlen("OAI"));
-  hdr_frm_1.vendor_name->len = strlen("OAI");
+  hdr_frm_1.vendor_name->buf = calloc(strlen("Unknown") + 1, sizeof(char));
+  memcpy(hdr_frm_1.vendor_name->buf, "Unknown", strlen("Unknown"));
+  hdr_frm_1.vendor_name->len = strlen("Unknown") + 1;
 
   return hdr_frm_1;
 }

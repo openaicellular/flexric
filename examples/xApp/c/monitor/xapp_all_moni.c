@@ -29,12 +29,14 @@
 #include "../../../../src/sm/slice_sm/slice_sm_id.h"
 #include "../../../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../../../../src/util/e2ap_ngran_types.h"
+#include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pthread.h>
 
 static bool exit_flag = false;
 static void sigint_handler(int sig)
@@ -52,6 +54,9 @@ static void sigint_handler(int sig)
 //uint64_t aggr_tstamp_pdcp = 0;
 //uint64_t count_kpm = 0;
 //uint64_t aggr_tstamp_kpm = 0;
+static
+pthread_mutex_t mtx;
+
 static
 void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
@@ -96,60 +101,172 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 //           now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
   } else if (rd->ind.type == KPM_STATS_V3_0) {
     if (rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime) {
-//      count_kpm += 1;
-//      aggr_tstamp_kpm += now - rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime;
-//      if (count_kpm == count_max) {
-//        printf("KPM ind_msg latency (averaged) = %lu from E2-node type %d ID %d\n",
-//               aggr_tstamp_kpm/count_max, e2_node->type, e2_node->nb_id.nb_id);
-//        count_kpm = 0;
-//        aggr_tstamp_kpm = 0;
-//      }
-      printf("KPM ind_msg latency = %lu from E2-node type %d ID %d\n",
-             now - rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime, e2_node->type, e2_node->nb_id.nb_id);
-//      kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
-//      if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE) {
-//        for (size_t i = 0; i < kpm->msg.frm_1.meas_data_lst_len; i++) {
-//          for (size_t j = 0; j < kpm->msg.frm_1.meas_data_lst[i].meas_record_len; j++) {
-//            if (kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].value == INTEGER_MEAS_VALUE)
-//              printf("meas record INTEGER_MEAS_VALUE value %d\n", kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].int_val);
-//            else if (kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].value == REAL_MEAS_VALUE)
-//              printf("meas record REAL_MEAS_VALUE value %f\n", kpm->msg.frm_1.meas_data_lst[i].meas_record_lst[j].real_val);
-//            else
-//              printf("meas record NO_VALUE_MEAS_VALUE value\n");
-//          }
-//        }
-//      } else if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE) {
-//        for (size_t i = 0; i < kpm->msg.frm_3.ue_meas_report_lst_len; i++) {
-//          if (kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type == GNB_UE_ID_E2SM) {
-//            printf("UE ID type %d, amf_ue_ngap_id %ld\n",
-//                   kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.type,
-//                   kpm->msg.frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id
-//            );
-//          }
-//          if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst_len > 0) {
-//            // TODO: need to get the all meas data
-//            size_t meas_data_idx = 0;
-//            if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].incomplete_flag) {
-//              if (*kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].incomplete_flag == TRUE_ENUM_VALUE)
-//                printf("No UE connected to E2-Node, meas_data incomplete_flag == TRUE_ENUM_VALUE\n");
-//            } else if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst_len == kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[0].meas_record_len) {
-//              size_t rec_data_len = kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_len;
-//              for (size_t j = 0; j < rec_data_len; j++) {
-//                if (kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst[j].meas_type.type == NAME_MEAS_TYPE &&
-//                    kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_lst[j].value == REAL_MEAS_VALUE) {
-//                  printf("MeasName %s, MeasData %lf\n",
-//                         kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_info_lst[j].meas_type.name.buf,
-//                         kpm->msg.frm_3.meas_report_per_ue[i].ind_msg_format_1.meas_data_lst[meas_data_idx].meas_record_lst[j].real_val
-//                  );
-//                }
-//              }
-//            }
-//          }
-//        }
-//        //printf("Sojourn time %lf \n",kpm->msg.frm_3.meas_report_per_ue[0].ind_msg_format_1.meas_data_lst[0].meas_record_lst[0].real_val);
-//      } else {
-//        printf("unknown kpm ind format\n");
-//      }
+      // printf("KPM ind_msg latency = %lu from E2-node type %d ID %d\n",
+//             now - rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime, e2_node->type, e2_node->nb_id.nb_id);
+      kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
+      kpm_ric_ind_hdr_format_1_t const* hdr_frm_1 = &kpm->hdr.kpm_ric_ind_hdr_format_1;
+
+      {
+        lock_guard(&mtx);
+
+        static int counter = 1;
+#ifdef KPM_V2
+        // collectStartTime (32bit) unit is second
+    printf("%7d, KPM v2 ind_msg latency > %ld s (minimum time unit is in second) from E2-node type %d ID %d\n",
+           counter, now/1000000 - hdr_frm_1->collectStartTime,
+           e2_node->type, e2_node->nb_id.nb_id);
+#elif defined(KPM_V3)
+        // collectStartTime (64bit) unit is micro-second
+    printf("%7d, KPM v3 ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+           counter, now - hdr_frm_1->collectStartTime,
+           e2_node->type, e2_node->nb_id.nb_id);
+#else
+        static_assert(0!=0, "Unknown KPM version");
+#endif
+
+        if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE)
+        {
+          kpm_ind_msg_format_1_t const* msg_frm_1 = &kpm->msg.frm_1;
+          for (size_t i = 0; i < msg_frm_1->meas_data_lst_len; i++) {
+            for (size_t j = 0; j < msg_frm_1->meas_data_lst[i].meas_record_len; j++) {
+              if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == INTEGER_MEAS_VALUE)
+                printf("meas record INTEGER_MEAS_VALUE value %d\n",msg_frm_1->meas_data_lst[i].meas_record_lst[j].int_val);
+              else if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == REAL_MEAS_VALUE)
+                printf("meas record REAL_MEAS_VALUE value %f\n", msg_frm_1->meas_data_lst[i].meas_record_lst[j].real_val);
+              else
+                printf("meas record NO_VALUE_MEAS_VALUE value\n");
+            }
+          }
+        } else if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE)
+        {
+          kpm_ind_msg_format_3_t const* msg_frm_3 = &kpm->msg.frm_3;
+          // Reported list of measurements per UE
+          for (size_t i = 0; i < msg_frm_3->ue_meas_report_lst_len; i++)
+          {
+            switch (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.type)
+            {
+              case GNB_UE_ID_E2SM:
+                if (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst != NULL)
+                {
+                  for (size_t j = 0; j < msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst_len; j++)
+                  {
+                    printf("UE ID type = gNB-CU, gnb_cu_ue_f1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst[j]);
+                  }
+                }
+                else
+                {
+                  printf("UE ID type = gNB, amf_ue_ngap_id = %lu\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id);
+                }
+                break;
+
+              case GNB_DU_UE_ID_E2SM:
+                printf("UE ID type = gNB-DU, gnb_cu_ue_f1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb_du.gnb_cu_ue_f1ap);
+                break;
+              case GNB_CU_UP_UE_ID_E2SM:
+                printf("UE ID type = gNB-CU, gnb_cu_cp_ue_e1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb_cu_up.gnb_cu_cp_ue_e1ap);
+                break;
+
+              default:
+                assert(false && "UE ID type not yet implemented");
+            }
+
+            kpm_ind_msg_format_1_t const* msg_frm_1 = &msg_frm_3->meas_report_per_ue[i].ind_msg_format_1;
+
+            // UE Measurements per granularity period
+            for (size_t j = 0; j<msg_frm_1->meas_data_lst_len; j++)
+            {
+              for (size_t z = 0; z<msg_frm_1->meas_data_lst[j].meas_record_len; z++)
+              {
+                if (msg_frm_1->meas_info_lst_len > 0)
+                {
+                  switch (msg_frm_1->meas_info_lst[z].meas_type.type)
+                  {
+                    case NAME_MEAS_TYPE:
+                    {
+                      // Get the Measurement Name
+                      char meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len + 1];
+                      memcpy(meas_info_name_str, msg_frm_1->meas_info_lst[z].meas_type.name.buf, msg_frm_1->meas_info_lst[z].meas_type.name.len);
+                      meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len] = '\0';
+
+                      // Get the value of the Measurement
+                      switch (msg_frm_1->meas_data_lst[j].meas_record_lst[z].value)
+                      {
+                        case REAL_MEAS_VALUE:
+                        {
+                          printf("%s = %.2f\n", meas_info_name_str, msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+//                      if (strcmp(meas_info_name_str, "DRB.RlcSduDelayDl") == 0)
+//                      {
+//                        printf("DRB.RlcSduDelayDl = %.2f [μs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+//                      }
+//                      else if (strcmp(meas_info_name_str, "DRB.UEThpDl") == 0)
+//                      {
+//                        printf("DRB.UEThpDl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+//                      }
+//                      else if (strcmp(meas_info_name_str, "DRB.UEThpUl") == 0)
+//                      {
+//                        printf("DRB.UEThpUl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
+//                      }
+//                      else
+//                      {
+//                        assert(false && "Measurement Name not yet implemented");
+//                      }
+
+                          break;
+                        }
+
+
+                        case INTEGER_MEAS_VALUE:
+                        {
+                          printf("%s = %d\n", meas_info_name_str, msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+//
+//                      if (strcmp(meas_info_name_str, "RRU.PrbTotDl") == 0)
+//                      {
+//                        printf("RRU.PrbTotDl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+//                      }
+//                      else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
+//                      {
+//                        printf("RRU.PrbTotUl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+//                      }
+//                      else if (strcmp(meas_info_name_str, "DRB.PdcpSduVolumeDL") == 0)
+//                      {
+//                        printf("DRB.PdcpSduVolumeDL = %d [kb]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+//                      }
+//                      else if (strcmp(meas_info_name_str, "DRB.PdcpSduVolumeUL") == 0)
+//                      {
+//                        printf("DRB.PdcpSduVolumeUL = %d [kb]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+//                      }
+//                      else
+//                      {
+//                        assert(false && "Measurement Name not yet implemented");
+//                      }
+
+                          break;
+                        }
+
+                        default:
+                          assert("Value not recognized");
+                      }
+
+                      break;
+                    }
+
+                    default:
+                      assert(false && "Measurement Type not yet implemented");
+                  }
+                }
+
+
+                if (msg_frm_1->meas_data_lst[j].incomplete_flag && *msg_frm_1->meas_data_lst[j].incomplete_flag == TRUE_ENUM_VALUE)
+                  printf("Measurement Record not reliable\n");
+              }
+            }
+          }
+        } else {
+          printf("unknown kpm ind format\n");
+        }
+
+        counter++;
+      }
     }
   }
   else
@@ -400,6 +517,7 @@ void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* 
     // KPM Event Trigger
     uint64_t period_ms = args.sub_oran_sm[i].time;
     kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
+    printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
 
     // KPM Action Definition
     kpm_sub.sz_ad = 1;
