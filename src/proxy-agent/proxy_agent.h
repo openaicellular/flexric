@@ -44,7 +44,7 @@ typedef struct proxy_agent_t
   e2_agent_t* e2_if;
 
   // user configuration 
-  struct proxy_conf_t conf;
+  proxy_conf_t conf;
 
   // Registered SMs
   // plugin_ag_t plugin;

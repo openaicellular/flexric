@@ -223,9 +223,9 @@ void notif_free_ran(ran_if_t *ran_if)
   free_tsnq(&ran_if->io_ran_notif_ds, free_notif_e2_ran_event);
 }
 
-void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long initial_ms, long interval_ms) 
+void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long interval_ms)
 {
-  (void) initial_ms;
+
   notif_e2_ran_event_t msg = {
     .type = E2_ADD_SUBSCRIPTION_TIMER_EVENT,
     .subs_ev.time_ms = interval_ms ,

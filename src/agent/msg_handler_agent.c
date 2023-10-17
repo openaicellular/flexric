@@ -188,7 +188,7 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   e2_ran_sub.ric_id = sr->ric_id;
   e2_ran_sub.sm = sm;
   e2_ran_sub.act_def = t.act_def;
-  fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms, 10);
+  fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
   // wait for a reply before generating subscription response
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   #else

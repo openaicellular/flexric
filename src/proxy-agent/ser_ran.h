@@ -179,6 +179,7 @@ typedef struct ue_cell_t {
   double dl_bitrate;
   double ul_bitrate;
   int    dl_tx;
+  int    ul_tx;
   int    dl_retx;
   int    ul_retx;
   double dl_mcs;
@@ -204,6 +205,7 @@ typedef struct ue_cell_flag_t {
   bool dl_bitrate;
   bool ul_bitrate;
   bool dl_tx;
+  bool ul_tx;
   bool dl_retx;
   bool ul_retx;
   bool dl_mcs;

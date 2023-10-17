@@ -71,7 +71,7 @@ char * notif_strevent(enum notif_event_t type);
 void ran_notif_msg_handle(ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id) ;
 
 /* -- E2AP functionalities --- */
-void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long initial_ms, long interval_ms) ;
+void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long interval_ms) ;
 void fwd_e2_ran_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id);
 void fwd_e2_ran_ctrl (ran_if_t *ran_if, ctrl_ev_t in);
 void fwd_ran_e2_setup_request(e2_agent_t *e2_if, global_e2_node_id_t ge2ni);
