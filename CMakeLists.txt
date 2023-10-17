@@ -434,11 +434,13 @@ endif()
 
 if(XAPP_PYTHON_ML)
   install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/xapp_sdk.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/_xapp_sdk.so
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/helpers.py
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/configs.py
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/nodb.conf
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/run.py
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages)
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON)
 endif()
 
 if (XAPP_GO_SWIG)

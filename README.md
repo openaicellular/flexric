@@ -67,11 +67,17 @@ https://bit.ly/3uOXuCV
   > Proxy agent has been tested with specific version of `libwebsockets-dev` and `libjson-c-dev`;
   cmake will check for that and promt an error in case the version you are trying to install is not compatible.
 
-- (Optional) Instal Go for xApp:
+- (Optional) Install Go for xApp:
   ```bash
   sudo snap install go --channel=1.19/stable
   ```
 
+- (Optional) Install Python ML xApp:
+  ```
+  sudo apt install libsnappy-dev python3.11 python3.11-dev
+  ```
+  
+  
 ### 1.3 Clone the FlexRIC project, build and install it. 
 
 - **Download the code**
