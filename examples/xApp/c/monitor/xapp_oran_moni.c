@@ -324,6 +324,50 @@ kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm)
   return dst;
 }
 
+static
+size_t send_sub_req(e2_node_connected_t* n, fr_args_t args, sm_ans_xapp_t *kpm_handle, size_t n_handle)
+{
+  for (int32_t j = 0; j < args.sub_oran_sm_len; j++) {
+    if (!strcasecmp(args.sub_oran_sm[j].name, "kpm")) {
+      kpm_sub_data_t kpm_sub = {0};
+      defer({ free_kpm_sub_data(&kpm_sub); });
+
+      // KPM Event Trigger
+      uint64_t period_ms = args.sub_oran_sm[j].time;
+      kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
+      printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
+
+      // KPM Action Definition
+      kpm_sub.sz_ad = 1;
+      kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
+      assert(kpm_sub.ad != NULL && "Memory exhausted");
+
+      format_action_def_e act_type;
+      if (args.sub_oran_sm[j].format == 1)
+        act_type = FORMAT_1_ACTION_DEFINITION;
+      else if (args.sub_oran_sm[j].format == 4)
+        act_type = FORMAT_4_ACTION_DEFINITION;
+      else
+      assert(0!=0 && "not supported action definition format");
+
+      *kpm_sub.ad = gen_act_def((const char**)args.sub_oran_sm[j].actions, act_type);
+
+      // TODO: implement e2ap_ngran_eNB
+      if (n->id.type == e2ap_ngran_eNB)
+        continue;
+      if (strcasecmp(args.sub_oran_sm[j].ran_type, get_e2ap_ngran_name(n->id.type)))
+        continue;
+
+      kpm_handle[n_handle] = report_sm_xapp_api(&n->id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
+      assert(kpm_handle[n_handle].success == true);
+      n_handle += 1;
+    } else {
+      assert(0!=0 && "unknown SM in .conf");
+    }
+  }
+  return n_handle;
+}
+
 int main(int argc, char *argv[])
 {
   fr_args_t args = init_fr_args(argc, argv);
@@ -371,133 +415,8 @@ int main(int argc, char *argv[])
     for (size_t j = 0; j < n->len_rf; j++)
       printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
 
-    for (int32_t j = 0; j < args.sub_oran_sm_len; j++) {
-      if (!strcasecmp(args.sub_oran_sm[j].name, "kpm")) {
-        kpm_sub_data_t kpm_sub = {0};
-        defer({ free_kpm_sub_data(&kpm_sub); });
-
-        // KPM Event Trigger
-        uint64_t period_ms = args.sub_oran_sm[j].time;
-        kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
-        printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
-
-        // KPM Action Definition
-        kpm_sub.sz_ad = 1;
-        kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
-        assert(kpm_sub.ad != NULL && "Memory exhausted");
-
-        format_action_def_e act_type;
-        if (args.sub_oran_sm[j].format == 1)
-          act_type = FORMAT_1_ACTION_DEFINITION;
-        else if (args.sub_oran_sm[j].format == 4)
-          act_type = FORMAT_4_ACTION_DEFINITION;
-        else
-          assert(0!=0 && "not supported action definition format");
-
-        *kpm_sub.ad = gen_act_def((const char**)args.sub_oran_sm[j].actions, act_type);
-
-        // TODO: implement e2ap_ngran_eNB
-        if (n->id.type == e2ap_ngran_eNB)
-          continue;
-        if (strcasecmp(args.sub_oran_sm[j].ran_type, get_e2ap_ngran_name(n->id.type)))
-          continue;
-
-        kpm_handle[n_handle] = report_sm_xapp_api(&nodes.n[i].id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
-        assert(kpm_handle[n_handle].success == true);
-        n_handle += 1;
-      } else {
-        assert(0!=0 && "unknown SM in .conf");
-      }
-    }
-
+    n_handle = send_sub_req(n, args, kpm_handle, n_handle);
   }
-
-//  e2_node_arr_t nodes = e2_nodes_xapp_api();
-//  defer({ free_e2_node_arr(&nodes); });
-//  assert(nodes.len > 0);
-//
-//  printf("Connected E2 nodes = %d\n", nodes.len);
-
-//  pthread_mutexattr_t attr = {0};
-//  int rc = pthread_mutex_init(&mtx, &attr);
-//  assert(rc == 0);
-//
-//  // KPM indication
-//  sm_ans_xapp_t* kpm_handle = NULL;
-//  if(nodes.len > 0){
-//    kpm_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) );
-//    assert(kpm_handle  != NULL);
-//  }
-//  int n_handle;
-//  for (int i = 0; i < nodes.len; i++) {
-//    e2_node_connected_t* n = &nodes.n[i];
-//    for (size_t j = 0; j < n->len_rf; j++)
-//      printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
-//
-//    ////////////
-//    // START KPM
-//    ////////////
-//    kpm_sub_data_t kpm_sub = {0};
-//    defer({ free_kpm_sub_data(&kpm_sub); });
-//
-//    // KPM Event Trigger
-//    uint64_t period_ms = 1000;
-//    kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
-//    printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
-//
-//    // KPM Action Definition
-//    kpm_sub.sz_ad = 1;
-//    kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
-//    assert(kpm_sub.ad != NULL && "Memory exhausted");
-//
-//    format_action_def_e act_type = FORMAT_4_ACTION_DEFINITION;
-//
-//    switch (n->id.type)
-//    {
-//    case e2ap_ngran_gNB: ;
-//      const char *act_gnb[] = {"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl", NULL}; // 3GPP TS 28.552
-//      *kpm_sub.ad = gen_act_def(act_gnb, act_type);
-//      break;
-//
-//    case e2ap_ngran_gNB_CU: ;
-//      const char *act_gnb_cu[] = {"DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", NULL}; // 3GPP TS 28.552
-//      *kpm_sub.ad = gen_act_def(act_gnb_cu, act_type);
-//      break;
-//
-//    case e2ap_ngran_gNB_DU: ;
-//      const char *act_gnb_du[] = {"DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl", NULL}; // 3GPP TS 28.552
-//      *kpm_sub.ad = gen_act_def(act_gnb_du, act_type);
-//      break;
-//
-//    case e2ap_ngran_eNB: ;
-//      // TODO: implement e2ap_ngran_eNB
-//      printf("NOT IMPLEMENT ACTIONS FOR ENB, DO NOT SEND SUBSCRIPTION REQUEST\n");
-//      break;
-//
-//    default:
-//      assert(false && "NG-RAN Type not yet implemented");
-//    }
-//
-//    // TODO: implement e2ap_ngran_eNB
-//    if (n->id.type != e2ap_ngran_eNB) {
-//      kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
-//      assert(kpm_handle[i].success == true);
-//      n_handle += 1;
-//    }
-//
-//  }
-//
-//  sleep(5);
-//
-//  for(int i = 0; i < n_handle; ++i){
-//    // Remove the handle previously returned
-//    if (kpm_handle)
-//      rm_report_sm_xapp_api(kpm_handle[i].u.handle);
-//  }
-//
-//  if(nodes.len > 0){
-//    free(kpm_handle);
-//  }
 
   // case2: send subscription req to the new connected e2 node
   while(!exit_flag) {
@@ -532,44 +451,7 @@ int main(int argc, char *argv[])
             for (size_t m = 0; m < n->len_rf; m++)
               printf("Registered node %ld ran func id = %d \n ", i, n->ack_rf[m].id);
 
-            for (int32_t m = 0; m < args.sub_oran_sm_len; m++) {
-              if (!strcasecmp(args.sub_oran_sm[m].name, "kpm")) {
-                kpm_sub_data_t kpm_sub = {0};
-                defer({ free_kpm_sub_data(&kpm_sub); });
-
-                // KPM Event Trigger
-                uint64_t period_ms = args.sub_oran_sm[m].time;
-                kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
-                printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
-
-                // KPM Action Definition
-                kpm_sub.sz_ad = 1;
-                kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
-                assert(kpm_sub.ad != NULL && "Memory exhausted");
-
-                format_action_def_e act_type;
-                if (args.sub_oran_sm[m].format == 1)
-                  act_type = FORMAT_1_ACTION_DEFINITION;
-                else if (args.sub_oran_sm[m].format == 4)
-                  act_type = FORMAT_4_ACTION_DEFINITION;
-                else
-                  assert(0!=0 && "not supported action definition format");
-
-                *kpm_sub.ad = gen_act_def((const char**)args.sub_oran_sm[m].actions, act_type);
-
-                // TODO: implement e2ap_ngran_eNB
-                if (n->id.type == e2ap_ngran_eNB)
-                  continue;
-                if (strcasecmp(args.sub_oran_sm[m].ran_type, get_e2ap_ngran_name(n->id.type)))
-                  continue;
-
-                kpm_handle[n_handle] = report_sm_xapp_api(&n->id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
-                assert(kpm_handle[n_handle].success == true);
-                n_handle += 1;
-              } else {
-                assert(0!=0 && "unknown SM in .conf");
-              }
-            }
+            n_handle = send_sub_req(n, args, kpm_handle, n_handle);
           }
         }
       }
