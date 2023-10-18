@@ -2216,20 +2216,24 @@ e2ap_msg_t e2ap_dec_node_configuration_update(const E2AP_PDU_t* pdu)
 
   // E2 Node Component Configuration Update List
   const E2nodeConfigurationUpdate_IEs_t* conf_update_ie = out->protocolIEs.list.array[0]; 
-  assert(conf_update_ie->id == ProtocolIE_ID_id_E2nodeComponentConfigUpdate);	
-  assert(conf_update_ie->criticality == Criticality_ignore);
-  assert(conf_update_ie->value.present == E2nodeConfigurationUpdate_IEs__value_PR_E2nodeComponentConfigUpdate_List);
- 
+  assert(conf_update_ie->id == ProtocolIE_ID_id_TransactionID);
+  assert(conf_update_ie->criticality == Criticality_reject);
+  //assert(conf_update_ie->value.present == E2nodeConfigurationUpdate_IEs__value_PR_E2nodeComponentConfigUpdate_List);
 
-  const int sz = conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.count;
-  cu->comp_conf_update_list = calloc(sz, sizeof(e2_node_component_config_update_t)); 
-  cu->len_ccul = sz;
+  if (conf_update_ie->value.present == E2nodeConfigurationUpdate_IEs__value_PR_TransactionID) {
+    cu->trans_id = conf_update_ie->value.choice.TransactionID;
+  } else if (conf_update_ie->value.present == E2nodeConfigurationUpdate_IEs__value_PR_E2nodeComponentConfigUpdate_List) {
 
-  for(int i = 0; i < sz; ++i){
-    //const E2nodeComponentConfigUpdate_ItemIEs_t* n = (const E2nodeComponentConfigUpdate_ItemIEs_t*) conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.array[i];
-    // const E2nodeComponentConfigUpdate_Item_t* src = &n->value.choice.E2nodeComponentConfigUpdate_Item;
-     assert(0 != 0 && "Not implemented");
-//    cu->comp_conf_update_list[i] = copy_e2_node_component_conf_update(src);
+    const int sz = conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.count;
+    cu->comp_conf_update_list = calloc(sz, sizeof(e2_node_component_config_update_t));
+    cu->len_ccul = sz;
+
+    for(int i = 0; i < sz; ++i){
+      //const E2nodeComponentConfigUpdate_ItemIEs_t* n = (const E2nodeComponentConfigUpdate_ItemIEs_t*) conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.array[i];
+      // const E2nodeComponentConfigUpdate_Item_t* src = &n->value.choice.E2nodeComponentConfigUpdate_Item;
+       assert(0 != 0 && "Not implemented");
+  //    cu->comp_conf_update_list[i] = copy_e2_node_component_conf_update(src);
+    }
   }
   return ret;
 }
