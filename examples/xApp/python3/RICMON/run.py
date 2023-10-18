@@ -40,7 +40,7 @@ class MACCallback(ric.mac_cb, CallbackHelper):
             try:
                 # E2-based filtering of messages, plus enqueuing
                 e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc, 
-                         ind.id.nb_id, ind.id.cu_du_id)
+                         ind.id.nb_id.nb_id, ind.id.cu_du_id)
                 e2_filters = self.filters[e2_id]
 
                 global msg_queue
@@ -87,7 +87,7 @@ class PDCPCallback(ric.pdcp_cb, CallbackHelper):
             try:
                 # E2-based filtering of messages, plus enqueuing
                 e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc, 
-                         ind.id.nb_id, ind.id.cu_du_id)
+                         ind.id.nb_id.nb_id, ind.id.cu_du_id)
                 e2_filters = self.filters[e2_id]
 
                 global msg_queue
@@ -144,7 +144,7 @@ def subscriber(sm_configs, report_checkpoint):
         conns_ids = {
             (conn.id.plmn.mcc,
              conn.id.plmn.mnc,
-             conn.id.nb_id,
+             conn.id.nb_id.nb_id,
              conn.id.cu_du_id): conn.id
             for conn in conns
         }
@@ -163,6 +163,7 @@ def subscriber(sm_configs, report_checkpoint):
 
             # Case-2: E2-Node is marked as "OFF" but is now "ON"
             if (not status['is_on']) and (e2_id in conns_ids):
+
                 status['is_on'] = True
                 for status_type in list(status.keys()):
                     if status_type != 'is_on':
