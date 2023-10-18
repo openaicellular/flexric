@@ -387,9 +387,21 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   assert(ric != NULL);
   assert(msg != NULL);
   assert(msg->type == E2_NODE_CONFIGURATION_UPDATE);
-  assert(0 != 0 && "Not Implemented");
+  printf("[NEAR-RIC]: not implemented E2NodeConfigurationUpdate yet, ignore this message for integrating with OSC O-DU\n");
+  //assert(0 != 0 && "Not Implemented");
 
-  e2ap_msg_t ans = {0};
+//  e2ap_msg_t ans = {.type = E2_NODE_CONFIGURATION_UPDATE_ACKNOWLEDGE};
+//
+//  const char* str_conf = "Configuration Update";
+//  byte_array_t* ba2 = malloc(sizeof(byte_array_t));
+//  ba2->buf = malloc(strlen(str_conf));
+//  ba2->len = strlen(str_conf);
+//  memcpy(ba2->buf, str_conf, ba2->len);
+//
+//  ans.u_msgs.e2_node_conf_updt_ack.len_ccual = 0;
+//  ans.u_msgs.e2_node_conf_updt_ack.comp_conf_update_ack_list = NULL;
+
+  e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans;
 }
 
