@@ -68,7 +68,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
     static int counter = 1;
 
     int64_t now = time_now_us();
-    printf("KPM ind_msg latency = %ld\n", now - hdr_frm_1->collectStartTime*1000000);  // xApp <-> E2 Node
+    printf("\n%7d KPM ind_msg latency = %lu [μs]\n", counter, now - hdr_frm_1->collectStartTime*1000000);  // xApp <-> E2 Node
 
     // Reported list of cell level measurements per granularity period
     for (size_t j = 0; j<msg_frm_1->meas_data_lst_len; j++)
@@ -93,11 +93,11 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd)
             {
               if (strcmp(meas_info_name_str, "RRU.PrbTotDl") == 0)
               {
-                printf("RRU.PrbTotDl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                printf("RRU.PrbTotDl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
               }
               else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
               {
-                printf("RRU.PrbTotUl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+                printf("RRU.PrbTotUl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
               }
               else
               {
@@ -151,7 +151,7 @@ kpm_act_def_format_1_t gen_act_def_frm_1_cell(const char** act)
 {
   kpm_act_def_format_1_t dst = {0};
 
-  dst.gran_period_ms = 1;
+  dst.gran_period_ms = 100;
 
   // [1, 65535]
   size_t count = 0;
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
   kpm_sub_data_t kpm_sub = {0};
 
   // KPM Event Trigger
-  uint64_t period_ms = 1;
+  uint64_t period_ms = 100;
   kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
 
   // KPM Action Definition
