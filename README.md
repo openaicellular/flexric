@@ -10,6 +10,7 @@ If you want to know more about FlexRIC and its original architecture, you can fi
 FlexRIC: an SDK for next-generation SD-RANs. In Proceedings of the 17th International Conference on emerging Networking EXperiments and Technologies (CoNEXT
 '21). Association for Computing Machinery, New York, NY, USA, 411–425. DOI: https://doi.org/10.1145/3485983.3494870. A pdf copy is available at
 https://bit.ly/3uOXuCV 
+
 ---
 
 ## 1. Installation
@@ -264,7 +265,7 @@ The default configuration assumes all the components are located in the same loc
 Configure the preference for the port number of E2AP protocol to be able see the E2 message between E2-emulator and nearRT-RIC.
 
 ---
-# [to be completed]
+# [to be completed, not yet updated]
 
 ## 3. Integration with RAN and example of deployment
 
