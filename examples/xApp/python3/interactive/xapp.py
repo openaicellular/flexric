@@ -722,13 +722,15 @@ def _gen_e2nodeid_key(id):
 ####################
 ####  xAPP INIT
 ####################
-def init():
+def init(path_to_conf):
     """
-    init():
+    init(path_to_conf):
         Init xApp to setup connection with NearRT-RIC.
+    Parameters:
+        path_to_conf: configuration for the xApp to setup E42 connection and database.
     """
     # 0. init
-    ric.init(sys.argv)
+    ric.init(['', '-c', path_to_conf])
     # 1. get the length of connected e2 nodes
     global _e2nodes
     _e2nodes = _get_e2_nodes()
