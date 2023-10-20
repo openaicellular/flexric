@@ -1,54 +1,82 @@
 import time
-import pdb
+# import pdb
+import inspect
 import json
 from tabulate import tabulate
-import curses
-from curses import wrapper
-from curses.textpad import rectangle, Textbox
-import math
+# import curses
+# from curses import wrapper
+# from curses.textpad import rectangle, Textbox
+# import math
 from enum import Enum
 import os
 import sys
-cur_dir = os.path.dirname(os.path.abspath(__file__))
+_cur_dir = os.path.dirname(os.path.abspath(__file__))
 # print("Current Directory:", cur_dir)
-sdk_path = cur_dir + "/../xapp_sdk/"
+sdk_path = _cur_dir + "/../xapp_sdk/"
 sys.path.append(sdk_path)
 
 import xapp_sdk as ric
 
-action = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
 
-class ServiceModelEnum(Enum):
+####################
+####  HELP
+####################
+def print_funcs_list():
+    """
+    print_funcs_list():
+        Print provided functions in this interactive xApp.
+    """
+    function_names = [name for name, func in globals().items() if callable(func) and func.__module__ == __name__ and not name.startswith('_')]
+    print("Available functions:")
+    for name in function_names:
+        print("- " + name)
+
+def print_funcs_usage(func_name):
+    """
+    print_funcs_usage(func_name):
+        Print given function information.
+
+    Parameters:
+        func_name: function name (ex: xapp.init)
+    """
+    print(func_name.__doc__)
+
+
+ex_kpm_actions_gnb = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
+ex_kpm_actions_gnb_du = ["DRB.RlcSduDelayDl", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"]
+ex_kpm_actions_gnb_cu = ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"]
+
+class _ServiceModelEnum(Enum):
     MAC = "mac_sm"
     SLICE = "slice_sm"
     KPM = "kpm_sm"
-ServiceModel: ServiceModelEnum
-ServiceModel = ServiceModelEnum.SLICE
+ServiceModel: _ServiceModelEnum
+ServiceModel = _ServiceModelEnum.SLICE
 
-class SubTTIEnum(Enum):
+class _SubTTIEnum(Enum):
     ms1 = ric.Interval_ms_1
     ms2 = ric.Interval_ms_2
     ms5 = ric.Interval_ms_5
     ms10 = ric.Interval_ms_10
     ms100 = ric.Interval_ms_100
     ms1000 = ric.Interval_ms_1000
-SubTimeInterval: SubTTIEnum
-SubTimeInterval = SubTTIEnum.ms10
+SubTimeInterval: _SubTTIEnum
+SubTimeInterval = _SubTTIEnum.ms10
 
-class SliceTypeEnum(Enum):
+class _SliceTypeEnum(Enum):
     ADDMOD = "ADDMOD"
     DELETE = "DEL"
     ASSOC_UE = "ASSOC_UE"
-SliceType: SliceTypeEnum
-SliceType = SliceTypeEnum.ADDMOD
+SliceType: _SliceTypeEnum
+SliceType = _SliceTypeEnum.ADDMOD
 
 ####################
 #### KPM INDICATION CALLBACK
 ####################
 # Create a callback for KPM which derived it from C++ class kpm_cb
-class KPMCallback(ric.kpm_cb):
+class _KPMCallback(ric.kpm_cb):
     def __init__(self):
-        # Inherit C++ kpm_cb class
+        # Inherit C++ _kpm_cb class
         ric.kpm_cb.__init__(self)
     # Create an override C++ method
     def handle(self, ind):
@@ -57,34 +85,26 @@ class KPMCallback(ric.kpm_cb):
         #     t_kpm = ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime / 1.0
         #     t_diff = t_now - t_kpm
         #     print(f"KPM Indication tstamp {t_now} diff {t_diff} E2-node type {ind.id.type} nb_id {ind.id.nb_id.nb_id}")
-        kpm_ind_to_dict_json(ind, t_now, ind.id)
+        _kpm_ind_to_dict_json(ind, t_now, ind.id)
 
 
 ####################
 ####  GLOBAL VALUE
 ####################
-e2nodes = 0
+_e2nodes = 0
 MAX_E2_NODES = 10
-slice_hndlr = []
-mac_hndlr = []
-kpm_hndlr = []
-slice_cb = [0 for i in range(0, MAX_E2_NODES)]
-mac_cb = [0 for i in range(0, MAX_E2_NODES)]
-kpm_cb = [0 for i in range(0, MAX_E2_NODES)]
-mac_cb_idx = 0
-slice_cb_idx = 0
-kpm_cb_idx = 0
-
-# TODO: only support one UE
-graph_dl_thr_val_arr = [[] for i in range(0, MAX_E2_NODES)]
-graph_ul_thr_val_arr = [[] for i in range(0, MAX_E2_NODES)]
-graph_add = [0 for i in range(0, MAX_E2_NODES)]
+_slice_hndlr = {}
+_mac_hndlr = {}
+_kpm_hndlr = {}
+_slice_cb = 0
+_mac_cb = 0
+_kpm_cb = 0
 
 ####################
 ####  KPM INDICATION MSG TO JSON
 ####################
 
-kpm_stats_struct = {
+_kpm_stats_struct = {
     "Format" : {},
     "Latency" : {},
     "RAN" : {
@@ -94,25 +114,25 @@ kpm_stats_struct = {
     "UEs" : []
 }
 
-global global_kpm_stats
-global_kpm_stats = [kpm_stats_struct for i in range(0, MAX_E2_NODES)]
+global _global_kpm_stats
+_global_kpm_stats = [_kpm_stats_struct for i in range(0, MAX_E2_NODES)]
 
-def kpm_ind_to_dict_json(ind, t_now, id):
-    global e2nodes
+def _kpm_ind_to_dict_json(ind, t_now, id):
+    global _e2nodes
     # find e2 node idx
     n_idx = -1
-    for n in e2nodes:
+    for n in _e2nodes:
         if n.id.nb_id.nb_id == id.nb_id.nb_id:
             if n.id.type == id.type:
-                n_idx = e2nodes.index(n)
+                n_idx = _e2nodes.index(n)
 
                 break
     if n_idx == -1:
         print("cannot find e2 node idx")
         return
 
-    global global_kpm_stats
-    global_kpm_stats[n_idx] = {
+    global _global_kpm_stats
+    _global_kpm_stats[n_idx] = {
         "Format" : {},
         "Latency" : {},
         "RAN" : {
@@ -122,11 +142,11 @@ def kpm_ind_to_dict_json(ind, t_now, id):
         "UEs" : []
     }
 
-    kpm_stats = global_kpm_stats[n_idx]
+    kpm_stats = _global_kpm_stats[n_idx]
 
     # e2 node id
     kpm_stats["RAN"]["nb_id"] = id.nb_id.nb_id
-    kpm_stats["RAN"]["ran_type"] = get_ngran_name(id.type)
+    kpm_stats["RAN"]["ran_type"] = _get_ngran_name(id.type)
 
     # initial
     kpm_dict = kpm_stats
@@ -226,55 +246,10 @@ def kpm_ind_to_dict_json(ind, t_now, id):
             kpm_dict["UEs"].append(ue_dict)
 
 
-
-# len_table_str = 0
-def print_kpm_stats(n_idx):
-    global global_kpm_stats
-    kpm_stats = global_kpm_stats[n_idx]
-    col_data = []
-    col_name = ["Format", "Latency"]
-    for ue in kpm_stats["UEs"]:
-        tmp = [kpm_stats["Format"], kpm_stats["Latency"]]
-        # UEs
-        for ue_id_key in ue["UE_ID"].keys():
-            if kpm_stats["UEs"].index(ue) == 0:
-                col_name.append(ue_id_key)
-            tmp.append(ue["UE_ID"][ue_id_key])
-        col_data.append(tmp)
-    print(tabulate(col_data, headers=col_name, tablefmt="grid"))
-
-def print_kpm_stats_ue(n_idx, ue_idx):
-    global global_kpm_stats
-    kpm_stats = global_kpm_stats[n_idx]
-    # RAN
-    col_data = []
-    col_name = ["Format", "Latency"]
-    for data in kpm_stats["UEs"][ue_idx]["Measurements"]:
-        tmp = [kpm_stats["Format"], kpm_stats["Latency"]]
-
-        for meas_key in data.keys():
-            if meas_key != "data" and kpm_stats["UEs"][ue_idx]["Measurements"].index(data) == 0:
-                col_name.append(meas_key)
-                tmp.append(data[meas_key])
-            else:
-                for name_id_value in data["data"]:
-                    if kpm_stats["UEs"][ue_idx]["Measurements"].index(data) == 0:
-                        col_name.append(name_id_value["name/id"])
-                    tmp.append(name_id_value["value"])
-        col_data.append(tmp)
-    print(tabulate(col_data, headers=col_name, tablefmt="grid"))
-
-#     global len_table_str
-#     print_table = tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid")
-#     table_str = str(print_table).ljust(len(print_table))
-#     len_table_str = len(print_table)
-#     print(table_str, end="\r")
-#     print("\n")
-
 ####################
 #### MAC INDICATION CALLBACK
 ####################
-class MACCallback(ric.mac_cb):
+class _MACCallback(ric.mac_cb):
     # Define Python class 'constructor'
     def __init__(self):
         # Call C++ base class constructor
@@ -292,7 +267,7 @@ class MACCallback(ric.mac_cb):
 ####################
 ####  SLICE INDICATION MSG TO JSON
 ####################
-slice_stats_struct = {
+_slice_stats_struct = {
     "RAN" : {
         "nb_id" : {},
         "ran_type" : {},
@@ -303,24 +278,24 @@ slice_stats_struct = {
     "UE" : {}
 }
 
-global global_slice_stats
-global_slice_stats = [slice_stats_struct for i in range(0, MAX_E2_NODES)]
+global _global_slice_stats
+_global_slice_stats = [_slice_stats_struct for i in range(0, MAX_E2_NODES)]
 
-def slice_ind_to_dict_json(ind, id):
-    global e2nodes
+def _slice_ind_to_dict_json(ind, id):
+    global _e2nodes
     # find e2 node idx
     n_idx = -1
-    for n in e2nodes:
+    for n in _e2nodes:
         if n.id.nb_id.nb_id == id.nb_id.nb_id:
             if n.id.type == id.type:
-                n_idx = e2nodes.index(n)
+                n_idx = _e2nodes.index(n)
                 break
     if n_idx == -1:
         print("cannot find e2 node idx")
         return
 
-    global global_slice_stats
-    global_slice_stats[n_idx] = {
+    global _global_slice_stats
+    _global_slice_stats[n_idx] = {
         "RAN" : {
             "nb_id" : {},
             "ran_type" : {},
@@ -330,11 +305,11 @@ def slice_ind_to_dict_json(ind, id):
         },
         "UE" : {}
     }
-    slice_stats = global_slice_stats[n_idx]
+    slice_stats = _global_slice_stats[n_idx]
 
     # RAN - e2 node id
     slice_stats["RAN"]["nb_id"] = id.nb_id.nb_id
-    slice_stats["RAN"]["ran_type"] = get_ngran_name(id.type)
+    slice_stats["RAN"]["ran_type"] = _get_ngran_name(id.type)
     # RAN - dl
     dl_dict = slice_stats["RAN"]["dl"]
     if ind.slice_stats.dl.len_slices <= 0:
@@ -432,7 +407,7 @@ def slice_ind_to_dict_json(ind, id):
 ####################
 #### SLICE INDICATION CALLBACK
 ####################
-class SLICECallback(ric.slice_cb):
+class _SLICECallback(ric.slice_cb):
     # Define Python class 'constructor'
     def __init__(self):
         # Call C++ base class constructor
@@ -446,12 +421,12 @@ class SLICECallback(ric.slice_cb):
         #     print('SLICE STATE: sched_name = ' + str(ind.slice_stats.dl.sched_name[0]))
         #if (ind.ue_slice_stats.len_ue_slice > 0):
         #    print('UE ASSOC SLICE STATE: len_ue_slice = ' + str(ind.ue_slice_stats.len_ue_slice))
-        slice_ind_to_dict_json(ind, ind.id)
+        _slice_ind_to_dict_json(ind, ind.id)
 
 ####################
 ####  SLICE CONTROL FUNCS
 ####################
-def fill_slice_conf(slice_params, slice_sched_algo):
+def _fill_slice_conf(slice_params, slice_sched_algo):
     s = ric.fr_slice_t()
     s.id = slice_params["index"]
     s.label = slice_params["label"]
@@ -494,46 +469,32 @@ def fill_slice_conf(slice_params, slice_sched_algo):
 ####################
 ####  SLICE CONTROL PARAMETER EXAMPLE - ADD/MOD SLICE
 ####################
-conf_static_slices = {
-    "num_of_slices" : 3,
-    "slice_sched_algo" : "STATIC",
-    "slices" : [
-        {
-            "index" : 0,
-            "label" : "s1",
-            "ue_sched_algo" : "PF",
-            "slice_algo_params" : {"pos_low" : 0, "pos_high" : 2},
-        },
-        {
-            "index" : 2,
-            "label" : "s2",
-            "ue_sched_algo" : "PF",
-            "slice_algo_params" : {"pos_low" : 3, "pos_high" : 10},
-        },
-        {
-            "index" : 5,
-            "label" : "s3",
-            "ue_sched_algo" : "PF",
-            "slice_algo_params" : {"pos_low" : 11, "pos_high" : 13},
-        }
-    ]
-}
+# ex_slice_conf_addmod_static = {
+#     "num_of_slices" : 3,
+#     "slice_sched_algo" : "STATIC",
+#     "slices" : [
+#         {
+#             "index" : 0,
+#             "label" : "s1",
+#             "ue_sched_algo" : "PF",
+#             "slice_algo_params" : {"pos_low" : 0, "pos_high" : 2},
+#         },
+#         {
+#             "index" : 2,
+#             "label" : "s2",
+#             "ue_sched_algo" : "PF",
+#             "slice_algo_params" : {"pos_low" : 3, "pos_high" : 10},
+#         },
+#         {
+#             "index" : 5,
+#             "label" : "s3",
+#             "ue_sched_algo" : "PF",
+#             "slice_algo_params" : {"pos_low" : 11, "pos_high" : 13},
+#         }
+#     ]
+# }
 
-conf_nvs_slices_rate1 = {
-    "num_of_slices" : 1,
-    "slice_sched_algo" : "NVS",
-    "slices" : [
-        {
-            "index" : 0,
-            "label" : "s1",
-            "ue_sched_algo" : "PF",
-            "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 60, "mbps_ref" : 120},
-        }
-    ]
-}
-
-conf_nvs_slices_rate2 = {
+ex_slice_conf_addmod_nvs_rate2 = {
     "num_of_slices" : 2,
     "slice_sched_algo" : "NVS",
     "slices" : [
@@ -542,19 +503,19 @@ conf_nvs_slices_rate2 = {
             "label" : "s1",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 20, "mbps_ref" : 120},
+            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 60, "mbps_ref" : 200},
         },
         {
             "index" : 2,
             "label" : "s2",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 100, "mbps_ref" : 120},
+            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 140, "mbps_ref" : 200},
         }
     ]
 }
 
-conf_nvs_slices_cap2 = {
+ex_slice_conf_addmod_nvs_cap2 = {
     "num_of_slices" : 2,
     "slice_sched_algo" : "NVS",
     "slices" : [
@@ -575,7 +536,7 @@ conf_nvs_slices_cap2 = {
     ]
 }
 
-conf_nvs_slices_cap3 = {
+ex_slice_conf_addmod_nvs_cap3 = {
     "num_of_slices" : 3,
     "slice_sched_algo" : "NVS",
     "slices" : [
@@ -603,7 +564,7 @@ conf_nvs_slices_cap3 = {
     ]
 }
 
-conf_nvs_slices = {
+ex_slice_conf_addmod_nvs = {
     "num_of_slices" : 3,
     "slice_sched_algo" : "NVS",
     "slices" : [
@@ -619,51 +580,51 @@ conf_nvs_slices = {
             "label" : "s2",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 50, "mbps_ref" : 120},
+            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 30, "mbps_ref" : 100},
         },
         {
             "index" : 5,
             "label" : "s3",
             "ue_sched_algo" : "PF",
             "type" : "SLICE_SM_NVS_V0_RATE",
-            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 5, "mbps_ref" : 120},
+            "slice_algo_params" : {"type": "RATE", "mbps_rsvd" : 60, "mbps_ref" : 100},
         }
     ]
 }
+#
+# ex_slice_conf_addmod_edf = {
+#     "num_of_slices" : 3,
+#     "slice_sched_algo" : "EDF",
+#     "slices" : [
+#         {
+#             "index" : 0,
+#             "label" : "s1",
+#             "ue_sched_algo" : "PF",
+#             "slice_algo_params" : {"deadline" : 10, "guaranteed_prbs" : 20, "max_replenish" : 0},
+#         },
+#         {
+#             "index" : 2,
+#             "label" : "s2",
+#             "ue_sched_algo" : "RR",
+#             "slice_algo_params" : {"deadline" : 20, "guaranteed_prbs" : 20, "max_replenish" : 0},
+#         },
+#         {
+#             "index" : 5,
+#             "label" : "s3",
+#             "ue_sched_algo" : "MT",
+#             "slice_algo_params" : {"deadline" : 40, "guaranteed_prbs" : 10, "max_replenish" : 0},
+#         }
+#     ]
+# }
 
-conf_edf_slices = {
-    "num_of_slices" : 3,
-    "slice_sched_algo" : "EDF",
-    "slices" : [
-        {
-            "index" : 0,
-            "label" : "s1",
-            "ue_sched_algo" : "PF",
-            "slice_algo_params" : {"deadline" : 10, "guaranteed_prbs" : 20, "max_replenish" : 0},
-        },
-        {
-            "index" : 2,
-            "label" : "s2",
-            "ue_sched_algo" : "RR",
-            "slice_algo_params" : {"deadline" : 20, "guaranteed_prbs" : 20, "max_replenish" : 0},
-        },
-        {
-            "index" : 5,
-            "label" : "s3",
-            "ue_sched_algo" : "MT",
-            "slice_algo_params" : {"deadline" : 40, "guaranteed_prbs" : 10, "max_replenish" : 0},
-        }
-    ]
-}
-
-conf_reset_slices = {
+ex_slice_conf_addmod_reset = {
     "num_of_slices" : 0
 }
 
 ####################
 ####  SLICE CONTROL PARAMETER EXAMPLE - DELETE SLICE
 ####################
-conf_delete_slices = {
+ex_slice_conf_delete = {
     "num_of_slices" : 1,
     "delete_dl_slice_id" : [5]
 }
@@ -671,17 +632,17 @@ conf_delete_slices = {
 ####################
 ####  SLICE CONTROL PARAMETER EXAMPLE - ASSOC UE SLICE
 ####################
-conf_assoc_ue_slice = {
+ex_slice_conf_assoc_ue = {
     "num_of_ues" : 1,
     "ues" : [
         {
-            "rnti" : 0, # TODO: get rnti from slice_ind_to_dict_json()
+            "rnti" : 0,
             "assoc_dl_slice_id" : 2
         }
     ]
 }
 
-def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
+def _fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
     msg = ric.slice_ctrl_msg_t()
     if ctrl_type == "ADDMOD":
         msg.type = ric.SLICE_CTRL_SM_V0_ADD
@@ -697,7 +658,7 @@ def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
         dl.len_slices = ctrl_msg["num_of_slices"]
         slices = ric.slice_array(ctrl_msg["num_of_slices"])
         for i in range(0, ctrl_msg["num_of_slices"]):
-            slices[i] = fill_slice_conf(ctrl_msg["slices"][i], ctrl_msg["slice_sched_algo"])
+            slices[i] = _fill_slice_conf(ctrl_msg["slices"][i], ctrl_msg["slice_sched_algo"])
 
         dl.slices = slices
         msg.u.add_mod_slice.dl = dl
@@ -721,7 +682,7 @@ def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
         assoc = ric.ue_slice_assoc_array(ctrl_msg["num_of_ues"])
         for i in range(ctrl_msg["num_of_ues"]):
             a = ric.ue_slice_assoc_t()
-            a.rnti = ctrl_msg["ues"][i]["rnti"] # TODO: assign the rnti after get the indication msg from slice_ind_to_dict_json()
+            a.rnti = ctrl_msg["ues"][i]["rnti"]
             a.dl_id = ctrl_msg["ues"][i]["assoc_dl_slice_id"]
             # TODO: UL SLICE CTRL ASSOC
             # a.ul_id = 0
@@ -734,7 +695,7 @@ def fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
 ####################
 #### CONVERT RAN TYPE TO STRING
 ####################
-def get_ngran_name(ran_type):
+def _get_ngran_name(ran_type):
     if ran_type == 0:
         return "ngran_eNB"
     elif ran_type == 2:
@@ -749,13 +710,142 @@ def get_ngran_name(ran_type):
 ####################
 #### UPDATE CONNECTED E2 NODES
 ####################
-def get_e2_nodes():
+def _get_e2_nodes():
     return ric.conn_e2_nodes()
 
-e2nodes_col_names = ["idx", "nb_id", "mcc", "mnc", "ran_type"]
+def _gen_e2nodeid_key(id):
+    plmn = "PLMN_" + str(id.plmn.mcc) + str(id.plmn.mnc)
+    nb_id = "NBID_" + str(id.nb_id.nb_id)
+    ran_type = _get_ngran_name(id.type)
+    return plmn + "-" + nb_id + "-" + ran_type
+
+####################
+####  xAPP INIT
+####################
+def init():
+    """
+    init():
+        Init xApp to setup connection with NearRT-RIC.
+    """
+    # 0. init
+    ric.init(sys.argv)
+    # 1. get the length of connected e2 nodes
+    global _e2nodes
+    _e2nodes = _get_e2_nodes()
+    e2nodes_len = len(_e2nodes)
+    # while e2nodes_len <= 0:
+    #     temp_e2nodes = _get_e2_nodes()
+    #     if e2nodes != temp_e2nodes:
+    #         print("Update connected E2 nodes")
+    #         e2nodes = temp_e2nodes
+    #         e2nodes_len = len(e2nodes)
+    #     else:
+    #         print("No E2 node connects")
+    #         time.sleep(1)
+    # assert(len(e2nodes) > 0)
+
+    print_e2_nodes()
+
+    # TODO: need to process multi e2 nodes
+    # e2node = e2nodes[0]
+    # for n in e2nodes:
+    #     # 3. subscribe slice sm and mac sm
+    #     n_idx = e2nodes.index(n)
+    #     global _slice_cb
+    #     _slice_cb[n_idx] = SLICECallback()
+    #     global _slice_hndlr
+    #     hndlr = ric.report_slice_sm(n.id, ric.Interval_ms_10, _slice_cb[n_idx])
+    #     _slice_hndlr.append(hndlr)
+    #
+    #     global _mac_cb
+    #     _mac_cb[n_idx] = MACCallback()
+    #     global _mac_hndlr
+    #     hndlr = ric.report_mac_sm(n.id, ric.Interval_ms_10, _mac_cb[n_idx])
+    #     _mac_hndlr.append(hndlr)
+    #     time.sleep(2)
+    #
+    #     # 4. create slices, adding nvs_slices_rate1 by default
+    #     msg = fill_slice_ctrl_msg("ADDMOD", conf_nvs_slices_cap2)
+    #     ric.control_slice_sm(n.id, msg)
+
+####################
+#### subscribe_sm
+####################
+def subscribe_sm(n_idx, enum_sm, tti_enum, action):
+    """
+    subscribe_sm(n_idx, enum_sm, tti_enum, action):
+        Subscribe service model from the specific E2-Node.
+
+    Parameters:
+        n_idx: index of the connected E2-Node, you can get the index by calling print_e2_nodes().
+        enum_sm: enum of service model name (support: xapp.ServiceModel.MAC/SLICE/KPM).
+        tti_enum: enum of indication message time interval (support: xapp.SubTTI.ms1/ms2/ms5/ms10/ms100/ms1000).
+        action: list of action definitions used for KPM SM (ex: ex_kpm_actions_gnb)
+    """
+    global _e2nodes
+    # default tti is 10 ms
+    tti = ric.Interval_ms_10
+    if tti_enum.value:
+        tti = tti_enum.value
+    else:
+        print("unknown tti")
+
+    sub_sm_str = enum_sm.value
+    if sub_sm_str == "mac_sm":
+        global _mac_cb
+        global _mac_hndlr
+        _mac_cb = _MACCallback()
+        hndlr = ric.report_mac_sm(_e2nodes[n_idx].id, tti, _mac_cb)
+        key = _gen_e2nodeid_key(_e2nodes[n_idx].id)
+        _mac_hndlr.setdefault(key, []).append(hndlr)
+    elif sub_sm_str == "slice_sm":
+        global _slice_cb
+        global _slice_hndlr
+        _slice_cb = _SLICECallback()
+        hndlr = ric.report_slice_sm(_e2nodes[n_idx].id, tti, _slice_cb)
+        key = _gen_e2nodeid_key(_e2nodes[n_idx].id)
+        _slice_hndlr.setdefault(key, []).append(hndlr)
+    elif sub_sm_str == "kpm_sm":
+        global _kpm_cb
+        global _kpm_hndlr
+        _kpm_cb = _KPMCallback()
+        hndlr = ric.report_kpm_sm(_e2nodes[n_idx].id, tti, action, _kpm_cb)
+        key = _gen_e2nodeid_key(_e2nodes[n_idx].id)
+        _kpm_hndlr.setdefault(key, []).append(hndlr)
+    else:
+        print("unknown sm")
+
+####################
+####  SEND SLICE CONTROL MSG
+####################
+# cmd = "ADDMOD", "DEL", "ASSOC_UE"
+# conf = conf_nvs_slices, conf_delete_slices, conf_assoc_ue_slice
+def send_slice_ctrl(n_idx, type_enum, conf):
+    """
+    send_slice_ctrl(n_idx, type_enum, conf):
+        Send slice control to the specific E2-Node.
+
+    Parameters:
+        n_idx: index of the connected E2-Node, you can get the index by calling print_e2_nodes().
+        type_enum: enum of slice action (support: xapp.SliceType.ADDMOD/DEL/ASSOC_UE).
+        conf: slice configuration (ex: xapp.conf_nvs_slices).
+    """
+    cmd = type_enum.value
+    msg = _fill_slice_ctrl_msg(cmd, conf)
+    global _e2nodes
+    ric.control_slice_sm(_e2nodes[n_idx].id, msg)
+
+####################
+####  print_e2_nodes
+####################
 def print_e2_nodes():
-    global e2nodes
-    e2nodes = get_e2_nodes()
+    """
+    print_e2_nodes():
+        Print connected E2-Nodes' stats in table.
+    """
+    e2nodes_col_names = ["idx", "nb_id", "mcc", "mnc", "ran_type"]
+    global _e2nodes
+    _e2nodes = _get_e2_nodes()
     e2nodes_data = []
     conn = ric.conn_e2_nodes()
     for i in range(0, len(conn)):
@@ -767,7 +857,7 @@ def print_e2_nodes():
                 conn[i].id.nb_id.nb_id,
                 conn[i].id.plmn.mcc,
                 conn[i].id.plmn.mnc,
-                get_ngran_name(conn[i].id.type)]
+                _get_ngran_name(conn[i].id.type)]
         # print(info)
         e2nodes_data.append(info)
     print(tabulate(e2nodes_data, headers=e2nodes_col_names, tablefmt="grid"))
@@ -779,11 +869,22 @@ def print_e2_nodes():
     #       "ran_type " + get_ngran_name(e2node.id.type) + ',',
     #       "cu_du_id " + str(e2node.id.cu_du_id if e2node.id.cu_du_id else -1))
 
-slice_stats_col_names = ["nb_id", "ran_type", "slice_id", "label", "slice_sched_algo", "slice_algo_param1", "slice_algo_param2", "slice_algo_param3", "ue_sched_algo"]
-ue_stats_col_names = ["rnti", "assoc_slice_id"]
+
+####################
+####  print_slice_stats
+####################
 def print_slice_stats(n_idx):
-    global global_slice_stats
-    s = global_slice_stats[n_idx]
+    """
+    print_slice_stats(n_idx):
+        Print slice stats from the specific E2-Node in table.
+
+    Parameters:
+        n_idx: index of the connected E2-Node, you can get the index by calling print_e2_nodes().
+    """
+    slice_stats_col_names = ["nb_id", "ran_type", "slice_id", "label", "slice_sched_algo", "slice_algo_param1", "slice_algo_param2", "slice_algo_param3", "ue_sched_algo"]
+    ue_stats_col_names = ["rnti", "assoc_slice_id"]
+    global _global_slice_stats
+    s = _global_slice_stats[n_idx]
     # RAN
     slice_stats_table = []
     nb_id = s["RAN"]["nb_id"]
@@ -859,10 +960,55 @@ def print_slice_stats(n_idx):
     print(tabulate(slice_stats_table, headers=slice_stats_col_names, tablefmt="grid"))
     print(tabulate(ue_slice_stats_table, headers=ue_stats_col_names, tablefmt="grid"))
 
-mod_slice_conf_col_names = ["slice_id", "label", "slice_sched_algo", "slice_algo_param1", "slice_algo_param2", "slice_algo_param3", "ue_sched_algo"]
-del_slice_conf_col_names = ["slice_id"]
-assoc_ue_conf_col_names = ["rnti", "assoc_slice_id"]
+####################
+####  print_slice_stats_json
+####################
+def print_slice_stats_json(n_idx):
+    """
+    print_slice_stats_json(n_idx):
+        Print slice stats from the specific E2-Node in JSON.
+
+    Parameters:
+        n_idx: index of the connected E2-Node, you can get the index by calling print_e2_nodes().
+    """
+    global _global_slice_stats
+    s = _global_slice_stats[n_idx]
+    json_formatted_str = json.dumps(s, indent=2)
+    print(json_formatted_str)
+
+####################
+####  print_slice_stats_loop
+####################
+def print_slice_stats_loop(n_idx, n_loop):
+    """
+    print_slice_stats_loop(n_idx, n_loop):
+        Print slice stats from the specific E2-Node in table for N seconds.
+
+    Parameters:
+        n_idx: index of the connected E2-Node, you can get the index by calling print_e2_nodes().
+        n_loop: N seconds.
+    """
+    global len_table_str
+    for i in range(0, n_loop):
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print_slice_stats(n_idx)
+        time.sleep(1)
+
+####################
+####  print_slice_conf
+####################
 def print_slice_conf(type_enum, conf):
+    """
+    print_slice_conf(type_enum, conf):
+        Print slice configuration in table.
+
+    Parameters:
+        type_enum: enum of slice action (support: xapp.SliceType.ADDMOD/DEL/ASSOC_UE).
+        conf: slice configuration (ex: xapp.ex_slice_conf_addmod_nvs).
+    """
+    mod_slice_conf_col_names = ["slice_id", "label", "slice_sched_algo", "slice_algo_param1", "slice_algo_param2", "slice_algo_param3", "ue_sched_algo"]
+    del_slice_conf_col_names = ["slice_id"]
+    assoc_ue_conf_col_names = ["rnti", "assoc_slice_id"]
     type = type_enum.value
     if type == "ADDMOD":
         # RAN
@@ -934,125 +1080,98 @@ def print_slice_conf(type_enum, conf):
                 assoc_ue_slice_conf_table.append(info)
         print(tabulate(assoc_ue_slice_conf_table, headers=assoc_ue_conf_col_names))
 
+####################
+####  print_slice_conf_json
+####################
 def print_slice_conf_json(conf):
-    # TODO: need to process multi e2 nodes
+    """
+    print_slice_conf_json(conf):
+        Print the slice configuration in JSON.
+
+    Parameters:
+        conf: slice configuration (ex: xapp.ex_slice_conf_addmod_nvs).
+    """
     json_formatted_str = json.dumps(conf, indent=2)
     print(json_formatted_str)
 
+####################
+####  print_kpm_stats
+####################
+# len_table_str = 0
+def print_kpm_stats(n_idx):
+    """
+    print_kpm_stats(n_idx):
+        Print KPM stats (UE_ID_E2SM) for all the UEs in table.
 
-def subscribe_sm(n_idx, enum_sm, tti_enum, action):
-    global e2nodes
-    # default tti is 10 ms
-    tti = ric.Interval_ms_10
-    if tti_enum.value:
-        tti = tti_enum.value
-    else:
-        print("unknown tti")
-
-    sub_sm_str = enum_sm.value
-    if sub_sm_str == "mac_sm":
-        global mac_cb
-        global mac_cb_idx
-        mac_cb[mac_cb_idx] = MACCallback()
-        global mac_hndlr
-        hndlr = ric.report_mac_sm(e2nodes[n_idx].id, tti, mac_cb[mac_cb_idx])
-        mac_hndlr.append(hndlr)
-        mac_cb_idx+=1
-    elif sub_sm_str == "slice_sm":
-        global slice_cb
-        global slice_cb_idx
-        slice_cb[slice_cb_idx] = SLICECallback()
-        global slice_hndlr
-        hndlr = ric.report_slice_sm(e2nodes[n_idx].id, tti, slice_cb[slice_cb_idx])
-        slice_hndlr.append(hndlr)
-        slice_cb_idx+=1
-    elif sub_sm_str == "kpm_sm":
-        global kpm_cb
-        global kpm_cb_idx
-        kpm_cb[kpm_cb_idx] = KPMCallback()
-        global kpm_hndlr
-        hndlr = ric.report_kpm_sm(e2nodes[n_idx].id, tti, action, kpm_cb[kpm_cb_idx])
-        kpm_hndlr.append(hndlr)
-        kpm_cb_idx+=1
-    else:
-        print("unknown sm")
+    Parameters:
+        n_idx: index of the connected E2-Node, you can get the index by calling print_e2_nodes().
+    """
+    global _global_kpm_stats
+    kpm_stats = _global_kpm_stats[n_idx]
+    col_data = []
+    col_name = ["Format", "Latency"]
+    for ue in kpm_stats["UEs"]:
+        tmp = [kpm_stats["Format"], kpm_stats["Latency"]]
+        # UEs
+        for ue_id_key in ue["UE_ID"].keys():
+            if kpm_stats["UEs"].index(ue) == 0:
+                col_name.append(ue_id_key)
+            tmp.append(ue["UE_ID"][ue_id_key])
+        col_data.append(tmp)
+    print(tabulate(col_data, headers=col_name, tablefmt="grid"))
 
 ####################
-####  xAPP INIT
+####  print_kpm_stats_ue
 ####################
-def init():
-    # 0. init
-    ric.init(sys.argv)
-    # 1. get the length of connected e2 nodes
-    global e2nodes
-    e2nodes = get_e2_nodes()
-    e2nodes_len = len(e2nodes)
-    while e2nodes_len <= 0:
-        temp_e2nodes = get_e2_nodes()
-        if e2nodes != temp_e2nodes:
-            print("Update connected E2 nodes")
-            e2nodes = temp_e2nodes
-            e2nodes_len = len(e2nodes)
-        else:
-            print("No E2 node connects")
-            time.sleep(1)
-    assert(len(e2nodes) > 0)
+def print_kpm_stats_ue(n_idx, ue_idx):
+    """
+    print_kpm_stats_ue(n_idx, ue_idx):
+        Print KPM stats (Measurement Records) for the specific UE in table.
 
-    print_e2_nodes()
+    Parameters:
+        n_idx: index of the connected E2-Node, you can get the index by calling print_e2_nodes().
+        ue_idx: index of the UE, you can get the index by calling print_kpm_stats().
+    """
+    global _global_kpm_stats
+    kpm_stats = _global_kpm_stats[n_idx]
+    # RAN
+    col_data = []
+    col_name = ["Format", "Latency"]
+    for data in kpm_stats["UEs"][ue_idx]["Measurements"]:
+        tmp = [kpm_stats["Format"], kpm_stats["Latency"]]
 
-    # TODO: need to process multi e2 nodes
-    # e2node = e2nodes[0]
-    # for n in e2nodes:
-    #     # 3. subscribe slice sm and mac sm
-    #     n_idx = e2nodes.index(n)
-    #     global slice_cb
-    #     slice_cb[n_idx] = SLICECallback()
-    #     global slice_hndlr
-    #     hndlr = ric.report_slice_sm(n.id, ric.Interval_ms_10, slice_cb[n_idx])
-    #     slice_hndlr.append(hndlr)
-    #
-    #     global mac_cb
-    #     mac_cb[n_idx] = MACCallback()
-    #     global mac_hndlr
-    #     hndlr = ric.report_mac_sm(n.id, ric.Interval_ms_10, mac_cb[n_idx])
-    #     mac_hndlr.append(hndlr)
-    #     time.sleep(2)
-    #
-    #     # 4. create slices, adding nvs_slices_rate1 by default
-    #     msg = fill_slice_ctrl_msg("ADDMOD", conf_nvs_slices_cap2)
-    #     ric.control_slice_sm(n.id, msg)
+        for meas_key in data.keys():
+            if meas_key != "data" and kpm_stats["UEs"][ue_idx]["Measurements"].index(data) == 0:
+                col_name.append(meas_key)
+                tmp.append(data[meas_key])
+            else:
+                for name_id_value in data["data"]:
+                    if kpm_stats["UEs"][ue_idx]["Measurements"].index(data) == 0:
+                        col_name.append(name_id_value["name/id"])
+                    tmp.append(name_id_value["value"])
+        col_data.append(tmp)
+    print(tabulate(col_data, headers=col_name, tablefmt="grid"))
+
+#     global len_table_str
+#     print_table = tabulate(kpm_stats_table, headers=kpm_ind_col_names, tablefmt="grid")
+#     table_str = str(print_table).ljust(len(print_table))
+#     len_table_str = len(print_table)
+#     print(table_str, end="\r")
+#     print("\n")
 
 ####################
-####  SEND SLICE CONTROL MSG
+####  print_kpm_stats_json
 ####################
-# cmd = "ADDMOD", "DEL", "ASSOC_UE"
-# conf = conf_nvs_slices, conf_delete_slices, conf_assoc_ue_slice
-def send_slice_ctrl_msg(n_idx, type_enum, conf):
-    cmd = type_enum.value
-    msg = fill_slice_ctrl_msg(cmd, conf)
-    global e2nodes
-    ric.control_slice_sm(e2nodes[n_idx].id, msg)
-
-
-####################
-####  GET STATS in JSON
-####################
-def print_slice_stats_json(n_idx):
-    global global_slice_stats
-    s = global_slice_stats[n_idx]
-    json_formatted_str = json.dumps(s, indent=2)
-    print(json_formatted_str)
-
-def print_slice_stats_loop(n_idx, n_loop):
-    global len_table_str
-    for i in range(0, n_loop):
-        os.system('cls' if os.name == 'nt' else 'clear')
-        print_slice_stats(n_idx)
-        time.sleep(1)
-
 def print_kpm_stats_json(n_idx):
-    global global_kpm_stats
-    k = global_kpm_stats[n_idx]
+    """
+    print_kpm_stats_json(n_idx):
+        Print KPM stats from the specific E2-Node in JSON.
+
+    Parameters:
+        n_idx: index of the connected E2-Node, you can get the index by calling print_e2_nodes().
+    """
+    global _global_kpm_stats
+    k = _global_kpm_stats[n_idx]
     json_formatted_str = json.dumps(k, indent=2)
     print(json_formatted_str)
 
@@ -1067,24 +1186,26 @@ def print_kpm_stats_json(n_idx):
 ####  END
 ####################
 def end():
-    global slice_hndlr
-    for i in range(0, len(slice_hndlr)):
-        ric.rm_report_slice_sm(slice_hndlr[i])
-    global mac_hndlr
-    for i in range(0, len(mac_hndlr)):
-        ric.rm_report_mac_sm(mac_hndlr[i])
-    global kpm_hndlr
-    for i in range(0, len(kpm_hndlr)):
-        ric.rm_report_kpm_sm(kpm_hndlr[i])
-
-    for n in e2nodes:
-        json_fname = "rt_slice_stats_nb_id" + str(n.id.nb_id.nb_id)+ ".json"
-        with open(json_fname, "w") as outfile:
-            outfile.write(json.dumps({}))
+    """
+    end():
+        Stop xApp.
+    """
+    global _slice_hndlr
+    global _mac_hndlr
+    global _kpm_hndlr
+    conn = ric.conn_e2_nodes()
+    for n in conn:
+        key = _gen_e2nodeid_key(n.id)
+        if key in _mac_hndlr:
+            for i in range(0, len(_mac_hndlr[key])):
+                ric.rm_report_mac_sm(_mac_hndlr[key][i])
+        if key in _slice_hndlr:
+            for i in range(0, len(_slice_hndlr[key])):
+                ric.rm_report_slice_sm(_slice_hndlr[key][i])
+        if key in _kpm_hndlr:
+            for i in range(0, len(_kpm_hndlr[key])):
+                ric.rm_report_kpm_sm(_kpm_hndlr[key][i])
 
     while ric.try_stop == 0:
         time.sleep(1)
     print('Test finished')
-
-
-

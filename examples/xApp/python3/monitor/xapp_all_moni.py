@@ -28,13 +28,13 @@ def sig_handler(signum, frame):
                 ric.rm_report_mac_sm(mac_hndlr[key][i])
         if key in rlc_hndlr:
             for i in range(0, len(rlc_hndlr[key])):
-                ric.rm_report_mac_sm(rlc_hndlr[key][i])
+                ric.rm_report_rlc_sm(rlc_hndlr[key][i])
         if key in pdcp_hndlr:
             for i in range(0, len(pdcp_hndlr[key])):
-                ric.rm_report_mac_sm(pdcp_hndlr[key][i])
+                ric.rm_report_pdcp_sm(pdcp_hndlr[key][i])
         if key in kpm_hndlr:
             for i in range(0, len(kpm_hndlr[key])):
-                ric.rm_report_mac_sm(kpm_hndlr[key][i])
+                ric.rm_report_kpm_sm(kpm_hndlr[key][i])
 
     # Avoid deadlock. ToDo revise architecture
     while ric.try_stop == 0:
