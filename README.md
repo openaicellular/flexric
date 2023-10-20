@@ -74,6 +74,7 @@ https://bit.ly/3uOXuCV
 
 - (Optional) Install Python ML xApp:
   ```
+  sudo add-apt-repository -y ppa:deadsnakes/ppa
   sudo apt install libsnappy-dev python3.11 python3.11-dev
   ```
   
@@ -273,7 +274,7 @@ We will use a specific branch provided in OAI repository. Below the commands to 
 ```bash
 $ git clone https://gitlab.eurecom.fr/oai/openairinterface5g.git oai
 $ cd oai/
-$ git checkout e2-rf
+$ git checkout develop
 $ source oaienv
 $ cd cmake_targets
 $ ./build_oai -i -I  #For OAI first time installation. it will install some dependencies
