@@ -180,6 +180,148 @@ kpm_act_def_t gen_act_def_cell(const char** act)
   return dst;
 }
 
+
+/* UE LEVEL */
+static
+meas_info_format_1_lst_t gen_meas_info_frm_1_ue_lst(const char* act)
+{
+  meas_info_format_1_lst_t dst = {0};
+
+  dst.meas_type.type = NAME_MEAS_TYPE;
+  dst.meas_type.name = copy_str_to_ba(act);
+
+  dst.label_info_lst_len = 1;
+  dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
+  assert(dst.label_info_lst != NULL && "Memory exhausted");
+
+  if (strcmp(act, "DRB.UEThpDl") == 0 || strcmp(act, "DRB.UEThpUl") == 0)
+  {
+    dst.label_info_lst[0].noLabel = calloc(1, sizeof(enum_value_e));
+    assert(dst.label_info_lst[0].noLabel != NULL && "Memory exhausted");
+    *dst.label_info_lst[0].noLabel = TRUE_ENUM_VALUE; 
+  }
+  else if (strcmp(act, "DRB.UEThpDl.QOS") == 0 || strcmp(act, "DRB.UEThpUl.QOS") == 0)
+  {
+    dst.label_info_lst[0].fiveQI = calloc(1, sizeof(uint8_t));
+    assert(dst.label_info_lst[0].fiveQI != NULL && "Memory exhausted");
+    *dst.label_info_lst[0].fiveQI = 6;
+  }
+  else if (strcmp(act, "DRB.UEThpDl.SNSSAI") == 0 || strcmp(act, "DRB.UEThpUl.SNSSAI") == 0)
+  {
+    dst.label_info_lst[0].sliceID = calloc(1, sizeof(s_nssai_e2sm_t));
+    dst.label_info_lst[0].sliceID->sST = 2;
+    dst.label_info_lst[0].sliceID->sD = calloc(1, sizeof(uint32_t));
+    *dst.label_info_lst[0].sliceID->sD = 1000;
+  }
+  else
+  {
+    assert(false && "Not yet implemented");
+  }
+
+  return dst;
+}
+
+static
+kpm_act_def_format_1_t gen_act_def_frm_1_ue(const char** act)
+{
+  kpm_act_def_format_1_t dst = {0};
+
+  dst.gran_period_ms = 100;
+
+  // [1, 65535]
+  size_t count = 0;
+  while (act[count] != NULL) {
+    count++;
+  }
+  dst.meas_info_lst_len = count;
+  dst.meas_info_lst = calloc(count, sizeof(meas_info_format_1_lst_t));
+  assert(dst.meas_info_lst != NULL && "Memory exhausted");
+
+  for(size_t i = 0; i < dst.meas_info_lst_len; i++){
+    dst.meas_info_lst[i] = gen_meas_info_frm_1_ue_lst(act[i]);
+  }
+
+  return dst;
+}
+
+static
+guami_t gen_guami(void)
+{
+  guami_t guami = {0};
+
+  // Mandatory
+  // PLMN Identity 6.2.3.1
+  guami.plmn_id = (e2sm_plmn_t) {.mcc = 226, .mnc = 04, .mnc_digit_len = 2};
+
+  // Mandatory
+  // AMF Region ID BIT STRING (SIZE(8))
+  guami.amf_region_id = 1;
+
+  // Mandatory
+  //  AMF Set ID BIT STRING (SIZE(10))
+  guami.amf_set_id = 1;
+
+  // Mandatory
+  // AMF Pointer BIT STRING (SIZE(6))
+  guami.amf_ptr = 1;
+
+  return guami;
+}
+
+static
+gnb_e2sm_t gen_gnb_ue_id(void)
+{
+  gnb_e2sm_t gnb = {0};
+
+  // 6.2.3.16
+  // Mandatory
+  // AMF UE NGAP ID
+  gnb.amf_ue_ngap_id = 101;
+
+  // Mandatory
+  // GUAMI 6.2.3.17 
+  gnb.guami = gen_guami();
+
+  return gnb;
+}
+
+static
+ue_id_e2sm_t gen_ue_id(void)
+{
+  ue_id_e2sm_t ue_id = {0};
+
+  ue_id.type = GNB_UE_ID_E2SM;
+  ue_id.gnb = gen_gnb_ue_id();
+
+
+  return ue_id;
+}
+
+static
+kpm_act_def_format_2_t gen_act_def_frm_2_ue(const char** act)
+{
+  kpm_act_def_format_2_t dst = {0};
+
+  dst.ue_id = gen_ue_id();
+
+  dst.action_def_format_1 = gen_act_def_frm_1_ue(act);
+  
+  return dst;
+}
+
+static
+kpm_act_def_t gen_act_def_ue(const char** act)
+{
+  kpm_act_def_t dst = {0}; 
+
+  dst.type = FORMAT_2_ACTION_DEFINITION;
+  dst.frm_2 = gen_act_def_frm_2_ue(act);
+
+  return dst;
+}
+
+
+
 static
 kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
 {
@@ -200,45 +342,69 @@ int main(int argc, char *argv[])
   sleep(1);
 
   e2_node_arr_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr(&nodes); });
   assert(nodes.len > 0);
 
   printf("Connected E2 nodes = %d\n", nodes.len);
 
-  sm_ans_xapp_t* h = calloc(nodes.len, sizeof(sm_ans_xapp_t)); 
-  assert(h != NULL && "Memory exhausted");
-
-
   pthread_mutexattr_t attr = {0};
   int rc = pthread_mutex_init(&mtx, &attr);
   assert(rc == 0);
+
+  // KPM handle
+  sm_ans_xapp_t* kpm_handle = NULL;
+  if(nodes.len > 0){
+    kpm_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) ); 
+    assert(kpm_handle != NULL && "Memory exhausted");
+  }
+
+  for (int i = 0; i < nodes.len; i++) {
+    e2_node_connected_t* n = &nodes.n[i];
+    for (size_t j = 0; j < n->len_rf; j++)
+      printf("Registered node ID %d ran func id = %d \n ", n->id.nb_id.nb_id, n->ack_rf[j].id);
 
 
   //////////// 
   // START KPM 
   //////////// 
   kpm_sub_data_t kpm_sub = {0};
+  defer({ free_kpm_sub_data(&kpm_sub); });
 
-  // KPM Event Trigger
+  // KPM SUBSCRIPTION FOR CELL LEVEL MEASUREMENTS
   uint64_t period_ms = 100;
   kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
+  printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
 
-  // KPM Action Definition
   kpm_sub.sz_ad = 1;
   kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
   assert(kpm_sub.ad != NULL && "Memory exhausted");
 
-  // Generate Action for CELL LEVEL measurements
   const char *act_cell[] = {"RRU.PrbTotDl", "RRU.PrbTotUl", NULL};  // 3GPP TS 28.552
-  *kpm_sub.ad = gen_act_def_cell(act_cell); 
+  *kpm_sub.ad = gen_act_def_cell(act_cell);
+
+  // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS
+  kpm_sub_data_t kpm_sub_1 = {0};
+  defer({ free_kpm_sub_data(&kpm_sub_1); });
+
+  kpm_sub_1.ev_trg_def = gen_ev_trig(period_ms);
+
+  kpm_sub_1.sz_ad = 1;
+  kpm_sub_1.ad = calloc(1, sizeof(kpm_act_def_t));
+  assert(kpm_sub_1.ad != NULL && "Memory exhausted");
+
+  // Generate Action for UE LEVEL measurements
+  const char *act_ue[] = {"DRB.UEThpDl", "DRB.UEThpDl.QOS", "DRB.UEThpDl.SNSSAI", "DRB.UEThpUl", "DRB.UEThpUl.QOS", "DRB.UEThpUl.SNSSAI", NULL};  // 3GPP TS 28.552
+  // const char *act_ue[] = {"DRB.UEThpDl", "DRB.UEThpUl", NULL};  // 3GPP TS 28.552
+  *kpm_sub_1.ad = gen_act_def_ue(act_ue);
 
   const int KPM_ran_function = 1;
 
-  for(size_t i =0; i < nodes.len; ++i){ 
-    h[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm);
-    assert(h[i].success == true);
-  } 
-  free_kpm_sub_data(&kpm_sub); 
+  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm);
+  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm);
 
+    assert(kpm_handle[i].success == true);
+  } 
+  
   //////////// 
   // END KPM 
   //////////// 
@@ -247,11 +413,11 @@ int main(int argc, char *argv[])
 
   for(int i = 0; i < nodes.len; ++i){
   // Remove the handle previously returned
-  rm_report_sm_xapp_api(h[i].u.handle);
+  rm_report_sm_xapp_api(kpm_handle[i].u.handle);
   }
 
   if(nodes.len > 0){
-    free(h);
+    free(kpm_handle);
   }
 
   //Stop the xApp

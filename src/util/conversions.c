@@ -35,8 +35,8 @@ BIT_STRING_t cp_amf_set_id_to_bit_string(uint16_t val)
   dst.buf = calloc(2, sizeof(uint8_t) ); 
   assert(dst.buf != NULL);
 
-  dst.buf[0] = val; // 0x5555;
-  dst.buf[1] = (val >> 8) << 6; 
+  dst.buf[0] = (val << 6) >> 8;
+  dst.buf[1] = val << 6;
 
   return dst;
 }
@@ -48,9 +48,7 @@ uint16_t cp_amf_set_id_to_u16(BIT_STRING_t src)
   assert(src.size == 2);
   assert(src.buf != NULL);
 
-  uint16_t dst = (src.buf[1] >> 6) << 8; 
-  
-  dst = dst | src.buf[0];
+  uint16_t dst = (src.buf[0] << 8) >> 6  | src.buf[1] >> 6;
 
   return dst;
 }
