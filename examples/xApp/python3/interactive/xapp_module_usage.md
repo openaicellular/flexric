@@ -48,7 +48,7 @@ Available functions:
 ### 1.0 Start running xApp
 - initial xApp to setup E42 connection with NearRT-RIC
 ```python
->>> xapp.init()
+>>> xapp.init("path_to_xapp_conf")
 ```
 ### 1.1 Print connected E2-Nodes to get index
 - show the E2-Nodes information
