@@ -161,9 +161,12 @@ byte_array_t kpm_enc_action_def_asn(kpm_act_def_t const* action_def)
 
   byte_array_t const ba = encode(&pdu, E2SM_KPM_ACTION_DEFINITION_ENUM);
 
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, &pdu);
+  fflush(stdout);
+
   /*
-  //xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
-  //fflush(stdout);
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
+  fflush(stdout);
 
   // FIXME Create one function for encoding common to all the methods.
   byte_array_t ba = {.buf = malloc(2048), .len = 2048}; 
@@ -253,8 +256,8 @@ byte_array_t kpm_enc_ind_msg_asn(kpm_ind_msg_t const* ind_msg)
   }
 
 
-  //xer_fprint(stderr, &asn_DEF_E2SM_KPM_IndicationMessage, pdu);
-  //fflush(stdout);
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_IndicationMessage, &pdu);
+  fflush(stdout);
 
   byte_array_t const ba = encode(&pdu, E2SM_KPM_INDICATION_MESSAGE_ENUM);
 
