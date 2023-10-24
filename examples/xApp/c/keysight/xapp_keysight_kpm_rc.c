@@ -648,6 +648,128 @@ kpm_sub_data_t gen_kpm_sub_style_3(void)
   return kpm_sub;
 }
 
+//////////// 
+// Reserved for RC SM -> begin 
+////////////
+
+typedef enum{
+  DRB_QoS_Configuration_7_6_2_1 = 1,
+  QoS_flow_mapping_configuration_7_6_2_1 = 2,
+  Logical_channel_configuration_7_6_2_1 = 3,
+  Radio_admission_control_7_6_2_1 = 4,
+  DRB_termination_control_7_6_2_1 = 5,
+  DRB_split_ratio_control_7_6_2_1 = 6,
+  PDCP_Duplication_control_7_6_2_1 = 7,
+} rc_ctrl_service_style_1_e;
+
+static
+e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1(void)
+{
+  e2sm_rc_ctrl_hdr_frmt_1_t dst = {0};
+
+  // UE ID
+  // Mandatory
+  // 9.3.10
+  dst.ue_id = gen_ue_id();
+
+  // CONTROL Service Style 1: Radio Bearer Control
+  dst.ric_style_type = 1;
+
+  // Control Action ID: DRB QoS Configuration
+  // Mandatory
+  // 9.3.6
+  dst.ctrl_act_id = DRB_QoS_Configuration_7_6_2_1;
+
+  // RIC Control decision
+  // Optional - included only if this action is sent as response to Insert Indication
+  dst.ric_ctrl_decision = NULL;
+
+  return dst;
+}
+
+static
+e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(void)
+{
+  e2sm_rc_ctrl_hdr_t dst = {0};
+  // Radio Bearer Control
+  dst.format = FORMAT_1_E2SM_RC_CTRL_HDR;
+  dst.frmt_1 = gen_rc_ctrl_hdr_frmt_1();
+  return dst;
+}
+
+typedef enum {
+  DRB_ID_8_4_2_1 = 1,
+  FIVEQI_8_4_2_1 = 2,
+  PACKET_DELAY_BUDGET_8_4_2_1 = 3,
+  PACKET_ERROR_RATE_8_4_2_1 = 4,
+  SCALAR_FACTOR_8_4_2_1 = 5,
+  EXPONENT_FACTOR_8_4_2_1 = 6,
+  NG_RAN_DRB_ALLOC_AND_RETENTION_PRIORITY_8_4_2_1 = 7,
+  PRIORITY_LEVEL_8_4_2_1 = 8,
+  PRE_EMPTION_CAPABILITY_8_4_2_1 = 9,
+  PRE_EMPTION_VULNERABILITY_8_4_2_1 = 10,
+  PRIORITY_LEVEL_OF_MAPPED_QOS_FLOWS_8_4_2_1 = 11,
+  QOS_PARAMETERS_FOR_GBR_FLOWS_IN_NG_RAN_BEARER_8_4_2_1 = 12,
+  MAXIMUM_FLOW_BIT_RATE_DOWNLINK_8_4_2_1 = 13,
+  GUARANTEED_FLOW_BIT_RATE_DOWNLINK_8_4_2_1 = 14,
+  MAXIMUM_PACKET_LOSS_RATE_DOWNLINK_8_4_2_1 = 15,
+  MAXIMUM_FLOW_BIT_RATE_UPLINK_8_4_2_1 = 16,
+  GUARANTEED_FLOW_BIT_RATE_UPLINK_8_4_2_1 = 17,
+  MAXIMUM_PACKET_LOSS_RATE_UPLINK_8_4_2_1 = 18,
+  QOS_MONITORING_ENABLE_REQUEST_8_4_2_1 = 19,
+  QOS_MONITORING_REPORTING_FREQUENCY_8_4_2_1 = 20,
+  QOS_MONITORING_DISABLED_8_4_2_1 = 21,
+  REFLECTIVE_QOS_MAPPING_8_4_2_1 = 22,
+} drb_qos_conf_e;
+
+static
+e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(void)
+{
+  e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
+
+  // 8.4.2.1 DRB QoS Configuration
+  dst.sz_ran_param = 2;
+  dst.ran_param = calloc(2, sizeof(seq_ran_param_t));
+  assert(dst.ran_param != NULL && "Memory exhausted");
+
+  dst.ran_param[0].ran_param_id = DRB_ID_8_4_2_1;
+  dst.ran_param[0].ran_param_val.type = ELEMENT_KEY_FLAG_TRUE_RAN_PARAMETER_VAL_TYPE;
+  dst.ran_param[0].ran_param_val.flag_true = calloc(1, sizeof(ran_parameter_value_t)) ;
+  assert(dst.ran_param[0].ran_param_val.flag_true != NULL && "Memory exhausted");
+
+  // Let's suppose that it is the DRB 5 
+  dst.ran_param[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE; 
+  dst.ran_param[0].ran_param_val.flag_true->int_ran = 5;
+
+
+  dst.ran_param[1].ran_param_id = PRIORITY_LEVEL_OF_MAPPED_QOS_FLOWS_8_4_2_1;
+  dst.ran_param[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  dst.ran_param[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  assert(dst.ran_param[1].ran_param_val.flag_false != NULL && "Memory exhausted");
+  // Let's suppose rnd value
+  dst.ran_param[1].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
+  dst.ran_param[1].ran_param_val.flag_false->int_ran = 10;
+
+
+  return dst;
+}
+
+static
+e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg(void)
+{
+  e2sm_rc_ctrl_msg_t dst = {0}; 
+
+  // Radio Bearer Control
+  dst.format = FORMAT_1_E2SM_RC_CTRL_MSG;
+  dst.frmt_1 = gen_rc_ctrl_msg_frmt_1();
+
+  return dst;
+}
+
+//////////// 
+// Reserved for RC SM -> end 
+////////////
+
 int main(int argc, char *argv[])
 {
   fr_args_t args = init_fr_args(argc, argv);
@@ -666,17 +788,17 @@ int main(int argc, char *argv[])
   int rc = pthread_mutex_init(&mtx, &attr);
   assert(rc == 0);
 
-  // KPM handle
-  sm_ans_xapp_t* kpm_handle = NULL;
-  if(nodes.len > 0){
-    kpm_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) ); 
-    assert(kpm_handle != NULL && "Memory exhausted");
-  }
+  // // KPM handle
+  // sm_ans_xapp_t* kpm_handle = NULL;
+  // if(nodes.len > 0){
+  //   kpm_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) ); 
+  //   assert(kpm_handle != NULL && "Memory exhausted");
+  // }
 
-  for (int i = 0; i < nodes.len; i++) {
-    e2_node_connected_t* n = &nodes.n[i];
-    for (size_t j = 0; j < n->len_rf; j++)
-      printf("Registered node ID %d ran func id = %d \n ", n->id.nb_id.nb_id, n->ack_rf[j].id);
+  // for (int i = 0; i < nodes.len; i++) {
+  //   e2_node_connected_t* n = &nodes.n[i];
+  //   for (size_t j = 0; j < n->len_rf; j++)
+  //     printf("Registered node ID %d ran func id = %d \n ", n->id.nb_id.nb_id, n->ack_rf[j].id);
 
 
   //////////// 
@@ -685,49 +807,71 @@ int main(int argc, char *argv[])
   printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
 
 
-  // KPM SUBSCRIPTION FOR CELL LEVEL MEASUREMENTS Style 1
-  kpm_sub_data_t kpm_sub_1 = gen_kpm_sub_style_1();
-  defer({ free_kpm_sub_data(&kpm_sub_1); });
+  // // KPM SUBSCRIPTION FOR CELL LEVEL MEASUREMENTS Style 1
+  // kpm_sub_data_t kpm_sub_1 = gen_kpm_sub_style_1();
+  // defer({ free_kpm_sub_data(&kpm_sub_1); });
 
 
-  // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 2
-  kpm_sub_data_t kpm_sub_2 = gen_kpm_sub_style_2();
-  defer({ free_kpm_sub_data(&kpm_sub_2); });
+  // // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 2
+  // kpm_sub_data_t kpm_sub_2 = gen_kpm_sub_style_2();
+  // defer({ free_kpm_sub_data(&kpm_sub_2); });
 
 
-  // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 3
-  kpm_sub_data_t kpm_sub_3 = gen_kpm_sub_style_3();
-  defer({ free_kpm_sub_data(&kpm_sub_3); });
+  // // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 3
+  // kpm_sub_data_t kpm_sub_3 = gen_kpm_sub_style_3();
+  // defer({ free_kpm_sub_data(&kpm_sub_3); });
 
 
   const int KPM_ran_function = 1;
 
-  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm_1);
-  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_2, sm_cb_kpm_2);
-  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_3, sm_cb_kpm_3);
+  // kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm_1);
+  // kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_2, sm_cb_kpm_2);
+  // kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_3, sm_cb_kpm_3);
 
 
-  assert(kpm_handle[i].success == true);
-  } 
+  // assert(kpm_handle[i].success == true);
+  // } 
   
   //////////// 
   // END KPM 
   //////////// 
 
-  sleep(10);
+  // sleep(10);
 
-  for(int i = 0; i < nodes.len; ++i){
-  // Remove the handle previously returned
-  rm_report_sm_xapp_api(kpm_handle[i].u.handle);
+  // for(int i = 0; i < nodes.len; ++i){
+  // // Remove the handle previously returned
+  // rm_report_sm_xapp_api(kpm_handle[i].u.handle);
+  // }
+
+  // if(nodes.len > 0){
+  //   free(kpm_handle);
+  // }
+
+  //////////// 
+  // START RC 
+  //////////// 
+
+  // RC Control 
+  rc_ctrl_req_data_t rc_ctrl = {0};
+  defer({ free_rc_ctrl_req_data(&rc_ctrl); });
+
+  rc_ctrl.hdr = gen_rc_ctrl_hdr();
+  rc_ctrl.msg = gen_rc_ctrl_msg();
+
+  const int RC_ran_function = 3;
+
+  for(size_t i =0; i < nodes.len; ++i){ 
+    control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
   }
 
-  if(nodes.len > 0){
-    free(kpm_handle);
-  }
+  //////////// 
+  // END RC 
+  ////////////
 
-  //Stop the xApp
-  while(try_stop_xapp_api() == false)
-    usleep(1000);
+
+  // //Stop the xApp
+  // while(try_stop_xapp_api() == false)
+  //   usleep(1000);
 
   printf("Test xApp run SUCCESSFULLY\n");
 }

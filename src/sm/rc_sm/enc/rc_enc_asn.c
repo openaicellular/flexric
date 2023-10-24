@@ -2066,8 +2066,8 @@ byte_array_t rc_enc_ctrl_hdr_asn(e2sm_rc_ctrl_hdr_t const* src)
     assert(0!=0 && "Unknown format");
   }
 
-  //xer_fprint(stdout, &asn_DEF_E2SM_RC_ControlHeader, &dst);
-  //fflush(stdout);
+  xer_fprint(stdout, &asn_DEF_E2SM_RC_ControlHeader, &dst);
+  fflush(stdout);
 
   byte_array_t ba = {.buf = malloc(16*1024), .len = 16*1024};
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
@@ -2221,8 +2221,8 @@ byte_array_t rc_enc_ctrl_msg_asn(e2sm_rc_ctrl_msg_t const* src)
     assert(0 != 0 && "Unknown format type");
   }
 
-  //xer_fprint(stdout, &asn_DEF_E2SM_RC_ControlMessage, &dst);
-  //fflush(stdout);
+  xer_fprint(stdout, &asn_DEF_E2SM_RC_ControlMessage, &dst);
+  fflush(stdout);
 
   byte_array_t ba = {.buf = malloc(16*1024), .len = 16*1024};
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
