@@ -342,7 +342,7 @@ if __name__ == '__main__':
                                         CONFIGS['writer_batch_size']})
 
     # Move ric.init() out to override FlexApp sig-handler
-    ric.init(['', '-c', 'nodb.conf'])
+    ric.init(sys.argv)
     signal.signal(signal.SIGINT, subscriber_sighandler)
     stats_writer_proc.start()
     subscriber(CONFIGS['sm_configs'], CONFIGS['callback_report_checkpoint'])
