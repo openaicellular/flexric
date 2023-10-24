@@ -52,58 +52,64 @@ byte_array_t copy_str_to_ba(const char* str)
 static
 pthread_mutex_t mtx;
 
+
 static
-void display_kpm_ind_msg_frm_1_meas(kpm_ind_msg_format_1_t const *msg_frm_1)
+void sm_cb_kpm_1(sm_ag_if_rd_t const* rd)
 {
-  assert(msg_frm_1 != NULL);
+  assert(rd != NULL);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == KPM_STATS_V3_0); 
+
+  // Reading Indication Message Format 1
+  kpm_ind_msg_format_1_t const* msg_frm_1 = &rd->ind.kpm.ind.msg.frm_1;
+
+  static int counter_1 = 1;
+  printf("\n%7d KPM Style 1 - Cell-level measurements\nperiod = %lu [ms]\n", counter_1, period_ms);
 
 
-    for (size_t j = 0; j<msg_frm_1->meas_data_lst_len; j++)
+  for (size_t j = 0; j<msg_frm_1->meas_data_lst_len; j++)
+  {
+    for (size_t z = 0; z<msg_frm_1->meas_data_lst[j].meas_record_len; z++)
     {
-      
-      for (size_t z = 0; z<msg_frm_1->meas_data_lst[j].meas_record_len; z++)
+      if (msg_frm_1->meas_info_lst_len > 0)
       {
-        if (msg_frm_1->meas_info_lst_len > 0)
+        switch (msg_frm_1->meas_info_lst[z].meas_type.type)
         {
-          switch (msg_frm_1->meas_info_lst[z].meas_type.type)
-          {
-          case NAME_MEAS_TYPE:
-          {
-            // Get the Measurement Name
-            char meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len + 1];
-            memcpy(meas_info_name_str, msg_frm_1->meas_info_lst[z].meas_type.name.buf, msg_frm_1->meas_info_lst[z].meas_type.name.len);
-            meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len] = '\0';
+        case NAME_MEAS_TYPE:
+        {
+          // Get the Measurement Name
+          char meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len + 1];
+          memcpy(meas_info_name_str, msg_frm_1->meas_info_lst[z].meas_type.name.buf, msg_frm_1->meas_info_lst[z].meas_type.name.len);
+          meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len] = '\0';
 
-            // Get the value of the Measurement
-            switch (msg_frm_1->meas_data_lst[j].meas_record_lst[z].value)
+          // Get the value of the Measurement
+          switch (msg_frm_1->meas_data_lst[j].meas_record_lst[z].value)
+          {
+          case INTEGER_MEAS_VALUE:
+          {
+            if (strcmp(meas_info_name_str, "RRU.PrbTotDl") == 0)
             {
-            case INTEGER_MEAS_VALUE:
+              printf("RRU.PrbTotDl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+            }
+            else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
             {
-              if (strcmp(meas_info_name_str, "RRU.PrbTotDl") == 0)
-              {
-                printf("Style 1\n");
-                printf("RRU.PrbTotDl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
-              }
-              else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
-              {
-                printf("Style 1\n");
-                printf("RRU.PrbTotUl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
-              }
-              else
-              {
-                printf("Measurement Name not yet implemented\n");
-                //assert(false && "Measurement Name not yet implemented");
-              }
-
-              break;
+              printf("RRU.PrbTotUl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+            }
+            else
+            {
+              printf("Measurement Name not yet implemented\n");
+              //assert(false && "Measurement Name not yet implemented");
             }
 
-            default:
-              assert("Value not recognized");
-            }
-              
             break;
           }
+
+          default:
+            assert("Value not recognized");
+          }
+              
+          break;
+        }
           
         default:
           assert(false && "Measurement Type not yet implemented");
@@ -111,156 +117,211 @@ void display_kpm_ind_msg_frm_1_meas(kpm_ind_msg_format_1_t const *msg_frm_1)
       }
       if (msg_frm_1->meas_data_lst[j].incomplete_flag && *msg_frm_1->meas_data_lst[j].incomplete_flag == TRUE_ENUM_VALUE)
         printf("Measurement Record not reliable\n");        
-      }
     }
-    
+
+  }
+  counter_1++;
 }
 
 static
-void display_kpm_ind_msg_frm_2_meas(kpm_ind_msg_format_2_t const *msg_frm_2)
-{
-  assert(msg_frm_2 != NULL);
-
-  for (size_t j = 0; j<msg_frm_2->meas_data_lst_len; j++)
-    {
-      printf("Style 2\n");
-
-      for (size_t z = 0; z<msg_frm_2->meas_data_lst[j].meas_record_len; z++)
-      {
-        if (msg_frm_2->meas_info_cond_ue_lst_len > 0)
-        {
-          // Matching Condition
-          for(size_t i = 0; i < msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst_len; i++)
-          {
-            switch (msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst[i].cond_type)
-            {
-            case TEST_INFO:
-            {
-              assert(msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst[i].test_info_lst.test_cond_type == GBR_TEST_COND_TYPE);
-              assert(*msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst[i].test_info_lst.test_cond == LESSTHAN_TEST_COND);
-              assert(msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst[i].test_info_lst.test_cond_value->type == INTEGER_TEST_COND_VALUE);
-              printf("Test Condition: GBR rate < %lu\n", *msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst[i].test_info_lst.test_cond_value->int_value);
-              
-              break;
-            }
-
-            default:
-              assert(false && "Not yet implemented");
-            }
-          }
-
-          // List of Matched UEs
-          if (msg_frm_2->meas_info_cond_ue_lst[z].ue_id_matched_lst != NULL)
-          {
-            for(size_t i = 0; i < msg_frm_2->meas_info_cond_ue_lst[z].ue_id_matched_lst_len; i++)
-            {
-              switch(msg_frm_2->meas_info_cond_ue_lst[z].ue_id_matched_lst[i].type)
-              {
-              case GNB_UE_ID_E2SM:
-                printf("#%ld UE connected to gNB with amf_ue_ngap_id = %lu\n", i, msg_frm_2->meas_info_cond_ue_lst[z].ue_id_matched_lst[i].gnb.amf_ue_ngap_id);
-                break;
-
-              case GNB_DU_UE_ID_E2SM:
-                printf("#%ld UE connected to gNB-DU with gnb_cu_ue_f1ap = %u\n", i, msg_frm_2->meas_info_cond_ue_lst[z].ue_id_matched_lst[i].gnb_du.gnb_cu_ue_f1ap);
-                break;
-              
-              default:
-                assert(false && "Not yet implemented UE ID type");
-              }
-            }
-          }
-          else
-          {
-            printf("No matched UEs with this test condition\n");
-          }
-
-          switch (msg_frm_2->meas_info_cond_ue_lst[z].meas_type.type)
-          {
-          case NAME_MEAS_TYPE:
-          {
-            // Get the Measurement Name
-            char meas_info_name_str[msg_frm_2->meas_info_cond_ue_lst[z].meas_type.name.len + 1];
-            memcpy(meas_info_name_str, msg_frm_2->meas_info_cond_ue_lst[z].meas_type.name.buf, msg_frm_2->meas_info_cond_ue_lst[z].meas_type.name.len);
-            meas_info_name_str[msg_frm_2->meas_info_cond_ue_lst[z].meas_type.name.len] = '\0';
-
-            // Get the value of the Measurement
-            switch (msg_frm_2->meas_data_lst[j].meas_record_lst[z].value)
-            {
-            case INTEGER_MEAS_VALUE:
-            {
-              if (strcmp(meas_info_name_str, "DRB.UEThpDl") == 0)
-              {
-                printf("DRB.UEThpDl = %d [kb/s]\n", msg_frm_2->meas_data_lst[j].meas_record_lst[z].int_val);
-              }
-              else if (strcmp(meas_info_name_str, "DRB.UEThpUl") == 0)
-              {
-                printf("DRB.UEThpUl = %d [kb/s]\n", msg_frm_2->meas_data_lst[j].meas_record_lst[z].int_val);
-              }
-              else
-              {
-                printf("Measurement Name not yet implemented\n");
-                //assert(false && "Measurement Name not yet implemented");
-              }
-
-              break;
-            }
-
-            default:
-              assert("Value not recognized");
-            }
-              
-            break;
-          }
-          
-        default:
-          assert(false && "Measurement Type not yet implemented");
-        }
-      }
-      if (msg_frm_2->meas_data_lst[j].incomplete_flag && *msg_frm_2->meas_data_lst[j].incomplete_flag == TRUE_ENUM_VALUE)
-        printf("Measurement Record not reliable\n");        
-      }
-    }
-}
-
-static
-void sm_cb_kpm(sm_ag_if_rd_t const* rd)
+void sm_cb_kpm_2(sm_ag_if_rd_t const* rd)
 {
   assert(rd != NULL);
   assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
   assert(rd->ind.type == KPM_STATS_V3_0); 
 
   // Reading Indication Message Format 1
-  kpm_ind_data_t const* ind = &rd->ind.kpm.ind;
-  kpm_ric_ind_hdr_format_1_t const* hdr_frm_1 = &ind->hdr.kpm_ric_ind_hdr_format_1;
+  kpm_ind_msg_format_1_t const* msg_frm_1 = &rd->ind.kpm.ind.msg.frm_1;
 
-  static int counter = 1;
+  static int counter_2 = 1;
+  printf("\n%7d KPM Style 2 - Single UE-level measurements\nperiod = %lu [ms]\n", counter_2, period_ms);
 
-  int64_t now = time_now_us();
-  printf("\n%7d KPM ind_msg latency = %lu [μs]\n", counter, now - hdr_frm_1->collectStartTime*1000000);  // xApp <-> E2 Node
 
-  // Check the Indication Message Type
-  switch (ind->msg.type)
+  for (size_t j = 0; j<msg_frm_1->meas_data_lst_len; j++)
   {
-  case FORMAT_1_INDICATION_MESSAGE:
-    display_kpm_ind_msg_frm_1_meas(&ind->msg.frm_1);
-    break;
+    for (size_t z = 0; z<msg_frm_1->meas_data_lst[j].meas_record_len; z++)
+    {
+      if (msg_frm_1->meas_info_lst_len > 0)
+      {
+        switch (msg_frm_1->meas_info_lst[z].meas_type.type)
+        {
+        case NAME_MEAS_TYPE:
+        {
+          // Get the Measurement Name
+          char meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len + 1];
+          memcpy(meas_info_name_str, msg_frm_1->meas_info_lst[z].meas_type.name.buf, msg_frm_1->meas_info_lst[z].meas_type.name.len);
+          meas_info_name_str[msg_frm_1->meas_info_lst[z].meas_type.name.len] = '\0';
 
-  case FORMAT_2_INDICATION_MESSAGE:
-    display_kpm_ind_msg_frm_2_meas(&ind->msg.frm_2);
-    break;
+          // Get the value of the Measurement
+          switch (msg_frm_1->meas_data_lst[j].meas_record_lst[z].value)
+          {
+          case INTEGER_MEAS_VALUE:
+          {
+            if (strcmp(meas_info_name_str, "DRB.UEThpDl") == 0)
+            {
+              printf("DRB.UEThpDl = %d [kb/s]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+            }
+            else if (strcmp(meas_info_name_str, "DRB.UEThpDl.QOS") == 0)
+            {
+              printf("DRB.UEThpDl.QOS = %d [kb/s], with 5QI = %hhu\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val, *msg_frm_1->meas_info_lst[z].label_info_lst[0].fiveQI);
+            }
+            else if (strcmp(meas_info_name_str, "DRB.UEThpDl.SNSSAI") == 0)
+            {
+              printf("DRB.UEThpDl.SNSSAI = %d [kb/s], with sST = %hhu and sD = %u\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val, msg_frm_1->meas_info_lst[z].label_info_lst[0].sliceID->sST, *msg_frm_1->meas_info_lst[z].label_info_lst[0].sliceID->sD);
+            }
+            else if (strcmp(meas_info_name_str, "DRB.UEThpUl") == 0)
+            {
+              printf("DRB.UEThpUl = %d [kb/s]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+            }
+            else if (strcmp(meas_info_name_str, "DRB.UEThpUl.QOS") == 0)
+            {
+              printf("DRB.UEThpUl.QOS = %d [kb/s], with 5QI = %hhu\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val, *msg_frm_1->meas_info_lst[z].label_info_lst[0].fiveQI);
+            }
+            else if (strcmp(meas_info_name_str, "DRB.UEThpUl.SNSSAI") == 0)
+            {
+              printf("DRB.UEThpUl.SNSSAI = %d [kb/s], with sST = %hhu and sD = %u\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val, msg_frm_1->meas_info_lst[z].label_info_lst[0].sliceID->sST, *msg_frm_1->meas_info_lst[z].label_info_lst[0].sliceID->sD);
+            }
+            else
+            {
+              printf("Measurement Name not yet implemented\n");
+              //assert(false && "Measurement Name not yet implemented");
+            }
 
-  
-  default:
-    assert(false && "Wrong Indication Message Received");
+            break;
+          }
+
+          default:
+            assert("Value not recognized");
+          }
+              
+          break;
+        }
+          
+        default:
+          assert(false && "Measurement Type not yet implemented");
+        }
+      }
+      if (msg_frm_1->meas_data_lst[j].incomplete_flag && *msg_frm_1->meas_data_lst[j].incomplete_flag == TRUE_ENUM_VALUE)
+        printf("Measurement Record not reliable\n");        
+    }
   }
-
-  counter++;
-  // {
-  //   lock_guard(&mtx);
-
-    
-  // }
+  counter_2++;
 }
+
+static
+void sm_cb_kpm_3(sm_ag_if_rd_t const* rd)
+{
+  assert(rd != NULL);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == KPM_STATS_V3_0); 
+
+  // Reading Indication Message Format 2
+  kpm_ind_msg_format_2_t const* msg_frm_2 = &rd->ind.kpm.ind.msg.frm_2;
+
+  static int counter_3 = 1;
+  printf("\n%7d KPM Style 3 - Condition based, UE-level measurements\nperiod = %lu [ms]\n", counter_3, period_ms);
+
+  for (size_t j = 0; j<msg_frm_2->meas_data_lst_len; j++)
+  {
+    for (size_t z = 0; z<msg_frm_2->meas_data_lst[j].meas_record_len; z++)
+    {
+      if (msg_frm_2->meas_info_cond_ue_lst_len > 0)
+      {
+        // Matching Condition
+        for(size_t i = 0; i < msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst_len; i++)
+        {
+          switch (msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst[i].cond_type)
+          {
+          case TEST_INFO:
+          {
+            assert(msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst[i].test_info_lst.test_cond_type == GBR_TEST_COND_TYPE);
+            assert(*msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst[i].test_info_lst.test_cond == LESSTHAN_TEST_COND);
+            assert(msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst[i].test_info_lst.test_cond_value->type == INTEGER_TEST_COND_VALUE);
+            printf("Test Condition: GBR rate < %lu\n", *msg_frm_2->meas_info_cond_ue_lst[z].matching_cond_lst[i].test_info_lst.test_cond_value->int_value);
+            
+            break;
+          }
+
+          default:
+            assert(false && "Not yet implemented");
+          }
+        }
+
+        // List of Matched UEs
+        if (msg_frm_2->meas_info_cond_ue_lst[z].ue_id_matched_lst != NULL)
+        {
+          for(size_t i = 0; i < msg_frm_2->meas_info_cond_ue_lst[z].ue_id_matched_lst_len; i++)
+          {
+            switch(msg_frm_2->meas_info_cond_ue_lst[z].ue_id_matched_lst[i].type)
+            {
+            case GNB_UE_ID_E2SM:
+              printf("#%ld UE connected to gNB with amf_ue_ngap_id = %lu\n", i, msg_frm_2->meas_info_cond_ue_lst[z].ue_id_matched_lst[i].gnb.amf_ue_ngap_id);
+              break;
+
+            case GNB_DU_UE_ID_E2SM:
+              printf("#%ld UE connected to gNB-DU with gnb_cu_ue_f1ap = %u\n", i, msg_frm_2->meas_info_cond_ue_lst[z].ue_id_matched_lst[i].gnb_du.gnb_cu_ue_f1ap);
+              break;
+              
+            default:
+              assert(false && "Not yet implemented UE ID type");
+            }
+          }
+        }
+        else
+        {
+          printf("No matched UEs with this test condition\n");
+        }
+
+        switch (msg_frm_2->meas_info_cond_ue_lst[z].meas_type.type)
+        {
+        case NAME_MEAS_TYPE:
+        {
+          // Get the Measurement Name
+          char meas_info_name_str[msg_frm_2->meas_info_cond_ue_lst[z].meas_type.name.len + 1];
+          memcpy(meas_info_name_str, msg_frm_2->meas_info_cond_ue_lst[z].meas_type.name.buf, msg_frm_2->meas_info_cond_ue_lst[z].meas_type.name.len);
+          meas_info_name_str[msg_frm_2->meas_info_cond_ue_lst[z].meas_type.name.len] = '\0';
+
+          // Get the value of the Measurement
+          switch (msg_frm_2->meas_data_lst[j].meas_record_lst[z].value)
+          {
+          case INTEGER_MEAS_VALUE:
+          {
+            if (strcmp(meas_info_name_str, "DRB.UEThpDl") == 0)
+            {
+              printf("DRB.UEThpDl = %d [kb/s]\n", msg_frm_2->meas_data_lst[j].meas_record_lst[z].int_val);
+            }
+            else if (strcmp(meas_info_name_str, "DRB.UEThpUl") == 0)
+            {
+              printf("DRB.UEThpUl = %d [kb/s]\n", msg_frm_2->meas_data_lst[j].meas_record_lst[z].int_val);
+            }
+            else
+            {
+              printf("Measurement Name not yet implemented\n");
+              //assert(false && "Measurement Name not yet implemented");
+            }
+
+            break;
+          }
+
+          default:
+            assert("Value not recognized");
+          }
+              
+          break;
+        }
+          
+      default:
+        assert(false && "Measurement Type not yet implemented");
+      }
+    }
+
+    if (msg_frm_2->meas_data_lst[j].incomplete_flag && *msg_frm_2->meas_data_lst[j].incomplete_flag == TRUE_ENUM_VALUE)
+      printf("Measurement Record not reliable\n");        
+    }
+  }
+  counter_3++;
+}
+
 
 
 static
@@ -641,9 +702,9 @@ int main(int argc, char *argv[])
 
   const int KPM_ran_function = 1;
 
-  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm);
-  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_2, sm_cb_kpm);
-  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_3, sm_cb_kpm);
+  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm_1);
+  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_2, sm_cb_kpm_2);
+  kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub_3, sm_cb_kpm_3);
 
 
   assert(kpm_handle[i].success == true);
