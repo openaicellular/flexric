@@ -7,6 +7,30 @@
 #include <pthread.h>
 #include <unistd.h>
 
+typedef enum{
+    DRX_parameter_configuration_7_6_3_1 = 1,
+    SR_periodicity_configuration_7_6_3_1 = 2,
+    SPS_parameters_configuration_7_6_3_1 = 3,
+    Configured_grant_control_7_6_3_1 = 4,
+    CQI_table_configuration_7_6_3_1 = 5,
+    Slice_level_PRB_quotal_7_6_3_1 = 6,
+} rc_ctrl_service_style_2_act_id_e;
+
+typedef enum {
+    RRM_Policy_Ratio_List_8_4_3_6 = 1,
+    RRM_Policy_Ratio_Group_8_4_3_6 = 2,
+    RRM_Policy_8_4_3_6 = 3,
+    RRM_Policy_Member_List_8_4_3_6 = 4,
+    RRM_Policy_Member_8_4_3_6 = 5,
+    PLMN_Identity_8_4_3_6 = 6,
+    S_NSSAI_8_4_3_6 = 7,
+    SST_8_4_3_6 = 8,
+    SD_8_4_3_6 = 9,
+    Min_PRB_Policy_Ratio_8_4_3_6 = 10,
+    Max_PRB_Policy_Ratio_8_4_3_6 = 11,
+    Dedicated_PRB_Policy_Ratio_8_4_3_6 = 12,
+} slice_level_PRB_quota_param_id_e;
+
 void read_rc_sm(void* data)
 {
   assert(data != NULL);
@@ -61,6 +85,71 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
       }
 
 
+    } else if (ctrl->hdr.frmt_1.ric_style_type == 2 && ctrl->hdr.frmt_1.ctrl_act_id == Slice_level_PRB_quotal_7_6_3_1) {
+      e2sm_rc_ctrl_msg_frmt_1_t const* msg = &ctrl->msg.frmt_1;
+      assert(msg->sz_ran_param == 1 && "not support msg->sz_ran_param != 1");
+      seq_ran_param_t* RRM_Policy_Ratio_List = &msg->ran_param[0];
+      assert(RRM_Policy_Ratio_List->ran_param_id == RRM_Policy_Ratio_List_8_4_3_6 && "wrong RRM_Policy_Ratio_List id");
+      assert(RRM_Policy_Ratio_List->ran_param_val.type == LIST_RAN_PARAMETER_VAL_TYPE && "wrong RRM_Policy_Ratio_List type");
+      if (RRM_Policy_Ratio_List->ran_param_val.lst) {
+        size_t num_slice = RRM_Policy_Ratio_List->ran_param_val.lst->sz_lst_ran_param;
+        for (size_t i = 0; i < num_slice; i++) {
+          lst_ran_param_t* RRM_Policy_Ratio_Group = &RRM_Policy_Ratio_List->ran_param_val.lst->lst_ran_param[i];
+          //Bug in rc_enc_asn.c:1003, asn didn't define ran_param_id for lst_ran_param_t...
+          //assert(RRM_Policy_Ratio_Group->ran_param_id == RRM_Policy_Ratio_Group_8_4_3_6 && "wrong RRM_Policy_Ratio_Group id");
+          assert(RRM_Policy_Ratio_Group->ran_param_struct.sz_ran_param_struct == 4 && "wrong RRM_Policy_Ratio_Group->ran_param_struct.sz_ran_param_struct");
+          assert(RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct != NULL && "NULL RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct");
+
+          seq_ran_param_t* RRM_Policy = &RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct[0];
+          assert(RRM_Policy->ran_param_id == RRM_Policy_8_4_3_6 && "wrong RRM_Policy id");
+          assert(RRM_Policy->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong RRM_Policy type");
+          assert(RRM_Policy->ran_param_val.strct != NULL && "NULL RRM_Policy->ran_param_val.strct");
+          assert(RRM_Policy->ran_param_val.strct->sz_ran_param_struct == 1 && "wrong RRM_Policy->ran_param_val.strct->sz_ran_param_struct");
+          assert(RRM_Policy->ran_param_val.strct->ran_param_struct != NULL && "NULL RRM_Policy->ran_param_val.strct->ran_param_struct");
+
+          seq_ran_param_t* RRM_Policy_Member_List = &RRM_Policy->ran_param_val.strct->ran_param_struct[0];
+          assert(RRM_Policy_Member_List->ran_param_id == RRM_Policy_Member_List_8_4_3_6 && "wrong RRM_Policy_Member_List id");
+          assert(RRM_Policy_Member_List->ran_param_val.type == LIST_RAN_PARAMETER_VAL_TYPE && "wrong RRM_Policy_Member_List type");
+          assert(RRM_Policy_Member_List->ran_param_val.lst != NULL && "NULL RRM_Policy_Member_List->ran_param_val.lst");
+          assert(RRM_Policy_Member_List->ran_param_val.lst->sz_lst_ran_param == 1 && "wrong RRM_Policy_Member_List->ran_param_val.lst->sz_lst_ran_param");
+          assert(RRM_Policy_Member_List->ran_param_val.lst->lst_ran_param != NULL && "NULL RRM_Policy_Member_List->ran_param_val.lst->lst_ran_param");
+
+          lst_ran_param_t* RRM_Policy_Member = &RRM_Policy_Member_List->ran_param_val.lst->lst_ran_param[0];
+          //Bug in rc_enc_asn.c:1003, asn didn't define ran_param_id for lst_ran_param_t ...
+          //assert(RRM_Policy_Member->ran_param_id == RRM_Policy_Member_8_4_3_6 && "wrong RRM_Policy_Member id");
+          assert(RRM_Policy_Member->ran_param_struct.sz_ran_param_struct == 2 && "wrong RRM_Policy_Member->ran_param_struct.sz_ran_param_struct");
+          assert(RRM_Policy_Member->ran_param_struct.ran_param_struct != NULL && "NULL RRM_Policy_Member->ran_param_struct.ran_param_struct");
+
+          // TODO: check PLMN ID
+
+          seq_ran_param_t* S_NSSAI = &RRM_Policy_Member->ran_param_struct.ran_param_struct[1];
+          assert(S_NSSAI->ran_param_id == S_NSSAI_8_4_3_6 && "wrong S_NSSAI id");
+          assert(S_NSSAI->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong S_NSSAI type");
+          assert(S_NSSAI->ran_param_val.strct != NULL && "NULL S_NSSAI->ran_param_val.strct");
+          assert(S_NSSAI->ran_param_val.strct->sz_ran_param_struct == 2 && "wrong S_NSSAI->ran_param_val.strct->sz_ran_param_struct");
+          assert(S_NSSAI->ran_param_val.strct->ran_param_struct != NULL && "NULL S_NSSAI->ran_param_val.strct->ran_param_struct");
+
+          seq_ran_param_t* SST = &S_NSSAI->ran_param_val.strct->ran_param_struct[0];
+          assert(SST->ran_param_id == SST_8_4_3_6 && "wrong SST id");
+          assert(SST->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong SST type");
+          assert(SST->ran_param_val.flag_false != NULL && "NULL SST->ran_param_val.flag_false");
+          assert(SST->ran_param_val.flag_false->type == OCTET_STRING_RAN_PARAMETER_VALUE && "wrong SST->ran_param_val.flag_false type");
+          ///// SLICE LABEL NAME /////
+          char* sst_str = copy_ba_to_str(&SST->ran_param_val.flag_false->octet_str_ran);
+
+          ///// SLICE NVS CAP /////
+          seq_ran_param_t* Dedicated_PRB_Policy_Ratio = &RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct[3];
+          assert(Dedicated_PRB_Policy_Ratio->ran_param_id == Min_PRB_Policy_Ratio_8_4_3_6 && "wrong Dedicated_PRB_Policy_Ratio id");
+          assert(Dedicated_PRB_Policy_Ratio->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong Dedicated_PRB_Policy_Ratio type");
+          assert(Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false != NULL && "NULL Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false");
+          assert(Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false->type == INTEGER_RAN_PARAMETER_VALUE && "wrong Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false type");
+          int nvs_cap = Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false->int_ran;
+          printf("RC SM: configure slice %ld, label %s, nvs_cap %d\n", i, sst_str, nvs_cap);
+          free(sst_str);
+        }
+      } else {
+        printf("RRM_Policy_Ratio_List->ran_param_val.lst is NULL\n");
+      }
     }
   }
 
