@@ -387,6 +387,7 @@ def _slice_ind_to_dict_json(ind, id):
             if u.dl_id >= 0 and dl_dict["num_of_slices"] > 0:
                 dl_id = u.dl_id
             ues_dict = {
+                "idx": ind.ue_slice_stats.ues.index(u),
                 "rnti" : hex(u.rnti),
                 "assoc_dl_slice_id" : dl_id
                 # TODO: handle the associated ul slice id, currently there is no ul slice id in database(UE_SLICE table)
@@ -636,13 +637,26 @@ ex_slice_conf_assoc_ue = {
     "num_of_ues" : 1,
     "ues" : [
         {
-            "rnti" : 0,
+            "idx" : 0,
             "assoc_dl_slice_id" : 2
         }
     ]
 }
 
-def _fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
+def _get_rnti_by_idx(n_idx, idx):
+    global _global_slice_stats
+    s = _global_slice_stats[n_idx]
+    len_ues = s['UE']["num_of_ues"]
+    rnti = 0
+    for i in range(0, len_ues):
+        if s['UE']["ues"][i]["idx"] == idx:
+            rnti = s['UE']["ues"][i]["rnti"]
+            break
+    if rnti == 0:
+        print("failed: cannot find rnti by the given UE idx")
+    return rnti
+
+def _fill_slice_ctrl_msg(n_idx, ctrl_type, ctrl_msg):
     msg = ric.slice_ctrl_msg_t()
     if ctrl_type == "ADDMOD":
         msg.type = ric.SLICE_CTRL_SM_V0_ADD
@@ -682,7 +696,8 @@ def _fill_slice_ctrl_msg(ctrl_type, ctrl_msg):
         assoc = ric.ue_slice_assoc_array(ctrl_msg["num_of_ues"])
         for i in range(ctrl_msg["num_of_ues"]):
             a = ric.ue_slice_assoc_t()
-            a.rnti = ctrl_msg["ues"][i]["rnti"]
+            rnti = _get_rnti_by_idx(n_idx, ctrl_msg["ues"][i]["idx"])
+            a.rnti = rnti
             a.dl_id = ctrl_msg["ues"][i]["assoc_dl_slice_id"]
             # TODO: UL SLICE CTRL ASSOC
             # a.ul_id = 0
@@ -833,7 +848,7 @@ def send_slice_ctrl(n_idx, type_enum, conf):
         conf: slice configuration (ex: xapp.conf_nvs_slices).
     """
     cmd = type_enum.value
-    msg = _fill_slice_ctrl_msg(cmd, conf)
+    msg = _fill_slice_ctrl_msg(n_idx, cmd, conf)
     global _e2nodes
     ric.control_slice_sm(_e2nodes[n_idx].id, msg)
 
@@ -884,7 +899,7 @@ def print_slice_stats(n_idx):
         n_idx: index of the connected E2-Node, you can get the index by calling print_e2_nodes().
     """
     slice_stats_col_names = ["nb_id", "ran_type", "slice_id", "label", "slice_sched_algo", "slice_algo_param1", "slice_algo_param2", "slice_algo_param3", "ue_sched_algo"]
-    ue_stats_col_names = ["rnti", "assoc_slice_id"]
+    ue_stats_col_names = ["idx", "rnti", "assoc_slice_id"]
     global _global_slice_stats
     s = _global_slice_stats[n_idx]
     # RAN
@@ -954,7 +969,8 @@ def print_slice_stats(n_idx):
     ue_slice_stats_table = []
     len_ues = s['UE']["num_of_ues"]
     for i in range(0, len_ues):
-        info = [s['UE']["ues"][i]["rnti"],
+        info = [s['UE']["ues"][i]["idx"],
+                s['UE']["ues"][i]["rnti"],
                 s['UE']["ues"][i]["assoc_dl_slice_id"]]
         if len(info) > 0:
             ue_slice_stats_table.append(info)
