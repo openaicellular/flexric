@@ -37,7 +37,7 @@ LabelInfoItem_t * kpm_enc_label_info_asn(const label_info_lst_t * label_info)
         label_info_asn->measLabel.sliceID->sD = calloc(1, sizeof(*label_info_asn->measLabel.sliceID));
         label_info_asn->measLabel.sliceID->sD->size = 3;
         label_info_asn->measLabel.sliceID->sD->buf = calloc(label_info_asn->measLabel.sliceID->sD->size, sizeof(uint8_t));
-        *label_info_asn->measLabel.sliceID->sD->buf = *label_info->sliceID->sD;
+        INT24_TO_BUFFER(*label_info->sliceID->sD, label_info_asn->measLabel.sliceID->sD->buf);
       }
 
     }
