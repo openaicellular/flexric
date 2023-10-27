@@ -381,13 +381,13 @@ def _slice_ind_to_dict_json(ind, id):
     else:
         ue_dict["num_of_ues"] = ind.ue_slice_stats.len_ue_slice
         ue_dict["ues"] = []
-        for u in ind.ue_slice_stats.ues:
+        for ue_idx, u in enumerate(ind.ue_slice_stats.ues):
             ues_dict = {}
             dl_id = "null"
             if u.dl_id >= 0 and dl_dict["num_of_slices"] > 0:
                 dl_id = u.dl_id
             ues_dict = {
-                "idx": ind.ue_slice_stats.ues.index(u),
+                "idx": ue_idx,
                 "rnti" : hex(u.rnti),
                 "assoc_dl_slice_id" : dl_id
                 # TODO: handle the associated ul slice id, currently there is no ul slice id in database(UE_SLICE table)
@@ -643,18 +643,18 @@ ex_slice_conf_assoc_ue = {
     ]
 }
 
-def _get_rnti_by_idx(n_idx, idx):
+def _get_rnti_by_idx(n_idx, ue_idx):
     global _global_slice_stats
     s = _global_slice_stats[n_idx]
     len_ues = s['UE']["num_of_ues"]
     rnti = 0
     for i in range(0, len_ues):
-        if s['UE']["ues"][i]["idx"] == idx:
+        if s['UE']["ues"][i]["idx"] == ue_idx:
             rnti = s['UE']["ues"][i]["rnti"]
             break
     if rnti == 0:
         print("failed: cannot find rnti by the given UE idx")
-    return rnti
+    return int(rnti, 16)
 
 def _fill_slice_ctrl_msg(n_idx, ctrl_type, ctrl_msg):
     msg = ric.slice_ctrl_msg_t()
@@ -696,8 +696,7 @@ def _fill_slice_ctrl_msg(n_idx, ctrl_type, ctrl_msg):
         assoc = ric.ue_slice_assoc_array(ctrl_msg["num_of_ues"])
         for i in range(ctrl_msg["num_of_ues"]):
             a = ric.ue_slice_assoc_t()
-            rnti = _get_rnti_by_idx(n_idx, ctrl_msg["ues"][i]["idx"])
-            a.rnti = rnti
+            a.rnti = _get_rnti_by_idx(n_idx, ctrl_msg["ues"][i]["idx"])
             a.dl_id = ctrl_msg["ues"][i]["assoc_dl_slice_id"]
             # TODO: UL SLICE CTRL ASSOC
             # a.ul_id = 0
@@ -1026,7 +1025,7 @@ def print_slice_conf(type_enum, conf):
     """
     mod_slice_conf_col_names = ["slice_id", "label", "slice_sched_algo", "slice_algo_param1", "slice_algo_param2", "slice_algo_param3", "ue_sched_algo"]
     del_slice_conf_col_names = ["slice_id"]
-    assoc_ue_conf_col_names = ["rnti", "assoc_slice_id"]
+    assoc_ue_conf_col_names = ["idx", "assoc_slice_id"]
     type = type_enum.value
     if type == "ADDMOD":
         # RAN
@@ -1092,7 +1091,7 @@ def print_slice_conf(type_enum, conf):
         assoc_ue_slice_conf_table = []
         len_ues = conf["num_of_ues"]
         for i in range(0, len_ues):
-            info = [conf["ues"][i]["rnti"],
+            info = [conf["ues"][i]["idx"],
                     conf["ues"][i]["assoc_dl_slice_id"]]
             if len(info) > 0:
                 assoc_ue_slice_conf_table.append(info)
