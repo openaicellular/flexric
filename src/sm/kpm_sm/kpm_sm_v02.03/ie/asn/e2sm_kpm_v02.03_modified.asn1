@@ -87,16 +87,16 @@ TestCondInfo ::= SEQUENCE{
 }
 
 TestCond-Type ::= CHOICE{
-        gBR                                     ENUMERATED {true, ...},
+        gBR                             ENUMERATED {true, ...},
         aMBR                            ENUMERATED {true, ...},
         isStat                          ENUMERATED {true, ...},
         isCatM                          ENUMERATED {true, ...},
         rSRP                            ENUMERATED {true, ...},
         rSRQ                            ENUMERATED {true, ...},
         ul-rSRP                         ENUMERATED {true, ...},
-        cQI                                     ENUMERATED {true, ...},
+        cQI                             ENUMERATED {true, ...},
         fiveQI                          ENUMERATED {true, ...},
-        qCI                                     ENUMERATED {true, ...},
+        qCI                             ENUMERATED {true, ...},
         sNSSAI                          ENUMERATED {true, ...},
         ...
 }

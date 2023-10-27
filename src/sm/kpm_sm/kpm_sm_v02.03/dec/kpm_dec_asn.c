@@ -92,7 +92,7 @@ kpm_act_def_t kpm_dec_action_def_asn(size_t len, uint8_t const action_def[len])
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGNED_BASIC_PER syntax?");
   // note that constraints checking on data extracted is already performed by asn_decode()
 
-  // xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
 
   
   switch (pdu->actionDefinition_formats.present)

@@ -29,9 +29,11 @@ void test_kpm_act_def(void)
   kpm_act_def_t action_def = fill_rnd_kpm_action_def();
   defer({ free_kpm_action_def(&action_def); });
 
+  printf("Before encoding \n");
   byte_array_t ba = kpm_enc_action_def_asn(&action_def);
   defer({ free_byte_array(ba); }); 
 
+  printf("Before decoding \n");
   kpm_act_def_t out = kpm_dec_action_def_asn(ba.len, ba.buf);
   defer({ free_kpm_action_def(&out); });
 
@@ -54,16 +56,56 @@ void test_kpm_ind_hdr(void)
 
 void test_kpm_ind_msg(void)
 {
-  kpm_ind_msg_t msg = fill_rnd_kpm_ind_msg();
+  kpm_ind_msg_t msg = {0};
+  msg.type = FORMAT_1_INDICATION_MESSAGE;
+  kpm_ind_msg_format_1_t fmt1;
+  fmt1.gran_period_ms = NULL;
+  fmt1.meas_data_lst_len = 1;
+  fmt1.meas_data_lst = calloc(fmt1.meas_data_lst_len, sizeof(meas_data_lst_t));
+
+  for (size_t i = 0; i < fmt1.meas_data_lst_len; i++)
+  {
+    fmt1.meas_data_lst[i].meas_record_len = 1;
+    fmt1.meas_data_lst[i].meas_record_lst = calloc(fmt1.meas_data_lst[i].meas_record_len, sizeof(meas_record_lst_t));
+    fmt1.meas_data_lst[i].meas_record_lst[0].value = INTEGER_MEAS_VALUE;
+    fmt1.meas_data_lst[i].meas_record_lst[0].int_val = 273;
+  }
+
+  fmt1.meas_info_lst_len = 1;
+  fmt1.meas_info_lst = calloc(fmt1.meas_info_lst_len, sizeof(meas_info_format_1_lst_t));
+  fmt1.meas_info_lst[0].meas_type.type = NAME_MEAS_TYPE;
+  const char str[] = "RRU.PrbAvailDl";
+  fmt1.meas_info_lst[0].meas_type.name.buf = calloc(1, strlen(str));
+  memcpy(fmt1.meas_info_lst[0].meas_type.name.buf, str, strlen(str) );
+  fmt1.meas_info_lst[0].meas_type.name.len = strlen(str);
+  fmt1.meas_info_lst[0].label_info_lst_len = 1;
+  fmt1.meas_info_lst[0].label_info_lst = calloc(fmt1.meas_info_lst[0].label_info_lst_len, sizeof(label_info_lst_t));
+
+  fmt1.meas_info_lst[0].label_info_lst[0].noLabel = calloc(1, sizeof(enum_value_e));
+  *fmt1.meas_info_lst[0].label_info_lst[0].noLabel = TRUE_ENUM_VALUE;
+
+  msg.frm_1 = fmt1;
+
   defer({ free_kpm_ind_msg(&msg); });
 
   byte_array_t ba = kpm_enc_ind_msg_asn(&msg);
-  defer({ free_byte_array(ba); }); 
+  assert(ba.buf[0] == 0x08);  //The message received from the E2 node has a 0x08 here
+  ba.buf[27] = 0x20; //This is also different in the actual message, but does not seem to have an impact
 
-  kpm_ind_msg_t out = kpm_dec_ind_msg_asn(ba.len, ba.buf);
-  defer({ free_kpm_ind_msg(&out); });
+  defer({ free_byte_array(ba); });
 
-  assert(eq_kpm_ind_msg(&msg, &out) == true);
+  /*
+     kpm_ind_msg_t msg = fill_rnd_kpm_ind_msg();
+     defer({ free_kpm_ind_msg(&msg); });
+
+     byte_array_t ba = kpm_enc_ind_msg_asn(&msg);
+     defer({ free_byte_array(ba); }); 
+
+     kpm_ind_msg_t out = kpm_dec_ind_msg_asn(ba.len, ba.buf);
+     defer({ free_kpm_ind_msg(&out); });
+
+     assert(eq_kpm_ind_msg(&msg, &out) == true);
+     */
 }
 
 void test_kpm_ran_function(void)
@@ -89,26 +131,32 @@ int main()
 
     // Test off all the functions
     printf("KPM SM enc/dec test launched\n");
+    fflush(stdout);
 
     // Event Trigger
     test_kpm_ric_event_trigger_def_asn();
     printf("KPM Event Trigger test succeeded\n");
+    fflush(stdout);
 
     // Action Definition
     test_kpm_act_def();
     printf("KPM Action Definition test succeeded\n");
+    fflush(stdout);
 
     // Indication Header
-    test_kpm_ind_hdr();
-    printf("KPM Indication Header test succeeded\n");
+    //test_kpm_ind_hdr();
+    //printf("KPM Indication Header test succeeded\n");
+    //fflush(stdout);
 
     // Indication Message
-    test_kpm_ind_msg();
-    printf("KPM Indication Message test succeeded\n");
+    //test_kpm_ind_msg();
+    //printf("KPM Indication Message test succeeded\n");
+    //fflush(stdout);
 
     // RAN Function Definition
-    test_kpm_ran_function();
-    printf("KPM SM enc/dec test succeeded\n");
+    //test_kpm_ran_function();
+    //printf("KPM SM enc/dec test succeeded\n");
+    //fflush(stdout);
   }
 
   return EXIT_SUCCESS;

@@ -56,8 +56,23 @@ byte_array_t encode(void* pdu, e2sm_kpm_e e)
   asn_enc_rval_t er = {0};
   if(e == E2SM_KPM_EVENT_TRIGGER_DEFINITION_ENUM)
     er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu, ba.buf, ba.len);
-  else if(e == E2SM_KPM_ACTION_DEFINITION_ENUM)
+  else if(e == E2SM_KPM_ACTION_DEFINITION_ENUM){
+
+    xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
     er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_ActionDefinition, pdu, ba.buf, ba.len);
+
+    for(size_t i =0; i < er.encoded; ++i){
+     printf("%hhx ", ba.buf[i]);
+    }
+  printf("\n");
+
+  E2SM_KPM_ActionDefinition_t *pdu2 = calloc(1, sizeof(E2SM_KPM_ActionDefinition_t));
+  const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2SM_KPM_ActionDefinition, (void**)&pdu2, ba.buf , ba.len);
+
+  xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu2);
+  fflush(stderr);
+  printf("After encoding!!!\n\n\n\n\n");
+  }
   else if(e == E2SM_KPM_INDICATION_HEADER_ENUM)
     er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_IndicationHeader, pdu, ba.buf, ba.len);
   else if(e == E2SM_KPM_INDICATION_MESSAGE_ENUM)
@@ -113,8 +128,6 @@ byte_array_t kpm_enc_action_def_asn(kpm_act_def_t const* action_def)
   assert(action_def != NULL);
 
   E2SM_KPM_ActionDefinition_t pdu = {0};
-  //calloc(1, sizeof(E2SM_KPM_ActionDefinition_t));
-  //assert (pdu != NULL && "Memory exhausted");
 
   pdu.ric_Style_Type = (long)action_def->type + 1;
  

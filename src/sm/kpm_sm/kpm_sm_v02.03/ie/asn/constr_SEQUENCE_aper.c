@@ -340,6 +340,7 @@ SEQUENCE_encode_aper(const asn_TYPE_descriptor_t *td,
     er.encoded = 0;
 
     ASN_DEBUG("Encoding %s as SEQUENCE (APER)", td->name);
+    printf("Encoding %s as SEQUENCE (APER) \n", td->name);
 
     /*
      * X.691#18.1 Whether structure is extensible
@@ -405,6 +406,12 @@ SEQUENCE_encode_aper(const asn_TYPE_descriptor_t *td,
             continue;
 
         ASN_DEBUG("About to encode %s", elm->type->name);
+        printf("About to encode %s\n", elm->type->name);
+
+        if(strcmp("TestCond-Type" ,elm->type->name ) == 0){
+          printf("\n");
+        }
+
 
         /* Fetch the pointer to this member */
         if(elm->flags & ATF_POINTER) {
@@ -412,6 +419,8 @@ SEQUENCE_encode_aper(const asn_TYPE_descriptor_t *td,
             if(!*memb_ptr2) {
                 ASN_DEBUG("Element %s %zu not present",
                           elm->name, edx);
+                printf("Element %s %zu not present \n", elm->name, edx);
+
                 if(elm->optional)
                     continue;
                 /* Mandatory element is missing */
@@ -427,6 +436,7 @@ SEQUENCE_encode_aper(const asn_TYPE_descriptor_t *td,
             continue;
 
         ASN_DEBUG("Encoding %s->%s", td->name, elm->name);
+        printf("Encoding %s->%s\n", td->name, elm->name);
         er = elm->type->op->aper_encoder(elm->type,
                                          elm->encoding_constraints.per_constraints,
                                          *memb_ptr2, po);
@@ -434,8 +444,10 @@ SEQUENCE_encode_aper(const asn_TYPE_descriptor_t *td,
             return er;
     }
 
+    printf("Before extension\n");
     /* No extensions to encode */
     if(!n_extensions) ASN__ENCODED_OK(er);
+    printf("After extension\n");
 
     ASN_DEBUG("Length of %d bit-map", n_extensions);
     /* #18.8. Write down the presence bit-map length. */
@@ -449,6 +461,7 @@ SEQUENCE_encode_aper(const asn_TYPE_descriptor_t *td,
         ASN__ENCODE_FAILED;
 
     ASN_DEBUG("Writing %d extensions", n_extensions);
+    printf("Writing %d extensions\n", n_extensions);
     /* #18.9. Encode extensions as open type fields. */
     if(SEQUENCE_handle_extensions_aper(td, sptr, 0, po) != n_extensions)
         ASN__ENCODE_FAILED;

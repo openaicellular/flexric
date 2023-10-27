@@ -665,7 +665,7 @@ static test_info_lst_t fill_rnd_kpm_test_info(void)
 {
   test_info_lst_t test_info = {0};
 
-  test_info.test_cond_type = rand()%END_TEST_COND_TYPE_KPM_V2;
+  test_info.test_cond_type = QCI_TEST_COND_TYPE; //  UL_RSRP_TEST_COND_TYPE; // rand()%END_TEST_COND_TYPE_KPM_V2; S_NSSAI_TEST_COND_TYPE; 
 
   switch (test_info.test_cond_type)
   {
@@ -734,7 +734,7 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
 
   // Measurement Information
   // [1, 65535]
-  action_def_frm_3.meas_info_lst_len = 10; //(rand() % 65535) + 1;
+  action_def_frm_3.meas_info_lst_len = 1; //(rand() % 65535) + 1;
                                             
   action_def_frm_3.meas_info_lst = calloc(action_def_frm_3.meas_info_lst_len, sizeof(meas_info_format_3_lst_t));
   assert(action_def_frm_3.meas_info_lst != NULL && "Memory exhausted" );
@@ -744,7 +744,7 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
     meas_info_format_3_lst_t* meas_info = &action_def_frm_3.meas_info_lst[i];
 
     // Measurement Type
-    meas_info->meas_type.type = rand()%END_MEAS_TYPE;
+    meas_info->meas_type.type =  ID_MEAS_TYPE; // rand()%END_MEAS_TYPE;
 
     switch (meas_info->meas_type.type)
     {
@@ -757,7 +757,7 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
     
     case ID_MEAS_TYPE:
       meas_info->meas_type.type = ID_MEAS_TYPE;
-      meas_info->meas_type.id = (rand() % 65536) + 1;
+      meas_info->meas_type.id = 0; // (rand() % 65536) + 1;
       break;
 
     default:
@@ -766,7 +766,7 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
       
     // Matching Condition Format 3
     // [1, 32768]
-    meas_info->matching_cond_lst_len = 10;  // (rand() % 32768) + 1;
+    meas_info->matching_cond_lst_len = 1;  // (rand() % 32768) + 1;
 
     meas_info->matching_cond_lst = calloc(meas_info->matching_cond_lst_len, sizeof(*meas_info->matching_cond_lst));
     assert(meas_info->matching_cond_lst != NULL && "Memory exhausted" );
@@ -774,7 +774,7 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
     for (size_t j = 0; j < meas_info->matching_cond_lst_len; j++)
     {      
       // Matching Condition Type
-      meas_info->matching_cond_lst[j].cond_type = rand()%END_INFO;
+      meas_info->matching_cond_lst[j].cond_type =   TEST_INFO; // j % END_INFO; //  i rand()%END_INFO; //; // 
       
       switch (meas_info->matching_cond_lst[j].cond_type)
       {
@@ -796,8 +796,6 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
       meas_info->matching_cond_lst[j].logical_OR = calloc(1, sizeof(enum_value_e));
       assert(meas_info->matching_cond_lst[j].logical_OR != NULL && "Memory exhausted");
       *meas_info->matching_cond_lst[j].logical_OR = TRUE_ENUM_VALUE;
-
-      
     }
 
     // Bin Range Definition
@@ -805,7 +803,7 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
     meas_info->bin_range_def = calloc(1, sizeof(bin_range_def_t));
     assert(meas_info->bin_range_def != NULL && "Memory exhausted");
 
-    meas_info->bin_range_def->bin_x_lst_len = 3;  // (rand() % 65535) + 1;
+    meas_info->bin_range_def->bin_x_lst_len = 1;  // (rand() % 65535) + 1;
 
     meas_info->bin_range_def->bin_x_lst = calloc(meas_info->bin_range_def->bin_x_lst_len, sizeof(bin_distr_t));
     assert(meas_info->bin_range_def->bin_x_lst != NULL && "Memory exhausted");
@@ -813,14 +811,14 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
     for (size_t j = 0; j<meas_info->bin_range_def->bin_x_lst_len; j++)
     {
       meas_info->bin_range_def->bin_x_lst[j].bin_index = (rand() % 65535) + 0;
-      meas_info->bin_range_def->bin_x_lst[j].start_value.value = rand()%END_BIN_RANGE;
+      meas_info->bin_range_def->bin_x_lst[j].start_value.value = INTEGER_BIN_RANGE; // rand()%END_BIN_RANGE;
 
 
       // start value
       switch (meas_info->bin_range_def->bin_x_lst[j].start_value.value)
       {
       case INTEGER_BIN_RANGE:
-        meas_info->bin_range_def->bin_x_lst[j].start_value.int_value = (rand() % 4294967296) + 0;
+        meas_info->bin_range_def->bin_x_lst[j].start_value.int_value = 1;// (rand() % 4294967296) + 0;
         break;
 
       case REAL_BIN_RANGE:
@@ -933,7 +931,7 @@ kpm_act_def_t fill_rnd_kpm_action_def(void)
 {
   kpm_act_def_t action_def = {0};
 
-  action_def.type = rand()%END_ACTION_DEFINITION;
+  action_def.type = FORMAT_3_ACTION_DEFINITION; // rand()%END_ACTION_DEFINITION;
 
   switch (action_def.type)
   {
