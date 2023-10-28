@@ -369,11 +369,14 @@ endif()
 ###
 # Install the configuration file
 ###
-# Find all *.conf files recursively in the source directory
+# Find all *.conf & *.json files recursively in the source directory
 file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/conf_files/*.conf")
+file(GLOB_RECURSE JSON_FILES "${CMAKE_SOURCE_DIR}/conf_files/*.json")
 
-# Add these to the install command
+# Add BOTH to the install command
 install(FILES ${CONF_FILES}
+        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
+install(FILES ${JSON_FILES}
         DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
 
 enable_testing()
@@ -434,11 +437,15 @@ endif()
 
 if(XAPP_PYTHON_ML)
   install(FILES
-          ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/xapp_sdk.py
-          ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/_xapp_sdk.so
-          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/helpers.py
-          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/configs.py
-          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/nodb.conf
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/xapp_sdk.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/_xapp_sdk.so
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/core.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/helpers.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/metrics.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/__init__.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON/ricmon)
+    install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/preprocs.py
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/run.py
           DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON)
 endif()
