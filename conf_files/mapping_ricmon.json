@@ -25,7 +25,7 @@
     "writer_threads_count": 8,
     "writer_batch_size": 16,
     "promscale_url": "http://172.21.13.12:9201/write",
-    "database_mode": false,
+    "database_mode": true,
     "cbreport_every_msgs": 0,
 
     "preproc_configs": {

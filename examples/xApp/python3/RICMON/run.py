@@ -12,7 +12,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # ODIN: load JSON configs
-    running_configs, preproc_configs = ricmon.parse_configs(args.configs)
+    running_configs, preproc_configs = ricmon.parse_configs(args.mappings)
 
     # ODIN: NOT YET work for external (absolute-path-ed) preprocs.py
     # => TODO: must be explicitly imported?!
@@ -27,4 +27,4 @@ if __name__ == '__main__':
     }
 
     # Just run!
-    ricmon.execute(args.mappings, running_configs, metrics_to_fns)
+    ricmon.execute(args.configs, running_configs, metrics_to_fns)
