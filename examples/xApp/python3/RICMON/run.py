@@ -1,11 +1,18 @@
-import ricmon
-import inspect, preprocs
+import argparse
+import ricmon, inspect, preprocs
 
 
 if __name__ == '__main__':
+    # Quick-and-dirty handling of ODIN arguments
+    parser = argparse.ArgumentParser(description='Paths to FlexApp and RICMON configs.')
+    parser.add_argument('-c', '--configs', type=str, required=True, 
+                        help='Absolute path to FlexApp: X.conf')
+    parser.add_argument('-m', '--mappings', type=str, required=True, 
+                        help='Absolute path to RICMON: Y.json')
+    args = parser.parse_args()
+
     # ODIN: load JSON configs
-    configs_path = "/home/acilius/ricmon/conf_files/ricmon.json"
-    running_configs, preproc_configs = ricmon.parse_configs(configs_path)
+    running_configs, preproc_configs = ricmon.parse_configs(args.configs)
 
     # ODIN: NOT YET work for external (absolute-path-ed) preprocs.py
     # => TODO: must be explicitly imported?!
@@ -20,4 +27,4 @@ if __name__ == '__main__':
     }
 
     # Just run!
-    ricmon.execute(running_configs, metrics_to_fns)
+    ricmon.execute(args.mappings, running_configs, metrics_to_fns)

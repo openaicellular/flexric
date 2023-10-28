@@ -1,4 +1,3 @@
-import sys
 from . import xapp_sdk as ric
 
 import time
@@ -348,7 +347,7 @@ def subscriber_sighandler(signal, frame):
     global is_running
     is_running.value = False
 
-def execute(running_configs, metrics_to_fns):
+def execute(flexapp_conf_path, running_configs, metrics_to_fns):
     set_start_method('spawn')
 
     global manager, is_running, msg_queue, stats_writer_proc
@@ -365,7 +364,7 @@ def execute(running_configs, metrics_to_fns):
                                         running_configs['writer_batch_size']})
 
     # Move ric.init() out to override FlexApp sig-handler
-    ric.init(sys.argv)
+    ric.init(['', '-c', flexapp_conf_path])
     signal.signal(signal.SIGINT, subscriber_sighandler)
 
     stats_writer_proc.start()
