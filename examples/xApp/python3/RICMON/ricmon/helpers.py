@@ -1,12 +1,44 @@
+import json
+import polars as pl
+
 from typing import Dict, Tuple, List, Union, Any
 from collections import defaultdict
 
-import polars as pl
+
+##########
+# PARSER #
+##########
+# TODO: ADD DESCRIPTION!!!
+
+def parse_configs(json_configs_path):
+    with open(json_configs_path, 'r') as f:
+        run_configs = json.load(f)
+
+    # Tuple string to Python tuple
+    def str_to_tuple(s):
+        if isinstance(s, str) and s.startswith("(") and s.endswith(")"):
+            s = eval(s)
+            return s[:-1] + (str(s[-1]),)
+        return s
+
+    # separate preproc_configs; transform sm_configs
+    preproc_configs = run_configs.get('preproc_configs', {})
+    del run_configs['preproc_configs']
+
+    sm_configs = run_configs.get('sm_configs', {})
+    for _, config in sm_configs.items():
+        for e2_id, _ in list(config.items()):
+            new_e2_id = str_to_tuple(e2_id)
+            config[new_e2_id] = config.pop(e2_id)
+
+    return run_configs, preproc_configs
 
 
 ##############
 # SUBSCRIBER #
 ##############
+# TODO: FIX THE TYPE HINTS!!!
+
 # Assist subscriber()-process in tracking E2-Nodes' statuses:
 # - from user-specified configs (SM-based)
 # - to convenient status keeping (E2-based)
@@ -89,7 +121,6 @@ def ts_grouping(labels_list, msgs_df):
     ).groupby(labels_str).agg(pl.col('datapoint').alias('samples')).collect()
 
     return ts_df
-
 
 # TODO: Fix bugs (if any) then add type hints
 # Promscale JSON encoder for TimeSeries

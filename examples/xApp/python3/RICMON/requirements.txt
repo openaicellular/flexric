@@ -1,3 +1,4 @@
 python-snappy~=0.6.1
 requests~=2.31.0
 polars~=0.17.15
+faster~=1.4.5
