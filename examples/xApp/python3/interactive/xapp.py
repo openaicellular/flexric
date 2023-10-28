@@ -1153,18 +1153,14 @@ def print_kpm_stats_ue(n_idx, ue_idx):
     kpm_stats = _global_kpm_stats[n_idx]
     # RAN
     col_data = []
-    col_name = ["Format", "Latency"]
+    col_name = ["Format", "Latency", "idx"]
     for data in kpm_stats["UEs"][ue_idx]["Measurements"]:
-        tmp = [kpm_stats["Format"], kpm_stats["Latency"]]
+        tmp = [kpm_stats["Format"], kpm_stats["Latency"], kpm_stats["UEs"][ue_idx]["UE_ID"]["idx"]]
 
         for meas_key in data.keys():
-            if meas_key != "data" and kpm_stats["UEs"][ue_idx]["Measurements"].index(data) == 0:
-                col_name.append(meas_key)
-                tmp.append(data[meas_key])
-            else:
+            if meas_key == "data":
                 for name_id_value in data["data"]:
-                    if kpm_stats["UEs"][ue_idx]["Measurements"].index(data) == 0:
-                        col_name.append(name_id_value["name/id"])
+                    col_name.append(name_id_value["name/id"])
                     tmp.append(name_id_value["value"])
         col_data.append(tmp)
     print(tabulate(col_data, headers=col_name, tablefmt="grid"))
