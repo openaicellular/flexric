@@ -153,14 +153,19 @@ if(XAPP_PYTHON_SWIG)
 
   if(XAPP_PYTHON_ML)
     # RICMon xApp
-    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/_xapp_sdk.so")
-    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/xapp_sdk.py")
+    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/_xapp_sdk.so")
+    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/xapp_sdk.py")
     add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/helpers.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/helpers.py")
+            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/ricmon/core.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/core.py")
     add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/configs.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/configs.py")
+            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/ricmon/helpers.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/helpers.py")
     add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/nodb.conf" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/nodb.conf")
+            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/ricmon/__init__.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/__init__.py")
+    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/ricmon/metrics.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/metrics.py")
+
+    add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/preprocs.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/preprocs.py")
     add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_SOURCE_DIR}/examples/xApp/python3/RICMON/run.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/run.py")
   endif()
