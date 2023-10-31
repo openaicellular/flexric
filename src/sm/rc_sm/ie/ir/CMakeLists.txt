@@ -43,6 +43,7 @@ set (IR_RC_SRC
   ran_parameter_test_condition.c
   ran_parameter_value.c
   ran_parameter_value_type.c
+  ran_param_def.c
   ran_param_insertion.c
   ran_param_ins_ind.c
   ran_param_list.c

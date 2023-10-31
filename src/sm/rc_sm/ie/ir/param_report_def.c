@@ -14,7 +14,11 @@ void free_param_report_def(param_report_def_t* src)
   // RAN Parameter Definition
   // Optional
   // 9.3.51
-  assert(src->ran_param_def == NULL && "Not implemented");
+  if (src->ran_param_def != NULL)
+  {
+    free_ran_param_def(src->ran_param_def);
+    free(src->ran_param_def);
+  }
 
 }
 
@@ -39,8 +43,13 @@ bool eq_param_report_def(param_report_def_t const* m0, param_report_def_t const*
   // RAN Parameter Definition
   // Optional
   // 9.3.51
-  assert(m0->ran_param_def == NULL && "Not implemented");
-  assert(m1->ran_param_def == NULL && "Not implemented");
+  if (m0->ran_param_def != NULL || m1->ran_param_def != NULL) {
+    if(m0->ran_param_def == NULL || m1->ran_param_def == NULL)
+      return false;
+    
+    if(eq_ran_param_def(m0->ran_param_def, m1->ran_param_def) == false)
+      return false;
+  }
 
   return true;
 }

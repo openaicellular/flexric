@@ -660,7 +660,74 @@ param_report_def_t fill_rnd_param_report_def(void)
   // RAN Parameter Definition
   // Optional
   // 9.3.51
-  dst.ran_param_def = NULL; 
+  dst.ran_param_def = calloc(1, sizeof(ran_param_def_t));
+  assert(dst.ran_param_def != NULL && "Memory exhausyted");
+
+  dst.ran_param_def->type = rand()%END_RAN_PARAMETER_DEF_TYPE;
+
+  switch (dst.ran_param_def->type)
+  {
+  case LIST_RAN_PARAMETER_DEF_TYPE:
+    dst.ran_param_def->lst = calloc(1, sizeof(ran_param_type_t));
+    assert(dst.ran_param_def->lst != NULL && "Memory exhausyted");
+
+    dst.ran_param_def->lst->sz_ran_param = 10; // (rand()% 65535) + 1;
+    dst.ran_param_def->lst->ran_param = calloc(dst.ran_param_def->lst->sz_ran_param, sizeof(ran_param_lst_struct_t));
+    assert(dst.ran_param_def->lst->ran_param != NULL && "Memory exhausyted");
+
+    for (size_t i = 0; i < dst.ran_param_def->lst->sz_ran_param; i++)
+    {
+      // RAN Parameter ID
+      // Mandatory
+      // 9.3.8
+      dst.ran_param_def->lst->ran_param[i].ran_param_id = rand() + 1; 
+
+      // RAN Parameter Name
+      // Mandatory
+      // 9.3.9
+      const char name[] = "RAN Parameter Name"; 
+      dst.ran_param_def->lst->ran_param[i].ran_param_name = cp_str_to_ba(name);
+
+      // RAN Parameter Definition
+      // Optional
+      // 9.3.51
+      dst.ran_param_def->lst->ran_param[i].ran_param_def = NULL;
+    }
+
+    break;
+
+  case STRUCTURE_RAN_PARAMETER_DEF_TYPE:
+    dst.ran_param_def->strct = calloc(1, sizeof(ran_param_type_t));
+    assert(dst.ran_param_def->strct != NULL && "Memory exhausyted");
+
+    dst.ran_param_def->strct->sz_ran_param = 10; // (rand()% 65535) + 1;
+    dst.ran_param_def->strct->ran_param = calloc(dst.ran_param_def->strct->sz_ran_param, sizeof(ran_param_lst_struct_t));
+    assert(dst.ran_param_def->strct->ran_param != NULL && "Memory exhausyted");
+
+    for (size_t i = 0; i < dst.ran_param_def->strct->sz_ran_param; i++)
+    {
+      // RAN Parameter ID
+      // Mandatory
+      // 9.3.8
+      dst.ran_param_def->strct->ran_param[i].ran_param_id = rand() + 1; 
+
+      // RAN Parameter Name
+      // Mandatory
+      // 9.3.9
+      const char name[] = "RAN Parameter Name"; 
+      dst.ran_param_def->strct->ran_param[i].ran_param_name = cp_str_to_ba(name);
+
+      // RAN Parameter Definition
+      // Optional
+      // 9.3.51
+      dst.ran_param_def->strct->ran_param[i].ran_param_def = NULL;
+    }
+
+    break;
+  
+  default:
+    assert(false && "Unknown RAN Parameter Type");
+  }
 
   return dst;
 }
