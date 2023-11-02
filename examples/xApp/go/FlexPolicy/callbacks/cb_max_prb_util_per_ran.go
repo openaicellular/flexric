@@ -1,25 +1,24 @@
 package callbacks
 
 import (
-	xapp "build/examples/xApp/go/xapp_sdk"
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
-	api "build/examples/xApp/go/FlexPolicy/utils/api"
+	xapp "build/examples/xApp/go/xapp_sdk"
+	//api "build/examples/xApp/go/FlexPolicy/utils/api"
 	mac "build/examples/xApp/go/FlexPolicy/utils/sm/mac"
 	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
-	
+
 	"fmt"
 	"time"
-	"math/rand"
 )
 
 func init() {
-	RegisterCallback("MAX_PRB_UTIL_PER_RAN", CallbackMaxPrbUtil)
+	RegisterCallback("MAX_PRB_UTIL_PER_RAN", CallbackMaxPrbUtilPerRan)
 }
 
 // CallbackMaxPrbUtil is a policy for maintaining a maximum PRB utilisation
-func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
-	
+func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
+
 	// STEP 1: Check if there is an idle slice and if no create it
 	idleSliceId := slice.FindIdleSlice()
 
@@ -31,10 +30,10 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 		// Adjust the zero slice first
 		s1_params_nvs := slice.SliceAlgoParams{PctRsvd: 0.25}
 		s1_nvs := slice.Slice{
-			Id:          0,
-			Label:       "s1",
-			UeSchedAlgo: "PF",
-			Type:        "SLICE_SM_NVS_V0_CAPACITY",
+			Id:              0,
+			Label:           "s1",
+			UeSchedAlgo:     "PF",
+			Type:            "SLICE_SM_NVS_V0_CAPACITY",
 			SliceAlgoParams: s1_params_nvs}
 
 		// Create Idle slice
@@ -57,7 +56,7 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 		// TODO: fix hard coded 0
 		msg := slice.FillSliceCtrlMsg("ADDMOD", idleNvsSlicesCap)
 		xapp.Control_slice_sm(sm.E2Nodes.Get(0).GetId(), msg)
-		
+
 		time.Sleep(1 * time.Second)
 
 		// ensure the slice is created
@@ -89,7 +88,6 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 	//fmt.Println("[Policy]: Curr PRB util:", CurrPrbUtilization, ", Max PRB util:", maxPrbUtilization)
 	fmt.Println("[Policy]: PRB:", CurrPrbUtilization, " / ", maxPrbUtilization, " %")
 
-
 	// Enforce the policy
 	// Adjust Slices
 	if maxPrbUtilization == 0 {
@@ -98,14 +96,13 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 		maxPrbUtilization = 95
 	}
 
-
-	normalSliceCapacity := maxPrbUtilization/100.0
+	normalSliceCapacity := float64(maxPrbUtilization / 100.0)
 	s1_params_nvs := slice.SliceAlgoParams{PctRsvd: normalSliceCapacity}
 	s1_nvs := slice.Slice{
-		Id:          0,
-		Label:       "s1",
-		UeSchedAlgo: "PF",
-		Type:        "SLICE_SM_NVS_V0_CAPACITY",
+		Id:              0,
+		Label:           "s1",
+		UeSchedAlgo:     "PF",
+		Type:            "SLICE_SM_NVS_V0_CAPACITY",
 		SliceAlgoParams: s1_params_nvs}
 
 	// Create Idle slice
@@ -129,48 +126,36 @@ func CallbackMaxPrbUtil(PolicyConfiguration policy.Configuration) {
 	// TODO: fix hard coded 0
 	msg := slice.FillSliceCtrlMsg("ADDMOD", idleNvsSlicesCap)
 	xapp.Control_slice_sm(sm.E2Nodes.Get(0).GetId(), msg)
-	
-	time.Sleep(0.1 * time.Second)
-	
+
+	time.Sleep(100 * time.Millisecond)
+
 	// Associate UEs to the normal slice
-	curNumOfUes := reading.(map[string]interface{})["num_of_normal_ues"].(int)
+	allRntis := reading.(map[string]interface{})["all_rntis"].([]uint16)
 
-	uesToBeAssociatedRntis := []uint16{}
-
-	for i := 0; i < curNumOfUes; i++ {
-		// Random Ue Idx
-		randRntiIdx := rand.Intn(len(idleSliceRntis))
-
-		// Append the RNTI to the list of the UEs that can be associated to the slice
-		uesToBeAssociatedRntis = append(uesToBeAssociatedRntis, idleSliceRntis[randRntiIdx])
-
-		// Remove the RNTI from the list of the UEs in the idle slice
-		idleSliceRntis = append(idleSliceRntis[:randRntiIdx], idleSliceRntis[randRntiIdx+1:]...)
-	}
-	fmt.Println("[Policy]: RNTIs of the UEs that can be associated to the slice:", uesToBeAssociatedRntis)
+	fmt.Println("[Policy]: RNTIs of the UEs that can be associated to the slice:", allRntis)
 
 	// Associate the UEs to the slice
 	// Create a structure with the UEs to be associated
-	
 	uesToBeAssoc := []slice.Ue{}
-	for i := 0; i < curNumOfUes; i++ {
+	for i := 0; i < len(allRntis); i++ {
 		ue := slice.Ue{
-			Rnti:           uesToBeAssociatedRntis[i],
-			AssocDlSliceId: sliceId,
+			Rnti:           allRntis[i],
+			AssocDlSliceId: 0, // TODO: fix hardcoded, maybe give a name constant to slices or per scope
 		}
 
 		uesToBeAssoc = append(uesToBeAssoc, ue)
 	}
 
 	assocUeSlice := slice.Request{
-		NumUes: curNumOfUes,
+		NumUes: len(allRntis),
 		Ues:    uesToBeAssoc,
 	}
 
-	for i:=0 ; i <= int(sm.E2Nodes.Size()-1); i++ {
+	for i := 0; i <= int(sm.E2Nodes.Size()-1); i++ {
+		// TODO: fix send only to DUs the type is du
 		msg := slice.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
 		xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msg)
-		time.Sleep(1 * time.Second)
+		time.Sleep(100 * time.Millisecond)
 	}
-	
+
 }
