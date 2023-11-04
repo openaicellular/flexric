@@ -44,7 +44,9 @@ type MultiUeStats struct {
 }
 
 // ------------------------------------------------------------------------ //
+//
 //	SLICE INDICATION CALLBACK
+//
 // ------------------------------------------------------------------------ //
 type SLICECallback struct {
 }
@@ -53,8 +55,15 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 	// store ind to global structure
 	slice.SliceIndToDictJSON(ind)
 
+	e2nodeId := slice.E2NodeId{
+		Mcc:     int16(ind.GetId().GetPlmn().GetMcc()),
+		Mnc:     int16(ind.GetId().GetPlmn().GetMnc()),
+		NbId:    int16(ind.GetId().GetNb_id().GetNb_id()),
+		CuDuId:  0,
+		RanType: xapp.Get_e2ap_ngran_name(ind.GetId().GetXtype()),
+	}
 	// read and store the number of UEs
-	Rntis := slice.ReadSliceStats("rntis", -1).([]uint16)
+	Rntis := slice.ReadSliceStats("rntis", -1, e2nodeId).([]uint16)
 
 	Mutex.Lock()
 	// store the num of UEs
@@ -240,7 +249,9 @@ var NodeIdx int
 var Hndlr int
 
 // ------------------------------------------------------------------------ //
-//  MAIN
+//
+//	MAIN
+//
 // ------------------------------------------------------------------------ //s
 func main() {
 	// ----------------------- Initialization ----------------------- //
