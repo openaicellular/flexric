@@ -3,12 +3,15 @@ package policy
 import (
 	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
 )
+
 // xApp policy configuration API
 // Configuration represents the JSON configuration received by the first server.
 
 // ------------------------------------------------------------------------ //
+//
 //	Configuration struct for storing the xApp policy configuration
 //	coming from the Non-RT RIC via the APIs
+//
 // ------------------------------------------------------------------------ //
 type Configuration struct {
 	PolicyID   int16           `json:"PolicyId,omitempty"`
@@ -18,15 +21,19 @@ type Configuration struct {
 }
 
 type ScopeConfig struct {
-	SliceID int16 `json:"sliceId,omitempty"`
-	CellID  int16 `json:"cellId,omitempty"`
+	SliceID int16  `json:"sliceId,omitempty"`
+	CellID  int16  `json:"cellId,omitempty"`
+	Plmn    int16  `json:"plmn,omitempty"`
+	RanType string `json:"ranType,omitempty"`
+	NbId    int16  `json:"nbId,omitempty"`
+	CuDuId  int16  `json:"cuDuId,omitempty"`
 }
 
 type StatementConfig struct {
 	// -----  For ORAN xApps -----------------//
-	MaxNumberOfUEs int16 `json:"maxNumberOfUes,omitempty"`
+	MaxNumberOfUEs    int16 `json:"maxNumberOfUes,omitempty"`
 	MacPrbUtilisation int16 `json:"macPrbUtilisation,omitempty"`
-	MaxThroughput int16 `json:"maxThroughput,omitempty"` 
+	MaxThroughput     int16 `json:"maxThroughput,omitempty"`
 
 	// -----  For Custom xApps --------//
 	// Type of the Control Request
@@ -38,7 +45,9 @@ type StatementConfig struct {
 }
 
 // ------------------------------------------------------------------------ //
+//
 //	PolicyEnforcementCallback function for enforcing the policy
 //	The calback functions are defined in the callbacks folder
+//
 // ------------------------------------------------------------------------ //
 type PolicyEnforcementCallback func(Configuration)
