@@ -114,7 +114,14 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 		// Consider reading all the desired values at once in a single iteration.
 		// Otherwise, inconsistencies may occur if the global structure is updated between multiple readings
 
-		CurrPrbUtilization := mac.TotalPrbUtilization()
+		e2nodeId = slice.E2NodeId{
+			Mcc:     int16(currMcc),
+			Mnc:     int16(currMnc),
+			NbId:    currNbId,
+			CuDuId:  0,
+			RanType: currRanType,
+		}
+		CurrPrbUtilization := mac.TotalPrbUtilization(e2nodeId)
 
 		reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", idleSliceId, e2nodeId).(interface{})
 		//fmt.Println("[Policy]: Curr PRB util:", CurrPrbUtilization, ", Max PRB util:", maxPrbUtilization)

@@ -2,21 +2,21 @@ package main
 
 import "C"
 import (
-	"time"
 	"net/http"
+	"time"
 	//"os"
 	//"os/signal"
 	//"syscall"
 	//"context"
-	"log"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 
-	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
+	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
 )
 
 var server1URL = "http://127.0.0.10:7000/api/policy"
@@ -29,13 +29,12 @@ func main() {
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
-	} 
-		
+	}
+
 	fmt.Println("GET Feedback")
-	
+
 	defer resp.Body.Close()
 
-	
 	err = json.NewDecoder(resp.Body).Decode(&sm.Feedback)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -49,7 +48,6 @@ func main() {
 		return
 	}
 
-
 	slice.SliceStats = sm.Feedback.SliceFeedback
 
 	// Convert the byte slice to a string and print it
@@ -57,8 +55,15 @@ func main() {
 
 	// Use the sliceStats variable as needed
 	//fmt.Println(utils.SliceStats)
-	rntis := slice.ReadSliceStats("rntis", -1)
-	fmt.Println("RNTIS: ",rntis)
+
+	e2nodeId := slice.E2NodeId{
+		Mcc:     slice.SliceStats[0].Mcc,
+		Mnc:     slice.SliceStats[0].Mnc,
+		RanType: slice.SliceStats[0].RanType,
+		NbId:    slice.SliceStats[0].NbId,
+	}
+	rntis := slice.ReadSliceStats("rntis", -1, e2nodeId)
+	fmt.Println("RNTIS: ", rntis)
 
 	rntiSlice, ok := rntis.([]uint16)
 	if !ok {
@@ -68,25 +73,22 @@ func main() {
 
 	time.Sleep(5 * time.Second)
 
-
-
-
 	// ----------------- First Policy ----------------- //
 	s1_params_nvs := slice.SliceAlgoParams{PctRsvd: 0.25}
 	s1_nvs := slice.Slice{
-		Id:          0,
-		Label:       "s1",
-		UeSchedAlgo: "PF",
-		Type:        "SLICE_SM_NVS_V0_CAPACITY",
+		Id:              0,
+		Label:           "s1",
+		UeSchedAlgo:     "PF",
+		Type:            "SLICE_SM_NVS_V0_CAPACITY",
 		SliceAlgoParams: s1_params_nvs}
 
 	// Idle slice
 	s2_params_nvs := slice.SliceAlgoParams{PctRsvd: 0.05}
 	s2_nvs := slice.Slice{
-		Id:          1,
-		Label:       "idle",
-		UeSchedAlgo: "PF",
-		Type:        "SLICE_SM_NVS_V0_CAPACITY",
+		Id:              1,
+		Label:           "idle",
+		UeSchedAlgo:     "PF",
+		Type:            "SLICE_SM_NVS_V0_CAPACITY",
 		SliceAlgoParams: s2_params_nvs}
 
 	// AddStaticSlices
@@ -105,8 +107,8 @@ func main() {
 			CellID:  3584,
 		},
 		Statement: policy.StatementConfig{
-			CtrlType:       controlType,
-			CtrlRequest:	addNvsSlicesCap,
+			CtrlType:    controlType,
+			CtrlRequest: addNvsSlicesCap,
 		},
 	}
 
@@ -118,10 +120,6 @@ func main() {
 	}
 
 	time.Sleep(5 * time.Second)
-
-
-
-
 
 	// ----------------- Second Policy ----------------- //
 	ue := slice.Ue{
@@ -142,8 +140,8 @@ func main() {
 			CellID:  3584,
 		},
 		Statement: policy.StatementConfig{
-			CtrlType:       controlType,
-			CtrlRequest:	assocUeSlice,
+			CtrlType:    controlType,
+			CtrlRequest: assocUeSlice,
 		},
 	}
 
@@ -155,9 +153,6 @@ func main() {
 	}
 
 	time.Sleep(5 * time.Second)
-
-
-
 
 	// ----------------- Third Policy ----------------- //
 	ue = slice.Ue{
@@ -178,8 +173,8 @@ func main() {
 			CellID:  3584,
 		},
 		Statement: policy.StatementConfig{
-			CtrlType:       controlType,
-			CtrlRequest:	assocUeSlice,
+			CtrlType:    controlType,
+			CtrlRequest: assocUeSlice,
 		},
 	}
 
@@ -190,11 +185,7 @@ func main() {
 		log.Println("Configuration sent successfully, [controlType]: ", controlType)
 	}
 
-
 	time.Sleep(5 * time.Second)
-
-
-
 
 	// ----------------- Finish ----------------- //
 	url := "http://127.0.0.10:7000/api/finish"
