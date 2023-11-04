@@ -2,10 +2,10 @@ package main
 
 import "C"
 import (
-	"encoding/json"
-	xapp "build/examples/xApp/go/xapp_sdk"
 	mac "build/examples/xApp/go/FlexPolicy/utils/sm/mac"
-
+	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
+	xapp "build/examples/xApp/go/xapp_sdk"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -14,8 +14,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"sync"
 	"github.com/rthornton128/goncurses"
+	"sync"
 	//"strings"
 )
 
@@ -28,7 +28,9 @@ var serverFinished bool
 var mutex sync.Mutex
 
 // ------------------------------------------------------------------------ //
-//  Global Structure for storing the latest indication message
+//
+//	Global Structure for storing the latest indication message
+//
 // ------------------------------------------------------------------------ //
 var sliceStats = map[string]interface{}{
 	"RAN": map[string]interface{}{
@@ -38,87 +40,118 @@ var sliceStats = map[string]interface{}{
 }
 
 // ------------------------------------------------------------------------ //
-//  Function for reading desired stats items from the global structure
+//
+//	Function for reading desired stats items from the global structure
+//
 // ------------------------------------------------------------------------ //
-func readSliceStats(item string, sliceId int) interface{}{
-	
-	switch item { 
-		case "RAN":
+func readSliceStats(item string, sliceId int) interface{} {
+
+	switch item {
+	case "RAN":
+		mutex.Lock()
+		value := sliceStats["RAN"]
+		mutex.Unlock()
+		return value
+	case "UE":
+		mutex.Lock()
+		value := sliceStats["UE"]
+		mutex.Unlock()
+		return value
+	case "RAN_DL":
+		mutex.Lock()
+		value := sliceStats["RAN"].(map[string]interface{})["dl"]
+		mutex.Unlock()
+		return value
+	case "num_of_slices":
+		mutex.Lock()
+		value := sliceStats["RAN"].(map[string]interface{})["dl"].(map[string]interface{})["num_of_slices"].(uint)
+		mutex.Unlock()
+		return value
+	case "ues":
+		mutex.Lock()
+		value := sliceStats["UE"].(map[string]interface{})["ues"]
+		mutex.Unlock()
+		return value
+	case "num_of_ues":
+		// Check whether we need to get the number of UEs of all the slices or only the number of UEs of a specific slice
+		if sliceId == -1 {
+			// Get the number of UEs of all the slices
 			mutex.Lock()
-			value := sliceStats["RAN"]
+			value := sliceStats["UE"].(map[string]interface{})["num_of_ues"].(uint)
 			mutex.Unlock()
 			return value
-		case "UE":
+		} else if sliceId >= 0 {
 			mutex.Lock()
-			value := sliceStats["UE"]
-			mutex.Unlock()
-			return value
-		case "RAN_DL":
-			mutex.Lock()
-			value := sliceStats["RAN"].(map[string]interface{})["dl"]
-			mutex.Unlock()
-			return value
-		case "num_of_slices":
-			mutex.Lock()
-			value := sliceStats["RAN"].(map[string]interface{})["dl"].(map[string]interface{})["num_of_slices"].(uint)
-			mutex.Unlock()
-			return value
-		case "ues":
-			mutex.Lock()
-			value := sliceStats["UE"].(map[string]interface{})["ues"]
-			mutex.Unlock()
-			return value
-		case "num_of_ues":
-			// Check whether we need to get the number of UEs of all the slices or only the number of UEs of a specific slice
-			if sliceId == -1{
-				// Get the number of UEs of all the slices
-				mutex.Lock()
-				value := sliceStats["UE"].(map[string]interface{})["num_of_ues"].(uint)
+			// Get the number of UEs of a specific slice
+			num_of_ues_per_slice := 0
+
+			numOfUes := sliceStats["UE"].(map[string]interface{})["num_of_ues"].(uint)
+
+			if numOfUes == 0 {
 				mutex.Unlock()
-				return value
-			} else if sliceId >= 0 {
-				mutex.Lock()
-				// Get the number of UEs of a specific slice
-				num_of_ues_per_slice := 0;
-
-				numOfUes := sliceStats["UE"].(map[string]interface{})["num_of_ues"].(uint)
-
-				if numOfUes == 0 {
-					mutex.Unlock()
-					return 0
-				}
-
-				var i uint
-				for i = 0; i < numOfUes; i++ {
-					currUe := sliceStats["UE"].(map[string]interface{})["ues"].([]map[string]interface{})[i]
-					currAssocDlSliceId := currUe["assoc_dl_slice_id"].(string)
-
-					// Convert the string to byte
-					b := []byte(currAssocDlSliceId)[0]
-
-					// Convert the byte to integer
-					currAssocDlSliceIdInt := int(b)
-
-					if int(currAssocDlSliceIdInt) == sliceId {
-						num_of_ues_per_slice++
-					}
-				}
-				mutex.Unlock()
-				return num_of_ues_per_slice
-			} else {
-				fmt.Println("ERROR: Invalid sliceId")
-				return nil
+				return 0
 			}
-		case "rntis":
-			// Check whether we need to get all the RNTIs or only the RNTIs of a specific slice
-			if sliceId == -1 {
-				mutex.Lock()
-				// Get all the RNTIs
-				rntis := []uint16{}
-				numOfUes := sliceStats["UE"].(map[string]interface{})["num_of_ues"].(uint)
-				var i uint
-				for i = 0; i < numOfUes; i++ {
-					currUe := sliceStats["UE"].(map[string]interface{})["ues"].([]map[string]interface{})[i]
+
+			var i uint
+			for i = 0; i < numOfUes; i++ {
+				currUe := sliceStats["UE"].(map[string]interface{})["ues"].([]map[string]interface{})[i]
+				currAssocDlSliceId := currUe["assoc_dl_slice_id"].(string)
+
+				// Convert the string to byte
+				b := []byte(currAssocDlSliceId)[0]
+
+				// Convert the byte to integer
+				currAssocDlSliceIdInt := int(b)
+
+				if int(currAssocDlSliceIdInt) == sliceId {
+					num_of_ues_per_slice++
+				}
+			}
+			mutex.Unlock()
+			return num_of_ues_per_slice
+		} else {
+			fmt.Println("ERROR: Invalid sliceId")
+			return nil
+		}
+	case "rntis":
+		// Check whether we need to get all the RNTIs or only the RNTIs of a specific slice
+		if sliceId == -1 {
+			mutex.Lock()
+			// Get all the RNTIs
+			rntis := []uint16{}
+			numOfUes := sliceStats["UE"].(map[string]interface{})["num_of_ues"].(uint)
+			var i uint
+			for i = 0; i < numOfUes; i++ {
+				currUe := sliceStats["UE"].(map[string]interface{})["ues"].([]map[string]interface{})[i]
+				rnti := currUe["rnti"].(uint16)
+
+				// rntiInt, err := strconv.ParseInt(rnti, 16, 64)
+				// if err != nil {
+				// 	fmt.Println("Error:", err)
+				// 	mutex.Unlock()
+				// 	return nil
+				// }
+				rntis = append(rntis, rnti)
+			}
+			mutex.Unlock()
+			return rntis
+		} else if sliceId >= 0 {
+			mutex.Lock()
+			// Get the RNTIs of a specific slice
+			rntis := []uint16{}
+			numOfUes := sliceStats["UE"].(map[string]interface{})["num_of_ues"].(uint)
+			var i uint
+			for i = 0; i < numOfUes; i++ {
+				currUe := sliceStats["UE"].(map[string]interface{})["ues"].([]map[string]interface{})[i]
+				currAssocDlSliceId := currUe["assoc_dl_slice_id"].(string)
+
+				// Convert the string to byte
+				b := []byte(currAssocDlSliceId)[0]
+
+				// Convert the byte to integer
+				currAssocDlSliceIdInt := int(b)
+
+				if int(currAssocDlSliceIdInt) == sliceId {
 					rnti := currUe["rnti"].(uint16)
 
 					// rntiInt, err := strconv.ParseInt(rnti, 16, 64)
@@ -129,52 +162,25 @@ func readSliceStats(item string, sliceId int) interface{}{
 					// }
 					rntis = append(rntis, rnti)
 				}
-				mutex.Unlock()
-				return rntis
-			} else if sliceId >= 0 {
-				mutex.Lock()
-				// Get the RNTIs of a specific slice
-				rntis := []uint16{}
-				numOfUes := sliceStats["UE"].(map[string]interface{})["num_of_ues"].(uint)
-				var i uint
-				for i = 0; i < numOfUes; i++ {
-					currUe := sliceStats["UE"].(map[string]interface{})["ues"].([]map[string]interface{})[i]
-					currAssocDlSliceId := currUe["assoc_dl_slice_id"].(string)
-
-					// Convert the string to byte
-					b := []byte(currAssocDlSliceId)[0]
-
-					// Convert the byte to integer
-					currAssocDlSliceIdInt := int(b)
-
-					if int(currAssocDlSliceIdInt) == sliceId {
-						rnti := currUe["rnti"].(uint16)
-
-						// rntiInt, err := strconv.ParseInt(rnti, 16, 64)
-						// if err != nil {
-						// 	fmt.Println("Error:", err)
-						// 	mutex.Unlock()
-						// 	return nil
-						// }
-						rntis = append(rntis, rnti)
-					}
-				}
-				mutex.Unlock()
-				return rntis
-			} else {
-				fmt.Println("ERROR: Invalid sliceId")
-				return nil
 			}
+			mutex.Unlock()
+			return rntis
+		} else {
+			fmt.Println("ERROR: Invalid sliceId")
 			return nil
+		}
+		return nil
 
-		default:
-			fmt.Println("ERROR: Invalid item")
-			return nil
+	default:
+		fmt.Println("ERROR: Invalid item")
+		return nil
 	}
 }
 
 // ------------------------------------------------------------------------ //
-//  SLICE INDICATION MSG TO JSON
+//
+//	SLICE INDICATION MSG TO JSON
+//
 // ------------------------------------------------------------------------ //
 func sliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 	mutex.Lock()
@@ -269,7 +275,7 @@ func sliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 			}
 
 			uesDict := map[string]interface{}{
-				"rnti": currUe.GetRnti(),
+				"rnti":              currUe.GetRnti(),
 				"assoc_dl_slice_id": dlId,
 			}
 			ueDict["ues"] = append(ueDict["ues"].([]map[string]interface{}), uesDict)
@@ -286,9 +292,10 @@ func sliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 	mutex.Unlock()
 }
 
-
 // ------------------------------------------------------------------------ //
-//  SLICE INDICATION CALLBACK
+//
+//	SLICE INDICATION CALLBACK
+//
 // ------------------------------------------------------------------------ //
 type SLICECallback struct {
 }
@@ -298,7 +305,9 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 }
 
 // ------------------------------------------------------------------------ //
-//  SLICE CONTROL FUNCS
+//
+//	SLICE CONTROL FUNCS
+//
 // ------------------------------------------------------------------------ //
 func CreateSlice(sliceParams Slice, sliceSchedAlgo string) xapp.Fr_slice_t {
 	newSlice := xapp.NewFr_slice_t()
@@ -390,7 +399,9 @@ func CreateSlice(sliceParams Slice, sliceSchedAlgo string) xapp.Fr_slice_t {
 }
 
 // ------------------------------------------------------------------------ //
-//  SLICE CONTROL PARAMETER STRUCTURES
+//
+//	SLICE CONTROL PARAMETER STRUCTURES
+//
 // ------------------------------------------------------------------------ //
 type SliceAlgoParams struct {
 	PosLow  int `json:"pos_low,omitempty"`
@@ -416,22 +427,24 @@ type Slice struct {
 
 type Ue struct {
 	Rnti           uint16 `json:"rnti"` // TODO: get rnti from slice_ind_to_dict_json()
-	AssocDlSliceId int `json:"assoc_dl_slice_id"`
+	AssocDlSliceId int    `json:"assoc_dl_slice_id"`
 }
 
 type Request struct {
-	NumSlices       int      `json:"num_slices,omitempty"`
-	SliceSchedAlgo  string   `json:"slice_sched_algo,omitempty"`
+	NumSlices       int     `json:"num_slices,omitempty"`
+	SliceSchedAlgo  string  `json:"slice_sched_algo,omitempty"`
 	Slices          []Slice `json:"slices,omitempty"`
-	NumDlSlices     int      `json:"num_dl_slices,omitempty"`
-	DeleteDlSliceId []int    `json:"delete_dl_slice_id"`
+	NumDlSlices     int     `json:"num_dl_slices,omitempty"`
+	DeleteDlSliceId []int   `json:"delete_dl_slice_id"`
 
-	NumUes int   `json:"num_ues,omitempty"`
+	NumUes int  `json:"num_ues,omitempty"`
 	Ues    []Ue `json:"ues,omitempty"`
 }
 
 // ------------------------------------------------------------------------ //
-//  Function to fill the slice control message
+//
+//	Function to fill the slice control message
+//
 // ------------------------------------------------------------------------ //
 func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 	msg := xapp.NewSlice_ctrl_msg_t()
@@ -508,10 +521,8 @@ func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 	return msg
 }
 
-
 // Indication Callback MAC Function
 type MACCallback struct {
-
 }
 
 func (mac_cb MACCallback) Handle(ind xapp.Swig_mac_ind_msg_t) {
@@ -519,21 +530,22 @@ func (mac_cb MACCallback) Handle(ind xapp.Swig_mac_ind_msg_t) {
 	mac.CalculateUeThroughput(ind)
 }
 
-
 var end bool = false
 
 // Global or main-scope variables to hold past metrics.
 var prbData []int
 var thptData []int
 
-const maxDataPoints = 10  // Number of past data points to display.
-
+const maxDataPoints = 10 // Number of past data points to display.
 
 // ------------------------------------------------------------------------ //
-//  MAIN
+//
+//	MAIN
+//
 // ------------------------------------------------------------------------ //
 var conn xapp.E2NodeVector
 var nodeIdx int
+
 func main() {
 	// xApp configuration parser
 	//parseXappConfig()
@@ -565,8 +577,6 @@ func main() {
 	innerMac := MACCallback{}
 	callbackMac := xapp.NewDirectorMac_cb(innerMac)
 	HndlrMac := xapp.Report_mac_sm(conn.Get(nodeIdx).GetId(), xapp.Interval_ms_10, callbackMac)
-
-
 
 	// ---------------- Print Slice - UE Association ---------------- //
 	// Initialize ncurses
@@ -601,58 +611,62 @@ func main() {
 		}
 	}()
 
-	
-	for end==false {
+	for end == false {
 		// Create a wrapper screen with dimensions based on the terminal size
 		wrapper := stdscr.Sub(0, 0, 0, 0)
-	
+
 		// Clear the wrapper screen
 		wrapper.Clear()
-	
+
 		// Get the dimensions of the wrapper screen
 		height, width := wrapper.MaxYX()
-	
+
 		// Calculate the vertical and horizontal center positions
-		centerY := height / 2  // Adjusted to 1/3 to better position plots
-		centerX := width / 2   // No change
-	
+		centerY := height / 2 // Adjusted to 1/3 to better position plots
+		centerX := width / 2  // No change
+
 		// Update the slices
 		normalSliceNumUes := readSliceStats("num_of_ues", sliceId).(int)
 		normalSliceRntis := readSliceStats("rntis", sliceId)
-	
+
 		idleSliceNumUes := readSliceStats("num_of_ues", 1).(int)
 		idleSliceRntis := readSliceStats("rntis", 1)
-	
+
 		// Universal statistics
-		CurrDlThpt, _ := mac.TotalThroughput()
-		CurrPrbUtilization := mac.TotalPrbUtilization()
-	
+		e2nodeId := slice.E2NodeId{
+			Mcc:     int16(conn.Get(nodeIdx).GetId().GetPlmn().GetMcc()),
+			Mnc:     int16(conn.Get(nodeIdx).GetId().GetPlmn().GetMnc()),
+			NbId:    int16(conn.Get(nodeIdx).GetId().GetNb_id().GetNb_id()),
+			RanType: string(conn.Get(nodeIdx).GetId().GetXtype()),
+		}
+
+		CurrDlThpt, _ := mac.TotalThroughput(e2nodeId)
+		CurrPrbUtilization := mac.TotalPrbUtilization(e2nodeId)
+
 		// Update the historical data
 		updateHistoricalData(&prbData, CurrPrbUtilization, maxDataPoints)
 		updateHistoricalData(&thptData, CurrDlThpt, maxDataPoints)
-	
+
 		printTimeSeriesPlot(wrapper, int(float64(width)*0.05), int(float64(height)*0.1), "DL Throughput (Mbps):", thptData, 200) // max throughput
-		printTimeSeriesPlot(wrapper, int(float64(width)*0.05), int(float64(height)*0.6), "PRB Utilization (%):", prbData, 100) // max prb
+		printTimeSeriesPlot(wrapper, int(float64(width)*0.05), int(float64(height)*0.6), "PRB Utilization (%):", prbData, 100)   // max prb
 
 		// Adjust the vertical position to prevent overlap
 		printSliceInfo(wrapper, centerX+int(float64(width)*0.1), centerY-int(float64(height)*0.2), "[Slice 0]:", normalSliceRntis.([]uint16), normalSliceNumUes) // Slice A
-		printSliceInfo(wrapper, centerX+int(float64(width)*0.1), centerY+int(float64(height)*0.2), "[Slice Idle]:", idleSliceRntis.([]uint16), idleSliceNumUes) // Slice B
+		printSliceInfo(wrapper, centerX+int(float64(width)*0.1), centerY+int(float64(height)*0.2), "[Slice Idle]:", idleSliceRntis.([]uint16), idleSliceNumUes)  // Slice B
 
 		// Refresh the screen to display changes
 		stdscr.Refresh()
-	
+
 		// Refresh the wrapper screen to display changes
 		wrapper.Refresh()
-	
+
 		// Wait for a short duration
 		time.Sleep(1000 * time.Millisecond)
 	}
-	
 
 	// ----------------------- END ----------------------- //
 	xapp.Rm_report_slice_sm(hndlr)
 	xapp.Rm_report_mac_sm(HndlrMac)
-
 
 	// --------------------------------------------------------- //
 	// Stop the xApp. Avoid deadlock.
@@ -663,12 +677,11 @@ func main() {
 	fmt.Printf("Test xApp run SUCCESSFULLY\n")
 }
 
-
 // printSliceInfo prints the number of UEs and their RNTIs for a given slice
 func printSliceInfo(stdscr *goncurses.Window, x int, y int, title string, rntis []uint16, numOfUes int) {
 	stdscr.MovePrint(y, x-len(title)/2, title)
 
-	stdscr.MovePrint(y+1, x- (len("Number of UEs:")- len("UE RNTIs:") ), fmt.Sprintf("Number of UEs: %d", numOfUes))
+	stdscr.MovePrint(y+1, x-(len("Number of UEs:")-len("UE RNTIs:")), fmt.Sprintf("Number of UEs: %d", numOfUes))
 
 	rntis_string := "UE RNTIs: "
 	for _, ue := range rntis {
@@ -678,7 +691,6 @@ func printSliceInfo(stdscr *goncurses.Window, x int, y int, title string, rntis 
 
 }
 
-
 // Update the array holding historical data.
 func updateHistoricalData(data *[]int, newValue int, maxLength int) {
 	*data = append(*data, newValue)
@@ -687,56 +699,54 @@ func updateHistoricalData(data *[]int, newValue int, maxLength int) {
 	}
 }
 
-
 // Print the time-series data.
 func printTimeSeries(stdscr *goncurses.Window, x int, y int, title string, data []int) {
 	dataStr := "  "
 	for _, value := range data {
 		dataStr += fmt.Sprintf("%d, ", value)
 	}
-	stdscr.MovePrint(y, x, title + dataStr)
+	stdscr.MovePrint(y, x, title+dataStr)
 }
 
-
 func printTimeSeriesPlot(stdscr *goncurses.Window, startX int, startY int, title string, data []int, maxVal int) {
-    horizontalBorder := goncurses.Char('-')
-    verticalBorder := goncurses.Char('|')
-    corner := goncurses.Char('+')
+	horizontalBorder := goncurses.Char('-')
+	verticalBorder := goncurses.Char('|')
+	corner := goncurses.Char('+')
 
-    // Define padding space
-    horizontalPadding := 2
-    verticalPadding := 1
+	// Define padding space
+	horizontalPadding := 2
+	verticalPadding := 1
 
-    // Adjust the startX and startY to include the padding
-    paddedStartX := startX + horizontalPadding
-    paddedStartY := startY + verticalPadding
+	// Adjust the startX and startY to include the padding
+	paddedStartX := startX + horizontalPadding
+	paddedStartY := startY + verticalPadding
 
-    stdscr.MovePrint(startY-1, startX-1, title)
+	stdscr.MovePrint(startY-1, startX-1, title)
 
-    maxBarHeight := 7
-    maxBarValue := maxVal
-    stepSize := 3
+	maxBarHeight := 7
+	maxBarValue := maxVal
+	stepSize := 3
 
-    // Draw border
-    stdscr.MovePrint(startY, startX-1, string(corner))
-    stdscr.HLine(startY, startX, horizontalBorder, len(data)*stepSize + horizontalPadding)
-    stdscr.MovePrint(startY, startX+len(data)*stepSize + horizontalPadding, string(corner))
-    stdscr.VLine(startY+1, startX-1, verticalBorder, maxBarHeight)
-    stdscr.VLine(startY+1, startX+len(data)*stepSize + horizontalPadding, verticalBorder, maxBarHeight)
+	// Draw border
+	stdscr.MovePrint(startY, startX-1, string(corner))
+	stdscr.HLine(startY, startX, horizontalBorder, len(data)*stepSize+horizontalPadding)
+	stdscr.MovePrint(startY, startX+len(data)*stepSize+horizontalPadding, string(corner))
+	stdscr.VLine(startY+1, startX-1, verticalBorder, maxBarHeight)
+	stdscr.VLine(startY+1, startX+len(data)*stepSize+horizontalPadding, verticalBorder, maxBarHeight)
 
-    // Loop through data and print bars vertically
-    for x, value := range data {
-        scaledValue := (value * maxBarHeight) / maxBarValue
-        for y := 0; y < scaledValue; y++ {
-            stdscr.MovePrint(paddedStartY + maxBarHeight - y - 1, paddedStartX + x * stepSize, "|")
-        }
-        if scaledValue > 0 {
-            stdscr.MovePrint(paddedStartY + maxBarHeight - scaledValue - 1, paddedStartX + x * stepSize, fmt.Sprintf("%d", value))
-        }
-    }
+	// Loop through data and print bars vertically
+	for x, value := range data {
+		scaledValue := (value * maxBarHeight) / maxBarValue
+		for y := 0; y < scaledValue; y++ {
+			stdscr.MovePrint(paddedStartY+maxBarHeight-y-1, paddedStartX+x*stepSize, "|")
+		}
+		if scaledValue > 0 {
+			stdscr.MovePrint(paddedStartY+maxBarHeight-scaledValue-1, paddedStartX+x*stepSize, fmt.Sprintf("%d", value))
+		}
+	}
 
-    // Close bottom border
-    stdscr.MovePrint(startY + maxBarHeight + 1, startX-1, string(corner))
-    stdscr.HLine(startY + maxBarHeight + 1, startX, horizontalBorder, len(data)*stepSize + horizontalPadding)
-    stdscr.MovePrint(startY + maxBarHeight + 1, startX+len(data)*stepSize + horizontalPadding, string(corner))
+	// Close bottom border
+	stdscr.MovePrint(startY+maxBarHeight+1, startX-1, string(corner))
+	stdscr.HLine(startY+maxBarHeight+1, startX, horizontalBorder, len(data)*stepSize+horizontalPadding)
+	stdscr.MovePrint(startY+maxBarHeight+1, startX+len(data)*stepSize+horizontalPadding, string(corner))
 }
