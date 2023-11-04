@@ -23,7 +23,8 @@ type Configuration struct {
 type ScopeConfig struct {
 	SliceID int16  `json:"sliceId,omitempty"`
 	CellID  int16  `json:"cellId,omitempty"`
-	Plmn    int16  `json:"plmn,omitempty"`
+	Mcc     uint16 `json:"plmn,omitempty"`
+	Mnc     uint16 `json:"mnc,omitempty"`
 	RanType string `json:"ranType,omitempty"`
 	NbId    int16  `json:"nbId,omitempty"`
 	CuDuId  int16  `json:"cuDuId,omitempty"`

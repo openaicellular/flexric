@@ -23,32 +23,39 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 	for i := 0; i <= int(sm.E2Nodes.Size()-1); i++ {
 
 		// STEP 0: Scope on the desired RAN
-
 		// - a) PLMN
 		currMcc := sm.E2Nodes.Get(i).GetId().GetPlmn().GetMcc()
 		currMnc := sm.E2Nodes.Get(i).GetId().GetPlmn().GetMnc()
-		currPlmn := fmt.Sprintf("%d%d", currMcc, currMnc)
 
 		// - b) RanType
-		currRanType := sm.E2Nodes.Get(i).GetId().GetXtype()
+		currRanType := xapp.Get_e2ap_ngran_name(sm.E2Nodes.Get(i).GetId().GetXtype())
 
 		// - c) NbId
-		currNbId := sm.E2Nodes.Get(i).GetId().GetNb_id().GetNb_id()
+		currNbId := int16(sm.E2Nodes.Get(i).GetId().GetNb_id().GetNb_id())
 
 		// - d) CuDuId    TODO: maybe swig needs to be extended to support this
 		// currCuDuId := sm.E2Nodes.Get(i).GetId().GetCu_du_id().GetCu_du_id()
 
-		// Compare with policy
-		if currPlmn != PolicyConfiguration.Scope.Plmn ||
-			currRanType != PolicyConfiguration.Scope.RanType ||
-			currNbId != PolicyConfiguration.Scope.NbId {
-
+		// Skip CUs
+		if currRanType == "ngran_eNB_CU" || currRanType == "ngran_ng_eNB_CU" || currRanType == "ngran_gNB_CU" {
+			continue
 		}
 
-		PolicyConfiguration.Scope.Plmn
+		// Compare with policy
+		if currMcc != PolicyConfiguration.Scope.Mcc || currMnc != PolicyConfiguration.Scope.Mnc ||
+			currRanType != PolicyConfiguration.Scope.RanType || currNbId != PolicyConfiguration.Scope.NbId {
+			continue
+		}
 
 		// STEP 1: Check if there is an idle slice and if no create it
-		idleSliceId := slice.FindIdleSlice()
+		e2nodeId := slice.E2NodeId{
+			Mcc:     int16(currMcc),
+			Mnc:     int16(currMnc),
+			NbId:    currNbId,
+			CuDuId:  0,
+			RanType: currRanType,
+		}
+		idleSliceId := slice.FindIdleSlice(e2nodeId)
 
 		if idleSliceId != -1 {
 			fmt.Printf("Found slice with index %d and PctRsvd = 0.05\n", idleSliceId)
@@ -81,14 +88,13 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 			}
 
 			// Send the ADDMOD control message to the RIC
-			// TODO: fix hard coded 0
 			msg := slice.FillSliceCtrlMsg("ADDMOD", idleNvsSlicesCap)
-			xapp.Control_slice_sm(sm.E2Nodes.Get(0).GetId(), msg)
+			xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msg)
 
 			time.Sleep(1 * time.Second)
 
 			// ensure the slice is created
-			idleSliceId = slice.FindIdleSlice()
+			idleSliceId = slice.FindIdleSlice(e2nodeId)
 			if idleSliceId != -1 {
 				fmt.Printf("Found slice with index %d and PctRsvd = 0.05\n", idleSliceId)
 			} else {
@@ -99,9 +105,7 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 
 		// STEP 2: Enforce the policy
 		fmt.Println("\n[Policy]:------------------ Enforcement -------------------------")
-		cellId := int(PolicyConfiguration.Scope.CellID)
-		sliceId := int(PolicyConfiguration.Scope.SliceID)
-		fmt.Println("[Policy]: Cell Id:", cellId, ", Slice Id:", sliceId)
+		fmt.Println("[Policy]: RAN Type:", currRanType, ", MCC:", currMcc, ", MNC:", currMnc, ", NbId:", currNbId)
 
 		// Get the maximum and current number of UEs allowed in the slice
 		maxPrbUtilization := int(PolicyConfiguration.Statement.MacPrbUtilisation)
@@ -112,7 +116,7 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 
 		CurrPrbUtilization := mac.TotalPrbUtilization()
 
-		reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", idleSliceId).(interface{})
+		reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", idleSliceId, e2nodeId).(interface{})
 		//fmt.Println("[Policy]: Curr PRB util:", CurrPrbUtilization, ", Max PRB util:", maxPrbUtilization)
 		fmt.Println("[Policy]: PRB:", CurrPrbUtilization, " / ", maxPrbUtilization, " %")
 
@@ -153,7 +157,7 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 		// Send the ADDMOD control message to the RIC
 		// TODO: fix hard coded 0
 		msg := slice.FillSliceCtrlMsg("ADDMOD", idleNvsSlicesCap)
-		xapp.Control_slice_sm(sm.E2Nodes.Get(0).GetId(), msg)
+		xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msg)
 
 		time.Sleep(100 * time.Millisecond)
 
@@ -179,12 +183,8 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 			Ues:    uesToBeAssoc,
 		}
 
-		for i := 0; i <= int(sm.E2Nodes.Size()-1); i++ {
-			// TODO: fix send only to DUs the type is du
-			msg := slice.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
-			xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msg)
-			time.Sleep(100 * time.Millisecond)
-		}
+		msg = slice.FillSliceCtrlMsg("ASSOC_UE_SLICE", assocUeSlice)
+		xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msg)
+		time.Sleep(100 * time.Millisecond)
 	}
-
 }

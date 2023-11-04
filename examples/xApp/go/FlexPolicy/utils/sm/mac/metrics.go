@@ -1,27 +1,28 @@
 package mac
 
 import (
+	utils "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
+	"fmt"
 	"sync"
 	//"fmt"
 	xapp "build/examples/xApp/go/xapp_sdk"
 )
 
-// Initialization function for the package
-func init() {
-	
-	// Initialize the MultipleUeStatistics global variable
-	MultipleUeStatistics = MultiUeStats{
-		Stats:    make(map[RNTI]UeStats),  // Initialize an empty map for UeStats
-		NumOfUEs: 0,                       // Initialize the number of UEs to 0
-	}
-}
+//// Initialization function for the package
+//func init() {
+//
+//	// Initialize the MultipleUeStatistics global variable
+//	MultipleUeStatistics =  make([]E2NodeMultiUeStats, 0)
+//
+//			MultiUeStats{
+//		Stats:    make(map[RNTI]UeStats), // Initialize an empty map for UeStats
+//		NumOfUEs: 0,                      // Initialize the number of UEs to 0
+//	}
+//}
 
 // Mutex for locking the global structure
 var PrbMutex sync.Mutex
 var ThptMutex sync.Mutex
-
-// Global variable to store the stats of UEs
-var MultipleUeStatistics MultiUeStats
 
 type UeThroughputCalculationMetrics struct {
 	DLAggtbsSt int
@@ -59,20 +60,45 @@ type MultiUeStats struct {
 	NumOfUEs int
 }
 
+type E2NodeMultiUeStats struct {
+	Mcc           int16
+	Mnc           int16
+	NbId          int16
+	RanType       string
+	E2NodeUeStats MultiUeStats
+}
 
-// Global variable for the bandwidth and numerology
+// Global variable to store the stats of UEs
+var MultipleUeStatistics []E2NodeMultiUeStats
+
+// Global variable for the bandwidth and numerology TODO: Fix these hardcoded values
 var (
 	cell_BandWidth = 40000000
 	scs            = 30000
 )
 
-
 // TotalPrbUtilization function to calculate the total prb utilisation
-func TotalPrbUtilization() int {
+func TotalPrbUtilization(e2nodeId utils.E2NodeId) int {
 	TotalPrbUtil := 0
 
 	PrbMutex.Lock()
-	for _, ue := range MultipleUeStatistics.Stats {
+
+	entryFound := false
+	entryIndex := -1
+	for i, entry := range MacStats {
+		if entry.Mcc == e2nodeId.Mcc && entry.Mnc == e2nodeId.Mnc && entry.NbId == e2nodeId.NbId && entry.RanType == e2nodeId.RanType {
+			entryFound = true
+			entryIndex = i
+			break
+		}
+
+	}
+	if entryFound == false {
+		fmt.Println("ERROR: Entry not found in TotalPrbUtilization()")
+		return -1
+	}
+
+	for _, ue := range MultipleUeStatistics[entryIndex].E2NodeUeStats.Stats {
 		TotalPrbUtil += ue.PrbUtilisation
 	}
 	PrbMutex.Unlock()
@@ -80,10 +106,41 @@ func TotalPrbUtilization() int {
 	return TotalPrbUtil
 }
 
-
 func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
 
 	PrbMutex.Lock()
+
+	// get E2node details
+	NbId := int16(ind.GetId().GetNb_id().GetNb_id())
+	// CuDuId := ind.GetId().GetCu_du_id() // TODO: not yet supported, maybe needs swig extension
+	RanType := xapp.Get_e2ap_ngran_name(ind.GetId().GetXtype())
+	Mcc := int16(ind.GetId().GetPlmn().GetMcc())
+	Mnc := int16(ind.GetId().GetPlmn().GetMnc())
+
+	// Find the entry in the global structure MultipleUeStatistics if it exists or create a new entry
+	entryFound := false
+	entryIndex := -1
+	for i, entry := range MultipleUeStatistics {
+		if entry.Mcc == Mcc && entry.Mnc == Mnc && entry.NbId == NbId && entry.RanType == RanType {
+			entryFound = true
+			entryIndex = i
+			break
+		}
+	}
+
+	if entryFound == false {
+		// Create a new entry in the global structure MultipleUeStatistics
+		newEntry := E2NodeMultiUeStats{
+			Mcc:  Mcc,
+			Mnc:  Mnc,
+			NbId: NbId,
+			//CuDuId:        CuDuId,
+			RanType:       RanType,
+			E2NodeUeStats: MultiUeStats{},
+		}
+		MultipleUeStatistics = append(MultipleUeStatistics, newEntry)
+		entryIndex = len(MultipleUeStatistics) - 1
+	}
 
 	// iterate over the number of UEs
 	for i := 0; i < int(ind.GetUe_stats().Size()); i++ {
@@ -95,7 +152,7 @@ func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
 		Dl_aggr_prb := ind.GetUe_stats().Get(i).GetDl_aggr_prb()
 
 		// Check if the UE RNTI exists in the map
-		if ue, ok := MultipleUeStatistics.Stats[Rnti]; ok {
+		if ue, ok := MultipleUeStatistics[entryIndex].E2NodeUeStats.Stats[Rnti]; ok {
 
 			// Store the first indication messages
 			if ue.UePrbMetrics.DLRbCount == 0 {
@@ -183,10 +240,10 @@ func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
 
 			}
 
-			MultipleUeStatistics.Stats[Rnti] = ue
+			MultipleUeStatistics[entryIndex].E2NodeUeStats.Stats[Rnti] = ue
 		} else {
-			MultipleUeStatistics.Stats[Rnti] = UeStats{
-				
+			MultipleUeStatistics[entryIndex].E2NodeUeStats.Stats[Rnti] = UeStats{
+
 				PrbUtilisation: 0,
 				UePrbMetrics: UePrbCalculationMetrics{
 					DLRbCount:     0,
@@ -212,13 +269,28 @@ func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
 	PrbMutex.Unlock()
 }
 
-
-// TotalPrbUtilization function to calculate the total prb utilisation
-func TotalThroughput() (int, int) {
+// TotalThroughput function to calculate the total prb utilisation // TODO: fix position of e2nodeId
+func TotalThroughput(e2nodeId utils.E2NodeId) (int, int) {
 	TotalDlThroughput, TotalUlThroughput := 0, 0
 
 	ThptMutex.Lock()
-	for _, ue := range MultipleUeStatistics.Stats {
+
+	entryFound := false
+	entryIndex := -1
+	for i, entry := range MacStats {
+		if entry.Mcc == e2nodeId.Mcc && entry.Mnc == e2nodeId.Mnc && entry.NbId == e2nodeId.NbId && entry.RanType == e2nodeId.RanType {
+			entryFound = true
+			entryIndex = i
+			break
+		}
+
+	}
+	if entryFound == false {
+		fmt.Println("ERROR: Entry not found in TotalThroughput()")
+		return -1, -1
+	}
+
+	for _, ue := range MultipleUeStatistics[entryIndex].E2NodeUeStats.Stats {
 		TotalDlThroughput += ue.UeThrMetrics.DLThr
 		TotalUlThroughput += ue.UeThrMetrics.ULThr
 	}
@@ -227,10 +299,40 @@ func TotalThroughput() (int, int) {
 	return TotalDlThroughput, TotalUlThroughput
 }
 
-
-func CalculateUeThroughput(ind xapp.Swig_mac_ind_msg_t){
+func CalculateUeThroughput(ind xapp.Swig_mac_ind_msg_t) {
 
 	ThptMutex.Lock()
+
+	NbId := int16(ind.GetId().GetNb_id().GetNb_id())
+	// CuDuId := ind.GetId().GetCu_du_id() // TODO: not yet supported, maybe needs swig extension
+	RanType := xapp.Get_e2ap_ngran_name(ind.GetId().GetXtype())
+	Mcc := int16(ind.GetId().GetPlmn().GetMcc())
+	Mnc := int16(ind.GetId().GetPlmn().GetMnc())
+
+	// Find the entry in the global structure MultipleUeStatistics if it exists or create a new entry
+	entryFound := false
+	entryIndex := -1
+	for i, entry := range MultipleUeStatistics {
+		if entry.Mcc == Mcc && entry.Mnc == Mnc && entry.NbId == NbId && entry.RanType == RanType {
+			entryFound = true
+			entryIndex = i
+			break
+		}
+	}
+
+	if entryFound == false {
+		// Create a new entry in the global structure MultipleUeStatistics
+		newEntry := E2NodeMultiUeStats{
+			Mcc:  Mcc,
+			Mnc:  Mnc,
+			NbId: NbId,
+			//CuDuId:        CuDuId,
+			RanType:       RanType,
+			E2NodeUeStats: MultiUeStats{},
+		}
+		MultipleUeStatistics = append(MultipleUeStatistics, newEntry)
+		entryIndex = len(MultipleUeStatistics) - 1
+	}
 
 	// iterate over the number of UEs
 	for i := 0; i < int(ind.GetUe_stats().Size()); i++ {
@@ -240,7 +342,7 @@ func CalculateUeThroughput(ind xapp.Swig_mac_ind_msg_t){
 		ULAggtbsSt := int(ind.GetUe_stats().Get(i).GetUl_aggr_tbs())
 
 		// Check if the UE RNTI exists in the map
-		if ue, ok := MultipleUeStatistics.Stats[Rnti]; ok {
+		if ue, ok := MultipleUeStatistics[entryIndex].E2NodeUeStats.Stats[Rnti]; ok {
 
 			// Store the first indication messages
 			if ue.UeThrMetrics.Count == 0 {
@@ -259,7 +361,7 @@ func CalculateUeThroughput(ind xapp.Swig_mac_ind_msg_t){
 
 			}
 
-			MultipleUeStatistics.Stats[Rnti] = ue
+			MultipleUeStatistics[entryIndex].E2NodeUeStats.Stats[Rnti] = ue
 		}
 	}
 
