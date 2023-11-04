@@ -134,8 +134,14 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
           assert(SST->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong SST type");
           assert(SST->ran_param_val.flag_false != NULL && "NULL SST->ran_param_val.flag_false");
           assert(SST->ran_param_val.flag_false->type == OCTET_STRING_RAN_PARAMETER_VALUE && "wrong SST->ran_param_val.flag_false type");
+          seq_ran_param_t* SD = &S_NSSAI->ran_param_val.strct->ran_param_struct[1];
+          assert(SD->ran_param_id == SD_8_4_3_6 && "wrong SD id");
+          assert(SD->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong SD type");
+          assert(SD->ran_param_val.flag_false != NULL && "NULL SD->ran_param_val.flag_false");
+          assert(SD->ran_param_val.flag_false->type == OCTET_STRING_RAN_PARAMETER_VALUE && "wrong SD->ran_param_val.flag_false type");
           ///// SLICE LABEL NAME /////
           char* sst_str = copy_ba_to_str(&SST->ran_param_val.flag_false->octet_str_ran);
+          char* sd_str = copy_ba_to_str(&SD->ran_param_val.flag_false->octet_str_ran);
 
           ///// SLICE NVS CAP /////
           seq_ran_param_t* Dedicated_PRB_Policy_Ratio = &RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct[3];
@@ -144,7 +150,7 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
           assert(Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false != NULL && "NULL Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false");
           assert(Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false->type == INTEGER_RAN_PARAMETER_VALUE && "wrong Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false type");
           int nvs_cap = Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false->int_ran;
-          printf("RC SM: configure slice %ld, label %s, nvs_cap %d\n", i, sst_str, nvs_cap);
+          printf("RC SM: configure slice %ld, label %s %s, nvs_cap %d\n", i, sst_str, sd_str, nvs_cap);
           free(sst_str);
         }
       } else {

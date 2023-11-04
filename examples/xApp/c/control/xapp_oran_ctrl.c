@@ -84,7 +84,10 @@ typedef enum {
 } slice_level_PRB_quota_param_id_e;
 
 static
-void gen_rrm_policy_ratio_group(lst_ran_param_t* RRM_Policy_Ratio_Group, const char* sst_str, int dedicated_prb)
+void gen_rrm_policy_ratio_group(lst_ran_param_t* RRM_Policy_Ratio_Group,
+                                const char* sst_str,
+                                const char* sd_str,
+                                int dedicated_prb)
 {
   // RRM Policy Ratio Group, STRUCTURE (RRM Policy Ratio List -> RRM Policy Ratio Group)
   // lst_ran_param_t* RRM_Policy_Ratio_Group = &RRM_Policy_Ratio_List->ran_param_val.lst->lst_ran_param[0];
@@ -153,7 +156,7 @@ void gen_rrm_policy_ratio_group(lst_ran_param_t* RRM_Policy_Ratio_Group, const c
   SD->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(SD->ran_param_val.flag_false != NULL && "Memory exhausted");
   SD->ran_param_val.flag_false->type = OCTET_STRING_RAN_PARAMETER_VALUE;
-  char sd_str[] = "0";
+  // char sd_str[] = "0";
   byte_array_t sd = cp_str_to_ba(sd_str); //TODO
   SD->ran_param_val.flag_false->octet_str_ran.len = sd.len;
   SD->ran_param_val.flag_false->octet_str_ran.buf = sd.buf;
@@ -201,11 +204,13 @@ void gen_rrm_policy_ratio_list(seq_ran_param_t* RRM_Policy_Ratio_List)
   RRM_Policy_Ratio_List->ran_param_val.lst->lst_ran_param = calloc(num_slice, sizeof(lst_ran_param_t));
   assert(RRM_Policy_Ratio_List->ran_param_val.lst->lst_ran_param != NULL && "Memory exhausted");
 
-  const char* sst_str[] = {"sst1", "sst2"};
+  const char* sst_str[] = {"sst1", "sst1"};
+  const char* sd_str[] = {"sd0", "sd1"};
   int dedicated_prb[] = {70, 30};
   for (int i = 0; i < num_slice; i++) {
     gen_rrm_policy_ratio_group(&RRM_Policy_Ratio_List->ran_param_val.lst->lst_ran_param[i],
                                sst_str[i],
+                               sd_str[i],
                                dedicated_prb[i]);
   }
 
