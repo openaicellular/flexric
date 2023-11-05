@@ -135,8 +135,10 @@ func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
 			Mnc:  Mnc,
 			NbId: NbId,
 			//CuDuId:        CuDuId,
-			RanType:       RanType,
-			E2NodeUeStats: MultiUeStats{},
+			RanType: RanType,
+			E2NodeUeStats: MultiUeStats{
+				Stats: make(map[RNTI]UeStats), // Initialize an empty map for UeStats
+			},
 		}
 		MultipleUeStatistics = append(MultipleUeStatistics, newEntry)
 		entryIndex = len(MultipleUeStatistics) - 1

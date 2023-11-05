@@ -24,6 +24,8 @@ var server1URL = "http://127.0.0.10:7000/api/policy"
 func main() {
 	time.Sleep(3 * time.Second)
 
+	fmt.Println("GET Feedback")
+
 	// ----------------- GET Feedback ----------------- //
 	resp, err := http.Get("http://127.0.0.10:7000/api/feedback")
 	if err != nil {

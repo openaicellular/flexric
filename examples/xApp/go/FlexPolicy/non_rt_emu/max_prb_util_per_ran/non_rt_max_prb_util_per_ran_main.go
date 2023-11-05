@@ -56,13 +56,13 @@ func main() {
 	nbId := sm.Feedback.SliceFeedback[0].NbId
 	ranType := sm.Feedback.SliceFeedback[0].RanType
 
-	thps := []int16{200, 150, 50, 150, 50, 150, 50, 200, 50, 200}
+	prbs := []int16{100, 80, 20, 90, 20, 90, 20, 90, 20, 90}
 
-	for _, maxThroughput := range thps {
+	for _, maxPrbUtil := range prbs {
 
 		config := policy.Configuration{
 			PolicyID:   2,
-			PolicyType: "maxThroughput",
+			PolicyType: "maxPrbUtil",
 			Scope: policy.ScopeConfig{
 				Mcc:     mcc,
 				Mnc:     mnc,
@@ -70,7 +70,7 @@ func main() {
 				RanType: ranType,
 			},
 			Statement: policy.StatementConfig{
-				MaxThroughput: maxThroughput,
+				MacPrbUtilisation: maxPrbUtil,
 			},
 		}
 
@@ -78,7 +78,7 @@ func main() {
 		if err != nil {
 			log.Printf("Failed to send configuration: %s", err)
 		} else {
-			log.Println("Configuration sent successfully, [maxThroughput]: ", maxThroughput)
+			log.Println("Configuration sent successfully, [maxPrbUtil]: ", maxPrbUtil)
 		}
 
 		time.Sleep(10 * time.Second)
