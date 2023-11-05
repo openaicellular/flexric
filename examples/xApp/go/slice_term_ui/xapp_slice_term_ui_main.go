@@ -548,8 +548,6 @@ var conn xapp.E2NodeVector
 var nodeIdx int
 
 func main() {
-	// xApp configuration parser
-	//parseXappConfig()
 
 	//sliceId := 0
 	idleSliceId := 1
@@ -581,72 +579,71 @@ func main() {
 	HndlrMac := xapp.Report_mac_sm(conn.Get(nodeIdx).GetId(), xapp.Interval_ms_10, callbackMac)
 
 	// ---------------- Print Slice - UE Association ---------------- //
+	time.Sleep(1 * time.Second)
+	// Initialize ncurses
+	stdscr, _ := goncurses.Init()
+	defer goncurses.End()
 
-	//// Initialize ncurses
-	//stdscr, _ := goncurses.Init()
-	//defer goncurses.End()
-	//
-	//// Enable keyboard input
-	//stdscr.Keypad(true)
-	//
-	//// Hide cursor
-	//goncurses.Cursor(0)
-	//
-	//// Set up colors
-	//if goncurses.HasColors() {
-	//	goncurses.StartColor()
-	//	goncurses.InitPair(1, goncurses.C_RED, goncurses.C_BLACK)
-	//}
-	//
-	//// Clear the screen
-	//stdscr.Clear()
-	//
-	//go func() {
-	//	for end == false {
-	//		// Check if the user entered "quit" or "q"
-	//		input := stdscr.GetChar()
-	//		if input == 'q' || input == 'Q' {
-	//			// Send a quit signal through the channel
-	//			goncurses.End()
-	//			end = true
-	//			break
-	//		}
-	//	}
-	//}()
+	// Enable keyboard input
+	stdscr.Keypad(true)
+
+	// Hide cursor
+	goncurses.Cursor(0)
+
+	// Set up colors
+	if goncurses.HasColors() {
+		goncurses.StartColor()
+		goncurses.InitPair(1, goncurses.C_RED, goncurses.C_BLACK)
+	}
+
+	// Clear the screen
+	stdscr.Clear()
+
+	go func() {
+		for end == false {
+			// Check if the user entered "quit" or "q"
+			input := stdscr.GetChar()
+			if input == 'q' || input == 'Q' {
+				// Send a quit signal through the channel
+				goncurses.End()
+				end = true
+				break
+			}
+		}
+	}()
 
 	for end == false {
 		fmt.Println("e")
 		// Create a wrapper screen with dimensions based on the terminal size
-		//wrapper := stdscr.Sub(0, 0, 0, 0)
+		wrapper := stdscr.Sub(0, 0, 0, 0)
 
 		// Clear the wrapper screen
-		//wrapper.Clear()
+		wrapper.Clear()
 
 		// Get the dimensions of the wrapper screen
-		//height, width := wrapper.MaxYX()
+		height, width := wrapper.MaxYX()
 
 		// Calculate the vertical and horizontal center positions
-		//centerY := height / 2 // Adjusted to 1/3 to better position plots
-		//centerX := width / 2  // No change
+		centerY := height / 2 // Adjusted to 1/3 to better position plots
+		centerX := width / 2  // No change
 
 		// Universal statistics
 		e2nodeId := slice.E2NodeId{
 			Mcc:     int16(conn.Get(nodeIdx).GetId().GetPlmn().GetMcc()),
 			Mnc:     int16(conn.Get(nodeIdx).GetId().GetPlmn().GetMnc()),
 			NbId:    int16(conn.Get(nodeIdx).GetId().GetNb_id().GetNb_id()),
-			RanType: string(conn.Get(nodeIdx).GetId().GetXtype()),
+			RanType: xapp.Get_e2ap_ngran_name(conn.Get(nodeIdx).GetId().GetXtype()),
 		}
 
 		// Update the slices
-		fmt.Println("Updating the slices")
+
 		reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", idleSliceId, e2nodeId)
-		fmt.Println(reading)
-		return
-		//normalSliceNumUes := reading.(map[string]interface{})["num_of_normal_ues"].(int)
-		//normalSliceRntis := reading.(map[string]interface{})["normal_rntis"].([]uint16)
-		//
-		//idleSliceNumUes := reading.(map[string]interface{})["num_of_idle_ues"].(int)
-		//idleSliceRntis := reading.(map[string]interface{})["idle_rntis"].([]uint16)
+
+		normalSliceNumUes := reading.(map[string]interface{})["num_of_normal_ues"].(int)
+		normalSliceRntis := reading.(map[string]interface{})["normal_rntis"].([]uint16)
+
+		idleSliceNumUes := reading.(map[string]interface{})["num_of_idle_ues"].(int)
+		idleSliceRntis := reading.(map[string]interface{})["idle_rntis"].([]uint16)
 		//normalSliceNumUes := slice.ReadSliceStats("num_of_ues", sliceId, e2nodeId).(int)
 		//normalSliceRntis := slice.ReadSliceStats("rntis", sliceId, e2nodeId)
 		//
@@ -660,18 +657,18 @@ func main() {
 		updateHistoricalData(&prbData, CurrPrbUtilization, maxDataPoints)
 		updateHistoricalData(&thptData, CurrDlThpt, maxDataPoints)
 
-		//printTimeSeriesPlot(wrapper, int(float64(width)*0.05), int(float64(height)*0.1), "DL Throughput (Mbps):", thptData, 200) // max throughput
-		//printTimeSeriesPlot(wrapper, int(float64(width)*0.05), int(float64(height)*0.6), "PRB Utilization (%):", prbData, 100)   // max prb
-		//
-		//// Adjust the vertical position to prevent overlap
-		//printSliceInfo(wrapper, centerX+int(float64(width)*0.1), centerY-int(float64(height)*0.2), "[Slice 0]:", normalSliceRntis, normalSliceNumUes) // Slice A
-		//printSliceInfo(wrapper, centerX+int(float64(width)*0.1), centerY+int(float64(height)*0.2), "[Slice Idle]:", idleSliceRntis, idleSliceNumUes)  // Slice B
-		//
-		//// Refresh the screen to display changes
-		//stdscr.Refresh()
-		//
-		//// Refresh the wrapper screen to display changes
-		//wrapper.Refresh()
+		printTimeSeriesPlot(wrapper, int(float64(width)*0.05), int(float64(height)*0.1), "DL Throughput (Mbps):", thptData, 200) // max throughput
+		printTimeSeriesPlot(wrapper, int(float64(width)*0.05), int(float64(height)*0.6), "PRB Utilization (%):", prbData, 100)   // max prb
+
+		// Adjust the vertical position to prevent overlap
+		printSliceInfo(wrapper, centerX+int(float64(width)*0.1), centerY-int(float64(height)*0.2), "[Slice 0]:", normalSliceRntis, normalSliceNumUes) // Slice A
+		printSliceInfo(wrapper, centerX+int(float64(width)*0.1), centerY+int(float64(height)*0.2), "[Slice Idle]:", idleSliceRntis, idleSliceNumUes)  // Slice B
+
+		// Refresh the screen to display changes
+		stdscr.Refresh()
+
+		// Refresh the wrapper screen to display changes
+		wrapper.Refresh()
 
 		// Wait for a short duration
 		time.Sleep(1000 * time.Millisecond)
