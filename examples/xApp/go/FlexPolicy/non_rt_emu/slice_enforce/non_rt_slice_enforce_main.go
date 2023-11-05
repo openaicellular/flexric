@@ -105,8 +105,11 @@ func main() {
 		PolicyID:   2,
 		PolicyType: "sliceGenericControl",
 		Scope: policy.ScopeConfig{
-			SliceID: 0,
-			CellID:  3584,
+			Mcc: uint16(slice.SliceStats[0].Mcc),
+			Mnc: uint16(slice.SliceStats[0].Mnc),
+			//CuDuId:    0,
+			NbId:    slice.SliceStats[0].NbId,
+			RanType: slice.SliceStats[0].RanType,
 		},
 		Statement: policy.StatementConfig{
 			CtrlType:    controlType,
@@ -138,8 +141,11 @@ func main() {
 		PolicyID:   2,
 		PolicyType: "sliceGenericControl",
 		Scope: policy.ScopeConfig{
-			SliceID: 0,
-			CellID:  3584,
+			Mcc: uint16(slice.SliceStats[0].Mcc),
+			Mnc: uint16(slice.SliceStats[0].Mnc),
+			//CuDuId:    0,
+			NbId:    slice.SliceStats[0].NbId,
+			RanType: slice.SliceStats[0].RanType,
 		},
 		Statement: policy.StatementConfig{
 			CtrlType:    controlType,
@@ -171,8 +177,11 @@ func main() {
 		PolicyID:   2,
 		PolicyType: "sliceGenericControl",
 		Scope: policy.ScopeConfig{
-			SliceID: 0,
-			CellID:  3584,
+			Mcc: uint16(slice.SliceStats[0].Mcc),
+			Mnc: uint16(slice.SliceStats[0].Mnc),
+			//CuDuId:    0,
+			NbId:    slice.SliceStats[0].NbId,
+			RanType: slice.SliceStats[0].RanType,
 		},
 		Statement: policy.StatementConfig{
 			CtrlType:    controlType,
