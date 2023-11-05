@@ -15,7 +15,7 @@ type MACCallback struct {
 func (mac_cb MACCallback) Handle(ind xapp.Swig_mac_ind_msg_t) {
 	Calculate_UE_PRB_utilisation(ind)
 	CalculateUeThroughput(ind)
-	fillMacStorage(ind)
+	FillMacStorage(ind)
 }
 
 type E2NodeMacStorageMap struct {
@@ -92,7 +92,7 @@ var MacStats []E2NodeMacStorageMap
 // Mutex for locking the global structure SliceStatsDict
 var Mutex sync.Mutex
 
-func fillMacStorage(ind xapp.Swig_mac_ind_msg_t) {
+func FillMacStorage(ind xapp.Swig_mac_ind_msg_t) {
 
 	Mutex.Lock()
 

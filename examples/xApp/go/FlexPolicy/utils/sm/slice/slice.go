@@ -129,6 +129,7 @@ type E2NodeId struct {
 //
 // ------------------------------------------------------------------------ //
 func ReadSliceStats(item string, sliceId int, e2nodeId E2NodeId) interface{} {
+	fmt.Println("0")
 	// find entry index in the global structure SliceStats based on the E2Node ID
 	entryFound := false
 	entryIndex := -1
@@ -140,6 +141,7 @@ func ReadSliceStats(item string, sliceId int, e2nodeId E2NodeId) interface{} {
 		}
 
 	}
+	fmt.Println("1")
 	if entryFound == false {
 		fmt.Println("ERROR: Entry not found in ReadSliceStats()")
 		return nil
@@ -270,7 +272,7 @@ func ReadSliceStats(item string, sliceId int, e2nodeId E2NodeId) interface{} {
 		// - idle_rntis: return all RNTIs associated with the idle slice
 		// - num_of_idle_ues: return the number of UEs associated with the idle slice
 		// - num_of_all_ues: return the total number of UEs in the cell
-
+		fmt.Println("2")
 		Mutex.Lock()
 		// [Output 0]: Read all RNTIs from the global structure
 		allRntis := []uint16{}
