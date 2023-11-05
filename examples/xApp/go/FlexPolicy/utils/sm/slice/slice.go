@@ -813,14 +813,12 @@ func DeepCopySliceStats(original []E2NodeSliceStatsMap) []E2NodeSliceStatsMap {
 
 // DeepCopySliceStatsDict Deep copy functions for each nested struct
 func DeepCopySliceStatsDict(original SliceStatsDict) SliceStatsDict {
-	Mutex.Lock()
 
 	CopiedSliceStats := SliceStatsDict{
 		RAN: deepCopyRANStats(original.RAN),
 		UE:  deepCopyUeStats(original.UE),
 	}
 
-	Mutex.Unlock()
 	return CopiedSliceStats
 }
 
