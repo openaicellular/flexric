@@ -4,6 +4,8 @@ import (
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
 	xapp "build/examples/xApp/go/xapp_sdk"
+	"math"
+
 	//api "build/examples/xApp/go/FlexPolicy/utils/api"
 	mac "build/examples/xApp/go/FlexPolicy/utils/sm/mac"
 	slice "build/examples/xApp/go/FlexPolicy/utils/sm/slice"
@@ -16,7 +18,7 @@ func init() {
 	RegisterCallback("MAX_PRB_UTIL_PER_RAN", CallbackMaxPrbUtilPerRan)
 }
 
-// CallbackMaxPrbUtil is a policy for maintaining a maximum PRB utilisation
+// CallbackMaxPrbUtilPerRan is a policy for maintaining a maximum PRB utilisation
 func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 
 	// Iterate over all the RANs
@@ -129,13 +131,14 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 
 		// Enforce the policy
 		// Adjust Slices
-		if maxPrbUtilization == 0 {
+		if maxPrbUtilization < 5 {
 			maxPrbUtilization = 5
-		} else if maxPrbUtilization == 100 {
+		} else if maxPrbUtilization > 95 {
 			maxPrbUtilization = 95
 		}
 
-		normalSliceCapacity := float64(maxPrbUtilization / 100.0)
+		normalSliceCapacity := float64(maxPrbUtilization) / 100.0
+		normalSliceCapacity = math.Round(normalSliceCapacity*100) / 100
 		s1_params_nvs := slice.SliceAlgoParams{PctRsvd: normalSliceCapacity}
 		s1_nvs := slice.Slice{
 			Id:              0,
@@ -145,8 +148,9 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 			SliceAlgoParams: s1_params_nvs}
 
 		// Create Idle slice
-		IdleSliceCapacity := 1.0 - normalSliceCapacity
-		algoParams := slice.SliceAlgoParams{PctRsvd: IdleSliceCapacity}
+		//IdleSliceCapacity := 1.0 - normalSliceCapacity
+		//IdleSliceCapacity = math.Round(IdleSliceCapacity*100) / 100
+		algoParams := slice.SliceAlgoParams{PctRsvd: 0.05}
 		idleSlice := slice.Slice{
 			Id:              1, // TODO: Do this dynamically to find a free id
 			Label:           "idle",
@@ -160,6 +164,8 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 			SliceSchedAlgo: "NVS",
 			Slices:         []slice.Slice{s1_nvs, idleSlice},
 		}
+		fmt.Println("[Policy]: Adjusting slices to:")
+		fmt.Println("[Policy]: s1:", normalSliceCapacity, ", idle:", 0.05)
 
 		// Send the ADDMOD control message to the RIC
 		// TODO: fix hard coded 0
