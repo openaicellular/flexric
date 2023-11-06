@@ -129,6 +129,15 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 		//fmt.Println("[Policy]: Curr PRB util:", CurrPrbUtilization, ", Max PRB util:", maxPrbUtilization)
 		fmt.Println("[Policy]: PRB:", CurrPrbUtilization, " / ", maxPrbUtilization, " %")
 
+		// ----------------------- SLICE CTRL DEL ----------------------- //
+		del := slice.Request{
+			NumDlSlices:     2,
+			DeleteDlSliceId: []int{0, 1},
+		}
+		msgDel := slice.FillSliceCtrlMsg("DEL", del)
+		xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msgDel)
+		time.Sleep(100 * time.Millisecond)
+
 		// Enforce the policy
 		// Adjust Slices
 		if maxPrbUtilization < 5 {
@@ -148,9 +157,9 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 			SliceAlgoParams: s1_params_nvs}
 
 		// Create Idle slice
-		//IdleSliceCapacity := 1.0 - normalSliceCapacity
-		//IdleSliceCapacity = math.Round(IdleSliceCapacity*100) / 100
-		algoParams := slice.SliceAlgoParams{PctRsvd: 0.05}
+		IdleSliceCapacity := 1.0 - normalSliceCapacity
+		IdleSliceCapacity = math.Round(IdleSliceCapacity*100) / 100
+		algoParams := slice.SliceAlgoParams{PctRsvd: IdleSliceCapacity}
 		idleSlice := slice.Slice{
 			Id:              1, // TODO: Do this dynamically to find a free id
 			Label:           "idle",
@@ -168,7 +177,6 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 		fmt.Println("[Policy]: s1:", normalSliceCapacity, ", idle:", 0.05)
 
 		// Send the ADDMOD control message to the RIC
-		// TODO: fix hard coded 0
 		msg := slice.FillSliceCtrlMsg("ADDMOD", idleNvsSlicesCap)
 		xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msg)
 
