@@ -126,29 +126,12 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 		CurrPrbUtilization := mac.TotalPrbUtilization(e2nodeId)
 
 		reading := slice.ReadSliceStats("multiple_rntis_num_of_ues", idleSliceId, e2nodeId).(interface{})
-		//fmt.Println("[Policy]: Curr PRB util:", CurrPrbUtilization, ", Max PRB util:", maxPrbUtilization)
-		fmt.Println("[Policy]: PRB:", CurrPrbUtilization, " / ", maxPrbUtilization, " %")
+		fmt.Println("[Policy]: Curr PRB util:", CurrPrbUtilization, " %, Max PRB util:", maxPrbUtilization, " %")
 
-		// ----------------------- SLICE CTRL DEL ----------------------- //
-		del := slice.Request{
-			NumDlSlices:     2,
-			DeleteDlSliceId: []int{0, 1},
-		}
-		msgDel := slice.FillSliceCtrlMsg("DEL", del)
-		xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msgDel)
-		time.Sleep(100 * time.Millisecond)
-
-		// Enforce the policy
-		// Adjust Slices
-		if maxPrbUtilization < 5 {
-			maxPrbUtilization = 5
-		} else if maxPrbUtilization > 95 {
-			maxPrbUtilization = 95
-		}
-
-		normalSliceCapacity := float64(maxPrbUtilization) / 100.0
-		normalSliceCapacity = math.Round(normalSliceCapacity*100) / 100
-		s1_params_nvs := slice.SliceAlgoParams{PctRsvd: normalSliceCapacity}
+		fmt.Println("[Policy]: Reset slices to minimum capacities")
+		// Reset slices first giving minimum capacities at both slices
+		// This step ensures that the sum of the capacities is not more than 1
+		s1_params_nvs := slice.SliceAlgoParams{PctRsvd: 0.05}
 		s1_nvs := slice.Slice{
 			Id:              0,
 			Label:           "s1",
@@ -157,9 +140,7 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 			SliceAlgoParams: s1_params_nvs}
 
 		// Create Idle slice
-		IdleSliceCapacity := 1.0 - normalSliceCapacity
-		IdleSliceCapacity = math.Round(IdleSliceCapacity*100) / 100
-		algoParams := slice.SliceAlgoParams{PctRsvd: IdleSliceCapacity}
+		algoParams := slice.SliceAlgoParams{PctRsvd: 0.05}
 		idleSlice := slice.Slice{
 			Id:              1, // TODO: Do this dynamically to find a free id
 			Label:           "idle",
@@ -173,11 +154,53 @@ func CallbackMaxPrbUtilPerRan(PolicyConfiguration policy.Configuration) {
 			SliceSchedAlgo: "NVS",
 			Slices:         []slice.Slice{s1_nvs, idleSlice},
 		}
+
+		// Send the ADDMOD control message to the RIC
+		msg := slice.FillSliceCtrlMsg("ADDMOD", idleNvsSlicesCap)
+		xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msg)
+
+		time.Sleep(100 * time.Millisecond)
+
+		// Enforce the policy
+		// Adjust Slices
+		if maxPrbUtilization < 5 {
+			maxPrbUtilization = 5
+		} else if maxPrbUtilization > 95 {
+			maxPrbUtilization = 95
+		}
+
+		normalSliceCapacity := float64(maxPrbUtilization) / 100.0
+		normalSliceCapacity = math.Round(normalSliceCapacity*100) / 100
+		s1_params_nvs = slice.SliceAlgoParams{PctRsvd: normalSliceCapacity}
+		s1_nvs = slice.Slice{
+			Id:              0,
+			Label:           "s1",
+			UeSchedAlgo:     "PF",
+			Type:            "SLICE_SM_NVS_V0_CAPACITY",
+			SliceAlgoParams: s1_params_nvs}
+
+		// Create Idle slice
+		IdleSliceCapacity := 1.0 - normalSliceCapacity
+		IdleSliceCapacity = math.Round(IdleSliceCapacity*100) / 100
+		algoParams = slice.SliceAlgoParams{PctRsvd: IdleSliceCapacity}
+		idleSlice = slice.Slice{
+			Id:              1, // TODO: Do this dynamically to find a free id
+			Label:           "idle",
+			UeSchedAlgo:     "PF",
+			Type:            "SLICE_SM_NVS_V0_CAPACITY",
+			SliceAlgoParams: algoParams}
+
+		// Request to add the slices
+		idleNvsSlicesCap = slice.Request{
+			NumSlices:      2,
+			SliceSchedAlgo: "NVS",
+			Slices:         []slice.Slice{s1_nvs, idleSlice},
+		}
 		fmt.Println("[Policy]: Adjusting slices to:")
 		fmt.Println("[Policy]: s1:", normalSliceCapacity, ", idle:", 0.05)
 
 		// Send the ADDMOD control message to the RIC
-		msg := slice.FillSliceCtrlMsg("ADDMOD", idleNvsSlicesCap)
+		msg = slice.FillSliceCtrlMsg("ADDMOD", idleNvsSlicesCap)
 		xapp.Control_slice_sm(sm.E2Nodes.Get(i).GetId(), msg)
 
 		time.Sleep(100 * time.Millisecond)
