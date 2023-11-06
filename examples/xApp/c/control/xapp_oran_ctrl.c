@@ -206,7 +206,7 @@ void gen_rrm_policy_ratio_list(seq_ran_param_t* RRM_Policy_Ratio_List)
 
   const char* sst_str[] = {"sst1", "sst1"};
   const char* sd_str[] = {"sd0", "sd1"};
-  int dedicated_prb[] = {70, 30};
+  int dedicated_prb[] = {80, 20};
   for (int i = 0; i < num_slice; i++) {
     gen_rrm_policy_ratio_group(&RRM_Policy_Ratio_List->ran_param_val.lst->lst_ran_param[i],
                                sst_str[i],
@@ -261,6 +261,25 @@ e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg(e2sm_rc_ctrl_msg_e msg_frmt)
   return dst;
 }
 
+static
+ue_id_e2sm_t gen_rc_ue_id(ue_id_e2sm_e type)
+{
+  ue_id_e2sm_t ue_id = {0};
+  if (type == GNB_UE_ID_E2SM) {
+    ue_id.type = GNB_UE_ID_E2SM;
+    // TODO
+    ue_id.gnb.amf_ue_ngap_id = 0;
+    ue_id.gnb.guami.plmn_id.mcc = 1;
+    ue_id.gnb.guami.plmn_id.mnc = 1;
+    ue_id.gnb.guami.plmn_id.mnc_digit_len = 2;
+    ue_id.gnb.guami.amf_region_id = 0;
+    ue_id.gnb.guami.amf_set_id = 0;
+    ue_id.gnb.guami.amf_ptr = 0;
+  } else {
+    assert(0!=0 && "not supported UE ID type");
+  }
+  return ue_id;
+}
 
 int main(int argc, char *argv[])
 {
@@ -285,17 +304,7 @@ int main(int argc, char *argv[])
   // E2SM-RC Control Header Format 1
   // E2SM-RC Control Message Format 1
   rc_ctrl_req_data_t rc_ctrl = {0};
-  ue_id_e2sm_t ue_id = {0};
-
-  ue_id.type = GNB_UE_ID_E2SM;
-  //TODO
-  ue_id.gnb.amf_ue_ngap_id = 0;
-  ue_id.gnb.guami.plmn_id.mcc = 505;
-  ue_id.gnb.guami.plmn_id.mnc = 1;
-  ue_id.gnb.guami.plmn_id.mnc_digit_len = 2;
-  ue_id.gnb.guami.amf_region_id = 0;
-  ue_id.gnb.guami.amf_set_id = 0;
-  ue_id.gnb.guami.amf_ptr = 0;
+  ue_id_e2sm_t ue_id = gen_rc_ue_id(GNB_UE_ID_E2SM);
 
   rc_ctrl.hdr = gen_rc_ctrl_hdr(FORMAT_1_E2SM_RC_CTRL_HDR, ue_id, 2, Slice_level_PRB_quotal_7_6_3_1);
   rc_ctrl.msg = gen_rc_ctrl_msg(FORMAT_1_E2SM_RC_CTRL_MSG);
