@@ -68,7 +68,8 @@ accepted_pair_t accept_ran_func(near_ric_t* ric, const e2_setup_request_t* req)
         it = assoc_next(&ric->plugin.sm_ds, it);
       }
       fflush(stdout);
-      assert(0!=0 && "Unknown RAN function ID from the agent received");
+      // assert(0!=0 && "Unknown RAN function ID from the agent received");
+      printf("[NEAR-RIC]: Not Support RAN function ID %d, do nothing\n", id);
     }
   }
   return dst;
