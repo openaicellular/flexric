@@ -249,11 +249,11 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
 }
 
 static
-kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
+kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action, uint32_t period_ms)
 {
   kpm_act_def_format_1_t dst = {0};
 
-  dst.gran_period_ms = 1000;
+  dst.gran_period_ms = period_ms;
 
   // [1, 65535]
   size_t count = 0;
@@ -272,7 +272,7 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
 }
 
 static
-kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
+kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action, uint32_t period_ms)
 {
   kpm_act_def_format_4_t dst = {0};
 
@@ -300,23 +300,23 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
   printf("[xApp]: Filter UEs by S-NSSAI criteria where SST = %lu\n", *dst.matching_cond_lst[0].test_info_lst.int_value);
 
   // Action definition Format 1
-  dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
+  dst.action_def_format_1 = gen_act_def_frmt_1(action, period_ms);  // 8.2.1.2.1
 
   return dst;
 }
 
 
 static
-kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm)
+kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm, uint32_t period_ms)
 {
   kpm_act_def_t dst = {0};
 
   if (act_frm == FORMAT_1_ACTION_DEFINITION) {
     dst.type = FORMAT_1_ACTION_DEFINITION;
-    dst.frm_1 = gen_act_def_frmt_1(act);
+    dst.frm_1 = gen_act_def_frmt_1(act, period_ms);
   } else if (act_frm == FORMAT_4_ACTION_DEFINITION) {
     dst.type = FORMAT_4_ACTION_DEFINITION;
-    dst.frm_4 = gen_act_def_frmt_4(act);
+    dst.frm_4 = gen_act_def_frmt_4(act, period_ms);
   } else {
     assert(0!=0 && "not support action definition type");
   }
@@ -350,7 +350,7 @@ size_t send_sub_req(e2_node_connected_t* n, fr_args_t args, sm_ans_xapp_t *kpm_h
       else
       assert(0!=0 && "not supported action definition format");
 
-      *kpm_sub.ad = gen_act_def((const char**)args.sub_oran_sm[j].actions, act_type);
+      *kpm_sub.ad = gen_act_def((const char**)args.sub_oran_sm[j].actions, act_type, period_ms);
 
       // TODO: implement e2ap_ngran_eNB
       if (n->id.type == e2ap_ngran_eNB)

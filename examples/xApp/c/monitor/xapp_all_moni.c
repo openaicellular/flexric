@@ -322,21 +322,21 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 //  return sm_id_arr;
 //}
 
-
-static
-byte_array_t copy_str_to_ba(const char* str)
-{
-  assert(str != NULL);
-
-  size_t const sz = strlen(str);
-  byte_array_t dst = {.len = sz };
-  dst.buf = calloc(sz ,sizeof(uint8_t) );
-  assert(dst.buf != NULL);
-
-  memcpy(dst.buf, str, sz);
-
-  return dst;
-}
+//
+//static
+//byte_array_t copy_str_to_ba(const char* str)
+//{
+//  assert(str != NULL);
+//
+//  size_t const sz = strlen(str);
+//  byte_array_t dst = {.len = sz };
+//  dst.buf = calloc(sz ,sizeof(uint8_t) );
+//  assert(dst.buf != NULL);
+//
+//  memcpy(dst.buf, str, sz);
+//
+//  return dst;
+//}
 
 static
 kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
@@ -356,7 +356,7 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
 
   dst.meas_type.type = NAME_MEAS_TYPE;
   // ETSI TS 128 552
-  dst.meas_type.name = copy_str_to_ba(  action );
+  dst.meas_type.name = cp_str_to_ba(action);
 
   dst.label_info_lst_len = 1;
   dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
@@ -369,11 +369,11 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
 }
 
 static
-kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
+kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action, uint32_t period_ms)
 {
   kpm_act_def_format_1_t dst = {0};
 
-  dst.gran_period_ms = 100;
+  dst.gran_period_ms = period_ms;
 
   // [1, 65535]
   size_t count = 0;
@@ -383,7 +383,7 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
   dst.meas_info_lst_len = count;
   dst.meas_info_lst = calloc(count, sizeof(meas_info_format_1_lst_t));
   assert(dst.meas_info_lst != NULL && "Memory exhausted");
-  printf("count %ld\n", count);
+
   for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
     dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action[i]);
   }
@@ -392,7 +392,7 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
 }
 
 static
-kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
+kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action, uint32_t period_ms)
 {
   kpm_act_def_format_4_t dst = {0};
 
@@ -402,38 +402,40 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
   dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
   assert(dst.matching_cond_lst != NULL && "Memory exhausted");
 
-  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
-  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
-  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
+  // Filter connected UEs by S-NSSAI criteria
+  dst.matching_cond_lst[0].test_info_lst.test_cond_type = S_NSSAI_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.S_NSSAI = TRUE_TEST_COND_TYPE;
 
   dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
   assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
+  *dst.matching_cond_lst[0].test_info_lst.test_cond = EQUAL_TEST_COND;
 
   dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
   assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
   *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
   dst.matching_cond_lst[0].test_info_lst.int_value = malloc(sizeof(int64_t));
   assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.int_value = 0;
+  *dst.matching_cond_lst[0].test_info_lst.int_value = 1;
+
+  printf("[xApp]: Filter UEs by S-NSSAI criteria where SST = %lu\n", *dst.matching_cond_lst[0].test_info_lst.int_value);
 
   // Action definition Format 1
-  dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
+  dst.action_def_format_1 = gen_act_def_frmt_1(action, period_ms);  // 8.2.1.2.1
 
   return dst;
 }
 
 static
-kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm)
+kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm, uint32_t period_ms)
 {
   kpm_act_def_t dst = {0};
 
   if (act_frm == FORMAT_1_ACTION_DEFINITION) {
     dst.type = FORMAT_1_ACTION_DEFINITION;
-    dst.frm_1 = gen_act_def_frmt_1(act);
+    dst.frm_1 = gen_act_def_frmt_1(act, period_ms);
   } else if (act_frm == FORMAT_4_ACTION_DEFINITION) {
     dst.type = FORMAT_4_ACTION_DEFINITION;
-    dst.frm_4 = gen_act_def_frmt_4(act);
+    dst.frm_4 = gen_act_def_frmt_4(act, period_ms);
   } else {
     assert(0!=0 && "not support action definition type");
   }
@@ -531,7 +533,7 @@ void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* 
     else
       assert(0!=0 && "not supported action definition format");
 
-    *kpm_sub.ad = gen_act_def((const char**)args.sub_oran_sm[i].actions, act_type);
+    *kpm_sub.ad = gen_act_def((const char**)args.sub_oran_sm[i].actions, act_type, period_ms);
 
     // TODO: implement e2ap_ngran_eNB
     if (n->id.type == e2ap_ngran_eNB)
