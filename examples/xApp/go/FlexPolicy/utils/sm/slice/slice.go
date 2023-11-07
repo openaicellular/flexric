@@ -11,9 +11,7 @@ import (
 	"sync"
 )
 
-// ------------------------------------------------------------------------ //
-//	SLICE INDICATION CALLBACK
-// ------------------------------------------------------------------------ //
+// SLICECallback SLICE INDICATION CALLBACK
 type SLICECallback struct {
 }
 
@@ -35,6 +33,17 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 //	- UeDictionary is a struct for storing the UE parameters
 //
 // ------------------------------------------------------------------------ //
+
+// E2NodeSliceStatsMap is a map of E2Node ID to SliceStatsDict
+type E2NodeSliceStatsMap struct {
+	Mcc              int16          `json:"mcc,omitempty"`
+	Mnc              int16          `json:"mnc,omitempty"`
+	NbId             int16          `json:"nb_id,omitempty"`
+	CuDuId           int16          `json:"cu_du_id,omitempty"`
+	RanType          string         `json:"ran_type,omitempty"`
+	E2NodeSliceStats SliceStatsDict `json:"slice_stats,omitempty"`
+}
+
 type SliceStatsDict struct {
 	RAN RANStats `json:"RAN,omitempty"`
 	UE  UeStats  `json:"UE,omitempty"`
@@ -85,13 +94,19 @@ type UeDictionary struct {
 	AssocDlSliceId string `json:"assoc_dl_slice_id,omitempty"`
 }
 
-// Definition of variable of the global structure for storing the latest indication message
-var SliceStats SliceStatsDict
+// SliceStats Definition of variable of the global structure for storing the latest indication message
+var SliceStats []E2NodeSliceStatsMap
 
 // Mutex for locking the global structure SliceStatsDict
 var Mutex sync.Mutex
 
-
+type E2NodeId struct {
+	Mcc     int16
+	Mnc     int16
+	NbId    int16
+	CuDuId  int16
+	RanType string
+}
 
 // ------------------------------------------------------------------------ //
 //
@@ -113,36 +128,55 @@ var Mutex sync.Mutex
 //									- num_of_all_ues: the total number of UEs in the cell
 //
 // ------------------------------------------------------------------------ //
-func ReadSliceStats(item string, sliceId int) interface{} {
+func ReadSliceStats(item string, sliceId int, e2nodeId E2NodeId) interface{} {
+
+	// find entry index in the global structure SliceStats based on the E2Node ID
+	entryFound := false
+	entryIndex := -1
+
+	for i, entry := range SliceStats {
+
+		if entry.Mcc == e2nodeId.Mcc && entry.Mnc == e2nodeId.Mnc && entry.NbId == e2nodeId.NbId && entry.RanType == e2nodeId.RanType {
+			entryFound = true
+			entryIndex = i
+			break
+		}
+
+	}
+	if entryFound == false {
+		fmt.Println("ERROR: Entry not found in ReadSliceStats()")
+		return nil
+	}
+
 	switch item {
 	case "RAN":
 		// Read the RAN field from the global structure
 		Mutex.Lock()
-		value := SliceStats.RAN
+		value := SliceStats[entryIndex].E2NodeSliceStats.RAN
 		Mutex.Unlock()
 		return value
 	case "UE":
 		// Read the UE field from the global structure
 		Mutex.Lock()
-		value := SliceStats.UE
+		value := SliceStats[entryIndex].E2NodeSliceStats.UE
 		Mutex.Unlock()
 		return value
 	case "RAN_DL":
 		// Read the RAN DL field from the global structure
 		Mutex.Lock()
-		value := SliceStats.RAN.DL
+		value := SliceStats[entryIndex].E2NodeSliceStats.RAN.DL
 		Mutex.Unlock()
 		return value
 	case "num_of_slices":
 		// Read the number of slices from the global structure
 		Mutex.Lock()
-		value := SliceStats.RAN.DL.NumOfSlices
+		value := SliceStats[entryIndex].E2NodeSliceStats.RAN.DL.NumOfSlices
 		Mutex.Unlock()
 		return value
 	case "ues":
 		// Read the UEs field from the global structure
 		Mutex.Lock()
-		value := SliceStats.UE.Ues
+		value := SliceStats[entryIndex].E2NodeSliceStats.UE.Ues
 		Mutex.Unlock()
 		return value
 	case "num_of_ues":
@@ -153,7 +187,7 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 		if sliceId == -1 {
 			// Read the total number of UEs from the global structure
 			Mutex.Lock()
-			value := SliceStats.UE.NumOfUes
+			value := SliceStats[entryIndex].E2NodeSliceStats.UE.NumOfUes
 			Mutex.Unlock()
 			return value
 		} else if sliceId >= 0 {
@@ -161,7 +195,7 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 			Mutex.Lock()
 			num_of_ues_per_slice := 0
 
-			numOfUes := SliceStats.UE.NumOfUes
+			numOfUes := SliceStats[entryIndex].E2NodeSliceStats.UE.NumOfUes
 
 			// If there is no UE in the cell, return 0
 			if numOfUes == 0 {
@@ -170,7 +204,7 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 			}
 
 			// Iterate through all UEs in the cell
-			for _, currUe := range SliceStats.UE.Ues {
+			for _, currUe := range SliceStats[entryIndex].E2NodeSliceStats.UE.Ues {
 				// get the sliceId of the current UE
 				currAssocDlSliceId := currUe.AssocDlSliceId
 
@@ -200,7 +234,7 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 			// Read all RNTIs from the global structure
 			Mutex.Lock()
 			rntis := []uint16{}
-			for _, currUe := range SliceStats.UE.Ues {
+			for _, currUe := range SliceStats[entryIndex].E2NodeSliceStats.UE.Ues {
 				rntis = append(rntis, currUe.Rnti)
 			}
 			Mutex.Unlock()
@@ -209,7 +243,7 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 			// Read the RNTIs associated with the sliceId from the global structure
 			Mutex.Lock()
 			rntis := []uint16{}
-			for _, currUe := range SliceStats.UE.Ues {
+			for _, currUe := range SliceStats[entryIndex].E2NodeSliceStats.UE.Ues {
 				// get the sliceId of the current UE
 				currAssocDlSliceId := currUe.AssocDlSliceId
 
@@ -239,11 +273,16 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 		// - idle_rntis: return all RNTIs associated with the idle slice
 		// - num_of_idle_ues: return the number of UEs associated with the idle slice
 		// - num_of_all_ues: return the total number of UEs in the cell
+		Mutex.Lock()
+		// [Output 0]: Read all RNTIs from the global structure
+		allRntis := []uint16{}
+		for _, currUe := range SliceStats[entryIndex].E2NodeSliceStats.UE.Ues {
+			allRntis = append(allRntis, currUe.Rnti)
+		}
 
 		// [Output 1 & 2]: Read the RNTIs associated with the normal slice from the global structure
-		Mutex.Lock()
 		rntis := []uint16{}
-		for _, currUe := range SliceStats.UE.Ues {
+		for _, currUe := range SliceStats[entryIndex].E2NodeSliceStats.UE.Ues {
 			// get the sliceId of the current UE
 			currAssocDlSliceId := currUe.AssocDlSliceId
 
@@ -264,7 +303,7 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 
 		// [Output 3 & 4]: Read the RNTIs associated with the idle slice from the global structure
 		rntis = []uint16{}
-		for _, currUe := range SliceStats.UE.Ues {
+		for _, currUe := range SliceStats[entryIndex].E2NodeSliceStats.UE.Ues {
 			// get the sliceId of the current UE
 			currAssocDlSliceId := currUe.AssocDlSliceId
 
@@ -284,11 +323,12 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 		numOfIdleUes := len(idleRntis)
 
 		// [Output 5]: Read the total number of UEs from the global structure
-		numAllUes := SliceStats.UE.NumOfUes
+		numAllUes := SliceStats[entryIndex].E2NodeSliceStats.UE.NumOfUes
 
 		Mutex.Unlock()
 
 		return map[string]interface{}{
+			"all_rntis":         allRntis,
 			"normal_rntis":      normalRntis,
 			"num_of_normal_ues": numOfNormalUes,
 			"idle_rntis":        idleRntis,
@@ -301,15 +341,32 @@ func ReadSliceStats(item string, sliceId int) interface{} {
 	}
 }
 
-func FindIdleSlice() int {
+func FindIdleSlice(e2nodeId E2NodeId) int {
 	Mutex.Lock()
-	defer Mutex.Unlock()
 
-	if len(SliceStats.RAN.DL.Slices) == 0 {
+	// find entry index in the global structure SliceStats based on the E2Node ID
+	entryFound := false
+	entryIndex := -1
+	for i, entry := range SliceStats {
+		if entry.Mcc == e2nodeId.Mcc && entry.Mnc == e2nodeId.Mnc && entry.NbId == e2nodeId.NbId && entry.RanType == e2nodeId.RanType {
+			entryFound = true
+			entryIndex = i
+			break
+		}
+
+	}
+	if entryFound == false {
+		fmt.Println("ERROR: Entry not found in ReadSliceStats()")
 		return -1
 	}
 
-	for _, sl := range SliceStats.RAN.DL.Slices {
+	defer Mutex.Unlock()
+
+	if len(SliceStats[entryIndex].E2NodeSliceStats.RAN.DL.Slices) == 0 {
+		return -1
+	}
+
+	for _, sl := range SliceStats[entryIndex].E2NodeSliceStats.RAN.DL.Slices {
 		if sl.Label == "idle" {
 			return int(sl.Index)
 		}
@@ -317,17 +374,51 @@ func FindIdleSlice() int {
 
 	return -1
 }
-	
 
 // ------------------------------------------------------------------------ //
+//
 //	SliceIndToDictJSON function for storing the latest indication message to the global structure
 //	This function is called by the callback function in order to store the latest indication message
+//
 // ------------------------------------------------------------------------ //
 func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 	Mutex.Lock()
 
+	// get E2node details
+	NbId := int16(ind.GetId().GetNb_id().GetNb_id())
+	// CuDuId := ind.GetId().GetCu_du_id() // TODO: not yet supported, maybe needs swig extension
+	RanType := xapp.Get_e2ap_ngran_name(ind.GetId().GetXtype())
+	Mcc := int16(ind.GetId().GetPlmn().GetMcc())
+	Mnc := int16(ind.GetId().GetPlmn().GetMnc())
+
+	// Find the entry in the global structure SliceStats if it exists or create a new entry
+	entryFound := false
+	entryIndex := -1
+	for i, entry := range SliceStats {
+		if entry.Mcc == Mcc && entry.Mnc == Mnc && entry.NbId == NbId && entry.RanType == RanType {
+			entryFound = true
+			entryIndex = i
+			break
+		}
+
+	}
+	if entryFound == false {
+		// Create a new entry in the global structure SliceStats
+		newEntry := E2NodeSliceStatsMap{
+			Mcc:  Mcc,
+			Mnc:  Mnc,
+			NbId: NbId,
+			//CuDuId:           CuDuId,
+			RanType:          RanType,
+			E2NodeSliceStats: SliceStatsDict{},
+		}
+		SliceStats = append(SliceStats, newEntry)
+		entryIndex = len(SliceStats) - 1
+
+	}
+
 	// Access the RAN DL field
-	dlDict := &SliceStats.RAN.DL
+	dlDict := &SliceStats[entryIndex].E2NodeSliceStats.RAN.DL
 
 	if ind.GetSlice_stats().GetDl().GetLen_slices() <= 0 {
 		// Set the NumOfSlices, SliceSchedAlgo, and Slices fields
@@ -410,7 +501,7 @@ func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 	}
 
 	// Access the UE field
-	ueDict := &SliceStats.UE
+	ueDict := &SliceStats[entryIndex].E2NodeSliceStats.UE
 
 	if ind.GetUe_slice_stats().GetLen_ue_slice() <= 0 {
 		// if there is no UE in the cell, set the NumOfUes fields
@@ -460,9 +551,7 @@ func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 	Mutex.Unlock()
 }
 
-// ------------------------------------------------------------------------ //
-//	CreateSlice function for creating a slice
-// ------------------------------------------------------------------------ //
+// CreateSlice function for creating a slice
 func CreateSlice(sliceParams Slice, sliceSchedAlgo string) xapp.Fr_slice_t {
 	newSlice := xapp.NewFr_slice_t()
 
@@ -557,9 +646,7 @@ func CreateSlice(sliceParams Slice, sliceSchedAlgo string) xapp.Fr_slice_t {
 	return newSlice
 }
 
-// ------------------------------------------------------------------------ //
-//	Function for returning the appropriate Int for the RAN Name
-// ------------------------------------------------------------------------ //
+// Function for returning the appropriate Int for the RAN Name
 func RanNametoInt(value string) int {
 	switch value {
 	case "ngran_eNB":
@@ -584,16 +671,12 @@ func RanNametoInt(value string) int {
 	return -1
 }
 
-// ------------------------------------------------------------------------ //
-//	Definition of the Slicing Request
-//
-//	- SliceAlgoParams is a struct for storing the slice algorithm parameters
-//	- Slice is a struct for storing the slice parameters
-//	- Ue is a struct for storing the UE parameters
-//	- Request is a struct for storing the request
-//
-//	The Requests are used to request a control message to the RIC
-// ------------------------------------------------------------------------ //
+// Definition of the Slicing Request
+// - SliceAlgoParams is a struct for storing the slice algorithm parameters
+// - Slice is a struct for storing the slice parameters
+// - Ue is a struct for storing the UE parameters
+// - Request is a struct for storing the request
+// The Requests are used to request a control message to the RIC
 type SliceAlgoParams struct {
 	PosLow  int `json:"pos_low,omitempty"`
 	PosHigh int `json:"pos_high,omitempty"`
@@ -632,9 +715,7 @@ type Request struct {
 	Ues    []Ue `json:"ues,omitempty"`
 }
 
-// ------------------------------------------------------------------------ //
-//	FillSliceCtrlMsg function for filling the control message
-// ------------------------------------------------------------------------ //
+// FillSliceCtrlMsg function for filling the control message
 func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 	msg := xapp.NewSlice_ctrl_msg_t()
 
@@ -714,16 +795,32 @@ func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 	return msg
 }
 
-// Deep copy functions for each nested struct
-func DeepCopySliceStatsDict(original SliceStatsDict) SliceStatsDict {
+func DeepCopySliceStats(original []E2NodeSliceStatsMap) []E2NodeSliceStatsMap {
 	Mutex.Lock()
+	defer Mutex.Unlock()
+
+	copied := make([]E2NodeSliceStatsMap, len(original))
+	for i, sliceStatsMap := range original {
+		copied[i] = E2NodeSliceStatsMap{
+			Mcc:              sliceStatsMap.Mcc,
+			Mnc:              sliceStatsMap.Mnc,
+			NbId:             sliceStatsMap.NbId,
+			CuDuId:           sliceStatsMap.CuDuId,
+			RanType:          sliceStatsMap.RanType,
+			E2NodeSliceStats: DeepCopySliceStatsDict(sliceStatsMap.E2NodeSliceStats),
+		}
+	}
+	return copied
+}
+
+// DeepCopySliceStatsDict Deep copy functions for each nested struct
+func DeepCopySliceStatsDict(original SliceStatsDict) SliceStatsDict {
 
 	CopiedSliceStats := SliceStatsDict{
 		RAN: deepCopyRANStats(original.RAN),
 		UE:  deepCopyUeStats(original.UE),
 	}
 
-	Mutex.Unlock()
 	return CopiedSliceStats
 }
 

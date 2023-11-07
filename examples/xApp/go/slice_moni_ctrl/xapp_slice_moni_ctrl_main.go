@@ -3,12 +3,12 @@ package main
 import "C"
 import (
 	xapp "build/examples/xApp/go/xapp_sdk"
-	"fmt"
-	"time"
-	"os"
-	"log"
-	"sync"
 	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+	"sync"
+	"time"
 )
 
 // Mutex for locking the global structure SliceStatsDict
@@ -26,16 +26,18 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 }
 
 // ------------------------------------------------------------------------ //
-//  Definition of Global Structure for storing the latest indication message
 //
-//  - SliceStatsDict is a struct for storing the latest indication message
-//  - RANStats is a struct for storing the RAN field
-//  - DlStats is a struct for storing the RAN DL field
-//  - UlStats is a struct for storing the RAN UL field
-//  - SliceDictionary is a struct for storing the slice parameters
-//  - SliceAlgorithmParams is a struct for storing the slice algorithm parameters
-//  - UeStats is a struct for storing the UE field
-//  - UeDictionary is a struct for storing the UE parameters
+//	Definition of Global Structure for storing the latest indication message
+//
+//	- SliceStatsDict is a struct for storing the latest indication message
+//	- RANStats is a struct for storing the RAN field
+//	- DlStats is a struct for storing the RAN DL field
+//	- UlStats is a struct for storing the RAN UL field
+//	- SliceDictionary is a struct for storing the slice parameters
+//	- SliceAlgorithmParams is a struct for storing the slice algorithm parameters
+//	- UeStats is a struct for storing the UE field
+//	- UeDictionary is a struct for storing the UE parameters
+//
 // ------------------------------------------------------------------------ //
 type SliceStatsDict struct {
 	RAN RANStats `json:"RAN,omitempty"`
@@ -48,10 +50,10 @@ type RANStats struct {
 }
 
 type DlStats struct {
-	NumOfSlices     int32                `json:"num_of_slices,omitempty"`
-	SliceSchedAlgo  string               `json:"slice_sched_algo,omitempty"`
-	UeSchedAlgo     string               `json:"ue_sched_algo,omitempty"`
-	Slices          []SliceDictionary    `json:"slices,omitempty"`
+	NumOfSlices    int32             `json:"num_of_slices,omitempty"`
+	SliceSchedAlgo string            `json:"slice_sched_algo,omitempty"`
+	UeSchedAlgo    string            `json:"ue_sched_algo,omitempty"`
+	Slices         []SliceDictionary `json:"slices,omitempty"`
 }
 
 type UlStats struct {
@@ -69,8 +71,8 @@ type SliceAlgorithmParams struct {
 	Type           string  `json:"type,omitempty"`
 	PosLow         int32   `json:"pos_low,omitempty"`
 	PosHigh        int32   `json:"pos_high,omitempty"`
-	MbpsRsvd       float32   `json:"mbps_rsvd,omitempty"`
-	MbpsRef        float32   `json:"mbps_ref,omitempty"`
+	MbpsRsvd       float32 `json:"mbps_rsvd,omitempty"`
+	MbpsRef        float32 `json:"mbps_ref,omitempty"`
 	PctRsvd        float32 `json:"pct_rsvd,omitempty"`
 	Deadline       int32   `json:"deadline,omitempty"`
 	GuaranteedPrbs int32   `json:"guaranteed_prbs,omitempty"`
@@ -91,8 +93,10 @@ type UeDictionary struct {
 var SliceStats SliceStatsDict
 
 // ------------------------------------------------------------------------ //
-//  SliceIndToDictJSON function for storing the latest indication message to the global structure
-//  This function is called by the callback function in order to store the latest indication message
+//
+//	SliceIndToDictJSON function for storing the latest indication message to the global structure
+//	This function is called by the callback function in order to store the latest indication message
+//
 // ------------------------------------------------------------------------ //
 func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 	Mutex.Lock()
@@ -135,11 +139,10 @@ func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 
 			// obtain current slice's parameters
 			sliceDict := SliceDictionary{
-				Index:           int32(currSlice.GetId()),
-				Label:           currSlice.GetLabel().Get(0),
-				UeSchedAlgo:     currSlice.GetSched().Get(0),
+				Index:       int32(currSlice.GetId()),
+				Label:       currSlice.GetLabel().Get(0),
+				UeSchedAlgo: currSlice.GetSched().Get(0),
 			}
-
 
 			if dlDict.SliceSchedAlgo == "STATIC" {
 				// if the slice scheduling algorithm is STATIC, use PosLow and PosHigh
@@ -151,15 +154,15 @@ func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 				if currSlice.GetParams().GetU().GetNvs().GetConf() == 0 {
 					// if the slice scheduling algorithm is NVS and type RATE, use MbpsRsvd and MbpsRef
 					sliceDict.SliceAlgoParams = SliceAlgorithmParams{
-						Type:      "RATE",
-						MbpsRsvd:  currSlice.GetParams().GetU().GetNvs().GetU().GetRate().GetU1().GetMbps_required(),
-						MbpsRef:   currSlice.GetParams().GetU().GetNvs().GetU().GetRate().GetU2().GetMbps_reference(),
+						Type:     "RATE",
+						MbpsRsvd: currSlice.GetParams().GetU().GetNvs().GetU().GetRate().GetU1().GetMbps_required(),
+						MbpsRef:  currSlice.GetParams().GetU().GetNvs().GetU().GetRate().GetU2().GetMbps_reference(),
 					}
 				} else if currSlice.GetParams().GetU().GetNvs().GetConf() == 1 {
 					// if the slice scheduling algorithm is NVS and type CAPACITY, use PctRsvd
 					sliceDict.SliceAlgoParams = SliceAlgorithmParams{
-						Type:     "CAPACITY",
-						PctRsvd:  currSlice.GetParams().GetU().GetNvs().GetU().GetCapacity().GetU().GetPct_reserved(),
+						Type:    "CAPACITY",
+						PctRsvd: currSlice.GetParams().GetU().GetNvs().GetU().GetCapacity().GetU().GetPct_reserved(),
 					}
 				} else {
 					sliceDict.SliceAlgoParams = SliceAlgorithmParams{
@@ -169,7 +172,7 @@ func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 			} else if dlDict.SliceSchedAlgo == "EDF" {
 				// if the slice scheduling algorithm is EDF, use Deadline, GuaranteedPrbs, and MaxReplenish
 				sliceDict.SliceAlgoParams = SliceAlgorithmParams{
-					Deadline:        int32(currSlice.GetParams().GetU().GetEdf().GetDeadline()),
+					Deadline:       int32(currSlice.GetParams().GetU().GetEdf().GetDeadline()),
 					GuaranteedPrbs: int32(currSlice.GetParams().GetU().GetEdf().GetGuaranteed_prbs()),
 					MaxReplenish:   int32(currSlice.GetParams().GetU().GetEdf().GetMax_replenish()),
 				}
@@ -183,7 +186,6 @@ func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 
 	// Access the UE field
 	ueDict := &SliceStats.UE
-
 
 	if ind.GetUe_slice_stats().GetLen_ue_slice() <= 0 {
 		// if there is no UE in the cell, set the NumOfUes fields
@@ -199,7 +201,7 @@ func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 			currUe := ind.GetUe_slice_stats().GetUes().Get(i)
 
 			var dlId string
-	
+
 			if currUe.GetDl_id() >= 0 && int(dlDict.NumOfSlices) > 0 {
 				// if the UE is associated with a slice, obtain the sliceId
 				dlId = string(currUe.GetDl_id())
@@ -233,16 +235,17 @@ func SliceIndToDictJSON(ind xapp.Swig_slice_ind_msg_t) {
 	Mutex.Unlock()
 }
 
-
 // ------------------------------------------------------------------------ //
-//  Definition of the Slicing Request
 //
-//  - SliceAlgoParams is a struct for storing the slice algorithm parameters
-//  - Slice is a struct for storing the slice parameters
-//  - Ue is a struct for storing the UE parameters
-//  - Request is a struct for storing the request
+//	Definition of the Slicing Request
 //
-//  The Requests are used to request a control message to the RIC
+//	- SliceAlgoParams is a struct for storing the slice algorithm parameters
+//	- Slice is a struct for storing the slice parameters
+//	- Ue is a struct for storing the UE parameters
+//	- Request is a struct for storing the request
+//
+//	The Requests are used to request a control message to the RIC
+//
 // ------------------------------------------------------------------------ //
 type SliceAlgoParams struct {
 	PosLow  int `json:"pos_low,omitempty"`
@@ -268,22 +271,24 @@ type Slice struct {
 
 type Ue struct {
 	Rnti           uint16 `json:"rnti"` // TODO: get rnti from slice_ind_to_dict_json()
-	AssocDlSliceId int `json:"assoc_dl_slice_id"`
+	AssocDlSliceId int    `json:"assoc_dl_slice_id"`
 }
 
 type Request struct {
-	NumSlices       int      `json:"num_slices,omitempty"`
-	SliceSchedAlgo  string   `json:"slice_sched_algo,omitempty"`
+	NumSlices       int     `json:"num_slices,omitempty"`
+	SliceSchedAlgo  string  `json:"slice_sched_algo,omitempty"`
 	Slices          []Slice `json:"slices,omitempty"`
-	NumDlSlices     int      `json:"num_dl_slices,omitempty"`
-	DeleteDlSliceId []int    `json:"delete_dl_slice_id"`
+	NumDlSlices     int     `json:"num_dl_slices,omitempty"`
+	DeleteDlSliceId []int   `json:"delete_dl_slice_id"`
 
-	NumUes int   `json:"num_ues,omitempty"`
+	NumUes int  `json:"num_ues,omitempty"`
 	Ues    []Ue `json:"ues,omitempty"`
 }
 
 // ------------------------------------------------------------------------ //
-//  FillSliceCtrlMsg function for filling the control message
+//
+//	FillSliceCtrlMsg function for filling the control message
+//
 // ------------------------------------------------------------------------ //
 func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 	msg := xapp.NewSlice_ctrl_msg_t()
@@ -365,7 +370,9 @@ func FillSliceCtrlMsg(ctrlType string, ctrlMsg Request) xapp.Slice_ctrl_msg_t {
 }
 
 // ------------------------------------------------------------------------ //
-//  CreateSlice function for creating a slice
+//
+//	CreateSlice function for creating a slice
+//
 // ------------------------------------------------------------------------ //
 func CreateSlice(sliceParams Slice, sliceSchedAlgo string) xapp.Fr_slice_t {
 	newSlice := xapp.NewFr_slice_t()
@@ -461,9 +468,10 @@ func CreateSlice(sliceParams Slice, sliceSchedAlgo string) xapp.Fr_slice_t {
 	return newSlice
 }
 
-
 // ------------------------------------------------------------------------ //
-//  MAIN
+//
+//	MAIN
+//
 // ------------------------------------------------------------------------ //
 func main() {
 
@@ -488,22 +496,22 @@ func main() {
 	hndlr := xapp.Report_slice_sm(conn.Get(nodeIdx).GetId(), xapp.Interval_ms_5, callback)
 	time.Sleep(5 * time.Second)
 
-	// ----------------------- Slice Control Add ----------------------- //		
+	// ----------------------- Slice Control Add ----------------------- //
 	s1_params_nvs := SliceAlgoParams{PctRsvd: 0.5}
 	s1_nvs := Slice{
-		Id:          0,
-		Label:       "s1",
-		UeSchedAlgo: "PF",
-		Type:        "SLICE_SM_NVS_V0_CAPACITY",
+		Id:              0,
+		Label:           "s1",
+		UeSchedAlgo:     "PF",
+		Type:            "SLICE_SM_NVS_V0_CAPACITY",
 		SliceAlgoParams: s1_params_nvs}
 
 	// Idle slice
 	s2_params_nvs := SliceAlgoParams{PctRsvd: 0.05}
 	s2_nvs := Slice{
-		Id:          2,
-		Label:       "idle",
-		UeSchedAlgo: "PF",
-		Type:        "SLICE_SM_NVS_V0_CAPACITY",
+		Id:              2,
+		Label:           "idle",
+		UeSchedAlgo:     "PF",
+		Type:            "SLICE_SM_NVS_V0_CAPACITY",
 		SliceAlgoParams: s2_params_nvs}
 
 	// AddStaticSlices

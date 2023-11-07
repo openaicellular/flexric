@@ -2,18 +2,18 @@ package main
 
 import "C"
 import (
-	"time"
-	"net/http"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"net/http"
+	"time"
 	//"os"
 	//"os/signal"
 	//"syscall"
 	//"context"
 	"log"
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
@@ -22,46 +22,17 @@ import (
 var server1URL = "http://127.0.0.10:7000/api/policy"
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
-	prbs := []int16{100, 80, 20, 90, 20, 90, 20, 90, 20, 90}
-
-	for _, maxPrbUtil := range prbs { 
-
-		config := policy.Configuration{
-			PolicyID:   2,
-			PolicyType: "maxPrbUtil",
-			Scope: policy.ScopeConfig{
-				SliceID: 0,
-				CellID:  3584,
-			},
-			Statement: policy.StatementConfig{
-				MacPrbUtilisation: maxPrbUtil,
-			},
-		}
-
-		err := sendConfiguration(config)
-		if err != nil {
-			log.Printf("Failed to send configuration: %s", err)
-		} else {
-			log.Println("Configuration sent successfully, [maxPrbUtil]: ", maxPrbUtil)
-		}
-
-		time.Sleep(10 * time.Second)
-	}
-
 	// ----------------- GET Feedback ----------------- //
 	resp, err := http.Get("http://127.0.0.10:7000/api/feedback")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
-	} 
-		
+	}
+
 	fmt.Println("GET Feedback")
-	
+
 	defer resp.Body.Close()
 
-	
 	err = json.NewDecoder(resp.Body).Decode(&sm.Feedback)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -78,6 +49,40 @@ func main() {
 	// Convert the byte slice to a string and print it
 	fmt.Println(string(prettyJSON))
 
+	rand.Seed(time.Now().UnixNano())
+
+	mcc := uint16(sm.Feedback.SliceFeedback[0].Mcc)
+	mnc := uint16(sm.Feedback.SliceFeedback[0].Mnc)
+	nbId := sm.Feedback.SliceFeedback[0].NbId
+	ranType := sm.Feedback.SliceFeedback[0].RanType
+
+	prbs := []int16{100, 80, 20, 90, 20, 90, 20, 90, 20, 90}
+
+	for _, maxPrbUtil := range prbs {
+
+		config := policy.Configuration{
+			PolicyID:   2,
+			PolicyType: "maxPrbUtil",
+			Scope: policy.ScopeConfig{
+				Mcc:     mcc,
+				Mnc:     mnc,
+				NbId:    nbId,
+				RanType: ranType,
+			},
+			Statement: policy.StatementConfig{
+				MacPrbUtilisation: maxPrbUtil,
+			},
+		}
+
+		err := sendConfiguration(config)
+		if err != nil {
+			log.Printf("Failed to send configuration: %s", err)
+		} else {
+			log.Println("Configuration sent successfully, [maxPrbUtil]: ", maxPrbUtil)
+		}
+
+		time.Sleep(10 * time.Second)
+	}
 
 	// ----------------- finish ----------------- //
 	url := "http://127.0.0.10:7000/api/finish"
