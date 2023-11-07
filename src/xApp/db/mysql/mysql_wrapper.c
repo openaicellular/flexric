@@ -139,11 +139,11 @@ void create_rlc_bearer_table(MYSQL* conn)
                   "rxbuf_occ_bytes BIGINT CHECK(rxbuf_occ_bytes >= 0 AND rxbuf_occ_bytes < 4294967296),"
                   "rxbuf_occ_pkts BIGINT CHECK(rxbuf_occ_pkts >= 0 AND rxbuf_occ_pkts < 4294967296),"
                   "txsdu_pkts BIGINT CHECK(txsdu_pkts >= 0 AND txsdu_pkts < 4294967296),"
-                  "txsdu_bytes BIGINT CHECK(txsdu_bytes >= 0 AND txsdu_bytes < 4294967296),"
+                  "txsdu_bytes BIGINT CHECK(txsdu_bytes >= 0 AND txsdu_bytes < 18446744073709551615),"
                   "txsdu_avg_time_to_tx REAL CHECK(txsdu_avg_time_to_tx >= 0 AND txsdu_avg_time_to_tx < 4294967296),"
                   "txsdu_wt_us BIGINT CHECK(txsdu_wt_us >= 0 AND txsdu_wt_us < 4294967296),"
                   "rxsdu_pkts BIGINT CHECK(rxsdu_pkts >= 0 AND rxsdu_pkts < 4294967296),"
-                  "rxsdu_bytes BIGINT CHECK(rxsdu_bytes >= 0 AND rxsdu_bytes < 4294967296),"
+                  "rxsdu_bytes BIGINT CHECK(rxsdu_bytes >= 0 AND rxsdu_bytes < 18446744073709551615),"
                   "rxsdu_dd_pkts BIGINT CHECK(rxsdu_dd_pkts >= 0 AND rxsdu_dd_pkts < 4294967296),"
                   "rxsdu_dd_bytes BIGINT CHECK(rxsdu_dd_bytes >= 0 AND rxsdu_dd_bytes < 4294967296),"
                   "rnti BIGINT CHECK(rnti >= 0 AND rnti < 4294967296),"
@@ -686,6 +686,92 @@ int to_mysql_string_rlc_rb(global_e2_node_id_t const* id,rlc_radio_bearer_stats_
                                     rlc->rnti,
                                     rlc->mode,
                                     rlc->rbid);
+//  printf("("
+//         " 0/ %ld,"// tstamp
+//         " 1/ %d," //ngran_node
+//         " 2/ %d," //mcc
+//         " 3/ %d," //mnc
+//         " 4/ %d," //mnc_digit_len
+//         " 5/ %d," //nb_id
+//         " 6/ '%s'," //cu_du_id
+//         " 7/ %u," //rlc->txpdu_pkts
+//         " 8/ %u," //rlc->txpdu_bytes
+//         " 9/ %u," //rlc->txpdu_wt_ms
+//         " 10/ %u," //rlc->txpdu_dd_pkts
+//         " 11/ %u," //rlc->txpdu_dd_bytes
+//         " 12/ %u," //rlc->txpdu_retx_pkts
+//         " 13/ %u," //rlc->txpdu_retx_bytes
+//         " 14/ %u," //rlc->txpdu_segmented
+//         " 15/ %u," //rlc->txpdu_status_pkts
+//         " 16/ %u," //rlc->txpdu_status_bytes
+//         " 17/ %u," //rlc->txbuf_occ_bytes
+//         " 18/ %u," //rlc->txbuf_occ_pkts
+//         " 19/ %u," //rlc->rxpdu_pkts
+//         " 20/ %u," //rlc->rxpdu_bytes
+//         " 21/ %u," //rlc->rxpdu_dup_pkts
+//         " 22/ %u," //rlc->rxpdu_dup_bytes
+//         " 23/ %u," //rlc->rxpdu_dd_pkts
+//         " 24/ %u," //rlc->rxpdu_dd_bytes
+//         " 25/ %u," //rlc->rxpdu_ow_pkts
+//         " 26/ %u," //rlc->rxpdu_ow_bytes
+//         " 27/ %u," //rlc->rxpdu_status_pkts
+//         " 28/ %u," //rlc->rxpdu_status_bytes
+//         " 29/ %u," //rlc->rxbuf_occ_bytes
+//         " 30/ %u," //rlc->rxbuf_occ_pkts
+//         " 31/ %u," //rlc->txsdu_pkts
+//         " 32/ %lu," //rlc->txsdu_bytes
+//         " 33/ %.2f," //rlc->txsdu_avg_time_to_tx
+//         " 34/ %u," //rlc->txsdu_wt_us
+//         " 35/ %u," //rlc->rxsdu_pkts
+//         " 36/ %lu," //rlc->rxsdu_bytes
+//         " 37/ %u," //rlc->rxsdu_dd_pkts
+//         " 38/ %u," //rlc->rxsdu_dd_bytes
+//         " 39/ %u," //rlc->rnti
+//         " 40/ %u,"  //rlc->mode
+//         " 41/ %u"  //rlc->rbid
+//         ")",
+//         tstamp,
+//         id->type,
+//         id->plmn.mcc,
+//         id->plmn.mnc,
+//         id->plmn.mnc_digit_len,
+//         id->nb_id.nb_id,
+//         id->cu_du_id ? c_cu_du_id : c_null,
+//         rlc->txpdu_pkts < 4294967296? 1:0,
+//         rlc->txpdu_bytes < 4294967296? 1:0,
+//         rlc->txpdu_wt_ms < 4294967296? 1:0,
+//         rlc->txpdu_dd_pkts < 4294967296? 1:0,
+//         rlc->txpdu_dd_bytes < 4294967296? 1:0,
+//         rlc->txpdu_retx_pkts < 4294967296? 1:0,
+//         rlc->txpdu_retx_bytes < 4294967296? 1:0,
+//         rlc->txpdu_segmented < 4294967296? 1:0,
+//         rlc->txpdu_status_pkts < 4294967296? 1:0,
+//         rlc->txpdu_status_bytes < 4294967296? 1:0,
+//         rlc->txbuf_occ_bytes < 4294967296? 1:0,
+//         rlc->txbuf_occ_pkts < 4294967296? 1:0,
+//         rlc->rxpdu_pkts < 4294967296? 1:0,
+//         rlc->rxpdu_bytes < 4294967296? 1:0,
+//         rlc->rxpdu_dup_pkts < 4294967296? 1:0,
+//         rlc->rxpdu_dup_bytes < 4294967296? 1:0,
+//         rlc->rxpdu_dd_pkts < 4294967296? 1:0,
+//         rlc->rxpdu_dd_bytes < 4294967296? 1:0,
+//         rlc->rxpdu_ow_pkts < 4294967296? 1:0,
+//         rlc->rxpdu_ow_bytes < 4294967296? 1:0,
+//         rlc->rxpdu_status_pkts < 4294967296? 1:0,
+//         rlc->rxpdu_status_bytes < 4294967296? 1:0,
+//         rlc->rxbuf_occ_bytes < 4294967296? 1:0,
+//         rlc->rxbuf_occ_pkts < 4294967296? 1:0,
+//         rlc->txsdu_pkts < 4294967296? 1:0,
+//         rlc->txsdu_bytes < 18446744073709551615? 1:0,
+//         rlc->txsdu_avg_time_to_tx < 4294967296? 1:0,
+//         rlc->txsdu_wt_us < 4294967296? 1:0,
+//         rlc->rxsdu_pkts < 4294967296? 1:0,
+//         rlc->rxsdu_bytes < 18446744073709551615? 1:0,
+//         rlc->rxsdu_dd_pkts < 4294967296? 1:0,
+//         rlc->rxsdu_dd_bytes < 4294967296? 1:0,
+//         rlc->rnti < 4294967296? 1:0,
+//         rlc->mode,
+//         rlc->rbid);
 
   assert(rc < (int)max && "Not enough space in the char array to write all the data");
   return rc;
