@@ -1679,15 +1679,15 @@ e2sm_rc_ind_hdr_frmt_1_t dec_ind_hdr_frmt_1(E2SM_RC_IndicationHeader_Format1_t c
   // Optional
   // 9.3.21
   // [1 - 65535]
-  assert(src->ric_eventTriggerCondition_ID != NULL && "Optional, but only one member" );
+  if(src->ric_eventTriggerCondition_ID != NULL){
+    dst.ev_trigger_id = malloc(sizeof(uint16_t));
+    assert(dst.ev_trigger_id != NULL && "Memory exhausted" );
 
-  dst.ev_trigger_id = malloc(sizeof(uint16_t));
-  assert(dst.ev_trigger_id != NULL && "Memory exhausted" );
+    assert(*src->ric_eventTriggerCondition_ID > 0 && *src->ric_eventTriggerCondition_ID < 65535+1);
 
-  assert(*src->ric_eventTriggerCondition_ID > 0 && *src->ric_eventTriggerCondition_ID < 65535+1);
-
-  *dst.ev_trigger_id = *src->ric_eventTriggerCondition_ID;
-
+    *dst.ev_trigger_id = *src->ric_eventTriggerCondition_ID;
+  }
+  
   return dst;
 }
 
@@ -2212,7 +2212,7 @@ e2sm_rc_ind_msg_t rc_dec_ind_msg_asn(size_t len, uint8_t const ind_msg[len])
   asn_dec_rval_t const ret = aper_decode(NULL, &asn_DEF_E2SM_RC_IndicationMessage, (void **)&src_ref, ind_msg, len, 0, 0);
   assert(ret.code == RC_OK);
 
-  //  xer_fprint(stdout, &asn_DEF_E2SM_RC_EventTrigger, &src);
+  //  xer_fprint(stdout, &asn_DEF_E2SM_RC_IndicationMessage, &src);
   //  fflush(stdout);
 
   e2sm_rc_ind_msg_t dst = {0}; 

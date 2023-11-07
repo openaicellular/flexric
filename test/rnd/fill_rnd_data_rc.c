@@ -365,11 +365,28 @@ lst_ran_param_t fill_rnd_lst_ran_param(void)
 {
   lst_ran_param_t dst = {0};
 
+  // Bug in the standard. RAN Parameter List 9.3.13 
+  // has a mandatory ie RAN Parameter ID 9.3.8 
+  // and a mandatory ie RAN Parameter Structure 9.3.12
+  // However, the ASN  
+  // RANParameter-LIST ::= SEQUENCE {
+  // list-of-ranParameter  SEQUENCE (SIZE(1..maxnoofItemsinList)) OF RANParameter-STRUCTURE, 
+  // ..
+  // }
+  //
+  // Misses RAN Parameter ID and only has RAN Parameter Structure
+
   // RAN Parameter ID
   // Mandatory
   // 9.3.8
   //1.. 4294967295
-  dst.ran_param_id = rand() + 1;
+  // Let's ignore the english written standard and believe the ASN.1 is the correct
+  //  uint32_t ran_param_id;
+
+  // RAN Parameter Structure
+  // Mandatory
+  // 9.3.12
+  //ran_param_struct_t ran_param_struct;
 
   // RAN Parameter Structure
   // Mandatory
@@ -760,7 +777,7 @@ ran_param_val_type_t fill_rnd_ran_param_val_type()
 {
   ran_param_val_type_t dst = {0}; 
 
-  dst.type =  STRUCTURE_RAN_PARAMETER_VAL_TYPE; //rand() % END_RAN_PARAMETER_VAL_TYPE;
+  dst.type =  rand() % END_RAN_PARAMETER_VAL_TYPE;
 
   recursion_fill_rnd_ran_param_val_type += 1; 
   if(recursion_fill_rnd_ran_param_val_type > 4){

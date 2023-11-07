@@ -55,6 +55,54 @@ pthread_mutex_t mtx;
 static
 void sm_cb_rc(sm_ag_if_rd_t const* rd)
 {
+  assert(rd != NULL);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == RAN_CTRL_STATS_V1_03);
+
+  // Reading Indication Message Format 2
+  e2sm_rc_ind_msg_frmt_2_t const* msg_frm_2 = &rd->ind.rc.ind.msg.frmt_2;
+
+  printf("\n RC REPORT Style 2 - Call Process Outcome\n");
+
+  //Sequence of UE Identifier
+  //[1-65535]
+  for (size_t i = 0; i < msg_frm_2->sz_seq_ue_id; i++){
+    // UE ID
+    // Mandatory
+    // 9.3.10
+    switch(msg_frm_2->seq_ue_id[i].ue_id.type)
+    {
+    case GNB_UE_ID_E2SM:
+      printf("UE connected to gNB with amf_ue_ngap_id = %lu\n", msg_frm_2->seq_ue_id[i].ue_id.gnb.amf_ue_ngap_id);
+      break;
+
+    case GNB_DU_UE_ID_E2SM:
+      printf("UE connected to gNB-DU with gnb_cu_ue_f1ap = %u\n", msg_frm_2->seq_ue_id[i].ue_id.gnb_du.gnb_cu_ue_f1ap);
+      break;
+              
+    default:
+      assert(false && "Not yet implemented UE ID type");
+    }
+
+    // // Sequence of
+    // // RAN Parameter
+    // // [1- 65535]
+    // for (size_t j = 0; j < msg_frm_2->seq_ue_id[i].sz_seq_ran_param; j++){
+    //   // RAN Parameter Value Type
+    //   // 9.3.11
+    //   // Mandatory
+    //   if (msg_frm_2->seq_ue_id[i].seq_ran_param[j].ran_param_val.lst != NULL) {
+    //     for (size_t z = 0; z < msg_frm_2->seq_ue_id[i].seq_ran_param[j].ran_param_val.lst->sz_lst_ran_param; z++){
+    //       // RAN Parameter Structure
+    //       // Mandatory
+    //       // 9.3.12
+    //       msg_frm_2->seq_ue_id[i].seq_ran_param[j].ran_param_val.lst->lst_ran_param[z].ran_param_struct.sz_ran_param_struct
+    //     }
+    //   }
+
+    // }
+
+  }
 
 }
 
@@ -1007,126 +1055,159 @@ int main(int argc, char *argv[])
   pthread_mutexattr_t attr = {0};
   int rc = pthread_mutex_init(&mtx, &attr);
   assert(rc == 0);
-
-
-  //////////// 
-  // START KPM 
-  //////////// 
-
-  // KPM handle
-  sm_ans_xapp_t** kpm_handle = (sm_ans_xapp_t**)calloc(10, sizeof(sm_ans_xapp_t*));
-  assert(kpm_handle != NULL && "Memory exhausted");
-
-  int num_nodes_of_interest = 0;
-
-  for (int i = 0; i < nodes.len; i++) {
-    e2_node_connected_t* n = &nodes.n[i];
-
-    // E2 Node #i has the following RAN Function support
-    for (size_t j = 0; j < n->len_rf; j++)
-      printf("Registered node ID %d ran func id = %d \n ", n->id.nb_id.nb_id, n->ack_rf[j].id);
-
-
-
-    printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
-
-
-    if ((n->id.nb_id.nb_id == 1 && n->id.type == ngran_gNB) || n->id.type == ngran_gNB_DU) {
-
-      kpm_handle[num_nodes_of_interest] = (sm_ans_xapp_t*)calloc(3, sizeof(sm_ans_xapp_t)); 
-      assert(kpm_handle[num_nodes_of_interest] != NULL && "Memory exhausted");
   
-      // KPM SUBSCRIPTION FOR CELL LEVEL MEASUREMENTS Style 1
-      kpm_sub_data_t kpm_sub_1 = gen_kpm_sub_style_1();
-      defer({ free_kpm_sub_data(&kpm_sub_1); });
-
-
-      // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 2
-      kpm_sub_data_t kpm_sub_2 = gen_kpm_sub_style_2(&n->id.type);
-      defer({ free_kpm_sub_data(&kpm_sub_2); });
-
-
-      // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 3
-      kpm_sub_data_t kpm_sub_3 = gen_kpm_sub_style_3();
-      defer({ free_kpm_sub_data(&kpm_sub_3); });
-
-
-      const int KPM_ran_function = 1;
-
-      kpm_handle[num_nodes_of_interest][0] = report_sm_xapp_api(&n->id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm_1);
-      kpm_handle[num_nodes_of_interest][1] = report_sm_xapp_api(&n->id, KPM_ran_function, &kpm_sub_2, sm_cb_kpm_2);
-      kpm_handle[num_nodes_of_interest][2] = report_sm_xapp_api(&n->id, KPM_ran_function, &kpm_sub_3, sm_cb_kpm_3);
   
+  //////////// 
+  // START RC REPORT
+  //////////// 
+  const int RC_ran_function = 3;
 
-      assert(kpm_handle[num_nodes_of_interest][0].success == true);
-      assert(kpm_handle[num_nodes_of_interest][1].success == true);
-      assert(kpm_handle[num_nodes_of_interest][2].success == true);  
+  // RC handle
+  sm_ans_xapp_t** rc_handle = (sm_ans_xapp_t**)calloc(2, sizeof(sm_ans_xapp_t*));
+  assert(rc_handle != NULL && "Memory exhausted");
 
-      ++num_nodes_of_interest;
+  int rc_num_nodes_of_interest = 0;
 
+  for(size_t i =0; i < nodes.len; ++i){
+    if(nodes.n[i].id.type == ngran_gNB) {
+
+      rc_handle[rc_num_nodes_of_interest] = (sm_ans_xapp_t*)calloc(1, sizeof(sm_ans_xapp_t)); 
+      assert(rc_handle[rc_num_nodes_of_interest] != NULL && "Memory exhausted");
+
+      // RC REPORT Service Style 2: Call Process Outcome
+      rc_sub_data_t rc_sub = gen_rc_sub_style_2();
+      defer({free_rc_sub_data(&rc_sub);});
+
+      rc_handle[rc_num_nodes_of_interest][0] = report_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_sub, sm_cb_rc);
+
+      assert(rc_handle[rc_num_nodes_of_interest][0].success == true);
+
+      ++rc_num_nodes_of_interest;
     }
   }
-
-  //////////// 
-  // END KPM 
-  //////////// 
-
-  sleep(5);
-
-
+  sleep(2);
+  
   // Only for testing
-  for(int i = 0; i < 10; ++i){
+  for(int i = 0; i < 2; ++i){
     // Remove the handle previously returned
-    for(int j = 0; j < 3; j++){
-      if(kpm_handle[i] != NULL)
-      rm_report_sm_xapp_api(kpm_handle[i][j].u.handle);
-    }
+    rm_report_sm_xapp_api(rc_handle[i][0].u.handle);
   }
 
   // Only for testing
   if(nodes.len > 0){
     // free(&kpm_handle);
-    free(kpm_handle);
+    free(rc_handle);
   }
 
-
   //////////// 
-  // START RC 
-  //////////// 
+  // END RC REPORT
+  ////////////
 
-  const int RC_ran_function = 3;
+  // //////////// 
+  // // START KPM 
+  // //////////// 
 
-  // for(size_t i =0; i < nodes.len; ++i){
-  //   if(nodes.n[i].id.type == ngran_gNB) {
-  // // RC REPORT Service Style 2: Call Process Outcome
-  // rc_sub_data_t rc_sub = gen_rc_sub_style_2();
-  // defer({free_rc_sub_data(&rc_sub);});
+  // // KPM handle
+  // sm_ans_xapp_t** kpm_handle = calloc(10, sizeof(sm_ans_xapp_t*));
+  // assert(kpm_handle != NULL && "Memory exhausted");
 
-  // report_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_sub, sm_cb_rc);
-  // sleep(10);
+  // int num_nodes_of_interest = 0;
+
+  // for (int i = 0; i < nodes.len; i++) {
+  //   e2_node_connected_t* n = &nodes.n[i];
+
+  //   // E2 Node #i has the following RAN Function support
+  //   for (size_t j = 0; j < n->len_rf; j++)
+  //     printf("Registered node ID %d ran func id = %d \n ", n->id.nb_id.nb_id, n->ack_rf[j].id);
+
+
+
+  //   printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
+
+
+  //   if (n->id.type == ngran_gNB) {
+
+  //     kpm_handle[num_nodes_of_interest] = calloc(3, sizeof(sm_ans_xapp_t)); 
+  //     assert(kpm_handle[num_nodes_of_interest] != NULL && "Memory exhausted");
+  
+  //     // KPM SUBSCRIPTION FOR CELL LEVEL MEASUREMENTS Style 1
+  //     kpm_sub_data_t kpm_sub_1 = gen_kpm_sub_style_1();
+  //     defer({ free_kpm_sub_data(&kpm_sub_1); });
+
+
+  //     // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 2
+  //     kpm_sub_data_t kpm_sub_2 = gen_kpm_sub_style_2(&n->id.type);
+  //     defer({ free_kpm_sub_data(&kpm_sub_2); });
+
+
+  //     // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 3
+  //     kpm_sub_data_t kpm_sub_3 = gen_kpm_sub_style_3();
+  //     defer({ free_kpm_sub_data(&kpm_sub_3); });
+
+
+  //     const int KPM_ran_function = 1;
+
+  //     kpm_handle[num_nodes_of_interest][0] = report_sm_xapp_api(&n->id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm_1);
+  //     kpm_handle[num_nodes_of_interest][1] = report_sm_xapp_api(&n->id, KPM_ran_function, &kpm_sub_2, sm_cb_kpm_2);
+  //     kpm_handle[num_nodes_of_interest][2] = report_sm_xapp_api(&n->id, KPM_ran_function, &kpm_sub_3, sm_cb_kpm_3);
+  
+
+  //     assert(kpm_handle[num_nodes_of_interest][0].success == true);
+  //     assert(kpm_handle[num_nodes_of_interest][1].success == true);
+  //     assert(kpm_handle[num_nodes_of_interest][2].success == true);  
+
+  //     ++num_nodes_of_interest;
+
+  //   } 
+  // }
+
+  // //////////// 
+  // // END KPM 
+  // //////////// 
+
+  // sleep(15);
+
+
+  // // Only for testing
+  // for(int i = 0; i < 10; ++i){
+  //   // Remove the handle previously returned
+  //   for(int j = 0; j < 3; j++){
+  //     if(kpm_handle[i] != NULL)
+  //     rm_report_sm_xapp_api(kpm_handle[i][j].u.handle);
   //   }
   // }
-  // sleep(10);
+
+  // // Only for testing
+  // if(nodes.len > 0){
+  //   // free(&kpm_handle);
+  //   free(kpm_handle);
+  // }
 
 
-
-  // RC CONTROL Service Style 1
-  rc_ctrl_req_data_t rc_ctrl = {0};
-  defer({ free_rc_ctrl_req_data(&rc_ctrl); });
-
-  for(size_t i =0; i < nodes.len; i++){
-    // if ((nodes.n[i].id.nb_id.nb_id == 1 && nodes.n[i].id.type == ngran_gNB) || nodes.n[i].id.type == ngran_gNB_DU) {
-    if (nodes.n[i].id.type == ngran_gNB_DU) {
-    // if (nodes.n[i].id.nb_id.nb_id == 1 && nodes.n[i].id.type == ngran_gNB) {
-      rc_ctrl.hdr = gen_rc_ctrl_hdr(&nodes.n[i].id.type);
-      rc_ctrl.msg = gen_rc_ctrl_msg();
-      control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
-      printf("RC Control message Style 1 \"DRB QoS Configuration\" sent\n");
-    }
-  }
+ 
 
   //////////// 
-  // END RC 
+  // START RC CONTROL 
+  ////////////
+
+
+  // // RC CONTROL Service Style 1
+  // rc_ctrl_req_data_t rc_ctrl = {0};
+  // defer({ free_rc_ctrl_req_data(&rc_ctrl); });
+
+  // for(size_t i =0; i < nodes.len; i++){
+  //   // if ((nodes.n[i].id.nb_id.nb_id == 1 && nodes.n[i].id.type == ngran_gNB) || nodes.n[i].id.type == ngran_gNB_DU) {
+  //   if (nodes.n[i].id.type == ngran_gNB_DU) {
+  //   // if (nodes.n[i].id.nb_id.nb_id == 1 && nodes.n[i].id.type == ngran_gNB) {
+  //     rc_ctrl.hdr = gen_rc_ctrl_hdr(&nodes.n[i].id.type);
+  //     rc_ctrl.msg = gen_rc_ctrl_msg();
+  //     control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
+  //     printf("RC Control message Style 1 \"DRB QoS Configuration\" sent\n");
+  //   }
+  // }
+
+  //////////// 
+  // END RC CONTROL
   ////////////
 
 
