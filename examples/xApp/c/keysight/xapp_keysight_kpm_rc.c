@@ -29,6 +29,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
 
 static
 uint64_t period_ms = 300;
@@ -52,6 +53,13 @@ byte_array_t copy_str_to_ba(const char* str)
 static
 pthread_mutex_t mtx;
 
+
+static gnb_e2sm_t target_ue_id_list[102] = {0};
+static int64_t target_drb_id_list[102] = {0};
+static uint32_t last_prb_usage_dl = {0};
+static uint32_t last_dl_thp_slice_2[5] = {0};
+static gnb_e2sm_t matched_ue_id_list[5] = {0};
+
 static
 void sm_cb_rc(sm_ag_if_rd_t const* rd)
 {
@@ -74,33 +82,24 @@ void sm_cb_rc(sm_ag_if_rd_t const* rd)
     {
     case GNB_UE_ID_E2SM:
       printf("UE connected to gNB with amf_ue_ngap_id = %lu\n", msg_frm_2->seq_ue_id[i].ue_id.gnb.amf_ue_ngap_id);
-      break;
-
-    case GNB_DU_UE_ID_E2SM:
-      printf("UE connected to gNB-DU with gnb_cu_ue_f1ap = %u\n", msg_frm_2->seq_ue_id[i].ue_id.gnb_du.gnb_cu_ue_f1ap);
+      // Add UE[i] to the targeting list
+      target_ue_id_list[i] = cp_gnb_ue_id_e2sm(&msg_frm_2->seq_ue_id[i].ue_id.gnb);
       break;
               
     default:
       assert(false && "Not yet implemented UE ID type");
     }
 
-    // // Sequence of
-    // // RAN Parameter
-    // // [1- 65535]
-    // for (size_t j = 0; j < msg_frm_2->seq_ue_id[i].sz_seq_ran_param; j++){
-    //   // RAN Parameter Value Type
-    //   // 9.3.11
-    //   // Mandatory
-    //   if (msg_frm_2->seq_ue_id[i].seq_ran_param[j].ran_param_val.lst != NULL) {
-    //     for (size_t z = 0; z < msg_frm_2->seq_ue_id[i].seq_ran_param[j].ran_param_val.lst->sz_lst_ran_param; z++){
-    //       // RAN Parameter Structure
-    //       // Mandatory
-    //       // 9.3.12
-    //       msg_frm_2->seq_ue_id[i].seq_ran_param[j].ran_param_val.lst->lst_ran_param[z].ran_param_struct.sz_ran_param_struct
-    //     }
-    //   }
-
-    // }
+    // Sequence of
+    // RAN Parameter
+    // [1- 65535]
+    if(msg_frm_2->seq_ue_id[i].seq_ran_param[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[2].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[0].ran_param_id == 21546) {
+      printf("DRB ID = %lu\n", msg_frm_2->seq_ue_id[i].seq_ran_param[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[2].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_true->int_ran);
+      target_drb_id_list[i] = msg_frm_2->seq_ue_id[i].seq_ran_param[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[2].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_true->int_ran;
+    }
+    else {
+      assert(false && "No DRB ID element in RC Indication Message");
+    }
 
   }
 
@@ -143,6 +142,8 @@ void sm_cb_kpm_1(sm_ag_if_rd_t const* rd)
             if (strcmp(meas_info_name_str, "RRU.PrbTotDl") == 0)
             {
               printf("RRU.PrbTotDl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+              lock_guard(&mtx);
+              last_prb_usage_dl = msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val;
             }
             else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
             {
@@ -284,6 +285,11 @@ void sm_cb_kpm_3(sm_ag_if_rd_t const* rd)
     {
       switch (msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[j].cond_type)
       {
+      case LABEL_INFO:
+      {
+        printf("Matching condition type is Label Information\n");
+        break;
+      }
       case TEST_INFO:
       {
         assert(msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[j].test_info_lst.test_cond_type == GBR_TEST_COND_TYPE);
@@ -299,9 +305,14 @@ void sm_cb_kpm_3(sm_ag_if_rd_t const* rd)
       }
     }
 
+    
+
     // List of Matched UEs
     if (msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst != NULL)
     {
+      uint8_t num_matched_ues_dl = 0;
+
+
       for(size_t j = 0; j < msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst_len; j++)
       {
         switch(msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst[j].type)
@@ -340,6 +351,21 @@ void sm_cb_kpm_3(sm_ag_if_rd_t const* rd)
             else if (strcmp(meas_info_name_str, "DRB.UEThpUl") == 0)
             {
               printf("DRB.UEThpUl = %d [kb/s]\n", msg_frm_2->meas_data_lst[0].meas_record_lst[j+msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst_len].int_val);
+            }
+            else if (strcmp(meas_info_name_str, "DRB.UEThpDl.SNSSAI") == 0)
+            {
+              printf("DRB.UEThpDl.SNSSAI = %d [kb/s], with sST = %hhu and sD = %u\n", msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val, msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.sliceID->sST, *msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.sliceID->sD);
+              assert(num_matched_ues_dl >= 0 && num_matched_ues_dl < 5);
+              {
+                lock_guard(&mtx);
+              
+                last_dl_thp_slice_2[num_matched_ues_dl] = msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val;
+                matched_ue_id_list[num_matched_ues_dl++] = cp_gnb_ue_id_e2sm(&msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst[j].gnb);
+              }
+            }
+            else if (strcmp(meas_info_name_str, "DRB.UEThpUl.SNSSAI") == 0)
+            {
+              printf("DRB.UEThpUl.SNSSAI = %d [kb/s], with sST = %hhu and sD = %u\n", msg_frm_2->meas_data_lst[0].meas_record_lst[j+msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst_len].int_val, msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.sliceID->sST, *msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.sliceID->sD);
             }
             break;
           }
@@ -444,7 +470,7 @@ meas_info_format_1_lst_t gen_meas_info_frm_1_ue_lst(const char* act)
   else if (strcmp(act, "DRB.UEThpDl.SNSSAI") == 0 || strcmp(act, "DRB.UEThpUl.SNSSAI") == 0)
   {
     dst.label_info_lst[0].sliceID = calloc(1, sizeof(s_nssai_e2sm_t));
-    dst.label_info_lst[0].sliceID->sST = 1;
+    dst.label_info_lst[0].sliceID->sST = 2;
     dst.label_info_lst[0].sliceID->sD = calloc(1, sizeof(uint32_t));
     *dst.label_info_lst[0].sliceID->sD = 1000;
   }
@@ -540,35 +566,38 @@ gnb_du_e2sm_t gen_gnb_du_ue_id(void)
 }
 
 static
-ue_id_e2sm_t gen_ue_id(ngran_node_t const* ngran_type)
+ue_id_e2sm_t gen_ue_id(gnb_e2sm_t const* gnb)
 {
   ue_id_e2sm_t ue_id = {0};
 
-  switch (*ngran_type)
-  {
-  case ngran_gNB:
-    ue_id.type = GNB_UE_ID_E2SM;
-    ue_id.gnb = gen_gnb_ue_id();
-    break;
-  
-  case ngran_gNB_DU:
-    ue_id.type = GNB_DU_UE_ID_E2SM;
-    ue_id.gnb_du = gen_gnb_du_ue_id();
-    break;
+  ue_id.type = GNB_UE_ID_E2SM;
+  ue_id.gnb = cp_gnb_ue_id_e2sm(gnb);
 
-  default:
-    assert(false && "Unknown NG-RAN Type");
-  }
+  // switch (*ngran_type)
+  // {
+  // case ngran_gNB:
+  //   ue_id.type = GNB_UE_ID_E2SM;
+  //   ue_id.gnb = gen_gnb_ue_id();
+  //   break;
+  
+  // case ngran_gNB_DU:
+  //   ue_id.type = GNB_DU_UE_ID_E2SM;
+  //   ue_id.gnb_du = gen_gnb_du_ue_id();
+  //   break;
+
+  // default:
+  //   assert(false && "Unknown NG-RAN Type");
+  // }
   
   return ue_id;
 }
 
 static
-kpm_act_def_format_2_t gen_act_def_frm_2_ue(const char** act, ngran_node_t const* ngran_type)
+kpm_act_def_format_2_t gen_act_def_frm_2_ue(const char** act, gnb_e2sm_t const* gnb)
 {
   kpm_act_def_format_2_t dst = {0};
 
-  dst.ue_id = gen_ue_id(ngran_type);
+  dst.ue_id = gen_ue_id(gnb);
 
   dst.action_def_format_1 = gen_act_def_frm_1_ue(act);
   
@@ -576,26 +605,41 @@ kpm_act_def_format_2_t gen_act_def_frm_2_ue(const char** act, ngran_node_t const
 }
 
 static
-matching_condition_format_3_lst_t gen_matching_cond_frm_3_lst(void)
+matching_condition_format_3_lst_t gen_matching_cond_frm_3_lst(const char* act)
 {
   matching_condition_format_3_lst_t dst = {0};
 
-  // Test information list as matching condition
-  dst.cond_type = TEST_INFO;
-  dst.test_info_lst.test_cond_type = GBR_TEST_COND_TYPE;
-  dst.test_info_lst.GBR = TRUE_TEST_COND_TYPE;
+  // Label information list as matching condition
+  dst.cond_type = LABEL_INFO;
+
+  if (strcmp(act, "DRB.UEThpDl.SNSSAI") == 0 || strcmp(act, "DRB.UEThpUl.SNSSAI") == 0)
+  {
+    dst.label_info_lst.sliceID = calloc(1, sizeof(s_nssai_e2sm_t));
+    dst.label_info_lst.sliceID->sST = 2;
+    dst.label_info_lst.sliceID->sD = calloc(1, sizeof(uint32_t));
+    *dst.label_info_lst.sliceID->sD = 1000;
+  }
+  else
+  {
+    assert(false && "Not yet implemented");
+  }
+
+  // // Test information list as matching condition
+  // dst.cond_type = TEST_INFO;
+  // dst.test_info_lst.test_cond_type = GBR_TEST_COND_TYPE;
+  // dst.test_info_lst.GBR = TRUE_TEST_COND_TYPE;
 
   
-  dst.test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
-  assert(dst.test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.test_info_lst.test_cond = LESSTHAN_TEST_COND;
+  // dst.test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
+  // assert(dst.test_info_lst.test_cond != NULL && "Memory exhausted");
+  // *dst.test_info_lst.test_cond = LESSTHAN_TEST_COND;
 
-  dst.test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
-  assert(dst.test_info_lst.test_cond_value != NULL && "Memory exhausted");
-  dst.test_info_lst.test_cond_value->type = INTEGER_TEST_COND_VALUE;
-  dst.test_info_lst.test_cond_value->int_value = calloc(1, sizeof(int64_t));
-  assert(dst.test_info_lst.test_cond_value->int_value != NULL && "Memory exhausted");
-  *dst.test_info_lst.test_cond_value->int_value = 10000; // [kb/s]
+  // dst.test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
+  // assert(dst.test_info_lst.test_cond_value != NULL && "Memory exhausted");
+  // dst.test_info_lst.test_cond_value->type = INTEGER_TEST_COND_VALUE;
+  // dst.test_info_lst.test_cond_value->int_value = calloc(1, sizeof(int64_t));
+  // assert(dst.test_info_lst.test_cond_value->int_value != NULL && "Memory exhausted");
+  // *dst.test_info_lst.test_cond_value->int_value = 10000; // [kb/s]
 
 
   return dst;
@@ -616,7 +660,7 @@ meas_info_format_3_lst_t gen_meas_info_format_3_lst(const char* act)
   assert(dst.matching_cond_lst != NULL && "Memory exhausted");
 
   for(size_t i = 0; i < dst.matching_cond_lst_len; i++){
-    dst.matching_cond_lst[i] = gen_matching_cond_frm_3_lst();
+    dst.matching_cond_lst[i] = gen_matching_cond_frm_3_lst(act);
   }
 
   // Bin Range Definition
@@ -689,7 +733,7 @@ kpm_sub_data_t gen_kpm_sub_style_1(void)
 }
 
 static
-kpm_sub_data_t gen_kpm_sub_style_2(ngran_node_t const* ngran_type)
+kpm_sub_data_t gen_kpm_sub_style_2(gnb_e2sm_t const* gnb)
 {
   kpm_sub_data_t kpm_sub = {0};
 
@@ -703,7 +747,7 @@ kpm_sub_data_t gen_kpm_sub_style_2(ngran_node_t const* ngran_type)
 
   const char *act_ue[] = {"DRB.UEThpDl", "DRB.UEThpDl.QOS", "DRB.UEThpDl.SNSSAI", "DRB.UEThpUl", "DRB.UEThpUl.QOS", "DRB.UEThpUl.SNSSAI", NULL};  // 3GPP TS 28.552
   kpm_sub.ad[0].type = FORMAT_2_ACTION_DEFINITION;
-  kpm_sub.ad[0].frm_2 = gen_act_def_frm_2_ue(act_ue, ngran_type);
+  kpm_sub.ad[0].frm_2 = gen_act_def_frm_2_ue(act_ue, gnb);
 
   return kpm_sub;
 }
@@ -721,7 +765,7 @@ kpm_sub_data_t gen_kpm_sub_style_3(void)
   kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
   assert(kpm_sub.ad != NULL && "Memory exhausted");
 
-  const char *act_ue[] = {"DRB.UEThpDl", "DRB.UEThpUl", NULL};  // 3GPP TS 28.552
+  const char *act_ue[] = {"DRB.UEThpDl.SNSSAI", "DRB.UEThpUl.SNSSAI", NULL};  // 3GPP TS 28.552
   kpm_sub.ad[0].type = FORMAT_3_ACTION_DEFINITION;
   kpm_sub.ad[0].frm_3 = gen_act_def_frm_3_ue(act_ue);
 
@@ -743,14 +787,14 @@ typedef enum{
 } rc_ctrl_service_style_1_e;
 
 static
-e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1(ngran_node_t const* ngran_type)
+e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1(gnb_e2sm_t const* gnb)
 {
   e2sm_rc_ctrl_hdr_frmt_1_t dst = {0};
 
   // UE ID
   // Mandatory
   // 9.3.10
-  dst.ue_id = gen_ue_id(ngran_type);
+  dst.ue_id = gen_ue_id(gnb);
 
   // CONTROL Service Style 1: Radio Bearer Control
   dst.ric_style_type = 1;
@@ -768,12 +812,12 @@ e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1(ngran_node_t const* ngran_type)
 }
 
 static
-e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(ngran_node_t const* ngran_type)
+e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(gnb_e2sm_t const* gnb)
 {
   e2sm_rc_ctrl_hdr_t dst = {0};
   // Radio Bearer Control
   dst.format = FORMAT_1_E2SM_RC_CTRL_HDR;
-  dst.frmt_1 = gen_rc_ctrl_hdr_frmt_1(ngran_type);
+  dst.frmt_1 = gen_rc_ctrl_hdr_frmt_1(gnb);
   return dst;
 }
 
@@ -803,12 +847,12 @@ typedef enum {
 } drb_qos_conf_e;
 
 static
-e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(void)
+e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(int64_t const drb_id)
 {
   e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
 
   // 8.4.2.1 DRB QoS Configuration
-  dst.sz_ran_param = 3;
+  dst.sz_ran_param = 2;
   dst.ran_param = calloc(dst.sz_ran_param, sizeof(seq_ran_param_t));
   assert(dst.ran_param != NULL && "Memory exhausted");
 
@@ -819,24 +863,24 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(void)
   assert(dst.ran_param[0].ran_param_val.flag_true != NULL && "Memory exhausted");
   // Let's suppose that it is the DRB 1
   dst.ran_param[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE; 
-  dst.ran_param[0].ran_param_val.flag_true->int_ran = 1;
+  dst.ran_param[0].ran_param_val.flag_true->int_ran = drb_id;
 
 
-  // Priority level of mapped QoS flows RAN Parameter
-  dst.ran_param[1].ran_param_id = PRIORITY_LEVEL_OF_MAPPED_QOS_FLOWS_8_4_2_1;
-  dst.ran_param[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-  dst.ran_param[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-  assert(dst.ran_param[1].ran_param_val.flag_false != NULL && "Memory exhausted");
-  // Let's suppose rnd value
-  dst.ran_param[1].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  dst.ran_param[1].ran_param_val.flag_false->int_ran = 10;
+  // // Priority level of mapped QoS flows RAN Parameter
+  // dst.ran_param[1].ran_param_id = PRIORITY_LEVEL_OF_MAPPED_QOS_FLOWS_8_4_2_1;
+  // dst.ran_param[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  // dst.ran_param[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  // assert(dst.ran_param[1].ran_param_val.flag_false != NULL && "Memory exhausted");
+  // // Let's suppose rnd value
+  // dst.ran_param[1].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
+  // dst.ran_param[1].ran_param_val.flag_false->int_ran = 10;
 
   // QoS parameters for GBR flows in NG-RAN Bearer RAN Parameter
-  dst.ran_param[2].ran_param_id = QOS_PARAMETERS_FOR_GBR_FLOWS_IN_NG_RAN_BEARER_8_4_2_1;
-  dst.ran_param[2].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
-  dst.ran_param[2].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
-  assert(dst.ran_param[2].ran_param_val.strct != NULL && "Memory exhausted");
-  ran_param_struct_t* rps = dst.ran_param[2].ran_param_val.strct;
+  dst.ran_param[1].ran_param_id = QOS_PARAMETERS_FOR_GBR_FLOWS_IN_NG_RAN_BEARER_8_4_2_1;
+  dst.ran_param[1].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+  dst.ran_param[1].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
+  assert(dst.ran_param[1].ran_param_val.strct != NULL && "Memory exhausted");
+  ran_param_struct_t* rps = dst.ran_param[1].ran_param_val.strct;
 
   rps->sz_ran_param_struct = 4;
   rps->ran_param_struct = calloc(rps->sz_ran_param_struct, sizeof(seq_ran_param_t));
@@ -847,25 +891,22 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(void)
   rps->ran_param_struct[0].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
   rps->ran_param_struct[0].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(rps->ran_param_struct[0].ran_param_val.flag_false != NULL && "Memory exhausted");
-  // Let's suppose rnd value
   rps->ran_param_struct[0].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  rps->ran_param_struct[0].ran_param_val.flag_false->int_ran = 5000;
+  rps->ran_param_struct[0].ran_param_val.flag_false->int_ran = 2000000;
 
   // Maximum Flow Bit Rate UL RAN Parameter
   rps->ran_param_struct[1].ran_param_id = MAXIMUM_FLOW_BIT_RATE_UPLINK_8_4_2_1;
   rps->ran_param_struct[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
   rps->ran_param_struct[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(rps->ran_param_struct[1].ran_param_val.flag_false != NULL && "Memory exhausted");
-  // Let's suppose rnd value
   rps->ran_param_struct[1].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  rps->ran_param_struct[1].ran_param_val.flag_false->int_ran = 5000;
+  rps->ran_param_struct[1].ran_param_val.flag_false->int_ran = 2000000;
 
   // Guaranteed Flow Bit Rate DL RAN Parameter
   rps->ran_param_struct[2].ran_param_id = GUARANTEED_FLOW_BIT_RATE_DOWNLINK_8_4_2_1;
   rps->ran_param_struct[2].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
   rps->ran_param_struct[2].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(rps->ran_param_struct[2].ran_param_val.flag_false != NULL && "Memory exhausted");
-  // Let's suppose rnd value
   rps->ran_param_struct[2].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
   rps->ran_param_struct[2].ran_param_val.flag_false->int_ran = 5000;
 
@@ -874,21 +915,20 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(void)
   rps->ran_param_struct[3].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
   rps->ran_param_struct[3].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(rps->ran_param_struct[3].ran_param_val.flag_false != NULL && "Memory exhausted");
-  // Let's suppose rnd value
   rps->ran_param_struct[3].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  rps->ran_param_struct[3].ran_param_val.flag_false->int_ran = 5000;
+  rps->ran_param_struct[3].ran_param_val.flag_false->int_ran = 1000;
 
   return dst;
 }
 
 static
-e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg(void)
+e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg(int64_t const drb_id)
 {
   e2sm_rc_ctrl_msg_t dst = {0}; 
 
   // Radio Bearer Control
   dst.format = FORMAT_1_E2SM_RC_CTRL_MSG;
-  dst.frmt_1 = gen_rc_ctrl_msg_frmt_1();
+  dst.frmt_1 = gen_rc_ctrl_msg_frmt_1(drb_id);
 
   return dst;
 }
@@ -1038,8 +1078,40 @@ rc_sub_data_t gen_rc_sub_style_2(void)
 // Reserved for RC SM -> end 
 ////////////
 
+static
+void stop_and_exit()
+{
+  // // Remove the handle previously returned
+  // if(hndlr_kpm.u.handle != 0)
+  //   rm_report_sm_xapp_api(hndlr_kpm.u.handle);
+
+  // sleep(1);
+  //Stop the xApp
+  while(try_stop_xapp_api() == false)
+    usleep(1000);
+
+  int rc = pthread_mutex_destroy(&mtx);
+  assert(rc == 0);
+
+  exit(EXIT_SUCCESS);
+}
+
+static
+void sig_handler(int sig_num)
+{
+  printf("\nEnding the xApp with signal number = %d\n. Please, wait.", sig_num);
+  // For the impatient, do not break my code
+  static pthread_once_t once = PTHREAD_ONCE_INIT;
+  pthread_once(&once, stop_and_exit);
+}
+
+
+
 int main(int argc, char *argv[])
 {
+  // Signal handler
+  signal(SIGINT, sig_handler);
+
   fr_args_t args = init_fr_args(argc, argv);
 
   //Init the xApp
@@ -1062,126 +1134,88 @@ int main(int argc, char *argv[])
   //////////// 
   const int RC_ran_function = 3;
 
-  // RC handle
-  sm_ans_xapp_t** rc_handle = (sm_ans_xapp_t**)calloc(2, sizeof(sm_ans_xapp_t*));
+  sm_ans_xapp_t* rc_handle = calloc(1, sizeof(sm_ans_xapp_t));
   assert(rc_handle != NULL && "Memory exhausted");
 
-  int rc_num_nodes_of_interest = 0;
-
+  // RC handle
   for(size_t i =0; i < nodes.len; ++i){
-    if(nodes.n[i].id.type == ngran_gNB) {
 
-      rc_handle[rc_num_nodes_of_interest] = (sm_ans_xapp_t*)calloc(1, sizeof(sm_ans_xapp_t)); 
-      assert(rc_handle[rc_num_nodes_of_interest] != NULL && "Memory exhausted");
+    for (size_t j = 0; j < nodes.n[i].len_rf; j++)
+      printf("Registered node ID %d ran func id = %d \n ", nodes.n[i].id.nb_id.nb_id, nodes.n[i].ack_rf[j].id);
 
-      // RC REPORT Service Style 2: Call Process Outcome
-      rc_sub_data_t rc_sub = gen_rc_sub_style_2();
-      defer({free_rc_sub_data(&rc_sub);});
+    // RC REPORT Service Style 2: Call Process Outcome
+    rc_sub_data_t rc_sub = gen_rc_sub_style_2();
+    defer({free_rc_sub_data(&rc_sub);});
 
-      rc_handle[rc_num_nodes_of_interest][0] = report_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_sub, sm_cb_rc);
+    rc_handle[0] = report_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_sub, sm_cb_rc);
 
-      assert(rc_handle[rc_num_nodes_of_interest][0].success == true);
+    assert(rc_handle[0].success == true);
 
-      ++rc_num_nodes_of_interest;
-    }
   }
-  sleep(2);
+  sleep(5);
   
   // Only for testing
-  for(int i = 0; i < 2; ++i){
-    // Remove the handle previously returned
-    rm_report_sm_xapp_api(rc_handle[i][0].u.handle);
-  }
+  // Remove the handle previously returned
+  rm_report_sm_xapp_api(rc_handle[0].u.handle);
 
   // Only for testing
-  if(nodes.len > 0){
-    // free(&kpm_handle);
-    free(rc_handle);
-  }
+  free(rc_handle);
+
 
   //////////// 
   // END RC REPORT
   ////////////
 
-  // //////////// 
-  // // START KPM 
-  // //////////// 
+  //////////// 
+  // START KPM 
+  //////////// 
+  const int KPM_ran_function = 1;
 
-  // // KPM handle
-  // sm_ans_xapp_t** kpm_handle = calloc(10, sizeof(sm_ans_xapp_t*));
-  // assert(kpm_handle != NULL && "Memory exhausted");
-
-  // int num_nodes_of_interest = 0;
-
-  // for (int i = 0; i < nodes.len; i++) {
-  //   e2_node_connected_t* n = &nodes.n[i];
-
-  //   // E2 Node #i has the following RAN Function support
-  //   for (size_t j = 0; j < n->len_rf; j++)
-  //     printf("Registered node ID %d ran func id = %d \n ", n->id.nb_id.nb_id, n->ack_rf[j].id);
+  // KPM handle
+  sm_ans_xapp_t* kpm_handle = calloc(3, sizeof(sm_ans_xapp_t));
+  assert(kpm_handle != NULL && "Memory exhausted");
 
 
+    printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
 
-  //   printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
-
-
-  //   if (n->id.type == ngran_gNB) {
-
-  //     kpm_handle[num_nodes_of_interest] = calloc(3, sizeof(sm_ans_xapp_t)); 
-  //     assert(kpm_handle[num_nodes_of_interest] != NULL && "Memory exhausted");
-  
-  //     // KPM SUBSCRIPTION FOR CELL LEVEL MEASUREMENTS Style 1
-  //     kpm_sub_data_t kpm_sub_1 = gen_kpm_sub_style_1();
-  //     defer({ free_kpm_sub_data(&kpm_sub_1); });
+    // KPM SUBSCRIPTION FOR CELL LEVEL MEASUREMENTS Style 1
+    kpm_sub_data_t kpm_sub_1 = gen_kpm_sub_style_1();
+    defer({ free_kpm_sub_data(&kpm_sub_1); });
 
 
-  //     // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 2
-  //     kpm_sub_data_t kpm_sub_2 = gen_kpm_sub_style_2(&n->id.type);
-  //     defer({ free_kpm_sub_data(&kpm_sub_2); });
 
 
-  //     // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 3
-  //     kpm_sub_data_t kpm_sub_3 = gen_kpm_sub_style_3();
-  //     defer({ free_kpm_sub_data(&kpm_sub_3); });
+
+    // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 3
+    kpm_sub_data_t kpm_sub_3 = gen_kpm_sub_style_3();
+    defer({ free_kpm_sub_data(&kpm_sub_3); });
 
 
-  //     const int KPM_ran_function = 1;
+    kpm_handle[0] = report_sm_xapp_api(&nodes.n[0].id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm_1);
 
-  //     kpm_handle[num_nodes_of_interest][0] = report_sm_xapp_api(&n->id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm_1);
-  //     kpm_handle[num_nodes_of_interest][1] = report_sm_xapp_api(&n->id, KPM_ran_function, &kpm_sub_2, sm_cb_kpm_2);
-  //     kpm_handle[num_nodes_of_interest][2] = report_sm_xapp_api(&n->id, KPM_ran_function, &kpm_sub_3, sm_cb_kpm_3);
+    kpm_handle[1] = report_sm_xapp_api(&nodes.n[0].id, KPM_ran_function, &kpm_sub_3, sm_cb_kpm_3);
   
 
-  //     assert(kpm_handle[num_nodes_of_interest][0].success == true);
-  //     assert(kpm_handle[num_nodes_of_interest][1].success == true);
-  //     assert(kpm_handle[num_nodes_of_interest][2].success == true);  
+    assert(kpm_handle[0].success == true);
+    assert(kpm_handle[1].success == true);
+      
 
-  //     ++num_nodes_of_interest;
 
-  //   } 
-  // }
+  //////////// 
+  // END KPM 
+  //////////// 
 
-  // //////////// 
-  // // END KPM 
-  // //////////// 
-
-  // sleep(15);
+  // sleep(3);
 
 
   // // Only for testing
-  // for(int i = 0; i < 10; ++i){
-  //   // Remove the handle previously returned
-  //   for(int j = 0; j < 3; j++){
-  //     if(kpm_handle[i] != NULL)
-  //     rm_report_sm_xapp_api(kpm_handle[i][j].u.handle);
-  //   }
+  // // Remove the handle previously returned
+  // for(int i = 0; i < 3; i++){
+  //   rm_report_sm_xapp_api(kpm_handle[i].u.handle);
   // }
 
   // // Only for testing
-  // if(nodes.len > 0){
-  //   // free(&kpm_handle);
-  //   free(kpm_handle);
-  // }
+  // free(kpm_handle);
 
 
  
@@ -1190,7 +1224,53 @@ int main(int argc, char *argv[])
   // START RC CONTROL 
   ////////////
 
+  while (true)
+  {
+    for (size_t i = 0; i < 1; i++) {
+      uint32_t cp_last_prb_usage_dl = 0;
+      uint32_t cp_last_dl_thp_slice_2 = 0;
+      gnb_e2sm_t cp_matched_ue_id = {0};
+      defer({free_gnb_ue_id_e2sm(&cp_matched_ue_id);});
+      {
 
+        lock_guard(&mtx);
+
+        cp_last_prb_usage_dl = last_prb_usage_dl;
+        cp_last_dl_thp_slice_2 = last_dl_thp_slice_2[i];
+        // cp_matched_ue_id = cp_gnb_ue_id_e2sm(&matched_ue_id_list[i]);
+      }
+
+      // printf("PRB usage = %u\r", cp_last_prb_usage_dl);
+      // printf("THP = %u\r", cp_last_dl_thp_slice_2);
+
+      if (cp_last_prb_usage_dl >= 70 && (cp_last_dl_thp_slice_2 >= 9980 && cp_last_dl_thp_slice_2 <= 10020)) {
+        // printf("it enters the function #1");
+        // RC CONTROL Service Style 1
+        rc_ctrl_req_data_t rc_ctrl = {0};
+        defer({ free_rc_ctrl_req_data(&rc_ctrl); });
+
+        rc_ctrl.hdr = gen_rc_ctrl_hdr(&matched_ue_id_list[i]);
+        for (size_t j = 0; j < 102; j++) {
+          if (eq_gnb_ue_id_e2sm(&matched_ue_id_list[i], &target_ue_id_list[j]) == true) {
+            // printf("gnb ue id is fine");
+            rc_ctrl.msg = gen_rc_ctrl_msg(target_drb_id_list[j]);
+            control_sm_xapp_api(&nodes.n[0].id, RC_ran_function, &rc_ctrl);
+            printf("RC Control message Style 1 \"DRB QoS Configuration\" sent\n");
+
+            // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 2
+            kpm_sub_data_t kpm_sub_2 = gen_kpm_sub_style_2(&matched_ue_id_list[i]);
+            defer({ free_kpm_sub_data(&kpm_sub_2); });
+            kpm_handle[2] = report_sm_xapp_api(&nodes.n[0].id, KPM_ran_function, &kpm_sub_2, sm_cb_kpm_2);
+            assert(kpm_handle[2].success == true);
+          }
+        }
+        
+        }
+      }
+  }
+    
+
+  
   // // RC CONTROL Service Style 1
   // rc_ctrl_req_data_t rc_ctrl = {0};
   // defer({ free_rc_ctrl_req_data(&rc_ctrl); });
