@@ -234,8 +234,8 @@ def _msg_dispatcher(data_msg: dict, OBJ_STORE: dict) -> List[dict]:
 
 def write(idx, is_running, msg_queue, obj_store,
           min_batch_size, session, promscale_url, labels_key='labels'):
-    # For reporting Througput & HOL-sojourn when exiting
-    pushes_count, total_samples, total_sojourn = 0, 0, 0
+    # For reporting Througput & HOL-delay when exiting
+    pushes_count, total_samples, total_delay = 0, 0, 0
 
     # Set the DataFrame schema & pick labels for GROUP BY
     msg_dtype = [('__name__', pl.Utf8), ('rnti', pl.Utf8), 
@@ -293,8 +293,8 @@ def write(idx, is_running, msg_queue, obj_store,
 
             # BENCHMARK
             endt_ms = time.time_ns()//1_000_000
-            ricmont_ms = msgs_df['ricmonstamp'][0]
-            total_sojourn += (endt_ms-ricmont_ms)
+            begint_ms = msgs_df['timestamp'][0]
+            total_delay += (endt_ms-begint_ms)
             pushes_count += 1
             total_samples += msgs_df.height
 
@@ -302,7 +302,7 @@ def write(idx, is_running, msg_queue, obj_store,
             msgs_df = pl.DataFrame({}, schema=msg_dtype)
 
     print(f"[PUSHER-{idx}] {total_samples} records \
-          with AVG(HOL-sojourn) = {total_sojourn//pushes_count} (ms).")
+          with AVG(HOL-latency) = {total_delay//pushes_count} (ms).")
 
 def stats_writer(is_running, msg_queue, metrics_preprocs, promscale_url, is_db,
                  num_threads=2, batch_size=16):
