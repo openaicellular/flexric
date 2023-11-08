@@ -56,9 +56,9 @@ func (c SLICECallback) Handle(ind xapp.Swig_slice_ind_msg_t) {
 	slice.SliceIndToDictJSON(ind)
 
 	e2nodeId := slice.E2NodeId{
-		Mcc:     int16(ind.GetId().GetPlmn().GetMcc()),
-		Mnc:     int16(ind.GetId().GetPlmn().GetMnc()),
-		NbId:    int16(ind.GetId().GetNb_id().GetNb_id()),
+		Mcc:     ind.GetId().GetPlmn().GetMcc(),
+		Mnc:     ind.GetId().GetPlmn().GetMnc(),
+		NbId:    uint32(ind.GetId().GetNb_id().GetNb_id()),
 		CuDuId:  0,
 		RanType: xapp.Get_e2ap_ngran_name(ind.GetId().GetXtype()),
 	}
