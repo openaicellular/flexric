@@ -2,14 +2,14 @@ package main
 
 import "C"
 import (
-	xapp "build/examples/xApp/go/xapp_sdk"
 	callbacks "build/examples/xApp/go/FlexPolicy/callbacks"
-	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
 	api "build/examples/xApp/go/FlexPolicy/utils/api"
+	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
+	xapp "build/examples/xApp/go/xapp_sdk"
 
 	"fmt"
-	"time"
 	"os"
+	"time"
 )
 
 func main() {
@@ -24,10 +24,10 @@ func main() {
 	policyID := a1.Get("policy")
 
 	// Get sm
-    custSm := xapp.Get_cust_sm_conf()
+	custSm := xapp.Get_cust_sm_conf()
 	oranSm := xapp.Get_oran_sm_conf()
 	fmt.Printf("A1: IP %s, PORT %s, POLICY %s\n", A1IP, A1Port, policyID)
-	
+
 	// E2 Connect
 	sm.E2Nodes = xapp.Conn_e2_nodes()
 
@@ -38,7 +38,7 @@ func main() {
 	}
 
 	fmt.Printf("Connected E2 nodes = %d\n", nodes_len)
- 
+
 	// Subscribe to the SMs
 	sm.SmSubscription(custSm, oranSm)
 
@@ -46,7 +46,7 @@ func main() {
 	callback := callbacks.FindCallback(policyID)
 	if callback == nil {
 		fmt.Printf("Policy Callback with given ID %s not found.\n", policyID)
-	} else{
+	} else {
 		api.OpenA1Apis(callback, A1IP, A1Port)
 	}
 
@@ -59,5 +59,5 @@ func main() {
 	}
 
 	fmt.Printf("Test xApp run SUCCESSFULLY\n")
-	
+
 }

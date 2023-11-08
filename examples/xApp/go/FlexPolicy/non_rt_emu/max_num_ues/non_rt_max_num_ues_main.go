@@ -51,8 +51,8 @@ func main() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	mcc := uint16(sm.Feedback.SliceFeedback[0].Mcc)
-	mnc := uint16(sm.Feedback.SliceFeedback[0].Mnc)
+	mcc := sm.Feedback.SliceFeedback[0].Mcc
+	mnc := sm.Feedback.SliceFeedback[0].Mnc
 	nbId := sm.Feedback.SliceFeedback[0].NbId
 	ranType := sm.Feedback.SliceFeedback[0].RanType
 
