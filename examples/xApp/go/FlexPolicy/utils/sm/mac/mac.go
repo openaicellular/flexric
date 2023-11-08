@@ -19,10 +19,10 @@ func (mac_cb MACCallback) Handle(ind xapp.Swig_mac_ind_msg_t) {
 }
 
 type E2NodeMacStorageMap struct {
-	Mcc            int16      `json:"mcc,omitempty"`
-	Mnc            int16      `json:"mnc,omitempty"`
-	NbId           int16      `json:"nb_id,omitempty"`
-	CuDuId         int16      `json:"cu_du_id,omitempty"`
+	Mcc            uint16     `json:"mcc,omitempty"`
+	Mnc            uint16     `json:"mnc,omitempty"`
+	NbId           uint32     `json:"nb_id,omitempty"`
+	CuDuId         uint32     `json:"cu_du_id,omitempty"`
 	RanType        string     `json:"ran_type,omitempty"`
 	E2NodeMacStats MacStorage `json:"slice_stats,omitempty"`
 }
@@ -97,11 +97,11 @@ func FillMacStorage(ind xapp.Swig_mac_ind_msg_t) {
 	Mutex.Lock()
 
 	// get E2node details
-	NbId := int16(ind.GetId().GetNb_id().GetNb_id())
+	NbId := uint32(ind.GetId().GetNb_id().GetNb_id())
 	// CuDuId := ind.GetId().GetCu_du_id() // TODO: not yet supported, maybe needs swig extension
 	RanType := xapp.Get_e2ap_ngran_name(ind.GetId().GetXtype())
-	Mcc := int16(ind.GetId().GetPlmn().GetMcc())
-	Mnc := int16(ind.GetId().GetPlmn().GetMnc())
+	Mcc := ind.GetId().GetPlmn().GetMcc()
+	Mnc := ind.GetId().GetPlmn().GetMnc()
 
 	// Find the entry in the global structure SliceStats if it exists or create a new entry
 	entryFound := false

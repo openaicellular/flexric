@@ -2,7 +2,6 @@ package utils
 
 import "C"
 import (
-
 	policy "build/examples/xApp/go/FlexPolicy/utils/policy"
 	sm "build/examples/xApp/go/FlexPolicy/utils/sm"
 
@@ -15,29 +14,29 @@ import (
 	"net/http"
 )
 
-
 // ------------------------------------------------------------------------ //
+//
 //	Define Global Variables for the xApp API Server
 //	The APIs are used to receive policies and sent the current state from/to the Non-RT RIC
+//
 // ------------------------------------------------------------------------ //
 var Router *gin.Engine
 var Srv *http.Server
 var PolicyEnforced = false
 var FinishChannel chan bool
 
-
 // ------------------------------------------------------------------------ //
 //
-//	OpenA1Apis function for starting the xApp server APIs
+//		OpenA1Apis function for starting the xApp server APIs
 //
-//	APIs:
-//	- /api/policy:   for receiving the policy configuration
-//	- /api/finish:   for receiving the finish command to terminate
-//	- /api/feedback: for sending the current state to the Non-RT RIC
+//		APIs:
+//		- /api/policy:   for receiving the policy configuration
+//		- /api/finish:   for receiving the finish command to terminate
+//		- /api/feedback: for sending the current state to the Non-RT RIC
 //
-//	Input Variables:
-//	- policyEnforceCallback: the callback function for enforcing the policy
-//  - a1IP, a1Port: IP and port for the xApp API server
+//		Input Variables:
+//		- policyEnforceCallback: the callback function for enforcing the policy
+//	 - a1IP, a1Port: IP and port for the xApp API server
 //
 // ------------------------------------------------------------------------ //
 // TODO: add a parameter for evaluating that the received policy is the desired based on the xApp logic
@@ -60,7 +59,7 @@ func OpenA1Apis(policyEnforceCallback policy.PolicyEnforcementCallback, a1IP str
 			})
 			return
 		}
-		
+
 		// TODO: Evaluate that the received policy is the desired based on the xApp logic
 		// or support multiple policies
 

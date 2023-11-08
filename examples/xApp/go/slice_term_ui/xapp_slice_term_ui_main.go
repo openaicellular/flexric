@@ -629,9 +629,9 @@ func main() {
 
 		// Universal statistics
 		e2nodeId := slice.E2NodeId{
-			Mcc:     int16(conn.Get(nodeIdx).GetId().GetPlmn().GetMcc()),
-			Mnc:     int16(conn.Get(nodeIdx).GetId().GetPlmn().GetMnc()),
-			NbId:    int16(conn.Get(nodeIdx).GetId().GetNb_id().GetNb_id()),
+			Mcc:     conn.Get(nodeIdx).GetId().GetPlmn().GetMcc(),
+			Mnc:     conn.Get(nodeIdx).GetId().GetPlmn().GetMnc(),
+			NbId:    uint32(conn.Get(nodeIdx).GetId().GetNb_id().GetNb_id()),
 			RanType: xapp.Get_e2ap_ngran_name(conn.Get(nodeIdx).GetId().GetXtype()),
 		}
 

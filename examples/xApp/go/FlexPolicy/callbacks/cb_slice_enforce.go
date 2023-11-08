@@ -28,7 +28,7 @@ func CallbackSliceEnforce(PolicyConfiguration policy.Configuration) {
 		currRanType := xapp.Get_e2ap_ngran_name(sm.E2Nodes.Get(i).GetId().GetXtype())
 
 		// - c) NbId
-		currNbId := int16(sm.E2Nodes.Get(i).GetId().GetNb_id().GetNb_id())
+		currNbId := uint32(sm.E2Nodes.Get(i).GetId().GetNb_id().GetNb_id())
 
 		// - d) CuDuId    TODO: maybe swig needs to be extended to support this
 		// currCuDuId := sm.E2Nodes.Get(i).GetId().GetCu_du_id().GetCu_du_id()

@@ -61,9 +61,9 @@ type MultiUeStats struct {
 }
 
 type E2NodeMultiUeStats struct {
-	Mcc           int16
-	Mnc           int16
-	NbId          int16
+	Mcc           uint16
+	Mnc           uint16
+	NbId          uint32
 	RanType       string
 	E2NodeUeStats MultiUeStats
 }
@@ -111,11 +111,11 @@ func Calculate_UE_PRB_utilisation(ind xapp.Swig_mac_ind_msg_t) {
 	PrbMutex.Lock()
 
 	// get E2node details
-	NbId := int16(ind.GetId().GetNb_id().GetNb_id())
+	NbId := uint32(ind.GetId().GetNb_id().GetNb_id())
 	// CuDuId := ind.GetId().GetCu_du_id() // TODO: not yet supported, maybe needs swig extension
 	RanType := xapp.Get_e2ap_ngran_name(ind.GetId().GetXtype())
-	Mcc := int16(ind.GetId().GetPlmn().GetMcc())
-	Mnc := int16(ind.GetId().GetPlmn().GetMnc())
+	Mcc := ind.GetId().GetPlmn().GetMcc()
+	Mnc := ind.GetId().GetPlmn().GetMnc()
 
 	// Find the entry in the global structure MultipleUeStatistics if it exists or create a new entry
 	entryFound := false
@@ -305,11 +305,11 @@ func CalculateUeThroughput(ind xapp.Swig_mac_ind_msg_t) {
 
 	ThptMutex.Lock()
 
-	NbId := int16(ind.GetId().GetNb_id().GetNb_id())
+	NbId := uint32(ind.GetId().GetNb_id().GetNb_id())
 	// CuDuId := ind.GetId().GetCu_du_id() // TODO: not yet supported, maybe needs swig extension
 	RanType := xapp.Get_e2ap_ngran_name(ind.GetId().GetXtype())
-	Mcc := int16(ind.GetId().GetPlmn().GetMcc())
-	Mnc := int16(ind.GetId().GetPlmn().GetMnc())
+	Mcc := ind.GetId().GetPlmn().GetMcc()
+	Mnc := ind.GetId().GetPlmn().GetMnc()
 
 	// Find the entry in the global structure MultipleUeStatistics if it exists or create a new entry
 	entryFound := false

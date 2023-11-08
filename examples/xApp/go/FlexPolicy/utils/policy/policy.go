@@ -26,8 +26,8 @@ type ScopeConfig struct {
 	Mcc     uint16 `json:"plmn,omitempty"`
 	Mnc     uint16 `json:"mnc,omitempty"`
 	RanType string `json:"ranType,omitempty"`
-	NbId    int16  `json:"nbId,omitempty"`
-	CuDuId  int16  `json:"cuDuId,omitempty"`
+	NbId    uint32 `json:"nbId,omitempty"`
+	CuDuId  uint32 `json:"cuDuId,omitempty"`
 }
 
 type StatementConfig struct {
