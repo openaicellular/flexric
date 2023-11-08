@@ -219,8 +219,6 @@ def subscriber(sm_configs, report_checkpoint):
 ################
 # STATS WRITER #
 ################
-# TODO: Review your dynamic dispatcher!
-# Is this copy memory-problematic? Does it fix metric-"correctness"?
 def _msg_dispatcher(data_msg: dict, OBJ_STORE: dict) -> List[dict]:
     global preproc_logics
 
@@ -228,8 +226,9 @@ def _msg_dispatcher(data_msg: dict, OBJ_STORE: dict) -> List[dict]:
     metric_name = data_msg['__name__']
     if metric_name in preproc_logics:
         for fn in preproc_logics[metric_name]:
-            data_msg_copy = data_msg.copy()
-            results.extend(fn(data_msg_copy, OBJ_STORE))
+            cp_data_msg = data_msg.copy()
+            results.extend(fn(cp_data_msg, OBJ_STORE))
+            del cp_data_msg
 
     return results
 
@@ -257,7 +256,8 @@ def write(idx, is_running, msg_queue, obj_store,
 
             msgs_df.vstack(pl.DataFrame(msgs, schema=msg_dtype), in_place=True)
         except queue.Empty:
-            # TODO: Should we "get_many_nowait()", sleep if this Exception raised?
+            # TODO: Should we get_many_nowait()
+            # sleep if exception is raised?
             pass
         except Exception:
             traceback.print_exc()
@@ -338,7 +338,7 @@ def stats_writer(is_running, msg_queue, metrics_preprocs, promscale_url, is_db,
         print("[Ctrl+C] Clearing the shared queues...")
         while not msg_queue.empty():
             # TODO: Drain the queue with get_many_nowait()
-            # pass if exception is raised!
+            # pass if exception is raised?
             msg_queue.get()
     except Exception:
         traceback.print_exc()

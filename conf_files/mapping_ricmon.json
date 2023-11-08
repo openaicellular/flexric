@@ -22,16 +22,16 @@
         }
     },
     "queue_size_bytes": 2000000,
-    "writer_threads_count": 2,
-    "writer_batch_size": 8,
+    "writer_threads_count": 8,
+    "writer_batch_size": 16,
     "promscale_url": "http://172.21.13.12:9201/write",
-    "database_mode": false,
+    "database_mode": true,
     "cbreport_every_msgs": 0,
 
     "preproc_configs": {
-        "dl_aggr_prb": ["my_prb_utilization", "my_dummy_preprocessor"],
-        "ul_aggr_prb": ["my_prb_utilization", "my_dummy_preprocessor"],
-        "dl_aggr_retx_prb": ["my_prb_utilization"],
-        "ul_aggr_retx_prb": ["my_prb_utilization"]
+        "dl_aggr_prb": ["my_dl_prb_utilization", "my_dummy_preprocessor"],
+        "ul_aggr_prb": ["my_ul_prb_utilization", "my_dummy_preprocessor"],
+        "dl_aggr_retx_prb": ["my_dl_prb_utilization"],
+        "ul_aggr_retx_prb": ["my_ul_prb_utilization"]
     }
 }

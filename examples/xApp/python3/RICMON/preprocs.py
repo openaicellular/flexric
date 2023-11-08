@@ -1,5 +1,5 @@
 from typing import List
-from ricmon.metrics import ricmon_prb_utilization
+from ricmon.metrics import dl_prb_utilization, ul_prb_utilization
 
 
 # Define my Radio Structure
@@ -9,12 +9,14 @@ UL_FRAME = [0, 0, 0, 0, 0, 0, 0, 0.3, 1, 1,
             0, 0, 0, 0, 0, 0, 0, 0.3, 1, 1]
 PRBS_PER_SLOT = 106
 
-# Extend into my preprocessor
-def my_prb_utilization(data_msg: dict, OBJ_STORE: dict) -> List[dict]:
-    # TODO: Allow developers to specify "metric_name"
-    # TODO: Also, break into DL and UL
-    return ricmon_prb_utilization(data_msg, OBJ_STORE, 
-                                  DL_FRAME, UL_FRAME, PRBS_PER_SLOT)
+# Extend into my preprocessors
+def my_dl_prb_utilization(data_msg: dict, OBJ_STORE: dict) -> List[dict]:
+    return dl_prb_utilization(data_msg, OBJ_STORE, 
+                              "dl_prb_utilization", DL_FRAME, PRBS_PER_SLOT)
+
+def my_ul_prb_utilization(data_msg: dict, OBJ_STORE: dict) -> List[dict]:
+    return ul_prb_utilization(data_msg, OBJ_STORE, 
+                              "ul_prb_utilization", UL_FRAME, PRBS_PER_SLOT)
 
 # Write my own preprocessor
 def my_dummy_preprocessor(data_msg: dict, OBJ_STORE: dict) -> List[dict]:
