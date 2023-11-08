@@ -11,6 +11,8 @@ PRBS_PER_SLOT = 106
 
 # Extend into my preprocessor
 def my_prb_utilization(data_msg: dict, OBJ_STORE: dict) -> List[dict]:
+    # TODO: Allow developers to specify "metric_name"
+    # TODO: Also, break into DL and UL
     return ricmon_prb_utilization(data_msg, OBJ_STORE, 
                                   DL_FRAME, UL_FRAME, PRBS_PER_SLOT)
 

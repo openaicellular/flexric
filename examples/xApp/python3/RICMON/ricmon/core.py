@@ -16,6 +16,7 @@ from multiprocessing import set_start_method, Manager, Process
 from faster_fifo import Queue
 
 # TODO: Desparately need to be splitted into 2 modules
+
 # TO-REMOVE: for fixing SegFault
 # import faulthandler
 # faulthandler.enable()
@@ -42,7 +43,7 @@ class MACCallback(ric.mac_cb, CallbackHelper):
             try:
                 # E2-based filtering of messages, plus enqueuing
                 e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc, 
-                         ind.id.nb_id.nb_id, ind.id.cu_du_id)
+                         ind.id.nb_id.nb_id, ind.id.cu_du_id, ind.id.type)
                 e2_filters = self.filters[e2_id]
 
                 mac_data = [{
@@ -92,7 +93,7 @@ class PDCPCallback(ric.pdcp_cb, CallbackHelper):
             try:
                 # E2-based filtering of messages, plus enqueuing
                 e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc, 
-                         ind.id.nb_id.nb_id, ind.id.cu_du_id)
+                         ind.id.nb_id.nb_id, ind.id.cu_du_id, ind.id.type)
                 e2_filters = self.filters[e2_id]
 
                 pdcp_data = [{
@@ -153,7 +154,8 @@ def subscriber(sm_configs, report_checkpoint):
             (conn.id.plmn.mcc,
              conn.id.plmn.mnc,
              conn.id.nb_id.nb_id,
-             conn.id.cu_du_id): conn.id
+             conn.id.cu_du_id,
+             conn.id.type): conn.id
             for conn in conns
         }
 
@@ -171,7 +173,6 @@ def subscriber(sm_configs, report_checkpoint):
 
             # Case-2: E2-Node is marked as "OFF" but is now "ON"
             if (not status['is_on']) and (e2_id in conns_ids):
-
                 status['is_on'] = True
                 for status_type in list(status.keys()):
                     if status_type != 'is_on':
@@ -218,6 +219,8 @@ def subscriber(sm_configs, report_checkpoint):
 ################
 # STATS WRITER #
 ################
+# TODO: Review your dynamic dispatcher!
+# Is this copy memory-problematic? Does it fix metric-"correctness"?
 def _msg_dispatcher(data_msg: dict, OBJ_STORE: dict) -> List[dict]:
     global preproc_logics
 
@@ -254,7 +257,8 @@ def write(idx, is_running, msg_queue, obj_store,
 
             msgs_df.vstack(pl.DataFrame(msgs, schema=msg_dtype), in_place=True)
         except queue.Empty:
-            print(f"[PUSHER-{idx}] Empty queue!")
+            # TODO: Should we "get_many_nowait()", sleep if this Exception raised?
+            pass
         except Exception:
             traceback.print_exc()
 
@@ -333,6 +337,8 @@ def stats_writer(is_running, msg_queue, metrics_preprocs, promscale_url, is_db,
     try:
         print("[Ctrl+C] Clearing the shared queues...")
         while not msg_queue.empty():
+            # TODO: Drain the queue with get_many_nowait()
+            # pass if exception is raised!
             msg_queue.get()
     except Exception:
         traceback.print_exc()
