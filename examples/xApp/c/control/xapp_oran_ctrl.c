@@ -309,9 +309,11 @@ int main(int argc, char *argv[])
   rc_ctrl.hdr = gen_rc_ctrl_hdr(FORMAT_1_E2SM_RC_CTRL_HDR, ue_id, 2, Slice_level_PRB_quotal_7_6_3_1);
   rc_ctrl.msg = gen_rc_ctrl_msg(FORMAT_1_E2SM_RC_CTRL_MSG);
 
+  int64_t st = time_now_us();
   for(size_t i =0; i < nodes.len; ++i){ 
     control_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_ctrl);
   }
+  printf("[xApp]: Control Loop Latency: %ld us\n", time_now_us() - st);
   free_rc_ctrl_req_data(&rc_ctrl);
 
   //////////// 

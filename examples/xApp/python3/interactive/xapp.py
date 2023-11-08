@@ -846,10 +846,12 @@ def send_slice_ctrl(n_idx, type_enum, conf):
         type_enum: enum of slice action (support: xapp.SliceType.ADDMOD/DEL/ASSOC_UE).
         conf: slice configuration (ex: xapp.conf_nvs_slices).
     """
+    st = time.time_ns() / 1000.0
     cmd = type_enum.value
     msg = _fill_slice_ctrl_msg(n_idx, cmd, conf)
     global _e2nodes
     ric.control_slice_sm(_e2nodes[n_idx].id, msg)
+    print(f"[xApp]: Control Loop Latency: ${(time.time_ns() / 1000.0) - st} us")
 
 ####################
 ####  print_e2_nodes
