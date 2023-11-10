@@ -19,9 +19,23 @@
                 "metrics": ["dl_aggr_prb", "dl_aggr_retx_prb", "ul_aggr_prb", "ul_aggr_retx_prb"],
                 "interval": "Interval_ms_5"
             }
+        },
+        "KPM": {
+            "(505, 1, 1, \"0\", \"ngran_gNB\")": {
+                "metrics": ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"],
+                "interval": "Interval_ms_1000"
+            },
+            "(505, 1, 2, \"21\", \"ngran_gNB_CU\")": {
+                "metrics": ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"],
+                "interval": "Interval_ms_100"
+            },
+            "(505, 1, 2, \"22\", \"ngran_gNB_DU\")": {
+                "metrics": ["DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"],
+                "interval": "Interval_ms_100"
+            }
         }
     },
-    "queue_size_bytes": 2000000,
+    "queue_size_bytes": 3000000,
     "writer_threads_count": 8,
     "writer_batch_size": 16,
     "promscale_url": "http://172.21.13.12:9201/write",

@@ -18,10 +18,11 @@ def _compute_slots_diff(from_frame, from_slot, to_frame, to_slot, frame_structur
 
 
 # [EXPOSED METHODS] TODO: ADD DESCRIPTION && TYPE HINTS
+# <DOCS> Accept 'dl_aggr_prb' and 'dl_aggr_retx_prb' raw metrics
 def dl_prb_utilization(prb_msg, OBJ_STORE, metric_name, DL_FRAME, SLOT_PRBS):
     ue_key = (prb_msg['mcc'], prb_msg['mnc'],
               prb_msg['nb_id'], prb_msg['cu_du_id'],
-              prb_msg['rnti'])
+              prb_msg['ue_id'], prb_msg['ue_id_type'])
     prb_metric = prb_msg['__name__']
 
     # 1. Add to this UE's message-dict
@@ -69,10 +70,12 @@ def dl_prb_utilization(prb_msg, OBJ_STORE, metric_name, DL_FRAME, SLOT_PRBS):
     except (KeyError, IndexError):
         return []
 
+# [EXPOSED METHODS] TODO: ADD DESCRIPTION && TYPE HINTS
+# <DOCS> Accept 'ul_aggr_prb' and 'ul_aggr_retx_prb' raw metrics
 def ul_prb_utilization(prb_msg, OBJ_STORE, metric_name, UL_FRAME, SLOT_PRBS):
     ue_key = (prb_msg['mcc'], prb_msg['mnc'],
               prb_msg['nb_id'], prb_msg['cu_du_id'],
-              prb_msg['rnti'])
+              prb_msg['ue_id'], prb_msg['ue_id_type'])
     prb_metric = prb_msg['__name__']
 
     # 1. Add to this UE's message-dict
