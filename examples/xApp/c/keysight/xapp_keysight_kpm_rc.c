@@ -31,7 +31,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-static uint64_t period_ms = 300;
+static uint64_t period_ms = 1000;
 
 static byte_array_t copy_str_to_ba(const char *str)
 {
@@ -54,7 +54,8 @@ static gnb_e2sm_t target_ue_id_list[102] = {0};
 static int64_t target_drb_id_list[102] = {0};
 static int64_t total_num_ues = 0;
 static uint32_t last_prb_usage_dl = {0};
-// static uint32_t last_dl_thp_fiveqi[5] = {0};
+static uint32_t last_dl_thp_gbr_matched[5] = {0};
+static uint32_t last_dl_thp_gbr_others[50] = {0};
 static gnb_e2sm_t matched_ue_id_list[5] = {0};
 static int64_t matched_drb_id_list[5] = {0};
 static int64_t num_matched_ues_dl = 0;
@@ -126,7 +127,7 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd)
     // [1- 65535]
     if (msg_frm_2->seq_ue_id[i].seq_ran_param[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[2].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[0].ran_param_id == 21546)
     {
-      printf("DRB ID = %lu\n", msg_frm_2->seq_ue_id[i].seq_ran_param[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[2].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_true->int_ran);
+      // printf("DRB ID = %lu\n", msg_frm_2->seq_ue_id[i].seq_ran_param[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[2].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_true->int_ran);
       target_drb_id_list[total_num_ues++] = msg_frm_2->seq_ue_id[i].seq_ran_param[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[2].ran_param_val.lst->lst_ran_param[0].ran_param_struct.ran_param_struct[0].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_true->int_ran;
     }
     else
@@ -176,7 +177,7 @@ static void sm_cb_kpm_1(sm_ag_if_rd_t const *rd)
             }
             else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
             {
-              printf("RRU.PrbTotUl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
+              // printf("RRU.PrbTotUl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
             }
             else
             {
@@ -390,17 +391,18 @@ static void sm_cb_kpm_3(sm_ag_if_rd_t const *rd)
               //   lock_guard(&mtx);
 
                 if (*msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.fiveQI == 131){
-                  // last_dl_thp_fiveqi[num_matched_ues_dl] = msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val;
+                  last_dl_thp_gbr_matched[num_matched_ues_dl] = msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val;
                   matched_ue_id_list[num_matched_ues_dl++] = cp_gnb_ue_id_e2sm(&msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst[j].gnb);
                 }
-                else {
+                else if (*msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.fiveQI == 4) {
+                  last_dl_thp_gbr_others[num_others_ues] = msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val;
                   other_ue_id_list[num_others_ues++] = cp_gnb_ue_id_e2sm(&msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst[j].gnb);
                 }
               // }
             }
             else if (strcmp(meas_info_name_str, "DRB.UEThpUl.QOS") == 0)
             {
-              printf("DRB.UEThpUl.QOS = %d [kb/s], with 5QI = %hhu\n", msg_frm_2->meas_data_lst[0].meas_record_lst[j + msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst_len].int_val, *msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.fiveQI);
+              // printf("DRB.UEThpUl.QOS = %d [kb/s], with 5QI = %hhu\n", msg_frm_2->meas_data_lst[0].meas_record_lst[j + msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst_len].int_val, *msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.fiveQI);
             }
             break;
           }
@@ -789,7 +791,7 @@ static kpm_sub_data_t gen_kpm_sub_style_3(const uint8_t five_qi)
   kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
   assert(kpm_sub.ad != NULL && "Memory exhausted");
 
-  const char *act_ue[] = {"DRB.UEThpDl.QOS", "DRB.UEThpUl.QOS", NULL}; // 3GPP TS 28.552
+  const char *act_ue[] = {"DRB.UEThpDl.QOS", NULL}; // 3GPP TS 28.552
   kpm_sub.ad[0].type = FORMAT_3_ACTION_DEFINITION;
   kpm_sub.ad[0].frm_3 = gen_act_def_frm_3_ue(act_ue, five_qi);
 
@@ -875,7 +877,7 @@ static e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(int64_t const drb_id)
   e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
 
   // 8.4.2.1 DRB QoS Configuration
-  dst.sz_ran_param = 2;
+  dst.sz_ran_param = 3;
   dst.ran_param = calloc(dst.sz_ran_param, sizeof(seq_ran_param_t));
   assert(dst.ran_param != NULL && "Memory exhausted");
 
@@ -888,21 +890,20 @@ static e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(int64_t const drb_id)
   dst.ran_param[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE;
   dst.ran_param[0].ran_param_val.flag_true->int_ran = drb_id;
 
-  // // Priority level of mapped QoS flows RAN Parameter
-  // dst.ran_param[1].ran_param_id = PRIORITY_LEVEL_OF_MAPPED_QOS_FLOWS_8_4_2_1;
-  // dst.ran_param[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-  // dst.ran_param[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-  // assert(dst.ran_param[1].ran_param_val.flag_false != NULL && "Memory exhausted");
-  // // Let's suppose rnd value
-  // dst.ran_param[1].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  // dst.ran_param[1].ran_param_val.flag_false->int_ran = 10;
+  // Priority level of mapped QoS flows RAN Parameter
+  dst.ran_param[1].ran_param_id = PRIORITY_LEVEL_OF_MAPPED_QOS_FLOWS_8_4_2_1;
+  dst.ran_param[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  dst.ran_param[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  assert(dst.ran_param[1].ran_param_val.flag_false != NULL && "Memory exhausted");
+  dst.ran_param[1].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
+  dst.ran_param[1].ran_param_val.flag_false->int_ran = 1;
 
   // QoS parameters for GBR flows in NG-RAN Bearer RAN Parameter
-  dst.ran_param[1].ran_param_id = QOS_PARAMETERS_FOR_GBR_FLOWS_IN_NG_RAN_BEARER_8_4_2_1;
-  dst.ran_param[1].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
-  dst.ran_param[1].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
-  assert(dst.ran_param[1].ran_param_val.strct != NULL && "Memory exhausted");
-  ran_param_struct_t *rps = dst.ran_param[1].ran_param_val.strct;
+  dst.ran_param[2].ran_param_id = QOS_PARAMETERS_FOR_GBR_FLOWS_IN_NG_RAN_BEARER_8_4_2_1;
+  dst.ran_param[2].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+  dst.ran_param[2].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
+  assert(dst.ran_param[2].ran_param_val.strct != NULL && "Memory exhausted");
+  ran_param_struct_t *rps = dst.ran_param[2].ran_param_val.strct;
 
   rps->sz_ran_param_struct = 4;
   rps->ran_param_struct = calloc(rps->sz_ran_param_struct, sizeof(seq_ran_param_t));
@@ -914,7 +915,7 @@ static e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(int64_t const drb_id)
   rps->ran_param_struct[0].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(rps->ran_param_struct[0].ran_param_val.flag_false != NULL && "Memory exhausted");
   rps->ran_param_struct[0].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  rps->ran_param_struct[0].ran_param_val.flag_false->int_ran = 15000;
+  rps->ran_param_struct[0].ran_param_val.flag_false->int_ran = 150000;
 
   // Maximum Flow Bit Rate UL RAN Parameter
   rps->ran_param_struct[1].ran_param_id = MAXIMUM_FLOW_BIT_RATE_UPLINK_8_4_2_1;
@@ -930,7 +931,7 @@ static e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(int64_t const drb_id)
   rps->ran_param_struct[2].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(rps->ran_param_struct[2].ran_param_val.flag_false != NULL && "Memory exhausted");
   rps->ran_param_struct[2].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  rps->ran_param_struct[2].ran_param_val.flag_false->int_ran = 15000;
+  rps->ran_param_struct[2].ran_param_val.flag_false->int_ran = 150000;
 
   // Guaranteed Flow Bit Rate UL RAN Parameter
   rps->ran_param_struct[3].ran_param_id = GUARANTEED_FLOW_BIT_RATE_UPLINK_8_4_2_1;
@@ -1163,14 +1164,14 @@ int main(int argc, char *argv[])
 
     assert(rc_handle[0].success == true);
   }
-  sleep(20);
+  // sleep(20);
 
-  // Only for testing
-  // Remove the handle previously returned
-  rm_report_sm_xapp_api(rc_handle[0].u.handle);
+  // // Only for testing
+  // // Remove the handle previously returned
+  // rm_report_sm_xapp_api(rc_handle[0].u.handle);
 
-  // Only for testing
-  free(rc_handle);
+  // // Only for testing
+  // free(rc_handle);
 
   ////////////
   // END RC REPORT
@@ -1182,7 +1183,7 @@ int main(int argc, char *argv[])
   const int KPM_ran_function = 1;
 
   // KPM handle
-  sm_ans_xapp_t *kpm_handle = calloc(3, sizeof(sm_ans_xapp_t));
+  sm_ans_xapp_t *kpm_handle = calloc(4, sizeof(sm_ans_xapp_t));
   assert(kpm_handle != NULL && "Memory exhausted");
 
   printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
@@ -1190,25 +1191,29 @@ int main(int argc, char *argv[])
   // KPM SUBSCRIPTION FOR CELL LEVEL MEASUREMENTS Style 1
   kpm_sub_data_t kpm_sub_1 = gen_kpm_sub_style_1();
   defer({ free_kpm_sub_data(&kpm_sub_1); });
+  kpm_handle[0] = report_sm_xapp_api(&nodes.n[0].id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm_1);
+  assert(kpm_handle[0].success == true);
 
   // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 3
   const uint8_t five_qi_matched = 131;
-  kpm_sub_data_t kpm_sub_3_matched_ues = gen_kpm_sub_style_3(five_qi_matched);
-  defer({ free_kpm_sub_data(&kpm_sub_3_matched_ues); });
-
-  kpm_handle[0] = report_sm_xapp_api(&nodes.n[0].id, KPM_ran_function, &kpm_sub_1, sm_cb_kpm_1);
-
-  kpm_handle[1] = report_sm_xapp_api(&nodes.n[0].id, KPM_ran_function, &kpm_sub_3_matched_ues, sm_cb_kpm_3); // in here
-
-  assert(kpm_handle[0].success == true);
+  kpm_sub_data_t kpm_sub_3_gbr_matched = gen_kpm_sub_style_3(five_qi_matched);
+  defer({ free_kpm_sub_data(&kpm_sub_3_gbr_matched); });
+  kpm_handle[1] = report_sm_xapp_api(&nodes.n[0].id, KPM_ran_function, &kpm_sub_3_gbr_matched, sm_cb_kpm_3); // in here
   assert(kpm_handle[1].success == true);
 
-  // SUBSCRIBE TO UE 1 AND 2
+  // SUBSCRIBE TO UE 1 AND 2 GBR
   const uint8_t five_qi_others = 4;
-  kpm_sub_data_t kpm_sub_3_other_ues = gen_kpm_sub_style_3(five_qi_others);
-  defer({ free_kpm_sub_data(&kpm_sub_3_other_ues); });
-  kpm_handle[2] = report_sm_xapp_api(&nodes.n[0].id, KPM_ran_function, &kpm_sub_3_other_ues, sm_cb_kpm_3);
+  kpm_sub_data_t kpm_sub_3_gbr_others = gen_kpm_sub_style_3(five_qi_others);
+  defer({ free_kpm_sub_data(&kpm_sub_3_gbr_others); });
+  kpm_handle[2] = report_sm_xapp_api(&nodes.n[0].id, KPM_ran_function, &kpm_sub_3_gbr_others, sm_cb_kpm_3);
   assert(kpm_handle[2].success == true);
+
+    // SUBSCRIBE TO UE 301 AND 302 NON-GBR
+  const uint8_t five_qi_non_gbr = 9;
+  kpm_sub_data_t kpm_sub_3_non_gbr = gen_kpm_sub_style_3(five_qi_non_gbr);
+  defer({ free_kpm_sub_data(&kpm_sub_3_non_gbr); });
+  kpm_handle[3] = report_sm_xapp_api(&nodes.n[0].id, KPM_ran_function, &kpm_sub_3_non_gbr, sm_cb_kpm_3);
+  assert(kpm_handle[3].success == true);
 
   // // KPM SUBSCRIPTION FOR UE LEVEL MEASUREMENTS Style 2
   // // other_ue_id_list[0].amf_ue_ngap_id = 1;
@@ -1242,28 +1247,41 @@ int main(int argc, char *argv[])
 
 
   // test code
-  sleep(10);
-  for (size_t i = 0; i < 2; i++)
+  // sleep(10);
+
+  while (call_once)
   {
-    // uint32_t cp_last_prb_usage_dl = 0;
-    // uint32_t cp_last_dl_thp_fiveqi = 0;
-    gnb_e2sm_t cp_matched_ue_id = {0};
-    defer({ free_gnb_ue_id_e2sm(&cp_matched_ue_id); });
+    for (size_t i = 0; i < 2; i++)
     {
+      uint32_t cp_last_prb_usage_dl = 0;
+      uint32_t cp_last_dl_thp_gbr_matched = 0;
+      uint32_t cp_last_dl_thp_gbr_others = 0;
+      gnb_e2sm_t cp_matched_ue_id = {0};
+      defer({ free_gnb_ue_id_e2sm(&cp_matched_ue_id); });
+      {
 
-      lock_guard(&mtx);
-      cp_matched_ue_id = cp_gnb_ue_id_e2sm(&matched_ue_id_list[i]);
+        lock_guard(&mtx);
+        cp_matched_ue_id = cp_gnb_ue_id_e2sm(&matched_ue_id_list[i]);
+        cp_last_dl_thp_gbr_matched = last_dl_thp_gbr_matched[i];
+        cp_last_dl_thp_gbr_others = last_dl_thp_gbr_others[i];
+        cp_last_prb_usage_dl = last_prb_usage_dl;
+      }
+
+      if(cp_last_prb_usage_dl >= 100 && (cp_last_dl_thp_gbr_matched >= 9980 && cp_last_dl_thp_gbr_matched <= 10020)){
+        // RC CONTROL Service Style 1
+        rc_ctrl_req_data_t rc_ctrl = {0};
+        defer({ free_rc_ctrl_req_data(&rc_ctrl); });
+
+        rc_ctrl.hdr = gen_rc_ctrl_hdr(&cp_matched_ue_id);
+        // printf("gnb ue id is fine");
+        const int64_t drb_id_hard_code = 1;
+        rc_ctrl.msg = gen_rc_ctrl_msg(drb_id_hard_code);
+        control_sm_xapp_api(&nodes.n[0].id, RC_ran_function, &rc_ctrl);
+        printf("RC Control message Style 1 \"DRB QoS Configuration\" sent\n");
+
+        call_once = false;
+      }
     }
-    // RC CONTROL Service Style 1
-    rc_ctrl_req_data_t rc_ctrl = {0};
-    defer({ free_rc_ctrl_req_data(&rc_ctrl); });
-
-    rc_ctrl.hdr = gen_rc_ctrl_hdr(&cp_matched_ue_id);
-    // printf("gnb ue id is fine");
-    const int64_t drb_id_hard_code = 1;
-    rc_ctrl.msg = gen_rc_ctrl_msg(drb_id_hard_code);
-    control_sm_xapp_api(&nodes.n[0].id, RC_ran_function, &rc_ctrl);
-    printf("RC Control message Style 1 \"DRB QoS Configuration\" sent\n");
   }
 // test code
 
@@ -1275,7 +1293,7 @@ int main(int argc, char *argv[])
   {
     for (size_t i = 0; i < 2; i++) {
       uint32_t cp_last_prb_usage_dl = 0;
-      uint32_t cp_last_dl_thp_fiveqi = 0;
+      uint32_t cp_last_dl_thp_gbr_matched = 0;
       gnb_e2sm_t cp_matched_ue_id = {0};
       defer({free_gnb_ue_id_e2sm(&cp_matched_ue_id);});
       {
@@ -1283,12 +1301,12 @@ int main(int argc, char *argv[])
         lock_guard(&mtx);
 
         cp_last_prb_usage_dl = last_prb_usage_dl;
-        cp_last_dl_thp_fiveqi = last_dl_thp_fiveqi[i];
+        cp_last_dl_thp_gbr_matched = last_dl_thp_gbr_matched[i];
         cp_matched_ue_id = cp_gnb_ue_id_e2sm(&matched_ue_id_list[i]);
       }
 
 
-      if (cp_last_prb_usage_dl >= 70 && (cp_last_dl_thp_fiveqi >= 9980 && cp_last_dl_thp_fiveqi <= 10020)) {
+      if (cp_last_prb_usage_dl >= 70 && (cp_last_dl_thp_gbr_matched >= 9980 && cp_last_dl_thp_gbr_matched <= 10020)) {
         // RC CONTROL Service Style 1
         rc_ctrl_req_data_t rc_ctrl = {0};
         defer({ free_rc_ctrl_req_data(&rc_ctrl); });
@@ -1316,7 +1334,7 @@ int main(int argc, char *argv[])
   }
 
 #endif
-  sleep(1000);
+  sleep(25);
 
   // // RC CONTROL Service Style 1
   // rc_ctrl_req_data_t rc_ctrl = {0};
