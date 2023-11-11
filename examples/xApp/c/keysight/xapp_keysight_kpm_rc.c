@@ -62,6 +62,18 @@ static int64_t num_matched_ues_dl = 0;
 static gnb_e2sm_t other_ue_id_list[102] = {0};
 static int64_t num_others_ues = 0;
 
+static uint32_t thp_list_gbr_critical[200] = {0};
+static uint32_t gbr_critical_num_values = 0;
+
+static uint32_t thp_list_gbr_streaming[200] = {0};
+static uint32_t gbr_streaming_num_values = 0;
+
+static uint32_t thp_list_non_gbr[200] = {0};
+static uint32_t non_gbr_num_values = 0;
+
+static uint32_t prb_usage_all[200] = {0};
+
+
 static void function_call_once(void)
 {
   for (int64_t i = 0; i < 5; i++)
@@ -174,6 +186,7 @@ static void sm_cb_kpm_1(sm_ag_if_rd_t const *rd)
               printf("RRU.PrbTotDl = %d [%%]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
               lock_guard(&mtx);
               last_prb_usage_dl = msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val;
+              prb_usage_all[counter_1-1] = msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val;
             }
             else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
             {
@@ -387,18 +400,24 @@ static void sm_cb_kpm_3(sm_ag_if_rd_t const *rd)
             {
               printf("DRB.UEThpDl.QOS = %d [kb/s], with 5QI = %hhu\n", msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val, *msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.fiveQI);
               assert(num_matched_ues_dl >= 0 && num_matched_ues_dl < 5);
-              // {
-              //   lock_guard(&mtx);
+
 
                 if (*msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.fiveQI == 131){
                   last_dl_thp_gbr_matched[num_matched_ues_dl] = msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val;
                   matched_ue_id_list[num_matched_ues_dl++] = cp_gnb_ue_id_e2sm(&msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst[j].gnb);
+                  if (j == 0)
+                    thp_list_gbr_critical[20+(gbr_critical_num_values++)] = msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val;
                 }
                 else if (*msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.fiveQI == 4) {
                   last_dl_thp_gbr_others[num_others_ues] = msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val;
                   other_ue_id_list[num_others_ues++] = cp_gnb_ue_id_e2sm(&msg_frm_2->meas_info_cond_ue_lst[i].ue_id_matched_lst[j].gnb);
+                  if (j == 0)
+                    thp_list_gbr_streaming[gbr_streaming_num_values++] = msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val;
                 }
-              // }
+                else if (*msg_frm_2->meas_info_cond_ue_lst[i].matching_cond_lst[0].label_info_lst.fiveQI == 9) {
+                  if (j == 0)
+                    thp_list_non_gbr[non_gbr_num_values++] = msg_frm_2->meas_data_lst[0].meas_record_lst[j].int_val;
+                }
             }
             else if (strcmp(meas_info_name_str, "DRB.UEThpUl.QOS") == 0)
             {
@@ -1335,7 +1354,7 @@ int main(int argc, char *argv[])
 
 #endif
   sleep(25);
-
+  // sleep(91);
   // // RC CONTROL Service Style 1
   // rc_ctrl_req_data_t rc_ctrl = {0};
   // defer({ free_rc_ctrl_req_data(&rc_ctrl); });
@@ -1354,6 +1373,17 @@ int main(int argc, char *argv[])
   ////////////
   // END RC CONTROL
   ////////////
+
+  // Fill the CSV file with stored data values
+  FILE *fpt;
+  fpt = fopen("with_xApp.csv", "w+");
+  fprintf(fpt, "y0,y1,y2,y3\n");
+
+  for (uint32_t i = 0; i < gbr_streaming_num_values; i++) {
+    fprintf(fpt, "%u, %u, %u, %u\n", prb_usage_all[i], thp_list_gbr_streaming[i], thp_list_gbr_critical[i], thp_list_non_gbr[i]);
+  }
+  fclose(fpt);
+
 
   // Stop the xApp
   while (try_stop_xapp_api() == false)
