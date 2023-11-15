@@ -16,6 +16,7 @@ from multiprocessing import set_start_method, Manager, Process
 from faster_fifo import Queue
 
 # TODO: Desparately need to be splitted into 2 modules
+
 # TO-REMOVE: for fixing SegFault
 # import faulthandler
 # faulthandler.enable()
@@ -25,7 +26,6 @@ from faster_fifo import Queue
 # SUBSCRIBER #
 ##############
 class MACCallback(ric.mac_cb, CallbackHelper):
-    # Define Python class 'constructor'
     def __init__(self, sm_name, e2_metrics, report_checkpoint=0):
         # Call C++ base class constructor
         ric.mac_cb.__init__(self)
@@ -42,21 +42,23 @@ class MACCallback(ric.mac_cb, CallbackHelper):
             try:
                 # E2-based filtering of messages, plus enqueuing
                 e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc, 
-                         ind.id.nb_id.nb_id, ind.id.cu_du_id)
+                         ind.id.nb_id.nb_id, ind.id.cu_du_id, ind.id.type)
                 e2_filters = self.filters[e2_id]
 
                 mac_data = [{
                     '__name__': metric,
-                    'value': getattr(ue_stat, metric),
-                    'timestamp': tstamp_ms,
-                    'frame': f"{ue_stat.frame}",
-                    'slot': f"{ue_stat.slot}",
-                    'rnti': f"{ue_stat.rnti}",
-                    'ricmonstamp': ricmont_ms,
+                    'ue_id': f"{ue_stat.rnti}",
+                    'ue_id_type': 'rnti',
                     'mcc': f"{e2_id[0]}",
                     'mnc': f"{e2_id[1]}",
                     'nb_id': f"{e2_id[2]}",
-                    'cu_du_id': e2_id[3]
+                    'cu_du_id': e2_id[3],
+                    'ran_type': f"{e2_id[4]}",
+                    'timestamp': tstamp_ms,
+                    'value': getattr(ue_stat, metric),
+                    'frame': f"{ue_stat.frame}",
+                    'slot': f"{ue_stat.slot}",
+                    'ricmonstamp': ricmont_ms
                 } for ue_stat in ind.ue_stats for metric in e2_filters]
 
                 global msg_queue
@@ -75,7 +77,6 @@ class MACCallback(ric.mac_cb, CallbackHelper):
                 traceback.print_exc()
 
 class PDCPCallback(ric.pdcp_cb, CallbackHelper):
-    # Define Python class 'constructor'
     def __init__(self, sm_name, e2_metrics, report_checkpoint=0):
         # Call C++ base class constructor
         ric.pdcp_cb.__init__(self)
@@ -92,19 +93,21 @@ class PDCPCallback(ric.pdcp_cb, CallbackHelper):
             try:
                 # E2-based filtering of messages, plus enqueuing
                 e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc, 
-                         ind.id.nb_id.nb_id, ind.id.cu_du_id)
+                         ind.id.nb_id.nb_id, ind.id.cu_du_id, ind.id.type)
                 e2_filters = self.filters[e2_id]
 
                 pdcp_data = [{
                     '__name__': f"pdcp_{metric}",
-                    'value': getattr(rb_stat, metric),
-                    'timestamp': tstamp_ms,
-                    'rnti': f"{rb_stat.rnti}",
-                    'ricmonstamp': ricmont_ms,
+                    'ue_id': f"{rb_stat.rnti}",
+                    'ue_id_type': 'rnti',
                     'mcc': f"{e2_id[0]}",
                     'mnc': f"{e2_id[1]}",
                     'nb_id': f"{e2_id[2]}",
-                    'cu_du_id': e2_id[3]
+                    'cu_du_id': e2_id[3],
+                    'ran_type': f"{e2_id[4]}",
+                    'timestamp': tstamp_ms,
+                    'value': getattr(rb_stat, metric),
+                    'ricmonstamp': ricmont_ms
                 } for rb_stat in ind.rb_stats for metric in e2_filters]
 
                 global msg_queue
@@ -122,6 +125,83 @@ class PDCPCallback(ric.pdcp_cb, CallbackHelper):
             except Exception:
                 traceback.print_exc()
 
+class KPMCallback(ric.kpm_cb):
+    def __init__(self):
+        # Call C++ base class constructor
+        ric.kpm_cb.__init__(self)
+
+    def _get_ue_id(self, ue_meas_report_lst):
+        if ue_meas_report_lst.type == ric.GNB_UE_ID_E2SM:
+            return (f"{ue_meas_report_lst.gnb.amf_ue_ngap_id}", 'ue_ngap_id')
+        elif ue_meas_report_lst.type == ric.GNB_DU_UE_ID_E2SM:
+            return (f"{ue_meas_report_lst.gnb_du.gnb_cu_ue_f1ap}", 'ue_f1ap')
+        elif ue_meas_report_lst.type == ric.GNB_CU_UP_UE_ID_E2SM:
+            return (f"{ue_meas_report_lst.gnb_cu_up.gnb_cu_cp_ue_e1ap}", 'ue_e1ap')
+        else:
+            return ('-1', 'unsupported')
+
+    def _get_ue_metrics(self, meas_info_lst):
+        return [
+            meas_info.meas_type.name
+            if meas_info.meas_type.type == ric.NAME_MEAS_TYPE else 'unknown'
+            for meas_info in meas_info_lst
+        ]
+
+    def _get_metric_value(self, meas_record):
+        if meas_record.value == ric.INTEGER_MEAS_VALUE:
+            return meas_record.int_val
+        elif meas_record.value == ric.REAL_MEAS_VALUE:
+            return meas_record.real_val
+        else:
+            return 0
+
+    # Override C++ method: virtual void handle(swig_kpm_ind_data_t a) = 0;
+    def handle(self, ind):
+        # ONLY support FORMAT-3 message with HEADER and non-empty MEAS-REPORT
+        if ind.hdr and ind.msg.type == ric.FORMAT_3_INDICATION_MESSAGE:
+            if len(ind.msg.frm_3.meas_report_per_ue) > 0:
+                ricmont_ms = time.time_ns()//1_000_000
+                tstamp_ms = ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime//1000
+
+                try:
+                    e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc,
+                            ind.id.nb_id.nb_id, ind.id.cu_du_id, ind.id.type)
+
+                    kpm_data = [
+                        {
+                            '__name__': ue_metrics[idx],
+                            'ue_id': ue_id,
+                            'ue_id_type': ue_id_type,
+                            'mcc': f"{e2_id[0]}",
+                            'mnc': f"{e2_id[1]}",
+                            'nb_id': f"{e2_id[2]}",
+                            'cu_du_id': e2_id[3],
+                            'ran_type': f"{e2_id[4]}",
+                            'timestamp': tstamp_ms,
+                            'value': self._get_metric_value(meas_record),
+                            'ricmonstamp': ricmont_ms
+                        } for ue_meas in ind.msg.frm_3.meas_report_per_ue
+                        for ue_id, ue_id_type, ue_table in [self._get_ue_id(ue_meas.ue_meas_report_lst)
+                                                            + (ue_meas.ind_msg_format_1,)]
+                        for ue_metrics in [self._get_ue_metrics(ue_table.meas_info_lst)]
+                        for meas_data in ue_table.meas_data_lst
+                        if (meas_data.incomplete_flag != ric.TRUE_ENUM_VALUE) and
+                           (meas_data.meas_record_len == ue_table.meas_info_lst_len)
+                        for idx, meas_record in enumerate(meas_data.meas_record_lst)
+                    ]
+
+                    global msg_queue
+                    msg_queue.put_many_nowait(kpm_data)
+                except (ConnectionResetError, BrokenPipeError):
+                    print("[KPMCallback] No message_queue to use. Ctrl+C?")
+                    return
+                except queue.Full:
+                    print("[KPMCallback] Queue is full, drop some messages!")
+                    return
+                except Exception:
+                    traceback.print_exc()
+
+
 def subscriber(sm_configs, report_checkpoint):
     # From sm_configs to E2-Nodes' status book
     # {(e2_id): {'is_on': T/F, '<SM>': HandlerObject}}
@@ -136,10 +216,9 @@ def subscriber(sm_configs, report_checkpoint):
     sm_filters = sm_configs_to_sm_filters(sm_configs)
 
     # Create shared callbacks between different E2-Nodes
-    shared_mac_cb = MACCallback('MAC', sm_filters['MAC'], 
-                                report_checkpoint)
-    shared_pdcp_cb = PDCPCallback('PDCP', sm_filters['PDCP'], 
-                                  report_checkpoint)
+    shared_mac_cb = MACCallback('MAC', sm_filters['MAC'], report_checkpoint)
+    shared_pdcp_cb = PDCPCallback('PDCP', sm_filters['PDCP'], report_checkpoint)
+    shared_kpm_cb = KPMCallback()
 
     # Now, let us handle multiple E2-Node subscriptions
     global is_running
@@ -153,7 +232,8 @@ def subscriber(sm_configs, report_checkpoint):
             (conn.id.plmn.mcc,
              conn.id.plmn.mnc,
              conn.id.nb_id.nb_id,
-             conn.id.cu_du_id): conn.id
+             conn.id.cu_du_id,
+             conn.id.type): conn.id
             for conn in conns
         }
 
@@ -171,10 +251,14 @@ def subscriber(sm_configs, report_checkpoint):
 
             # Case-2: E2-Node is marked as "OFF" but is now "ON"
             if (not status['is_on']) and (e2_id in conns_ids):
-
                 status['is_on'] = True
                 for status_type in list(status.keys()):
-                    if status_type != 'is_on':
+                    if status_type == 'KPM':
+                        status['KPM'] = ric.report_kpm_sm(
+                            conns_ids[e2_id], getattr(ric, e2_intervals[e2_id]['KPM']),
+                            sm_filters['KPM'][e2_id], shared_kpm_cb
+                        )
+                    elif status_type != 'is_on':
                         status[status_type] = getattr(
                             ric, f"report_{status_type.lower()}_sm"
                         )(
@@ -225,36 +309,39 @@ def _msg_dispatcher(data_msg: dict, OBJ_STORE: dict) -> List[dict]:
     metric_name = data_msg['__name__']
     if metric_name in preproc_logics:
         for fn in preproc_logics[metric_name]:
-            data_msg_copy = data_msg.copy()
-            results.extend(fn(data_msg_copy, OBJ_STORE))
+            cp_data_msg = data_msg.copy()
+            results.extend(fn(cp_data_msg, OBJ_STORE))
+            del cp_data_msg
 
     return results
 
 def write(idx, is_running, msg_queue, obj_store,
           min_batch_size, session, promscale_url, labels_key='labels'):
-    # For reporting Througput & HOL-sojourn when exiting
-    pushes_count, total_samples, total_sojourn = 0, 0, 0
+    # For reporting Througput & HOL-delay when exiting
+    pushes_count, total_samples, total_delay = 0, 0, 0
 
     # Set the DataFrame schema & pick labels for GROUP BY
-    msg_dtype = [('__name__', pl.Utf8), ('rnti', pl.Utf8), 
-                 ('nb_id', pl.Utf8), ('cu_du_id', pl.Utf8), 
+    msg_dtype = [('__name__', pl.Utf8), ('ue_id', pl.Utf8), ('ue_id_type', pl.Utf8),
                  ('mcc', pl.Utf8), ('mnc', pl.Utf8),
-                 ('timestamp', pl.UInt64), ('value', pl.Float32), 
-                 ('ricmonstamp', pl.UInt64)]
-    labels_list = ['__name__', 'rnti', 'nb_id', 'cu_du_id', 'mcc', 'mnc']
+                 ('nb_id', pl.Utf8), ('cu_du_id', pl.Utf8), ('ran_type', pl.Utf8),
+                 ('timestamp', pl.UInt64), ('value', pl.Float32), ('ricmonstamp', pl.UInt64)]
+    labels_list = ['__name__', 'ue_id', 'ue_id_type',
+                   'mcc', 'mnc', 'nb_id', 'cu_du_id', 'ran_type']
 
     msgs_df = pl.DataFrame({}, schema=msg_dtype)
     while True:
         try:
             msgs = msg_queue.get_many(timeout=1)
-            preproc_msgs = [p_msg 
+            preproc_msgs = [p_msg
                             for msg in msgs
                             for p_msg in _msg_dispatcher(msg, obj_store)]
             msgs.extend(preproc_msgs)
 
             msgs_df.vstack(pl.DataFrame(msgs, schema=msg_dtype), in_place=True)
         except queue.Empty:
-            print(f"[PUSHER-{idx}] Empty queue!")
+            # TODO: Should we get_many_nowait()
+            # sleep if exception is raised?
+            pass
         except Exception:
             traceback.print_exc()
 
@@ -289,8 +376,8 @@ def write(idx, is_running, msg_queue, obj_store,
 
             # BENCHMARK
             endt_ms = time.time_ns()//1_000_000
-            ricmont_ms = msgs_df['ricmonstamp'][0]
-            total_sojourn += (endt_ms-ricmont_ms)
+            begint_ms = msgs_df['timestamp'][0]
+            total_delay += (endt_ms-begint_ms)
             pushes_count += 1
             total_samples += msgs_df.height
 
@@ -298,7 +385,7 @@ def write(idx, is_running, msg_queue, obj_store,
             msgs_df = pl.DataFrame({}, schema=msg_dtype)
 
     print(f"[PUSHER-{idx}] {total_samples} records \
-          with AVG(HOL-sojourn) = {total_sojourn//pushes_count} (ms).")
+          with AVG(HOL-latency) = {total_delay//pushes_count} (ms).")
 
 def stats_writer(is_running, msg_queue, metrics_preprocs, promscale_url, is_db,
                  num_threads=2, batch_size=16):
@@ -333,6 +420,8 @@ def stats_writer(is_running, msg_queue, metrics_preprocs, promscale_url, is_db,
     try:
         print("[Ctrl+C] Clearing the shared queues...")
         while not msg_queue.empty():
+            # TODO: Drain the queue with get_many_nowait()
+            # pass if exception is raised?
             msg_queue.get()
     except Exception:
         traceback.print_exc()

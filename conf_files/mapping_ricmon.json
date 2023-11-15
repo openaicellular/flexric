@@ -1,27 +1,41 @@
 {
     "sm_configs": {
         "PDCP": {
-            "(505, 1, 1, 0)": {
+            "(505, 1, 1, \"0\", \"ngran_gNB\")": {
                 "metrics": ["rxsdu_bytes", "rxsdu_pkts", "txsdu_bytes", "txsdu_pkts"],
                 "interval": "Interval_ms_5"
             },
-            "(505, 1, 2, 21)": {
+            "(505, 1, 2, \"21\", \"ngran_gNB_CU\")": {
                 "metrics": ["rxsdu_bytes", "rxpdu_bytes"],
                 "interval": "Interval_ms_10"
             }
         },
         "MAC": {
-            "(505, 1, 1, 0)": {
+            "(505, 1, 1, \"0\", \"ngran_gNB\")": {
                 "metrics": ["dl_curr_tbs", "ul_curr_tbs", "dl_bler", "ul_bler", "dl_mcs1", "ul_mcs1", "phr", "wb_cqi"],
                 "interval": "Interval_ms_10"
             },
-            "(505, 1, 2, 22)": {
+            "(505, 1, 2, \"22\", \"ngran_gNB_DU\")": {
                 "metrics": ["dl_aggr_prb", "dl_aggr_retx_prb", "ul_aggr_prb", "ul_aggr_retx_prb"],
                 "interval": "Interval_ms_5"
             }
+        },
+        "KPM": {
+            "(505, 1, 1, \"0\", \"ngran_gNB\")": {
+                "metrics": ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"],
+                "interval": "Interval_ms_1000"
+            },
+            "(505, 1, 2, \"21\", \"ngran_gNB_CU\")": {
+                "metrics": ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"],
+                "interval": "Interval_ms_100"
+            },
+            "(505, 1, 2, \"22\", \"ngran_gNB_DU\")": {
+                "metrics": ["DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"],
+                "interval": "Interval_ms_100"
+            }
         }
     },
-    "queue_size_bytes": 1000000,
+    "queue_size_bytes": 3000000,
     "writer_threads_count": 8,
     "writer_batch_size": 16,
     "promscale_url": "http://172.21.13.12:9201/write",
@@ -29,9 +43,9 @@
     "cbreport_every_msgs": 0,
 
     "preproc_configs": {
-        "dl_aggr_prb": ["my_prb_utilization", "my_dummy_preprocessor"],
-        "ul_aggr_prb": ["my_prb_utilization", "my_dummy_preprocessor"],
-        "dl_aggr_retx_prb": ["my_prb_utilization"],
-        "ul_aggr_retx_prb": ["my_prb_utilization"]
+        "dl_aggr_prb": ["my_dl_prb_utilization", "my_dummy_preprocessor"],
+        "ul_aggr_prb": ["my_ul_prb_utilization", "my_dummy_preprocessor"],
+        "dl_aggr_retx_prb": ["my_dl_prb_utilization"],
+        "ul_aggr_retx_prb": ["my_ul_prb_utilization"]
     }
 }

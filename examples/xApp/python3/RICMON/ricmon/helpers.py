@@ -1,51 +1,59 @@
-import json
-import polars as pl
+from . import xapp_sdk as ric
 
-from typing import Dict, Tuple, List, Union, Any
+import json, inspect
 from collections import defaultdict
+import polars as pl
 
 
 ##########
 # PARSER #
 ##########
-# TODO: ADD DESCRIPTION!!!
-
-def parse_configs(json_configs_path):
-    with open(json_configs_path, 'r') as f:
+# TODO: ADD DESCRIPTION and TYPE HINTS!!!
+def parse_configs(path_to_json, preprocs_module):
+    with open(path_to_json, 'r') as f:
         run_configs = json.load(f)
 
-    # Tuple string to Python tuple
-    def str_to_tuple(s):
-        if isinstance(s, str) and s.startswith("(") and s.endswith(")"):
-            s = eval(s)
-            return s[:-1] + (str(s[-1]),)
-        return s
-
-    # separate preproc_configs; transform sm_configs
+    # 1A. Separate preproc_configs
     preproc_configs = run_configs.get('preproc_configs', {})
     del run_configs['preproc_configs']
 
+    # 1B. Mapping metrics to preprocessors
+    # TODO: make it work for external (absolute-path-ed) preprocs_module
+    preproc_fns = {
+        name: getattr(preprocs_module, name)
+        for name, obj in inspect.getmembers(preprocs_module)
+        if (inspect.isfunction(obj) and name in dir(preprocs_module))
+    }
+    metrics_preprocs = {
+        metric: [preproc_fns[pp_n] for pp_n in preproc_names]
+        for metric, preproc_names in preproc_configs.items()
+    }
+
+    # 2A. Tuplize E2-ID strings
+    def tuplize_e2id_str(e2id_str):
+        e2id_tuple = eval(e2id_str)
+        return e2id_tuple[:-1] + (getattr(ric, f"e2ap_{e2id_tuple[-1]}"),)
+
+    # 2B. Transform sm_configs into usable form
     sm_configs = run_configs.get('sm_configs', {})
     for _, config in sm_configs.items():
         for e2_id, _ in list(config.items()):
-            new_e2_id = str_to_tuple(e2_id)
+            new_e2_id = tuplize_e2id_str(e2_id)
             config[new_e2_id] = config.pop(e2_id)
 
-    return run_configs, preproc_configs
+    return run_configs, metrics_preprocs
 
 
 ##############
 # SUBSCRIBER #
 ##############
-# TODO: FIX THE TYPE HINTS!!!
+# TODO: ADD THE TYPE HINTS!!!
 
 # Assist subscriber()-process in tracking E2-Nodes' statuses:
 # - from user-specified configs (SM-based)
 # - to convenient status keeping (E2-based)
-def sm_configs_to_e2_statuses(
-    sm_configs: Dict[str, Dict[Tuple[int], Dict[str, Union[List[str], str]]]]
-) -> Dict[Tuple[int], Dict[str, Union[bool, Any]]]:
-    e2_statuses: Dict[Tuple[int], Dict[str, Union[bool, Any]]] = defaultdict(lambda: {'is_on': False})
+def sm_configs_to_e2_statuses(sm_configs):
+    e2_statuses = defaultdict(lambda: {'is_on': False})
 
     for sm, configs in sm_configs.items():
         for e2_id in list(configs.keys()):
@@ -56,10 +64,8 @@ def sm_configs_to_e2_statuses(
 # Assist subscriber()-process in extracting E2-Node's desired intervals:
 # - from user-specified configs (SM-based)
 # - to per-SM pubsub intervals (E2-based)
-def sm_configs_to_e2_intervals(
-    sm_configs: Dict[str, Dict[Tuple[int], Dict[str, Union[List[str], str]]]]
-) -> Dict[Tuple[int], Dict[str, str]]:
-    e2_intervals: Dict[Tuple[int], Dict[str, str]] = defaultdict(dict)
+def sm_configs_to_e2_intervals(sm_configs):
+    e2_intervals = defaultdict(dict)
 
     for sm, configs in sm_configs.items():
         for e2_id, specs in configs.items():
@@ -70,10 +76,8 @@ def sm_configs_to_e2_intervals(
 # Assist subscriber()-process in extracting E2-Node's target metrics:
 # - from user-specified configs (SM-based)
 # - to filters shared between all E2-Nodes (still SM-based)
-def sm_configs_to_sm_filters(
-    sm_configs: Dict[str, Dict[Tuple[int], Dict[str, Union[List[str], str]]]]
-) -> Dict[str, Dict[Tuple[int], List[str]]]:
-    sm_filters: Dict[str, Dict[Tuple[int], List[str]]] = defaultdict(dict)
+def sm_configs_to_sm_filters(sm_configs):
+    sm_filters = defaultdict(dict)
 
     for sm, configs in sm_configs.items():
         for e2_id, specs in configs.items():
@@ -85,8 +89,7 @@ def sm_configs_to_sm_filters(
 # - dictionary of (MCC, MNC, NB_ID, CU_DU_ID): ["<target_metric_i>"];
 # - report max_latency after a "checkpoint" number of indications
 class CallbackHelper:
-    def __init__(self, sm_name: str, e2_metrics: Dict[Tuple[int], List[str]], 
-                 report_checkpoint: int) -> None:
+    def __init__(self, sm_name, e2_metrics, report_checkpoint):
         # Set programmable filters
         self.sm_name = sm_name
         self.filters = e2_metrics
@@ -96,7 +99,7 @@ class CallbackHelper:
         self.report_counter = 0
         self.maxlatency_ms = 0
 
-    def report_maxlatency(self, tstamp_ms: int, ricmont_ms: int) -> None:
+    def report_maxlatency(self, tstamp_ms, ricmont_ms):
         if self.report_counter < self.report_checkpoint:
             self.maxlatency_ms = max(self.maxlatency_ms, ricmont_ms-tstamp_ms)
             self.report_counter += 1

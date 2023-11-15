@@ -441,10 +441,13 @@ if(XAPP_PYTHON_ML)
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/_xapp_sdk.so
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/core.py
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/helpers.py
-          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/metrics.py
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/__init__.py
           DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON/ricmon)
-    install(FILES
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/metrics/prb_utilization.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/metrics/__init__.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON/ricmon/metrics)
+  install(FILES
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/preprocs.py
           ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/run.py
           DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON)
