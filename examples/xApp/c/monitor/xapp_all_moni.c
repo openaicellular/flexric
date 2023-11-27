@@ -96,9 +96,12 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 //    }
     printf("PDCP ind_msg latency = %lu from E2-node type %d ID %d\n",
            now - rd->ind.pdcp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
-//  } else if (rd->ind.type == GTP_STATS_V0) {
-//    printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
-//           now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
+  } else if (rd->ind.type == GTP_STATS_V0) {
+    printf("GTP ind_msg latency = %ld from E2-node type %d ID %d\n",
+           now - rd->ind.gtp.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
+  } else if (rd->ind.type == SLICE_STATS_V0) {
+    printf("SLICE ind_msg latency = %ld from E2-node type %d ID %d\n",
+           now - rd->ind.slice.msg.tstamp, e2_node->type, e2_node->nb_id.nb_id);
   } else if (rd->ind.type == KPM_STATS_V3_0) {
     if (rd->ind.kpm.ind.hdr.kpm_ric_ind_hdr_format_1.collectStartTime) {
       // printf("KPM ind_msg latency = %lu from E2-node type %d ID %d\n",
