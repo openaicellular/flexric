@@ -10,7 +10,6 @@
 
 #include "asn_system.h"		/* for platform-dependent types */
 #include "asn_codecs.h"		/* for ASN.1 codecs specifics */
-#include "asn_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,8 +59,7 @@ enum asn_transfer_syntax {
      * CANONICAL-XER is a more strict variant of BASIC-XER.
      */
     ATS_BASIC_XER,
-    ATS_CANONICAL_XER,
-    ATS_JER,
+    ATS_CANONICAL_XER
 };
 
 /*

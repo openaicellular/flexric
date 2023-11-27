@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "../../ie/asn/asn_constant.h"
 
-#include"dec_ric_ind_msg_frm_1.h"
+#include "dec_ric_ind_msg_frm_1.h"
 #include "../dec_asn_kpm_common/dec_meas_info_frm_1.h"
 #include "../dec_asn_kpm_common/dec_meas_data.h"
 
