@@ -31,6 +31,21 @@ typedef enum {
     Dedicated_PRB_Policy_Ratio_8_4_3_6 = 12,
 } slice_level_PRB_quota_param_id_e;
 
+typedef enum{
+    Handover_control_7_6_4_1 = 1,
+    Conditional_handover_control_7_6_4_1 = 2,
+    DAPS_7_6_4_1 = 3,
+} rc_ctrl_service_style_3_act_id_e;
+
+typedef enum{
+    Target_primary_cell_id_8_4_4_1 = 1,
+    CHOICE_target_cell_8_4_4_1 = 2,
+    NR_cell_8_4_4_1 = 3,
+    NR_CGI_8_4_4_1 = 4,
+    E_ULTRA_Cell_8_4_4_1 = 5,
+    E_ULTRA_CGI_8_4_4_1 = 6,
+} handover_control_param_id_e;
+
 void init_rc_sm(void)
 {
   // No allocation needed
@@ -167,6 +182,72 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
       } else {
         printf("RRM_Policy_Ratio_List->ran_param_val.lst is NULL\n");
       }
+    }
+
+    else if(ctrl->hdr.frmt_1.ric_style_type == 3 && ctrl->hdr.frmt_1.ctrl_act_id == Handover_control_7_6_4_1) {
+        printf("[E2 AGENT]: Recv control message for handover");
+        e2sm_rc_ctrl_msg_frmt_1_t const *msg = &ctrl->msg.frmt_1;
+        assert(msg->sz_ran_param == 1 && "not support msg->sz_ran_param != 1");
+        seq_ran_param_t *target_primary_cell_id = &msg->ran_param[0];
+        assert(target_primary_cell_id->ran_param_id == Target_primary_cell_id_8_4_4_1 &&
+               "Wrong Target_primary_cell_id id ");
+        assert(target_primary_cell_id->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE &&
+               "wrong Target_primary_cell_id type");
+        assert(target_primary_cell_id->ran_param_val.strct != NULL &&
+               "NULL target_primary_cell_id->ran_param_val.strct");
+        assert(target_primary_cell_id->ran_param_val.strct->sz_ran_param_struct == 1 &&
+               "wrong target_primary_cell_id->ran_param_val.strct->sz_ran_param_struct");
+        assert(target_primary_cell_id->ran_param_val.strct->ran_param_struct != NULL &&
+               "NULL target_primary_cell_id->ran_param_val.strct->ran_param_struct");
+
+        seq_ran_param_t *choice_target_cell = &target_primary_cell_id->ran_param_val.strct->ran_param_struct[0];
+        assert(choice_target_cell->ran_param_id == CHOICE_target_cell_8_4_4_1 && "wrong CHOICE_target_cell id");
+        assert(choice_target_cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE &&
+               "wrong CHOICE_target_cell type");
+        assert(choice_target_cell->ran_param_val.strct != NULL && "NULL CHOICE_target_cell->ran_param_val.strct");
+        assert(choice_target_cell->ran_param_val.strct->sz_ran_param_struct == 2 &&
+               "wrong CHOICE_target_cell->ran_param_val.strct->sz_ran_param_struct");
+        assert(choice_target_cell->ran_param_val.strct->ran_param_struct != NULL &&
+               "NULL CHOICE_target_cell->ran_param_val.strct->ran_param_struct");
+
+        seq_ran_param_t *nr_cell = &choice_target_cell->ran_param_val.strct->ran_param_struct[0];
+        assert(nr_cell->ran_param_id == NR_cell_8_4_4_1 && "wrong NR_cell id");
+        assert(nr_cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong NR_cell type");
+        assert(nr_cell->ran_param_val.strct != NULL && "NULL nr_cell->ran_param_val.strct");
+        assert(nr_cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
+               "wrong NR_cell->ran_param_val.strct->sz_ran_param_struct");
+        assert(nr_cell->ran_param_val.strct->ran_param_struct != NULL &&
+               "NULL NR_cell->ran_param_val.strct->ran_param_struct");
+
+        seq_ran_param_t *nr_cgi = &nr_cell->ran_param_val.strct->ran_param_struct[0];
+        assert(nr_cgi->ran_param_id == NR_CGI_8_4_4_1 && "wrong NR_CGI id");
+        assert(nr_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong NR_CGI type");
+        assert(nr_cgi->ran_param_val.flag_false != NULL && "NULL NR_CGI->ran_param_val.flag_false");
+        assert(nr_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
+               "wrong NR_CGI->ran_param_val.flag_false type");
+        char *nr_cgi_str = copy_ba_to_str(&nr_cgi->ran_param_val.flag_false->bit_str_ran);
+
+        seq_ran_param_t *e_ultra_cell = &choice_target_cell->ran_param_val.strct->ran_param_struct[1];
+        assert(e_ultra_cell->ran_param_id == E_ULTRA_Cell_8_4_4_1 && "wrong id");
+        assert(e_ultra_cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong e_ultra_cell type");
+        assert(e_ultra_cell->ran_param_val.strct != NULL && "NULL e_ultra_cell->ran_param_val.strct");
+        assert(e_ultra_cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
+               "wrong e_ultra_cell->ran_param_val.strct->sz_ran_param_struct");
+        assert(e_ultra_cell->ran_param_val.strct->ran_param_struct != NULL &&
+               "NULL e_ultra_cell->ran_param_val.strct->ran_param_struct");
+
+        seq_ran_param_t *e_ultra_cgi = &e_ultra_cell->ran_param_val.strct->ran_param_struct[0];
+        assert(e_ultra_cgi->ran_param_id == E_ULTRA_CGI_8_4_4_1 && "wrong E_ULTRA_CGI id");
+        assert(e_ultra_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE &&
+               "wrong E_ULTRA_CGI type");
+        assert(e_ultra_cgi->ran_param_val.flag_false != NULL && "NULL E_ULTRA_CGI->ran_param_val.flag_false");
+        assert(e_ultra_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
+               "wrong E_ULTRA_CGI->ran_param_val.flag_false type");
+        char *e_ultra_cgi_str = copy_ba_to_str(&e_ultra_cgi->ran_param_val.flag_false->bit_str_ran);
+
+        printf("RC SM: Handover control NR_CGI %s E_ULTRA_CGI %s \n", nr_cgi_str, e_ultra_cgi_str);
+        free(nr_cgi_str);
+        free(e_ultra_cgi_str);
     }
   }
 
