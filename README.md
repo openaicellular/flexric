@@ -130,6 +130,8 @@ cd test/docker/
 
 ## 2. Usage/deployment
 
+2.1 Standalone
+
 Before starting the nearRT-RIC, check that the IP address where your nearRT-RIC will be listening is the desired one at `/usr/local/etc/flexric/flexric.conf`.
 Infact the default configuration assumes all the components are located in the same localhost. 
 
@@ -178,6 +180,16 @@ Therefore, FlexRIC is well suited for use cases with ultra low-latency requireme
 Additionally, all the data received in the xApp is also written to /tmp/xapp_db in case that offline data processing is wanted (e.g., Machine
 Learning/Artificial Intelligence applications). You browse the data using e.g., sqlitebrowser. 
 Please, check the example folder for other working xApp use cases.
+
+2.1 Via Helm
+
+Once you can build your own image with above steps, you can deploy it onto a running K8s cluster with Helm v3. Just need to run this command:
+
+```bash
+$ helm intall --set image.repository=<REPO_IMAGE_URL> --set image.tag=<IMAGE_TAG> flexric ./.helm
+```
+
+Example value of REPO_IMAGE_URL is `192.168.5.10:5000/flexric` and that of IMAGE_TAG is `latest`. Note that you need to make sure the namespace with name `oai-ric` (or whatever you choose must be updated in file `values.yaml`) needs to exist. 
 
 ## 3. Integration with RAN and example of deployment
 

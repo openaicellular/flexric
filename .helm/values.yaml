@@ -1,0 +1,18 @@
+# Default values for .helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+namespace: oai-ric
+service:
+  name: flexric
+  port: 36421
+  type: NodePort
+  node_port: 31234 #must be within range 30000 - 32767
+image:
+  repository: repo_image_url
+  tag: image_tag
+configmap_data:
+  flexric_conf: |-
+    [NEAR-RIC]
+    NEAR_RIC_IP = 0.0.0.0
+    [XAPP]
+    DB_DIR = /tmp/

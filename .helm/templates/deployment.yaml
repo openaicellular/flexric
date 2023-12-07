@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-{{ .Values.service.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.service.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.service.name }}
+    spec:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: config-{{ .Values.service.name }}
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      securityContext: { }
+      schedulerName: default-scheduler
+      containers:
+        - name: {{ .Values.service.name }}
+          securityContext: {}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: Always
+          resources: {}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /usr/local/etc/flexric/flexric.conf
+              subPath: flexric_conf
