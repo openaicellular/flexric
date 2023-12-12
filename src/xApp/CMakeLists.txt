@@ -1,5 +1,7 @@
 add_subdirectory(db)
-add_subdirectory(swig)
+if (XAPP_PYTHON_SWIG OR XAPP_GO_SWIG)
+  add_subdirectory(swig)
+endif()
 
 if(BUILDING_LIBRARY STREQUAL "STATIC")
   set(XAPP_BLD_LIB  "STATIC")
