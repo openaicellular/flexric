@@ -23,8 +23,7 @@
 #define REGISTERED_E2_NODES_H 
 
 #include "../../util/alg_ds/ds/assoc_container/assoc_generic.h"
-#include "../ap/e2ap_types/e2_node_connected.h"
-
+#include "../e2ap/e2_node_connected_wrapper.h"
 #include "e2_node_arr.h"
 
 #include <stddef.h>
@@ -51,6 +50,8 @@ size_t sz_reg_e2_node(reg_e2_nodes_t* n);
 assoc_rb_tree_t cp_reg_e2_node(reg_e2_nodes_t* n); 
 
 e2_node_arr_t generate_e2_node_arr(reg_e2_nodes_t* n); 
+
+bool find_reg_e2_node(reg_e2_nodes_t* n, global_e2_node_id_t const* id);
 
 #endif
 

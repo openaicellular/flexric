@@ -11,31 +11,45 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <limits.h>
-
+#include <libconfig.h>
 #include "alg_ds/alg/defer.h"
 
-static
-const char* default_conf_file = "/usr/local/etc/flexric/flexric.conf";
+#define valid_ipv4 valid_ip
+#define MAX_PASSWORD_LENGTH 64
 
 static
-const char* default_libs_dir = "/usr/local/lib/flexric/";
+const char* default_conf_file = "/usr/local/etc/flexric/ric.conf";
 
+#ifdef PROXY_AGENT
+#include <libwebsockets.h>
+static
+bool valid_logl(int logl)
+{
+  return logl & ( LLL_ERR    |
+                  LLL_WARN   |
+                  LLL_NOTICE |
+	                LLL_INFO	 |
+                  LLL_DEBUG	 |
+                  LLL_PARSER |
+                  LLL_HEADER |
+                  LLL_EXT		 |
+                  LLL_CLIENT |
+                  LLL_LATENCY|
+                  LLL_USER	 |
+                  LLL_THREAD
+                );
+
+
+}
+#endif
 /*
-#include <assert.h>
-#include <arpa/inet.h>
-#include <ctype.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include "alg_ds/alg/defer.h"
+static
+bool valid_port(const char *port)
+{
+  int val = atoi(port);
+  return (val > 0 && val < USHRT_MAX);
+}
 
-const char* conf_file = "/usr/local/etc/flexric/flexric.conf";
-const char* libs_dir = "/usr/local/lib/flexric/";
 
 static
 bool valid_ip(const char* ip)
@@ -48,7 +62,6 @@ bool valid_ip(const char* ip)
   int result = inet_pton(AF_INET, ip, &(sa.sin_addr));
   return result != 0;
 }
-
 
 static
 char *ltrim(char *s)
@@ -65,192 +78,7 @@ char *rtrim(char *s)
     *(back+1) = '\0';
     return s;
 }
-
-//static
-//char *trim(char *s)
-//{
-//    return rtrim(ltrim(s)); 
-//}
-
-char* get_near_ric_ip(args_t args)
-{
-  char* line = NULL;
-  defer({free(line);});
-  size_t len = 0;
-  ssize_t read;
-
-  FILE * fp = fopen(args.conf_file, "r");
-  
-  if (fp == NULL){
-    printf("%s not found. Did you forget to sudo make install?\n", args.conf_file);
-    exit(EXIT_FAILURE);
-  }
-  
-  defer({fclose(fp); } );
-  
-  char ip_addr[24] = {0};
-  while ((read = getline(&line, &len, fp)) != -1) {
-    const char* needle = "NEAR_RIC_IP =";
-    char* ans = strstr(line, needle);
-    if(ans != NULL){
-      ans += strlen(needle); 
-      ans = ltrim(ans);
-      ans = rtrim(ans);
-      memcpy(ip_addr, ans , strlen(ans)); // \n character
-      break;
-    }    
-  }
-    
-  if(valid_ip(ip_addr) == false){
-    printf("IP address string invalid = %s Check the config file\n",ip_addr);
-    exit(EXIT_FAILURE);
-  }
-  
-  return strdup(ip_addr);
-}
-
-int is_regular_file(const char *path)
-{
-    struct stat path_stat;
-    stat(path, &path_stat);
-    return S_ISREG(path_stat.st_mode);
-}
-
-void init_args(args_t* args)
-{
-  strcpy(args->conf_file,conf_file);
-  strcpy(args->libs_dir, libs_dir);
-   
-}
-void print_usage(const char* prog)
-{
-  printf("Usage: %s [options]\n", prog);
-  printf("\n");
-  printf("    General options:\n");
-  printf("  -h         : print usage\n");
-  printf("  -c         : path to the config file\n");
-  printf("  -p         : path to the shared libs \n");
-}  
-
-int parse_args(int argc, char** argv, args_t* args)
-{
-  int opt;
-  init_args(args);
-  
-  while((opt = getopt(argc, argv, "hc:p:")) != -1) {
-    switch(opt) {
-    case 'h':
-      return 1;
-      
-    case 'c':
-      strcpy(args->conf_file,optarg);
-      break;
-
-    case 'p':
-      strcpy(args->libs_dir,optarg);
-      break;
-    default:
-      return 1;
-    }
-  }
-  printf("setting the config file to %s\n",args->conf_file);
-  printf("setting path for the shared libraries to %s\n",args->libs_dir);
- return 0;
-}
-
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-static
-bool valid_ip(const char* ip)
-{
-  assert(ip != NULL);
-  if (strlen(ip) < 7) // 8.8.8.8, at least we need 7 characters  
-    return false;
-
-  struct sockaddr_in sa;
-  int result = inet_pton(AF_INET, ip, &(sa.sin_addr));
-  return result != 0;
-}
-
-static
-char *ltrim(char *s)
-{
-    while(isspace(*s)) s++;
-    return s;
-}
-
-static
-char *rtrim(char *s)
-{
-    char* back = s + strlen(s);
-    while(isspace(*--back));
-    *(back+1) = '\0';
-    return s;
-}
-
 static
 bool is_directory(const char* path)
 {
@@ -297,7 +125,7 @@ void print_usage(void)
   printf("    General options:\n");
   printf("  -h         : print usage\n");
   printf("  -c         : path to the config file\n");
-  printf("  -p         : path to the shared libs \n");
+//  printf("  -p         : path to the shared libs \n");
   printf(
       "\n");
   printf("Ex. -p /usr/local/lib/flexric/ -c /usr/local/etc/flexric/flexric.conf \n");
@@ -333,24 +161,24 @@ void parse_args(int argc, char* const* argv, fr_args_t* args)
 
                    break;
                  }
-      case 'p':{
-                 int const len = strlen(optarg);
-                 assert(len < FR_CONF_FILE_LEN - 1 );
-
-                 if(!is_directory(optarg)){
-                   printf("Error: %s is not a directory \n", optarg);  
-                   exit(EXIT_FAILURE);
-                 }
-                 if(optarg[len -1] != '/'){
-                   printf("Error: %s directory should finish with a / , e.g. /usr/local/flexric/  please add it\n", optarg);  
-                   exit(EXIT_FAILURE);
-                 }
-
-                 memset(args->libs_dir, '\0', FR_CONF_FILE_LEN);
-                 strncpy(args->libs_dir, optarg, len);
-
-                 break;
-               }
+//      case 'p':{
+//                 int const len = strlen(optarg);
+//                 assert(len < FR_CONF_FILE_LEN - 1 );
+//
+//                 if(!is_directory(optarg)){
+//                   printf("Error: %s is not a directory \n", optarg);
+//                   exit(EXIT_FAILURE);
+//                 }
+//                 if(optarg[len -1] != '/'){
+//                   printf("Error: %s directory should finish with a / , e.g. /usr/local/flexric/  please add it\n", optarg);
+//                   exit(EXIT_FAILURE);
+//                 }
+//
+//                 memset(args->libs_dir, '\0', FR_CONF_FILE_LEN);
+//                 strncpy(args->libs_dir, optarg, len);
+//
+//                 break;
+//               }
       case '?':{
                  printf("Error: unknown flag %c ??\n ",optopt);
                  print_usage();
@@ -370,12 +198,225 @@ void load_default_val(fr_args_t* args)
 {
   assert(args != NULL);
   assert(strlen(default_conf_file) < FR_CONF_FILE_LEN && "Path too long");
-  assert(strlen(default_libs_dir)  < FR_CONF_FILE_LEN && "Path too long");
 
   memset(args, '\0', sizeof(*args));
   strncpy(args->conf_file, default_conf_file, FR_CONF_FILE_LEN);
-  strncpy(args->libs_dir, default_libs_dir, FR_CONF_FILE_LEN);
 }
+
+static
+void get_component_name(fr_args_t* args, config_t cfg)
+{
+  const char* name;
+  if (!config_lookup_string(&cfg, "Name", &name))
+    assert(0!=0 && "Name is required in .conf, ex: Name = \"NearRT_RIC\", Name = \"E2_Node\", or Name = \"xApp\"");
+
+  args->name = malloc(strlen(name) + 1);
+  strcpy(args->name, name);
+}
+
+static
+void get_SM_DIR(fr_args_t* args, config_t cfg)
+{
+  const char* dir;
+  if (!config_lookup_string(&cfg, "SM_DIR", &dir))
+    assert(0!=0 && "SM_DIR is required in .conf");
+
+  args->libs_dir = malloc(strlen(dir) + 1);
+  strcpy(args->libs_dir, dir);
+}
+
+static
+void get_NearRT_RIC_IP(fr_args_t* args, config_t cfg)
+{
+  const char* ip;
+  if (!config_lookup_string(&cfg, "NearRT_RIC_IP", &ip))
+    assert(0!=0 && "NearRT_RIC_IP is required in .conf");
+
+  args->ip = malloc(strlen(ip) + 1);
+  strcpy(args->ip, ip);
+}
+
+static
+void get_E2_Port(fr_args_t* args, config_t cfg)
+{
+  int32_t port;
+  if (!config_lookup_int(&cfg, "E2_Port", &port))
+    assert(0!=0 && "E2_Port is required in .conf");
+
+  args->e2_port = port;
+}
+
+static
+void get_E42_Port(fr_args_t* args, config_t cfg)
+{
+  int32_t port;
+  if (!config_lookup_int(&cfg, "E42_Port", &port))
+    assert(0!=0 && "E42_Port is required in .conf");
+
+  args->e42_port = port;
+}
+
+static
+void get_Sub_SM_List(fr_args_t* args, config_t cfg)
+{
+  config_setting_t* sub_cust_sm_list = config_lookup(&cfg, "Sub_CUST_SM_List");
+  config_setting_t* sub_oran_sm_list = config_lookup(&cfg, "Sub_ORAN_SM_List");
+  assert((sub_cust_sm_list!=NULL || sub_oran_sm_list!=NULL) && "Sub_CUST_SM_List or Sub_ORAN_SM_List is required for xApp in .conf");
+
+  if (sub_cust_sm_list != NULL) {
+    int count = config_setting_length(sub_cust_sm_list);
+    args->sub_cust_sm_len = count;
+    assert(args->sub_cust_sm_len > 0 && "sub_cust_sm_len <= 0");
+    for (int i = 0; i < count; ++i) {
+      config_setting_t* sub_sm_item = config_setting_get_elem(sub_cust_sm_list, i);
+      const char* name;
+      const char* time;
+
+      if (!config_setting_lookup_string(sub_sm_item, "name", &name) ||
+          !config_setting_lookup_string(sub_sm_item, "time", &time))
+        assert(0!=0 && "Error parsing name and time in Sub_CUST_SM_List in .conf");
+
+      args->sub_cust_sm[i].name = malloc(strlen(name) + 1);
+      strcpy(args->sub_cust_sm[i].name, name);
+      args->sub_cust_sm[i].time = malloc(strlen(time) + 1);
+      strcpy(args->sub_cust_sm[i].time, time);
+//      printf("[LibConf]: Sub_CUST_SM Name: %s, Time: %s\n", args->sub_cust_sm[i].name, args->sub_cust_sm[i].time);
+    }
+  }
+
+  if (sub_oran_sm_list != NULL) {
+    int count = config_setting_length(sub_oran_sm_list);
+    args->sub_oran_sm_len = count;
+    assert(args->sub_oran_sm_len > 0 && "sub_oran_sm_len <= 0");
+    for (int i = 0; i < count; ++i) {
+      config_setting_t* sub_sm_item = config_setting_get_elem(sub_oran_sm_list, i);
+      const char* name;
+      int32_t time;
+      int32_t format;
+      const char* ran_type;
+      config_setting_t *actions_arr = config_setting_get_member(sub_sm_item, "actions");
+
+      if (!config_setting_lookup_string(sub_sm_item, "name", &name) ||
+          !config_setting_lookup_int(sub_sm_item, "time", &time) ||
+          !config_setting_lookup_int(sub_sm_item, "format", &format) ||
+          actions_arr == NULL ||
+          !config_setting_lookup_string(sub_sm_item, "ran_type", &ran_type))
+        assert(0!=0 && "cannnot find name and time in Sub_ORAN_SM_List in .conf");
+
+      args->sub_oran_sm[i].name = malloc(strlen(name) + 1);
+      strcpy(args->sub_oran_sm[i].name, name);
+      args->sub_oran_sm[i].time = time;
+//      printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args->sub_oran_sm[i].name, args->sub_oran_sm[i].time);
+
+      args->sub_oran_sm[i].format = format;
+      args->sub_oran_sm[i].ran_type = malloc(strlen(ran_type) + 1);
+      strcpy(args->sub_oran_sm[i].ran_type, ran_type);
+      int act_count = config_setting_length(actions_arr);
+      args->sub_oran_sm[i].act_len = act_count + 1; // for C xApp, save the latest value as NULL
+      args->sub_oran_sm[i].actions = malloc(args->sub_oran_sm[i].act_len * sizeof(char*));
+      // printf("[LibConf]: ran type %s, format %d\n", args->sub_oran_sm[i].ran_type, format);
+      for (int j = 0; j < args->sub_oran_sm[i].act_len; ++j) {
+        if (j == act_count) {
+          args->sub_oran_sm[i].actions[j] = NULL;
+          continue;
+        }
+
+        config_setting_t *action_item = config_setting_get_elem(actions_arr, j);
+        const char *action_name;
+
+        if (!config_setting_lookup_string(action_item, "name", &action_name))
+          assert(0!=0 && "Error parsing action name in Sub_ORAN_SM_List in .conf");
+
+        args->sub_oran_sm[i].actions[j] = strdup(action_name);
+//        printf("%s, ", args->sub_oran_sm[i].actions[j]);
+      }
+//      printf("\n");
+    }
+  }
+}
+
+static
+void get_xApp_DB(fr_args_t* args, config_t cfg)
+{
+  const config_setting_t *db_settings = config_lookup(&cfg, "xApp_DB");
+  assert(db_settings!=NULL && "xApp_DB is required for xApp in .conf");
+
+  if (db_settings != NULL) {
+    const char *enable;
+    const char *ip;
+    const char *dir;
+    const char *filename;
+#ifdef MYSQL_XAPP
+    const char *username;
+    const char *password;
+#endif
+    if (!config_setting_lookup_string(db_settings, "enable", &enable))
+      assert(0!=0 && "\"enable\" is required in xApp_DB in .conf");
+
+    if (!strcasecmp(enable, "ON") || !strcasecmp(enable, "1")) {
+      args->db_params.enable = true;
+    } else {
+      args->db_params.enable = false;
+    }
+
+    if (!args->db_params.enable)
+      return;
+    if (!config_setting_lookup_string(db_settings, "ip", &ip) ||
+        !config_setting_lookup_string(db_settings, "dir", &dir) ||
+          !config_setting_lookup_string(db_settings, "filename", &filename))
+      assert(0!=0 && "cannnot find ip, dir, and filename in xApp_DB in .conf");
+
+    args->db_params.ip = malloc(strlen(ip) + 1);
+    strcpy(args->db_params.ip, ip);
+    args->db_params.dir = malloc(strlen(dir) + 1);
+    strcpy(args->db_params.dir, dir);
+    args->db_params.filename = malloc(strlen(filename) + 1);
+    strcpy(args->db_params.filename, filename);
+
+#ifdef MYSQL_XAPP
+    if (!config_setting_lookup_string(db_settings, "username", &username) ||
+        !config_setting_lookup_string(db_settings, "password", &password))
+      assert(0!=0 && "cannnot find username and password in xApp_DB in .conf");
+
+    args->db_params.user = malloc(strlen(username) + 1);
+    strcpy(args->db_params.user, username);
+    args->db_params.pass = malloc(strlen(password) + 1);
+    strcpy(args->db_params.pass, password);
+#endif
+
+  }
+}
+
+#ifdef PROXY_AGENT
+static
+void get_Proxy_Agent(fr_args_t* args, config_t cfg)
+{
+  const config_setting_t *pa_settings = config_lookup(&cfg, "Proxy_Agent");
+  assert(pa_settings!=NULL && "Proxy_Agent is required for E2 Proxy Agent in .conf");
+
+  if (pa_settings != NULL) {
+    const char *ip;
+    int32_t port;
+    int32_t logl;
+
+    if (!config_setting_lookup_string(pa_settings, "ip", &ip) ||
+        !config_setting_lookup_int(pa_settings, "port", &port) ||
+        !config_setting_lookup_int(pa_settings, "logl", &logl))
+      assert(0!=0 && "cannnot find ip, port, and logl in Proxy_Agent in .conf");
+
+    args->proxy_ran_args.ip = malloc(strlen(ip) + 1);
+    strcpy(args->proxy_ran_args.ip, ip);
+    args->proxy_ran_args.port = port;
+    args->proxy_ran_args.logl = logl;
+    if (valid_logl(args->proxy_ran_args.logl) == false){
+      printf("RAN loglevel invalid = %d. Check the config file\n", logl);
+      printf("Allowed levels are a bitwose combination of\n");
+      printf("LLL_ERR(%d), LLL_WARN(%d),LLL_NOTICE(%d), LLL_INFO(%d), LLL_DEBUG(%d), LLL_PARSER(%d), LLL_HEADER(%d), LLL_EXT(%d), LLL_CLIENT(%d), LLL_LATENCY(%d), LLL_USER(%d), LLL_THREAD(%d)\n", LLL_ERR, LLL_WARN, LLL_NOTICE, LLL_INFO, LLL_DEBUG, LLL_PARSER, LLL_HEADER, LLL_EXT, LLL_CLIENT, LLL_LATENCY, LLL_USER, LLL_THREAD);
+      assert(0!=0);
+    }
+  }
+}
+#endif
 
 fr_args_t init_fr_args(int argc, char* argv[])
 {
@@ -383,125 +424,128 @@ fr_args_t init_fr_args(int argc, char* argv[])
 
   fr_args_t args = {0};
   load_default_val(&args);
-  
   if(argc > 1){
-    assert(argc < 6 && "Only -h -c -p flags supported");
+    assert(argc < 6 && "Only -h -c flags supported");
     assert(argv != NULL);
     parse_args(argc, argv, &args);
   }
-  assert(is_directory(args.libs_dir) == true && "Did you forget to: sudo make install ?");
-  assert(is_regular_file(args.conf_file) == true && "Did you forget to: sudo make install ?");
+  assert(is_regular_file(args.conf_file) == true && ".conf is not a file");
 
   printf("Setting the config -c file to %s\n",args.conf_file);
-  printf("Setting path -p for the shared libraries to %s\n",args.libs_dir);
+//  printf("Setting path -p for the shared libraries to %s\n",args.libs_dir);
+
+  // Use libconf to parse .conf
+  config_t cfg;
+  config_init(&cfg);
+
+  if (!config_read_file(&cfg, args.conf_file)) {
+    fprintf(stderr, "Error reading configuration file: %s\n", config_error_text(&cfg));
+    config_destroy(&cfg);
+    assert(0!=0);
+  }
+
+  // SM_DIR
+  get_SM_DIR(&args, cfg);
+  printf("[LibConf]: loading service models from SM_DIR: %s\n", args.libs_dir);
+  assert(is_directory(args.libs_dir) == true && "SM_DIR is not directory");
+
+  // Name
+  get_component_name(&args, cfg);
+  printf("[LibConf]: reading configuration for %s\n", args.name);
+  // NearRT_RIC_IP
+  get_NearRT_RIC_IP(&args, cfg);
+  printf("[LibConf]: NearRT_RIC IP: %s\n", args.ip);
+
+
+  if (!strcasecmp(args.name, "NearRT_RIC")) {
+    // E2_Port
+    get_E2_Port(&args, cfg);
+    printf("[LibConf]: E2_Port Port: %d\n", args.e2_port);
+    // E42_Port
+    get_E42_Port(&args, cfg);
+    printf("[LibConf]: E42_Port Port: %d\n", args.e42_port);
+  } else if (!strcasecmp(args.name, "E2_Agent")) {
+    // E2_Port
+    get_E2_Port(&args, cfg);
+    printf("[LibConf]: E2_Port Port: %d\n", args.e2_port);
+  } else if (!strcasecmp(args.name, "xApp")) {
+    // E42_Port
+    get_E42_Port(&args, cfg);
+    printf("[LibConf]: E42_Port Port: %d\n", args.e42_port);
+
+    // Sub_SM_List
+    get_Sub_SM_List(&args, cfg);
+    for (int32_t i = 0; i < args.sub_cust_sm_len; i++)
+      printf("[LibConf]: Sub_CUST_SM Name: %s, Time: %s\n", args.sub_cust_sm[i].name, args.sub_cust_sm[i].time);
+    for (int32_t i = 0; i < args.sub_oran_sm_len; i++) {
+      printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args.sub_oran_sm[i].name, args.sub_oran_sm[i].time);
+      printf("[LibConf]: format %d, RAN type %s, actions = ", args.sub_oran_sm[i].format,  args.sub_oran_sm[i].ran_type);
+      for (int32_t j = 0; j < args.sub_oran_sm[i].act_len - 1; j++)
+        printf("%s ", args.sub_oran_sm[i].actions[j]);
+      printf("\n");
+    }
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
+    // xApp_DB
+    get_xApp_DB(&args, cfg);
+    if (args.db_params.enable)
+      printf("[LibConf]: xApp_DB enable: %d, ip: %s, dir: %s, filename: %s\n", args.db_params.enable, args.db_params.ip,
+             args.db_params.dir, args.db_params.filename);
+    else
+      printf("[LibConf]: xApp_DB enable: %d\n", args.db_params.enable);
+#ifdef MYSQL_XAPP
+    printf("[LibConf]: xApp_DB user: %s, pass: %s\n", args.db_params.user, args.db_params.pass);
+#endif
+#endif
+  }
+#ifdef PROXY_AGENT
+  else if (!strcasecmp(args.name, "E2_Proxy_Agent")) {
+    // E2_Port
+    get_E2_Port(&args, cfg);
+    printf("[LibConf]: E2_Port Port: %d\n", args.e2_port);
+    // Proxy_Agent
+    get_Proxy_Agent(&args, cfg);
+    printf("[LibConf]: Proxy_Agent ip: %s, port: %d, logl: %d\n", args.proxy_ran_args.ip, args.proxy_ran_args.port, args.proxy_ran_args.logl);
+  }
+#endif
+  else {
+    assert(0!=0 && "unknown args.name");
+  }
+
+  config_destroy(&cfg);
 
   return args;
 }
 
-char* get_near_ric_ip(fr_args_t const* args)
+static
+void free_db_params(db_params_t* params)
 {
-  char* line = NULL;
-  defer({free(line);});
-  size_t len = 0;
-  ssize_t read;
-
-  FILE * fp = fopen(args->conf_file, "r");
-  
-  if (fp == NULL){
-    printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
-    exit(EXIT_FAILURE);
-  }
-  
-  defer({fclose(fp); } );
-  
-  char ip_addr[24] = {0};
-  while ((read = getline(&line, &len, fp)) != -1) {
-    const char* needle = "NEAR_RIC_IP =";
-    char* ans = strstr(line, needle);
-    if(ans != NULL){
-      ans += strlen(needle); 
-      ans = ltrim(ans);
-      ans = rtrim(ans);
-      assert(strlen(ans) <= sizeof(ip_addr));
-      memcpy(ip_addr, ans , strlen(ans)); // \n character
-      break;
-    }    
-  }
-    
-  if(valid_ip(ip_addr) == false){
-    printf("IP address string invalid = %s Check the config file\n",ip_addr);
-    exit(EXIT_FAILURE);
-  }
-  
-  return strdup(ip_addr);
+  free(params->ip);
+  free(params->dir);
+  free(params->filename);
+#ifdef MYSQL_XAPP
+  free(params->user);
+  free(params->pass);
+#endif
 }
 
-char* get_conf_db_dir(fr_args_t const* args)
+void free_fr_args(fr_args_t* args)
 {
-  char* line = NULL;
-  defer({free(line);});
-  size_t len = 0;
-  ssize_t read;
+  assert(args != NULL);
 
-  FILE * fp = fopen(args->conf_file, "r");
+  free(args->libs_dir);
 
-  if (fp == NULL){
-    printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
-    exit(EXIT_FAILURE);
+  free(args->name);
+  free(args->ip);
+  for (int32_t i = 0; i < args->sub_cust_sm_len; i++) {
+    free(args->sub_cust_sm[i].name);
+    free(args->sub_cust_sm[i].time);
+  }
+  for (int32_t i = 0; i < args->sub_oran_sm_len; i++) {
+    free(args->sub_oran_sm[i].name);
+    free(args->sub_oran_sm[i].ran_type);
+    for (int32_t j = 0; j < args->sub_oran_sm[i].act_len; j++)
+      free(args->sub_oran_sm[i].actions[j]);
   }
 
-  defer({fclose(fp); } );
-
-  char db_dir[PATH_MAX] = {0};
-  while ((read = getline(&line, &len, fp)) != -1) {
-    const char* needle = "DB_DIR =";
-    char* ans = strstr(line, needle);
-    if(ans != NULL){
-      ans += strlen(needle);
-      ans = ltrim(ans);
-      ans = rtrim(ans);
-      assert(strlen(ans) <= sizeof(db_dir));
-      memcpy(db_dir, ans , strlen(ans)); // \n character
-      break;
-    }
-  }
-
-  // TODO: valid_path()
-
-  return strdup(db_dir);
-}
-
-char* get_conf_db_name(fr_args_t const* args)
-{
-  char* line = NULL;
-  defer({free(line);});
-  size_t len = 0;
-  ssize_t read;
-
-  FILE * fp = fopen(args->conf_file, "r");
-
-  if (fp == NULL){
-    printf("%s not found. Did you forget to sudo make install?\n", args->conf_file);
-    exit(EXIT_FAILURE);
-  }
-
-  defer({fclose(fp); } );
-
-  char db_name[24] = {0};
-  while ((read = getline(&line, &len, fp)) != -1) {
-    const char* needle = "DB_NAME =";
-    char* ans = strstr(line, needle);
-    if(ans != NULL){
-      ans += strlen(needle);
-      ans = ltrim(ans);
-      ans = rtrim(ans);
-      assert(strlen(ans) <= sizeof(db_name));
-      memcpy(db_name, ans , strlen(ans)); // \n character
-      break;
-    }
-  }
-
-  // TODO: valid_db_name()
-
-  return strdup(db_name);
+  free_db_params(&args->db_params);
 }

@@ -59,3 +59,31 @@ bool eq_byte_array(const byte_array_t* m0, const byte_array_t* m1)
   return true;
 }
 
+byte_array_t cp_str_to_ba(const char* str)
+{
+  assert(str != NULL);
+  
+  const size_t sz = strlen(str);
+
+  byte_array_t dst = {.len = sz};
+
+  dst.buf = calloc(sz,sizeof(uint8_t));
+  assert(dst.buf != NULL && "Memory exhausted");
+
+  memcpy(dst.buf, str, sz);
+
+  return dst;
+}
+
+char* copy_ba_to_str(const byte_array_t* ba)
+{
+  if (ba->len < 1)
+    return NULL;
+
+  char* str = calloc(ba->len + 1, sizeof(char));
+  assert(str != NULL && "memory exhausted\n");
+  memcpy(str, ba->buf, ba->len);
+  str[ba->len] = '\0';
+  return str;
+}
+

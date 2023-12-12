@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "../lib/pending_events.h"
+#include "util/alg_ds/ds/lock_guard/lock_guard.h"
 
 void notification_handle_ag(e2_agent_t* ag, sctp_msg_t const* msg)
 {
@@ -16,11 +17,13 @@ void notification_handle_ag(e2_agent_t* ag, sctp_msg_t const* msg)
   pending_event_t ev = SETUP_REQUEST_PENDING_EVENT;
   long const wait_ms = 3000;
   int fd_timer = create_timer_ms_asio_agent(&ag->io, wait_ms, wait_ms); 
-
+  #ifdef PROXY_AGENT
+  lock_guard(&ag->pend_mtx);     
+  #endif
   bi_map_insert(&ag->pending, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev)); 
 
 
-  puts("E2 AGENT: Communication with the nearRT-RIC lost\n" );
+  puts("E2-AGENT: Communication with the nearRT-RIC lost\n" );
 
 }
 

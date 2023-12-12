@@ -1,0 +1,16 @@
+# For using it: i.e., TSAN_OPTIONS="suppressions=blck_lst.txt" ./build/examples/ric/nearRT-RIC 
+# For using it: i.e., TSAN_OPTIONS="suppressions=blck_lst.txt" ./build/examples/emulator/agent/emu_agent_gnb  
+
+# Ignore exactly this function, as it is used to terminate the program and needs to free the memory (the names are mangled)
+#signal:stop_and_exit 
+signal:free
+
+
+## Ignore MyFooBar(void) if it is in C++:
+#fun:_Z8MyFooBarv
+## Ignore all function containing MyFooBar
+#fun:*MyFooBar*
+## Ignore the whole file
+#src:file_with_tricky_code.cc
+
+

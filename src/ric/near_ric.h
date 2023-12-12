@@ -15,10 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
+e* For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
-
 
 #ifndef E2_NEAR_RIC_H
 #define E2_NEAR_RIC_H
@@ -29,14 +28,26 @@
 #include "util/alg_ds/ds/seq_container/seq_generic.h"
 #include "util/alg_ds/ds/assoc_container/assoc_generic.h"
 #include "util/alg_ds/ds/assoc_container/bimap.h"
+#include "util/alg_ds/ds/task_man/task_manager.h"
 #include "util/conf_file.h"
 #include "sm/sm_ric.h"
 #include "plugin_ric.h"
 #include "map_e2_node_sockaddr.h"
-
-//#include "../ric/iApp/iapp_if.h"
+#include "../lib/e2ap/e2ap_version.h"
 
 #include <stdatomic.h>
+
+
+#ifdef E2AP_V1
+#define NUM_HANDLE_MSG 32 // 31 + E42-UPDATE-E2-NODE
+#elif E2AP_V2 
+#define NUM_HANDLE_MSG 35 // 34 + E42-UPDATE-E2-NODE
+#elif E2AP_V3 
+#define NUM_HANDLE_MSG 44 // 43 + E42-UPDATE-E2-NODE
+#else
+static_assert(0!=0, "Unknown E2AP version");
+#endif
+
 
 struct near_ric_s;
 typedef struct e2ap_msg_s (*e2ap_handle_msg_fp_ric)(struct near_ric_s* ric, const struct e2ap_msg_s* msg);
@@ -46,7 +57,8 @@ typedef struct near_ric_s
   e2ap_ep_ric_t ep;
   e2ap_ric_t ap; 
   asio_ric_t io;
-  e2ap_handle_msg_fp_ric handle_msg[30]; // 26 E2AP + 4 E42AP note that not all the slots will be occupied
+  size_t sz_handle_msg;
+  e2ap_handle_msg_fp_ric handle_msg[NUM_HANDLE_MSG]; // 26 E2AP + 4 E42AP note that not all the slots will be occupied
 
   // Registered SMs
   plugin_ric_t plugin;
@@ -64,6 +76,10 @@ typedef struct near_ric_s
   // Pending events
   bi_map_t pending; // left: fd, right: pending_event_ric_t   
   pthread_mutex_t pend_mtx;
+
+  // Task manager/Thread pool
+  // It processes the Indication messages in parallel
+  task_manager_t man;
 
   atomic_bool server_stopped;
   atomic_bool stop_token;
@@ -83,12 +99,11 @@ seq_arr_t conn_e2_nodes(near_ric_t* ric);
 //size_t num_conn_e2_nodes(near_ric_t* ric);
 
 
-void report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, const char* cmd);
+uint16_t report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, void* cmd);
 
-void rm_report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, const char* cmd);
+void rm_report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, uint16_t act_id);
 
-void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, const char* cmd);
-
+void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, void* ctrl);
 
 // Plug-ins functions
 
@@ -108,5 +123,6 @@ void fwd_ric_subscription_request_delete(near_ric_t* ric, global_e2_node_id_t co
 
 uint16_t fwd_ric_control_request(near_ric_t* ric, global_e2_node_id_t const* id, ric_control_request_t const* cr,  void (*f)(e2ap_msg_t const* msg));
 
-#endif
+#undef NUM_HANDLE_MSG  
 
+#endif

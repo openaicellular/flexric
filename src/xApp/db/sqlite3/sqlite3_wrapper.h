@@ -23,12 +23,13 @@
 #ifndef SQLITE3_WRAPPER_XAPP_H
 #define SQLITE3_WRAPPER_XAPP_H 
 
+#include "../../../util/conf_file.h"
 #include "../../../sm/agent_if/read/sm_ag_if_rd.h"
-#include "../../../lib/ap/e2ap_types/common/e2ap_global_node_id.h" 
+#include "../../../lib/e2ap/e2ap_global_node_id_wrapper.h" 
 
 #include "sqlite3.h"
 
-void init_db_sqlite3(sqlite3** db, char const* db_filename);
+void init_db_sqlite3(sqlite3** db, db_params_t const* db_params);
 
 void close_db_sqlite3(sqlite3* db);
 

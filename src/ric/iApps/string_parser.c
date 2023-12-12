@@ -29,7 +29,7 @@
 #include "ric/iApps/../../sm/pdcp_sm/ie/pdcp_data_ie.h"  // for pdcp_radio_b...
 #include "ric/iApps/../../sm/rlc_sm/ie/rlc_data_ie.h"    // for rlc_radio_be...
 #include "ric/iApps/../../sm/slice_sm/ie/slice_data_ie.h"
-#include "ric/iApps/../../sm/kpm_sm_v2.02/ie/kpm_data_ie.h"
+//#include "ric/iApps/../../sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
 
 
 void to_string_mac_ue_stats(mac_ue_stats_impl_t* stats, int64_t tstamp, char* out, size_t out_len)
@@ -161,9 +161,11 @@ void to_string_rlc_rb(rlc_radio_bearer_stats_t* rlc, int64_t tstamp , char* out,
         "rxbuf_occ_bytes=%u,"
         "rxbuf_occ_pkts=%u,"
         "txsdu_pkts=%u,"
-        "txsdu_bytes=%u,"
+        "txsdu_bytes=%lu,"
+        "txsdu_avg_time_to_tx=%.2f,"
+        "txsdu_wt_us=%u,"
         "rxsdu_pkts=%u,"
-        "rxsdu_bytes=%u,"
+        "rxsdu_bytes=%lu,"
         "rxsdu_dd_pkts=%u,"
         "rxsdu_dd_bytes=%u,"
         "rnti=%u,"
@@ -197,6 +199,8 @@ void to_string_rlc_rb(rlc_radio_bearer_stats_t* rlc, int64_t tstamp , char* out,
         , rlc->rxbuf_occ_pkts
         , rlc->txsdu_pkts
         , rlc->txsdu_bytes
+        , rlc->txsdu_avg_time_to_tx
+        , rlc->txsdu_wt_us
         , rlc->rxsdu_pkts
         , rlc->rxsdu_bytes
         , rlc->rxsdu_dd_pkts
@@ -434,7 +438,7 @@ void to_string_gtp_ngu(gtp_ngu_t_stats_t const* gtp, int64_t tstamp , char* out,
   assert(rc < (int)max && "Not enough space in the char array to write all the data");
 }
 
-void to_string_kpm_labelInfo(adapter_LabelInfoItem_t const* labelInfo, size_t idx,  char *out, size_t out_len)
+void to_string_kpm_labelInfo(label_info_lst_t const* labelInfo, size_t idx,  char *out, size_t out_len)
 {
   assert(labelInfo != NULL);
   
@@ -447,7 +451,7 @@ void to_string_kpm_labelInfo(adapter_LabelInfoItem_t const* labelInfo, size_t id
   begp += nprinted;
 
   if (labelInfo->noLabel) {
-    nprinted = snprintf(begp, avail, "(noLabel = %ld)", *(labelInfo->noLabel));
+    nprinted = snprintf(begp, avail, "(noLabel = %d)", *(labelInfo->noLabel));
     assert((nprinted > 0) && ((size_t) nprinted < avail) && "Not enough space in the char array to write all the data");
     avail -= nprinted;
     begp += nprinted;
@@ -513,15 +517,17 @@ void to_string_kpm_labelInfo(adapter_LabelInfoItem_t const* labelInfo, size_t id
     */
 }
 
-void to_string_kpm_measRecord(adapter_MeasRecord_t const* measRecord, size_t idx, char *out, size_t out_len)
+void to_string_kpm_measRecord(meas_record_lst_t const* measRecord, size_t idx, char *out, size_t out_len)
 {
   assert(measRecord != NULL);
   int rc = 0;
-  if (measRecord->type == MeasRecord_int){
-    rc = snprintf(out, out_len, ",Record[%lu]=%ld", idx, measRecord->int_val);
-  } else if(measRecord->type == MeasRecord_real){
-    rc = snprintf(out, out_len, ",Record[%lu]=%ld", idx, measRecord->int_val);
-  } else {
+  if (measRecord->value == INTEGER_MEAS_VALUE){
+    rc = snprintf(out, out_len, ",Record[%lu]=%d", idx, measRecord->int_val);
+  } 
+  else if(measRecord->value == REAL_MEAS_VALUE){
+    rc = snprintf(out, out_len, ",Record[%lu]=%f", idx, measRecord->real_val);
+  } 
+  else {
     rc = snprintf(out, out_len, ",Record[%lu]=nulltype", idx); 
   }
 

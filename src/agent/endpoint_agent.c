@@ -47,18 +47,22 @@ void init_sctp_conn_client(e2ap_ep_ag_t* ep, const char* addr, int port)
   struct sctp_event_subscribe evnts = { .sctp_data_io_event = 1,
                                         .sctp_shutdown_event = 1}; 
 
-  setsockopt(sock_fd, IPPROTO_SCTP, SCTP_EVENTS, &evnts, sizeof (evnts));
+  rc = setsockopt(sock_fd, IPPROTO_SCTP, SCTP_EVENTS, &evnts, sizeof (evnts));
+  assert(rc == 0);
 
   const int close_time = 0; // No automatic close https://www.rfc-editor.org/rfc/pdfrfc/rfc6458.txt.pdf p. 65
-  setsockopt(sock_fd, IPPROTO_SCTP, SCTP_AUTOCLOSE, &close_time, sizeof(close_time));
+  rc = setsockopt(sock_fd, IPPROTO_SCTP, SCTP_AUTOCLOSE, &close_time, sizeof(close_time));
+  assert(rc == 0);
 
   const int no_delay = 1;
-  setsockopt(sock_fd, IPPROTO_SCTP, SCTP_NODELAY, &no_delay, sizeof(no_delay));
+  rc = setsockopt(sock_fd, IPPROTO_SCTP, SCTP_NODELAY, &no_delay, sizeof(no_delay));
+  assert(rc == 0);
 
   ep->to = servaddr;
   *(int*)(&ep->base.port) = port; 
   *(int*)(&ep->base.fd) = sock_fd;
-  strncpy((char*)(&ep->base.addr), addr, 16);
+  strncpy((char*)(&ep->base.addr), addr, 15);
+  ((char*)(&ep->base.addr))[15] = '\0';
 }
 
 void e2ap_init_ep_agent(e2ap_ep_ag_t* ep, const char* addr, int port)

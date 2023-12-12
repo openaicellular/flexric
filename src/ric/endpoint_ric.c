@@ -136,7 +136,7 @@ void e2ap_send_sctp_msg_ric(const  e2ap_ep_ric_t* ep, sctp_msg_t* msg)
   e2ap_send_sctp_msg(&ep->base, msg); // s.addr, &s.sri, ba);
 }
 
-void e2ap_reg_sock_addr_ric(e2ap_ep_ric_t* ep, global_e2_node_id_t* id, sctp_info_t* s )
+void e2ap_reg_sock_addr_ric(e2ap_ep_ric_t* ep, global_e2_node_id_t const* id, sctp_info_t const* s )
 {
   assert(ep != NULL);
   assert(id != NULL);

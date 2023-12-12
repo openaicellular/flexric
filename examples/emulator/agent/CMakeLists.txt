@@ -2,14 +2,38 @@
 # E2 Agent test  
 #############################
 
+add_library(test_agent_obj_gnb OBJECT
+  ../../../test/rnd/fill_rnd_data_gtp.c                  
+  ../../../test/rnd/fill_rnd_data_tc.c                  
+  ../../../test/rnd/fill_rnd_data_mac.c                  
+  ../../../test/rnd/fill_rnd_data_rlc.c                  
+  ../../../test/rnd/fill_rnd_data_pdcp.c                  
+  ../../../test/rnd/fill_rnd_data_kpm.c                  
+  ../../../test/rnd/fill_rnd_data_rc.c                  
+  ../../../test/rnd/fill_rnd_data_slice.c                  
+  ../../../test/rnd/fill_rnd_data_e2_setup_req.c
+  ../../../src/util/time_now_us.c
+  read_setup_ran.c
+  sm_gtp.c
+  sm_kpm.c
+  sm_mac.c
+  sm_pdcp.c
+  sm_rc.c
+  sm_rlc.c
+  sm_slice.c
+  sm_tc.c
+      )
+
+target_compile_definitions(test_agent_obj_gnb PRIVATE ${E2AP_VERSION} ${KPM_VERSION} TEST_AGENT_GNB)
 
 #############################
 # E2 Agent gNB
 #############################
 
 add_executable(emu_agent_gnb
-                  test_agent.c
-                  ../../../test/sm/common/fill_ind_data.c)
+  test_agent.c
+  $<TARGET_OBJECTS:test_agent_obj_gnb>
+  )
 
 target_link_libraries(emu_agent_gnb
                       PUBLIC
@@ -17,17 +41,52 @@ target_link_libraries(emu_agent_gnb
                       ${FlatCC} 
                       -pthread
                       -lsctp
-                      -ldl)
+                      -ldl
+                      -lm)
 
-target_compile_definitions(emu_agent_gnb PRIVATE TEST_AGENT_GNB)
+target_compile_definitions(emu_agent_gnb PRIVATE TEST_AGENT_GNB 
+                                                 TEST_AGENT_RAN_TYPE=e2ap_ngran_gNB
+                                                 TEST_AGENT_MCC=505  
+                                                 TEST_AGENT_MNC=1
+                                                 TEST_AGENT_MNC_DIG_LEN=2
+                                                 TEST_AGENT_NB_ID=1
+                                                 TEST_AGENT_CU_DU_ID=0
+                                                 ) #
+
+                                               target_compile_definitions(emu_agent_gnb PRIVATE ${E2AP_VERSION}
+                                                 ${KPM_VERSION} )
 
 #############################
 # E2 Agent gNB-CU
 #############################
+add_library(test_agent_obj_gnb_cu OBJECT
+        ../../../test/rnd/fill_rnd_data_gtp.c
+        ../../../test/rnd/fill_rnd_data_tc.c
+        ../../../test/rnd/fill_rnd_data_mac.c
+        ../../../test/rnd/fill_rnd_data_rlc.c
+        ../../../test/rnd/fill_rnd_data_pdcp.c
+        ../../../test/rnd/fill_rnd_data_kpm.c
+        ../../../test/rnd/fill_rnd_data_rc.c
+        ../../../test/rnd/fill_rnd_data_slice.c
+        ../../../test/rnd/fill_rnd_data_e2_setup_req.c
+        ../../../src/util/time_now_us.c
+        read_setup_ran.c
+        sm_gtp.c
+        sm_kpm.c
+        sm_mac.c
+        sm_pdcp.c
+        sm_rc.c
+        sm_rlc.c
+        sm_slice.c
+        sm_tc.c
+)
+
+target_compile_definitions(test_agent_obj_gnb_cu PRIVATE ${E2AP_VERSION} ${KPM_VERSION} TEST_AGENT_GNB_CU)
 
 add_executable(emu_agent_gnb_cu
-                test_agent.c
-                ../../../test/sm/common/fill_ind_data.c)
+  test_agent.c
+  $<TARGET_OBJECTS:test_agent_obj_gnb_cu>
+  )
 
 target_link_libraries(emu_agent_gnb_cu
                         PUBLIC
@@ -37,15 +96,48 @@ target_link_libraries(emu_agent_gnb_cu
                         -lsctp
                         -ldl)
 
-target_compile_definitions(emu_agent_gnb_cu PRIVATE TEST_AGENT_GNB_CU)
+target_compile_definitions(emu_agent_gnb_cu PRIVATE TEST_AGENT_GNB_CU
+                                                    TEST_AGENT_RAN_TYPE=e2ap_ngran_gNB_CU
+                                                    TEST_AGENT_MCC=505
+                                                    TEST_AGENT_MNC=1
+                                                    TEST_AGENT_MNC_DIG_LEN=2
+                                                    TEST_AGENT_NB_ID=2
+                                                    TEST_AGENT_CU_DU_ID=21
+                                                    ) #
+
+target_compile_definitions(emu_agent_gnb_cu PRIVATE ${E2AP_VERSION}  ${KPM_VERSION}  )
 
 #############################
 # E2 Agent gNB-DU
 #############################
+add_library(test_agent_obj_gnb_du OBJECT
+        ../../../test/rnd/fill_rnd_data_gtp.c
+        ../../../test/rnd/fill_rnd_data_tc.c
+        ../../../test/rnd/fill_rnd_data_mac.c
+        ../../../test/rnd/fill_rnd_data_rlc.c
+        ../../../test/rnd/fill_rnd_data_pdcp.c
+        ../../../test/rnd/fill_rnd_data_kpm.c
+        ../../../test/rnd/fill_rnd_data_rc.c
+        ../../../test/rnd/fill_rnd_data_slice.c
+        ../../../test/rnd/fill_rnd_data_e2_setup_req.c
+        ../../../src/util/time_now_us.c
+        read_setup_ran.c
+        sm_gtp.c
+        sm_kpm.c
+        sm_mac.c
+        sm_pdcp.c
+        sm_rc.c
+        sm_rlc.c
+        sm_slice.c
+        sm_tc.c
+)
+
+target_compile_definitions(test_agent_obj_gnb_du PRIVATE ${E2AP_VERSION} ${KPM_VERSION} TEST_AGENT_GNB_DU)
 
 add_executable(emu_agent_gnb_du
-                test_agent.c
-                ../../../test/sm/common/fill_ind_data.c)
+  test_agent.c
+  $<TARGET_OBJECTS:test_agent_obj_gnb_du>
+  )
 
 target_link_libraries(emu_agent_gnb_du
                         PUBLIC
@@ -55,15 +147,47 @@ target_link_libraries(emu_agent_gnb_du
                         -lsctp
                         -ldl)
 
-target_compile_definitions(emu_agent_gnb_du PRIVATE TEST_AGENT_GNB_DU)
+target_compile_definitions(emu_agent_gnb_du PRIVATE TEST_AGENT_GNB_DU
+                                                    TEST_AGENT_RAN_TYPE=e2ap_ngran_gNB_DU
+                                                    TEST_AGENT_MCC=505
+                                                    TEST_AGENT_MNC=1
+                                                    TEST_AGENT_MNC_DIG_LEN=2
+                                                    TEST_AGENT_NB_ID=2
+                                                    TEST_AGENT_CU_DU_ID=22
+                                                    ) #
 
+target_compile_definitions(emu_agent_gnb_du PRIVATE ${E2AP_VERSION}  ${KPM_VERSION}  )
 #############################
 # E2 Agent eNB
 #############################
+add_library(test_agent_obj_enb OBJECT
+        ../../../test/rnd/fill_rnd_data_gtp.c
+        ../../../test/rnd/fill_rnd_data_tc.c
+        ../../../test/rnd/fill_rnd_data_mac.c
+        ../../../test/rnd/fill_rnd_data_rlc.c
+        ../../../test/rnd/fill_rnd_data_pdcp.c
+        ../../../test/rnd/fill_rnd_data_kpm.c
+        ../../../test/rnd/fill_rnd_data_rc.c
+        ../../../test/rnd/fill_rnd_data_slice.c
+        ../../../test/rnd/fill_rnd_data_e2_setup_req.c
+        ../../../src/util/time_now_us.c
+        read_setup_ran.c
+        sm_gtp.c
+        sm_kpm.c
+        sm_mac.c
+        sm_pdcp.c
+        sm_rc.c
+        sm_rlc.c
+        sm_slice.c
+        sm_tc.c
+)
+
+target_compile_definitions(test_agent_obj_enb PRIVATE ${E2AP_VERSION} ${KPM_VERSION} TEST_AGENT_ENB)
 
 add_executable(emu_agent_enb
-                test_agent.c
-                ../../../test/sm/common/fill_ind_data.c)
+  test_agent.c
+  $<TARGET_OBJECTS:test_agent_obj_enb>
+  )
 
 target_link_libraries(emu_agent_enb
                         PUBLIC
@@ -73,4 +197,13 @@ target_link_libraries(emu_agent_enb
                         -lsctp
                         -ldl)
 
-target_compile_definitions(emu_agent_enb PRIVATE TEST_AGENT_ENB)
+target_compile_definitions(emu_agent_enb PRIVATE TEST_AGENT_ENB
+                                                 TEST_AGENT_RAN_TYPE=e2ap_ngran_eNB
+                                                 TEST_AGENT_MCC=208
+                                                 TEST_AGENT_MNC=94
+                                                 TEST_AGENT_MNC_DIG_LEN=2
+                                                 TEST_AGENT_NB_ID=4
+                                                 TEST_AGENT_CU_DU_ID=0
+                                                 ) #
+
+target_compile_definitions(emu_agent_enb PRIVATE ${E2AP_VERSION} ${KPM_VERSION} )

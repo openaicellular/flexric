@@ -19,8 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
-
 #ifndef BYTE_ARRAY_H
 #define BYTE_ARRAY_H
 
@@ -34,30 +32,14 @@ typedef struct {
   uint8_t *buf;
 } byte_array_t;
 
-/* create on the stack a byte_array_t named 'name' implemented as array of length 'length'*/
-#define BYTE_ARRAY_STACK(name, length)  \
-  uint8_t (name##_BuF)[(length)];       \
-  memset((name##_BuF), 0, sizeof((name##_BuF))); \
-  byte_array_t (name) = {.buf = (name##_BuF), .len = (length)}
-
-/* create on the heap a new 'byte_array_t' data structure named 'ba' from OCTET_STRING_t named 'octet' pointer*/
-#define BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING_POINTERS(ba, octet)  \
-  ba->buf = calloc(1, octet->size);\
-  assert(ba->buf!=NULL && "Memory exhausted");\
-  memcpy(ba->buf, octet->buf, octet->size);\
-  ba->len = octet->size;
-
-#define BYTE_ARRAY_HEAP_CP_FROM_OCTET_STRING(ba, octet)  \
-  ba.buf = calloc(1, octet.size);\
-  assert(ba.buf!=NULL && "Memory exhausted");\
-  memcpy(ba.buf, octet.buf, octet.size);\
-  ba.len = octet.size;
-
-
 byte_array_t copy_byte_array(byte_array_t src);
 
 void free_byte_array(byte_array_t ba);
 
 bool eq_byte_array(const byte_array_t* m0, const byte_array_t* m1);
+
+byte_array_t cp_str_to_ba(const char* str);
+
+char* copy_ba_to_str(const byte_array_t* ba);
 
 #endif

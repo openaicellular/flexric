@@ -38,23 +38,22 @@ SOFTWARE.
 #define FUNC_DEFER MACRO_CONCAT(FUNC_DEFER2, _counter ) 
 #define FUNC_DEFER_IMPL MACRO_CONCAT(FUNC_DEFER3, __impl ) 
 
-
-
 #if defined __clang__  // requires -fblocks (lambdas) and -lBlocksRuntime in the linker
-
-/*
-#define TOKENPASTE(x, y) x ## y
-#define TOKENPASTE2(x, y) TOKENPASTE(x, y)
-#define UNIQUE_DF_FUNC TOKENPASTE2(DF_ , __COUNTER__) 
-#define UNIQUE_FUNC_IMPL TOKENPASTE2( DF_impl_ , __LINE__ ) 
-*/
 
 void cleanup_deferred (void (^*d) (void));
 
 #define defer(...)       \
+_Pragma("clang diagnostic push") \
+_Pragma("clang diagnostic ignored \"-Wincompatible-pointer-types-discards-qualifiers\" ") \
 __attribute__((__cleanup__ (cleanup_deferred))) \
-__attribute__((unused)) void (^FUNC_DEFER) (void) = ^__VA_ARGS__ 
+__attribute__((unused)) void (^FUNC_DEFER) (void) = ^__VA_ARGS__ \
+_Pragma("clang diagnostic pop") \
 
+/*
+//#define defer(...)\
+//__attribute__((__cleanup__ (cleanup_deferred)))\
+//void (^FUNC_DEFER) (void) = ^__VA_ARGS__
+*/
 
 #elif defined __GNUC__ // nested-function-in-stmt-expression
 

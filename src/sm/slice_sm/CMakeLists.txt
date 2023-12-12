@@ -16,47 +16,29 @@ set(SM_ENCODING_SLICE_SRC
                       )
 
 if(SM_ENCODING_SLICE STREQUAL "PLAIN")
-  add_library(slice_sm SHARED
-                      ${SM_ENCODING_SLICE_SRC}
-                      enc/slice_enc_plain.c 
-                      dec/slice_dec_plain.c 
-                      )
+  set(SM_ENCODING_SLICE_SRC_PLAIN 
+    # This dependency sucks!
+    $<TARGET_OBJECTS:e2ap_ran_func_obj>
+    ${SM_ENCODING_SLICE_SRC}
+    enc/slice_enc_plain.c 
+    dec/slice_dec_plain.c 
+    )
+
+  # Shared 
+  add_library(slice_sm SHARED ${SM_ENCODING_SLICE_SRC_PLAIN})
+  target_compile_options(slice_sm PRIVATE -fvisibility=hidden)
+
+  # Static
+  add_library(slice_sm_static STATIC ${SM_ENCODING_SLICE_SRC_PLAIN})
 
 elseif(SM_ENCODING_SLICE STREQUAL "ASN" )
-
   message(FATAL_ERROR "SLICE SM ASN not implemented")
-  add_subdirectory(ie/asn)
-
-  add_library(slice_sm SHARED
-                      ../sm_proc_data.c 
-                      slice_sm_agent.c 
-                      slice_sm_ric.c 
-                      $<TARGET_OBJECTS:e2ap_ds_obj>
-                      enc/slice_enc_asn.c 
-                      dec/slice_dec_asn.c 
-                      )
-
-  target_include_directories(slice_sm  
-                            PRIVATE
-                            "ie/asn")
-
-  target_compile_options(slice_sm PUBLIC "-DASN_DISABLE_OER_SUPPORT")
-  target_compile_options(slice_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
-
 elseif(SM_ENCODING_SLICE STREQUAL "FLATBUFFERS" )
-
   message(FATAL_ERROR "SLICE SM FB not implemented")
-  add_library(slice_sm SHARED
-                      ../sm_proc_data.c 
-                      slice_sm_agent.c 
-                      slice_sm_ric.c 
-                      $<TARGET_OBJECTS:e2ap_ds_obj>
-                      enc/slice_enc_fb.c 
-                      dec/slice_dec_fb.c 
-                      )
 else()
   message(FATAL_ERROR "Unknown SM encoding type ")
 endif()
 
-target_compile_definitions(slice_sm PUBLIC ${SM_ENCODING_SLICE})
+target_compile_definitions(slice_sm PUBLIC ${SM_ENCODING_SLICE} ${E2AP_VERSION}   ${KPM_VERSION}  )
+target_compile_definitions(slice_sm_static PUBLIC ${SM_ENCODING_SLICE} ${E2AP_VERSION}  ${KPM_VERSION}  )
 

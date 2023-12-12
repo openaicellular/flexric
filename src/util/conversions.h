@@ -24,6 +24,15 @@
 #ifndef CONVERSIONS_H_
 #define CONVERSIONS_H_
 
+#include <stdint.h>
+#include <stdlib.h>
+
+// The scope for BIT_STRING is defined in the CMakeLists.txt. Sorry.
+#include <BIT_STRING.h>
+
+#include "../lib/3gpp/ie/e2ap_gnb_id.h"
+
+
 /* Endianness conversions for 16 and 32 bits integers from host to network order */
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 # define hton_int32(x)   \
@@ -116,6 +125,12 @@ do {                            \
         ((buf)[3]);             \
 } while(0)
 
+
+OCTET_STRING_t int_64_to_octet_string(uint64_t x);
+
+uint64_t octet_string_to_int_64(OCTET_STRING_t asn);
+
+
 /* Convert an integer on 32 bits to an octet string from aSN1c tool */
 #define INT32_TO_OCTET_STRING(x, aSN)           \
 do {                                            \
@@ -169,23 +184,20 @@ do {                                            \
 #define M_TMSI_TO_OCTET_STRING   INT32_TO_OCTET_STRING
 #define MME_GID_TO_OCTET_STRING  INT16_TO_OCTET_STRING
 
-#define AMF_REGION_TO_BIT_STRING(x, aSN)      \
-  do {                                        \
-    INT8_TO_OCTET_STRING(x, aSN);             \
-    (aSN)->bits_unused = 0;                   \
-} while(0)
+/* AMF Region ID */
+BIT_STRING_t cp_amf_region_id_to_bit_string(uint8_t src);
 
-#define AMF_SETID_TO_BIT_STRING(x, aSN)       \
-  do {                                        \
-    INT16_TO_OCTET_STRING(x, aSN);            \
-    (aSN)->bits_unused = 6;                   \
-} while(0)
+uint8_t cp_amf_region_id_to_u8(BIT_STRING_t src);
 
-#define AMF_POINTER_TO_BIT_STRING(x, aSN)     \
-  do {                                        \
-    INT8_TO_OCTET_STRING(x, aSN);             \
-    (aSN)->bits_unused = 2;                   \
-} while(0)
+/* AMF Set ID */
+BIT_STRING_t cp_amf_set_id_to_bit_string(uint16_t val);
+
+uint16_t cp_amf_set_id_to_u16(BIT_STRING_t src);
+
+/* AMF Pointer */
+BIT_STRING_t cp_amf_ptr_to_bit_string(uint8_t src);
+
+uint8_t cp_amf_ptr_to_u8(BIT_STRING_t src);
 
 
 #define ENCRALG_TO_BIT_STRING(encralg, bitstring)    \
@@ -238,19 +250,19 @@ do {                                         \
 
 #define OCTET_STRING_TO_INT8(aSN, x)    \
 do {                                    \
-    DevCheck((aSN)->size == 1, (aSN)->size, 0, 0);           \
+    assert((aSN)->size == 1); \
     BUFFER_TO_INT8((aSN)->buf, x);    \
 } while(0)
 
 #define OCTET_STRING_TO_INT16(aSN, x)   \
 do {                                    \
-    DevCheck((aSN)->size == 2 || (aSN)->size == 3, (aSN)->size, 0, 0);           \
+    assert((aSN)->size == 2 || (aSN)->size == 3 ); \
     BUFFER_TO_INT16((aSN)->buf, x);    \
 } while(0)
 
 #define OCTET_STRING_TO_INT24(aSN, x)   \
 do {                                    \
-    DevCheck((aSN)->size == 2 || (aSN)->size == 3, (aSN)->size, 0, 0);           \
+    assert((aSN)->size == 2 || (aSN)->size == 3); \
     BUFFER_TO_INT24((aSN)->buf, x);    \
 } while(0)
 
@@ -264,19 +276,7 @@ do {                                    \
     OCTET_STRING_TO_INT32(aSN, x);      \
 } while(0)
 
-#define BIT_STRING_TO_CELL_IDENTITY(aSN, vALUE)                     \
-do {                                                                \
-    DevCheck((aSN)->bits_unused == 4, (aSN)->bits_unused, 4, 0);    \
-    vALUE = ((aSN)->buf[0] << 20) | ((aSN)->buf[1] << 12) |         \
-        ((aSN)->buf[2] << 4) | (aSN)->buf[3];                       \
-} while(0)
 
-#define BIT_STRING_TO_NR_CELL_IDENTITY(aSN, vALUE)                     \
-do {                                                                   \
-    DevCheck((aSN)->bits_unused == 4, (aSN)->bits_unused, 4, 0);       \
-    vALUE = ((aSN)->buf[0] << 28) | ((aSN)->buf[1] << 20) |            \
-        ((aSN)->buf[2] << 12) | ((aSN)->buf[3]<<4) | ((aSN)->buf[4]>>4);  \
-} while(0)
 
 #define MCC_HUNDREDS(vALUE) \
     ((vALUE) / 100)
@@ -290,7 +290,7 @@ do {                                                                   \
 
 #define MCC_TO_BUFFER(mCC, bUFFER)      \
 do {                                    \
-    DevAssert(bUFFER != NULL);          \
+    assert(bUFFER != NULL); \
     (bUFFER)[0] = MCC_HUNDREDS(mCC);    \
     (bUFFER)[1] = MCC_MNC_DECIMAL(mCC); \
     (bUFFER)[2] = MCC_MNC_DIGIT(mCC);   \
@@ -319,7 +319,7 @@ do {                                                                            
 #define MCC_MNC_TO_TBCD(mCC, mNC, mNCdIGITlENGTH, tBCDsTRING)        \
 do {                                                                 \
     char _buf[3];                                                    \
-     DevAssert((mNCdIGITlENGTH == 3) || (mNCdIGITlENGTH == 2));      \
+     assert((mNCdIGITlENGTH == 3) || (mNCdIGITlENGTH == 2) ); \
     _buf[0] = (MCC_MNC_DECIMAL(mCC) << 4) | MCC_HUNDREDS(mCC);       \
     _buf[1] = (MNC_HUNDREDS(mNC,mNCdIGITlENGTH) << 4) | MCC_MNC_DIGIT(mCC);\
     _buf[2] = (MCC_MNC_DIGIT(mNC) << 4) | MCC_MNC_DECIMAL(mNC);      \
@@ -329,7 +329,7 @@ do {                                                                 \
 #define TBCD_TO_MCC_MNC(tBCDsTRING, mCC, mNC, mNCdIGITlENGTH)    \
 do {                                                             \
     int mNC_hundred;                                             \
-    DevAssert((tBCDsTRING)->size == 3);                          \
+    assert((tBCDsTRING)->size == 3); \
     mNC_hundred = (((tBCDsTRING)->buf[1] & 0xf0) >> 4);          \
     if (mNC_hundred == 0xf) {                                    \
         mNC_hundred = 0;                                         \
@@ -408,29 +408,14 @@ do {                                                    \
 
 #define BIT_STRING_TO_TRANSPORT_LAYER_ADDRESS_IPv4(bITsTRING, mACRO)    \
 do {                                                                    \
-    DevCheck((bITsTRING)->size == 4, (bITsTRING)->size, 4, 0);          \
-    DevCheck((bITsTRING)->bits_unused == 0, (bITsTRING)->bits_unused, 0, 0); \
+    assert((bITsTRING)->size == 4); \
+    assert((bITsTRING)->bits_unused == 0); \
     mACRO = ((bITsTRING)->buf[0] << 24) +                               \
             ((bITsTRING)->buf[1] << 16) +                               \
             ((bITsTRING)->buf[2] << 8) +                                \
             ((bITsTRING)->buf[3]);                                      \
 } while (0)
 
-
-/* TS 38.473 v15.1.1 section 9.3.1.12:
- * NR CELL ID
- */
-#define NR_CELL_ID_TO_BIT_STRING(mACRO, bITsTRING)      \
-do {                                                    \
-    (bITsTRING)->buf = calloc(5, sizeof(uint8_t));      \
-    (bITsTRING)->buf[0] = ((mACRO) >> 28) & 0xff;       \
-    (bITsTRING)->buf[1] = ((mACRO) >> 20) & 0xff;       \
-    (bITsTRING)->buf[2] = ((mACRO) >> 12) & 0xff;       \
-    (bITsTRING)->buf[3] = ((mACRO) >> 4)  & 0xff;       \
-    (bITsTRING)->buf[4] = ((mACRO) & 0x0f) << 4;        \
-    (bITsTRING)->size = 5;                              \
-    (bITsTRING)->bits_unused = 4;                       \
-} while(0)
 
 /*
 #define INT16_TO_3_BYTE_BUFFER(x, buf) \
@@ -472,8 +457,8 @@ do {                                                    \
 
 #define BIT_STRING_TO_MaskedIMEISV(bITsTRING, mACRO)    \
 do {                                                                    \
-    DevCheck((bITsTRING)->size == 8, (bITsTRING)->size, 8, 0);          \
-    DevCheck((bITsTRING)->bits_unused == 0, (bITsTRING)->bits_unused, 0, 0); \
+    assert((bITsTRING)->size == 8); \
+    assert((bITsTRING)->bits_unused == 0); \
     mACRO = ((bITsTRING)->buf[0] << 56) +                               \
             ((bITsTRING)->buf[1] << 48) +                               \
             ((bITsTRING)->buf[2] << 40) +                               \
@@ -484,17 +469,31 @@ do {                                                                    \
             ((bITsTRING)->buf[7]);                                      \
 } while (0)
 
-/* TS 36.413 v10.9.0 section 9.2.1.37:
- * Macro eNB ID:
- * Equal to the 20 leftmost bits of the Cell
- * Identity IE contained in the E-UTRAN CGI
- * IE (see subclause 9.2.1.38) of each cell
- * served by the eNB.
- */
+// Global gNB ID
+// TS 38.413, clause 9.3.1.6
+
+BIT_STRING_t cp_gnb_id_to_bit_string( e2ap_gnb_id_t src);
+
+e2ap_gnb_id_t cp_bit_string_to_gnb_id(BIT_STRING_t src);
+
+
+/* NR CGI
+   TS 38.413 section 9.3.1.7
+*/
+BIT_STRING_t cp_nr_cell_id_to_bit_string(uint64_t val);
+
+uint64_t cp_nr_cell_id_to_u64(BIT_STRING_t src);
+
+
+/* Global eNB ID
+  This IE is used to globally identify an eNB.
+  Derived from TS 36.413 [10] clause 9.2.1.37.
+*/
+// Macro eNB for e2ap
 #define MACRO_ENB_ID_TO_BIT_STRING(mACRO, bITsTRING)    \
 do {                                                    \
     (bITsTRING)->buf = calloc(3, sizeof(uint8_t));      \
-    (bITsTRING)->buf[0] = ((mACRO) >> 12);              \
+    (bITsTRING)->buf[0] = (mACRO) >> 12;               \
     (bITsTRING)->buf[1] = (mACRO) >> 4;                 \
     (bITsTRING)->buf[2] = ((mACRO) & 0x0f) << 4;        \
     (bITsTRING)->size = 3;                              \
@@ -508,52 +507,143 @@ do {                                                      \
           | ((aSN)->buf[2] >> 4);  \
 } while(0)
 
-#define MACRO_GNB_ID_TO_BIT_STRING(mACRO, bITsTRING)    \
+// MACRO eNB - 20 bits
+BIT_STRING_t cp_macro_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_macro_enb_id_to_u32(BIT_STRING_t src);
+
+/*
+BIT_STRING_t cp_macro_gnb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_macro_gnb_id_to_u32(BIT_STRING_t src);
+*/
+
+/* NR CGI
+   TS 38.413 section 9.3.1.7
+*/
+BIT_STRING_t cp_nr_cell_id_to_bit_string(uint64_t val);
+
+uint64_t cp_nr_cell_id_to_u64(BIT_STRING_t src);
+
+
+/* Global eNB ID
+  This IE is used to globally identify an eNB.
+  Derived from TS 36.413 [10] clause 9.2.1.37.
+*/
+// Macro eNB for e2ap
+#define MACRO_ENB_ID_TO_BIT_STRING(mACRO, bITsTRING)    \
 do {                                                    \
-    (bITsTRING)->buf = calloc(4, sizeof(uint8_t));      \
-    (bITsTRING)->buf[0] = ((mACRO) >> 20);              \
-    (bITsTRING)->buf[1] = (mACRO) >> 12;                \
-    (bITsTRING)->buf[2] = (mACRO) >> 4;                 \
-    (bITsTRING)->buf[3] = ((mACRO) & 0x0f) << 4;        \
-    (bITsTRING)->size = 4;                              \
+    (bITsTRING)->buf = calloc(3, sizeof(uint8_t));      \
+    (bITsTRING)->buf[0] = (mACRO) >> 12;               \
+    (bITsTRING)->buf[1] = (mACRO) >> 4;                 \
+    (bITsTRING)->buf[2] = ((mACRO) & 0x0f) << 4;        \
+    (bITsTRING)->size = 3;                              \
     (bITsTRING)->bits_unused = 4;                       \
 } while(0)
 
-#define BIT_STRING_TO_MACRO_GNB_ID(aSN, vALUE)            \
+#define BIT_STRING_TO_MACRO_ENB_ID(aSN, vALUE)            \
 do {                                                      \
     assert((aSN)->bits_unused == 4);                      \
-    vALUE = ((aSN)->buf[0] << 20) | ((aSN)->buf[1] << 12) \
-          | ((aSN)->buf[2] << 4) | ((aSN)->buf[3] >> 4);  \
+    vALUE = ((aSN)->buf[0] << 12) | ((aSN)->buf[1] << 4) \
+          | ((aSN)->buf[2] >> 4);  \
 } while(0)
 
-/* TS 36.413 v10.9.0 section 9.2.1.38:
- * E-UTRAN CGI/Cell Identity
- * The leftmost bits of the Cell
- * Identity correspond to the eNB
- * ID (defined in subclause 9.2.1.37).
+// Home eNB - 28 bits
+BIT_STRING_t cp_home_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_home_enb_id_to_u32(BIT_STRING_t src);
+
+// Short Macro eNB
+BIT_STRING_t cp_short_macro_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_short_macro_enb_id_to_u32(BIT_STRING_t src);
+
+// Long Macro eNB
+BIT_STRING_t cp_long_macro_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_long_macro_enb_id_to_u32(BIT_STRING_t src);
+
+
+/* E-UTRAN CGI
+  TS 36.413 v10.9.0 section 9.2.1.38
  */
-#define MACRO_ENB_ID_TO_CELL_IDENTITY(mACRO, cELL_iD, bITsTRING) \
-do {                                                    \
-    (bITsTRING)->buf = calloc(4, sizeof(uint8_t));      \
-    (bITsTRING)->buf[0] = ((mACRO) >> 12);              \
-    (bITsTRING)->buf[1] = (mACRO) >> 4;                 \
-    (bITsTRING)->buf[2] = (((mACRO) & 0x0f) << 4) | ((cELL_iD) >> 4);        \
-    (bITsTRING)->buf[3] = ((cELL_iD) & 0x0f) << 4;        \
-    (bITsTRING)->size = 4;                              \
-    (bITsTRING)->bits_unused = 4;                       \
-} while(0)
 
-#define MACRO_GNB_ID_TO_CELL_IDENTITY(mACRO, cELL_iD, bITsTRING) \
-do {                                                    \
-    (bITsTRING)->buf = calloc(5, sizeof(uint8_t));      \
-    (bITsTRING)->buf[0] = ((mACRO) >> 20);              \
-    (bITsTRING)->buf[1] = (mACRO) >> 12;                 \
-    (bITsTRING)->buf[2] = (mACRO) >> 4;        \
-    (bITsTRING)->buf[3] = (((mACRO) & 0x0f) << 4) | ((cELL_iD) >> 4);        \
-    (bITsTRING)->buf[4] = ((cELL_iD) & 0x0f) << 4;        \
-    (bITsTRING)->size = 5;                              \
-    (bITsTRING)->bits_unused = 4;                       \
-} while(0)
+BIT_STRING_t cp_eutra_cell_id_to_bit_string(uint32_t val);
+
+uint32_t cp_eutra_cell_id_to_u32(BIT_STRING_t src);
+
+
+
+/* Global ng-eNB ID
+  This IE is used to globally identify an ng-eNB.
+  Derived from TS 38.413 [6] clause 9.3.1.8.
+*/
+
+// Macro NG eNB ID
+BIT_STRING_t cp_macro_ng_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_macro_ng_enb_id_to_u32(BIT_STRING_t src);
+
+// Short Macro NG eNB ID
+BIT_STRING_t cp_short_macro_ng_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_short_macro_ng_enb_id_to_u32(BIT_STRING_t src);
+
+// Long Macro NG eNB ID
+BIT_STRING_t cp_long_macro_ng_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_long_macro_ng_enb_id_to_u32(BIT_STRING_t src);
+
+// MACRO eNB - 20 bits
+BIT_STRING_t cp_macro_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_macro_enb_id_to_u32(BIT_STRING_t src);
+
+// Home eNB - 28 bits
+BIT_STRING_t cp_home_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_home_enb_id_to_u32(BIT_STRING_t src);
+
+// Short Macro eNB
+BIT_STRING_t cp_short_macro_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_short_macro_enb_id_to_u32(BIT_STRING_t src);
+
+// Long Macro eNB
+BIT_STRING_t cp_long_macro_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_long_macro_enb_id_to_u32(BIT_STRING_t src);
+
+
+/* E-UTRAN CGI
+  TS 36.413 v10.9.0 section 9.2.1.38
+ */
+
+BIT_STRING_t cp_eutra_cell_id_to_bit_string(uint32_t val);
+
+uint32_t cp_eutra_cell_id_to_u32(BIT_STRING_t src);
+
+
+
+/* Global ng-eNB ID
+  This IE is used to globally identify an ng-eNB.
+  Derived from TS 38.413 [6] clause 9.3.1.8.
+*/
+
+// Macro NG eNB ID
+BIT_STRING_t cp_macro_ng_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_macro_ng_enb_id_to_u32(BIT_STRING_t src);
+
+// Short Macro NG eNB ID
+BIT_STRING_t cp_short_macro_ng_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_short_macro_ng_enb_id_to_u32(BIT_STRING_t src);
+
+// Long Macro NG eNB ID
+BIT_STRING_t cp_long_macro_ng_enb_id_to_bit_string(uint32_t val);
+
+uint32_t cp_long_macro_ng_enb_id_to_u32(BIT_STRING_t src);
 
 
 /* Used to format an uint32_t containing an ipv4 address */

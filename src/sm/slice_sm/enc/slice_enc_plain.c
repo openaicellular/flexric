@@ -197,8 +197,8 @@ size_t cal_ind_msg_payload(slice_ind_msg_t const* ind_msg)
   return sz_conf + sz_ues + sz_tstamp;
 }
 
-static
-uint8_t* end;
+//static
+//uint8_t* end;
 
 
 static inline
@@ -207,7 +207,7 @@ size_t fill_static(uint8_t* it, static_slice_t* sta)
   assert(it != NULL);
   assert(sta != NULL);
 
-  assert(it < end);
+//  assert(it < end);
 
   memcpy(it, &sta->pos_high, sizeof(sta->pos_high));
   it += sizeof(sta->pos_high);
@@ -339,11 +339,6 @@ size_t fill_edf(uint8_t* it, edf_slice_t* edf)
   it += sizeof(edf->len_over);
   sz += sizeof(edf->len_over);
 
-  if(edf->len_over > 0){
-    edf->over = calloc(edf->len_over, sizeof(uint32_t));
-    assert(edf->over != NULL && "Memory exhausted");
-  }
-
   for(size_t i = 0; i < edf->len_over; ++i){
     memcpy(it, &edf->over[i], sizeof(uint32_t));
     it += sizeof(edf->over[i]);
@@ -384,7 +379,7 @@ size_t fill_slice(uint8_t* it, fr_slice_t* slc)
 {
   assert(it != NULL);
   assert(slc != NULL);
-  assert(it < end);
+//  assert(it < end);
 
   memcpy(it, &slc->id, sizeof(slc->id));
   it += sizeof(slc->id);
@@ -456,7 +451,7 @@ size_t fill_ue_slice_assoc(uint8_t* it, ue_slice_assoc_t const* assoc)
   assert(it != NULL);
   assert(assoc != NULL);
 
-  assert(it < end);
+//  assert(it < end);
 
   memcpy(it, &assoc->dl_id, sizeof(assoc->dl_id));
   it += sizeof(assoc->dl_id);
@@ -502,22 +497,28 @@ byte_array_t slice_enc_ind_msg_plain(slice_ind_msg_t const* ind_msg)
 
   size_t sz = cal_ind_msg_payload(ind_msg);
 
-  ba.buf = malloc(sz); 
+  ba.buf = malloc(sz);
   assert(ba.buf != NULL && "Memory exhausted");
-  end = ba.buf + sz;
+  ba.len = sz;
 
   uint8_t* it = ba.buf;
-  size_t pos1 = fill_slice_conf(it, &ind_msg->slice_conf); 
-  it += pos1;
-  size_t pos2 = fill_ue_slice_conf(it, &ind_msg->ue_slice_conf);
 
-  it += pos2;
+  size_t const sz_slice_conf = fill_slice_conf(it, &ind_msg->slice_conf);
+  it += sz_slice_conf;
+  assert(it < ba.buf + ba.len && "iterator out of the chunk of memory");
+
+  size_t const sz_ue_slice_conf = fill_ue_slice_conf(it, &ind_msg->ue_slice_conf);
+  it += sz_ue_slice_conf;
+  assert(it < ba.buf + ba.len && "iterator out of the chunk of memory");
+
   // tstamp
   memcpy(it, &ind_msg->tstamp, sizeof(ind_msg->tstamp));
-  it += sizeof(ind_msg->tstamp);
-  assert(it == ba.buf + sz && "Mismatch of data layout");
+  size_t sz_tstamp = sizeof(ind_msg->tstamp);
+  it += sz_tstamp;
+  assert(it == ba.buf + ba.len && "Mismatch of data layout");
 
-  ba.len = sz;
+  assert(sz == sz_slice_conf + sz_ue_slice_conf + sz_tstamp);
+
   return ba;
 }
 
@@ -537,7 +538,7 @@ byte_array_t slice_enc_ctrl_hdr_plain(slice_ctrl_hdr_t const* ctrl_hdr)
   byte_array_t ba = {0};
 
   ba.len = sizeof(slice_ind_hdr_t);
-  ba.buf = malloc(sizeof(slice_ind_msg_t));
+  ba.buf = malloc(sizeof(slice_ind_hdr_t));
   assert(ba.buf != NULL && "memory exhausted");
   memcpy(ba.buf, ctrl_hdr, sizeof(slice_ctrl_hdr_t));
 
@@ -642,9 +643,9 @@ byte_array_t slice_enc_ctrl_msg_plain(slice_ctrl_msg_t const* ctrl_msg)
   assert(ba.buf != NULL && "Memory exhausted");
   ba.len = sz;
 
-  end = ba.buf + sz;
+//  end = ba.buf + sz;
 
-  uint8_t* it = ba.buf;
+  void* it = ba.buf;
   size_t const pos = fill_slice_ctrl_msg(it, ctrl_msg);
 
   assert(pos == sz && "Mismatch of data layout");

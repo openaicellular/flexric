@@ -23,6 +23,8 @@ endif()
     #)
 #endif()
 
+SET(STDOUT_LOG OFF)
+
 set(RIC_SRC 
             e2ap_ric.c
             e2_node.c
@@ -35,6 +37,7 @@ set(RIC_SRC
             iApps/stdout.c
             iApps/influx.c
             iApps/string_parser.c
+            generate_setup_response.c
             plugin_ric.c
             map_e2_node_sockaddr.c
             not_handler_ric.c
@@ -44,6 +47,7 @@ set(RIC_SRC
             $<TARGET_OBJECTS:msg_hand_obj> 
             $<TARGET_OBJECTS:e2ap_ds_obj>
             $<TARGET_OBJECTS:e2ap_alg_obj>
+            $<TARGET_OBJECTS:e2_conv_obj>
             $<TARGET_OBJECTS:e2_conf_obj>
             $<TARGET_OBJECTS:e2_time_obj>
             $<TARGET_OBJECTS:e2ap_msg_enc_obj>
@@ -60,7 +64,11 @@ if(E2AP_ENCODING STREQUAL "ASN")
             ${RIC_SRC}
             $<TARGET_OBJECTS:e42_iapp>
             $<TARGET_OBJECTS:e2ap_asn1_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+
             )
+  target_link_libraries(near_ric -lconfig)
+  target_compile_definitions(near_ric PRIVATE ${STDOUT_LOG})
 
   add_library(near_ric_test 
             ${RIC_BLD_LIB}# STATIC or SHARED
@@ -68,6 +76,8 @@ if(E2AP_ENCODING STREQUAL "ASN")
             $<TARGET_OBJECTS:e42_iapp>
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             )
+  target_link_libraries(near_ric_test -lconfig)
+  target_compile_definitions(near_ric_test PRIVATE ${STDOUT_LOG})
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
   add_library(near_ric 
@@ -89,8 +99,14 @@ if(INCL_WHAT_YOU_USE)
   set_property(TARGET near_ric PROPERTY C_INCLUDE_WHAT_YOU_USE ${iwyu_path})
 endif()
 
+target_compile_definitions(near_ric PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION}  ${KPM_VERSION} )
 
-target_compile_definitions(near_ric PRIVATE ${E2AP_ENCODING})
-
-target_compile_definitions(near_ric_test PRIVATE ${E2AP_ENCODING})
+target_compile_definitions(near_ric_test PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION} )
 target_compile_definitions(near_ric_test PRIVATE TEST_AGENT_RIC)
+
+########
+### nearRT-RIC Task Manager 
+########
+target_compile_definitions(near_ric PRIVATE TASK_MAN_NUMBER_THREADS=${NUM_THREADS_RIC})
+target_compile_definitions(near_ric_test PRIVATE TASK_MAN_NUMBER_THREADS=${NUM_THREADS_RIC})
+

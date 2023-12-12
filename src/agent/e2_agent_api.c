@@ -19,8 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
-
 #include "e2_agent_api.h"
 
 #include <assert.h>                                        // for assert
@@ -28,9 +26,9 @@
 #include <stdlib.h>
 #include <stdio.h>                                         // for NULL
 #include "e2_agent.h"                                      // for e2_free_agent
-#include "lib/ap/e2ap_types/common/e2ap_global_node_id.h"  // for global_e2_...
-#include "lib/ap/e2ap_types/common/e2ap_plmn.h"            // for plmn_t
-#include "util/ngran_types.h"                              // for ngran_gNB
+#include "lib/e2ap/e2ap_global_node_id_wrapper.h"  // for global_e2_...
+#include "lib/e2ap/e2ap_plmn_wrapper.h"            // for plmn_t
+#include "util/e2ap_ngran_types.h"                              // for ngran_gNB
 #include "util/conf_file.h"
 
 
@@ -49,13 +47,36 @@ void* static_start_agent(void* a)
   return NULL;
 }
 
-void init_agent_api(int mcc, 
+
+static
+global_e2_node_id_t init_ge2ni(e2ap_ngran_node_t ran_type, e2ap_plmn_t plmn, int nb_id, int cu_du_id)
+{
+  global_e2_node_id_t ge2ni =  {.type = ran_type, .plmn = plmn, .nb_id.nb_id = nb_id, .nb_id.unused = 0, .cu_du_id = NULL};
+
+  // NODE_IS_CU is an abuse, but there is no way in the standard to differentitate
+  // between NODE_IS_GNB and NODE_IS_CU. Blame the standard
+  if (E2AP_NODE_IS_CU(ran_type) || E2AP_NODE_IS_CUUP(ran_type) || E2AP_NODE_IS_DU(ran_type)) {
+    assert(cu_du_id > 0);
+    ge2ni.cu_du_id = calloc(1, sizeof(uint64_t));
+    assert(ge2ni.cu_du_id != NULL && "memory exhausted");
+    *ge2ni.cu_du_id = cu_du_id;
+  } else if(E2AP_NODE_IS_MONOLITHIC(ran_type)){
+  } else {
+    assert(0 != 0 && "not support RAN type\n");
+  }
+
+  return ge2ni;
+}
+
+
+
+void init_agent_api(int mcc,
                     int mnc, 
                     int mnc_digit_len,
                     int nb_id,
                     int cu_du_id,
-                    ngran_node_t ran_type,
-                    sm_io_ag_t io,
+                    e2ap_ngran_node_t ran_type,
+                    sm_io_ag_ran_t io,
 		                fr_args_t const* args)
 {
   assert(agent == NULL);  
@@ -65,31 +86,28 @@ void init_agent_api(int mcc,
   assert(nb_id > 0);
   assert(ran_type >= 0);
 
-  char* server_ip_str = get_near_ric_ip(args);
+  const e2ap_plmn_t plmn = {.mcc = mcc, .mnc = mnc, .mnc_digit_len = mnc_digit_len};
+  global_e2_node_id_t ge2ni = init_ge2ni(ran_type, plmn, nb_id, cu_du_id );
 
-  const plmn_t plmn = {.mcc = mcc, .mnc = mnc, .mnc_digit_len = mnc_digit_len};
-  global_e2_node_id_t ge2ni = {.type = ran_type, .plmn = plmn, .nb_id = nb_id, .cu_du_id = NULL};
-  const int e2ap_server_port = 36421;
-
-  char* ran_type_str = get_ngran_name(ran_type);
-  if (NODE_IS_MONOLITHIC(ran_type)) {
-    printf("[E2 AGENT]: nearRT-RIC IP Address = %s, PORT = %d, RAN type = %s, nb_id = %d\n", server_ip_str, e2ap_server_port, ran_type_str, nb_id);
-  } else if (NODE_IS_CU(ran_type) || NODE_IS_DU(ran_type)) {
-    assert(cu_du_id > 0);
-    ge2ni.cu_du_id = calloc(1, sizeof(uint64_t));
-    assert(ge2ni.cu_du_id != NULL && "memory exhausted");
-    *ge2ni.cu_du_id = cu_du_id;
-    printf("[E2 AGENT]: nearRT-RIC IP Address = %s, PORT = %d, RAN type = %s, nb_id = %d, cu_du_id = %ld\n", server_ip_str, e2ap_server_port, ran_type_str, nb_id, *ge2ni.cu_du_id);
+  char* ran_type_str = get_e2ap_ngran_name(ran_type);
+  char str[128] = {0};
+  int it = sprintf(str, "[E2 AGENT]: nearRT-RIC IP Address = %s, PORT = %d, RAN type = %s, nb_id = %d", args->ip, args->e2_port, ran_type_str, nb_id);
+  assert(it > 0);
+  if(ge2ni.cu_du_id != NULL){
+    it = sprintf(str+it, ", cu_du_id = %ld\n", *ge2ni.cu_du_id);
+    assert(it > 0);
   } else {
-    assert(0 != 0 && "not support RAN type\n");
+    it = sprintf(str+it, "\n" );
+    assert(it > 0);
   }
+  assert(it < 128);
+  puts(str);
 
-  agent = e2_init_agent(server_ip_str, e2ap_server_port, ge2ni, io, args);
+  agent = e2_init_agent(args->ip, args->e2_port, ge2ni, io, args->libs_dir);
 
   // Spawn a new thread for the agent
   const int rc = pthread_create(&thrd_agent, NULL, static_start_agent, NULL);
   assert(rc == 0);
-  free(server_ip_str);
 }
 
 void stop_agent_api(void)
@@ -100,4 +118,9 @@ void stop_agent_api(void)
   assert(rc == 0);
 }
 
+void async_event_agent_api(uint32_t ric_req_id, void* ind_data)
+{
+  assert(agent != NULL);
+  e2_async_event_agent(agent, ric_req_id, ind_data);
+}
 

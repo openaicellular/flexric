@@ -23,7 +23,7 @@ slice_event_trigger_t cp_slice_event_trigger( slice_event_trigger_t* src)
 
   assert(0 != 0 && "not implemented");
 
-  slice_event_trigger_t ans;
+  slice_event_trigger_t ans = {0};
   return ans;
 }
 
@@ -36,8 +36,6 @@ bool eq_slice_event_trigger(slice_event_trigger_t* m0, slice_event_trigger_t* m1
 
   return false;
 }
-
-
 
 //////////////////////////////////////
 // RIC Action Definition 
@@ -55,7 +53,7 @@ slice_action_def_t cp_slice_action_def(slice_action_def_t* src)
   assert(src != NULL);
   assert(0 != 0 && "not implemented");
 
-  slice_action_def_t ans;
+  slice_action_def_t ans = {0};
   return ans;
 }
 
@@ -262,7 +260,7 @@ bool eq_nvs_slice(nvs_slice_t const* m0, nvs_slice_t const* m1)
   } else if (m0->conf == SLICE_SM_NVS_V0_CAPACITY){
     ret = eq_nvs_cap(&m0->u.capacity, &m1->u.capacity);
   } else {
-    assert("Unknown type");
+    assert(0!=0 && "Unknown type");
   }
 
   return ret;
@@ -502,6 +500,10 @@ slice_params_t cp_slice_params(slice_params_t const* src)
       dst.u.edf.guaranteed_prbs = src->u.edf.guaranteed_prbs;
       dst.u.edf.max_replenish = src->u.edf.max_replenish;
       dst.u.edf.len_over = src->u.edf.len_over;
+      if(dst.u.edf.len_over > 0){
+        dst.u.edf.over = calloc(dst.u.edf.len_over, sizeof(uint32_t));
+        assert(dst.u.edf.over != NULL && "Memory exhausted");
+      }
       for(size_t i = 0; i < src->u.edf.len_over; ++i)
         dst.u.edf.over[i] = src->u.edf.over[i];
   } else {

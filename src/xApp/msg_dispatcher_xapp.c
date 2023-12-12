@@ -29,15 +29,16 @@ void* create_val(void* it)
 static
 void* worker_thread(void* arg)
 {
-  tsq_t* q = (tsq_t*)arg;
+  tsnq_t* q = (tsnq_t*)arg;
 
   while(true){
-    msg_dispatch_t* msg = wait_and_pop_tsq(q,  create_val);
+    msg_dispatch_t* msg = wait_and_pop_tsnq(q,  create_val);
     if(msg == NULL)
       break;
 
-    msg->sm_cb(&msg->rd);
+    msg->sm_cb(&msg->rd, &msg->e2_node);
     free_sm_ag_if_rd(&msg->rd);
+    free_global_e2_node_id(&msg->e2_node);
   }
   q->stopped = true;
 
@@ -49,7 +50,7 @@ void init_msg_dispatcher( msg_dispatcher_xapp_t* d)
 {
   assert(d != NULL);
 
-  init_tsq(&d->q, sizeof(msg_dispatch_t));
+  init_tsnq(&d->q, sizeof(msg_dispatch_t));
   int rc = pthread_create(&d->p, NULL, worker_thread, &d->q);
   assert(rc == 0);
 }
@@ -58,7 +59,7 @@ void free_msg_dispatcher(msg_dispatcher_xapp_t* d)
 {
   assert(d != NULL);
 
-  free_tsq(&d->q, NULL);
+  free_tsnq(&d->q, NULL);
   int rc = pthread_join(d->p, NULL);
   assert(rc == 0);
 }
@@ -68,13 +69,13 @@ void send_msg_dispatcher( msg_dispatcher_xapp_t* d, msg_dispatch_t* msg )
   assert(d != NULL);
   assert(msg != NULL);
 
-  push_tsq(&d->q, msg, sizeof(msg_dispatch_t));
+  push_tsnq(&d->q, msg, sizeof(msg_dispatch_t));
 }
 
 size_t size_msg_dispatcher(msg_dispatcher_xapp_t* d)
 {
   assert(d != NULL);
 
-  return size_tsq(&d->q);
+  return size_tsnq(&d->q);
 }
 

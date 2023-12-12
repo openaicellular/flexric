@@ -19,7 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
 #include "near_ric.h"
 #include "e2_node.h"
 #include "iApp/e42_iapp_api.h"
@@ -33,14 +32,13 @@
 
 #include "iApps/subscription_ric.h"
 #include "lib/async_event.h" 
-#include "lib/ap/free/e2ap_msg_free.h"
+
 #include "lib/pending_event_ric.h"
 #include "sm/sm_ric.h" 
 #include "util/alg_ds/ds/assoc_container/assoc_generic.h"
 #include "util/alg_ds/alg/alg.h"
 #include "util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "util/compare.h"
-
 
 #include <assert.h>
 #include <dlfcn.h>
@@ -49,7 +47,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
+/*
 static inline
 void free_sm_ric(void* key, void* value)
 {
@@ -64,6 +62,8 @@ void free_sm_ric(void* key, void* value)
   if(handle != NULL)
       dlclose(handle);
 }
+*/
+
 
 static inline
 void free_fd(void* key, void* value)
@@ -95,7 +95,6 @@ void free_subscribed(void* key, void* value)
  seq_free(arr, NULL);
  free(arr);
 }
-
 
 static
 void register_listeners_for_ran_func_id(near_ric_t* ric, uint16_t const* ran_func_id, subs_ric_t subs)
@@ -133,10 +132,10 @@ void load_default_pub_sub_ric(near_ric_t* ric)
   void* end_it = assoc_end(&ric->plugin.sm_ds);
   while(it != end_it){
     const uint16_t *ran_func_id = assoc_key(&ric->plugin.sm_ds, it);
-
+#ifdef STDOUT_LOG
     subs_ric_t std_listener = {.name = "stdout listener", .fp = notify_stdout_listener };
     register_listeners_for_ran_func_id(ric, ran_func_id, std_listener);
-
+#endif
     subs_ric_t redis_listener = {.name = "redis listener", .fp = notify_redis_listener };
     register_listeners_for_ran_func_id(ric, ran_func_id, redis_listener);
 
@@ -151,9 +150,11 @@ void load_default_pub_sub_ric(near_ric_t* ric)
 }
 
 static
-void init_handle_msg_ric(e2ap_handle_msg_fp_ric (*handle_msg)[30])
+void init_handle_msg_ric(size_t len, e2ap_handle_msg_fp_ric (*handle_msg)[len])
 {
-  memset((*handle_msg), 0, sizeof(e2ap_handle_msg_fp_ric)*30);
+  assert(len == NONE_E2_MSG_TYPE);
+
+  memset((*handle_msg), 0, sizeof(e2ap_handle_msg_fp_ric)*len);
   (*handle_msg)[RIC_SUBSCRIPTION_RESPONSE] =  e2ap_handle_subscription_response_ric;
   (*handle_msg)[RIC_SUBSCRIPTION_FAILURE] =  e2ap_handle_subscription_failure_ric;
   (*handle_msg)[RIC_SUBSCRIPTION_DELETE_RESPONSE] =  e2ap_handle_subscription_delete_response_ric;
@@ -219,12 +220,8 @@ near_ric_t* init_near_ric(fr_args_t const* args)
   near_ric_t* ric = calloc(1, sizeof(near_ric_t));
   assert(ric != NULL);
 
-  char* addr = get_near_ric_ip(args);
-  defer({ free(addr); } );
-
-  const int port = 36421;
-  printf("[NEAR-RIC]: nearRT-RIC IP Address = %s, PORT = %d\n", addr, port);
-  e2ap_init_ep_ric(&ric->ep, addr, port);
+  printf("[NEAR-RIC]: nearRT-RIC IP Address = %s, PORT = %d\n", args->ip, args->e2_port);
+  e2ap_init_ep_ric(&ric->ep, args->ip, args->e2_port);
 
   init_asio_ric(&ric->io); 
 
@@ -232,7 +229,8 @@ near_ric_t* init_near_ric(fr_args_t const* args)
 
   init_ap(&ric->ap.base.type);
 
-  init_handle_msg_ric(&ric->handle_msg);
+  ric->sz_handle_msg = sizeof(ric->handle_msg)/sizeof(ric->handle_msg[0]);
+  init_handle_msg_ric(ric->sz_handle_msg, &ric->handle_msg);
 
   init_plugin_ric(&ric->plugin, args->libs_dir);
 
@@ -245,7 +243,11 @@ near_ric_t* init_near_ric(fr_args_t const* args)
   init_pending_events(ric);
 
   near_ric_if_t ric_if = {.type = ric};
-  init_iapp_api(addr, ric_if);
+  init_iapp_api(args->ip, args->e42_port, ric_if);
+
+  uint32_t const num_threads = TASK_MAN_NUMBER_THREADS;
+  printf("[NEAR-RIC]: Initializing Task Manager with %u threads \n", num_threads);
+  init_task_manager(&ric->man, num_threads);
 
   ric->req_id = 1021; // 0 could be a sign of a bug
   ric->stop_token = false;
@@ -271,6 +273,7 @@ void consume_fd(int fd)
   assert(bytes == sizeof(read_buf));
 }
 
+/*
 static inline
 bool eq_sock_addr(void const* m0_v, void const* m1_v)
 {
@@ -291,7 +294,9 @@ bool eq_sock_addr(void const* m0_v, void const* m1_v)
   
   return true;
 }
+*/
 
+/*
 static inline
 bool addr_registered_or_first_msg(e2ap_msg_t* msg, seq_arr_t* arr, sctp_msg_t const* rcv)
 {
@@ -311,6 +316,7 @@ bool addr_registered_or_first_msg(e2ap_msg_t* msg, seq_arr_t* arr, sctp_msg_t co
   assert(it != end && "Socket address not registered and msg is not E2_SETUP_REQUEST");
   return it != end;
 }
+*/
 
 /*
 static
@@ -355,34 +361,82 @@ bool pend_event(near_ric_t* ric, int fd, pending_event_t** p_ev)
 
 
 static
-async_event_t next_asio_event_ric(near_ric_t* ric)
+async_event_arr_t next_asio_event_ric(near_ric_t* ric)
 {
   assert(ric != NULL);
 
-  int const fd = event_asio_ric(&ric->io);
+  fd_read_t const fd_read = event_asio_ric(&ric->io);
+  assert(fd_read.len > -2 && fd_read.len < 65);
 
-  async_event_t e = {.type = UNKNOWN_EVENT,
-                     .fd = fd};
+  async_event_arr_t arr = {0};
 
-  if(fd == -1){ // no event happened. Just for checking the stop_token condition
-    e.type = CHECK_STOP_TOKEN_EVENT;
-  } else if (net_pkt(&ric->ep.base, fd) == true){
-
-    e.msg = e2ap_recv_msg_ric(&ric->ep);
-    if(e.msg.type == SCTP_MSG_NOTIFICATION ){
-      e.type = SCTP_CONNECTION_SHUTDOWN_EVENT;
-    } else if (e.msg.type == SCTP_MSG_PAYLOAD){
-       e.type = SCTP_MSG_ARRIVED_EVENT;
-    } else { 
-      assert(0!=0 && "Unknown type");
-    }
-
-  } else if (pend_event(ric, fd, &e.p_ev) == true){
-    e.type = PENDING_EVENT;
-  } else{
-    assert( 0!=0 && "Unknown event happened!");
+  // No event happened. Just for checking the stop_token condition
+  // Early return
+  if(fd_read.len == -1){
+    arr.ev[0].type = CHECK_STOP_TOKEN_EVENT;
+    arr.len = 1;
+    return arr;
   }
-  return e;
+
+  arr.len = fd_read.len;
+  for(int i = 0; i < arr.len; ++i){
+    async_event_t* dst = &arr.ev[i];
+    if (net_pkt(&ric->ep.base, fd_read.fd[i]) == true){
+      dst->msg = e2ap_recv_msg_ric(&ric->ep);
+      if(dst->msg.type == SCTP_MSG_NOTIFICATION ){
+        dst->type = SCTP_CONNECTION_SHUTDOWN_EVENT;
+      } else if (dst->msg.type == SCTP_MSG_PAYLOAD){
+        dst->type = SCTP_MSG_ARRIVED_EVENT;
+      } else {
+        assert(0!=0 && "Unknown type");
+      }
+    } else if (pend_event(ric,fd_read.fd[i], &dst->p_ev) == true){
+      dst->type = PENDING_EVENT;
+    } else {
+      assert( 0!=0 && "Unknown event happened!");
+    }
+  }
+
+  return arr;
+}
+
+typedef struct{
+  near_ric_t* ric;
+  sctp_msg_t msg;
+} ric_sctp_msg_t ;
+
+// This task will run in parallel
+static
+void sctp_msg_arrived_event(void* arg)
+{
+  assert(arg != NULL);
+
+  ric_sctp_msg_t* ric_ev = (ric_sctp_msg_t*)arg;
+  defer({free(ric_ev);});
+
+  near_ric_t* ric = ric_ev->ric;
+  sctp_msg_t const* sctp_msg = &ric_ev->msg;
+  defer({free_sctp_msg((sctp_msg_t*)sctp_msg);});
+
+  e2ap_msg_t const msg = e2ap_msg_dec_ric(&ric->ap, sctp_msg->ba);
+  defer({e2ap_msg_free_ric(&ric->ap, (e2ap_msg_t*)&msg); } );
+
+  if(msg.type == E2_SETUP_REQUEST){
+    global_e2_node_id_t const* id = &msg.u_msgs.e2_stp_req.id;
+    printf("Received message with id = %d, port = %d \n", id->nb_id.nb_id, sctp_msg->info.addr.sin_port);
+    e2ap_reg_sock_addr_ric(&ric->ep, id, &sctp_msg->info);
+  }
+
+  e2ap_msg_t ans = e2ap_msg_handle_ric(ric, &msg);
+  defer({e2ap_msg_free_ric(&ric->ap, &ans);});
+
+  if(ans.type != NONE_E2_MSG_TYPE){
+    sctp_msg_t sctp_msg2 = { .info = sctp_msg->info };
+    defer({free_sctp_msg(&sctp_msg2);});
+
+    sctp_msg2.ba = e2ap_msg_enc_ric(&ric->ap, &ans);
+    e2ap_send_sctp_msg_ric(&ric->ep, &sctp_msg2);
+  }
 }
 
 static
@@ -391,59 +445,47 @@ void e2_event_loop_ric(near_ric_t* ric)
   assert(ric != NULL);
   while(ric->stop_token == false){ 
 
-    async_event_t e = next_asio_event_ric(ric);
-    assert(e.type != UNKNOWN_EVENT && "Unknown event triggered ");
+    async_event_arr_t arr = next_asio_event_ric(ric);
+    assert(arr.len > 0 && arr.len < 65);
+    for(int i = 0; i < arr.len; ++i){
+      async_event_t e = arr.ev[i];
+      assert(e.type != UNKNOWN_EVENT && "Unknown event triggered ");
 
     switch(e.type)
     {
-      case SCTP_MSG_ARRIVED_EVENT:
+        case SCTP_MSG_ARRIVED_EVENT:
         {
-          defer({free_sctp_msg(&e.msg);});
+          ric_sctp_msg_t* ric_sctp = calloc(1, sizeof( ric_sctp_msg_t));
+          assert(ric_sctp != NULL && "Memory exhausted");
+          ric_sctp->ric = ric;
+          // Pass ownership
+          ric_sctp->msg = e.msg;
+          task_t t = {.args = ric_sctp, .func = sctp_msg_arrived_event};
+          // Execute tasks in parallel
+          async_task_manager(&ric->man, t);
+          break;
+        }
+        case PENDING_EVENT:
+          {
+            printf("Pending event timeout happened. Communication with E2 Node lost?\n");
+            consume_fd(e.fd);
 
-          e2ap_msg_t msg = e2ap_msg_dec_ric(&ric->ap, e.msg.ba); 
-          defer({e2ap_msg_free_ric(&ric->ap, &msg); } );
-
-          if(msg.type == E2_SETUP_REQUEST){
-            global_e2_node_id_t* id = &msg.u_msgs.e2_stp_req.id;
-            printf("Received message with id = %d, port = %d \n", id->nb_id, e.msg.info.addr.sin_port);
-            e2ap_reg_sock_addr_ric(&ric->ep, id, &e.msg.info);
+            break;
+          }
+        case SCTP_CONNECTION_SHUTDOWN_EVENT:
+          {
+            defer({free_sctp_msg(&e.msg);});
+            notification_handle_ric(ric, &e.msg);
+            break;
+          }
+        case CHECK_STOP_TOKEN_EVENT:
+          {
+            break;
           }
 
-          e2ap_msg_t ans = e2ap_msg_handle_ric(ric, &msg);
-          defer({ e2ap_msg_free_ric(&ric->ap, &ans);} );
-
-          if(ans.type != NONE_E2_MSG_TYPE){
-
-            sctp_msg_t sctp_msg = { .info = e.msg.info }; 
-
-            sctp_msg.ba = e2ap_msg_enc_ric(&ric->ap, &ans); 
-            defer({free_sctp_msg(&sctp_msg); } );
-
-            e2ap_send_sctp_msg_ric(&ric->ep, &sctp_msg);
-          }
-
-          break;
-        }
-      case PENDING_EVENT:
-        {
-          printf("Pending event timeout happened. Communication with E2 Node lost?\n");
-          consume_fd(e.fd);
-
-          break;
-        }
-      case SCTP_CONNECTION_SHUTDOWN_EVENT: 
-        {
-          defer({free_sctp_msg(&e.msg);});
-          notification_handle_ric(ric, &e.msg);
-          break;
-        }
-      case CHECK_STOP_TOKEN_EVENT:
-        {
-          break;
-        }
-
-      default:
-        assert(0!=0 && "Unknown event happened");
+        default:
+          assert(0!=0 && "Unknown event happened");
+      }
     }
   }
   ric->server_stopped = true; 
@@ -473,6 +515,9 @@ void free_near_ric(near_ric_t* ric)
     sleep(1);
   }
 
+  void (*clean)(void*) = NULL;
+  free_task_manager(&ric->man, clean);
+
   e2ap_free_ep_ric(&ric->ep);
 
   free_plugin_ric(&ric->plugin); 
@@ -491,11 +536,13 @@ void free_near_ric(near_ric_t* ric)
 
   stop_iapp_api();
 
+
+
   free(ric);
 }
 
 static
-ric_subscription_request_t generate_subscription_request(near_ric_t* ric, sm_ric_t const* sm, uint16_t ran_func_id, const char* cmd)
+ric_subscription_request_t generate_subscription_request(near_ric_t* ric, sm_ric_t const* sm, uint16_t ran_func_id, void* cmd)
 {
   assert(ric != NULL);
   ric_subscription_request_t sr = {0}; 
@@ -555,13 +602,15 @@ seq_arr_t conn_e2_nodes(near_ric_t* ric)
   return arr;
 }
 
-void report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, const char* cmd)
+uint16_t report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, void* cmd)
 {
   assert(ric != NULL);
   assert(ran_func_id != 0 && "Reserved SM ID value");
+  assert(ran_func_id < 150 && "Not still reached upper limit");
   assert(cmd != NULL);
 
   sm_ric_t* sm = sm_plugin_ric(&ric->plugin ,ran_func_id); 
+  
   ric_subscription_request_t sr = generate_subscription_request(ric, sm, ran_func_id, cmd);  
 
   // A pending event is created along with a timer of 3000 ms,
@@ -578,13 +627,13 @@ void report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uin
 
   byte_array_t ba_msg = e2ap_enc_subscription_request_ric(&ric->ap, &sr); 
 
-  printf("[NEAR-RIC]: Report Service Asked from nb_id = %d \n", id->nb_id);
-  //assert(0!=0 && "Here we are");
+  printf("[NEAR-RIC]: Report Service Asked from nb_id = %d \n", id->nb_id.nb_id);
 
   e2ap_send_bytes_ric(&ric->ep, id, ba_msg);
    
   e2ap_free_subscription_request_ric(&ric->ap, &sr);
   free_byte_array(ba_msg);
+  return sr.ric_id.ric_req_id;
 }
 
 /*
@@ -597,9 +646,7 @@ bool ran_func_id_active(const void* value, const void* it)
   act_req_t* act = (act_req_t*)it;
   return act->id.ran_func_id == *ran_func_id;
 }
-*/
 
-/*
 static inline
 ric_subscription_delete_request_t generate_subscription_delete_request(near_ric_t* ric, act_req_t* act)
 {
@@ -608,35 +655,39 @@ ric_subscription_delete_request_t generate_subscription_delete_request(near_ric_
   ric_subscription_delete_request_t sd = {.ric_id = act->id };
   return sd;
 }
+
 */
 
-void rm_report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, const char* cmd)
+void rm_report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, uint16_t act_id)
 {
   assert(ric != NULL);
-  assert(ran_func_id > 0);
   assert(id != NULL);
-  assert(cmd != NULL);
+  assert(act_id > 0);
 
-  assert(0!=0 && "We never came here");
-/*
+  // The active requests values are stored in the xApp SDK. Therefore, 
+  // there is no data here and we cannot check whether it was before 
+  // subscribed.
+  ric_subscription_delete_request_t sd = {.ric_id.ric_req_id = act_id, 
+                                          .ric_id.ran_func_id = ran_func_id};
+
+  /*
   ric_subscription_delete_request_t sd = {0}; 
   {
-    lock_guard(&ric->act_req_mtx);
-    void* start_it = seq_front(&ric->act_req);
-    void* end_it = seq_end(&ric->act_req);
-    void* it = find_if(&ric->act_req, start_it, end_it, &ran_func_id, ran_func_id_active);
-    assert(it != end_it && "Requested RAN function not actived");
+//    lock_guard(&ric->act_req_mtx);
+//    void* start_it = seq_front(&ric->act_req);
+//    void* end_it = seq_end(&ric->act_req);
+//    void* it = find_if(&ric->act_req, start_it, end_it, &ran_func_id, ran_func_id_active);
+//    assert(it != end_it && "Requested RAN function not actived");
     sd = generate_subscription_delete_request(ric, it);  
   }
+*/
 
-
- // A pending event is created along with a timer of 1000 ms,
+ // A pending event is created along with a timer of 3000 ms,
   // after which an event will be generated
   pending_event_ric_t ev = {.ev = SUBSCRIPTION_DELETE_REQUEST_PENDING_EVENT, .id = sd.ric_id };
 
-  long const wait_ms = 1000;
+  long const wait_ms = 3000;
   int fd_timer = create_timer_ms_asio_ric(&ric->io, wait_ms, wait_ms); 
-  //printf("RIC: fd_timer with value created == %d\n", fd_timer);
 
   {
     lock_guard(&ric->pend_mtx);
@@ -649,15 +700,14 @@ void rm_report_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, 
   e2ap_send_bytes_ric(&ric->ep, id, ba_msg);
 
   free_byte_array(ba_msg);
-  */
 }
 
 static
-ric_control_request_t generate_control_request(near_ric_t* ric, sm_ric_t* sm, sm_ag_if_wr_t* wr )
+ric_control_request_t generate_control_request(near_ric_t* ric, sm_ric_t* sm, void* ctrl)
 {
   assert(ric != NULL);
   assert(sm != NULL);
-  assert(wr != NULL);
+  assert(ctrl != NULL);
 
   const ric_gen_id_t ric_id = {.ric_req_id = ric->req_id++ ,.ric_inst_id = 0, .ran_func_id = sm->ran_func_id};
 
@@ -666,7 +716,7 @@ ric_control_request_t generate_control_request(near_ric_t* ric, sm_ric_t* sm, sm
   assert(ctrl_req.ack_req != NULL && "Memory exhausted" );
   *ctrl_req.ack_req = RIC_CONTROL_REQUEST_ACK; 
 
-  sm_ctrl_req_data_t data = sm->proc.on_control_req(sm, wr);
+  sm_ctrl_req_data_t data = sm->proc.on_control_req(sm, ctrl);
 
   ctrl_req.hdr.len = data.len_hdr;
   ctrl_req.hdr.buf = data.ctrl_hdr;
@@ -676,18 +726,18 @@ ric_control_request_t generate_control_request(near_ric_t* ric, sm_ric_t* sm, sm
   return ctrl_req;
 }
 
-void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, const char* cmd)
+void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, uint16_t ran_func_id, void* ctrl)
 {
   assert(ric != NULL);
   assert(ran_func_id > 0);
-  assert(cmd != NULL);
+  assert(ctrl != NULL);
+
+//  assert(ran_func_id == SM_RC_ID || ran_func_id == SM_SLICE_ID || ran_func_id == SM_TC_ID );
+  assert(ran_func_id == 3 || ran_func_id == 145 || ran_func_id == 146);
 
   sm_ric_t* sm = sm_plugin_ric(&ric->plugin ,ran_func_id); 
-  assert((sm->ran_func_id == 142 || sm->ran_func_id == 145) && "Only ctrl for MAC supported");
 
-  sm_ag_if_wr_t* wr = (sm_ag_if_wr_t*) cmd;
-
-  ric_control_request_t ctrl_req = generate_control_request(ric, sm, wr);
+  ric_control_request_t ctrl_req = generate_control_request(ric, sm, ctrl);
 
   // A pending event is created along with a timer of 1000 ms,
   // after which an event will be generated
@@ -707,7 +757,7 @@ void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, ui
 //  struct sockaddr_in const to = find_map_e2_node_sad(&ric->e2_node_sock, id);
   e2ap_send_bytes_ric(&ric->ep, id, ba_msg);
 
-  printf("[NEAR-RIC]: CONTROL SERVICE sent\n");
+  printf("[NEAR-RIC]: CONTROL SERVICE sent");
 
   e2ap_free_control_request_ric(&ric->ap, &ctrl_req);
   free_byte_array(ba_msg);

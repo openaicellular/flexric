@@ -25,7 +25,7 @@
 #include "../../util/alg_ds/alg/find.h"
 #include "../../util/alg_ds/alg/alg.h" 
 
-#include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"
 
 
 #include <assert.h>
@@ -123,6 +123,7 @@ void add_reg_e2_node(reg_e2_nodes_t* i, global_e2_node_id_t const* id, size_t le
 //  assert(seq_size(arr_tmp) == 2 && "Only for current test valid");
 }
 
+/*
 static inline
 assoc_rb_tree_t available_e2node(reg_e2_nodes_t* n, size_t len, ran_function_t rf[len])
 {
@@ -174,6 +175,8 @@ assoc_rb_tree_t available_e2node(reg_e2_nodes_t* n, size_t len, ran_function_t r
 
   return ret;
 }
+*/
+
 
 size_t sz_reg_e2_node(reg_e2_nodes_t* n)
 {
@@ -274,7 +277,7 @@ void rm_reg_e2_node(reg_e2_nodes_t* n, global_e2_node_id_t const* id)
   assert(n != NULL);
   assert(id != NULL);
 
-  printf("[NEAR-RIC]: Removing E2 Node MCC %d MNC %d NB_ID %u \n", id->plmn.mcc, id->plmn.mnc, id->nb_id);
+  printf("[NEAR-RIC]: Removing E2 Node MCC %d MNC %d NB_ID %u \n", id->plmn.mcc, id->plmn.mnc, id->nb_id.nb_id);
 
   {
     lock_guard(&n->mtx);
@@ -287,6 +290,21 @@ void rm_reg_e2_node(reg_e2_nodes_t* n, global_e2_node_id_t const* id)
     seq_arr_t* arr = assoc_extract(&n->node_to_rf, (global_e2_node_id_t*)id);;
 
     free_e2_nodes((void*)id , arr);
+  }
+}
+
+bool find_reg_e2_node(reg_e2_nodes_t* n, global_e2_node_id_t const* id)
+{
+  assert(n != NULL);
+  assert(id != NULL);
+  {
+    lock_guard(&n->mtx);
+
+    void* it = assoc_front(&n->node_to_rf);
+    void* end = assoc_end(&n->node_to_rf);
+    it = find_if(&n->node_to_rf, it, end, id, eq_global_e2_node_id_wrapper );
+
+    return it == end ? false : true;
   }
 }
 

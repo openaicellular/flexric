@@ -84,12 +84,19 @@ e2_nodes_api_t e2_nodes_near_ric_api(void)
 
   seq_arr_t arr = conn_e2_nodes(ric); 
 
-  e2_nodes_api_t ans = {.len = seq_size(&arr)};  
+  size_t const sz = seq_size(&arr);
+  e2_nodes_api_t ans = {.len = sz};  
 
  if(ans.len > 0){
   ans.n = calloc(ans.len, sizeof(e2_node_t)); 
   assert(ans.n != NULL && "Memory exhausted");
  }
+/*
+ for(size_t i = 0; i < sz; ++i){
+    e2_node_t* n = (e2_node_t*)seq_at(&arr, i);  
+    ans.n[i] = cp_e2_node(n);
+ }
+*/
 
  void* it = seq_front(&arr);
  void* end = seq_end(&arr);
@@ -100,10 +107,9 @@ e2_nodes_api_t e2_nodes_near_ric_api(void)
   ans.n[i] = cp_e2_node(n);
   ++i;
   it = seq_next(&arr, it);
-  if(n->len_acc > 0)
-    free(n->accepted);
  }
 
+ 
   seq_free(&arr, NULL);
   return ans;
 }
@@ -120,7 +126,7 @@ void free_e2_nodes_api(e2_nodes_api_t* src)
   free(src->n);
 }
 
-void report_service_near_ric_api(global_e2_node_id_t const* id, uint16_t ran_func_id, const char* cmd )
+uint16_t report_service_near_ric_api(global_e2_node_id_t const* id, uint16_t ran_func_id, void* cmd)
 {
   assert(ric != NULL);
   assert(ran_func_id != 0 && "Reserved SM ID");  
@@ -129,16 +135,15 @@ void report_service_near_ric_api(global_e2_node_id_t const* id, uint16_t ran_fun
   return report_service_near_ric(ric, id, ran_func_id, cmd);
 }
 
-void rm_report_service_near_ric_api(global_e2_node_id_t const* id, uint16_t ran_func_id, const char* cmd )
+void rm_report_service_near_ric_api(global_e2_node_id_t const* id, uint16_t ran_func_id, uint16_t act_id)
 {
   assert(ric != NULL);
-  assert(ran_func_id != 0 && "Reserved SM ID");  
-  assert(cmd != NULL);
+  assert(act_id != 0 && "Reserved SM ID");  
 
-  return rm_report_service_near_ric(ric, id, ran_func_id, cmd);
+  return rm_report_service_near_ric(ric, id, ran_func_id, act_id);
 }
 
-void control_service_near_ric_api(global_e2_node_id_t const* id, uint16_t ran_func_id, const char* cmd)
+void control_service_near_ric_api(global_e2_node_id_t const* id, uint16_t ran_func_id, void* cmd)
 {
   assert(ric!= NULL);
   assert(ran_func_id != 0 && "Reserved SM ID");  

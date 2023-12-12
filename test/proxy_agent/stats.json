@@ -1,0 +1,60 @@
+{
+    "message": "stats",
+    "instance_id": "64cbb5ee",
+    "cpu": {},
+    "cells": {
+        "1": {
+            "dl_bitrate": 0,
+            "ul_bitrate": 0,
+            "dl_tx": 0,
+            "ul_tx": 0,
+            "dl_retx": 0,
+            "ul_retx": 0,
+            "dl_sched_users_min": 0,
+            "dl_sched_users_max": 0,
+            "dl_sched_users_avg": 0,
+            "ul_sched_users_min": 0,
+            "ul_sched_users_max": 0,
+            "ul_sched_users_avg": 0,
+            "ue_count_min": 0,
+            "ue_count_max": 0,
+            "ue_count_avg": 0,
+            "ue_active_count_min": 0,
+            "ue_active_count_max": 0,
+            "ue_active_count_avg": 0,
+            "ue_inactive_count_min": 0,
+            "ue_inactive_count_max": 0,
+            "ue_inactive_count_avg": 0,
+            "drb_count_min": 0,
+            "drb_count_max": 0,
+            "drb_count_avg": 0,
+            "dl_gbr_use_min": 0,
+            "dl_gbr_use_max": 0,
+            "dl_gbr_use_avg": 0,
+            "ul_gbr_use_min": 0,
+            "ul_gbr_use_max": 0,
+            "ul_gbr_use_avg": 0,
+            "counters": {
+                "messages": {},
+                "errors": {}
+            }
+        }
+    },
+    "rf_ports": {
+        "0": {
+            "rxtx_delay": {
+                "min": 2.831,
+                "max": 3.386,
+                "avg": 3.08,
+                "sd": 0.14
+            }
+        }
+    },
+    "counters": {
+        "messages": {},
+        "errors": {}
+    },
+    "duration": 0.4,
+    "message_id": "id#5",
+    "time": 4.491
+}

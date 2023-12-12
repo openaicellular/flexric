@@ -24,7 +24,7 @@
 #define MSG_HANDLER_RIC
 
 #include "near_ric.h"
-#include "lib/ap/type_defs.h"
+#include "../lib/e2ap/type_defs_wrapper.h"
 
 
 e2ap_msg_t e2ap_msg_handle_ric(near_ric_t* ric, const e2ap_msg_t* msg);

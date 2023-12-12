@@ -16,15 +16,32 @@ set(SM_ENCODING_GTP_SRC
                       )
 
 
+
+
 if(SM_ENCODING_GTP STREQUAL "PLAIN")
+  set(SM_ENCODING_GTP_SRC_PLAIN
+    ${SM_ENCODING_GTP_SRC}
+    $<TARGET_OBJECTS:e2ap_ran_func_obj>
+    enc/gtp_enc_plain.c 
+    dec/gtp_dec_plain.c 
+    )
+
+  # Shared
   add_library(gtp_sm SHARED
-                      ${SM_ENCODING_GTP_SRC}
-                      enc/gtp_enc_plain.c 
-                      dec/gtp_dec_plain.c 
-                      )
+              ${SM_ENCODING_GTP_SRC_PLAIN}
+              )
+  target_compile_options(gtp_sm PRIVATE -fvisibility=hidden)
+
+  # Static
+  add_library(gtp_sm_static STATIC 
+              ${SM_ENCODING_GTP_SRC_PLAIN}
+              )
+
 else()
   message(FATAL_ERROR "Unknown SM encoding type ")
 endif()
 
-target_compile_definitions(gtp_sm PUBLIC ${SM_ENCODING_GTP})
+# ${E2AP_VERSION} needed since the ran_function may changge from version to version
+target_compile_definitions(gtp_sm PRIVATE ${SM_ENCODING_GTP} ${E2AP_VERSION} ${KPM_VERSION} )
+target_compile_definitions(gtp_sm_static PRIVATE ${SM_ENCODING_GTP} ${E2AP_VERSION} ${KPM_VERSION} )
 

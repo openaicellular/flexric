@@ -22,9 +22,9 @@
 
 
 #include "stdout.h"
-#include "ric/iApps/../../sm/mac_sm/ie/mac_data_ie.h"    // for mac_ind_msg_t
-#include "ric/iApps/../../sm/pdcp_sm/ie/pdcp_data_ie.h"  // for pdcp_ind_msg_t
-#include "ric/iApps/../../sm/rlc_sm/ie/rlc_data_ie.h"    // for rlc_ind_msg_t
+#include "../../sm/mac_sm/ie/mac_data_ie.h"    // for mac_ind_msg_t
+#include "../../sm/pdcp_sm/ie/pdcp_data_ie.h"  // for pdcp_ind_msg_t
+#include "../../sm/rlc_sm/ie/rlc_data_ie.h"    // for rlc_ind_msg_t
 #include "string_parser.h"                               // for to_string_ma..
 
 #include "../../util/time_now_us.h"
@@ -88,7 +88,9 @@ void init_fp(void)
   atexit(close_fp);
 }
 
-
+uint64_t count_max = 100;
+uint64_t count_mac = 0;
+uint64_t aggr_tstamp_mac = 0;
 static
 void print_mac_stats(mac_ind_msg_t const* msg )
 {
@@ -98,7 +100,13 @@ void print_mac_stats(mac_ind_msg_t const* msg )
   assert(fp != NULL);
 
   int64_t now = time_now_us();
-  printf("Time diff at iApp = %ld \n", now - msg->tstamp);
+  count_mac += 1;
+  aggr_tstamp_mac += now - msg->tstamp;
+  if (count_mac == count_max) {
+    // printf("Time diff at iApp (MAC SM) = %ld \n", now - msg->tstamp);
+    count_mac = 0;
+    aggr_tstamp_mac = 0;
+  }
 
   for(uint32_t i = 0; i < msg->len_ue_stats; ++i){
     char stats[1024] = {0};
@@ -200,37 +208,37 @@ void print_gtp_stats(gtp_ind_msg_t const* gtp)
 
 }
 
-void print_kpm_stats(kpm_ind_data_t const* kpm)
+
+
+void print_kpm_ind_msg_frm_1(const kpm_ind_msg_format_1_t message, uint32_t truncated_ts)
 {
-  assert(kpm != NULL);
-  pthread_once(&init_fp_once, init_fp);
-  assert(fp != NULL);
 
   char stats[1024] = {0};
   int max = 1024;
 
-  for(size_t i = 0; i < kpm->msg.MeasData_len; i++){
-    adapter_MeasDataItem_t* curMeasData = &kpm->msg.MeasData[i];
-    uint64_t truncated_ts = (uint64_t)kpm->hdr.collectStartTime * 1000000;
-    if (i == 0 && kpm->msg.granulPeriod){
+  for(size_t i = 0; i < message.meas_data_lst_len; i++){
+    meas_data_lst_t * curMeasData = &message.meas_data_lst[i];
+
+
+    if (i == 0 && message.gran_period_ms){
       int rc = snprintf(stats, max,  "kpm_stats: "
-                      "tstamp=%lu"
-                      ",granulPeriod=%lu"
+                      "tstamp=%u"
+                      ",granulPeriod=%u"
                       ",MeasData_len=%zu"
                       , truncated_ts
-                      , *(kpm->msg.granulPeriod)
-                      , kpm->msg.MeasData_len
+                      , *(message.gran_period_ms)
+                      , message.meas_data_lst_len
                       );
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
       rc = fputs(stats , fp);
       assert(rc > -1);
-    }else if(i == 0 && kpm->msg.granulPeriod == NULL){
+    }else if(i == 0 && message.gran_period_ms == NULL){
       int rc = snprintf(stats, max,  "kpm_stats: "
-                      "tstamp=%lu"
+                      "tstamp=%u"
                       ",granulPeriod=NULL"
                       ",MeasData_len=%zu"
                       , truncated_ts
-                      , kpm->msg.MeasData_len
+                      , message.meas_data_lst_len
                       );
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
       rc = fputs(stats , fp);
@@ -238,44 +246,44 @@ void print_kpm_stats(kpm_ind_data_t const* kpm)
     }
 
     memset(stats, 0, sizeof(stats));
-    int rc = snprintf(stats, max,",MeasData[%zu]=(incompleteFlag=%ld, Record_len=%zu ",
-                                  i, curMeasData->incompleteFlag, curMeasData->measRecord_len);
+    int rc = snprintf(stats, max,",MeasData[%zu]=(incompleteFlag=%p, Record_len=%zu ",
+                                  i, (void *)curMeasData->incomplete_flag, curMeasData->meas_record_len);
     assert(rc < (int)max && "Not enough space in the char array to write all the data");
     rc = fputs(stats , fp);
     assert(rc > -1);
 
-    for(size_t j = 0; j < curMeasData->measRecord_len; j++){
-      adapter_MeasRecord_t* curMeasRecord = &(curMeasData->measRecord[j]);
+    for(size_t j = 0; j < curMeasData->meas_record_len; j++){
+      meas_record_lst_t* curMeasRecord = &curMeasData->meas_record_lst[j];
       memset(stats, 0, sizeof(stats));
       to_string_kpm_measRecord(curMeasRecord, j, stats, max);
       int rc = fputs(stats , fp);
       assert(rc > -1);
     }
   }
-  int rc = snprintf(stats, max, ",MeasInfo_len=%zu", kpm->msg.MeasInfo_len);
+  int rc = snprintf(stats, max, ",MeasInfo_len=%zu", message.meas_info_lst_len);
   assert(rc < (int)max && "Not enough space in the char array to write all the data");
   rc = fputs(stats , fp);
   assert(rc > -1);
 
-  for(size_t i = 0; i < kpm->msg.MeasInfo_len; i++){
-    MeasInfo_t* curMeasInfo = &kpm->msg.MeasInfo[i];
+  for(size_t i = 0; i < message.meas_info_lst_len; i++){
+    meas_info_format_1_lst_t* curMeasInfo = &message.meas_info_lst[i];
 
-    if (curMeasInfo->meas_type == KPM_V2_MEASUREMENT_TYPE_NAME){
+    if (curMeasInfo->meas_type.type == NAME_MEAS_TYPE){
       memset(stats, 0, sizeof(stats));
-      int rc = snprintf(stats, max, ",MeasInfo[%zu]=(type=ID, content=%ld)", i, curMeasInfo->measID);
+      int rc = snprintf(stats, max, ",MeasInfo[%zu]=(type=ID, content=%hhn)", i, curMeasInfo->meas_type.name.buf);
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
       rc = fputs(stats , fp);
       assert(rc > -1);
-    } else if (curMeasInfo->meas_type == KPM_V2_MEASUREMENT_TYPE_ID){
+    } else if (curMeasInfo->meas_type.type == ID_MEAS_TYPE){
       memset(stats, 0, sizeof(stats));
-      int rc = snprintf(stats, max, ",MeasInfo[%zu]=(type=NAME, content=%s)", i, curMeasInfo->measName.buf);
+      int rc = snprintf(stats, max, ",MeasInfo[%zu]=(type=NAME, content=%u)", i, curMeasInfo->meas_type.id);
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
       rc = fputs(stats , fp);
       assert(rc > -1);
     }
 
-    for(size_t j = 0; j < curMeasInfo->labelInfo_len; ++j){
-      adapter_LabelInfoItem_t* curLabelInfo = &curMeasInfo->labelInfo[j];
+    for(size_t j = 0; j < curMeasInfo->label_info_lst_len; ++j){
+      label_info_lst_t* curLabelInfo = &curMeasInfo->label_info_lst[j];
       memset(stats, 0, sizeof(stats));
       to_string_kpm_labelInfo(curLabelInfo, j, stats, max);
       assert(rc < (int)max && "Not enough space in the char array to write all the data");
@@ -286,22 +294,67 @@ void print_kpm_stats(kpm_ind_data_t const* kpm)
   fputs("\n", fp);
 }
 
-void notify_stdout_listener(sm_ag_if_rd_t const* data)
+void print_kpm_stats(kpm_ind_data_t const* kpm)
+{
+  assert(kpm != NULL);
+  pthread_once(&init_fp_once, init_fp);
+  assert(fp != NULL);
+
+  
+
+  // From Indication Header : Collect Start Time
+  // To be defined better, switch/case for specific format
+  uint64_t truncated_ts = (uint64_t)kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime;
+
+
+
+  switch (kpm->msg.type)
+  {
+  case FORMAT_1_INDICATION_MESSAGE: 
+    print_kpm_ind_msg_frm_1(kpm->msg.frm_1, truncated_ts);
+    break;
+
+  // case FORMAT_2_INDICATION_MESSAGE:
+  //   kpm_ind_msg_format_2_t * message = calloc(1, sizeof(kpm_ind_msg_format_2_t));
+  //   message = &kpm->kpm_ind_msg.frm_2;
+  //   print_kpm_ind_msg_frm_2(&message);
+  //   break;
+
+  // case FORMAT_3_INDICATION_MESSAGE:
+  //   kpm_ind_msg_format_3_t * message = calloc(1, sizeof(kpm_ind_msg_format_3_t));
+  //   message = &kpm->kpm_ind_msg.frm_3;
+  //   print_kpm_ind_msg_frm_3(&message);
+  //   break;
+  
+  default:
+    assert(false && "Unknown Indication Message Type");
+  }
+
+}
+
+void notify_stdout_listener(sm_ag_if_rd_ind_t const* data)
 {
   assert(data != NULL);
   if(data->type == MAC_STATS_V0)  
-    print_mac_stats(&data->mac_stats.msg);
+    print_mac_stats(&data->mac.msg);
   else if (data->type == RLC_STATS_V0)
-    print_rlc_stats(&data->rlc_stats.msg);
+    print_rlc_stats(&data->rlc.msg);
   else if (data->type == PDCP_STATS_V0)
-    print_pdcp_stats(&data->pdcp_stats.msg);
+    print_pdcp_stats(&data->pdcp.msg);
   else if (data->type == SLICE_STATS_V0)
-    print_slice_stats(&data->slice_stats.msg);
+    print_slice_stats(&data->slice.msg);
   else if (data->type == GTP_STATS_V0)
-    print_gtp_stats(&data->gtp_stats.msg);
-  else if (data->type == KPM_STATS_V0)
-    print_kpm_stats(&data->kpm_stats);
-  else
-    assert(0!= 0);
+    print_gtp_stats(&data->gtp.msg);
+  else if (data->type == TC_STATS_V0){
+    // assert(0!=0 && "Not implemented");
+    //print_tc_stats(&data->gtp.msg);
+  }else if (data->type == KPM_STATS_V3_0){
+    // assert(0!=0 && "Not implemented");
+//    print_kpm_stats(&data->kpm_ind);
+  } else if (data->type == RAN_CTRL_STATS_V1_03){
+    // assert(0!=0 && "Not implemented");
+  } else {
+    assert(0 != 0 && "Unknown data type");
+  }
 }
 

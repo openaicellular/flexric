@@ -23,7 +23,7 @@
 #define MAP_RIC_ID_H 
 
 #include "../../util/alg_ds/ds/assoc_container/assoc_generic.h"
-#include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"
 
 #include "xapp_ric_id.h"
 #include <pthread.h>
@@ -39,8 +39,7 @@ typedef struct
 
   bi_map_t bimap; // left: key:   e2_node_ric_req_t | value: xapp_ric_id_t
                   // right: key:  xapp_ric_id_t | value: e2_node_ric_req_t  
-
-  pthread_mutex_t mtx;
+  pthread_rwlock_t rw;
 } map_ric_id_t;
 
 

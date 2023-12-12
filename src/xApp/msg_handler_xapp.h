@@ -24,10 +24,9 @@
 #define MSG_HANDLER_XAPP
 
 #include "e42_xapp.h"
-#include "lib/ap/type_defs.h"
+#include "../lib/e2ap/type_defs_wrapper.h"
 
-
-void init_handle_msg_xapp(e2ap_handle_msg_fp_xapp (*handle_msg)[31]);
+void init_handle_msg_xapp(size_t len, e2ap_handle_msg_fp_xapp (*handle_msg)[len]);
 
 e2ap_msg_t e2ap_msg_handle_xapp(e42_xapp_t* xapp, const e2ap_msg_t* msg);
 
@@ -98,6 +97,9 @@ e2ap_msg_t e2ap_handle_e42_subscription_delete_request_xapp(e42_xapp_t* xapp, co
 
 // xApp -> iApp
 e2ap_msg_t e2ap_handle_e42_ric_control_request_xapp(e42_xapp_t* xapp, const e2ap_msg_t* msg);
+
+// iApp -> xApp
+e2ap_msg_t e2ap_handle_e42_update_e2_node_xapp(e42_xapp_t* xapp, const e2ap_msg_t* msg);
 
 #endif
 

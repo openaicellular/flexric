@@ -177,11 +177,22 @@ bool eq_mac_ctrl_hdr(mac_ctrl_hdr_t* m0, mac_ctrl_hdr_t* m1);
 // RIC Control Message 
 /////////////////////////////////////
 
+// mac_conf_t contains the list of all the params you may want to set thanks to its associated flag variable 'isset_*'
 typedef struct {
-  uint32_t action;
+  uint32_t rnti;     // compulsory. Used to detect which cell you want to modify
+  uint8_t pusch_mcs; // set Modulation Coding Scheme (MCS) value for Physical Uplink Shared Channel. Range: [0..28]
+  bool isset_pusch_mcs; 
+} mac_conf_t;
+
+typedef struct {
+  uint32_t    ran_conf_len; // count how many items you have in ran_conf array
+  mac_conf_t* ran_conf; 
 } mac_ctrl_msg_t;
 
-void free_mac_ctrl_msg( mac_ctrl_msg_t* src); 
+
+void free_mac_ctrl_msg( mac_ctrl_msg_t* src);
+
+mac_ctrl_hdr_t cp_mac_ctrl_hdr(mac_ctrl_hdr_t* src);
 
 mac_ctrl_msg_t cp_mac_ctrl_msg(mac_ctrl_msg_t* src);
 
@@ -195,6 +206,7 @@ bool eq_mac_ctrl_msg(mac_ctrl_msg_t* m0, mac_ctrl_msg_t* m1);
 typedef enum{
   MAC_CTRL_OUT_OK,
 
+  MAC_CTRL_OUT_KO,
 
   MAC_CTRL_OUT_END
 } mac_ctrl_out_e;

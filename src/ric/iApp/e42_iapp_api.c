@@ -28,9 +28,9 @@
 #include <stdlib.h>
 #include <stdio.h>                                         // for NULL                     
 #include "e42_iapp.h"
-#include "../../lib/ap/e2ap_types/common/e2ap_global_node_id.h"  // for global_e2_...
-#include "../../lib/ap/e2ap_types/common/e2ap_plmn.h"            // for plmn_t
-#include "../../util/ngran_types.h"                              // for ngran_gNB                
+#include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"  // for global_e2_...
+#include "../../lib/e2ap/e2ap_plmn_wrapper.h"            // for plmn_t
+#include "../../util/e2ap_ngran_types.h"                              // for ngran_gNB
 #include "../../util/conf_file.h"
 
 static
@@ -48,11 +48,11 @@ void* static_start_iapp(void* a)
   return NULL;
 }
 
-void init_iapp_api(const char* addr, near_ric_if_t ric_if)
+void init_iapp_api(const char* addr, int port, near_ric_if_t ric_if)
 {
   assert(iapp == NULL);
 
-  iapp = init_e42_iapp(addr, ric_if);
+  iapp = init_e42_iapp(addr, port, ric_if);
   assert(iapp->io.efd < 1024);
 
   // Spawn a new thread for the iapp

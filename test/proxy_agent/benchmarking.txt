@@ -1,0 +1,16 @@
+Benchmarking performances of the serialization part of proxy agent. Values provided by tst-perf_json_ws.c. 
+Stats are averaged over 100 records.
+
+HW used for benchmarking: DIST:20.04.1-Ubuntu SMP, CPU:Intel(R) Core(TM) i7-10710U CPU @ 1.10GHz, MEM:32GiB
+System Memory, HD:512GB NVMe namespace 
+Compilers: gcc, flags -g
+
+08/09/23 - 12:12PM: time taken to parse the decode_config_get record coming from file config_get.2021.12.17.json with logs ON is 230 μs.
+08/09/23 - 12:12PM: time taken to parse the decode_config_get record coming from file config_get.2021.12.17.json with logs OFF is 163 μs.
+08/09/23 - 12:12PM: time taken to parse the decode_config_get record coming from file config_get.2022.09.16.json with logs ON is 291 μs.
+08/09/23 - 12:12PM: time taken to parse the decode_config_get record coming from file config_get.2022.09.16.json with logs OFF is 282 μs.
+08/09/23 - 12:12PM: time taken to parse the decode_stats record coming from file stats.json with logs ON is 87 μs.
+08/09/23 - 12:12PM: time taken to parse the decode_stats record coming from file stats.json with logs OFF is 65 μs.
+08/09/23 - 12:12PM: time taken to parse the decode_ue_get record coming from file ue_get.json with logs ON is 50 μs.
+08/09/23 - 12:12PM: time taken to parse the decode_ue_get record coming from file ue_get.json with logs OFF is 36 μs.
+08/09/23 - 12:12PM: time taken to parse the decode_qos_flow_get record coming from file qos_flow_get.json with logs OFF is 17 μs.

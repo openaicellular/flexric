@@ -120,21 +120,33 @@ byte_array_t mac_enc_ctrl_msg_plain(mac_ctrl_msg_t const* ctrl_msg)
   assert(ctrl_msg != NULL);
 
   byte_array_t  ba = {0};
-  ba.buf = malloc(sizeof(mac_ctrl_msg_t)); 
-  assert(ba.buf != NULL);
+  size_t const sz = sizeof(ctrl_msg->ran_conf_len) + sizeof(mac_conf_t)*ctrl_msg->ran_conf_len;
+  ba.buf = calloc(1, sz);
+  assert(ba.buf != NULL && "Memory exhausted");
 
-  memcpy(ba.buf, ctrl_msg, sizeof(mac_ctrl_msg_t));
+  memcpy(ba.buf, &ctrl_msg->ran_conf_len, sizeof(ctrl_msg->ran_conf_len));
+  void* ptr = ba.buf + sizeof(ctrl_msg->ran_conf_len);
 
-  ba.len = sizeof(mac_ctrl_hdr_t);
+  for(uint32_t i = 0; i < ctrl_msg->ran_conf_len; ++i){
+    memcpy(ptr, &ctrl_msg->ran_conf[i], sizeof(mac_conf_t));
+    ptr += sizeof(mac_conf_t);
+  }
+  assert(ptr == ba.buf + sz && "Data layout mismacth");
+
+  ba.len = sz;
+  
   return ba;
 }
 
 byte_array_t mac_enc_ctrl_out_plain(mac_ctrl_out_t const* ctrl) 
 {
-  assert(0!=0 && "Not implemented");
-
-  assert(ctrl != NULL );
+  assert(ctrl != NULL);
   byte_array_t  ba = {0};
+  size_t sz = sizeof(ctrl->ans);
+  ba.buf = malloc(sz);
+  memcpy(ba.buf, &ctrl->ans, sz);
+  assert(ba.buf != NULL && "Memory exhausted");
+  ba.len = sz;
   return ba;
 }
 

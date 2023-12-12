@@ -53,7 +53,7 @@ typedef struct{
 // E2 Setup and RIC Service Update. 
 //
 static
-subscribe_timer_t  on_subscription_pdcp_sm_ag(sm_agent_t* sm_agent, const sm_subs_data_t* data)
+subscribe_timer_t on_subscription_pdcp_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 {
   assert(sm_agent != NULL);
   assert(data != NULL);
@@ -66,12 +66,14 @@ subscribe_timer_t  on_subscription_pdcp_sm_ag(sm_agent_t* sm_agent, const sm_sub
   return timer;
 }
 
+
 static
-sm_ind_data_t on_indication_pdcp_sm_ag(sm_agent_t* sm_agent)
+sm_ind_data_t on_indication_pdcp_sm_ag(sm_agent_t const* sm_agent, void* act_def)
 {
   //printf("on_indication called \n");
-
   assert(sm_agent != NULL);
+  assert(act_def == NULL && "Subscription data not needed for this SM");
+
   sm_pdcp_agent_t* sm = (sm_pdcp_agent_t*)sm_agent;
 
   sm_ind_data_t ret = {0};
@@ -83,17 +85,19 @@ sm_ind_data_t on_indication_pdcp_sm_ag(sm_agent_t* sm_agent)
   ret.len_hdr = ba_hdr.len;
 
   // Fill Indication Message 
-  sm_ag_if_rd_t rd_if = {0};
-  rd_if.type = PDCP_STATS_V0;
-  sm->base.io.read(&rd_if);
+  //sm_ag_if_rd_t rd_if = {.type = INDICATION_MSG_AGENT_IF_ANS_V0};
+  //rd_if.ind.type = PDCP_STATS_V0;
 
-// Liberate the memory if previously allocated by the RAN. It sucks
-  pdcp_ind_data_t* ind = &rd_if.pdcp_stats;
-  defer({ free_pdcp_ind_hdr(&ind->hdr) ;});
-  defer({ free_pdcp_ind_msg(&ind->msg) ;});
-  defer({ free_pdcp_call_proc_id(ind->proc_id);});
+  pdcp_ind_data_t pdcp = {0};
+  sm->base.io.read_ind(&pdcp);
 
-  byte_array_t ba = pdcp_enc_ind_msg(&sm->enc, &rd_if.pdcp_stats.msg);
+  // Liberate the memory if previously allocated by the RAN. It sucks
+  //pdcp_ind_data_t* ind = &rd_if.ind.pdcp;
+  defer({ free_pdcp_ind_hdr(&pdcp.hdr) ;});
+  defer({ free_pdcp_ind_msg(&pdcp.msg) ;});
+  defer({ free_pdcp_call_proc_id(pdcp.proc_id);});
+
+  byte_array_t ba = pdcp_enc_ind_msg(&sm->enc, &pdcp.msg);
   ret.ind_msg = ba.buf;
   ret.len_msg = ba.len;
 
@@ -105,30 +109,38 @@ sm_ind_data_t on_indication_pdcp_sm_ag(sm_agent_t* sm_agent)
 }
 
 static
-sm_ctrl_out_data_t on_control_pdcp_sm_ag(sm_agent_t* sm_agent, sm_ctrl_req_data_t const* data)
+sm_ctrl_out_data_t on_control_pdcp_sm_ag(sm_agent_t const* sm_agent, sm_ctrl_req_data_t const* data)
 {
   assert(sm_agent != NULL);
   assert(data != NULL);
   sm_pdcp_agent_t* sm = (sm_pdcp_agent_t*) sm_agent;
 
-  pdcp_ctrl_hdr_t hdr = pdcp_dec_ctrl_hdr(&sm->enc, data->len_hdr, data->ctrl_hdr);
-  defer({ free_pdcp_ctrl_hdr(&hdr); });
-  assert(hdr.dummy == 0 && "Only dummy == 0 supported ");
+  pdcp_ctrl_req_data_t pdcp_req_ctrl = {0};
 
-  pdcp_ctrl_msg_t msg = pdcp_dec_ctrl_msg(&sm->enc, data->len_msg, data->ctrl_msg);
-  defer({ free_pdcp_ctrl_msg(&msg); });
-  assert(msg.action == 42 && "Only action number 42 supported");
+  pdcp_req_ctrl.hdr = pdcp_dec_ctrl_hdr(&sm->enc, data->len_hdr, data->ctrl_hdr);
+  defer({ free_pdcp_ctrl_hdr(&pdcp_req_ctrl.hdr); });
+  assert(pdcp_req_ctrl.hdr.dummy == 0 && "Only dummy == 0 supported ");
 
-  sm_ag_if_wr_t wr = {.type = PDCP_CTRL_REQ_V0 };
-  wr.pdcp_req_ctrl.msg = cp_pdcp_ctrl_msg(&msg);
+  pdcp_req_ctrl.msg = pdcp_dec_ctrl_msg(&sm->enc, data->len_msg, data->ctrl_msg);
+  defer({ free_pdcp_ctrl_msg(&pdcp_req_ctrl.msg); });
+  assert(pdcp_req_ctrl.msg.action == 42 && "Only action number 42 supported");
+
+//  sm_ag_if_wr_t wr = {.type = CONTROL_SM_AG_IF_WR };
+//  wr.ctrl.type = PDCP_CTRL_REQ_V0; 
+//  wr.ctrl.pdcp_req_ctrl.msg = cp_pdcp_ctrl_msg(&msg);
+
+//  pdcp_ctrl_req_data_t pdcp_req_ctrl = {0};
+//  pdcp_req_ctrl.msg = cp_pdcp_ctrl_msg(&msg); 
 
   // Call the RAN
- sm_ag_if_ans_t ans = sm->base.io.write(&wr);
- assert(ans.type == PDCP_AGENT_IF_CTRL_ANS_V0);
-  defer({ free_pdcp_ctrl_out(&ans.pdcp); });
+  sm_ag_if_ans_t ans = sm->base.io.write_ctrl(&pdcp_req_ctrl);
+  assert(ans.type == CTRL_OUTCOME_SM_AG_IF_ANS_V0);
+  assert(ans.ctrl_out.type == PDCP_AGENT_IF_CTRL_ANS_V0);
+
+  defer({ free_pdcp_ctrl_out(&ans.ctrl_out.pdcp); });
 
   // Encode the answer from the RAN
-  byte_array_t ba = pdcp_enc_ctrl_out(&sm->enc, &ans.pdcp);
+  byte_array_t ba = pdcp_enc_ctrl_out(&sm->enc, &ans.ctrl_out.pdcp);
 
   sm_ctrl_out_data_t ret = {0}; 
   ret.len_out = ba.len;
@@ -139,30 +151,55 @@ sm_ctrl_out_data_t on_control_pdcp_sm_ag(sm_agent_t* sm_agent, sm_ctrl_req_data_
 }
 
 static
-sm_e2_setup_t on_e2_setup_pdcp_sm_ag(sm_agent_t* sm_agent)
+sm_e2_setup_data_t on_e2_setup_pdcp_sm_ag(sm_agent_t const* sm_agent)
 {
   assert(sm_agent != NULL);
   //printf("on_e2_setup called \n");
   sm_pdcp_agent_t* sm = (sm_pdcp_agent_t*)sm_agent;
+  (void)sm;
 
-  sm_e2_setup_t setup = {.len_rfd =0, .ran_fun_def = NULL  }; 
+  sm_e2_setup_data_t setup = {.len_rfd =0, .ran_fun_def = NULL  }; 
 
+  // ToDo: Missing a call to the RAN to fill this data
+  size_t const sz = strnlen(SM_PDCP_STR, 256);
+  assert(sz < 256 && "Buffer overeflow?");
+
+  setup.len_rfd = sz;
+  setup.ran_fun_def = calloc(1, sz);
+  assert(setup.ran_fun_def != NULL);
+
+  memcpy(setup.ran_fun_def, SM_PDCP_STR , sz);
+ 
+
+  /*
   setup.len_rfd = strlen(sm->base.ran_func_name);
   setup.ran_fun_def = calloc(1, strlen(sm->base.ran_func_name));
   assert(setup.ran_fun_def != NULL);
   memcpy(setup.ran_fun_def, sm->base.ran_func_name, strlen(sm->base.ran_func_name));
 
+  // RAN Function
+  setup.rf.definition = cp_str_to_ba(SM_PDCP_SHORT_NAME);
+  setup.rf.id = SM_PDCP_ID;
+  setup.rf.rev = SM_PDCP_REV;
+
+  setup.rf.oid = calloc(1, sizeof(byte_array_t) );
+  assert(setup.rf.oid != NULL && "Memory exhausted");
+
+  *setup.rf.oid = cp_str_to_ba(SM_PDCP_OID);
+*/
   return setup;
 }
 
 static
-void on_ric_service_update_pdcp_sm_ag(sm_agent_t* sm_agent, sm_ric_service_update_t const* data)
+sm_ric_service_update_data_t on_ric_service_update_pdcp_sm_ag(sm_agent_t const* sm_agent)
 {
   assert(sm_agent != NULL);
-  assert(data != NULL);
-
+  assert(0!=0 && "Not implemented");
 
   printf("on_ric_service_update called \n");
+
+  sm_ric_service_update_data_t dst = {0};
+  return dst;
 }
 
 static
@@ -174,15 +211,56 @@ void free_pdcp_sm_ag(sm_agent_t* sm_agent)
 }
 
 
-sm_agent_t* make_pdcp_sm_agent(sm_io_ag_t io)
+// General SM information
+
+// Definition
+static
+char const* def_pdcp_sm_ag(void)
+{
+  return SM_PDCP_STR;
+}
+
+// ID
+static
+uint16_t id_pdcp_sm_ag(void)
+{
+  return SM_PDCP_ID; 
+}
+
+  // Revision
+static
+uint16_t rev_pdcp_sm_ag (void)
+{
+  return SM_PDCP_REV;
+}
+
+// OID
+static
+char const* oid_pdcp_sm_ag (void)
+{
+  return SM_PDCP_OID;
+}
+
+
+sm_agent_t* make_pdcp_sm_agent(sm_io_ag_ran_t io)
 {
   sm_pdcp_agent_t* sm = calloc(1, sizeof(*sm));
   assert(sm != NULL && "Memory exhausted!!!");
 
-  *(uint16_t*)(&sm->base.ran_func_id) = SM_PDCP_ID; 
+ // *(uint16_t*)(&sm->base.ran_func_id) = SM_PDCP_ID; 
 
-  sm->base.io = io;
+  //sm->base.io = io;
+
+  // Read
+  sm->base.io.read_ind = io.read_ind_tbl[PDCP_STATS_V0];
+  sm->base.io.read_setup = io.read_setup_tbl[PDCP_AGENT_IF_E2_SETUP_ANS_V0];
+ 
+  //Write
+  sm->base.io.write_ctrl = io.write_ctrl_tbl[PDCP_CTRL_REQ_V0];
+  sm->base.io.write_subs = io.write_subs_tbl[PDCP_SUBS_V0];
+
   sm->base.free_sm = free_pdcp_sm_ag;
+  sm->base.free_act_def = NULL; //free_act_def_pdcp_sm_ag;
 
   // O-RAN E2SM 5 Procedures
   sm->base.proc.on_subscription = on_subscription_pdcp_sm_ag;
@@ -191,8 +269,17 @@ sm_agent_t* make_pdcp_sm_agent(sm_io_ag_t io)
   sm->base.proc.on_ric_service_update = on_ric_service_update_pdcp_sm_ag;
   sm->base.proc.on_e2_setup = on_e2_setup_pdcp_sm_ag;
 
-  assert(strlen(SM_PDCP_STR) < sizeof( sm->base.ran_func_name) );
-  memcpy(sm->base.ran_func_name, SM_PDCP_STR, strlen(SM_PDCP_STR)); 
+  // General SM information
+  sm->base.info.def = def_pdcp_sm_ag;
+  sm->base.info.id =  id_pdcp_sm_ag;
+  sm->base.info.rev = rev_pdcp_sm_ag;
+  sm->base.info.oid = oid_pdcp_sm_ag;
+
+
+
+
+//  assert(strlen(SM_PDCP_STR) < sizeof( sm->base.ran_func_name) );
+//  memcpy(sm->base.ran_func_name, SM_PDCP_STR, strlen(SM_PDCP_STR)); 
 
   return &sm->base;
 }

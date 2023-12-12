@@ -19,16 +19,15 @@
  *      contact@openairinterface.org
  */
 
-
 #ifndef GTP_SERVICE_MODEL_AGENT_H
 #define GTP_SERVICE_MODEL_AGENT_H
 
+#include "../sm_agent.h"
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../sm_agent.h"
-
-sm_agent_t* make_gtp_sm_agent(sm_io_ag_t io);
+__attribute__ ((visibility ("default"))) 
+sm_agent_t* make_gtp_sm_agent(sm_io_ag_ran_t io);
 
 #endif
 

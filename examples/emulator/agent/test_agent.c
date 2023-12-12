@@ -19,98 +19,148 @@
  *      contact@openairinterface.org
  */
 
+#if defined(__clang__) || defined (__GNUC__)
+# define ATTRIBUTE_NO_SANITIZE_THREAD  __attribute__((no_sanitize("thread")))
+#else
+# define ATTRIBUTE_NO_SANITIZE_THREAD
+#endif
 
 
 #include "../../../src/agent/e2_agent_api.h"
-#include "../../../test/sm/common/fill_ind_data.h"
-
+#include "../../../src/util/alg_ds/alg/defer.h"
+#include "read_setup_ran.h"
+#include "sm_mac.h"
+#include "sm_rlc.h"
+#include "sm_pdcp.h"
+#include "sm_gtp.h"
+#include "sm_slice.h"
+#include "sm_tc.h"
+#include "sm_kpm.h"
+#include "sm_rc.h"
 #include <assert.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <poll.h>
+#include <pthread.h>
 #include <unistd.h>
 
-
 static
-void read_RAN(sm_ag_if_rd_t* data)
+void init_read_ind_tbl(read_ind_fp (*read_ind_tbl)[SM_AGENT_IF_READ_V0_END])
 {
-  assert(data->type == MAC_STATS_V0 || data->type == RLC_STATS_V0 ||  data->type == PDCP_STATS_V0 || data->type == SLICE_STATS_V0 || data->type == KPM_STATS_V0 || data->type == GTP_STATS_V0);
-
-
-  if(data->type == MAC_STATS_V0 ){
-    fill_mac_ind_data(&data->mac_stats);
-  } else if(data->type == RLC_STATS_V0) {
-    fill_rlc_ind_data(&data->rlc_stats);
-  } else if (data->type == PDCP_STATS_V0 ){
-    fill_pdcp_ind_data(&data->pdcp_stats);
-  } else if(data->type == SLICE_STATS_V0 ){
-    fill_slice_ind_data(&data->slice_stats);
-  } else if(data->type == GTP_STATS_V0 ){
-    fill_gtp_ind_data(&data->gtp_stats);
-  } else if(data->type == KPM_STATS_V0 ){
-    fill_kpm_ind_data(&data->kpm_stats);
-  } else {
-    assert("Invalid data type");
-  }
+  (*read_ind_tbl)[MAC_STATS_V0] = read_mac_sm;
+  (*read_ind_tbl)[RLC_STATS_V0] = read_rlc_sm ;
+  (*read_ind_tbl)[PDCP_STATS_V0] = read_pdcp_sm ;
+  (*read_ind_tbl)[SLICE_STATS_V0] = read_slice_sm ;
+  (*read_ind_tbl)[TC_STATS_V0] = read_tc_sm ;
+  (*read_ind_tbl)[GTP_STATS_V0] = read_gtp_sm ;
+  (*read_ind_tbl)[KPM_STATS_V3_0] = read_kpm_sm ;
+  (*read_ind_tbl)[RAN_CTRL_STATS_V1_03] = read_rc_sm;
 }
 
 static
-sm_ag_if_ans_t write_RAN(sm_ag_if_wr_t const* data)
+void init_read_setup_tbl(read_e2_setup_fp (*read_setup_tbl)[SM_AGENT_IF_E2_SETUP_ANS_V0_END])
 {
-  assert(data != NULL);
-  if(data->type == MAC_CTRL_REQ_V0){
-    //printf("Control message called in the RAN \n");
-    sm_ag_if_ans_t ans = {.type = MAC_AGENT_IF_CTRL_ANS_V0};
-    ans.mac.ans = MAC_CTRL_OUT_OK;
-    return ans;
-  } else if(data->type == SLICE_CTRL_REQ_V0 ){
-
-    slice_ctrl_req_data_t const* slice_req_ctrl = &data->slice_req_ctrl;
-    slice_ctrl_msg_t const* msg = &slice_req_ctrl->msg;
-
-    if(msg->type == SLICE_CTRL_SM_V0_ADD){
-        printf("[E2 Agent]: SLICE CONTROL ADD rx\n");
-    } else if (msg->type == SLICE_CTRL_SM_V0_DEL){
-        printf("[E2 Agent]: SLICE CONTROL DEL rx\n");
-    } else if (msg->type == SLICE_CTRL_SM_V0_UE_SLICE_ASSOC){
-        printf("[E2 Agent]: SLICE CONTROL ASSOC rx\n");
-    } else {
-      assert(0!=0 && "Unknown msg_type!");
-    }
-
-    sm_ag_if_ans_t ans = {.type =  SLICE_AGENT_IF_CTRL_ANS_V0};
-    return ans;
-  } else  if(data->type == TC_CTRL_REQ_V0){
-    tc_ctrl_req_data_t const* ctrl = &data->tc_req_ctrl;
-
-    tc_ctrl_msg_e const t = ctrl->msg.type;
-
-    assert(t == TC_CTRL_SM_V0_CLS || t == TC_CTRL_SM_V0_PLC 
-          || t == TC_CTRL_SM_V0_QUEUE || t ==TC_CTRL_SM_V0_SCH 
-          || t == TC_CTRL_SM_V0_SHP || t == TC_CTRL_SM_V0_PCR);
-
-    sm_ag_if_ans_t ans = {.type =  TC_AGENT_IF_CTRL_ANS_V0};
-    return ans;
-
-  } else {
-    assert(0 != 0 && "Not supported function ");
-  }
-  sm_ag_if_ans_t ans = {0};
-  return ans;
+  (*read_setup_tbl)[MAC_AGENT_IF_E2_SETUP_ANS_V0] = read_mac_setup_sm;
+  (*read_setup_tbl)[RLC_AGENT_IF_E2_SETUP_ANS_V0] = read_rlc_setup_sm ;
+  (*read_setup_tbl)[PDCP_AGENT_IF_E2_SETUP_ANS_V0] = read_pdcp_setup_sm ;
+  (*read_setup_tbl)[SLICE_AGENT_IF_E2_SETUP_ANS_V0] = read_slice_setup_sm ;
+  (*read_setup_tbl)[TC_AGENT_IF_E2_SETUP_ANS_V0] = read_tc_setup_sm ;
+  (*read_setup_tbl)[GTP_AGENT_IF_E2_SETUP_ANS_V0] = read_gtp_setup_sm ;
+  (*read_setup_tbl)[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_kpm_setup_sm ;
+  (*read_setup_tbl)[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_rc_setup_sm;
 }
+
+static
+void init_write_ctrl( write_ctrl_fp (*write_ctrl_tbl)[SM_AGENT_IF_WRITE_CTRL_V0_END])
+{
+  (*write_ctrl_tbl)[MAC_CTRL_REQ_V0] = write_ctrl_mac_sm;
+  (*write_ctrl_tbl)[RLC_CTRL_REQ_V0] =  write_ctrl_rlc_sm;
+  (*write_ctrl_tbl)[PDCP_CTRL_REQ_V0] =  write_ctrl_pdcp_sm;
+  (*write_ctrl_tbl)[SLICE_CTRL_REQ_V0] =  write_ctrl_slice_sm;
+  (*write_ctrl_tbl)[TC_CTRL_REQ_V0] =  write_ctrl_tc_sm;
+  (*write_ctrl_tbl)[GTP_CTRL_REQ_V0] =  write_ctrl_gtp_sm;
+  (*write_ctrl_tbl)[RAN_CONTROL_CTRL_V1_03] =  write_ctrl_rc_sm;
+}
+
+
+static
+void init_write_subs(write_subs_fp (*write_subs_tbl)[SM_AGENT_IF_WRITE_SUBS_V0_END])
+{
+  (*write_subs_tbl)[MAC_SUBS_V0] = NULL;
+  (*write_subs_tbl)[RLC_SUBS_V0] = NULL;
+  (*write_subs_tbl)[PDCP_SUBS_V0] = NULL;
+  (*write_subs_tbl)[SLICE_SUBS_V0] = NULL;
+  (*write_subs_tbl)[TC_SUBS_V0] = NULL;
+  (*write_subs_tbl)[GTP_SUBS_V0] = NULL;
+  (*write_subs_tbl)[KPM_SUBS_V3_0] = NULL;
+  (*write_subs_tbl)[RAN_CTRL_SUBS_V1_03] = write_subs_rc_sm;
+}
+
+static
+sm_io_ag_ran_t init_io_ag()
+{
+  sm_io_ag_ran_t io = {0};
+  init_read_ind_tbl(&io.read_ind_tbl);
+  init_read_setup_tbl(&io.read_setup_tbl);
+#if defined(E2AP_V2) || defined(E2AP_V3)
+  io.read_setup_ran = read_setup_ran;
+#endif
+  init_write_ctrl(&io.write_ctrl_tbl);
+  init_write_subs(&io.write_subs_tbl);
+
+  return io;
+}
+
+/*
+static
+void read_RAN(sm_ag_if_rd_t* ag_rd)
+{
+  assert(ag_rd->type == INDICATION_MSG_AGENT_IF_ANS_V0
+      || ag_rd->type == E2_SETUP_AGENT_IF_ANS_V0);
+
+  if(ag_rd->type == INDICATION_MSG_AGENT_IF_ANS_V0)
+      read_ind_tbl[ag_rd->ind.type](&ag_rd->ind);
+  else if(ag_rd->type == E2_SETUP_AGENT_IF_ANS_V0 )
+      read_setup_tbl[ag_rd->e2ap.type](&ag_rd->e2ap);
+  else
+    assert(0!=0 && "Unknown type");
+}
+
+static
+sm_ag_if_ans_t write_RAN(sm_ag_if_wr_t const* ag_wr)
+{
+  assert(ag_wr!= NULL);
+  assert(ag_wr->type == CONTROL_SM_AG_IF_WR
+        || ag_wr->type == SUBSCRIPTION_SM_AG_IF_WR);
+
+  if(ag_wr->type == CONTROL_SM_AG_IF_WR){
+    return write_ctrl_tbl[ag_wr->ctrl.type](&ag_wr->ctrl);
+  }
+  return write_subs_tbl[ag_wr->subs.type](&ag_wr->subs);
+}
+
+*/
+
+
+ATTRIBUTE_NO_SANITIZE_THREAD static
+void stop_and_exit()
+{
+  // Stop the E2 Agent
+  stop_agent_api();
+  exit(EXIT_SUCCESS);
+}
+
+static
+pthread_once_t once = PTHREAD_ONCE_INIT;
 
 static
 void sig_handler(int sig_num)
 {
-  printf("\nEnding the E2 Agent with signal number = %d\n", sig_num);
-
-  // Stop the E2 Agent
-  stop_agent_api();
-
-  exit(0);
+  printf("\nEnding the E2 Agent with signal number = %d\n. Please, wait.", sig_num);
+  // For the impatient, do not break my code
+  pthread_once(&once, stop_and_exit);
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -118,45 +168,24 @@ int main(int argc, char *argv[])
   signal(SIGINT, sig_handler);
 
   // Init the Agent
-#ifdef TEST_AGENT_GNB
-  const ngran_node_t ran_type = ngran_gNB;
-  const int mcc = 505;
-  const int mnc = 1;
-  const int mnc_digit_len = 2;
-  const int nb_id = 1;
-  const int cu_du_id = 0;
-#elif TEST_AGENT_GNB_CU
-  const ngran_node_t ran_type = ngran_gNB_CU;
-  const int mcc = 505;
-  const int mnc = 1;
-  const int mnc_digit_len = 2;
-  const int nb_id = 2;
-  const int cu_du_id = 21;
-#elif TEST_AGENT_GNB_DU
-  const ngran_node_t ran_type = ngran_gNB_DU;
-  const int mcc = 505;
-  const int mnc = 1;
-  const int mnc_digit_len = 2;
-  const int nb_id = 2;
-  const int cu_du_id = 22;
-#elif TEST_AGENT_ENB
-  const ngran_node_t ran_type = ngran_eNB;
-  const int mcc = 208;
-  const int mnc = 94;
-  const int mnc_digit_len = 2;
-  const int nb_id = 4;
-  const int cu_du_id = 0;
-#else
-  static_assert( 0!=0 , "Unknown type");
-#endif
+  // Values defined in the CMakeLists.txt file
+  const e2ap_ngran_node_t ran_type = TEST_AGENT_RAN_TYPE;
+  const int mcc = TEST_AGENT_MCC;
+  const int mnc = TEST_AGENT_MNC;
+  const int mnc_digit_len = TEST_AGENT_MNC_DIG_LEN;
+  const int nb_id = TEST_AGENT_NB_ID;
+  const int cu_du_id = TEST_AGENT_CU_DU_ID;
 
-  sm_io_ag_t io = {.read = read_RAN, .write = write_RAN};
+  sm_io_ag_ran_t io = init_io_ag();
+
   fr_args_t args = init_fr_args(argc, argv);
+  defer({ free_fr_args(&args); });
 
-  if (NODE_IS_MONOLITHIC(ran_type))
-    printf("[E2 AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n", nb_id, mcc, mnc, mnc_digit_len, get_ngran_name(ran_type));
+  if (E2AP_NODE_IS_MONOLITHIC(ran_type))
+    printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n", nb_id, mcc, mnc, mnc_digit_len, get_e2ap_ngran_name(ran_type));
   else
-    printf("[E2 AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %d\n", nb_id, mcc, mnc, mnc_digit_len, get_ngran_name(ran_type), cu_du_id);
+    printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %d\n", nb_id, mcc, mnc, mnc_digit_len, get_e2ap_ngran_name(ran_type), cu_du_id);
+
   init_agent_api(mcc, mnc, mnc_digit_len, nb_id, cu_du_id, ran_type, io, &args);
 
   while(1){

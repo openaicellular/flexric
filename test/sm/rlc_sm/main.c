@@ -19,8 +19,7 @@
  *      contact@openairinterface.org
  */
 
-
-#include "../common/fill_ind_data.h"
+#include "../../rnd/fill_rnd_data_rlc.h"
 #include "../../../src/sm/rlc_sm/rlc_sm_agent.h"
 #include "../../../src/sm/rlc_sm/rlc_sm_ric.h"
 
@@ -40,17 +39,18 @@ rlc_ind_data_t cp;
 ////
 
 static
-void read_RAN(sm_ag_if_rd_t* read)
+void read_rlc_ind(void* read)
 {
   assert(read != NULL);
-  assert(read->type == RLC_STATS_V0);
 
-  fill_rlc_ind_data(&read->rlc_stats);
-  cp.hdr = cp_rlc_ind_hdr(&read->rlc_stats.hdr);
-  cp.msg = cp_rlc_ind_msg(&read->rlc_stats.msg);
+  rlc_ind_data_t* rlc = (rlc_ind_data_t*)read;
+
+  fill_rlc_ind_data(rlc);
+  cp.hdr = cp_rlc_ind_hdr(&rlc->hdr);
+  cp.msg = cp_rlc_ind_msg(&rlc->msg);
 }
 
-
+/*
 static 
 sm_ag_if_ans_t write_RAN(sm_ag_if_wr_t const* data)
 {
@@ -59,6 +59,7 @@ sm_ag_if_ans_t write_RAN(sm_ag_if_wr_t const* data)
   sm_ag_if_ans_t ans = {0};
   return ans;
 }
+*/
 
 /////////////////////////////
 // Check Functions
@@ -69,7 +70,7 @@ void check_eq_ran_function(sm_agent_t const* ag, sm_ric_t const* ric)
 {
   assert(ag != NULL);
   assert(ric != NULL);
-  assert(ag->ran_func_id == ric->ran_func_id);
+  assert(ag->info.id() == ric->ran_func_id);
 }
 
 // RIC -> E2
@@ -78,9 +79,12 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
 {
   assert(ag != NULL);
   assert(ric != NULL);
+
+  char sub[] = "2_ms";
+  sm_subs_data_t data = ric->proc.on_subscription(ric, &sub);
  
-  sm_subs_data_t data = ric->proc.on_subscription(ric, "2_ms");
-  ag->proc.on_subscription(ag, &data); 
+  subscribe_timer_t t = ag->proc.on_subscription(ag, &data); 
+  assert(t.ms == 2); 
 
   free_sm_subs_data(&data);
 }
@@ -92,7 +96,7 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   assert(ag != NULL);
   assert(ric != NULL);
 
-  sm_ind_data_t sm_data = ag->proc.on_indication(ag);
+  sm_ind_data_t sm_data = ag->proc.on_indication(ag, NULL);
   if(sm_data.call_process_id != NULL){
     assert(sm_data.len_cpid != 0);
   }
@@ -103,17 +107,15 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
     assert(sm_data.len_msg != 0);
   }
 
- sm_ag_if_rd_t msg = ric->proc.on_indication(ric, &sm_data);
+ sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &sm_data);
 
   assert(msg.type == RLC_STATS_V0);
 
+  rlc_ind_data_t* data = &msg.rlc;
 
-  rlc_ind_data_t* data = &msg.rlc_stats;
-
- if(msg.rlc_stats.msg.rb != NULL){
-      assert(msg.rlc_stats.msg.len != 0);
+ if(msg.rlc.msg.rb != NULL){
+      assert(msg.rlc.msg.len != 0);
  } 
-
 
   assert(eq_rlc_ind_hdr(&data->hdr, &cp.hdr) == true);
   assert(eq_rlc_ind_msg(&data->msg, &cp.msg) == true);
@@ -127,7 +129,10 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
 
 int main()
 {
-  sm_io_ag_t io_ag = {.read = read_RAN, .write = write_RAN};  
+  sm_io_ag_ran_t io_ag = {0};
+
+  io_ag.read_ind_tbl[RLC_SUBS_V0] = read_rlc_ind; 
+
   sm_agent_t* sm_ag = make_rlc_sm_agent(io_ag);
 
   sm_ric_t* sm_ric = make_rlc_sm_ric();

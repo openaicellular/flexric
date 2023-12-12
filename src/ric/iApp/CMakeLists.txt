@@ -55,14 +55,13 @@ endif()
 #  target_compile_definitions(e42_iapp PRIVATE IAPP_EMULATOR)
 #endif()
 
-
-
-target_compile_definitions(e42_iapp PRIVATE ${E2AP_ENCODING})
+target_compile_definitions(e42_iapp PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION} )
 
 target_link_libraries(e42_iapp
                       PUBLIC 
                       -pthread
                       -lsctp
                       -ldl
+                      -lconfig
                       )
 

@@ -160,16 +160,17 @@ sctp_msg_t e2ap_recv_sctp_msg(e2ap_ep_t* ep)
 
   sctp_msg_t from = {0}; 
 
-  from.ba.len = 16384;
-  from.ba.buf = malloc(16384);
-
+  from.ba.len = 32*1024;
+  from.ba.buf = malloc(32*1024);
   assert(from.ba.buf != NULL && "Memory exhausted");
 
   socklen_t len = sizeof(from.info.addr);
   int msg_flags = 0;
 
   lock_guard(&((e2ap_ep_t*)ep)->mtx);
-  int const rc = sctp_recvmsg(ep->fd, from.ba.buf, from.ba.len, (struct sockaddr*)&from.info.addr, &len, &from.info.sri, &msg_flags);
+  int const rc = sctp_recvmsg(ep->fd, from.ba.buf, from.ba.len,
+                              (struct sockaddr *)&from.info.addr, &len,
+                              &from.info.sri, &msg_flags);
   assert(rc > -1 && rc != 0 && rc < (int)from.ba.len);
 
   if(msg_flags & MSG_NOTIFICATION){
@@ -179,7 +180,11 @@ sctp_msg_t e2ap_recv_sctp_msg(e2ap_ep_t* ep)
     free(from.ba.buf); 
 
     from.type = SCTP_MSG_NOTIFICATION;
-    from.notif = cp_sctp_notification((union sctp_notification*) buf, rc); 
+    //from.notif = cp_sctp_notification((union sctp_notification*) buf, rc); 
+    from.notif = calloc(1,sizeof(union sctp_notification));
+    assert(from.notif != NULL && "Memory exhausted");
+
+    *from.notif = cp_sctp_notification((union sctp_notification*) buf, rc); 
   } else {
     from.type = SCTP_MSG_PAYLOAD;
     from.ba.len = rc; // set actually received number of bytes

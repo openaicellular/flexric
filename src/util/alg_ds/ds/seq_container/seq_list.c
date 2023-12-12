@@ -1,3 +1,29 @@
+/*
+MIT License
+
+Copyright (c) 2022 Mikel Irazabal
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+
+
 #include "seq_list.h"
 
 #include <assert.h>
@@ -65,6 +91,20 @@ void seq_list_push_back(seq_list_t* lst, void* data)
   }
   last->next = lst_node_init(data);
   ++lst->size; 
+}
+// XXX: do a unit test for this function and the whole funtionalities of seq_list.c
+void seq_list_pop_front(seq_list_t* lst)
+{
+  assert(lst != NULL);
+  if(lst->root == NULL) 
+    return;
+  
+  lst_node_t *front_node = seq_list_front(lst);
+  lst_node_t *successor_node = front_node->next;
+  free (front_node->data);
+  front_node->data = NULL; 
+  lst->root = successor_node;
+  lst->size--;
 }
 
 void seq_list_erase(seq_list_t* lst, void* it)

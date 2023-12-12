@@ -12,15 +12,24 @@ set(SM_ENCODING_MAC_SRC
                      ../../util/alg_ds/ds/seq_container/seq_ring.c 
                      ../../util/alg_ds/ds/assoc_container/assoc_rb_tree.c
                      ../../util/alg_ds/ds/assoc_container/bimap.c
-                      ie/mac_data_ie.c
+                     # This dependency sucks!
+                     $<TARGET_OBJECTS:e2ap_ran_func_obj>
+                     ie/mac_data_ie.c
                       )
 
 if(SM_ENCODING_MAC STREQUAL "PLAIN")
-  add_library(mac_sm SHARED
-                      ${SM_ENCODING_MAC_SRC}
-                      enc/mac_enc_plain.c 
-                      dec/mac_dec_plain.c 
-                      )
+  set(SM_ENCODING_MAC_SRC_ASN 
+    ${SM_ENCODING_MAC_SRC}
+    enc/mac_enc_plain.c 
+    dec/mac_dec_plain.c 
+    )
+
+  # Shared
+  add_library(mac_sm SHARED ${SM_ENCODING_MAC_SRC_ASN} )
+  target_compile_options(mac_sm PRIVATE -fvisibility=hidden)
+
+  # Static
+  add_library(mac_sm_static STATIC ${SM_ENCODING_MAC_SRC_ASN})
 
 elseif(SM_ENCODING_MAC STREQUAL "ASN")
   message(FATAL_ERROR "MAC SM ASN not implemented")
@@ -32,10 +41,12 @@ elseif(SM_ENCODING_MAC STREQUAL "ASN")
                       enc/mac_enc_asn.c 
                       dec/mac_dec_asn.c 
                       )
-  target_include_directories(mac_sm PRIVATE
-                            "ie/asn")
-  target_compile_options(mac_sm PUBLIC "-DASN_DISABLE_OER_SUPPORT")
-  target_compile_options(mac_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
+                    #target_include_directories(mac_sm PRIVATE
+                    #        "ie/asn")
+                    #  target_compile_options(mac_sm PUBLIC "-DASN_DISABLE_OER_SUPPORT")
+                    #  target_compile_options(mac_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
+
+
 
 elseif(SM_ENCODING_MAC STREQUAL "FLATBUFFERS" )
   message(FATAL_ERROR "MAC SM FB not implemented")
@@ -48,7 +59,8 @@ else()
   message(FATAL_ERROR "Unknown SM encoding type")
 endif()
 
-
-target_compile_definitions(mac_sm PUBLIC ${SM_ENCODING_MAC})
+# ToDo: Dependency from KPM_VERSION needs to be removed!
+target_compile_definitions(mac_sm PUBLIC ${SM_ENCODING_MAC} ${E2AP_VERSION}  ${KPM_VERSION} )
+target_compile_definitions(mac_sm_static PUBLIC ${SM_ENCODING_MAC} ${E2AP_VERSION}  ${KPM_VERSION} )
 
 

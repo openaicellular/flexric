@@ -5,7 +5,7 @@
 
 #include "e2_node.h"
 
-#include "../lib/ap/e2ap_types/common/e2ap_global_node_id.h"
+#include "../lib/e2ap/e2ap_global_node_id_wrapper.h"
 #include "../util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "../util/alg_ds/alg/alg.h"
 
@@ -25,7 +25,7 @@ void notification_handle_ric(near_ric_t* ric, sctp_msg_t const* msg)
   assert(ric != NULL);
   assert(msg != NULL && msg->type == SCTP_MSG_NOTIFICATION);
 
-  assert(msg->notif.sn_header.sn_type == SCTP_SHUTDOWN_EVENT && "Only shutdown event supported");
+  assert(msg->notif->sn_header.sn_type == SCTP_SHUTDOWN_EVENT && "Only shutdown event supported");
 
   global_e2_node_id_t* id = e2ap_rm_sock_addr_ric(&ric->ep, &msg->info);
   defer( { free(id); } );
