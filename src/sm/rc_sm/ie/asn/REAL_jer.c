@@ -24,3 +24,81 @@ REAL_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
 
     ASN__ENCODED_OK(er);
 }
+
+/*
+ * Decode the chunk of XML text encoding REAL.
+ */
+static enum jer_pbd_rval
+REAL__jer_body_decode(const asn_TYPE_descriptor_t *td, void *sptr,
+                      const void *chunk_buf, size_t chunk_size) {
+    REAL_t *st = (REAL_t *)sptr;
+    double value;
+    const char *jerdata = (const char *)chunk_buf;
+    char *endptr = 0;
+    char *b;
+
+    (void)td;
+
+    if(!chunk_size) return JPBD_BROKEN_ENCODING;
+
+    /*
+     * Decode an XMLSpecialRealValue: <MINUS-INFINITY>, etc.
+     */
+    if(jerdata[0] == 0x3c /* '<' */) {
+        size_t i;
+        for(i = 0; i < sizeof(specialRealValue) / sizeof(specialRealValue[0]); i++) {
+            struct specialRealValue_s *srv = &specialRealValue[i];
+            double dv;
+
+            if(srv->length != chunk_size
+            || memcmp(srv->string, chunk_buf, chunk_size))
+                continue;
+
+            /*
+             * It could've been done using
+             * (double)srv->dv / real_zero,
+             * but it summons fp exception on some platforms.
+             */
+            switch(srv->dv) {
+            case -1: dv = - INFINITY; break;
+            case 0: dv = NAN;	break;
+            case 1: dv = INFINITY;	break;
+            default: return JPBD_SYSTEM_FAILURE;
+            }
+
+            if(asn_double2REAL(st, dv))
+                return JPBD_SYSTEM_FAILURE;
+
+            return JPBD_BODY_CONSUMED;
+        }
+        ASN_DEBUG("Unknown XMLSpecialRealValue");
+        return JPBD_BROKEN_ENCODING;
+    }
+
+    /*
+     * Copy chunk into the nul-terminated string, and run strtod.
+     */
+    b = (char *)MALLOC(chunk_size + 1);
+    if(!b) return JPBD_SYSTEM_FAILURE;
+    memcpy(b, chunk_buf, chunk_size);
+    b[chunk_size] = 0;	/* nul-terminate */
+
+    value = strtod(b, &endptr);
+    FREEMEM(b);
+    if(endptr == b) return JPBD_BROKEN_ENCODING;
+
+    if(asn_double2REAL(st, value))
+        return JPBD_SYSTEM_FAILURE;
+
+    return JPBD_BODY_CONSUMED;
+}
+
+asn_dec_rval_t
+REAL_decode_jer(const asn_codec_ctx_t *opt_codec_ctx,
+                const asn_TYPE_descriptor_t *td, void **sptr,
+                const char *opt_mname, const void *buf_ptr, size_t size) {
+    return jer_decode_primitive(opt_codec_ctx, td,
+                                sptr, sizeof(REAL_t), opt_mname,
+                                buf_ptr, size, REAL__jer_body_decode);
+}
+

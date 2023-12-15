@@ -166,7 +166,7 @@ set(ASN_RC_SRC
   GNB-CU-UP-ID.c
   GNB-DU-ID.c
   GNB-ID.c
-  GraphicString.c
+  #GraphicString.c
   GroupID.c
   GUAMI.c
   GUMMEI.c

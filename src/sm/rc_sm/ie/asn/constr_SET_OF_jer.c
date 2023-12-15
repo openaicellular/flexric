@@ -6,6 +6,192 @@
 #include <asn_internal.h>
 #include <constr_SET_OF.h>
 
+/*
+ * Return a standardized complex structure.
+ */
+#undef RETURN
+#define RETURN(_code)                     \
+    do {                                  \
+        rval.code = _code;                \
+        rval.consumed = consumed_myself;  \
+        return rval;                      \
+    } while(0)
+
+#undef JER_ADVANCE
+#define JER_ADVANCE(num_bytes)                    \
+    do {                                          \
+        size_t num = num_bytes;                   \
+        buf_ptr = ((const char *)buf_ptr) + num;  \
+        size -= num;                              \
+        consumed_myself += num;                   \
+    } while(0)
+
+/*
+ * Decode the JER (JSON) data.
+ */
+asn_dec_rval_t
+SET_OF_decode_jer(const asn_codec_ctx_t *opt_codec_ctx,
+                  const asn_TYPE_descriptor_t *td, void **struct_ptr,
+                  const char *opt_mname, const void *buf_ptr, size_t size) {
+    /*
+     * Bring closer parts of structure description.
+     */
+    const asn_SET_OF_specifics_t *specs = (const asn_SET_OF_specifics_t *)td->specifics;
+    const asn_TYPE_member_t *element = td->elements;
+    const char *elm_tag;
+    const char *json_key = opt_mname ? opt_mname : td->xml_tag;
+
+    /*
+     * ... and parts of the structure being constructed.
+     */
+    void *st = *struct_ptr;  /* Target structure. */
+    asn_struct_ctx_t *ctx;   /* Decoder context */
+
+    asn_dec_rval_t rval = {RC_OK, 0};  /* Return value from a decoder */
+    ssize_t consumed_myself = 0;       /* Consumed bytes from ptr */
+
+    /*
+     * Create the target structure if it is not present already.
+     */
+    if(st == 0) {
+        st = *struct_ptr = CALLOC(1, specs->struct_size);
+        if(st == 0) RETURN(RC_FAIL);
+    }
+
+    /* Which tag is expected for the downstream */
+    if(specs->as_XMLValueList) {
+        elm_tag = (specs->as_XMLValueList == 1) ? 0 : "";
+    } else {
+        elm_tag = (*element->name)
+                ? element->name : element->type->xml_tag;
+    }
+
+    /*
+     * Restore parsing context.
+     */
+    ctx = (asn_struct_ctx_t *)((char *)st + specs->ctx_offset);
+
+    /*
+     * Phases of JER/JSON processing:
+     * Phase 0: Check that the opening tag matches our expectations.
+     * Phase 1: Processing body and reacting on closing tag.
+     * Phase 2: Processing inner type.
+     */
+    for(; ctx->phase <= 2;) {
+        pjer_chunk_type_e ch_type;  /* JER chunk type */
+        ssize_t ch_size;            /* Chunk size */
+        jer_check_sym_e scv;        /* Tag check value */
+
+        /*
+         * Go inside the inner member of a set.
+         */
+        if(ctx->phase == 2) {
+            asn_dec_rval_t tmprval = {RC_OK, 0};
+
+            /* Invoke the inner type decoder, m.b. multiple times */
+            ASN_DEBUG("JER/SET OF element [%s]", elm_tag);
+            tmprval = element->type->op->jer_decoder(opt_codec_ctx,
+                                                     element->type,
+                                                     &ctx->ptr, elm_tag,
+                                                     buf_ptr, size);
+            if(tmprval.code == RC_OK) {
+                asn_anonymous_set_ *list = _A_SET_FROM_VOID(st);
+                if(ASN_SET_ADD(list, ctx->ptr) != 0)
+                    RETURN(RC_FAIL);
+                ctx->ptr = 0;
+                JER_ADVANCE(tmprval.consumed);
+            } else {
+                JER_ADVANCE(tmprval.consumed);
+                RETURN(tmprval.code);
+            }
+            JER_ADVANCE(jer_whitespace_span(buf_ptr, size));
+            if(((const char*)buf_ptr)[0] != ']') {
+                ch_size = jer_next_token(&ctx->context, buf_ptr, size,
+                        &ch_type);
+                JER_ADVANCE(ch_size);
+            }
+
+            ctx->phase = 1;  /* Back to body processing */
+            ASN_DEBUG("JER/SET OF phase => %d", ctx->phase);
+            /* Fall through */
+        }
+
+        /*
+         * Get the next part of the XML stream.
+         */
+        ch_size = jer_next_token(&ctx->context,
+                                 buf_ptr, size, &ch_type);
+        if(ch_size == -1) {
+            RETURN(RC_FAIL);
+        } else {
+            switch(ch_type) {
+            case PJER_WMORE:
+                RETURN(RC_WMORE);
+            case PJER_TEXT:  /* Got XML comment */
+                JER_ADVANCE(ch_size);  /* Skip silently */
+                continue;
+
+            case PJER_DLM:
+            case PJER_VALUE:
+            case PJER_KEY:
+                break;  /* Check the rest down there */
+            }
+        }
+
+        scv = jer_check_sym(buf_ptr, ch_size, ctx->phase == 0 ? json_key : NULL);
+        ASN_DEBUG("JER/SET OF: scv = %d, ph=%d t=%s",
+                  scv, ctx->phase, json_key);
+        switch(scv) {
+        case JCK_ASTART:
+            continue;
+        case JCK_AEND:
+            if(ctx->phase == 0) break;
+            ctx->phase = 0;
+
+            if(ctx->phase == 0) {
+                /* No more things to decode */
+                JER_ADVANCE(ch_size);
+                ctx->phase = 3;  /* Phase out */
+                RETURN(RC_OK);
+            }
+        case JCK_OEND:
+            /* Fall through */
+        case JCK_KEY:
+        case JCK_COMMA:
+            if(ctx->phase == 0) {
+                JER_ADVANCE(ch_size);
+                if (scv == JCK_KEY) {
+                    ch_size = jer_next_token(&ctx->context, buf_ptr, size,
+                            &ch_type);
+                    JER_ADVANCE(ch_size);
+                }
+                ctx->phase = 1;  /* Processing body phase */
+                continue;
+            }
+            /* Fall through */
+        case JCK_UNKNOWN:
+        case JCK_OSTART:
+            ASN_DEBUG("JER/SET OF: scv=%d, ph=%d", scv, ctx->phase);
+            if(ctx->phase == 1) {
+                /*
+                 * Process a single possible member.
+                 */
+                ctx->phase = 2;
+                continue;
+            }
+            /* Fall through */
+        default:
+            break;
+        }
+
+        ASN_DEBUG("Unexpected JSON key in SET OF");
+        break;
+    }
+
+    ctx->phase = 3;  /* "Phase out" on hard failure */
+    RETURN(RC_FAIL);
+}
+
 typedef struct jer_tmp_enc_s {
     void *buffer;
     size_t offset;
@@ -101,11 +287,6 @@ SET_OF_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
             size_t len = strlen(name);
             ASN__CALLBACK3("<", 1, name, len, "/>", 2);
         }
-
-        /* if(mname) { */
-        /*     ASN__CALLBACK3("</", 2, mname, mlen, ">", 1); */
-        /* } */
-
     }
 
     if(!xcan) ASN__TEXT_INDENT(1, ilevel - 1);
