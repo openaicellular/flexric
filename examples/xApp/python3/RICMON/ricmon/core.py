@@ -4,6 +4,7 @@ import time
 from .helpers import sm_configs_to_e2_statuses, \
                     sm_configs_to_e2_intervals, \
                     sm_configs_to_sm_filters, \
+                    sm_configs_to_access_names, \
                     CallbackHelper, ts_grouping, promscale_jsonize
 
 from typing import List
@@ -26,12 +27,12 @@ from faster_fifo import Queue
 # SUBSCRIBER #
 ##############
 class MACCallback(ric.mac_cb, CallbackHelper):
-    def __init__(self, sm_name, e2_metrics, report_checkpoint=0):
+    def __init__(self, sm_name, e2_metrics, report_checkpoint=0, access_names={}):
         # Call C++ base class constructor
         ric.mac_cb.__init__(self)
 
         # Call SubscriptionHelper's constructor
-        CallbackHelper.__init__(self, sm_name, e2_metrics, report_checkpoint)
+        CallbackHelper.__init__(self, sm_name, e2_metrics, report_checkpoint, access_names)
 
     # Override C++ method: virtual void handle(swig_mac_ind_msg_t a) = 0;
     def handle(self, ind):
@@ -41,9 +42,13 @@ class MACCallback(ric.mac_cb, CallbackHelper):
 
             try:
                 # E2-based filtering of messages, plus enqueuing
-                e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc, 
+                e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc,
                          ind.id.nb_id.nb_id, ind.id.cu_du_id, ind.id.type)
                 e2_filters = self.filters[e2_id]
+                access_name = 'unknown'
+                if e2_id[2] in self.access_names:
+                    if self.access_names[e2_id[2]]:
+                        access_name = self.access_names[e2_id[2]]
 
                 mac_data = [{
                     '__name__': metric,
@@ -54,6 +59,7 @@ class MACCallback(ric.mac_cb, CallbackHelper):
                     'nb_id': f"{e2_id[2]}",
                     'cu_du_id': e2_id[3],
                     'ran_type': f"{e2_id[4]}",
+                    'access_name': access_name,
                     'timestamp': tstamp_ms,
                     'value': getattr(ue_stat, metric),
                     'frame': f"{ue_stat.frame}",
@@ -77,12 +83,12 @@ class MACCallback(ric.mac_cb, CallbackHelper):
                 traceback.print_exc()
 
 class PDCPCallback(ric.pdcp_cb, CallbackHelper):
-    def __init__(self, sm_name, e2_metrics, report_checkpoint=0):
+    def __init__(self, sm_name, e2_metrics, report_checkpoint=0, access_names={}):
         # Call C++ base class constructor
         ric.pdcp_cb.__init__(self)
 
         # Call SubscriptionHelper's constructor
-        CallbackHelper.__init__(self, sm_name, e2_metrics, report_checkpoint)
+        CallbackHelper.__init__(self, sm_name, e2_metrics, report_checkpoint, access_names)
 
     # Override C++ method: virtual void handle(swig_pdcp_ind_msg_t a) = 0;
     def handle(self, ind):
@@ -92,9 +98,13 @@ class PDCPCallback(ric.pdcp_cb, CallbackHelper):
 
             try:
                 # E2-based filtering of messages, plus enqueuing
-                e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc, 
+                e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc,
                          ind.id.nb_id.nb_id, ind.id.cu_du_id, ind.id.type)
                 e2_filters = self.filters[e2_id]
+                access_name = 'unknown'
+                if e2_id[2] in self.access_names:
+                    if self.access_names[e2_id[2]]:
+                        access_name = self.access_names[e2_id[2]]
 
                 pdcp_data = [{
                     '__name__': f"pdcp_{metric}",
@@ -105,6 +115,7 @@ class PDCPCallback(ric.pdcp_cb, CallbackHelper):
                     'nb_id': f"{e2_id[2]}",
                     'cu_du_id': e2_id[3],
                     'ran_type': f"{e2_id[4]}",
+                    'access_name': access_name,
                     'timestamp': tstamp_ms,
                     'value': getattr(rb_stat, metric),
                     'ricmonstamp': ricmont_ms
@@ -126,9 +137,11 @@ class PDCPCallback(ric.pdcp_cb, CallbackHelper):
                 traceback.print_exc()
 
 class KPMCallback(ric.kpm_cb):
-    def __init__(self):
+    def __init__(self, access_names={}):
         # Call C++ base class constructor
         ric.kpm_cb.__init__(self)
+
+        self.access_names = access_names
 
     def _get_ue_id(self, ue_meas_report_lst):
         if ue_meas_report_lst.type == ric.GNB_UE_ID_E2SM:
@@ -166,6 +179,10 @@ class KPMCallback(ric.kpm_cb):
                 try:
                     e2_id = (ind.id.plmn.mcc, ind.id.plmn.mnc,
                             ind.id.nb_id.nb_id, ind.id.cu_du_id, ind.id.type)
+                    access_name = 'unknown'
+                    if e2_id[2] in self.access_names:
+                        if self.access_names[e2_id[2]]:
+                            access_name = self.access_names[e2_id[2]]
 
                     kpm_data = [
                         {
@@ -177,6 +194,7 @@ class KPMCallback(ric.kpm_cb):
                             'nb_id': f"{e2_id[2]}",
                             'cu_du_id': e2_id[3],
                             'ran_type': f"{e2_id[4]}",
+                            'access_name': access_name,
                             'timestamp': tstamp_ms,
                             'value': self._get_metric_value(meas_record),
                             'ricmonstamp': ricmont_ms
@@ -215,10 +233,13 @@ def subscriber(sm_configs, report_checkpoint):
     # {'<SM>': {(e2_id): ['<metric_i>']}}
     sm_filters = sm_configs_to_sm_filters(sm_configs)
 
+    # Get access names from the sm_configs
+    access_names = sm_configs_to_access_names(sm_configs)
+
     # Create shared callbacks between different E2-Nodes
-    shared_mac_cb = MACCallback('MAC', sm_filters['MAC'], report_checkpoint)
-    shared_pdcp_cb = PDCPCallback('PDCP', sm_filters['PDCP'], report_checkpoint)
-    shared_kpm_cb = KPMCallback()
+    shared_mac_cb = MACCallback('MAC', sm_filters['MAC'], report_checkpoint, access_names)
+    shared_pdcp_cb = PDCPCallback('PDCP', sm_filters['PDCP'], report_checkpoint, access_names)
+    shared_kpm_cb = KPMCallback(access_names)
 
     # Now, let us handle multiple E2-Node subscriptions
     global is_running
@@ -323,10 +344,10 @@ def write(idx, is_running, msg_queue, obj_store,
     # Set the DataFrame schema & pick labels for GROUP BY
     msg_dtype = [('__name__', pl.Utf8), ('ue_id', pl.Utf8), ('ue_id_type', pl.Utf8),
                  ('mcc', pl.Utf8), ('mnc', pl.Utf8),
-                 ('nb_id', pl.Utf8), ('cu_du_id', pl.Utf8), ('ran_type', pl.Utf8),
+                 ('nb_id', pl.Utf8), ('cu_du_id', pl.Utf8), ('ran_type', pl.Utf8), ('access_name', pl.Utf8),
                  ('timestamp', pl.UInt64), ('value', pl.Float32), ('ricmonstamp', pl.UInt64)]
     labels_list = ['__name__', 'ue_id', 'ue_id_type',
-                   'mcc', 'mnc', 'nb_id', 'cu_du_id', 'ran_type']
+                   'mcc', 'mnc', 'nb_id', 'cu_du_id', 'ran_type', 'access_name']
 
     msgs_df = pl.DataFrame({}, schema=msg_dtype)
     while True:
@@ -363,7 +384,7 @@ def write(idx, is_running, msg_queue, obj_store,
 
             # POST to a Promscale (exception-prone)
             try:
-                response = session.post(promscale_url, 
+                response = session.post(promscale_url,
                                         data=snappy_payload, timeout=1)
                 if response.status_code != 200:
                     print(f"\n\t[PUSHER-{idx}] Prosmcale ERROR returned!\n")
@@ -399,13 +420,14 @@ def stats_writer(is_running, msg_queue, metrics_preprocs, promscale_url, is_db,
         max_retries=0, pool_block=True,
         pool_connections=1, pool_maxsize=num_threads*2)
     )
-    session.headers.update({'Content-Type': 'application/json', 
+    session.headers.update({'Content-Type': 'application/json',
                             'Content-Encoding': 'snappy'})
 
     # [Trick] A do-nothing sig-handler for the "spawned" StatsWriter process
     def writer_sighandler(signal, frame):
         pass
     signal.signal(signal.SIGINT, writer_sighandler)
+    signal.signal(signal.SIGTERM, writer_sighandler)
 
     # ThreadPool-based writing to PromScale
     OBJECT_STORE = {}
@@ -413,7 +435,7 @@ def stats_writer(is_running, msg_queue, metrics_preprocs, promscale_url, is_db,
     with ThreadPoolExecutor(num_threads) as executor:
         for idx in range(num_threads):
             executor.submit(write, idx, is_running, msg_queue, OBJECT_STORE,
-                            batch_size, session, promscale_url, 
+                            batch_size, session, promscale_url,
                             labels_key=labels_key)
 
     # When exit, draining the queues
@@ -455,6 +477,7 @@ def execute(flexapp_conf_path, running_configs, metrics_to_fns):
     # Move ric.init() out to override FlexApp sig-handler
     ric.init(['', '-c', flexapp_conf_path])
     signal.signal(signal.SIGINT, subscriber_sighandler)
+    signal.signal(signal.SIGTERM, subscriber_sighandler)
 
     stats_writer_proc.start()
     subscriber(running_configs['sm_configs'], running_configs['cbreport_every_msgs'])

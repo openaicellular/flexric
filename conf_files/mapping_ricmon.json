@@ -3,35 +3,42 @@
         "PDCP": {
             "(505, 1, 1, \"0\", \"ngran_gNB\")": {
                 "metrics": ["rxsdu_bytes", "rxsdu_pkts", "txsdu_bytes", "txsdu_pkts"],
-                "interval": "Interval_ms_5"
+                "interval": "Interval_ms_5",
+                "access_name": "test-gnb"
             },
             "(505, 1, 2, \"21\", \"ngran_gNB_CU\")": {
                 "metrics": ["rxsdu_bytes", "rxpdu_bytes"],
-                "interval": "Interval_ms_10"
+                "interval": "Interval_ms_10",
+                "access_name": "test-gnb-cu"
             }
         },
         "MAC": {
             "(505, 1, 1, \"0\", \"ngran_gNB\")": {
                 "metrics": ["dl_curr_tbs", "ul_curr_tbs", "dl_bler", "ul_bler", "dl_mcs1", "ul_mcs1", "phr", "wb_cqi"],
-                "interval": "Interval_ms_10"
+                "interval": "Interval_ms_10",
+                "access_name": "test-gnb"
             },
             "(505, 1, 2, \"22\", \"ngran_gNB_DU\")": {
                 "metrics": ["dl_aggr_prb", "dl_aggr_retx_prb", "ul_aggr_prb", "ul_aggr_retx_prb"],
-                "interval": "Interval_ms_5"
+                "interval": "Interval_ms_5",
+                "access_name": "test-gnb-du"
             }
         },
         "KPM": {
             "(505, 1, 1, \"0\", \"ngran_gNB\")": {
                 "metrics": ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL", "DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"],
-                "interval": "Interval_ms_1000"
+                "interval": "Interval_ms_1000",
+                "access_name": "test-gnb"
             },
             "(505, 1, 2, \"21\", \"ngran_gNB_CU\")": {
                 "metrics": ["DRB.PdcpSduVolumeDL", "DRB.PdcpSduVolumeUL"],
-                "interval": "Interval_ms_100"
+                "interval": "Interval_ms_100",
+                "access_name": "test-gnb-cu"
             },
             "(505, 1, 2, \"22\", \"ngran_gNB_DU\")": {
                 "metrics": ["DRB.UEThpDl", "DRB.UEThpUl", "RRU.PrbTotDl", "RRU.PrbTotUl"],
-                "interval": "Interval_ms_100"
+                "interval": "Interval_ms_100",
+                "access_name": "test-gnb-du"
             }
         }
     },
