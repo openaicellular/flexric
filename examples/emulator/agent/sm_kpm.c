@@ -171,9 +171,9 @@ gnb_cu_up_e2sm_t fill_rnd_gnb_cu_up_data(void)
   gnb_cu_up.gnb_cu_cp_ue_e1ap = rand();
 
   // 6.2.3.25, OPTIONAL
-  gnb.ran_ue_id = calloc(1, sizeof(uint64_t));
-  assert(gnb.ran_ue_id != NULL && "Memory exhausted");
-  *gnb.ran_ue_id = (rand() % 2^64) + 0;
+  gnb_cu_up.ran_ue_id = calloc(1, sizeof(uint64_t));
+  assert(gnb_cu_up.ran_ue_id != NULL && "Memory exhausted");
+  *gnb_cu_up.ran_ue_id = (rand() % 2^64) + 0;
 
   return gnb_cu_up;
 }
@@ -187,9 +187,9 @@ gnb_du_e2sm_t fill_rnd_gnb_du_data(void)
   gnb_du.gnb_cu_ue_f1ap = rand();
 
   // 6.2.3.25, OPTIONAL
-  gnb.ran_ue_id = calloc(1, sizeof(uint64_t));
-  assert(gnb.ran_ue_id != NULL && "Memory exhausted");
-  *gnb.ran_ue_id = (rand() % 2^64) + 0;
+  gnb_du.ran_ue_id = calloc(1, sizeof(uint64_t));
+  assert(gnb_du.ran_ue_id != NULL && "Memory exhausted");
+  *gnb_du.ran_ue_id = (rand() % 2^64) + 0;
 
   return gnb_du;
 }
@@ -218,7 +218,7 @@ gnb_e2sm_t fill_rnd_gnb_data(void)
 
   // gNB-CU UE F1AP ID List
   // C-ifCUDUseparated
-  if (TEST_AGENT_RAN_TYPE == ngran_gNB_CU){
+  if (TEST_AGENT_RAN_TYPE == e2ap_ngran_gNB_CU){
     gnb.gnb_cu_ue_f1ap_lst_len = 1;
     gnb.gnb_cu_ue_f1ap_lst = calloc(gnb.gnb_cu_ue_f1ap_lst_len, sizeof(uint32_t));
     assert(gnb.gnb_cu_ue_f1ap_lst != NULL && "Memory exhausted");
@@ -235,16 +235,16 @@ ue_id_e2sm_t fill_rnd_ue_id_data(void)
 {
   ue_id_e2sm_t ue_id_data = {0};
 
-  if (TEST_AGENT_RAN_TYPE == ngran_gNB || TEST_AGENT_RAN_TYPE == ngran_gNB_CU){
+  if (TEST_AGENT_RAN_TYPE == e2ap_ngran_gNB || TEST_AGENT_RAN_TYPE == e2ap_ngran_gNB_CU){
     ue_id_data.type = GNB_UE_ID_E2SM;
     ue_id_data.gnb = fill_rnd_gnb_data();
   }
-  else if (TEST_AGENT_RAN_TYPE == ngran_gNB_DU)
+  else if (TEST_AGENT_RAN_TYPE == e2ap_ngran_gNB_DU)
   {
     ue_id_data.type = GNB_DU_UE_ID_E2SM;
     ue_id_data.gnb_du = fill_rnd_gnb_du_data();
   }
-  else if (TEST_AGENT_RAN_TYPE == ngran_gNB_CUUP)
+  else if (TEST_AGENT_RAN_TYPE == e2ap_ngran_gNB_CUUP)
   {
     ue_id_data.type = GNB_CU_UP_UE_ID_E2SM;
     ue_id_data.gnb_cu_up = fill_rnd_gnb_cu_up_data();
@@ -265,9 +265,9 @@ kpm_ric_ind_hdr_format_1_t fill_rnd_kpm_ind_hdr_frm_1(void)
   kpm_ric_ind_hdr_format_1_t hdr_frm_1 = {0};
 
 int64_t t = time_now_us();
-#ifdef KPM_V2_01 || KPM_V2_03
+#if defined(KPM_V2_01) || defined (KPM_V2_03)
   hdr_frm_1.collectStartTime = t / 1000000; // needs to be truncated to 32 bits to arrive to a resolution of seconds
-#elifdef KPM_V3_00
+#elif defined(KPM_V3_00)
   hdr_frm_1.collectStartTime = t;
 #else
   static_assert(0!=0, "Unknown KPM version");

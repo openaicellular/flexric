@@ -37,13 +37,13 @@
   #include "../../sm/kpm_sm/kpm_sm_v02.01/ie/kpm_data_ie/data/enum_value.h"
   #include "../../sm/kpm_sm/kpm_sm_v02.01/ie/kpm_data_ie/data/meas_data_lst.h"
   #include "../../sm/kpm_sm/kpm_sm_v02.01/ie/kpm_data_ie/data/meas_type.h"
-#elifdef KPM_V2_03
+#elif defined(KPM_V2_03)
 //  #include "../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie.h"
   #include "../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie/kpm_ric_info/kpm_ric_ind_msg.h"
   #include "../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie/data/enum_value.h"
   #include "../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie/data/meas_data_lst.h"
   #include "../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie/data/meas_type.h"
-#elifdef KPM_V3_00
+#elif defined(KPM_V3_00)
 //  #include "../../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
   #include "../../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie/kpm_ric_info/kpm_ric_ind_msg.h"
   #include "../../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie/data/enum_value.h"
@@ -250,7 +250,7 @@ namespace std {
   %template(SwigSubCustSmVector) vector<swig_sub_cust_sm_t>;
   %template(IntVector) vector<int>;
   %template(E2NodeVector) vector<E2Node>;
-  %template(RANVector) vector<RanFunction>;
+  %template(RANVector) vector<swig_ran_function_t>;
   %template(MACStatsVector) vector<mac_ue_stats_impl_t>;
   %template(RLC_RBStatsVector) vector<rlc_radio_bearer_stats_t>;
   %template(PDCP_RBStatsVector) vector<pdcp_radio_bearer_stats_t>;
@@ -310,13 +310,13 @@ namespace std {
   %include "../../sm/kpm_sm/kpm_sm_v02.01/ie/kpm_data_ie/data/enum_value.h"
   %include "../../sm/kpm_sm/kpm_sm_v02.01/ie/kpm_data_ie/data/meas_data_lst.h"
   %include "../../sm/kpm_sm/kpm_sm_v02.01/ie/kpm_data_ie/data/meas_type.h"
-#elifdef KPM_V2_03
+#elif defined(KPM_V2_03)
 //  %include "../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie.h"
   %include "../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie/kpm_ric_info/kpm_ric_ind_msg.h"
   %include "../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie/data/enum_value.h"
   %include "../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie/data/meas_data_lst.h"
   %include "../../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie/data/meas_type.h"
-#elifdef KPM_V3_00
+#elif defined(KPM_V3_00)
 //  %include "../../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
   %include "../../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie/kpm_ric_info/kpm_ric_ind_msg.h"
   %include "../../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie/data/enum_value.h"

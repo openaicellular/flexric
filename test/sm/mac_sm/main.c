@@ -131,20 +131,6 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
 
 
 // RIC -> E2
-static
-void check_ctrl(sm_agent_t* ag, sm_ric_t* ric)
-{
-  assert(ag != NULL);
-  assert(ric != NULL);
-
-  mac_ctrl_req_data_t ctrl = {.hdr.dummy = 1, .msg.action = 42};
-  sm_ctrl_req_data_t msg = ric->proc.on_control_req(ric, &ctrl);
-
-  sm_ctrl_out_data_t out = ag->proc.on_control(ag, &msg);
-  assert(out.len_out == 0 && out.ctrl_out == NULL );
-
-  free_sm_ctrl_req_data(&msg);
-}
 
 static
 void check_ctrl(sm_agent_t* ag, sm_ric_t* ric)

@@ -241,17 +241,20 @@ std::vector<E2Node> conn_e2_nodes(void)
       }
     }
 
-    std::vector<RanFunction> ran_func;//(src->len_rf);
+    std::vector<swig_ran_function_t> ran_func;//(src->len_rf);
 
     for(size_t j = 0; j < src->len_rf; ++j){
       ran_function_t rf = cp_ran_function(&src->ack_rf[j]);
 
-      RanFunction tmp_ran;
+      swig_ran_function_t tmp_ran;
 
       tmp_ran.id = rf.id;
       tmp_ran.rev = rf.rev;
-      tmp_ran.def = rf.def;
-      // TODO: oid
+      tmp_ran.defn = copy_byte_array(rf.defn);
+      #if defined(E2AP_V2) || defined (E2AP_V3)
+        tmp_ran.oid = copy_byte_array(rf.oid);
+      #endif
+      //TODO: oid for E2AP V1
 
       ran_func.push_back(tmp_ran);// [j] = rf;
     }
@@ -1009,11 +1012,11 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
 }
 
 static
-kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
+kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action, uint32_t period_ms)
 {
   kpm_act_def_format_1_t dst;
 
-  dst.gran_period_ms = 1000;
+  dst.gran_period_ms = period_ms;
 
   // [1, 65535]
   size_t count = 0;
@@ -1029,15 +1032,16 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
   }
 
   dst.cell_global_id = NULL;
+#if defined KPM_V2_03 || defined KPM_V3_00
   dst.meas_bin_range_info_lst_len = 0;
   dst.meas_bin_info_lst = NULL;
-
+#endif
 
   return dst;
 }
 
 static
-kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
+kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action, uint32_t period_ms)
 {
   kpm_act_def_format_4_t dst;
 
@@ -1047,40 +1051,38 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
   dst.matching_cond_lst = static_cast<matching_condition_format_4_lst_t*>(calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t)));
   assert(dst.matching_cond_lst != NULL && "Memory exhausted");
 
-  // Filter connected UEs by S-NSSAI criteria
-  dst.matching_cond_lst[0].test_info_lst.test_cond_type = S_NSSAI_TEST_COND_TYPE;
-  dst.matching_cond_lst[0].test_info_lst.S_NSSAI = TRUE_TEST_COND_TYPE;
+  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
+  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
 
   dst.matching_cond_lst[0].test_info_lst.test_cond = static_cast<test_cond_e*>(calloc(1, sizeof(test_cond_e)));
   assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond = EQUAL_TEST_COND;
+  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
 
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value = static_cast<test_cond_value_e*>(calloc(1, sizeof(test_cond_value_e)));
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value = static_cast<test_cond_value_t*>(calloc(1, sizeof(test_cond_value_t)));
   assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
-  dst.matching_cond_lst[0].test_info_lst.int_value = static_cast<int64_t*>(malloc(sizeof(int64_t)));
-  assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.int_value = 1;
-
-  printf("[xApp]: Filter UEs by S-NSSAI criteria where SST = %lu\n", *dst.matching_cond_lst[0].test_info_lst.int_value);
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value->type = INTEGER_TEST_COND_VALUE;
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = static_cast<int64_t*>(malloc(sizeof(int64_t)));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = 0;
 
   // Action definition Format 1
-  dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
+  dst.action_def_format_1 = gen_act_def_frmt_1(action, period_ms);  // 8.2.1.2.1
 
   return dst;
 }
 
 static
-kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm)
+kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm, uint32_t period_ms)
 {
   kpm_act_def_t dst;
 
   if (act_frm == FORMAT_1_ACTION_DEFINITION) {
     dst.type = FORMAT_1_ACTION_DEFINITION;
-    dst.frm_1 = gen_act_def_frmt_1(act);
+    dst.frm_1 = gen_act_def_frmt_1(act, period_ms);
   } else if (act_frm == FORMAT_4_ACTION_DEFINITION) {
     dst.type = FORMAT_4_ACTION_DEFINITION;
-    dst.frm_4 = gen_act_def_frmt_4(act);
+    dst.frm_4 = gen_act_def_frmt_4(act, period_ms);
   } else {
     assert(0!=0 && "not support action definition type");
   }
@@ -1135,7 +1137,7 @@ int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter_arg, std::vector<
 
   format_action_def_e act_type = FORMAT_4_ACTION_DEFINITION; // act_def.type
 
-  *kpm_sub.ad = gen_act_def(const_cast<const char**>(c_action), act_type);
+  *kpm_sub.ad = gen_act_def(const_cast<const char**>(c_action), act_type, period_ms);
   // TODO: need to fix, initialize kpm_sub with 0 value
 
 //  switch (id.type)

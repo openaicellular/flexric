@@ -249,10 +249,6 @@ near_ric_t* init_near_ric(fr_args_t const* args)
   printf("[NEAR-RIC]: Initializing Task Manager with %u threads \n", num_threads);
   init_task_manager(&ric->man, num_threads);
 
-  uint32_t const num_threads = TASK_MAN_NUMBER_THREADS;
-  printf("[NEAR-RIC]: Initializing Task Manager with %u threads \n", num_threads);
-  init_task_manager(&ric->man, num_threads);
-
   ric->req_id = 1021; // 0 could be a sign of a bug
   ric->stop_token = false;
   ric->server_stopped = false;

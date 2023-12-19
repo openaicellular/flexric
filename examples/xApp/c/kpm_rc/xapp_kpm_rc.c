@@ -343,8 +343,8 @@ int main(int argc, char *argv[])
     kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
     assert(kpm_sub.ad != NULL && "Memory exhausted");
 
-    ngran_node_t const t = nodes.n[i].id.type;
-    bool du_or_gnb = t == ngran_gNB || t == ngran_gNB_DU;
+    e2ap_ngran_node_t const t = nodes.n[i].id.type;
+    bool du_or_gnb = t == e2ap_ngran_gNB || t == e2ap_ngran_gNB_DU;
     const char* act = du_or_gnb ? "DRB.RlcSduDelayDl" : "DRB.PdcpSduVolumeDL";
     *kpm_sub.ad = gen_act_def(act);
 
@@ -379,8 +379,8 @@ int main(int argc, char *argv[])
   const int RC_ran_function = 3;
 
   for(size_t i =0; i < nodes.len; ++i){ 
-    ngran_node_t const t = nodes.n[i].id.type;
-    if(t == ngran_gNB || t == ngran_gNB_CU)
+    e2ap_ngran_node_t const t = nodes.n[i].id.type;
+    if(t == e2ap_ngran_gNB || t == e2ap_ngran_gNB_CU)
       control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
   }
   free_rc_ctrl_req_data(&rc_ctrl);

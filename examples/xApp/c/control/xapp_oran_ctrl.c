@@ -91,7 +91,7 @@ void gen_rrm_policy_ratio_group(lst_ran_param_t* RRM_Policy_Ratio_Group,
 {
   // RRM Policy Ratio Group, STRUCTURE (RRM Policy Ratio List -> RRM Policy Ratio Group)
   // lst_ran_param_t* RRM_Policy_Ratio_Group = &RRM_Policy_Ratio_List->ran_param_val.lst->lst_ran_param[0];
-  RRM_Policy_Ratio_Group->ran_param_id = RRM_Policy_Ratio_Group_8_4_3_6;
+  // RRM_Policy_Ratio_Group->ran_param_id = RRM_Policy_Ratio_Group_8_4_3_6;
   RRM_Policy_Ratio_Group->ran_param_struct.sz_ran_param_struct = 4;
   RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct = calloc(4, sizeof(seq_ran_param_t));
   assert(RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct != NULL && "Memory exhausted");
@@ -115,7 +115,7 @@ void gen_rrm_policy_ratio_group(lst_ran_param_t* RRM_Policy_Ratio_Group,
   assert(RRM_Policy_Member_List->ran_param_val.lst->lst_ran_param != NULL && "Memory exhausted");
   // RRM Policy Member, STRUCTURE (RRM Policy Member List -> RRM Policy Member)
   lst_ran_param_t* RRM_Policy_Member = &RRM_Policy_Member_List->ran_param_val.lst->lst_ran_param[0];
-  RRM_Policy_Member->ran_param_id = RRM_Policy_Member_8_4_3_6;
+  // RRM_Policy_Member->ran_param_id = RRM_Policy_Member_8_4_3_6;
   RRM_Policy_Member->ran_param_struct.sz_ran_param_struct = 2;
   RRM_Policy_Member->ran_param_struct.ran_param_struct = calloc(2, sizeof(seq_ran_param_t));
   assert(RRM_Policy_Member->ran_param_struct.ran_param_struct != NULL && "Memory exhausted");

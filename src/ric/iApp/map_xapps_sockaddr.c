@@ -229,5 +229,5 @@ uint16_t find_map_xapps_xid(map_xapps_sockaddr_t* m, sctp_info_t const* s)
 size_t get_num_connected_xapps(map_xapps_sockaddr_t* m)
 {
   assert(m != NULL);
-  return assoc_rb_tree_size(&m->tree);;
+  return assoc_rb_tree_size(&m->bimap.left);
 }

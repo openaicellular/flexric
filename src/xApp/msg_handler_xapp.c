@@ -623,18 +623,24 @@ e2ap_msg_t e2ap_handle_e42_update_e2_node_xapp(e42_xapp_t* xapp, const e2ap_msg_
   size_t update_nodes_len = sr->len_e2_nodes_conn;
   // 1) remove all the existing e2 nodes from tree
   for(size_t i = 0; i < cur_nodes_len; ++i) {
-    global_e2_node_id_t const id = cp_global_e2_node_id(&cur_nodes.n[i].id);
-    rm_reg_e2_node(&xapp->e2_nodes, &id);
+    global_e2_node_id_t const* id = &sr->nodes[i].id;
+    rm_reg_e2_node(&xapp->e2_nodes, id);
   }
 
   // 2) copy the e2 node info from e42 update msg to xapp
   for(size_t i = 0; i < update_nodes_len; ++i) {
-    global_e2_node_id_t const id = cp_global_e2_node_id(&sr->nodes[i].id);
-    if (!find_reg_e2_node(&xapp->e2_nodes, &id)) {
+      global_e2_node_id_t const* id = &sr->nodes[i].id;
+    if (!find_reg_e2_node(&xapp->e2_nodes, id)) {
       //printf("[xApp]: haven't registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id.nb_id);
       const size_t len = sr->nodes[i].len_rf;
       ran_function_t* rf = sr->nodes[i].ack_rf;
-      add_reg_e2_node(&xapp->e2_nodes, &id, len, rf);
+      #ifdef E2AP_V1
+            add_reg_e2_node_v1(&xapp->e2_nodes, id, len, rf);
+      #elif defined(E2AP_V2) || defined(E2AP_V3)
+            add_reg_e2_node(&xapp->e2_nodes, id, len, rf, sr->nodes[i].len_cca, sr->nodes[i].cca);
+      #else
+            static_assert(0 !=0, "Unknown E2AP version");
+      #endif
       printf("[xApp]: Registered E2 Nodes = %ld \n",   sz_reg_e2_node(&xapp->e2_nodes) );
     } else {
       printf("[xApp]: Already registered E2 Node, nb_id = %d\n", sr->nodes[i].id.nb_id.nb_id);

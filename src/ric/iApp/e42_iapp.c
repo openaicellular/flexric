@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <pthread.h>
 
-e42_iapp_t* init_e42_iapp(const char* addr, near_ric_if_t ric_if)
+e42_iapp_t* init_e42_iapp(const char* addr, int port, near_ric_if_t ric_if)
 {
   assert(addr != NULL);
 //  assert(ric != NULL);
