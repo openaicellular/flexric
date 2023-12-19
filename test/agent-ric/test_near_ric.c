@@ -243,6 +243,10 @@ int main(int argc, char *argv[])
 
   fr_args_t args = init_fr_args(argc, argv);
   defer({ free_fr_args(&args); });
+
+  // Init the RIC
+  init_near_ric_api(&args);
+
   // Parse arguments
   init_agent_api( mcc, mnc, mnc_digit_len, nb_id, cu_du_id, ran_type, io, &args);
   sleep(1);

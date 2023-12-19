@@ -60,12 +60,13 @@ void free_label_info(label_info_lst_t *l)
     free(l->noLabel);
   if (l->plmn_id)
     free(l->plmn_id);
- 
+
   if (l->sliceID != NULL) {
-    assert(false && "not implemented");
+    free_s_nssai_e2sm(l->sliceID);
+    free(l->sliceID);
   }
-	if (l->fiveQI != NULL) {
-    assert(false && "not implemented");
+  if (l->fiveQI != NULL) {
+    free(l->fiveQI);
   }
 	if (l->qFI != NULL) {
     assert(false && "not implemented");
