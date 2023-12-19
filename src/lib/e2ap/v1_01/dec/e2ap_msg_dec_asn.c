@@ -2422,7 +2422,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
       dst_ie->rev = src->ranFunctionRevision;
 
-      dst_ie->def = copy_ostring_to_ba(src->ranFunctionDefinition);
+      dst_ie->defn = copy_ostring_to_ba(src->ranFunctionDefinition);
 
       if(src->ranFunctionOID != NULL){
         dst_ie->oid = malloc(sizeof(byte_array_t));

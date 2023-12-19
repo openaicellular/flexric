@@ -21,7 +21,7 @@ extern "C" {
 
 /* RICsubscriptionDeleteFailure */
 typedef struct RICsubscriptionDeleteFailure {
-	ProtocolIE_Container_2148P7_t	 protocolIEs;
+	ProtocolIE_Container_2161P7_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

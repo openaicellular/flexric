@@ -27,7 +27,7 @@ memb_ric_ID_constraint_1(const asn_TYPE_descriptor_t *td, const void *sptr,
 		size = 0;
 	}
 	
-	if(size == 20UL) {
+	if((size == 20UL)) {
 		/* Constraint check succeeded */
 		return 0;
 	} else {

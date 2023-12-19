@@ -19,9 +19,18 @@
  *      contact@openairinterface.org
  */
 
-#ifndef E2_READ_SETUP_RAN_E2_AGENT_H
-#define E2_READ_SETUP_RAN_E2_AGENT_H
+#ifndef CORRELATION_EVENTS_H
+#define CORRELATION_EVENTS_H
 
-void read_setup_ran(void* data);
+#include "lib/e2ap/v1_01/e2ap_types/common/ric_gen_id.h"
 
+typedef struct correlation_event_t
+{
+  ric_gen_id_t ric_id;
+
+} correlation_event_t;
+
+int cmp_correlation_ev(void const* corr_v1, void const* corr_v2);
+void free_correlation_ev(void* key, void* value);
 #endif
+

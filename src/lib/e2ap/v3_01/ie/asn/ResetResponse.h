@@ -21,7 +21,7 @@ extern "C" {
 
 /* ResetResponse */
 typedef struct ResetResponse {
-	ProtocolIE_Container_2691P36_t	 protocolIEs;
+	ProtocolIE_Container_2702P36_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

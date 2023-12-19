@@ -11,7 +11,7 @@ asn_TYPE_member_t asn_MBR_RICsubscriptionModificationRefuse_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct RICsubscriptionModificationRefuse, protocolIEs),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_ProtocolIE_Container_2691P14,
+		&asn_DEF_ProtocolIE_Container_2702P14,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)

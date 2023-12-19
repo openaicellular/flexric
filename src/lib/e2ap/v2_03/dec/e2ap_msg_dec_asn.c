@@ -2476,16 +2476,16 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
     // Abuse of the standard/interpretation. Since CUCP and CU do not have a flag, assume that
     // CU = NGAP + F1AP
     // CUCP = NGAP + F1AP + E1AP
-    if(dst->id.type == ngran_gNB){
+    if(dst->id.type == e2ap_ngran_gNB){
       if(dst->len_cca == 2){
         assert(dst->cca[0].e2_node_comp_interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE
             && dst->cca[1].e2_node_comp_interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE);
-        dst->id.type = ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CU;
       } else if(dst->len_cca == 3){
         assert(dst->cca[0].e2_node_comp_interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE
             && dst->cca[1].e2_node_comp_interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE
             && dst->cca[2].e2_node_comp_interface_type == E1_E2AP_NODE_COMP_INTERFACE_TYPE);
-        dst->id.type = ngran_gNB_CUCP;
+        dst->id.type = e2ap_ngran_gNB_CUCP;
       }
     }
 
@@ -2670,7 +2670,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
       dst_ie->rev = src->ranFunctionRevision;
 
-      dst_ie->def = copy_ostring_to_ba(src->ranFunctionDefinition);
+      dst_ie->defn = copy_ostring_to_ba(src->ranFunctionDefinition);
       dst_ie->oid = copy_ostring_to_ba(src->ranFunctionOID);
     }
   }

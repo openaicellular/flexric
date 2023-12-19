@@ -21,7 +21,7 @@ extern "C" {
 
 /* RICQueryRequest */
 typedef struct RICQueryRequest {
-	ProtocolIE_Container_2691P20_t	 protocolIEs;
+	ProtocolIE_Container_2702P20_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

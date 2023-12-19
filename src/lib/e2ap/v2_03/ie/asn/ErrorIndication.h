@@ -21,7 +21,7 @@ extern "C" {
 
 /* ErrorIndication */
 typedef struct ErrorIndication {
-	ProtocolIE_Container_2148P14_t	 protocolIEs;
+	ProtocolIE_Container_2161P14_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

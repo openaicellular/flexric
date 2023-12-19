@@ -39,7 +39,8 @@ FROM E2AP-CommonDataTypes
     E42setupResponse,
     E42RICsubscriptionRequest,
     E42RICsubscriptionDeleteRequest,
-    E42RICcontrolRequest
+    E42RICcontrolRequest,
+    E42updateE2node
 
 FROM E2AP-PDU-Contents
     id-E2connectionUpdate,
@@ -56,7 +57,8 @@ FROM E2AP-PDU-Contents
     id-E42setup,
     id-E42RICsubscription,
     id-E42RICsubscriptionDelete,                
-    id-E42RICcontrol
+    id-E42RICcontrol,
+    id-E42updateE2node
 FROM E2AP-Constants;
 -- **************************************************************
 E2AP-ELEMENTARY-PROCEDURE ::= CLASS {
@@ -119,7 +121,8 @@ E2AP-ELEMENTARY-PROCEDURES-CLASS-1 E2AP-ELEMENTARY-PROCEDURE ::= {
 E2AP-ELEMENTARY-PROCEDURES-CLASS-2 E2AP-ELEMENTARY-PROCEDURE ::= {
     ricIndication                                       |
     ricServiceQuery                                     |
-    errorIndication,
+    errorIndication                                     |
+    e42updateE2node,
     ...
 }
 -- **************************************************************
@@ -225,6 +228,11 @@ e42ricControl E2AP-ELEMENTARY-PROCEDURE ::= {
     CRITICALITY             reject
 }
 
+e42updateE2node E2AP-ELEMENTARY-PROCEDURE ::= {
+    INITIATING MESSAGE      E42updateE2node
+    PROCEDURE CODE          id-E42updateE2node
+    CRITICALITY             reject
+}
 
 
 END
@@ -677,6 +685,10 @@ E2setupResponseIEs E2AP-PROTOCOL-IES ::= {
 }
 
 -- **************************************************************
+E42updateE2node ::= SEQUENCE {
+    protocolIEs     ProtocolIE-Container                        { {E42setupResponseIEs} },
+    ...
+}
 E42setupResponse ::= SEQUENCE {
     protocolIEs     ProtocolIE-Container                        { {E42setupResponseIEs} },
     ...
@@ -1367,6 +1379,7 @@ id-E42setup                                 ProcedureCode ::= 12
 id-E42RICsubscription                       ProcedureCode ::= 13
 id-E42RICsubscriptionDelete                 ProcedureCode ::= 14
 id-E42RICcontrol                            ProcedureCode ::= 15
+id-E42updateE2node                          ProcedureCode ::= 16
 -- **************************************************************
 maxProtocolIEs                                             INTEGER ::= 65535
 -- **************************************************************

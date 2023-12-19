@@ -11,7 +11,7 @@ asn_TYPE_member_t asn_MBR_RICQueryRequest_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct RICQueryRequest, protocolIEs),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_ProtocolIE_Container_2691P20,
+		&asn_DEF_ProtocolIE_Container_2702P20,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)

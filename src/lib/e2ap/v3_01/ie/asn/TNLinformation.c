@@ -58,7 +58,7 @@ memb_tnlPort_constraint_1(const asn_TYPE_descriptor_t *td, const void *sptr,
 		size = 0;
 	}
 	
-	if(size == 16UL) {
+	if((size == 16UL)) {
 		/* Constraint check succeeded */
 		return 0;
 	} else {

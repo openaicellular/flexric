@@ -19,7 +19,7 @@ asn_TYPE_member_t asn_MBR_RANfunctions_List_1[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_ProtocolIE_SingleContainer_2694P29,
+		&asn_DEF_ProtocolIE_SingleContainer_2705P29,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)

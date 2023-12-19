@@ -27,7 +27,7 @@ memb_enb_ID_macro_constraint_1(const asn_TYPE_descriptor_t *td, const void *sptr
 		size = 0;
 	}
 	
-	if(size == 20UL) {
+	if((size == 20UL)) {
 		/* Constraint check succeeded */
 		return 0;
 	} else {
@@ -58,7 +58,7 @@ memb_enb_ID_shortmacro_constraint_1(const asn_TYPE_descriptor_t *td, const void 
 		size = 0;
 	}
 	
-	if(size == 18UL) {
+	if((size == 18UL)) {
 		/* Constraint check succeeded */
 		return 0;
 	} else {
@@ -89,7 +89,7 @@ memb_enb_ID_longmacro_constraint_1(const asn_TYPE_descriptor_t *td, const void *
 		size = 0;
 	}
 	
-	if(size == 21UL) {
+	if((size == 21UL)) {
 		/* Constraint check succeeded */
 		return 0;
 	} else {

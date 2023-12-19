@@ -21,7 +21,7 @@ extern "C" {
 
 /* E2connectionUpdateAcknowledge */
 typedef struct E2connectionUpdateAcknowledge {
-	ProtocolIE_Container_2691P30_t	 protocolIEs;
+	ProtocolIE_Container_2702P30_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

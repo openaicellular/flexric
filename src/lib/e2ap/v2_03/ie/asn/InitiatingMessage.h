@@ -51,6 +51,7 @@
 #include "RICserviceQuery.h"
 #include "ErrorIndication.h"
 #include "RICsubscriptionDeleteRequired.h"
+#include "E42updateE2node.h"
 #include <OPEN_TYPE.h>
 #include <constr_CHOICE.h>
 #include <constr_SEQUENCE.h>
@@ -78,7 +79,8 @@ typedef enum InitiatingMessage__value_PR {
 	InitiatingMessage__value_PR_RICindication,
 	InitiatingMessage__value_PR_RICserviceQuery,
 	InitiatingMessage__value_PR_ErrorIndication,
-	InitiatingMessage__value_PR_RICsubscriptionDeleteRequired
+	InitiatingMessage__value_PR_RICsubscriptionDeleteRequired,
+	InitiatingMessage__value_PR_E42updateE2node
 } InitiatingMessage__value_PR;
 
 /* InitiatingMessage */
@@ -105,6 +107,7 @@ typedef struct InitiatingMessage {
 			RICserviceQuery_t	 RICserviceQuery;
 			ErrorIndication_t	 ErrorIndication;
 			RICsubscriptionDeleteRequired_t	 RICsubscriptionDeleteRequired;
+			E42updateE2node_t	 E42updateE2node;
 		} choice;
 		
 		/* Context for parsing across buffer boundaries */
