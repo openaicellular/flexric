@@ -182,7 +182,7 @@ e2sm_rc_ev_trg_frmt_2_t fill_rnd_rc_event_trigger_frmt_2(void)
   // Mandatory
   // 9.3.49
   // INTEGER (1.. 65535, …)
-  dst.call_break_id = rand(); 
+  dst.call_break_id = (rand()% 65535) + 1; 
 
   // Associated E2 Node Info
   // Optional

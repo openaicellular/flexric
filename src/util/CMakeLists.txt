@@ -9,12 +9,6 @@ else()
   message(FATAL_ERROR "E2AP V2 and V3 not implemented")
 endif()
 
-if (UNIT_TEST)
-    add_subdirectory(alg_ds/ds/tsn_queue)
-    enable_testing()
-endif()
-
-
 add_library(e2ap_ds_obj OBJECT
                         byte_array.c 
                         alg_ds/ds/seq_container/seq_arr.c
@@ -53,12 +47,10 @@ if(PROXY_AGENT)
     target_compile_definitions(e2_conf_obj PRIVATE PROXY_AGENT)
 endif()
 
-add_library(e2_conv_obj OBJECT 
+
+add_library(e2_conv_obj OBJECT
                         conversions.c
                         )
-
-
-
 
 add_library(e2_time_obj OBJECT 
                         time_now_us.c

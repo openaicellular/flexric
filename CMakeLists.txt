@@ -47,8 +47,9 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
-#set(COMPILER "GCC" CACHE STRING "Compiler selection")
-#set_property(CACHE COMPILER PROPERTY STRINGS "GCC" "CLANG")
+if($default_build_type STREQUAL "Release")
+   add_compile_options("-O3;-march=native;-flto")
+endif()
 
 ########
 ### SANITIZER
@@ -92,7 +93,7 @@ elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     message(FATAL_ERROR "Due to bug in gcc 11.3.0 when implementing C11 _Generics, it does not compile FlexRIC.
     Alternatively use gcc-10, gcc-12 or gcc-13 e.g., sudo update-alternatives --config gcc ")
   elseif(${SANITIZER} STREQUAL "ADDRESS")
-    if(NOT CMAKE_C_COMPILER_VERSION STREQUAL "10.4.0")
+    if(NOT CMAKE_C_COMPILER_VERSION MATCHES "^10.*")
       message(FATAL_ERROR "ASan not supported by newer versions of gcc when using nested functions needed e.g., defer.
       Change the compiler to gcc-10 using e.g., sudo update-alternatives --config gcc")
     endif()
@@ -125,20 +126,14 @@ if(Clang_Tidy)
 endif()
 
 ########
-### NUM_THREADS 
+### NUM_THREADS
 ########
 set(NUM_THREADS_RIC "2" CACHE STRING "Number of threads in the RIC's task manager")
 
 
-
 ########
-### xApp 
+### Coverage
 ########
-
-set(XAPP_DB "MYSQL_XAPP" CACHE STRING "xApp DB")
-set_property(CACHE XAPP_DB PROPERTY STRINGS "MYSQL_XAPP" "SQLITE3_XAPP" "NONE_XAPP")
-message(STATUS "Selected xApp DB : ${XAPP_DB}")
-
 
 option(CODE_COVERAGE "Code coverage" OFF)
 if(CODE_COVERAGE)
@@ -149,12 +144,20 @@ if(CODE_COVERAGE)
 
 endif()
 
+########
+### Profiler
+########
+
 option(CODE_PROFILER "Code Profiler" OFF)
 if( CODE_PROFILER )
   add_compile_options("-pg")
   add_link_options("-pg")
   message(STATUS "Code Profiler ON. Example usage: gprof test/test_near_ric gmon.out > prof.txt && vim prof.txt")
 endif()
+
+########
+### Include What You Use (IWYU)
+########
 
 option(INCL_WHAT_YOU_USE "Include what you use tool: iwyu" OFF)
 if(INCL_WHAT_YOU_USE)
@@ -229,8 +232,8 @@ set(SM_ENCODING_KPM "ASN" CACHE STRING "The KPM SM encoding to use")
 set_property(CACHE SM_ENCODING_KPM PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
 message(STATUS "Selected KPM SM_ENCODING: ${SM_ENCODING_KPM}")
 
-set(KPM_VERSION "KPM_V3" CACHE STRING "The KPM SM version to use")
-set_property(CACHE KPM_VERSION PROPERTY STRINGS "KPM_V2" "KPM_V3")
+set(KPM_VERSION "KPM_V2_03" CACHE STRING "The KPM SM version to use")
+set_property(CACHE KPM_VERSION PROPERTY STRINGS  "KPM_V2_01" "KPM_V2_03" "KPM_V3_00")
 message(STATUS "Selected KPM Version: ${KPM_VERSION}")
 
 # RC service Model encoding definitions
@@ -277,6 +280,17 @@ if(E2AP_ENCODING STREQUAL "FLATBUFFERS")
     )
 endif()
 
+########
+### xApp
+########
+set(XAPP_DB "MYSQL_XAPP" CACHE STRING "xApp DB")
+set_property(CACHE XAPP_DB PROPERTY STRINGS "MYSQL_XAPP" "SQLITE3_XAPP" "NONE_XAPP")
+message(STATUS "Selected xApp DB : ${XAPP_DB}")
+
+option(XAPP_MULTILANGUAGE "xApp Multilanguage" ON)
+message(STATUS "xApp multilanguage support e.g., python : ${XAPP_MULTILANGUAGE}")
+
+
 ###
 # set install options
 ###
@@ -306,11 +320,10 @@ endif()
 include_directories(src)
 add_subdirectory(src)
 add_subdirectory(examples)
-add_subdirectory(test)
 
-# Build SWIG interface
-#add_subdirectory(src/xApp/swig)
-
+if (UNIT_TEST)
+  add_subdirectory(test)
+endif ()
 
 ###
 # Install the Service models
@@ -379,6 +392,11 @@ install(FILES ${CONF_FILES}
 install(FILES ${JSON_FILES}
         DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
 
+###
+# CTest
+###
+
+set(CTEST_PARALLEL_LEVEL 4)
 enable_testing()
 
 ###

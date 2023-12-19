@@ -23,6 +23,7 @@
 #include "../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../../src/util/time_now_us.h"
 
+
 #include <assert.h>
 #include <time.h>
 #include <stdlib.h>
@@ -36,7 +37,7 @@ kpm_event_trigger_def_t fill_rnd_kpm_event_trigger_def(void)
 
   if(dst.type == FORMAT_1_RIC_EVENT_TRIGGER  ){
     // Normally the period is not free, need to check in the specs
-    dst.kpm_ric_event_trigger_format_1.report_period_ms = 2;  // rand()%1000;
+    dst.kpm_ric_event_trigger_format_1.report_period_ms = (rand()% 10000) + 1; //(rand()%4294967295) + 1 ;
   } else {
     assert(0 != 0 && "unknown type");
   }
@@ -44,6 +45,7 @@ kpm_event_trigger_def_t fill_rnd_kpm_event_trigger_def(void)
   return dst;
 }
 
+#if defined KPM_V2_03 || defined KPM_V3_00
 static bin_range_def_t fill_rnd_bin_range_def(void)
 {
   bin_range_def_t bin_range_def = {0};
@@ -99,6 +101,8 @@ static bin_range_def_t fill_rnd_bin_range_def(void)
   return bin_range_def;
 }
 
+#endif
+
 static kpm_act_def_format_1_t fill_rnd_kpm_action_def_frm_1(void)
 {
   kpm_act_def_format_1_t action_def_frm_1 = {0};
@@ -122,7 +126,7 @@ static kpm_act_def_format_1_t fill_rnd_kpm_action_def_frm_1(void)
     {
     case NAME_MEAS_TYPE:
       meas_info->meas_type.type = NAME_MEAS_TYPE;
-      meas_info->meas_type.name.buf = calloc(strlen("test") + 1, sizeof(char));
+      meas_info->meas_type.name.buf = calloc(strlen("test") + 1, sizeof(uint8_t));
       memcpy(meas_info->meas_type.name.buf, "test", strlen("test"));
       meas_info->meas_type.name.len = strlen("test");
       break;
@@ -151,8 +155,15 @@ static kpm_act_def_format_1_t fill_rnd_kpm_action_def_frm_1(void)
 
       *meas_info->label_info_lst[j].plmn_id = (e2sm_plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
       } else {
-       action_def_frm_1.meas_info_lst[i].label_info_lst[j].noLabel = malloc(sizeof(enum_value_e));
-       *action_def_frm_1.meas_info_lst[i].label_info_lst[j].noLabel = TRUE_ENUM_VALUE;
+      //  action_def_frm_1.meas_info_lst[i].label_info_lst[j].noLabel = malloc(sizeof(enum_value_e));
+      //  *action_def_frm_1.meas_info_lst[i].label_info_lst[j].noLabel = TRUE_ENUM_VALUE;
+       action_def_frm_1.meas_info_lst[i].label_info_lst[j].fiveQI = calloc(1, sizeof(uint8_t));
+       assert(action_def_frm_1.meas_info_lst[i].label_info_lst[j].fiveQI != NULL && "Memory exhausted");
+       *action_def_frm_1.meas_info_lst[i].label_info_lst[j].fiveQI = (rand() % 256) + 1;
+      //  action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID = calloc(1, sizeof(s_nssai_e2sm_t));
+      //  action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID->sST = (rand() % 2^8) + 1;
+      //  action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID->sD = calloc(1, sizeof(uint32_t));
+      //  *action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID->sD = (rand() % 2^24) + 0;
       }
     }
   }
@@ -179,7 +190,9 @@ static kpm_act_def_format_1_t fill_rnd_kpm_action_def_frm_1(void)
   default:
     assert(false && "Unknown Cell Global ID Type");
   }
-  
+
+#if defined KPM_V2_03 || defined KPM_V3_00
+
   // Measurement Bin Range - OPTIONAL
   // not yet implemented in ASN.1 - possible extension
   action_def_frm_1.meas_bin_range_info_lst_len = 3;  // (rand() % 65535) + 0;
@@ -195,7 +208,7 @@ static kpm_act_def_format_1_t fill_rnd_kpm_action_def_frm_1(void)
     {
     case NAME_MEAS_TYPE:
       action_def_frm_1.meas_bin_info_lst[i].meas_type.type = NAME_MEAS_TYPE;
-      action_def_frm_1.meas_bin_info_lst[i].meas_type.name.buf = calloc(strlen("test") + 1, sizeof(char));
+      action_def_frm_1.meas_bin_info_lst[i].meas_type.name.buf = calloc(strlen("test") + 1, sizeof(uint8_t));
       memcpy(action_def_frm_1.meas_bin_info_lst[i].meas_type.name.buf, "test", strlen("test"));
       action_def_frm_1.meas_bin_info_lst[i].meas_type.name.len = strlen("test");
       break;
@@ -213,6 +226,7 @@ static kpm_act_def_format_1_t fill_rnd_kpm_action_def_frm_1(void)
     action_def_frm_1.meas_bin_info_lst[i].bin_range_def = fill_rnd_bin_range_def();
 
   }
+#endif
 
   return action_def_frm_1;
 }
@@ -642,7 +656,6 @@ static ue_id_e2sm_t fill_rnd_ue_id_data(void)
     assert(false && "Unknown UE ID Type");
   }
 
-
   return ue_id_data;
 }
 
@@ -652,20 +665,76 @@ static kpm_act_def_format_2_t fill_rnd_kpm_action_def_frm_2(void)
 
   // UE ID
   action_def_frm_2.ue_id = fill_rnd_ue_id_data();
-  
 
   // Action Definition Format 1
-
   action_def_frm_2.action_def_format_1 = fill_rnd_kpm_action_def_frm_1();
 
   return action_def_frm_2;
 }
 
+static
+test_cond_value_t fill_rnd_test_cond_value(void)
+{
+  test_cond_value_t dst = {0};
+
+label:
+  dst.type = rand() % END_TEST_COND_VALUE;
+
+  if(dst.type == BIT_STRING_TEST_COND_VALUE )
+    goto label; // Not implemented
+
+  if(dst.type == INTEGER_TEST_COND_VALUE){
+    dst.int_value = calloc(1, sizeof(int64_t));
+    assert(dst.int_value != NULL && "Memory exhausted");
+    *dst.int_value = rand();
+  } else if (dst.type == ENUMERATED_TEST_COND_VALUE){
+    dst.enum_value = calloc(1, sizeof(int64_t  ));
+    assert(dst.enum_value != NULL && "Memory exhausted");
+    *dst.enum_value = rand();
+  } else if(dst.type == BOOLEAN_TEST_COND_VALUE ){
+    dst.bool_value = calloc(1, sizeof(bool));
+    assert(dst.bool_value != NULL && "Memory exhausted");
+    *dst.bool_value = rand();
+  } else if(dst.type == BIT_STRING_TEST_COND_VALUE){
+    assert(0!= 0 && "Not implemented");
+    //dst.bit_string_value = calloc(1, sizeof(byte_array_t));
+    //assert(dst.bit_string_value != NULL && "Memory exhausted");
+    //*dst.bit_string_value = cp_str_to_ba("Test");
+  } else if(dst.type == OCTET_STRING_TEST_COND_VALUE){
+    dst.octet_string_value = calloc(1, sizeof(byte_array_t));
+    assert(dst. octet_string_value != NULL && "Memory exhausted");
+    *dst.octet_string_value = cp_str_to_ba("Test");
+  } else if(dst.type == PRINTABLE_STRING_TEST_COND_VALUE){
+    dst.printable_string_value = calloc(1, sizeof(byte_array_t));
+    assert(dst. printable_string_value != NULL && "Memory exhausted");
+    *dst.printable_string_value = cp_str_to_ba("Test");
+#if defined KPM_V2_03 || defined KPM_V3_00
+  } else if(dst.type == REAL_TEST_COND_VALUE){
+     dst.real_value = calloc(1, sizeof(double));
+     assert(dst.real_value != NULL && "Memory exhausted");
+     *dst.real_value= rand();
+#endif
+  } else {
+    assert(0!= 0 && "Unknown condition value");
+  }
+
+  return dst;
+}
+
+
+
 static test_info_lst_t fill_rnd_kpm_test_info(void)
 {
   test_info_lst_t test_info = {0};
 
-  test_info.test_cond_type = rand()%END_TEST_COND_TYPE_KPM_V2;
+#if defined KPM_V2_01
+  test_info.test_cond_type = rand()% UL_RSRP_TEST_COND_TYPE;
+#elif defined KPM_V2_03 || defined KPM_V3_00
+  test_info.test_cond_type = rand()%END_TEST_COND_TYPE_KPM_V2_01;
+#else
+  _Static_assert(0!=0 && "Unknown KPM Version");
+#endif
+
 
   switch (test_info.test_cond_type)
   {
@@ -692,7 +761,7 @@ static test_info_lst_t fill_rnd_kpm_test_info(void)
   case DL_RSRQ_TEST_COND_TYPE:
     test_info.DL_RSRQ = TRUE_TEST_COND_TYPE;
     break;
-  
+#if defined KPM_V2_03 || defined KPM_V3_00
   /* Possible extensions: */
   case UL_RSRP_TEST_COND_TYPE:
     test_info.UL_RSRP = TRUE_TEST_COND_TYPE;
@@ -713,17 +782,24 @@ static test_info_lst_t fill_rnd_kpm_test_info(void)
   case S_NSSAI_TEST_COND_TYPE:
     test_info.S_NSSAI = TRUE_TEST_COND_TYPE;
     break;
-  
+#endif
+
   default:
     assert(false && "Condition type out of the range");
     break;
   }
 
-  test_info.test_cond = NULL;
+  // Test Condition
+  // Optional english, mandatory ASN
+  test_info.test_cond = calloc(1, sizeof(test_cond_e));
+  assert(test_info.test_cond != NULL );
+  *test_info.test_cond = rand() %END_TEST_COND;
 
-  test_info.test_cond_value = NULL;
-
-
+  // Test Condition Value
+  // Optional english, mandatory ASN
+  test_info.test_cond_value = calloc(1, sizeof(test_cond_value_t));
+  assert(test_info.test_cond_value != NULL && "Memory exhausted");
+  *test_info.test_cond_value = fill_rnd_test_cond_value();
 
   return test_info;
 }
@@ -734,7 +810,7 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
 
   // Measurement Information
   // [1, 65535]
-  action_def_frm_3.meas_info_lst_len = 10; //(rand() % 65535) + 1;
+  action_def_frm_3.meas_info_lst_len = 2; //(rand() % 65535) + 1;
                                             
   action_def_frm_3.meas_info_lst = calloc(action_def_frm_3.meas_info_lst_len, sizeof(meas_info_format_3_lst_t));
   assert(action_def_frm_3.meas_info_lst != NULL && "Memory exhausted" );
@@ -750,7 +826,7 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
     {
     case NAME_MEAS_TYPE:
       meas_info->meas_type.type = NAME_MEAS_TYPE;
-      meas_info->meas_type.name.buf = calloc(strlen("test") + 1, sizeof(char));
+      meas_info->meas_type.name.buf = calloc(strlen("test") + 1, sizeof(uint8_t));
       memcpy(meas_info->meas_type.name.buf, "test", strlen("test"));
       meas_info->meas_type.name.len = strlen("test");
       break;
@@ -791,17 +867,20 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
       default:
         assert(false && "Unknown Matching Condition Type");
       }
-      
+
+#if defined KPM_V2_03 || defined KPM_V3_00
       // Logical OR
       meas_info->matching_cond_lst[j].logical_OR = calloc(1, sizeof(enum_value_e));
       assert(meas_info->matching_cond_lst[j].logical_OR != NULL && "Memory exhausted");
       *meas_info->matching_cond_lst[j].logical_OR = TRUE_ENUM_VALUE;
-
-      
+#endif
     }
 
+
+#if defined KPM_V2_03 || defined KPM_V3_00
     // Bin Range Definition
     // not yet implemented in ASN.1 - possible extension
+
     meas_info->bin_range_def = calloc(1, sizeof(bin_range_def_t));
     assert(meas_info->bin_range_def != NULL && "Memory exhausted");
 
@@ -814,7 +893,6 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
     {
       meas_info->bin_range_def->bin_x_lst[j].bin_index = (rand() % 65535) + 0;
       meas_info->bin_range_def->bin_x_lst[j].start_value.value = rand()%END_BIN_RANGE;
-
 
       // start value
       switch (meas_info->bin_range_def->bin_x_lst[j].start_value.value)
@@ -853,6 +931,7 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
     meas_info->bin_range_def->bin_z_lst_len = 0;
     meas_info->bin_range_def->bin_z_lst = NULL;
 
+#endif // defined KPM_V2_03 || defined KPM_V3_00
   }
 
   // Granularity Period
@@ -880,9 +959,10 @@ static kpm_act_def_format_3_t fill_rnd_kpm_action_def_frm_3(void)
     assert(false && "Unknown Cell Global ID Type");
   }
 
-
   return action_def_frm_3;
 }
+
+#if defined KPM_V2_03 || defined KPM_V3_00
 
 static kpm_act_def_format_4_t fill_rnd_kpm_action_def_frm_4(void)
 {
@@ -928,12 +1008,21 @@ static kpm_act_def_format_5_t fill_rnd_kpm_action_def_frm_5(void)
 
   return action_def_frm_5;
 }
+#endif // if defined KPM_V2_03 || defined KPM_V3_00
+
 
 kpm_act_def_t fill_rnd_kpm_action_def(void)
 {
   kpm_act_def_t action_def = {0};
 
+#ifdef KPM_V2_01
+  // Only Action [1-3] implemented
+  action_def.type = rand()%FORMAT_4_ACTION_DEFINITION;
+#elif defined KPM_V2_03 || defined KPM_V3_00
   action_def.type = rand()%END_ACTION_DEFINITION;
+#else
+  _Static_assert(0!=0 && "Unknown KPM Version!");
+#endif
 
   switch (action_def.type)
   {
@@ -948,7 +1037,7 @@ kpm_act_def_t fill_rnd_kpm_action_def(void)
   case FORMAT_3_ACTION_DEFINITION:
     action_def.frm_3 = fill_rnd_kpm_action_def_frm_3();
     break;
-  
+#if defined KPM_V2_03 || defined KPM_V3_00
   /* Possible extensions: */
   case FORMAT_4_ACTION_DEFINITION:
     action_def.frm_4 = fill_rnd_kpm_action_def_frm_4();
@@ -957,7 +1046,7 @@ kpm_act_def_t fill_rnd_kpm_action_def(void)
   case FORMAT_5_ACTION_DEFINITION:
     action_def.frm_5 = fill_rnd_kpm_action_def_frm_5();
     break;
-
+#endif
   default:
     assert(false && "Unknown KPM Action Definition Format Type");
   }
@@ -970,30 +1059,30 @@ static kpm_ric_ind_hdr_format_1_t fill_rnd_kpm_ind_hdr_frm_1(void)
   kpm_ric_ind_hdr_format_1_t hdr_frm_1 = {0};
 
   int64_t t = time_now_us();
-#ifdef KPM_V2
+#ifdef KPM_V2_01 || KPM_V2_03
   hdr_frm_1.collectStartTime = t / 1000000; // needs to be truncated to 32 bits to arrive to a resolution of seconds
-#elif defined(KPM_V3)
+#elifdef KPM_V3_00
   hdr_frm_1.collectStartTime = t;
 #else
   static_assert(0!=0, "Unknown KPM version");
 #endif
-  
+
   hdr_frm_1.fileformat_version = NULL;
   
   hdr_frm_1.sender_name = calloc(1, sizeof(byte_array_t));
-  hdr_frm_1.sender_name->buf = calloc(strlen("My E2-Node") + 1, sizeof(char));
-  memcpy(hdr_frm_1.sender_name->buf, "My E2-Node", strlen("My E2-Node"));
-  hdr_frm_1.sender_name->len = strlen("My E2-Node") + 1;
-
+  hdr_frm_1.sender_name->buf = calloc(strlen("My OAI-CU") + 1, sizeof(uint8_t));
+  memcpy(hdr_frm_1.sender_name->buf, "My OAI-CU", strlen("My OAI-CU"));
+  hdr_frm_1.sender_name->len = strlen("My OAI-CU");
+  
   hdr_frm_1.sender_type = calloc(1, sizeof(byte_array_t));
-  hdr_frm_1.sender_type->buf = calloc(strlen("E2-Node") + 1, sizeof(char));
-  memcpy(hdr_frm_1.sender_type->buf, "E2-Node", strlen("E2-Node"));
-  hdr_frm_1.sender_type->len = strlen("E2-Node") + 1;
-
+  hdr_frm_1.sender_type->buf = calloc(strlen("CU") + 1, sizeof(uint8_t));
+  memcpy(hdr_frm_1.sender_type->buf, "CU", strlen("CU"));
+  hdr_frm_1.sender_type->len = strlen("CU");
+  
   hdr_frm_1.vendor_name = calloc(1, sizeof(byte_array_t));
-  hdr_frm_1.vendor_name->buf = calloc(strlen("Unknown") + 1, sizeof(char));
-  memcpy(hdr_frm_1.vendor_name->buf, "Unknown", strlen("Unknown"));
-  hdr_frm_1.vendor_name->len = strlen("Unknown") + 1;
+  hdr_frm_1.vendor_name->buf = calloc(strlen("OAI") + 1, sizeof(uint8_t));
+  memcpy(hdr_frm_1.vendor_name->buf, "OAI", strlen("OAI"));
+  hdr_frm_1.vendor_name->len = strlen("OAI");
 
   return hdr_frm_1;
 }
@@ -1068,7 +1157,9 @@ static kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(void)
   msg_frm_1.gran_period_ms = calloc(1, sizeof(*msg_frm_1.gran_period_ms));
   assert(msg_frm_1.gran_period_ms != NULL && "Memory exhausted");
   *msg_frm_1.gran_period_ms = (rand() % 4294967295) + 1;
-  
+
+#if defined KPM_V2_03 || defined  KPM_V3_00
+
   // Measurement Information - OPTIONAL
   msg_frm_1.meas_info_lst_len = 2;
   msg_frm_1.meas_info_lst = calloc(msg_frm_1.meas_info_lst_len, sizeof(meas_info_format_1_lst_t));
@@ -1085,7 +1176,7 @@ static kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(void)
         msg_frm_1.meas_info_lst[i].meas_type.type = NAME_MEAS_TYPE;
         char s[100];
         snprintf(s, 100, "RNTI %04x PrbDlUsage", (unsigned) (1111*i + 1111));
-        msg_frm_1.meas_info_lst[i].meas_type.name.buf = calloc(strlen(s) + 1, sizeof(char));
+        msg_frm_1.meas_info_lst[i].meas_type.name.buf = calloc(strlen(s) + 1, sizeof(uint8_t));
         memcpy(msg_frm_1.meas_info_lst[i].meas_type.name.buf, s, strlen(s));
         msg_frm_1.meas_info_lst[i].meas_type.name.len = strlen(s);
         break;
@@ -1099,8 +1190,6 @@ static kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(void)
         assert(false && "Unknown Measurement Type");
       }
 
-      
-      
       // Label Information
       msg_frm_1.meas_info_lst[i].label_info_lst_len = 1;
       msg_frm_1.meas_info_lst[i].label_info_lst = calloc(msg_frm_1.meas_info_lst[i].label_info_lst_len, sizeof(label_info_lst_t));
@@ -1115,6 +1204,7 @@ static kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(void)
       }
   }
 
+#endif // defined KPM_V2_03 || defined  KPM_V3_00
 
   return msg_frm_1;
 }
@@ -1186,7 +1276,7 @@ static kpm_ind_msg_format_2_t fill_rnd_kpm_ind_msg_frm_2(void)
     {
     case NAME_MEAS_TYPE:
       cond_ue->meas_type.type = NAME_MEAS_TYPE;
-      cond_ue->meas_type.name.buf = calloc(strlen("condition UE measurement") + 1, sizeof(char));
+      cond_ue->meas_type.name.buf = calloc(strlen("condition UE measurement") + 1, sizeof(uint8_t));
       memcpy(cond_ue->meas_type.name.buf, "condition UE measurement", strlen("condition UE measurement"));
       cond_ue->meas_type.name.len = strlen("condition UE measurement");
       break;
@@ -1227,11 +1317,13 @@ static kpm_ind_msg_format_2_t fill_rnd_kpm_ind_msg_frm_2(void)
       default:
         assert(false && "Unknown Matching Condition Type");
       }
-      
+
+#if defined KPM_V2_03 || defined KPM_V3_00
       // Logical OR
       cond_ue->matching_cond_lst[j].logical_OR = calloc(1, sizeof(enum_value_e));
       assert(cond_ue->matching_cond_lst[j].logical_OR != NULL && "Memory exhausted");
       *cond_ue->matching_cond_lst[j].logical_OR = TRUE_ENUM_VALUE;
+#endif
     }
 
     // List of matched UE IDs
@@ -1245,6 +1337,7 @@ static kpm_ind_msg_format_2_t fill_rnd_kpm_ind_msg_frm_2(void)
       cond_ue->ue_id_matched_lst[j] = fill_rnd_ue_id_data();
     }
 
+#if defined KPM_V2_03 || defined KPM_V3_00
     // Sequence of Matched UE IDs for Granularity Periods
     // not yet implemented in ASN.1 - possible extension
     cond_ue->ue_id_gran_period_lst_len = 3;  // (rand() % 65535) + 0;
@@ -1280,13 +1373,14 @@ static kpm_ind_msg_format_2_t fill_rnd_kpm_ind_msg_frm_2(void)
         break;
       }
     }
-
+#endif // defined KPM_V2_03 || defined KPM_V3_00
   }
 
   return msg_frm_2;
 }
 
-static 
+#if defined KPM_V2_03 || defined KPM_V3_00
+static
 kpm_ind_msg_format_3_t fill_rnd_kpm_ind_msg_frm_3(void)
 {
   kpm_ind_msg_format_3_t msg_frm_3 = {0};
@@ -1304,15 +1398,21 @@ kpm_ind_msg_format_3_t fill_rnd_kpm_ind_msg_frm_3(void)
 
   return msg_frm_3;
 }
-
-
+#endif
 
 kpm_ind_msg_t fill_rnd_kpm_ind_msg(void)
 {
   kpm_ind_msg_t msg = {0};
 
-  msg.type = FORMAT_3_INDICATION_MESSAGE; // rand()%END_INDICATION_MESSAGE;
-  
+
+#if defined KPM_V2_01
+  msg.type = rand() % FORMAT_3_INDICATION_MESSAGE;
+#elif defined KPM_V2_03 || defined KPM_V3_00
+  msg.type = rand() % END_INDICATION_MESSAGE;
+#else
+  _Static_assert(0!=0 && "Unknown format type");
+#endif
+
   switch (msg.type)
   {
   case FORMAT_1_INDICATION_MESSAGE:
@@ -1322,12 +1422,12 @@ kpm_ind_msg_t fill_rnd_kpm_ind_msg(void)
   case FORMAT_2_INDICATION_MESSAGE:
     msg.frm_2 = fill_rnd_kpm_ind_msg_frm_2();
     break;
-
+#if defined KPM_V2_03 || defined KPM_V3_00
   /* Possible extensions: */
   case FORMAT_3_INDICATION_MESSAGE:
     msg.frm_3 = fill_rnd_kpm_ind_msg_frm_3();
     break;
-  
+#endif
   default:
     assert(false && "Unknown KPM Indication Message Format Type");
   }
@@ -1339,15 +1439,15 @@ kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void)
   kpm_ran_function_def_t ran_function = {0};
 
   // RAN Function Name
-  ran_function.name.description.buf = calloc(strlen(SM_KPM_DESCRIPTION) + 1, sizeof(char));
+  ran_function.name.description.buf = calloc(strlen(SM_KPM_DESCRIPTION) + 1, sizeof(uint8_t));
   memcpy(ran_function.name.description.buf, SM_KPM_DESCRIPTION, strlen(SM_KPM_DESCRIPTION));
   ran_function.name.description.len = strlen(SM_KPM_DESCRIPTION);
 
-  ran_function.name.name.buf = calloc(strlen(SM_KPM_STR) + 1, sizeof(char));
+  ran_function.name.name.buf = calloc(strlen(SM_KPM_STR) + 1, sizeof(uint8_t));
   memcpy(ran_function.name.name.buf, SM_KPM_STR, strlen(SM_KPM_STR));
   ran_function.name.name.len = strlen(SM_KPM_STR);
 
-  ran_function.name.oid.buf = calloc(strlen(SM_KPM_OID) + 1, sizeof(char));
+  ran_function.name.oid.buf = calloc(strlen(SM_KPM_OID) + 1, sizeof(uint8_t));
   memcpy(ran_function.name.oid.buf, SM_KPM_OID, strlen(SM_KPM_OID));
   ran_function.name.oid.len = strlen(SM_KPM_OID);
 
@@ -1375,7 +1475,7 @@ kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void)
      case STYLE_1_RIC_EVENT_TRIGGER:
      {
        // RIC Event Trigger Style Name
-       ran_function.ric_event_trigger_style_list[i].style_name.buf = calloc(strlen("RIC-Event-Trigger-Style-Type-1") + 1, sizeof(char));
+       ran_function.ric_event_trigger_style_list[i].style_name.buf = calloc(strlen("RIC-Event-Trigger-Style-Type-1") + 1, sizeof(uint8_t));
        memcpy(ran_function.ric_event_trigger_style_list[i].style_name.buf, "RIC-Event-Trigger-Style-Type-1", strlen("RIC-Event-Trigger-Style-Type-1"));
        ran_function.ric_event_trigger_style_list[i].style_name.len = strlen("RIC-Event-Trigger-Style-Type-1");
 
@@ -1410,7 +1510,7 @@ kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void)
        ran_function.ric_report_style_list[i].ind_msg_format_type = FORMAT_1_INDICATION_MESSAGE;
 
        // RIC REPORT Style Name
-       ran_function.ric_report_style_list[i].report_style_name.buf = calloc(strlen("RIC-Report-Style-Type-1") + 1, sizeof(char));
+       ran_function.ric_report_style_list[i].report_style_name.buf = calloc(strlen("RIC-Report-Style-Type-1") + 1, sizeof(uint8_t));
        memcpy(ran_function.ric_report_style_list[i].report_style_name.buf, "RIC-Report-Style-Type-1", strlen("RIC-Report-Style-Type-1"));
        ran_function.ric_report_style_list[i].report_style_name.len = strlen("RIC-Report-Style-Type-1");
        break;
@@ -1423,7 +1523,7 @@ kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void)
        ran_function.ric_report_style_list[i].ind_msg_format_type = FORMAT_1_INDICATION_MESSAGE;
 
        // RIC REPORT Style Name
-       ran_function.ric_report_style_list[i].report_style_name.buf = calloc(strlen("RIC-Report-Style-Type-2") + 1, sizeof(char));
+       ran_function.ric_report_style_list[i].report_style_name.buf = calloc(strlen("RIC-Report-Style-Type-2") + 1, sizeof(uint8_t));
        memcpy(ran_function.ric_report_style_list[i].report_style_name.buf, "RIC-Report-Style-Type-2", strlen("RIC-Report-Style-Type-2"));
        ran_function.ric_report_style_list[i].report_style_name.len = strlen("RIC-Report-Style-Type-2");
        break;
@@ -1436,7 +1536,7 @@ kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void)
        ran_function.ric_report_style_list[i].ind_msg_format_type = FORMAT_2_INDICATION_MESSAGE;
 
   //     // RIC REPORT Style Name
-       ran_function.ric_report_style_list[i].report_style_name.buf = calloc(strlen("RIC-Report-Style-Type-3") + 1, sizeof(char));
+       ran_function.ric_report_style_list[i].report_style_name.buf = calloc(strlen("RIC-Report-Style-Type-3") + 1, sizeof(uint8_t));
        memcpy(ran_function.ric_report_style_list[i].report_style_name.buf, "RIC-Report-Style-Type-3", strlen("RIC-Report-Style-Type-3"));
        ran_function.ric_report_style_list[i].report_style_name.len = strlen("RIC-Report-Style-Type-3");
        break;
@@ -1449,7 +1549,7 @@ kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void)
        ran_function.ric_report_style_list[i].ind_msg_format_type = FORMAT_3_INDICATION_MESSAGE;
 
        // RIC REPORT Style Name
-       ran_function.ric_report_style_list[i].report_style_name.buf = calloc(strlen("RIC-Report-Style-Type-4") + 1, sizeof(char));
+       ran_function.ric_report_style_list[i].report_style_name.buf = calloc(strlen("RIC-Report-Style-Type-4") + 1, sizeof(uint8_t));
        memcpy(ran_function.ric_report_style_list[i].report_style_name.buf, "RIC-Report-Style-Type-4", strlen("RIC-Report-Style-Type-4"));
        ran_function.ric_report_style_list[i].report_style_name.len = strlen("RIC-Report-Style-Type-4");
        break;
@@ -1462,7 +1562,7 @@ kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void)
        ran_function.ric_report_style_list[i].ind_msg_format_type = FORMAT_3_INDICATION_MESSAGE;
 
        // RIC REPORT Style Name
-       ran_function.ric_report_style_list[i].report_style_name.buf = calloc(strlen("RIC-Report-Style-Type-5") + 1, sizeof(char));
+       ran_function.ric_report_style_list[i].report_style_name.buf = calloc(strlen("RIC-Report-Style-Type-5") + 1, sizeof(uint8_t));
        memcpy(ran_function.ric_report_style_list[i].report_style_name.buf, "RIC-Report-Style-Type-5", strlen("RIC-Report-Style-Type-5"));
        ran_function.ric_report_style_list[i].report_style_name.len = strlen("RIC-Report-Style-Type-5");
        break;
@@ -1481,7 +1581,7 @@ kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void)
      for (size_t j = 0; j<ran_function.ric_report_style_list[i].meas_info_for_action_lst_len; j++)
      {
        // Measurement Type Name
-       ran_function.ric_report_style_list[i].meas_info_for_action_lst[j].name.buf = calloc(strlen("Name_for_action") + 1, sizeof(char));
+       ran_function.ric_report_style_list[i].meas_info_for_action_lst[j].name.buf = calloc(strlen("Name_for_action") + 1, sizeof(uint8_t));
        memcpy(ran_function.ric_report_style_list[i].meas_info_for_action_lst[j].name.buf, "Name_for_action", strlen("Name_for_action"));
        ran_function.ric_report_style_list[i].meas_info_for_action_lst[j].name.len = strlen("Name_for_action");
 

@@ -17,9 +17,3 @@ add_library(3gpp_common_ie_obj OBJECT
                                 $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
                                 $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
                                 )
-
-target_link_libraries(3gpp_common_ie_obj PUBLIC
-                                        3gpp_derived_ie_obj
-                                        3gpp_derived_ie_dec_asn_obj
-                                        3gpp_derived_ie_enc_asn_obj
-                                        )

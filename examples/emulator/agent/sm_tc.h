@@ -3,7 +3,11 @@
 
 #include "../../../src/agent/e2_agent_api.h"
 
-void read_tc_sm(void*);
+void init_tc_sm(void);
+
+void free_tc_sm(void);
+
+bool read_tc_sm(void*);
 
 void read_tc_setup_sm(void* data);
 

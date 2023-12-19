@@ -128,7 +128,6 @@ void assoc_rb_tree_free(assoc_rb_tree_t* tree)
 }
 
 
-
 static
 void left_rotate(assoc_rb_tree_t* tree, assoc_node_t* x_node)
 {
@@ -409,12 +408,12 @@ assoc_node_t* find_rb_tree(assoc_rb_tree_t* tree, assoc_node_t* node, void* key)
   return node;
 }
 
-void* assoc_rb_tree_extract(assoc_rb_tree_t* tree, void* key)
+
+static
+void assoc_rb_tree_extract_node(assoc_rb_tree_t* tree, assoc_node_t* z_node)
 {
   assert(tree != NULL);
-  assert(key != NULL);
-
-  assoc_node_t* z_node = find_rb_tree(tree, tree->root, key);
+  assert(z_node != NULL);
   assert(z_node != tree->dummy && "Trying to extract a key not found in the tree" );
   
   assoc_color_e original_color = z_node->color;
@@ -444,19 +443,41 @@ void* assoc_rb_tree_extract(assoc_rb_tree_t* tree, void* key)
     y_node->left->parent = y_node;
     y_node->color = z_node->color;
   }
-  void* value = z_node->value;
-  //free(z_node->key);
-  //free(z_node);
 
-  free_node_rb_tree(z_node);
   if(original_color == ASSOC_BLACK)
     delete_fixup(tree, x_node);
+}
 
+void* assoc_rb_tree_extract(assoc_rb_tree_t* tree, void* key)
+{
+  assert(tree != NULL);
+  assert(key != NULL);
+
+  assoc_node_t* z_node = find_rb_tree(tree, tree->root, key);
+  assert(z_node != tree->dummy && "Trying to extract a key not found in the tree" );
+  
+  assoc_rb_tree_extract_node(tree, z_node);
+
+  void* value = z_node->value;
+  free_node_rb_tree(z_node);
   assert(tree->size != 0);
   tree->size--;
   return value;
 }
 
+void assoc_rb_tree_free_it(assoc_rb_tree_t* tree, void* it)
+{
+  assoc_node_t* z_node = ( assoc_node_t*)it; // find_rb_tree(tree, tree->root, key);
+  assert(z_node != tree->dummy && "Trying to extract a key not found in the tree" );
+
+  assoc_rb_tree_extract_node(tree, z_node);
+
+  tree->free_func(z_node->key, z_node->value);
+
+  free_node_rb_tree(z_node);
+  assert(tree->size != 0);
+  tree->size--;
+}
 
 void* assoc_rb_tree_front(assoc_rb_tree_t const* tree)
 {

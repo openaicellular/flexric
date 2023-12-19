@@ -3,13 +3,24 @@
 #include <assert.h>
 #include <stdio.h>
 
-void read_slice_sm(void* data)
+void init_slice_sm(void)
+{
+  // No allocation needed
+}
+
+void free_slice_sm(void)
+{
+  // No allocation needed
+}
+
+bool read_slice_sm(void* data)
 {
   assert(data != NULL);
 //  assert(data->type == SLICE_STATS_V0);
 
   slice_ind_data_t* slice = (slice_ind_data_t*)data;
   fill_slice_ind_data(slice);
+  return true;
 }
 
 void read_slice_setup_sm(void* data)

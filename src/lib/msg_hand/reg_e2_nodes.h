@@ -31,7 +31,17 @@
 #include <pthread.h>
 
 typedef struct{
-  // key:global_e2_node_id_t | value: seq_arr_t* of ran_function_t
+  seq_arr_t ran_func; //  ran_function_t
+#ifdef E2AP_V1  
+#elif defined (E2AP_V2) || defined(E2AP_V3)
+  seq_arr_t comp_conf_add; // e2ap_node_component_config_add_t
+#endif         
+} pair_rf_cca_t;
+
+void free_pair_rf_cca(pair_rf_cca_t* src);  
+
+typedef struct{
+  // key:global_e2_node_id_t | value: pair_rf_cca_t* of seq_arr_t of ran_function_t and 
   assoc_rb_tree_t node_to_rf;  
   pthread_mutex_t mtx;
 
@@ -41,7 +51,11 @@ void init_reg_e2_node(reg_e2_nodes_t* n);
 
 void free_reg_e2_node(reg_e2_nodes_t* n); 
 
-void add_reg_e2_node(reg_e2_nodes_t* n, global_e2_node_id_t const* id, size_t len, ran_function_t const ran_func[len]);
+#ifdef E2AP_V1
+void add_reg_e2_node_v1(reg_e2_nodes_t* i, global_e2_node_id_t const* id, size_t len_rf, ran_function_t const* ran_func);
+#else
+void add_reg_e2_node(reg_e2_nodes_t* i, global_e2_node_id_t const* id, size_t len_rf, ran_function_t const* ran_func, size_t len_cca, e2ap_node_component_config_add_t const* cca);
+#endif
 
 void rm_reg_e2_node(reg_e2_nodes_t* n, global_e2_node_id_t const* id);
 

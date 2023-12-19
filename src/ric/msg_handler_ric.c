@@ -34,6 +34,7 @@
 #include "near_ric.h"
 #include "e2_node.h"
 #include "generate_setup_response.h"
+#include "generate_setup_failure.h"
 #include "lib/pending_events.h"
 #include "lib/pending_event_ric.h"
 #include "lib/e2ap/e2ap_msg_free_wrapper.h"
@@ -65,101 +66,6 @@ bool check_valid_msg_type(e2_msg_type_t msg_type)
   return false;
 }
 
-/*
-static
-e2_setup_response_t fill_e2_setup_response_v1(const e2_setup_request_t* req, accepted_ran_function_t* accepted, size_t len_acc)
-{
-  assert(req != NULL);
-  e2_setup_response_t sr = {
-      .id.plmn = req->id.plmn, 
-      .id.near_ric_id.double_word = 25,
-      .accepted = accepted,
-      .len_acc = len_acc,
-      .rejected = NULL,
-      .len_rej = 0,
-      .comp_conf_update_ack_list = NULL,
-      .len_ccual = 0
-  };
-  return sr;
-}
-
-static
-e2_setup_response_t fill_e2_setup_response_v2(const e2_setup_request_t* req, accepted_ran_function_t* accepted, size_t len_acc )
-{
-
-  assert(req != NULL);
-  e2_setup_response_t sr = {
-      .id.plmn = req->id.plmn, 
-      .id.near_ric_id.double_word = 25,
-      .accepted = accepted,
-      .len_acc = len_acc,
-      .rejected = NULL,
-      .len_rej = 0,
-      .comp_config_add_ack = NULL,
-      .len_ccaa = 0
-  };
-  return sr;
-
-}
-
-static
-e2_setup_response_t fill_e2_setup_response_v3(const e2_setup_request_t* req, accepted_ran_function_t* accepted, size_t len_acc )
-{
-  assert(req != NULL);
-  assert(0 !=0 && "Not implemented");
-e2_setup_response_t dst = {0};
-
-return dst;
-
-}
-*/
-
-
-/*
-static inline
-e2_setup_response_t generate_setup_response(near_ric_t* ric, const e2_setup_request_t* req)
-{
-  assert(ric != NULL);
-  assert(req != NULL);
-
-  const size_t len_acc = req->len_rf;
-  accepted_ran_function_t* accepted = calloc(len_acc, sizeof(accepted_ran_function_t));
-  assert(accepted != NULL && "Memory exhausted");
-
-  for (size_t i = 0; i < len_acc; ++i) {
-    void* start_it = assoc_front(&ric->plugin.sm_ds);
-    void* end_it = assoc_end(&ric->plugin.sm_ds);
-    uint16_t const id = req->ran_func_item[i].id;
-
-    void* it = find_if(&ric->plugin.sm_ds, start_it, end_it, &id, eq_ran_func_id); 
-
-    if(it != end_it){
-      assert(id == *(uint16_t*)assoc_key(&ric->plugin.sm_ds, it) );
-      accepted[i] = id;
-      char def[128] = {0};
-      assert(req->ran_func_item[i].definition.len < 127 );
-      memcpy(def, req->ran_func_item[i].definition.buf, req->ran_func_item[i].definition.len);
-      printf("[NEAR-RIC]: Accepting RAN function ID %d with def = %s \n", id, def);
-    } else {
-      printf("Unknown RAN function ID, thus rejecting %d \n", id);
-
-      void* it = assoc_front(&ric->plugin.sm_ds);
-      while(it != assoc_end(&ric->plugin.sm_ds)){
-      //  printf("Registered keys = %d \n", *(uint16_t*)assoc_key(&ric->plugin.sm_ds, it));        
-        it = assoc_next(&ric->plugin.sm_ds, it);
-      }
-
-      assert(0!=0 && "Unknown RAN function ID from the agent received");
-    }
-    fflush(stdout);
-  }
-
-  e2_setup_response_t sr = fill_e2_setup_response(&ric->e2ap_version.type, req, accepted, len_acc); 
-
-  return sr;
-}
-*/
-
 static
 void stop_pending_event(near_ric_t* ric, pending_event_ric_t* ev )
 {
@@ -168,7 +74,8 @@ void stop_pending_event(near_ric_t* ric, pending_event_ric_t* ev )
 
   int rc = pthread_mutex_lock(&ric->pend_mtx);
   assert(rc == 0);
-  int* fd = bi_map_extract_right(&ric->pending, ev, sizeof(*ev));
+  void (*free_pending_event)(void*) = NULL;
+  int* fd = bi_map_extract_right(&ric->pending, ev, sizeof(*ev), free_pending_event);
   rc = pthread_mutex_unlock(&ric->pend_mtx);
   assert(rc == 0);
 
@@ -344,14 +251,14 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   assert(msg->type == RIC_CONTROL_ACKNOWLEDGE);
 
   ric_control_acknowledge_t const* ack = &msg->u_msgs.ric_ctrl_ack;
-#ifdef E2AP_V1 
+#ifdef E2AP_V1
   assert( ack->status == RIC_CONTROL_STATUS_SUCCESS && "Only success supported ") ;
 #endif
 
   pending_event_ric_t ev = {.ev = CONTROL_REQUEST_PENDING_EVENT, .id = ack->ric_id }; 
   stop_pending_event(ric, &ev);
 
-  printf("[NEAR-RIC]: CONTROL ACKNOWLEDGE received\n");
+  printf("[NEAR-RIC]: CONTROL ACKNOWLEDGE rx\n");
 
 #ifndef TEST_AGENT_RIC  
   notify_msg_iapp_api(msg);
@@ -396,22 +303,33 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   assert(msg != NULL);
   assert(msg->type == E2_SETUP_REQUEST); 
 
-//  printf("[E2AP] Received SETUP-REQUEST\n");
-  fflush(stdout);
   const e2_setup_request_t* req = &msg->u_msgs.e2_stp_req;
 
+  //  Working E2_SETUP_FAILURE
+  //  e2ap_msg_t ans = {.type = E2_SETUP_FAILURE };
+  //  ans.u_msgs.e2_stp_fail = generate_setup_failure(&ric->ap.version.type, ric, req);
+
   const e2ap_plmn_t* plmn = &req->id.plmn;
-  const char* ran_type = get_e2ap_ngran_name(req->id.type);
+  char* ran_type = get_e2ap_ngran_name(req->id.type);
+
+#if defined(E2AP_V2) || defined(E2AP_V3)
+  if(req->id.type == e2ap_ngran_gNB && req->len_cca == 2)
+    ran_type = "ngran_gNB_CU";
+#endif
+
   if (E2AP_NODE_IS_MONOLITHIC(req->id.type))
-    printf("[E2AP] Received SETUP-REQUEST from PLMN %3d.%*d Node ID %d RAN type %s\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id.nb_id, ran_type);
+    printf("[E2AP]: E2 SETUP-REQUEST rx from PLMN %3d.%*d Node ID %d RAN type %s\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id.nb_id, ran_type);
   else
-    printf("[E2AP] Received SETUP-REQUEST from PLMN %3d.%*d Node ID %d RAN type %s CU/DU ID %ld\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id.nb_id, ran_type, *req->id.cu_du_id);
+    printf("[E2AP]: E2 SETUP-REQUEST rx from PLMN %3d.%*d Node ID %d RAN type %s ID %ld\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id.nb_id, ran_type, *req->id.cu_du_id);
+
   // Add the E2 Node into the iApp
-  add_e2_node_iapp_api((global_e2_node_id_t*)&req->id, req->len_rf, req->ran_func_item);
-
-
+#ifdef E2AP_V1
+  add_e2_node_iapp_api_v1((global_e2_node_id_t*)&req->id, req->len_rf, req->ran_func_item);
+#else
+  add_e2_node_iapp_api((global_e2_node_id_t*)&req->id, req->len_rf, req->ran_func_item, req->len_cca, req->comp_conf_add);
+#endif
   e2ap_msg_t ans = {.type = E2_SETUP_RESPONSE };
-  ans.u_msgs.e2_stp_resp = generate_setup_response(&ric->ap.version.type, ric, req); 
+  ans.u_msgs.e2_stp_resp = generate_setup_response(&ric->ap.version.type, ric, req);
 
   e2_node_t n = {0};
   init_e2_node(&n, &req->id, ans.u_msgs.e2_stp_resp.len_acc, ans.u_msgs.e2_stp_resp.accepted); 

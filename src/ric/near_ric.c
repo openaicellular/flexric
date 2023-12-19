@@ -249,6 +249,10 @@ near_ric_t* init_near_ric(fr_args_t const* args)
   printf("[NEAR-RIC]: Initializing Task Manager with %u threads \n", num_threads);
   init_task_manager(&ric->man, num_threads);
 
+  uint32_t const num_threads = TASK_MAN_NUMBER_THREADS;
+  printf("[NEAR-RIC]: Initializing Task Manager with %u threads \n", num_threads);
+  init_task_manager(&ric->man, num_threads);
+
   ric->req_id = 1021; // 0 could be a sign of a bug
   ric->stop_token = false;
   ric->server_stopped = false;
@@ -345,7 +349,7 @@ bool pend_event(near_ric_t* ric, int fd, pending_event_t** p_ev)
  
   {
   lock_guard(&ric->pend_mtx);
-  assert(bi_map_size(&ric->pending) == 1 );
+  // assert(bi_map_size(&ric->pending) == 1 );
 
   void* start_it = assoc_front(&ric->pending.left);
   void* end_it = assoc_end(&ric->pending.left);
@@ -423,7 +427,7 @@ void sctp_msg_arrived_event(void* arg)
 
   if(msg.type == E2_SETUP_REQUEST){
     global_e2_node_id_t const* id = &msg.u_msgs.e2_stp_req.id;
-    printf("Received message with id = %d, port = %d \n", id->nb_id.nb_id, sctp_msg->info.addr.sin_port);
+    //printf("Received message with id = %d, port = %d \n", id->nb_id.nb_id, sctp_msg->info.addr.sin_port);
     e2ap_reg_sock_addr_ric(&ric->ep, id, &sctp_msg->info);
   }
 
@@ -451,20 +455,20 @@ void e2_event_loop_ric(near_ric_t* ric)
       async_event_t e = arr.ev[i];
       assert(e.type != UNKNOWN_EVENT && "Unknown event triggered ");
 
-    switch(e.type)
-    {
+      switch(e.type)
+      {
         case SCTP_MSG_ARRIVED_EVENT:
-        {
-          ric_sctp_msg_t* ric_sctp = calloc(1, sizeof( ric_sctp_msg_t));
-          assert(ric_sctp != NULL && "Memory exhausted");
-          ric_sctp->ric = ric;
-          // Pass ownership
-          ric_sctp->msg = e.msg;
-          task_t t = {.args = ric_sctp, .func = sctp_msg_arrived_event};
-          // Execute tasks in parallel
-          async_task_manager(&ric->man, t);
-          break;
-        }
+          {
+            ric_sctp_msg_t* ric_sctp = calloc(1, sizeof( ric_sctp_msg_t));
+            assert(ric_sctp != NULL && "Memory exhausted");
+            ric_sctp->ric = ric;
+            // Pass ownership
+            ric_sctp->msg = e.msg;
+            task_t t = {.args = ric_sctp, .func = sctp_msg_arrived_event};
+            // Execute tasks in parallel
+            async_task_manager(&ric->man, t);
+            break;
+          }
         case PENDING_EVENT:
           {
             printf("Pending event timeout happened. Communication with E2 Node lost?\n");
@@ -535,8 +539,6 @@ void free_near_ric(near_ric_t* ric)
   bi_map_free(&ric->pending);
 
   stop_iapp_api();
-
-
 
   free(ric);
 }
@@ -739,11 +741,11 @@ void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, ui
 
   ric_control_request_t ctrl_req = generate_control_request(ric, sm, ctrl);
 
-  // A pending event is created along with a timer of 1000 ms,
+  // A pending event is created along with a timer of 3000 ms,
   // after which an event will be generated
   pending_event_ric_t ev = {.ev = CONTROL_REQUEST_PENDING_EVENT, .id = ctrl_req.ric_id };
 
-  long const wait_ms = 2000;
+  long const wait_ms = 3000;
   int fd_timer = create_timer_ms_asio_ric(&ric->io, wait_ms, wait_ms); 
   //printf("RIC: Control fd_timer for control with value created == %d\n", fd_timer);
 
@@ -757,7 +759,7 @@ void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, ui
 //  struct sockaddr_in const to = find_map_e2_node_sad(&ric->e2_node_sock, id);
   e2ap_send_bytes_ric(&ric->ep, id, ba_msg);
 
-  printf("[NEAR-RIC]: CONTROL SERVICE sent");
+  printf("[NEAR-RIC]: CONTROL SERVICE sent\n");
 
   e2ap_free_control_request_ric(&ric->ap, &ctrl_req);
   free_byte_array(ba_msg);
@@ -841,21 +843,30 @@ void fwd_ric_subscription_request_delete(near_ric_t* ric, global_e2_node_id_t co
   // A pending event is created along with a timer of 3000 ms,
   // after which an event will be generated
   pending_event_ric_t ev = {.ev = SUBSCRIPTION_DELETE_REQUEST_PENDING_EVENT, .id = sdr->ric_id };
-
-  long const wait_ms = 3000;
-  int fd_timer = create_timer_ms_asio_ric(&ric->io, wait_ms, wait_ms); 
-
   {
     lock_guard(&ric->pend_mtx);
+
+    // left: fd, right: pending_event_t
+    assoc_rb_tree_t* tree = &ric->pending.right;
+
+    void* first = assoc_front(tree);
+    void* end  = assoc_end(tree);
+    if(find_if(tree, first, end, &ev, eq_pending_event_ric ) != end){
+      printf("[NEAR-RIC]: SUBSCRIPTION REQUEST DELETE RAN FUNC ID %d RIC_REQ_ID %d MSG ALREADY PENDING\n", sdr->ric_id.ran_func_id, sdr->ric_id.ric_req_id);
+      return;
+    }
+
+    long const wait_ms = 3000;
+    int fd_timer = create_timer_ms_asio_ric(&ric->io, wait_ms, wait_ms);
     bi_map_insert(&ric->pending, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev)); 
   }
 
   byte_array_t ba_msg = e2ap_enc_subscription_delete_request_ric(&ric->ap, sdr); 
-  defer({ free_byte_array(ba_msg); }  );
+  defer({ free_byte_array(ba_msg); });
 
   e2ap_send_bytes_ric(&ric->ep, id, ba_msg);
 
-  puts("[NEAR-RIC]: SUBSCRIPTION DELETE REQUEST tx\n" );
+  printf("[NEAR-RIC]: SUBSCRIPTION DELETE REQUEST tx RAN FUNC ID %d RIC_REQ_ID %d \n", sdr->ric_id.ran_func_id, sdr->ric_id.ric_req_id);
 }
 
 uint16_t fwd_ric_control_request(near_ric_t* ric, global_e2_node_id_t const* id, ric_control_request_t const* cr,  void (*f)(e2ap_msg_t const* msg))
@@ -883,7 +894,7 @@ uint16_t fwd_ric_control_request(near_ric_t* ric, global_e2_node_id_t const* id,
 
   e2ap_send_bytes_ric(&ric->ep, id, ba_msg);
 
-  puts("[NEAR-RIC]: CONTROL SERVICE sent\n");
+  printf("[NEAR-RIC]: CONTROL SERVICE sent\n");
 
   return ric_req_id; 
 }

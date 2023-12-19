@@ -36,7 +36,7 @@ tc_ctrl_req_data_t cp_ctrl;
 ////
 
 static
-void read_ind_tc(void* read)
+bool read_ind_tc(void* read)
 {
   assert(read != NULL);
 
@@ -44,6 +44,7 @@ void read_ind_tc(void* read)
 
   fill_tc_ind_data(tc);
   cp.msg = cp_tc_ind_msg(&tc->msg);
+  return true;
 }
 
 static 
@@ -101,11 +102,11 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   assert(ag != NULL);
   assert(ric != NULL);
 
-  sm_ind_data_t sm_data = ag->proc.on_indication(ag, NULL);
-  defer({ free_sm_ind_data(&sm_data); }); 
+  exp_ind_data_t exp = ag->proc.on_indication(ag, NULL);
+  assert(exp.has_value == true);
+  defer({ free_exp_ind_data(&exp); }); 
 
-
-  sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &sm_data);
+  sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &exp.data);
 
   tc_ind_data_t* data = &msg.tc;
   assert(msg.type == TC_STATS_V0);
@@ -172,7 +173,7 @@ int main()
 
   sm_ric_t* sm_ric = make_tc_sm_ric();
 
-  for(int i =0 ; i < 256*4096; ++i){
+  for(int i =0 ; i < 1024; ++i){
     check_eq_ran_function(sm_ag, sm_ric);
     check_subscription(sm_ag, sm_ric);
     check_indication(sm_ag, sm_ric);

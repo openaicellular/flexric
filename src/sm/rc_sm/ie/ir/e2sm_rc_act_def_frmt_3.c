@@ -37,7 +37,6 @@ bool eq_e2sm_rc_act_def_frmt_3(e2sm_rc_act_def_frmt_3_t const* m0, e2sm_rc_act_d
   if(m0 == NULL || m1 == NULL)
     return false;
 
-
   // Insert Indication ID
   // Mandatory
   // 9.3.16
@@ -55,8 +54,10 @@ bool eq_e2sm_rc_act_def_frmt_3(e2sm_rc_act_def_frmt_3_t const* m0, e2sm_rc_act_d
     return false;
 
   for(size_t i = 0; i < m0->sz_ran_param_ins; ++i){
-    if(eq_ran_param_ins(&m0->ran_param[i], &m1->ran_param[i]) == false)
+    if(eq_ran_param_ins(&m0->ran_param[i], &m1->ran_param[i]) == false){
+      assert(0 != 0 && "Debug");
       return false;
+    }
   }
 
   //  UE ID

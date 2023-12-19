@@ -78,6 +78,12 @@ void free_global_e2_node_id(global_e2_node_id_t* src)
     free (src->cu_du_id);
 }
 
+void free_global_e2_node_id_wrapper(void* src)
+{
+  assert(src != NULL);
+  free_global_e2_node_id(src);
+}
+
 bool eq_global_e2_node_id_wrapper(const void* m0_v, const void* m1_v)
 {
   assert(m0_v != NULL);

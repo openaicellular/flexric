@@ -43,7 +43,7 @@ e2_node_component_config_update_t cp_e2_node_component_config_update(const e2_no
   if(src->id_present != NULL){
     dst.id_present = calloc(1,sizeof(e2_node_component_id_present_e ));
     assert(dst.id_present != NULL && "Memory exhausted");
-    dst.id_present = src->id_present;
+    *dst.id_present = *src->id_present;
     // Does not matter the value of src->id_present
     dst.gnb_cu_up_id = src->gnb_cu_up_id;
   }

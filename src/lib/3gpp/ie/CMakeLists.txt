@@ -17,6 +17,7 @@ set(3GPP_DERIVED_IE_SRCS
   nr_cgi.c
   plmn_identity.c
   rrc_msg_id.c
+  s_nssai.c
   )
 
 add_library(3gpp_derived_ie_obj OBJECT ${3GPP_DERIVED_IE_SRCS})

@@ -35,6 +35,7 @@ SOFTWARE.
 typedef int (*bi_map_cmp)(void const*, void const*);
 
 typedef void (*free_func_t)(void* key, void* value);
+typedef void (*free_fp_key)(void* key);
 
 typedef struct
 {
@@ -57,13 +58,11 @@ void bi_map_free(bi_map_t* map);
 // Modifiers
 void bi_map_insert(bi_map_t* map, void const* key1, size_t key_sz1, void const* key2, size_t key_sz2);
 
+// It returns the void* of key2. f is called and the void* of the key1 is freed 
+void* bi_map_extract_left(bi_map_t* map, void* key1, size_t key1_sz, free_fp_key f);
 
-// It returns the void* of key2. the void* of the key1 is freed
-void* bi_map_extract_left(bi_map_t* map, void* key1, size_t key1_sz);
-
-// It returns the void* of key1. the void* of the key2 is freed
-void* bi_map_extract_right(bi_map_t* map, void* key2, size_t key1_sz);
-
+// It returns the void* of key1. f is called and the void* of the key2 is freed 
+void* bi_map_extract_right(bi_map_t* map, void* key2, size_t key1_sz, free_fp_key f);
 
 // returns a pointer to the value
 void* bi_map_value_left(bi_map_t* map, bml_iter_t it);

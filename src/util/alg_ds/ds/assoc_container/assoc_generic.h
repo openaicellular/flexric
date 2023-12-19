@@ -59,7 +59,7 @@ SOFTWARE.
 
 // Capacity
 #define assoc_size(T) _Generic ((T), assoc_rb_tree_t*:  assoc_rb_tree_size, \
-                                     assoc_ht_open_t*:  assoc_ht_open_value,\
+                                     assoc_ht_open_t*:  assoc_ht_open_size,\
                                        default: assoc_rb_tree_size)(T)
 
 // Forward Iterator Concept

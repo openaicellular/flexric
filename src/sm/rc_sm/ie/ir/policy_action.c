@@ -86,8 +86,8 @@ policy_action_t cp_policy_action(policy_action_t const* src)
   // Sequence of RAN Parameters
   // [0- 65535]
   assert(src->sz_seq_ran_param <  65536);
+  dst.sz_seq_ran_param = src->sz_seq_ran_param;
   if(src->sz_seq_ran_param > 0){
-    dst.sz_seq_ran_param = src->sz_seq_ran_param;
     dst.seq_ran_param = calloc(dst.sz_seq_ran_param, sizeof(seq_ran_param_t) );
     assert(dst.seq_ran_param != NULL && "Memory exhausted");
   }

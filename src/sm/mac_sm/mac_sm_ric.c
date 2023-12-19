@@ -273,7 +273,7 @@ sm_ric_t* make_mac_sm_ric(void /* sm_io_ric_t io */)
   sm->base.proc.on_ric_service_update = on_ric_service_update_mac_sm_ric; 
   sm->base.handle = NULL;
 
-  assert(strlen( SM_MAC_STR ) < sizeof(sm->base.ran_func_name));
+  assert(strlen(SM_MAC_STR) < sizeof(sm->base.ran_func_name));
   memcpy(sm->base.ran_func_name, SM_MAC_STR, strlen(SM_MAC_STR));
 
   return &sm->base;

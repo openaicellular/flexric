@@ -145,9 +145,9 @@ gtp_ind_msg_t cp_gtp_ind_msg(gtp_ind_msg_t const* src)
   if(cp.len > 0){
     cp.ngut = calloc(cp.len, sizeof(gtp_ngu_t_stats_t));
     assert(cp.ngut != NULL && "memory exhausted");
-  }
 
-  memcpy(cp.ngut, src->ngut, sizeof(gtp_ngu_t_stats_t)*cp.len);
+    memcpy(cp.ngut, src->ngut, sizeof(gtp_ngu_t_stats_t)*cp.len);
+  }
 
   return cp;
 }

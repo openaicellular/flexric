@@ -191,7 +191,7 @@ int main()
 
   // Call Process ID 
   test_rc_call_process_id();
-  printf("\nRC Call Process ID\nn");
+  printf("\nRC Call Process ID\n");
 
   // Control Header 
    test_rc_ctrl_hdr();

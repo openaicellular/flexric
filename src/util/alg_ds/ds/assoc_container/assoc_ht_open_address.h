@@ -32,6 +32,7 @@ SOFTWARE.
 
 typedef bool (*key_eq_func_fp)(const void* a, const void* b);
 typedef void (*free_func_ht_open_fp)(void* key, void* value);
+typedef uint32_t (*hash_func_ht_open_fp)(const void* key);
 
 typedef struct hentry_s hentry_t;
 
@@ -44,10 +45,11 @@ typedef struct {
   uint32_t num_dirty; 
   key_eq_func_fp key_eq;
   free_func_ht_open_fp free_func;
+  hash_func_ht_open_fp hash_func;
 } assoc_ht_open_t;
 
 
-void assoc_ht_open_init(assoc_ht_open_t* htab, size_t key_sz, key_eq_func_fp eq, free_func_ht_open_fp free);
+void assoc_ht_open_init(assoc_ht_open_t* htab, size_t key_sz, key_eq_func_fp eq, free_func_ht_open_fp free, hash_func_ht_open_fp hash_func);
 
 void assoc_ht_open_free(assoc_ht_open_t* ht);
 

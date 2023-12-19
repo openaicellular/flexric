@@ -60,75 +60,90 @@ void read_e2_setup_rc(void* data)
 }
 
 static
-void read_ind_mac(void* ind)
+bool read_ind_mac(void* ind)
 {
   assert(ind != NULL);
   mac_ind_data_t* mac = (mac_ind_data_t*)ind;
   fill_mac_ind_data(mac);
+  return true;
 }
 
 static
-void read_ind_rlc(void* ind)
+bool read_ind_rlc(void* ind)
 {
   assert(ind != NULL);
   rlc_ind_data_t* rlc = (rlc_ind_data_t*)ind;
   fill_rlc_ind_data(rlc);
+  return true;
 }
 
 static
-void read_ind_pdcp(void* ind)
+bool read_ind_pdcp(void* ind)
 {
   assert(ind != NULL);
   pdcp_ind_data_t* pdcp = (pdcp_ind_data_t*)ind;
   fill_pdcp_ind_data(pdcp);
+  return true;
 }
 
 static
-void read_ind_slice(void* ind)
+bool read_ind_slice(void* ind)
 {
   assert(ind != NULL);
   slice_ind_data_t* slice = (slice_ind_data_t*)ind;
   fill_slice_ind_data(slice);
+  return true;
 }
 
 static
-void read_ind_gtp(void* ind)
+bool read_ind_gtp(void* ind)
 {
   assert(ind != NULL);
   gtp_ind_data_t* gtp = (gtp_ind_data_t*)ind;
   fill_gtp_ind_data(gtp);
+  return true;
 }
 
 static
-void read_ind_tc(void* ind)
+bool read_ind_tc(void* ind)
 {
   assert(ind != NULL);
   tc_ind_data_t* tc = (tc_ind_data_t*)ind;
   fill_tc_ind_data(tc);
+  return true;
 }
 
 static
-void read_ind_kpm(void* ind)
+bool read_ind_kpm(void* ind)
 {
   assert(ind != NULL);
   kpm_ind_data_t* kpm = (kpm_ind_data_t*)ind;
   kpm->hdr = fill_rnd_kpm_ind_hdr();
   kpm->msg = fill_rnd_kpm_ind_msg();
+  return true;
 }
 
 static
-void read_ind_rc(void* ind)
+bool read_ind_rc(void* ind)
 {
   assert(ind != NULL);
   assert(0!=0 && "The logic in RAN Ctrl SM for indication is different!"); 
+  return true;
 }
 
-#if defined(E2AP_V2) || defined(E2AP_V3)
+#ifdef E2AP_V1
+#elif defined(E2AP_V2) || defined(E2AP_V3)
 static
 void read_e2_setup_ran(void* data)
 {
   assert(data != NULL);
-  *((e2ap_node_component_config_add_t*)(data)) = fill_e2ap_node_component_config_add();
+
+  arr_node_component_config_add_t* dst = (arr_node_component_config_add_t*)data;
+  dst->len_cca = 1;
+  dst->cca = calloc(1, sizeof(e2ap_node_component_config_add_t));
+  assert(dst->cca != NULL);
+  // NGAP
+  dst->cca[0] = fill_ngap_e2ap_node_component_config_add();
 }
 #endif
 
@@ -188,10 +203,10 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
   sm_io_ag_ran_t dst = {0};
 
   // READ: Indication
-  dst.read_ind_tbl[MAC_STATS_V0 ] =  read_ind_mac;
-  dst.read_ind_tbl[RLC_STATS_V0] =   read_ind_rlc;
-  dst.read_ind_tbl[PDCP_STATS_V0] =   read_ind_pdcp;
-  dst.read_ind_tbl[SLICE_STATS_V0] =   read_ind_slice;
+  dst.read_ind_tbl[MAC_STATS_V0 ] = read_ind_mac;
+  dst.read_ind_tbl[RLC_STATS_V0] =  read_ind_rlc;
+  dst.read_ind_tbl[PDCP_STATS_V0] =  read_ind_pdcp;
+  dst.read_ind_tbl[SLICE_STATS_V0] = read_ind_slice;
   dst.read_ind_tbl[TC_STATS_V0] =   read_ind_tc;
   dst.read_ind_tbl[GTP_STATS_V0] =   read_ind_gtp;
   dst.read_ind_tbl[KPM_STATS_V3_0] =   read_ind_kpm;
@@ -231,10 +246,6 @@ int main(int argc, char *argv[])
   // Parse arguments
   init_agent_api( mcc, mnc, mnc_digit_len, nb_id, cu_du_id, ran_type, io, &args);
   sleep(1);
-
-  // Init the RIC
-  init_near_ric_api(&args);
-  sleep(3);
 
   e2_nodes_api_t e2_nodes = e2_nodes_near_ric_api();
   assert(e2_nodes.len > 0 && "No E2 Nodes connected");

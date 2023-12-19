@@ -36,7 +36,7 @@ typedef struct{
   // @return granularity in ms or -1 if no periodic timer needed
   subscribe_timer_t (*on_subscription)(sm_agent_t const* sm, sm_subs_data_t const* data);
 
-  sm_ind_data_t (*on_indication)(sm_agent_t const* sm, void* act_def);
+  exp_ind_data_t (*on_indication)(sm_agent_t const* sm, void* act_def);
 
   sm_ctrl_out_data_t (*on_control)(sm_agent_t const* sm, sm_ctrl_req_data_t const* data);
 
@@ -90,10 +90,6 @@ typedef struct sm_agent_s {
 
   // SM Information function;
   sm_e2ap_info_t info;
-
-  // RAN Function ID
-//  uint16_t const ran_func_id;
-//  char ran_func_name[32];
 
 } sm_agent_t;
 

@@ -57,9 +57,9 @@ byte_array_t gtp_enc_ind_hdr_plain(gtp_ind_hdr_t const* ind_hdr)
   byte_array_t ba = {0};
 
   ba.len = sizeof(gtp_ind_hdr_t);
-  ba.buf = malloc(sizeof(gtp_ind_msg_t));
+  ba.buf = calloc(ba.len, sizeof(uint8_t));
   assert(ba.buf != NULL && "memory exhausted");
-  memcpy(ba.buf, ind_hdr, sizeof(gtp_ind_hdr_t));
+  memcpy(ba.buf, ind_hdr, ba.len);
 
   return ba;
 }
@@ -112,12 +112,12 @@ byte_array_t gtp_enc_ctrl_hdr_plain(gtp_ctrl_hdr_t const* ctrl_hdr)
 {
   assert(ctrl_hdr != NULL);
   byte_array_t  ba = {0};
-  ba.buf = malloc(sizeof(gtp_ind_msg_t)); 
+  ba.len = sizeof(gtp_ctrl_hdr_t);
+  ba.buf = calloc(ba.len, sizeof(uint8_t)); 
   assert(ba.buf != NULL && "Memory exhausted");
 
   memcpy(ba.buf, ctrl_hdr, sizeof(gtp_ctrl_hdr_t));
 
-  ba.len = sizeof(gtp_ctrl_hdr_t);
   return ba;
 }
 
@@ -126,12 +126,13 @@ byte_array_t gtp_enc_ctrl_msg_plain(gtp_ctrl_msg_t const* ctrl_msg)
   assert(ctrl_msg != NULL);
 
   byte_array_t  ba = {0};
-  ba.buf = malloc(sizeof(gtp_ctrl_msg_t)); 
+  ba.len = sizeof(gtp_ctrl_msg_t);
+
+  ba.buf = calloc(ba.len, sizeof(uint8_t)); 
   assert(ba.buf != NULL && "Memory exhausted");
 
-  memcpy(ba.buf, ctrl_msg, sizeof(gtp_ctrl_msg_t));
+  memcpy(ba.buf, ctrl_msg, ba.len);
 
-  ba.len = sizeof(gtp_ctrl_hdr_t);
   return ba;
 }
 

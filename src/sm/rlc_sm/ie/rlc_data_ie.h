@@ -99,6 +99,7 @@ typedef struct {
   uint32_t txpdu_status_bytes; /* aggregated amount of tx status bytes  (only applicable to RLC AM) */
   uint32_t txbuf_occ_bytes;    /* (IMPLEMENTED) transmitting bytes currently in buffer */
   uint32_t txbuf_occ_pkts;     /* TODO: current tx buffer occupancy in terms of number of packets (average: NOT IMPLEMENTED) */
+
   /* txbuf_wd_ms: the time window for which the txbuf  occupancy value is obtained - NOT IMPLEMENTED */
 
   /* RX */
@@ -118,6 +119,7 @@ typedef struct {
   uint32_t rxbuf_occ_bytes;    /* (IMPLEMENTED) received bytes currently in buffer */
   uint32_t rxbuf_occ_pkts;     /* TODO: current rx buffer occupancy in terms of number of packets (average: NOT IMPLEMENTED) */
 
+
   /* SDU stats */
   /* TX */
   uint32_t txsdu_pkts;         /* number of SDUs delivered */
@@ -130,6 +132,7 @@ typedef struct {
    */
   double txsdu_avg_time_to_tx; /* (100ms-windowed) per-packet sojourn (SDU to PDU) in microseconds */
   uint32_t txsdu_wt_us;        /* HOL delay of the current radio bearer, in microseconds */
+
 
   /* RX */
   uint32_t rxsdu_pkts;         /* number of SDUs received */

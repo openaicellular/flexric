@@ -46,8 +46,12 @@ pthread_t thrd_xapp;
 static
 void sig_handler(int sig_num)
 {
-  printf("\nEnding abnormally the xApp SDK with signal number = %d\n", sig_num);
-  exit(EXIT_FAILURE);
+  printf("\n[xApp]:Abruptly ending with signal number = %d\n", sig_num);
+
+  while(try_stop_xapp_api() == false)
+    usleep(1000);
+
+   exit(EXIT_FAILURE);
 }
 
 static inline
@@ -69,11 +73,12 @@ void init_xapp_api(fr_args_t const* args)
   xapp = init_e42_xapp(args);
 
   // Spawn a new thread for the xapp
-  const int rc = pthread_create(&thrd_xapp, NULL, static_start_xapp, NULL);
+  int rc = pthread_create(&thrd_xapp, NULL, static_start_xapp, NULL);
   assert(rc == 0);
 
   while(connected_e42_xapp(xapp) == false)
     sleep(1);
+
 }
 
 bool try_stop_xapp_api(void)
@@ -171,7 +176,7 @@ void rm_report_sm_xapp_api(int const handle)
   assert(xapp != NULL);
   assert(handle > -1);
 
-  printf("Remove handle number = %d \n", handle);
+  //printf("Remove handle number = %d \n", handle);
   rm_report_sm_sync_xapp(xapp, handle);
 }
 
@@ -179,10 +184,7 @@ sm_ans_xapp_t control_sm_xapp_api(global_e2_node_id_t* id, uint32_t ran_func_id,
 {
   assert(xapp != NULL);
   assert(id != NULL);
-  assert(ran_func_id == SM_SLICE_ID ||
-          ran_func_id == SM_TC_ID ||
-          ran_func_id == SM_RC_ID ||
-          ran_func_id == SM_MAC_ID);
+  assert(ran_func_id == SM_MAC_ID || ran_func_id == SM_SLICE_ID || ran_func_id == SM_TC_ID || ran_func_id == SM_RC_ID);
   assert(wr != NULL);
 
   return control_sm_sync_xapp(xapp, id, ran_func_id, wr);

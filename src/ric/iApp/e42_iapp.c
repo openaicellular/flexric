@@ -4,41 +4,22 @@
 #include "../../util/alg_ds/alg/alg.h"
 #include "../../util/alg_ds/ds/lock_guard/lock_guard.h"
 
+#include "e42_iapp_api.h"
 #include "e42_iapp.h"
 #include "msg_handler_iapp.h"
 #include "iapp_if_generic.h"
 #include "xapp_ric_id.h"
 
+
+
+#include "../../lib/async_event.h"
 #include "../../lib/ep/sctp_msg.h"
+#include "../../util/time_now_us.h"
 
 #include <stdio.h>
 #include <pthread.h>
 
-static
-int64_t time_now_us(void)
-{
-  struct timespec tms;
-
-  /* The C11 way */
-  /* if (! timespec_get(&tms, TIME_UTC))  */
-
-  /* POSIX.1-2008 way */
-  if (clock_gettime(CLOCK_REALTIME,&tms)) {
-    return -1;
-  }
-  /* seconds, multiplied with 1 million */
-  int64_t micros = tms.tv_sec * 1000000;
-  /* Add full microseconds */
-  micros += tms.tv_nsec/1000;
-  /* round up if necessary */
-  if (tms.tv_nsec % 1000 >= 500) {
-    ++micros;
-  }
-  return micros;
-}
-
-
-e42_iapp_t* init_e42_iapp(const char* addr, int port, near_ric_if_t ric_if)
+e42_iapp_t* init_e42_iapp(const char* addr, near_ric_if_t ric_if)
 {
   assert(addr != NULL);
 //  assert(ric != NULL);
@@ -104,98 +85,189 @@ void consume_fd(int fd)
   assert(bytes == sizeof(read_buf));
 }
 
+static inline
+bool pend_event(e42_iapp_t* iapp, int fd, pending_event_t** p_ev)
+{
+  assert(iapp != NULL);
+  assert(fd > 0);
+  assert(*p_ev == NULL);
+
+  assert(0!=0 && "iApp does not have pending events");
 
 /*
-static
-e2ap_msg_t compose_msg(e42_iapp_t* iapp)
-{
-  byte_array_t ba = e2ap_recv_msg_iapp(&iapp->ep);
-  defer({free_byte_array(ba); } );
+  assert(bi_map_size(&iapp->pending) == 1 );
 
-  return e2ap_msg_dec_iapp(&iapp->ap,ba); 
+  void* start_it = assoc_front(&iapp->pending.left);
+  void* end_it = assoc_end(&iapp->pending.left);
+
+  void* it = find_if(&iapp->pending.left,start_it, end_it, &fd, eq_fd);
+
+  assert(it != end_it);
+  *p_ev = assoc_value(&iapp->pending.left ,it);
+  return *p_ev != NULL;
+  */
+  return false;
 }
 
 static
-void handle_msg(e42_iapp_t* iapp, e2ap_msg_t const* msg)
+async_event_t next_async_event_iapp(e42_iapp_t* iapp)
 {
-  e2ap_msg_t ans = e2ap_msg_handle_iapp(iapp, msg);
-  defer({ e2ap_msg_free_iapp(&iapp->ap, &ans);} );
+  assert(iapp != NULL);
 
-  if(ans.type != NONE_E2_MSG_TYPE ){
-      //printf("Encoding and sending message type = %d \n", ans.type );
-      byte_array_t ba_ans = e2ap_msg_enc_iapp(&iapp->ap, &ans); 
-      defer({ free_byte_array(ba_ans); } );
+  int const fd = event_asio_iapp(&iapp->io);
 
-      // Get the endpoint for the appropiate xApp
-      e2ap_send_bytes_iapp(&iapp->ep, ba_ans);
-      if(ans.type == RIC_SUBSCRIPTION_DELETE_RESPONSE)
-        printf("RIC_SUBSCRIPTION_DELETE_RESPONSE sent with size = %ld \n", ba_ans.len);
+  async_event_t e = {.type = UNKNOWN_EVENT,
+                     .fd = fd};
 
-      if(ans.type ==  RIC_INDICATION ){
-        int64_t now = time_now_us();
-        //printf("Time diff at iapp after sending = %ld \n", now -msg->tstamp);
-       // assert(0!=0);
+  if(fd == -1){ // no event happened. Just for checking the stop_token condition
+    e.type = CHECK_STOP_TOKEN_EVENT;
+  } else if (net_pkt(iapp, fd) == true){
+    e.msg = e2ap_recv_msg_iapp(&iapp->ep);
+    if(e.msg.type == SCTP_MSG_NOTIFICATION){
+      if(e.msg.notif->sn_header.sn_type == SCTP_ASSOC_CHANGE){
+        printf(" SCTP_ASSOC_CHANGE recived \n" );
+        e.type = UNKNOWN_EVENT;
+        return e;
       }
+      e.type = SCTP_CONNECTION_SHUTDOWN_EVENT;
+    } else if (e.msg.type == SCTP_MSG_PAYLOAD){
+       e.type = SCTP_MSG_ARRIVED_EVENT;
+    } else {
+      assert(0!=0 && "Unknown type");
+    }
+/*
+  } else if(aind_event(iapp, fd, &e.ai_ev) == true) {
+    e.type = APERIODIC_INDICATION_EVENT;
+
+  } else if (ind_event(iapp, fd, &e.i_ev) == true) {
+    e.type = INDICATION_EVENT;
+    */
+  } else if (pend_event(iapp, fd, &e.p_ev) == true){
+    e.type = PENDING_EVENT;
+  } else {
+    assert(0!=0 && "Unknown event happened!");
   }
+  return e;
 }
-*/
+
+static
+void gen_e2ap_subs_delete(void const* it, void const* data)
+{
+  assert(it != NULL);
+  assert(data != NULL);
+
+  e2_node_ric_id_t* n = (e2_node_ric_id_t*)it;
+  e42_iapp_t* iapp = (e42_iapp_t*)data;
+
+  ric_subscription_delete_request_t dst = {.ric_id = n->ric_id};
+
+  fwd_ric_subscription_request_delete_gen(iapp->ric_if.type, &n->e2_node_id, &dst, notify_msg_iapp_api);
+}
+
+static
+void rm_if_pending_subs(e42_iapp_t* iapp, uint16_t xapp_id)
+{
+  assert(iapp != NULL);
+
+  // array of e2_node_ric_id_t
+  seq_arr_t arr = find_all_subs_map_ric_id(&iapp->map_ric_id, xapp_id);
+  defer({ seq_arr_free(&arr, free_e2_node_ric_id_wrapper); } );
+
+  if(seq_size(&arr) > 0){
+    printf("[NEAR-RIC]: Automatically removing pending %lu subscription(s)\n",  seq_size(&arr));
+  }
+
+  void* f = seq_front(&arr);
+  void* l = seq_end(&arr);
+  void* data = iapp;
+  for_each_arr(&arr, f, l, gen_e2ap_subs_delete, data);
+}
 
 static
 void e2_event_loop_iapp(e42_iapp_t* iapp)
 {
   assert(iapp != NULL);
-  while(iapp->stop_token == false){ 
-    int fd = event_asio_iapp(&iapp->io);
-    if(fd == -1) continue; // no event happened. Just for checking the stop_token condition
+  while(iapp->stop_token == false){
 
-    if(net_pkt(iapp, fd) == true){
+    async_event_t e = next_async_event_iapp(iapp);
+    assert(e.type != UNKNOWN_EVENT && "Unknown event triggered ");
 
-      sctp_msg_t rcv = e2ap_recv_msg_iapp(&iapp->ep);
-      defer({ free_sctp_msg(&rcv); } );
+    switch(e.type){
+      case SCTP_MSG_ARRIVED_EVENT:
+        {
+          defer({free_sctp_msg(&e.msg);});
 
-      e2ap_msg_t msg = e2ap_msg_dec_iapp(&iapp->ap, rcv.ba); 
-      defer({e2ap_msg_free_iapp(&iapp->ap, &msg); } );
+          e2ap_msg_t msg = e2ap_msg_dec_iapp(&iapp->ap, e.msg.ba);
+          defer( { e2ap_msg_free_iapp(&iapp->ap, &msg);} );
 
-      // TODO: need to update connected e2 nodes
-      e2ap_msg_t ans = e2ap_msg_handle_iapp(iapp, &msg);
-      defer({e2ap_msg_free_iapp(&iapp->ap, &ans);});
+          e2ap_msg_t ans = e2ap_msg_handle_iapp(iapp, &msg);
+          defer( { e2ap_msg_free_iapp(&iapp->ap, &ans);} );
 
-      if(ans.type == E42_SETUP_RESPONSE ){
-        const uint16_t xapp_id = ans.u_msgs.e42_stp_resp.xapp_id;
-        e2ap_reg_sock_addr_iapp(&iapp->ep, xapp_id, &rcv.info);;
-      }
+          if(ans.type == E42_SETUP_RESPONSE){
+            const uint16_t xapp_id = ans.u_msgs.e42_stp_resp.xapp_id;
+            e2ap_reg_sock_addr_iapp(&iapp->ep, xapp_id, &e.msg.info);;
+          }
 
+          if(ans.type != NONE_E2_MSG_TYPE){
+            sctp_msg_t sctp_msg = { .info.addr = e.msg.info.addr,
+              .info.sri =  e.msg.info.sri,
+            };
 
-      if(ans.type != NONE_E2_MSG_TYPE ){
+            sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans);
+            defer({ free_sctp_msg(&sctp_msg); } );
 
-        sctp_msg_t sctp_msg = { .info.addr = rcv.info.addr,
-                .info.sri = rcv.info.sri,
-        };
+            e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
 
-        sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans);
-        defer({ free_sctp_msg(&sctp_msg); } );
-
-        // Get the endpoint for the appropiate xApp
-        e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
-
-        if(ans.type == RIC_SUBSCRIPTION_DELETE_RESPONSE)
-          printf("RIC_SUBSCRIPTION_DELETE_RESPONSE sent with size = %ld \n", sctp_msg.ba.len);
-        if(ans.type ==  RIC_INDICATION ){
-          int64_t now = time_now_us();
-          printf("Time diff at iapp after sending = %ld \n", now - msg.tstamp);
-          // assert(0!=0);
+            if(ans.type == RIC_SUBSCRIPTION_DELETE_RESPONSE)
+              printf("RIC_SUBSCRIPTION_DELETE_RESPONSE sent with size = %ld \n", sctp_msg.ba.len);
+            if(ans.type == RIC_INDICATION){
+              int64_t now = time_now_us();
+              printf("Time diff at iapp after sending = %ld \n", now - msg.tstamp);
+            }
+          }
+          break;
         }
-      }
-
-      // handle_msg(iapp, &msg);
-
-    } else {
-      printf("Pending event timeout happened. Communication lost?\n");
-      consume_fd(fd);
-      //      assert(fd == ric->ep.base.fd && "Only pkt interrupt implemented done. Pending events need to be implemented");
+      case PENDING_EVENT:
+        {
+          printf("[nearRT-RIC] Pending event timeout happened. Communication lost?\n");
+          consume_fd(e.fd);
+          break;
+        }
+      case SCTP_CONNECTION_SHUTDOWN_EVENT:
+        {
+          defer({free_sctp_msg(&e.msg);});
+          uint16_t const xapp_id = find_map_xapps_xid(&iapp->ep.xapps, &e.msg.info);
+          printf("[NEAR-RIC]: xApp %d disconnected!\n", xapp_id);
+          rm_if_pending_subs(iapp, xapp_id);
+          break;
+        }
+      case CHECK_STOP_TOKEN_EVENT:
+        {
+/*
+       socklen_t opt_len = sizeof(struct sctp_status);
+       struct sctp_status status = {0};
+          //check status
+          getsockopt(iapp->ep.base.fd, IPPROTO_SCTP, SCTP_STATUS, &status, &opt_len);
+          printf("\nSCTP Status:\n--------\n");
+    printf("assoc id  = %d\n", status.sstat_assoc_id);
+    printf("state     = %d\n", status.sstat_state);
+    printf("instrms   = %d\n", status.sstat_instrms);
+    printf("outstrms  = %d\n--------\n\n", status.sstat_outstrms);
+*/
+          break;
+        }
+      default:
+        {
+          assert(0!=0 && "Unknown event happened");
+          break;
+        }
     }
+
   }
-  iapp->stopped = true; 
+
+  e2ap_free_ep_iapp(&iapp->ep);
+
+  iapp->stopped = true;
 }
 
 
@@ -220,8 +292,6 @@ void free_e42_iapp(e42_iapp_t* iapp)
   // Emulator
   //stop_near_ric_iapp_gen(iapp->ric_if.type);
 
-  e2ap_free_ep_iapp(&iapp->ep);
-
   free_reg_e2_node(&iapp->e2_nodes);
 
   free_map_ric_id(&iapp->map_ric_id);
@@ -230,15 +300,27 @@ void free_e42_iapp(e42_iapp_t* iapp)
 }
 
 
-void add_e2_node_iapp(e42_iapp_t* i, global_e2_node_id_t* id, size_t len, ran_function_t const ran_func[len])
+#ifdef E2AP_V1
+void add_e2_node_iapp_v1(e42_iapp_t* i, global_e2_node_id_t* id, size_t len, ran_function_t const ran_func[len])
 {
   assert(i != NULL);
   assert(id != NULL);
   assert(len > 0);
   assert(ran_func != NULL);
 
-  add_reg_e2_node(&i->e2_nodes,id, len, ran_func);
+  add_reg_e2_node_v1(&i->e2_nodes,id, len, ran_func);
 }
+#else
+void add_e2_node_iapp(e42_iapp_t* i, global_e2_node_id_t* id, size_t len, ran_function_t const ran_func[len], size_t len_cca, e2ap_node_component_config_add_t const* cca)
+{
+  assert(i != NULL);
+  assert(id != NULL);
+  assert(len > 0);
+  assert(ran_func != NULL);
+
+  add_reg_e2_node(&i->e2_nodes,id, len, ran_func, len_cca, cca);
+}
+#endif
 
 void rm_e2_node_iapp(e42_iapp_t* i, global_e2_node_id_t* id)
 {
@@ -250,41 +332,6 @@ void rm_e2_node_iapp(e42_iapp_t* i, global_e2_node_id_t* id)
   e2ap_msg_t msg = {.type = E2_SETUP_RESPONSE};
   notify_msg_iapp(i, &msg);
 }
-
-/*
-static
-xapp_ric_id_t get_ric_gen_id(e42_iapp_t* iapp, e2ap_msg_t const* msg)
-{
-  assert(iapp != NULL);
-  assert(msg != NULL);
-
-  assert(msg->type == RIC_INDICATION 
-        || msg->type == RIC_CONTROL_ACKNOWLEDGE); 
-  
-  uint32_t ric_req_id = 0;
-  if(msg->type == RIC_INDICATION){
-    ric_req_id = msg->u_msgs.ric_ind.ric_id.ric_req_id;
-  } else if(msg->type == RIC_CONTROL_ACKNOWLEDGE){
-    ric_req_id = msg->u_msgs.ric_ctrl_ack.ric_id.ric_req_id;
-  } else {
-    assert(0!=0 && "Unknown message type" );
-  }
-
-  xapp_ric_id_t x = find_xapp_map_ric_id(&iapp->map_ric_id, ric_req_id);
-  return x;
-}
-
-static
-sctp_info_t get_sctp_info(e42_iapp_t* iapp, e2ap_msg_t const* msg)
-{
-  assert(iapp != NULL);
-  assert(msg != NULL);
-
-  xapp_ric_id_t ric_id = get_ric_gen_id(iapp, msg);
-  sctp_info_t info = find_map_xapps_sad(&iapp->ep.xapps, ric_id.xapp_id);
-  return info;
-}
-*/
 
 void notify_msg_iapp(e42_iapp_t* iapp, e2ap_msg_t const* msg)
 {
@@ -301,21 +348,5 @@ void notify_msg_iapp(e42_iapp_t* iapp, e2ap_msg_t const* msg)
   defer({ e2ap_msg_free_iapp(&iapp->ap, &ans); } );
 
   assert(ans.type ==  NONE_E2_MSG_TYPE );
-/*
-  if(ans.type != NONE_E2_MSG_TYPE){
-
-    sctp_msg_t sctp_msg = { .info = *from};
-
-    sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans); 
-    defer({ free_sctp_msg(&sctp_msg); } );
-
-    // Get the endpoint for the appropiate xApp
-    e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
-  }
-*/
-
-//  sctp_info_t s = find_map_xapps_sad(map_xapps_sockaddr_t* m, uint16_t xapp_id)
-//  sctp_info_t s = find_xapps
-//  handle_msg(iapp, msg);
 }
 

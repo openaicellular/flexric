@@ -44,26 +44,26 @@ slice_ind_hdr_t slice_dec_ind_hdr_plain(size_t len, uint8_t const ind_hdr[len])
   return ret;
 }
 
-//static
-//uint8_t* end;
-//
-//static
-//uint8_t* begin;
-//
-//
-//static
-//bool it_within_layout(uint8_t const* it)
-//{
-//  return it >= begin && it < end;
-//}
+/*
+static
+uint8_t* end;
 
+static
+uint8_t* begin;
+
+static
+bool it_within_layout(uint8_t const* it)
+{
+  return it >= begin && it < end;
+}
+*/
 
 static inline
 size_t fill_static(static_slice_t* sta, uint8_t const* it)
 {
   assert(it != NULL);
   assert(sta != NULL);
-//  assert(it_within_layout(it) == true);
+  //assert(it_within_layout(it) == true);
 
   memcpy(&sta->pos_high, it, sizeof(sta->pos_high));
   it += sizeof(sta->pos_high);
@@ -379,7 +379,6 @@ size_t fill_ue_slice_conf(ue_slice_conf_t* slc, uint8_t const* it)
 
 slice_ind_msg_t slice_dec_ind_msg_plain(size_t len, uint8_t const ind_msg[len])
 {
-
   slice_ind_msg_t ind = {0};
 
   uint8_t const* it = ind_msg;

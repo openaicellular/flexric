@@ -62,6 +62,8 @@ void bi_map_insert(bi_map_t* map, void const* key1, size_t key_sz1, void const* 
 
   void* val1 = malloc(key_sz2);
   assert(val1 != NULL && "Memory exhausted");
+
+  // POD or this is a bug. If it is not, it will probably be in the future
   memcpy(val1, key2, key_sz2);
 
   // assert that they are equal
@@ -70,10 +72,10 @@ void bi_map_insert(bi_map_t* map, void const* key1, size_t key_sz1, void const* 
 
   assoc_insert(&map->left, key1, key_sz1, val1);
 
-
-
   void* val2 = malloc(key_sz1);
   assert(val2 != NULL && "Memory exhausted");
+
+  // POD or this is a bug. If it is not, it will probably be in the future
   memcpy(val2, key1, key_sz1);
 
   // assert that they are equal
@@ -84,7 +86,7 @@ void bi_map_insert(bi_map_t* map, void const* key1, size_t key_sz1, void const* 
 }
 
 // It returns the void* of key2. the void* of the key1 is freed
-void* bi_map_extract_left(bi_map_t* map, void* key1, size_t key1_sz)
+void* bi_map_extract_left(bi_map_t* map, void* key1, size_t key1_sz, free_fp_key f)
 {
   assert(map != NULL);
   assert(key1 != NULL);
@@ -93,10 +95,13 @@ void* bi_map_extract_left(bi_map_t* map, void* key1, size_t key1_sz)
   void* key2 = assoc_extract(&map->left, key1);
   void* key3 = assoc_extract(&map->right, key2);
 
-  // I do not like this trick. The memory should also be the same
   int cmp = map->left.comp(key1, key3);
+  // I do not like this trick. The memory should also be the same
   //int cmp = memcmp(key1, key3, map->right.key_sz);
-  assert(cmp == 0 );
+  assert(cmp == 0);
+
+  if(f != NULL)
+    f(key3);
   free(key3);
 
   size_t sz_1 = assoc_size(&map->left);
@@ -108,7 +113,7 @@ void* bi_map_extract_left(bi_map_t* map, void* key1, size_t key1_sz)
 }
 
 // It returns the void* of key1. the void* of the key2 is freed
-void* bi_map_extract_right(bi_map_t* map, void* key2, size_t key2_sz)
+void* bi_map_extract_right(bi_map_t* map, void* key2, size_t key2_sz, free_fp_key f)
 {
   assert(map != NULL);
   assert(key2 != NULL);
@@ -117,13 +122,13 @@ void* bi_map_extract_right(bi_map_t* map, void* key2, size_t key2_sz)
   void* key1 = assoc_extract(&map->right, key2);
   void* key3 = assoc_extract(&map->left, key1);
 
-  int cmp = map->left.comp(key2, key3);
-//  int cmp = memcmp(key2, key3, map->right.key_sz);
+  int cmp = map->right.comp(key2, key3);
   assert(cmp == 0);
 
   assert(map->right.free_func != NULL);
-//  map->right.free_func(key1, key3); 
 
+  if(f != NULL)
+    f(key3);
   free(key3);
 
   size_t sz_1 = assoc_size(&map->left);

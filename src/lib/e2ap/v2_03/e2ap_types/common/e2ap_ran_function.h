@@ -32,7 +32,7 @@ extern "C" {
 #include <stdint.h>
 
 typedef struct ran_function {
-  byte_array_t def;
+  byte_array_t defn;
   uint16_t id;
   uint16_t rev;
   byte_array_t oid; 

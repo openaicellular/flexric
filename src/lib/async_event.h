@@ -46,7 +46,7 @@ typedef struct
   union{
     pending_event_t* p_ev;
     ind_event_t* i_ev;
-    aind_event_t ai_ev;
+    arr_aind_event_t ai_ev;
     sctp_msg_t msg; 
   };
 } async_event_t;

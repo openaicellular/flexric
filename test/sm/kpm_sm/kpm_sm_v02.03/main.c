@@ -53,7 +53,7 @@ static
 kpm_e2_setup_t cp_e2_setup; 
 
 static
-void read_ind_kpm(void* read)
+bool read_ind_kpm(void* read)
 {
   assert(read != NULL);
 
@@ -66,10 +66,11 @@ void read_ind_kpm(void* read)
   //
   cp_ind.hdr = cp_kpm_ind_hdr(&kpm->ind.hdr);
   cp_ind.msg = cp_kpm_ind_msg(&kpm->ind.msg);
-  
 
   assert(eq_kpm_ind_hdr(&kpm->ind.hdr, &cp_ind.hdr) == true);
   assert(eq_kpm_ind_msg(&kpm->ind.msg, &cp_ind.msg) == true);
+
+  return true;
 }
 
 static
@@ -137,11 +138,12 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   kpm_act_def_t act_def = fill_rnd_kpm_action_def();
   defer({  free_kpm_action_def(&act_def); } );
   
-  sm_ind_data_t sm_data = ag->proc.on_indication(ag, &act_def);
-  defer({ free_sm_ind_data(&sm_data); }); 
+  exp_ind_data_t exp = ag->proc.on_indication(ag, &act_def);
+  assert(exp.has_value == true);
+  defer({ free_exp_ind_data(&exp); });
   defer({ free_kpm_ind_data(&cp_ind); });
 
-  sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &sm_data);
+  sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &exp.data);
   assert(msg.type == KPM_STATS_V3_0);
   defer({ free_kpm_ind_data(&msg.kpm.ind); });
 
