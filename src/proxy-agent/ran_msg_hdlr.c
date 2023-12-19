@@ -62,7 +62,7 @@ static next_msg_t handle_ran_ctrl(proxy_agent_t * proxy, ran_msg_t ranmsg, ran_m
   (void)ranmsg;
 
   next_msg_t ret_msg = { .type_id = RAN_E2_CTRL_FWD};
-  ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int));
+  ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
   assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
 
   if (proxy->ran_if.ser->decode_ctrl(&msghdr, &ret_msg.ctrl_msg, loop_event_p) == false) 

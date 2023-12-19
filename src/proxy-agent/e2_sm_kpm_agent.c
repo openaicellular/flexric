@@ -374,10 +374,10 @@ void read_kpm_sm(void* data)
           case S_NSSAI_TEST_COND_TYPE: {
             assert(frm_4->matching_cond_lst[i].test_info_lst.S_NSSAI == TRUE_TEST_COND_TYPE && "Must be true");
             assert(frm_4->matching_cond_lst[i].test_info_lst.test_cond != NULL && "Even though is optional..");
-            assert(frm_4->matching_cond_lst[i].test_info_lst.int_value != NULL && "Even though is optional..");
+            assert(frm_4->matching_cond_lst[i].test_info_lst.test_cond_value != NULL && "Even though is optional..");
 
             test_cond_e const test_cond = *frm_4->matching_cond_lst[i].test_info_lst.test_cond;
-            int64_t const value = *frm_4->matching_cond_lst[i].test_info_lst.int_value;
+            int64_t const value = *frm_4->matching_cond_lst[i].test_info_lst.test_cond_value->int_value;
             // Check E2 Node NG-RAN Type
             if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)) {
               matched_ues_t matched_ues = filter_ues_by_s_nssai_in_du_or_monolithic(test_cond, value, &ws_ind);
