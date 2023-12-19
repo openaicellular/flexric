@@ -9,7 +9,7 @@
 #define	ASN_SYSTEM_H
 
 #ifdef	HAVE_CONFIG_H
-#include "config.h"
+//#include "config.h"
 #endif
 
 #ifndef _DEFAULT_SOURCE

@@ -112,9 +112,9 @@ xer_check_tag(const void *buf_ptr, int size, const char *need_tag) {
 	xer_check_tag_e ct = XCT_OPENING;
 
 	if(size < 2 || buf[0] != LANGLE || buf[size-1] != RANGLE) {
-		if(size >= 2) {
-			ASN_DEBUG("Broken XML tag: \"%c...%c\"", buf[0], buf[size - 1]);
-		}
+		if(size >= 2)
+			ASN_DEBUG("Broken XML tag: \"%c...%c\"",
+			buf[0], buf[size - 1]);
 		return XCT_BROKEN;
 	}
 
@@ -178,9 +178,8 @@ xer_check_tag(const void *buf_ptr, int size, const char *need_tag) {
 #define	RETURN(_code)	do {					\
 		rval.code = _code;				\
 		rval.consumed = consumed_myself;		\
-		if(rval.code != RC_OK){				\
+		if(rval.code != RC_OK)				\
 			ASN_DEBUG("Failed with %d", rval.code);	\
-		}                                               \
 		return rval;					\
 	} while(0)
 
@@ -188,13 +187,10 @@ xer_check_tag(const void *buf_ptr, int size, const char *need_tag) {
 		ssize_t converted_size = body_receiver		\
 			(struct_key, chunk_buf, chunk_size,	\
 				(size_t)chunk_size < size);	\
-		if(converted_size == -1) {                      \
-			RETURN(RC_FAIL);                    	\
-		}                                               \
+		if(converted_size == -1) RETURN(RC_FAIL);	\
 		if(converted_size == 0				\
-			&& size == (size_t)chunk_size){		\
+			&& size == (size_t)chunk_size)		\
 			RETURN(RC_WMORE);			\
-		}                                               \
 		chunk_size = converted_size;			\
 	} while(0)
 #define	XER_GOT_EMPTY()	do {					\
@@ -228,9 +224,7 @@ xer_decode_general(const asn_codec_ctx_t *opt_codec_ctx,
 	 * Phase 0: Check that the opening tag matches our expectations.
 	 * Phase 1: Processing body and reacting on closing tag.
 	 */
-	if(ctx->phase > 1) {
-		RETURN(RC_FAIL);
-	}
+	if(ctx->phase > 1) RETURN(RC_FAIL);
 	for(;;) {
 		pxer_chunk_type_e ch_type;	/* XER chunk type */
 		ssize_t ch_size;		/* Chunk size */

@@ -1731,6 +1731,7 @@ E2nodeConnected-List ::= SEQUENCE {
 E2nodeConnected-ItemIEs E2AP-PROTOCOL-IES ::= {
     { ID id-GlobalE2node-ID                           CRITICALITY reject         TYPE GlobalE2node-ID
     PRESENCE mandatory }|
+	  { ID id-E2nodeComponentConfigAddition	            CRITICALITY reject	       TYPE E2nodeComponentConfigAddition-List	PRESENCE mandatory	} | 
     { ID id-RANfunctionsAdded                         CRITICALITY reject         TYPE RANfunctions-List
     PRESENCE mandatory},
     ...

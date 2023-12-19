@@ -53,7 +53,8 @@ CHOICE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         if(specs->ext_start == -1)
             ASN__DECODE_FAILED;
 
-        if(specs && (int)specs->tag2el_count > specs->ext_start) {
+        assert(specs->ext_start > -1);
+        if(specs && specs->tag2el_count > (unsigned int)specs->ext_start) {
             value = aper_get_nsnnwn(pd, specs->tag2el_count - specs->ext_start); /* extension elements range */
             if(value < 0) ASN__DECODE_STARVED;
             value += specs->ext_start;
@@ -87,10 +88,9 @@ CHOICE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
                                 elm->encoding_constraints.per_constraints, memb_ptr2, pd);
     }
 
-    if(rv.code != RC_OK) {
-      ASN_DEBUG("Failed to decode %s in %s (CHOICE) %d",
-                elm->name, td->name, rv.code);
-    }
+    if(rv.code != RC_OK)
+        ASN_DEBUG("Failed to decode %s in %s (CHOICE) %d",
+                  elm->name, td->name, rv.code);
     return rv;
 }
 

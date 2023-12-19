@@ -69,7 +69,6 @@ ASN_MODULE_SRCS=	\
 	E2setupRequest.c	\
 	E42setupRequest.c	\
 	E2setupResponse.c	\
-	E42updateE2node.c	\
 	E42setupResponse.c	\
 	E2setupFailure.c	\
 	E2connectionUpdate.c	\
@@ -273,7 +272,6 @@ ASN_MODULE_HDRS=	\
 	E2setupRequest.h	\
 	E42setupRequest.h	\
 	E2setupResponse.h	\
-	E42updateE2node.h	\
 	E42setupResponse.h	\
 	E2setupFailure.h	\
 	E2connectionUpdate.h	\
