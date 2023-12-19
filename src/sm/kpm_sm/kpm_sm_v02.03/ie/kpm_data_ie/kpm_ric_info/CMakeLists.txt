@@ -16,9 +16,6 @@ set(KPM_RIC_INFO_SRCS
   kpm_ric_ind_msg_frm_3.c
   )
 
-
 add_library(kpm_ric_info_obj OBJECT
                             ${KPM_RIC_INFO_SRCS}
                             )
-
-              

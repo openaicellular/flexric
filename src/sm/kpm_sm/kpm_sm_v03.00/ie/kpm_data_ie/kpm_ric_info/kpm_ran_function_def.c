@@ -1,6 +1,8 @@
 #include <assert.h>
 
 #include "kpm_ran_function_def.h"
+#include "../../../../../../util/eq.h"
+
 
 void free_kpm_ran_function_def(kpm_ran_function_def_t* src)
 {
@@ -10,8 +12,9 @@ void free_kpm_ran_function_def(kpm_ran_function_def_t* src)
   free_ran_function_name(&src->name);
 
   // RIC Event Trigger Style List
-  if (src->ric_event_trigger_style_list != NULL || src->sz_ric_event_trigger_style_list != 0)
+  if (src->ric_event_trigger_style_list != NULL)
   {
+    assert(src->sz_ric_event_trigger_style_list != 0);
     for (size_t i = 0; i<src->sz_ric_event_trigger_style_list; i++)
       free_byte_array(src->ric_event_trigger_style_list[i].style_name);
 
@@ -19,8 +22,9 @@ void free_kpm_ran_function_def(kpm_ran_function_def_t* src)
   }
 
   // RIC Report Style List
-  if (src->ric_report_style_list != NULL || src->sz_ric_report_style_list != 0)
+  if (src->ric_report_style_list != NULL)
   {
+    assert(src->sz_ric_report_style_list != 0);
     for (size_t i = 0; i<src->sz_ric_report_style_list; i++)
     {
       free_byte_array(src->ric_report_style_list[i].report_style_name);
@@ -52,7 +56,7 @@ bool eq_kpm_ran_function_def(kpm_ran_function_def_t const * m0, kpm_ran_function
     return false;
 
   // RIC Event Trigger Style List
-  if (m0->ric_event_trigger_style_list != NULL || m1->ric_event_trigger_style_list != NULL)
+  if (m0->ric_event_trigger_style_list != NULL && m1->ric_event_trigger_style_list != NULL)
   {
     if (m0->sz_ric_event_trigger_style_list != m1->sz_ric_event_trigger_style_list)
       return false;
@@ -83,14 +87,15 @@ bool eq_kpm_ran_function_def(kpm_ran_function_def_t const * m0, kpm_ran_function
         assert(false && "Unknown RIC Event Trigger Style Type");
       }
     }
-  }
+  } else if(m0->ric_event_trigger_style_list != NULL || m1->ric_event_trigger_style_list != NULL )
+    return false;
 
   // RIC Report Style List
-  if (m0->ric_report_style_list != NULL || m1->ric_report_style_list != NULL)
-  {
-    if (m0->sz_ric_report_style_list != m1->sz_ric_report_style_list)
-      return false;
+  if (m0->sz_ric_report_style_list != m1->sz_ric_report_style_list)
+    return false;
 
+  if (m0->ric_report_style_list != NULL && m1->ric_report_style_list != NULL)
+  {
     for (size_t i = 0; i<m0->sz_ric_report_style_list; i++)
     {
       // RIC Report Styles
@@ -121,21 +126,18 @@ bool eq_kpm_ran_function_def(kpm_ran_function_def_t const * m0, kpm_ran_function
           return false;
 
         // Measurement Type ID
-        if ((m0->ric_report_style_list[i].meas_info_for_action_lst[j].id != NULL || m1->ric_report_style_list[i].meas_info_for_action_lst[j].id != NULL) && *m0->ric_report_style_list[i].meas_info_for_action_lst[j].id != *m1->ric_report_style_list[i].meas_info_for_action_lst[j].id)
+        if(eq_ptr(m0->ric_report_style_list[i].meas_info_for_action_lst[j].id, m1->ric_report_style_list[i].meas_info_for_action_lst[j].id, NULL) == false)
           return false;
 
         // Bin Range Definition
         // not yet implemented in ASN.1
-        if (m0->ric_report_style_list[i].meas_info_for_action_lst[j].bin_range_def != NULL || m1->ric_report_style_list[i].meas_info_for_action_lst[j].bin_range_def != NULL)
-        {
-          if (eq_kpm_bin_range_def(m0->ric_report_style_list[i].meas_info_for_action_lst[j].bin_range_def, m1->ric_report_style_list[i].meas_info_for_action_lst[j].bin_range_def) != true)
-            return false;
-        }
-
+        if(eq_ptr(m0->ric_report_style_list[i].meas_info_for_action_lst[j].bin_range_def, m1->ric_report_style_list[i].meas_info_for_action_lst[j].bin_range_def, eq_kpm_bin_range_def_wrapper) == false)
+          return false;
       }
     
     }
-  }
+  } else if(m0->ric_report_style_list == NULL || m1->ric_report_style_list == NULL )
+    return false;
 
   return true;
 }

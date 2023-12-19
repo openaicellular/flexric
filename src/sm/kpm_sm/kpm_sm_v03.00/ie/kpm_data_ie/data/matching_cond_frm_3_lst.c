@@ -28,6 +28,21 @@ void free_matching_cond_frm_3(matching_condition_format_3_lst_t* src)
   }
 }
 
+static
+bool eq_logical_or(enum_value_e const *m0, enum_value_e const *m1)
+{
+  if(m0 == m1)
+    return true;
+
+  if(m0 == NULL || m1 == NULL)
+    return false;
+
+  if(*m0 != *m1)
+    return false;
+
+  return true;
+}
+
 bool eq_matching_cond_frm_3(matching_condition_format_3_lst_t const * m0, matching_condition_format_3_lst_t const * m1)
 {
   assert(m0 != NULL);
@@ -61,10 +76,9 @@ bool eq_matching_cond_frm_3(matching_condition_format_3_lst_t const * m0, matchi
 
 
   // Logical OR
-  if ((m0->logical_OR != NULL || m1->logical_OR != NULL) && *m0->logical_OR != *m1->logical_OR){
-    assert(0!=0 && "For debugging purposes");
+    // Logical OR
+  if(eq_logical_or(m0->logical_OR, m1->logical_OR) == false)
     return false;
-  }
 
   return true;
 }
@@ -95,7 +109,7 @@ matching_condition_format_3_lst_t cp_kpm_matching_cond_frm_3(matching_condition_
 
   // Logical OR
   if (src->logical_OR != NULL) {
-    dst.logical_OR = malloc (sizeof(dst.logical_OR));
+    dst.logical_OR = malloc (sizeof(*dst.logical_OR));
     *dst.logical_OR = *src->logical_OR; 
   }
 

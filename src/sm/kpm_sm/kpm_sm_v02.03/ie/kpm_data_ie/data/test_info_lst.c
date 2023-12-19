@@ -2,49 +2,120 @@
 
 #include "test_info_lst.h"
 
+void free_test_cond_value(test_cond_value_t* src)
+{
+  assert(src != NULL);
+
+  if(src->type == INTEGER_TEST_COND_VALUE ){
+      free(src->int_value);
+  } else if(src->type == ENUMERATED_TEST_COND_VALUE ){
+    free(src->enum_value  );
+  } else if(src->type == BOOLEAN_TEST_COND_VALUE){
+    free(src->bool_value );
+  } else if(src->type == BIT_STRING_TEST_COND_VALUE){
+    assert(0 !=0 && "Not implemented");
+  } else if(src->type == OCTET_STRING_TEST_COND_VALUE){
+    free_byte_array(*src->octet_string_value);
+    free(src->octet_string_value);
+  } else if(src->type == PRINTABLE_STRING_TEST_COND_VALUE){
+    free_byte_array(*src->printable_string_value);
+    free(src->printable_string_value);
+  } else if(src->type == REAL_TEST_COND_VALUE){
+    free(src->real_value);
+  } else {
+    assert(0!=0 && "Unknown type");
+  }
+}
+
+bool eq_test_cond_value(const test_cond_value_t* m0, const test_cond_value_t* m1)
+{
+  if(m0 == m1) 
+    return true;
+
+  if(m0 == NULL || m1 == NULL)
+    return false;
+
+  if(m0->type != m1->type)
+    return false;
+
+  if(m0->type == INTEGER_TEST_COND_VALUE){
+    if(*m0->int_value != *m1->int_value)
+      return false;
+  } else if(m0->type == ENUMERATED_TEST_COND_VALUE){
+    if(*m0->enum_value != *m1->enum_value)
+      return false;
+  } else if(m0->type == BOOLEAN_TEST_COND_VALUE){
+     if(*m0->bool_value != *m1->bool_value)
+      return false;
+ } else if(m0->type == BIT_STRING_TEST_COND_VALUE){
+     assert(0 !=0 && "Not implemented");
+  } else if(m0->type == OCTET_STRING_TEST_COND_VALUE){
+    if(eq_byte_array(m0->octet_string_value, m1->octet_string_value) == false)
+      return false;
+  } else if(m0->type == PRINTABLE_STRING_TEST_COND_VALUE){
+    if(eq_byte_array(m0->printable_string_value, m1->printable_string_value) == false)
+      return false;
+  } else if(m0->type == REAL_TEST_COND_VALUE){
+    if(*m0->real_value != *m1->real_value)
+      return false;
+  } else {
+    assert(0!=0 && "Unknown type");
+  }
+
+  return true;
+}
+
+test_cond_value_t cp_test_cond_value(const test_cond_value_t* src)
+{
+  assert(src != NULL);
+
+  test_cond_value_t dst = {0};
+
+  dst.type = src->type;
+
+  if(src->type == INTEGER_TEST_COND_VALUE ){
+    dst.int_value = calloc(1, sizeof(int64_t));
+    *dst.int_value = *src->int_value;
+  } else if(src->type == ENUMERATED_TEST_COND_VALUE ){
+    dst.enum_value = calloc(1, sizeof(int64_t));
+    *dst.enum_value = *src->enum_value;
+  } else if(src->type == BOOLEAN_TEST_COND_VALUE){
+    dst.bool_value = calloc(1, sizeof(bool));
+    *dst.bool_value= *src->bool_value;
+  } else if(src->type == BIT_STRING_TEST_COND_VALUE){
+    assert(0 !=0 && "Not implemented");
+  } else if(src->type == OCTET_STRING_TEST_COND_VALUE){
+    dst.octet_string_value = calloc(1, sizeof(byte_array_t));
+    assert(dst.octet_string_value != NULL && "memory exhausted");
+    *dst.octet_string_value = copy_byte_array(*src->octet_string_value);
+  } else if(src->type == PRINTABLE_STRING_TEST_COND_VALUE){
+    dst.printable_string_value = calloc(1, sizeof(byte_array_t));
+    assert(dst.printable_string_value != NULL && "memory exhausted");
+    *dst.printable_string_value = copy_byte_array(*src->printable_string_value);
+  } else if(src->type == REAL_TEST_COND_VALUE){
+    dst.real_value = calloc(1, sizeof(double));
+    assert(dst.real_value != NULL && "memory exhausted");
+    *dst.real_value = *src->real_value;
+  } else {
+    assert(0!=0 && "Unknown type");
+  }
+
+  return dst;
+}
+
+
 void free_test_info(test_info_lst_t* src)
 {
   assert(src != NULL);
 
-  if (src->test_cond != NULL)
+  if (src->test_cond != NULL){
     free(src->test_cond);
-
-  if (src->test_cond_value != NULL)
-  {
-    // This works but it is a hack
-    if (src->int_value != NULL)
-      free(src->int_value);
-    /*
-    if (src->enum_value != NULL)
-      free(src->enum_value);
-
-    if (src->bool_value != NULL)
-      free(src->bool_value);
-
-    if (src->bit_string_value != NULL)
-    {
-      free_byte_array(*src->bit_string_value);
-      free(src->bit_string_value);
-    }
-
-    if (src->octet_string_value != NULL)
-    {
-      free_byte_array(*src->octet_string_value);
-      free(src->octet_string_value);
-    }
-
-    if (src->printable_string_value != NULL)
-    {
-      free_byte_array(*src->printable_string_value);
-      free(src->printable_string_value);
-    }
-    
-    if (src->real_value_value != NULL)
-      free(src->real_value_value);
-*/
-    free(src->test_cond_value);
   }
 
+  if (src->test_cond_value != NULL){
+    free_test_cond_value(src->test_cond_value);
+    free(src->test_cond_value);
+  }
 
 }
 
@@ -123,8 +194,10 @@ bool eq_test_info(const test_info_lst_t *m0, const test_info_lst_t *m1)
       return false;
     if(m1->test_cond == NULL)
       return false;
-    if(*m0->test_cond != *m1->test_cond)
+    if(*m0->test_cond != *m1->test_cond){
+      assert(0!=0 && "For debugging purposes");
       return false;
+    }
   }
 
   if (m0->test_cond_value != NULL || m1->test_cond_value != NULL){
@@ -132,39 +205,9 @@ bool eq_test_info(const test_info_lst_t *m0, const test_info_lst_t *m1)
       return false;
     if(m1->test_cond_value == NULL)
       return false;
-    if(*m0->test_cond_value != *m1->test_cond_value)
+    if(eq_test_cond_value(m0->test_cond_value, m1->test_cond_value) == false){
+      assert(0!=0 && "For debugging purposes");
       return false;
-
-    if(*m0->test_cond_value == INTEGER_TEST_COND_VALUE){
-      if(*m0->int_value != *m1->int_value)
-        return false;
-    } else if(*m0->test_cond_value == ENUMERATED_TEST_COND_VALUE ){
-      if(*m0->enum_value != *m1->enum_value)
-        return false;
-
-    }else if(*m0->test_cond_value == BOOLEAN_TEST_COND_VALUE ){
-      if(*m0->bool_value != *m1->bool_value)
-        return false;
-
-    }else if(*m0->test_cond_value ==  BIT_STRING_TEST_COND_VALUE){
-      assert(0!=0 && "Not implemented");
-      //      if(*m0->int_value != *m1->int_value)
-      //        return false;
-
-    }else if(*m0->test_cond_value ==  OCTET_STRING_TEST_COND_VALUE){
-      if(eq_byte_array(m0->octet_string_value, m1->octet_string_value) == false)
-        return false;
-
-    }else if(*m0->test_cond_value == PRINTABLE_STRING_TEST_COND_VALUE ){
-      if(eq_byte_array(m0->printable_string_value, m1->printable_string_value) == false)
-        return false;
-
-    } else if(*m0->test_cond_value == REAL_TEST_COND_VALUE ){
-      if(*m0->real_value_value != *m1->real_value_value)
-        return false;
-
-    } else {
-      assert(0 != 0 && "Unknown condition");
     }
   }
 
@@ -236,76 +279,12 @@ test_info_lst_t cp_kpm_test_info(const test_info_lst_t * src)
   }
 
   if (src->test_cond_value != NULL){
-    dst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
+    dst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
     assert(dst.test_cond_value != NULL && "Memory exhausted");
-    *dst.test_cond_value = *src->test_cond_value;
-    if(*src->test_cond_value == INTEGER_TEST_COND_VALUE){
-      dst.int_value = calloc(1, sizeof(int64_t));
-      assert(dst.int_value != NULL && "Memory exhausted");
-      *dst.int_value = *src->int_value; 
-
-    } else if(*src->test_cond_value == ENUMERATED_TEST_COND_VALUE ){
-      dst.enum_value = calloc(1, sizeof(int64_t));
-      assert(dst.enum_value!= NULL && "Memory exhausted");
-      *dst.enum_value= *src->enum_value; 
-
-    } else if(*src->test_cond_value ==  BOOLEAN_TEST_COND_VALUE){
-      dst.bool_value = calloc(1, sizeof(bool));
-      assert(dst.bool_value!= NULL && "Memory exhausted");
-      *dst.bool_value = *src->bool_value; 
-
-    } else if(*src->test_cond_value ==  BIT_STRING_TEST_COND_VALUE){
-      assert(0 !=0 && "Not implemented");
-
-    } else if(*src->test_cond_value ==  OCTET_STRING_TEST_COND_VALUE){
-      dst.octet_string_value = calloc(1, sizeof(byte_array_t));
-      assert(dst.octet_string_value != NULL && "Memory exhausted");
-      *dst.octet_string_value = copy_byte_array(*src->octet_string_value); 
-
-    } else if(*src->test_cond_value ==  PRINTABLE_STRING_TEST_COND_VALUE){
-      dst.printable_string_value = calloc(1, sizeof(byte_array_t));
-      assert(dst.printable_string_value != NULL && "Memory exhausted");
-      *dst.printable_string_value = copy_byte_array(*src->printable_string_value); 
-
-    } else if(*src->test_cond_value == REAL_TEST_COND_VALUE){
-      dst.real_value_value = calloc(1, sizeof(double));
-      assert(dst.real_value_value!= NULL && "Memory exhausted");
-      *dst.real_value_value = *src->real_value_value; 
-
-    } else {
-      assert(0 !=0 && "Unknown condition");
-    }
+    *dst.test_cond_value = cp_test_cond_value(src->test_cond_value);
   }
   return dst;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

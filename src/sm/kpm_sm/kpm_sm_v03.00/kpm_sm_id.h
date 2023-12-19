@@ -32,7 +32,7 @@ static const uint16_t SM_KPM_REV = 3;
 
 // O-RAN.WG3.E2SM-KPM-R003-v03.00, $7.2
 __attribute__((unused)) static
-const char SM_KPM_STR[] = "ORAN-E2SM-KPM";
+const char SM_KPM_STR[] = "ORAN-E2SM-KPM-v03.00";
 
 __attribute__((unused)) static
 const char SM_KPM_DESCRIPTION[] = "KPM Monitor";

@@ -29,7 +29,6 @@ if(SM_ENCODING_KPM STREQUAL "ASN")
     enc/kpm_enc_asn.c 
     dec/kpm_dec_asn.c 
     ie/kpm_data_ie.c
-
     $<TARGET_OBJECTS:e2_conv_obj>
     $<TARGET_OBJECTS:e2ap_ran_func_obj>
     $<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
@@ -62,7 +61,7 @@ if(SM_ENCODING_KPM STREQUAL "ASN")
   target_link_libraries(kpm_sm_static PRIVATE -lm)
   target_include_directories(kpm_sm_static PRIVATE "ie/asn")
   target_compile_options(kpm_sm_static PRIVATE "-DASN_DISABLE_OER_SUPPORT")
-  target_compile_options(kpm_sm_static PUBLIC "-DASN_DISABLE_JER_SUPPORT")
+  target_compile_options(kpm_sm_static PRIVATE "-DASN_DISABLE_JER_SUPPORT")
   target_compile_options(kpm_sm_static PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
 
 elseif(SM_ENCODING_KPM STREQUAL "PLAIN")

@@ -76,9 +76,7 @@ uper_encode_to_buffer(const asn_TYPE_descriptor_t *td,
     key.buffer = buffer;
     key.left = buffer_size;
 
-    if(td) {
-      ASN_DEBUG("Encoding \"%s\" using UNALIGNED PER", td->name);
-    }
+    if(td) ASN_DEBUG("Encoding \"%s\" using UNALIGNED PER", td->name);
 
     return uper_encode(td, constraints, sptr, encode_to_buffer_cb, &key);
 }
@@ -174,9 +172,7 @@ aper_encode_to_buffer(const asn_TYPE_descriptor_t *td,
     key.buffer = buffer;
     key.left = buffer_size;
 
-    if(td) {
-      ASN_DEBUG("Encoding \"%s\" using ALIGNED PER", td->name);
-    }
+    if(td) ASN_DEBUG("Encoding \"%s\" using ALIGNED PER", td->name);
 
     return aper_encode(td, constraints, sptr, encode_to_buffer_cb, &key);
 }
