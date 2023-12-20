@@ -13,6 +13,8 @@
 
 io_ran_abs_t ws_ran_io; // forward declaration
 
+ws_ioloop_t static_user; // XXX: probably you can bring inside the implementation instead of exposing it
+
 /* XXX: 'global_sul' 
  * global variable storage needed at connection time by 'lws_sul_schedule', but not used for now.
  * To investigate if you can put null in the calling function and get rid of this variable

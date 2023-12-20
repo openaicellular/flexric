@@ -40,7 +40,7 @@ typedef struct ws_ioloop_event_t
   notif_event_t msg_type;
 } ws_ioloop_event_t ;
 
-ws_ioloop_t static_user; // XXX: probably you can bring inside the implementation instead of exposing it 
+//ws_ioloop_t static_user; // XXX: probably you can bring inside the implementation instead of exposing it
 
 void ran_io_rmtimer(int sm_id);
 void ran_io_addtimer(int sm_id, long int e2_subscription_tm);
