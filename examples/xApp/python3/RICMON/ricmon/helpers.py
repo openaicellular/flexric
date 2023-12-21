@@ -85,14 +85,25 @@ def sm_configs_to_sm_filters(sm_configs):
 
     return sm_filters
 
+# Assist subscriber()-process in extracting E2-Node's name:
+def sm_configs_to_access_names(sm_configs):
+    access_names = defaultdict(dict)
+
+    for sm, configs in sm_configs.items():
+        for e2_id, specs in configs.items():
+            access_names[e2_id] = specs['access_name']
+
+    return access_names
+
 # Assist ServiceModel callbacks with latency-benchmarked programmable filters:
 # - dictionary of (MCC, MNC, NB_ID, CU_DU_ID): ["<target_metric_i>"];
 # - report max_latency after a "checkpoint" number of indications
 class CallbackHelper:
-    def __init__(self, sm_name, e2_metrics, report_checkpoint):
+    def __init__(self, sm_name, e2_metrics, report_checkpoint, access_names):
         # Set programmable filters
         self.sm_name = sm_name
         self.filters = e2_metrics
+        self.access_names = access_names
 
         # Set checkpoint for max_latency reporting
         self.report_checkpoint = report_checkpoint
