@@ -67,7 +67,7 @@ void init_write_ctrl( write_ctrl_fp (*write_ctrl_tbl)[SM_AGENT_IF_WRITE_CTRL_V0_
   (*write_ctrl_tbl)[SLICE_CTRL_REQ_V0] =  NULL;
   (*write_ctrl_tbl)[TC_CTRL_REQ_V0] =  NULL;
   (*write_ctrl_tbl)[GTP_CTRL_REQ_V0] =  NULL;
-  (*write_ctrl_tbl)[RAN_CONTROL_CTRL_V1_03] =  NULL;
+  (*write_ctrl_tbl)[RAN_CONTROL_CTRL_V1_03] =  write_ctrl_rc_sm;
 }
 
 

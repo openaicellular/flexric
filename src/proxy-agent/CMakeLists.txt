@@ -106,6 +106,11 @@ add_executable(proxy_agent_ws
               ${CMAKE_SOURCE_DIR}/src/util/time_now_us.c
               ${CMAKE_SOURCE_DIR}/src/sm/mac_sm/ie/mac_data_ie.c
 
+              ${CMAKE_SOURCE_DIR}/src/sm/rc_sm/ie/rc_data_ie.c
+              # RAN Control SM
+              ../sm/rc_sm/ie/rc_data_ie.c
+              ../../test/rnd/fill_rnd_data_rc.c
+              $<TARGET_OBJECTS:e2sm_rc_ir_obj>
               )
 
 target_link_libraries(proxy_agent_ws
