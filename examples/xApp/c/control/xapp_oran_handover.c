@@ -36,31 +36,18 @@
 #include <pthread.h>
 
 static e2_node_arr_t nodes;
+bool stop_flag = false;
 bool triggerCondition = false;
 nr_cgi_t nr_cgi;
 
 static void sigint_handler(int sig)
 {
     printf("signal %d received !\n", sig);
+    stop_flag = true;
 }
 
 static
 pthread_mutex_t mtx;
-
-typedef enum{
-    Handover_control_7_6_4_1 = 1,
-    Conditional_handover_control_7_6_4_1 = 2,
-    DAPS_7_6_4_1 = 3,
-} rc_ctrl_service_style_3_act_id_e;
-
-typedef enum{
-    Target_primary_cell_id_8_4_4_1 = 1,
-    CHOICE_target_cell_8_4_4_1 = 2,
-    NR_cell_8_4_4_1 = 3,
-    NR_CGI_8_4_4_1 = 4,
-    E_ULTRA_Cell_8_4_4_1 = 5,
-    E_ULTRA_CGI_8_4_4_1 = 6,
-} handover_control_param_id_e;
 
 static
 ue_id_e2sm_t gen_rc_ue_id(ue_id_e2sm_e type)
@@ -189,16 +176,26 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over()
 
     // 8.4.4.1
     // Target Primary Cell ID, STRUCTURE (len 1)
+    // > RAN UE Id, ELEMENT // TODO: Not follow to standard
     // > CHOICE Target Cell, STRUCTURE (len 2)
     // >> NR Cell, STRUCTURE (len 1)
     // >>> NR CGI, ELEMENT
     // >> E-ULTRA Cell, STRUCTURE (len 1)
     // >>> E-ULTRA CGI, ELEMENT
 
-    dst.sz_ran_param = 1;
-    dst.ran_param = calloc(1, sizeof(seq_ran_param_t));
+    dst.sz_ran_param = 2;
+    dst.ran_param = calloc(2, sizeof(seq_ran_param_t));
     assert(dst.ran_param != NULL && "Memory exhausted");
-    gen_target_primary_cell_id(&dst.ran_param[0]);
+
+    seq_ran_param_t* amr_ran_ue_id = &dst.ran_param[0];
+    amr_ran_ue_id->ran_param_id = Amarisoft_ran_ue_id;
+    amr_ran_ue_id->ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+    amr_ran_ue_id->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+    assert(amr_ran_ue_id->ran_param_val.flag_false != NULL && "Memory exhausted");
+    amr_ran_ue_id->ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
+    amr_ran_ue_id->ran_param_val.flag_false->int_ran = 11; // TODO: Fix this number
+
+    gen_target_primary_cell_id(&dst.ran_param[1]);
     // TODO: List of PDU sessions for handover
     // TODO: List of PRBs for handover
     // TODO: List of secondary cells to be setup
@@ -375,6 +372,23 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node){
             for (size_t i = 0; i < msg_frm_3->ue_meas_report_lst_len; i++){
                 uint64_t id = *msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id;
                 printf("[KPM] KPM measurement report %zu with ran_ue_id %ld \n", i, id);
+                kpm_ind_msg_format_1_t const* msg_frm_1 = &msg_frm_3->meas_report_per_ue[i].ind_msg_format_1;
+                for (size_t i = 0; i < msg_frm_1->meas_data_lst_len; i++) {
+                    for (size_t j = 0; j < msg_frm_1->meas_data_lst[i].meas_record_len; j++) {
+                        if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == INTEGER_MEAS_VALUE) {
+                            uint32_t val = msg_frm_1->meas_data_lst[i].meas_record_lst[j].int_val;
+                            printf("meas record INTEGER_MEAS_VALUE value %d\n", val);
+                            if (val > 100) {
+                                triggerCondition = true;
+                                nr_cgi.nr_cell_id = (uint64_t) val;
+                            } else if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == REAL_MEAS_VALUE)
+                                printf("meas record REAL_MEAS_VALUE value %f\n",
+                                       msg_frm_1->meas_data_lst[i].meas_record_lst[j].real_val);
+                            else
+                                printf("meas record NO_VALUE_MEAS_VALUE value\n");
+                        }
+                    }
+                }
             }
         }
         counter++;
@@ -418,7 +432,7 @@ size_t send_sub_req(e2_node_connected_t* n, fr_args_t args, sm_ans_xapp_t *kpm_h
 }
 
 void *threadFunc(){
-    while(1){
+    while(!stop_flag){
         if (triggerCondition && nr_cgi.nr_cell_id != 0){
             // RC Control
             // CONTROL Service Style 3: Connected mode mobility control
@@ -483,8 +497,7 @@ int main(int argc, char *argv[]){
         n_handle = send_sub_req(n, args, kpm_handle, n_handle);
     }
 
-    sleep(100);
-
+    sleep(5);
     printf("CTRL+C detect\n");
     for(size_t i = 0; i < n_handle; ++i){
         rm_report_sm_xapp_api(kpm_handle[i].u.handle);
@@ -492,12 +505,13 @@ int main(int argc, char *argv[]){
 
     free(kpm_handle);
 
-    int rc_end = pthread_join(threadCtrl, NULL);
-    assert(rc_end == 0);
-
     //Stop the xApp
     while(try_stop_xapp_api() == false)
         usleep(1000);
+
+    stop_flag = true;
+    int rc_end = pthread_join(threadCtrl, NULL);
+    assert(rc_end == 0);
 
     printf("Test xApp run SUCCESSFULLY\n");
 }
