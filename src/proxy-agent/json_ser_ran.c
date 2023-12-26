@@ -18,6 +18,7 @@
 #include "util/alg_ds/alg/defer.h"
 #include "lib/e2ap/e2ap_global_node_id_wrapper.h"
 #include "sm/mac_sm/mac_sm_id.h"
+#include "sm/rc_sm/ie/ir/ran_param_list.h"
 
 #include "ran_if.h"
 #include "ran_msg_hdlr.h"
@@ -797,16 +798,112 @@ static const char *json_encode_ctrl_mac(int msg_id, mac_ctrl_req_data_t ctrl_msg
   return enc_gbuf;
 }
 
-static const char *json_encode_ctrl(int msg_id, sm_ag_if_wr_ctrl_t write_msg) 
+static const char *json_encode_ctrl_rc(int msg_id, rc_ctrl_req_data_t ctrl_msg)
+{
+    char* pci;
+    if (ctrl_msg.hdr.format == FORMAT_1_E2SM_RC_CTRL_HDR){
+        if(ctrl_msg.hdr.frmt_1.ric_style_type == 3 && ctrl_msg.hdr.frmt_1.ctrl_act_id == Handover_control_7_6_4_1){
+            e2sm_rc_ctrl_msg_frmt_1_t const *msg = &ctrl_msg.msg.frmt_1;
+            assert(msg->sz_ran_param == 2 && "not support msg->sz_ran_param != 2");
+            seq_ran_param_t *amr_ran_ue_id = &msg->ran_param[0];
+            assert(amr_ran_ue_id->ran_param_id == Amarisoft_ran_ue_id && "wrong ran ue id");
+            assert(amr_ran_ue_id->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong ran ue id type");
+            assert(amr_ran_ue_id->ran_param_val.flag_false != NULL && "NULL amr_ran_ue_id->ran_param_val.flag_false");
+            assert(amr_ran_ue_id->ran_param_val.flag_false->type == INTEGER_RAN_PARAMETER_VALUE &&
+                   "wrong amr_ran_ue_id->ran_param_val.flag_false type");
+            uint64_t ran_ue_id = amr_ran_ue_id->ran_param_val.flag_false->int_ran;
+
+            seq_ran_param_t *target_primary_cell_id = &msg->ran_param[1];
+            assert(target_primary_cell_id->ran_param_id == Target_primary_cell_id_8_4_4_1 &&
+                   "Wrong Target_primary_cell_id id ");
+            assert(target_primary_cell_id->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE &&
+                   "wrong Target_primary_cell_id type");
+            assert(target_primary_cell_id->ran_param_val.strct != NULL &&
+                   "NULL target_primary_cell_id->ran_param_val.strct");
+            assert(target_primary_cell_id->ran_param_val.strct->sz_ran_param_struct == 1 &&
+                   "wrong target_primary_cell_id->ran_param_val.strct->sz_ran_param_struct");
+            assert(target_primary_cell_id->ran_param_val.strct->ran_param_struct != NULL &&
+                   "NULL target_primary_cell_id->ran_param_val.strct->ran_param_struct");
+
+            seq_ran_param_t *choice_target_cell = &target_primary_cell_id->ran_param_val.strct->ran_param_struct[0];
+            assert(choice_target_cell->ran_param_id == CHOICE_target_cell_8_4_4_1 && "wrong CHOICE_target_cell id");
+            assert(choice_target_cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE &&
+                   "wrong CHOICE_target_cell type");
+            assert(choice_target_cell->ran_param_val.strct != NULL && "NULL CHOICE_target_cell->ran_param_val.strct");
+            assert(choice_target_cell->ran_param_val.strct->sz_ran_param_struct == 2 &&
+                   "wrong CHOICE_target_cell->ran_param_val.strct->sz_ran_param_struct");
+            assert(choice_target_cell->ran_param_val.strct->ran_param_struct != NULL &&
+                   "NULL CHOICE_target_cell->ran_param_val.strct->ran_param_struct");
+
+            seq_ran_param_t *cell = &choice_target_cell->ran_param_val.strct->ran_param_struct[0];
+            if (cell->ran_param_id == NR_cell_8_4_4_1) {
+                assert(cell->ran_param_id == NR_cell_8_4_4_1 && "wrong NR_cell id");
+                assert(cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong NR_cell type");
+                assert(cell->ran_param_val.strct != NULL && "NULL nr_cell->ran_param_val.strct");
+                assert(cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
+                       "wrong NR_cell->ran_param_val.strct->sz_ran_param_struct");
+                assert(cell->ran_param_val.strct->ran_param_struct != NULL &&
+                       "NULL NR_cell->ran_param_val.strct->ran_param_struct");
+
+                seq_ran_param_t *nr_cgi = &cell->ran_param_val.strct->ran_param_struct[0];
+                assert(nr_cgi->ran_param_id == NR_CGI_8_4_4_1 && "wrong NR_CGI id");
+                assert(nr_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE &&
+                       "wrong NR_CGI type");
+                assert(nr_cgi->ran_param_val.flag_false != NULL && "NULL NR_CGI->ran_param_val.flag_false");
+                assert(nr_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
+                       "wrong NR_CGI->ran_param_val.flag_false type");
+                pci = copy_ba_to_str(&nr_cgi->ran_param_val.flag_false->bit_str_ran);
+            } else {
+                assert(cell->ran_param_id == E_ULTRA_Cell_8_4_4_1 && "wrong id");
+                assert(cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong e_ultra_cell type");
+                assert(cell->ran_param_val.strct != NULL && "NULL e_ultra_cell->ran_param_val.strct");
+                assert(cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
+                       "wrong e_ultra_cell->ran_param_val.strct->sz_ran_param_struct");
+                assert(cell->ran_param_val.strct->ran_param_struct != NULL &&
+                       "NULL e_ultra_cell->ran_param_val.strct->ran_param_struct");
+
+                seq_ran_param_t *e_ultra_cgi = &cell->ran_param_val.strct->ran_param_struct[0];
+                assert(e_ultra_cgi->ran_param_id == E_ULTRA_CGI_8_4_4_1 && "wrong E_ULTRA_CGI id");
+                assert(e_ultra_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE &&
+                       "wrong E_ULTRA_CGI type");
+                assert(e_ultra_cgi->ran_param_val.flag_false != NULL && "NULL E_ULTRA_CGI->ran_param_val.flag_false");
+                assert(e_ultra_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
+                       "wrong E_ULTRA_CGI->ran_param_val.flag_false type");
+                pci = copy_ba_to_str(&e_ultra_cgi->ran_param_val.flag_false->bit_str_ran);
+            }
+
+            int rc = snprintf(enc_gbuf,
+                              sizeof(enc_gbuf),
+                              "{\"message\":\"handover\",\"ran_ue_id\":%ld,\"pci\":%s,\"message_id\":\"%d\"}",
+                              ran_ue_id, pci,
+                              msg_id);
+            if (rc >= (int)sizeof(enc_gbuf))
+            {
+                lwsl_err("hit hard limit on internal buffer for command 'handover'\n");
+                return NULL;
+            }
+            return enc_gbuf;
+        }
+    }
+    return NULL;
+}
+
+// Copy code to encode ctrl
+static const char *json_encode_ctrl(int msg_id, sm_ag_if_wr_ctrl_t write_msg)
 {
  /* 
   * caveats: we go only or a modified MAC service model, i.e. like its implementation by CCC, 
   * instead of the SLICE because that one has no parameter that could be mapped into an Amarisoft websocket
   * parameter.
   */
-  return (write_msg.type == MAC_CTRL_REQ_V0) ?
-          json_encode_ctrl_mac(msg_id, write_msg.mac_ctrl) :
-          NULL; 
+    switch (write_msg.type) {
+        case MAC_CTRL_REQ_V0:
+            return json_encode_ctrl_mac(msg_id, write_msg.mac_ctrl);
+        case RAN_CONTROL_CTRL_V1_03:
+            return json_encode_ctrl_rc(msg_id, write_msg.rc_ctrl);
+        default:
+            return NULL;
+    }
 }
 
 /*--------------------------------------------- API ----------------------------------------*/
