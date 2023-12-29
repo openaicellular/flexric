@@ -22,7 +22,6 @@
 #include "../../../../src/xApp/e42_xapp_api.h"
 #include "../../../../src/sm/rc_sm/ie/ir/ran_param_struct.h"
 #include "../../../../src/sm/rc_sm/ie/ir/ran_param_list.h"
-#include "../../../../src/util/alg_ds/alg/defer.h"
 #include "../../../../src/util/time_now_us.h"
 #include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
 #include <stdlib.h>
@@ -30,10 +29,8 @@
 #include <time.h>
 #include <unistd.h>
 #include <pthread.h>
-
 int storedMeas [200][6];
 int meas_cnt;
-
 static
 byte_array_t copy_str_to_ba(const char* str)
 {
@@ -49,7 +46,6 @@ byte_array_t copy_str_to_ba(const char* str)
   return dst;
 }
 
-
 static
 ue_id_e2sm_t ue_id;
 
@@ -57,7 +53,7 @@ static
 pthread_mutex_t mtx;
 
 static
-void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
+/*void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
   assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
@@ -76,41 +72,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
     ue_id = cp_ue_id_e2sm(&kpm->msg.frm_3.meas_report_per_ue[0].ue_meas_report_lst);
   }
   printf("UE ID %ld \n ", ue_id.gnb.amf_ue_ngap_id);
-}
-
-static
-void sm_cb_kpm_oran_cell(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
-{
-  assert(rd != NULL);
-  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
-  assert(rd->ind.type == KPM_STATS_V3_0);
-
-
-  kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
-
-  int64_t now = time_now_us();
-  // printf("KPM ind_msg latency = %ld μs\n", now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime);
-
-  // uint8_t *measName;
-  // measName = calloc(kpm->msg.frm_1.meas_info_lst[0].meas_type.name.len, sizeof(uint8_t));
-  // memcpy(measName, )
-
-  for(int i=0;i<kpm->msg.frm_1.meas_data_lst_len;i++){
-    if(kpm->msg.frm_1.meas_data_lst[i].meas_record_lst->value == INTEGER_MEAS_VALUE) {
-      printf("Measurement Integer \"%s\" = %d from E2-Node type %d nb_id %d\n",
-             kpm->msg.frm_1.meas_info_lst[i].meas_type.name.buf,
-             kpm->msg.frm_1.meas_data_lst[i].meas_record_lst->int_val,
-             e2_node->type, e2_node->nb_id.nb_id);
-    } else if(kpm->msg.frm_1.meas_data_lst[i].meas_record_lst->value == REAL_MEAS_VALUE) {
-      printf("Measurement Real \"%s\" = %.2f from E2-Node type %d nb_id %d\n",
-             kpm->msg.frm_1.meas_info_lst[i].meas_type.name.buf,
-             kpm->msg.frm_1.meas_data_lst[i].meas_record_lst->real_val,
-             e2_node->type, e2_node->nb_id.nb_id);
-    }
-  }
-
-}
-
+}*/
 void sm_cb_kpm_oran_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
@@ -127,7 +89,7 @@ void sm_cb_kpm_oran_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2
 
   meas_cnt = indicationCount;
 
-  for(int i=0;i<kpm->msg.frm_2.meas_data_lst_len;i++){
+  for(unsigned int i=0;i<kpm->msg.frm_2.meas_data_lst_len;i++){
     printf("Slice {%d-%d%d%d} measurment \"%s\" = ", kpm->msg.frm_2.meas_info_cond_ue_lst[i].matching_cond_lst->label_info_lst.sliceID->sST,
            *kpm->msg.frm_2.meas_info_cond_ue_lst[i].matching_cond_lst->label_info_lst.sliceID->sD[0],
            *kpm->msg.frm_2.meas_info_cond_ue_lst[i].matching_cond_lst->label_info_lst.sliceID->sD[1],
@@ -142,8 +104,6 @@ void sm_cb_kpm_oran_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2
       printf("name %s, value %.2f\n", kpm->msg.frm_2.meas_info_cond_ue_lst[i].meas_type.name.buf, kpm->msg.frm_2.meas_data_lst[i].meas_record_lst->real_val);
   }
 }
-
-
 static
 kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
 {
@@ -156,7 +116,7 @@ kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
 }
 
 static
-meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char action[])
+meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
 {
   meas_info_format_1_lst_t dst = {0};
 
@@ -173,7 +133,7 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char action[])
 
   return dst;
 }
-
+/*modified by joe*/
 static
 meas_info_format_3_lst_t gen_meas_info_format_3_lst(const char action[])
 {
@@ -194,7 +154,7 @@ meas_info_format_3_lst_t gen_meas_info_format_3_lst(const char action[])
 
   return dst;
 }
-
+/*modified by joe*/
 static
 kpm_act_def_format_1_t gen_act_def_frmt_1(const char* action)
 {
@@ -211,28 +171,9 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char* action)
 
   return dst;
 }
-
+/*modified by joe*/
 static
-kpm_act_def_format_1_t gen_act_def_oran_frmt_1(const char action[][25], size_t size)
-{
-  kpm_act_def_format_1_t dst = {0};
-
-  dst.gran_period_ms = 100;
-
-  // [1, 65535]
-  dst.meas_info_lst_len = size;
-  dst.meas_info_lst = calloc(size, sizeof(meas_info_format_1_lst_t));
-  assert(dst.meas_info_lst != NULL && "Memory exhausted");
-
-  for(int i=0;i<size;i++){
-    dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action[i]);
-  }
-
-  return dst;
-}
-
-static
-kpm_act_def_format_3_t gen_act_def_oran_frmt_3(const char action[][25], size_t act_size)
+kpm_act_def_format_3_t gen_act_def_frmt_3(const char action[][25])
 {
   int count = 0;
   kpm_act_def_format_3_t dst = {0};
@@ -240,17 +181,17 @@ kpm_act_def_format_3_t gen_act_def_oran_frmt_3(const char action[][25], size_t a
   dst.gran_period_ms = 100;
 
   // [1, 65535]
-  dst.meas_info_lst_len = act_size;
-  dst.meas_info_lst = calloc(act_size, sizeof(meas_info_format_3_lst_t));
+  dst.meas_info_lst_len = 2;
+  dst.meas_info_lst = calloc(dst.meas_info_lst_len, sizeof(meas_info_format_3_lst_t));
   assert(dst.meas_info_lst != NULL && "Memory exhausted");
 
-  for(int i=0;i<act_size;i++){
+  for(unsigned i=0;i<dst.meas_info_lst_len;i++){
     dst.meas_info_lst[count++] = gen_meas_info_format_3_lst(action[i]);
   }
 
   return dst;
 }
-
+/*modified by joe*/
 static
 kpm_act_def_format_4_t gen_act_def_frmt_4(const char* action)
 {
@@ -283,37 +224,17 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char* action)
   return dst;
 }
 
-
+/*modified by joe, change to format3*/
 static
-kpm_act_def_t gen_act_def(const char* act)
+kpm_act_def_t gen_act_def(const char act[][25])
 {
   kpm_act_def_t dst = {0};
 
-  dst.type = FORMAT_4_ACTION_DEFINITION;
-  dst.frm_4 = gen_act_def_frmt_4(act);
+  dst.type = FORMAT_3_ACTION_DEFINITION;
+  dst.frm_3 = gen_act_def_frmt_3(act);
   return dst;
 }
-
-static
-kpm_act_def_t gen_act_def_oran_cell(const char act[][25], size_t size)
-{
-  kpm_act_def_t dst = {0};
-
-  dst.type = FORMAT_1_ACTION_DEFINITION;
-  dst.frm_1 = gen_act_def_oran_frmt_1(act, size);
-  return dst;
-}
-
-static
-kpm_act_def_t gen_act_def_oran_slice(const char act[][25], size_t act_size)
-{
-  kpm_act_def_t dst = {0};
-
-  dst.type = FORMAT_4_ACTION_DEFINITION;
-  dst.frm_3 = gen_act_def_oran_frmt_3(act, act_size);
-  return dst;
-}
-
+/*modified by joe, change to format3*/
 
 
 /*
@@ -1091,41 +1012,12 @@ e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1(void)
 }
 
 static
-e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1_oran(void)
-{
-  e2sm_rc_ctrl_hdr_frmt_1_t dst = {0};
-
-  // 6.2.2.6
-  {
-    lock_guard(&mtx);
-    dst.ue_id = cp_ue_id_e2sm(&ue_id);
-  }
-  // CONTROL Service Style 1: Radio Bearer Control
-  dst.ric_style_type = 2;
-
-  // QoS flow mapping conf
-  dst.ctrl_act_id = 6;
-
-  return dst;
-}
-
-static
 e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(void)
 {
   e2sm_rc_ctrl_hdr_t dst = {0};
   // Radio Bearer Control
   dst.format = FORMAT_1_E2SM_RC_CTRL_HDR;
   dst.frmt_1 = gen_rc_ctrl_hdr_frmt_1();
-  return dst;
-}
-
-static
-e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr_oran(void)
-{
-  e2sm_rc_ctrl_hdr_t dst = {0};
-  // Radio Bearer Control
-  dst.format = FORMAT_1_E2SM_RC_CTRL_HDR;
-  dst.frmt_1 = gen_rc_ctrl_hdr_frmt_1_oran();
   return dst;
 }
 
@@ -1196,115 +1088,6 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
   return dst;
 }
 
-uint8_t fill_in_plmnId(uint8_t *buf, uint8_t *plmnid){
-  memcpy(buf, plmnid, 6);
-  return 0;
-}
-
-uint8_t fill_rrm_policy(ran_param_struct_t *ran_param, uint8_t *plmnid, uint8_t *sst, uint8_t *sd, int minPrb, int maxPrb, int dedPrb){
-
-  ran_param->sz_ran_param_struct = 4;
-  ran_param->ran_param_struct = calloc(4, sizeof(seq_ran_param_t));
-  ran_param->ran_param_struct[0].ran_param_id = 3;
-  ran_param->ran_param_struct[0].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
-  ran_param->ran_param_struct[0].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
-  ran_param->ran_param_struct[0].ran_param_val.strct->sz_ran_param_struct = 1;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_id = 5;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.type = LIST_RAN_PARAMETER_VAL_TYPE;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst = calloc(1, sizeof(ran_param_list_t));
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->sz_lst_ran_param = 1;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param = calloc(1, sizeof(lst_ran_param_t));
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_id = 6;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.sz_ran_param_struct = 2;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct = calloc(2, sizeof(seq_ran_param_t));
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_id = 7;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.flag_false->type = OCTET_STRING_RAN_PARAMETER_VALUE;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.len = 6;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.buf = calloc(6, sizeof(uint8_t));
-  memcpy(ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.buf, plmnid, 6);  // plmnid
-
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_id = 8;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->sz_ran_param_struct = 2;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct = calloc(2,sizeof(seq_ran_param_t));
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_id = 9;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_false->type = OCTET_STRING_RAN_PARAMETER_VALUE;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.len = 1;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.buf = calloc(1, sizeof(uint8_t));
-  memcpy(ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.buf, sst, 1); // S-NSSAI
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_id = 10;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.flag_false->type = OCTET_STRING_RAN_PARAMETER_VALUE;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.flag_false->octet_str_ran.len = 3;
-  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.flag_false->octet_str_ran.buf = calloc(3, sizeof(uint8_t));
-  memcpy(ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.flag_false->octet_str_ran.buf, sd, 3); // S-NSSAI
-
-  ran_param->ran_param_struct[1].ran_param_id = 11;
-  ran_param->ran_param_struct[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-  ran_param->ran_param_struct[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-  ran_param->ran_param_struct[1].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  ran_param->ran_param_struct[1].ran_param_val.flag_false->int_ran = minPrb; // Min
-  ran_param->ran_param_struct[2].ran_param_id = 12;
-  ran_param->ran_param_struct[2].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-  ran_param->ran_param_struct[2].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-  ran_param->ran_param_struct[2].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  ran_param->ran_param_struct[2].ran_param_val.flag_false->int_ran = maxPrb; // Max
-  ran_param->ran_param_struct[3].ran_param_id = 13;
-  ran_param->ran_param_struct[3].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-  ran_param->ran_param_struct[3].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-  ran_param->ran_param_struct[3].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  ran_param->ran_param_struct[3].ran_param_val.flag_false->int_ran = dedPrb; // Ded
-
-  return 0;
-}
-
-
-static
-e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_rrm_policy(int rrmPolicy[3][3])
-{
-  e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
-  uint8_t plmnid[][6] = {{3,1,1,4,8,0}, {3,1,1,4,8,0}, {3,1,1,4,8,0}};
-  uint8_t sst[][1] = {{1}, {2}, {3}};
-  uint8_t sd[][3] = {{2,3,4}, {3,3,4}, {4,3,4}};
-  int dedPrb[] = {rrmPolicy[0][2],rrmPolicy[1][2],rrmPolicy[2][2]};
-  int maxPrb[] = {rrmPolicy[0][0],rrmPolicy[1][0],rrmPolicy[2][0]};
-  int minPrb[] = {rrmPolicy[0][1],rrmPolicy[1][1],rrmPolicy[2][1]};
-
-  // RRM Policy configuration
-  dst.sz_ran_param = 1;
-  dst.ran_param = calloc(1, sizeof(seq_ran_param_t));
-  dst.ran_param->ran_param_id = 1;
-  dst.ran_param->ran_param_val.type = LIST_RAN_PARAMETER_VAL_TYPE;
-  dst.ran_param->ran_param_val.lst = calloc(3, sizeof(ran_param_list_t));
-  dst.ran_param->ran_param_val.lst->sz_lst_ran_param = 3;
-  dst.ran_param->ran_param_val.lst->lst_ran_param = calloc(3, sizeof(lst_ran_param_t));
-  dst.ran_param->ran_param_val.lst->lst_ran_param[0].ran_param_id = 2;
-  dst.ran_param->ran_param_val.lst->lst_ran_param[1].ran_param_id = 2;
-  dst.ran_param->ran_param_val.lst->lst_ran_param[2].ran_param_id = 2;
-  assert(dst.ran_param != NULL && "Memory exhausted");
-
-
-  for(int i=0;i<3;i++){
-    fill_rrm_policy(&dst.ran_param->ran_param_val.lst->lst_ran_param[i].ran_param_struct, plmnid[i], sst[i], sd[i], minPrb[i], maxPrb[i], dedPrb[i]);
-  }
-
-  for(int i=0;i<3;i++){
-    printf("RRM Policy # %d\nPlmnID = %d%d%d%d%d%d, S-NSSAI = {%d-%d%d%d}\n", i, plmnid[i][0], plmnid[i][1], plmnid[i][2], plmnid[i][3], plmnid[i][4], plmnid[i][5], sst[i][0], sd[i][0], sd[i][1], sd[i][2]);
-    printf("Min PRB Policy Ratio = %d\n", minPrb[i]);
-    printf("Max PRB Policy Ratio = %d\n", maxPrb[i]);
-    printf("Dedicated PRB Policy Ratio = %d\n\n", dedPrb[i]);
-  }
-
-  return dst;
-}
-
 static
 e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg(void)
 {
@@ -1314,19 +1097,6 @@ e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg(void)
   dst.format = FORMAT_1_E2SM_RC_CTRL_MSG;
   //dst.frmt_1 = gen_rc_ctrl_msg_frmt_1();
   dst.frmt_1 = gen_rc_ctrl_msg_frmt_1_qos_flow_map();
-
-  return dst;
-}
-
-static
-e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg_oran(int rrmPolicy [3][3])
-{
-  e2sm_rc_ctrl_msg_t dst = {0};
-
-  // Radio Bearer Control
-  dst.format = FORMAT_1_E2SM_RC_CTRL_MSG;
-  //dst.frmt_1 = gen_rc_ctrl_msg_frmt_1();
-  dst.frmt_1 = gen_rc_ctrl_msg_frmt_1_rrm_policy(rrmPolicy);
 
   return dst;
 }
@@ -1368,24 +1138,14 @@ int main(int argc, char *argv[])
   kpm_sub.sz_ad = 1;
   kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
   assert(kpm_sub.ad != NULL && "Memory exhausted");
-  const char act[] = "DRB.RlcSduDelayDl";
-  const char act1[][25] = {"DRB.UEThpDl", "RRU.PrbUsedDl", "RRU.PrbAvailDl", "RRU.PrbTotDl"};
-  const char act2[][25] = {"DRB.UEThpDl.SNSSAI", "RRU.PrbUsedDl.SNSSAI"};
-  const char sst[][1] = {{1},{2},{3}};
-  const char sd[][3] = {{2,3,4}, {3,3,4}, {4,3,4}};
-  int rrmPolicy [3][3] = {{100,34,10}, {100,33,10}, {100,33,10}};
-  int rrmPolicy1 [3][3] = {{100,20,10}, {100,40,10}, {100,40,10}};
-  int rrmPolicy2 [3][3] = {{100,60,10}, {100,20,10}, {100,20,10}};
-  // printf("sizeof act = %d\n", sizeof(act));
-  // kpm_sub.ad[0] = gen_act_def_oran_cell(act1, sizeof(act1)/sizeof(*act1));
-  kpm_sub.ad[0] = gen_act_def_oran_slice(act2, sizeof(act2)/sizeof(*act2));
-
-  // kpm_sub.ad[0] = gen_act_def(act);
+  /*modified by joe*/
+  const char act[][25] = {"DRB.UEThpDl.SNSSAI", "RRU.PrbUsedDl.SNSSAI"};
+  /*modified by joe*/
+  *kpm_sub.ad = gen_act_def(act);
 
   const int KPM_ran_function = 2;
 
   for(size_t i =0; i < nodes.len; ++i){
-    // h[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm_oran_cell);
     h[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm_oran_slice);
     assert(h[i].success == true);
   }
@@ -1408,11 +1168,12 @@ int main(int argc, char *argv[])
   //  assert(h_2.success == true);
 
 
+
   // RC Control
   rc_ctrl_req_data_t rc_ctrl = {0};
 
-  rc_ctrl.hdr = gen_rc_ctrl_hdr_oran();
-  rc_ctrl.msg = gen_rc_ctrl_msg_oran(rrmPolicy);
+  rc_ctrl.hdr = gen_rc_ctrl_hdr();
+  rc_ctrl.msg = gen_rc_ctrl_msg();
 
   const int RC_ran_function = 3;
 
@@ -1421,30 +1182,12 @@ int main(int argc, char *argv[])
   }
   free_rc_ctrl_req_data(&rc_ctrl);
 
-  sleep(15);
-  rc_ctrl.hdr = gen_rc_ctrl_hdr_oran();
-  rc_ctrl.msg = gen_rc_ctrl_msg_oran(rrmPolicy2);
-
-  for(size_t i =0; i < nodes.len; ++i){
-    control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
-  }
-  free_rc_ctrl_req_data(&rc_ctrl);
-
-  sleep(300);
-
-  rc_ctrl.hdr = gen_rc_ctrl_hdr_oran();
-  rc_ctrl.msg = gen_rc_ctrl_msg_oran(rrmPolicy1);
-
-  for(size_t i =0; i < nodes.len; ++i){
-    control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
-  }
-  free_rc_ctrl_req_data(&rc_ctrl);
-
-
+  // free_rc_ctrl_req_data(&rc_ctrl);
+//
   ////////////
   // END RC
   ////////////
-  // while(1);
+
   sleep(600);
 
   for(int i = 0; i < nodes.len; ++i){
@@ -1465,12 +1208,6 @@ int main(int argc, char *argv[])
   assert(rc == 0);
 
   printf("Test xApp run SUCCESSFULLY\n");
-
-  printf("count,TptSlice1,TptSlice2,TptSlice3,PrbSlice1,PrbSlice2,PrbSlice3\n");
-
-  for(int i=0;i<=meas_cnt;i++){
-    printf("%d,%d,%d,%d,%d,%d,%d\n", i, storedMeas[i][0], storedMeas[i][2], storedMeas[i][4], storedMeas[i][1], storedMeas[i][3], storedMeas[i][5]);
-  }
 
 }
 
