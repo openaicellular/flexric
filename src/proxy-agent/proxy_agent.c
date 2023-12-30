@@ -147,7 +147,8 @@ static void close_proxy_agent (proxy_agent_t *proxy_agent) {
   proxy_agent->ran_if.io->destroy();
   bi_map_free(&proxy_agent->ran_if.ind_event);
   // notif_free_ran(&proxy_agent->ran_if);// for some reason this function hangs the program. sImpact of not calling this function: memory leak  
- 
+
+  free_ran_config(&proxy_agent->ranConfig);
   free (proxy_agent);
   proxy_agent = NULL;
 }

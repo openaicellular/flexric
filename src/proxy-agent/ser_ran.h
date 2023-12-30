@@ -313,25 +313,6 @@ typedef struct amarisoft_ue_stats_t
   amr_qos_flow_flag_t   qos_flows_flags[AMARISOFT_MAX_QOS_NUM]; 
 } amarisoft_ue_stats_t;
 
-/* Internal representation of RAN received messages for gNB and ue statistics 
- * This is a generic data structure that will be used to map the info we want for being returned via the indication 
- * message of various SMs (i.e. KPM/MAC etc..). This data structure has to be SM agnostic
- */
-typedef struct ran_ind_t {
-  // amarisoft api: config_get
-  global_e2_node_id_t global_e2_node_id;
-  // amarisoft api: stats
-  amarisoft_ran_stats_t ran_stats;
-  amarisoft_ran_stats_flags_t ran_stats_flags;
-  // amarisoft api: ue_get
-  size_t len_ue_stats;
-  amarisoft_ue_stats_t  ue_stats[AMARISOFT_MAX_UE_NUM];
-  // amarisoft api: qos_flow_get
-  size_t len_qos_flow_stats;
-  amr_qos_flow_stats_t     qos_flow_stats[AMARISOFT_MAX_UE_NUM];
-  amr_qos_flow_stats_flags_t qos_flow_stats_flags[AMARISOFT_MAX_UE_NUM];
-} ran_ind_t;
-
 typedef enum {
     nr_dl_qam_64,
     nr_dl_qam_256
@@ -440,6 +421,26 @@ typedef struct ran_config_t
   nr_cell_conf_flag_t nr_cells_flag[AMARISOFT_MAX_CELL_NUM]; // presence flags
 } ran_config_t;
 
+/* Internal representation of RAN received messages for gNB and ue statistics
+ * This is a generic data structure that will be used to map the info we want for being returned via the indication
+ * message of various SMs (i.e. KPM/MAC etc..). This data structure has to be SM agnostic
+ */
+typedef struct ran_ind_t {
+    // amarisoft api: config_get
+    global_e2_node_id_t global_e2_node_id;
+    ran_config_t ran_config;
+    // amarisoft api: stats
+    amarisoft_ran_stats_t ran_stats;
+    amarisoft_ran_stats_flags_t ran_stats_flags;
+    // amarisoft api: ue_get
+    size_t len_ue_stats;
+    amarisoft_ue_stats_t  ue_stats[AMARISOFT_MAX_UE_NUM];
+    // amarisoft api: qos_flow_get
+    size_t len_qos_flow_stats;
+    amr_qos_flow_stats_t     qos_flow_stats[AMARISOFT_MAX_UE_NUM];
+    amr_qos_flow_stats_flags_t qos_flow_stats_flags[AMARISOFT_MAX_UE_NUM];
+} ran_ind_t;
+
 // free memory associated to ran_config_t datastructure
 void free_ran_config(ran_config_t *conf);
 
@@ -450,10 +451,11 @@ typedef struct ran_ser_abs_t {
 
   bool (*decode_indication_stats)(const ran_msg_t *in_msg, ran_ind_t *out);
   bool (*decode_indication_ue_get) (const ran_msg_t *in_msg, ran_ind_t *out);
-  bool (*decode_config_get)(const ran_msg_t *in_msg, ran_config_t *out);
+  bool (*decode_indication_config_get) (const ran_msg_t *in_msg, ran_ind_t *out);
+  bool (*decode_config_get)(const ran_msg_t *in_msg, ran_config_t *out_ran, ran_ind_t *out_ind);
   bool (*decode_indication_qos_flow_get) (const ran_msg_t *in_msg, ran_ind_t *out);
   bool (*decode_indication_ue_erab_get) (const ran_msg_t *in_msg, ran_ind_t *out);
-  bool (*decode_e2setup)(const ran_msg_t *msg, global_e2_node_id_t *out);
+  bool (*decode_e2setup)(const ran_msg_t *msg, ran_config_t *out);
   bool (*decode_ctrl)(const ran_msghdr_t *msg, ctrl_ev_reply_t *out, const ws_ioloop_event_t *sent_ev);
 
   const char * (*encode_e2setup)(int message_id);

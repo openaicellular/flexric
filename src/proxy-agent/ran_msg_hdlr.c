@@ -43,6 +43,24 @@ static next_msg_t handle_ran_indication_ue(proxy_agent_t * proxy, ran_msg_t msg,
   return ret_msg;
 }
 
+static next_msg_t handle_ran_indication_config_get(proxy_agent_t * proxy, ran_msg_t msg, ran_msghdr_t msghdr, bi_map_t *sent_msg_list)
+{
+    (void)msghdr;
+    (void)sent_msg_list;
+
+    lwsl_info("[WS] Received indication data\n");
+
+    next_msg_t ret_msg = {.type_id = RAN_E2_NONE};
+    ran_ind_t ind = get_ringbuffer_data();
+    if (get_IndTimer_sts() == false)
+        set_IndTimer_sts(true);
+    if (proxy->ran_if.ser->decode_indication_config_get(&msg, &ind)  == true)
+        put_ringbuffer_data(ind);
+    else
+        lwsl_err("[WS] Error parsing json message for indication message from RAN. Discarding msg\n");
+    return ret_msg;
+}
+
 static next_msg_t handle_ran_unimplemented(proxy_agent_t * proxy, ran_msg_t ranmsg, ran_msghdr_t msghdr, bi_map_t *sent_msg_list) 
 {
   (void)ranmsg;
@@ -102,9 +120,10 @@ static next_msg_t handle_ran_config(proxy_agent_t * proxy, ran_msg_t ranmsg, ran
   set_E2setup_sts(true);
   next_msg_t ret_msg = { .type_id = RAN_E2_CONFIG_FWD};
   ran_ind_t ind = get_ringbuffer_data();
-  if (proxy->ran_if.ser->decode_e2setup(&ranmsg, &ret_msg.config_msg.global_e2_node_id) == false){
+  if (proxy->ran_if.ser->decode_e2setup(&ranmsg, &proxy->ranConfig) == false){
     lwsl_err("Error parsing json message for setup request from RAN. Discarding msg\n");
     ret_msg.type_id = RAN_E2_NONE;
+    ret_msg.config_msg.global_e2_node_id = cp_global_e2_node_id(&proxy->ranConfig.global_e2_node_id);
   }
   ind.global_e2_node_id = cp_global_e2_node_id(&ret_msg.config_msg.global_e2_node_id);
   put_ringbuffer_data(ind);
@@ -118,23 +137,35 @@ static bool ws_associate_valid_msg_type(ran_msghdr_t *hdr)
   // typeid directly from the io_loop bi_map without the heuristic below.
   bool ret = true;
 
-  if (!strcmp(hdr->type, "ready"))
-    hdr->typeid = RAN_READY;
-  else if (!strcmp(hdr->type, "register"))
-    hdr->typeid = RAN_REGISTRATION_ACK;
-  else if (!strcmp(hdr->type,"authenticate"))
-    hdr->typeid = RAN_AUTHENTICATE_ACK;
-  else if (!strcmp(hdr->type, "config_get"))
-     hdr->typeid = RAN_CONFIG_RECV;
-  else if (!strcmp(hdr->type, "stats"))
-    hdr->typeid = RAN_INDICATION_STATS_RECV;
-  else if (!strcmp(hdr->type, "ue_get"))
-    hdr->typeid = RAN_INDICATION_UEGET_RECV;
-  else if (!strcmp(hdr->type, "config_set"))
-    hdr->typeid = RAN_CTRL_ACK;
-  else 
-    ret = false;
- 
+  if (!strcmp(hdr->type, "ready")){
+      hdr->typeid = RAN_READY;
+  }
+  else if (!strcmp(hdr->type, "register")){
+      hdr->typeid = RAN_REGISTRATION_ACK;
+  }
+  else if (!strcmp(hdr->type,"authenticate")){
+      hdr->typeid = RAN_AUTHENTICATE_ACK;
+  }
+  else if (!strcmp(hdr->type, "config_get")){
+      if (get_proxy_agent()->ranConfig.len_nr_cell){
+          hdr->typeid = RAN_INDICATION_CONFGET_RECV;
+      } else {
+          hdr->typeid = RAN_CONFIG_RECV;
+      }
+  }
+  else if (!strcmp(hdr->type, "stats")){
+      hdr->typeid = RAN_INDICATION_STATS_RECV;
+  }
+  else if (!strcmp(hdr->type, "ue_get")){
+      hdr->typeid = RAN_INDICATION_UEGET_RECV;
+  }
+  else if (!strcmp(hdr->type, "config_set")){
+      hdr->typeid = RAN_CTRL_ACK;
+  }
+  else{
+      ret = false;
+  }
+
   return ret;
  }
 
@@ -145,13 +176,14 @@ static bool ws_associate_valid_msg_type(ran_msghdr_t *hdr)
 typedef next_msg_t (*handle_msg_ran)(proxy_agent_t * pa, ran_msg_t rowmsg, ran_msghdr_t msghdr, bi_map_t *sent_msg_list);
 static handle_msg_ran handle_msg[8] = {
   // Note that the remaining unspecified seats in this array are initialized automatically to NULL(0)
-  [RAN_READY]                 = &handle_ran_ready,
-  [RAN_REGISTRATION_ACK]      = &handle_ran_unimplemented,
-  [RAN_AUTHENTICATE_ACK]      = &handle_ran_unimplemented,
-  [RAN_CONFIG_RECV]           = &handle_ran_config,
-  [RAN_INDICATION_UEGET_RECV] = &handle_ran_indication_ue,
-  [RAN_INDICATION_STATS_RECV] = &handle_ran_indication_stats,
-  [RAN_CTRL_ACK]              = &handle_ran_ctrl
+  [RAN_READY]                   = &handle_ran_ready,
+  [RAN_REGISTRATION_ACK]        = &handle_ran_unimplemented,
+  [RAN_AUTHENTICATE_ACK]        = &handle_ran_unimplemented,
+  [RAN_CONFIG_RECV]             = &handle_ran_config,
+  [RAN_INDICATION_UEGET_RECV]   = &handle_ran_indication_ue,
+  [RAN_INDICATION_STATS_RECV]   = &handle_ran_indication_stats,
+  [RAN_INDICATION_CONFGET_RECV] = &handle_ran_indication_config_get,
+  [RAN_CTRL_ACK]                = &handle_ran_ctrl
 };
 
 next_msg_t ran_msg_handle(const char *buf, size_t len, bi_map_t *sent_msg_list)

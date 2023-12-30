@@ -424,9 +424,15 @@ static bool json_decode_ran_indication_ue_get(const ran_msg_t *in_msg, ran_ind_t
  * 
  * Perf: see benchmarking in test directory
  */
-static bool json_decode_ran_config_get(const ran_msg_t *in_msg, ran_config_t *out)
+static bool json_decode_ran_config_get(const ran_msg_t *in_msg, ran_config_t *out_ran, ran_ind_t *out_ind)
 {
-  assert((out != NULL || in_msg != NULL) && "programming error\n");
+  assert((in_msg != NULL) && "programming error\n");
+  ran_config_t *out = NULL;
+  if (out_ind != NULL){
+      out = &out_ind->ran_config;
+  } else {
+      out = out_ran;
+  }
 
   memset (&out->nr_cells_flag, 0, sizeof (out->nr_cells_flag)); //reset to false all the presence flags
 
@@ -685,18 +691,27 @@ static bool json_decode_ran_indication_erab_get(const ran_msg_t *in_msg, ran_ind
 
 }
 
-static bool json_decode_ran_e2setup(const ran_msg_t *in_msg, global_e2_node_id_t *out)
+static bool json_decode_ran_e2setup(const ran_msg_t *in_msg, ran_config_t *out)
 {
-  ran_config_t conf = {0};
-  
-  bool ret = json_decode_ran_config_get(in_msg, &conf);
+  bool ret = json_decode_ran_config_get(in_msg, out, NULL);
 
-  if (ret == true)
-    *out = cp_global_e2_node_id(&conf.global_e2_node_id);
-
-  free_ran_config(&conf);
+//  if (ret == true)
+//    *out = cp_global_e2_node_id(&conf.global_e2_node_id);
+//
+//  free_ran_config(&conf);
   
   return ret;
+}
+
+/*
+ * Parsing reply to Amarisoft API command 'config_get'
+ */
+static bool json_decode_ran_indication_config_get(const ran_msg_t *in_msg, ran_ind_t *out)
+{
+    // TODO: Free config_get
+    bool ret = json_decode_ran_config_get(in_msg, NULL, out);
+
+    return ret;
 }
 
 static bool json_decode_ctrl(const ran_msghdr_t *in_hdr, ctrl_ev_reply_t *out, const ws_ioloop_event_t *sent_ev)
@@ -733,8 +748,10 @@ static const char *json_encode_ran_indication(int msg_id, int sm_id)
   (void)sm_id; // unused for the moment
   snprintf(enc_gbuf,
            sizeof(enc_gbuf),
-           "[{\"message\":\"stats\",\"message_id\":\"%d\"},{\"message\":\"ue_get\",\"message_id\":\"%d\",\"stats\":1}]",
-           msg_id, msg_id);
+           "[{\"message\":\"stats\",\"message_id\":\"%d\"},"
+           "{\"message\":\"ue_get\",\"message_id\":\"%d\",\"stats\":1},"
+           "{\"message\":\"config_get\",\"message_id\":\"%d\"}]",
+           msg_id, msg_id, msg_id);
   return enc_gbuf;
 }
 
@@ -913,6 +930,7 @@ ran_ser_abs_t json_ran_ser = {
 
     .decode_indication_stats        = &json_decode_ran_indication_stats,
     .decode_indication_ue_get       = &json_decode_ran_indication_ue_get,
+    .decode_indication_config_get   = &json_decode_ran_indication_config_get,
     .decode_config_get              = &json_decode_ran_config_get,
     .decode_indication_qos_flow_get = &json_decode_ran_indication_qos_flow_get,
     .decode_indication_ue_erab_get  = &json_decode_ran_indication_erab_get,
