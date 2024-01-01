@@ -161,7 +161,8 @@ static bool ws_associate_valid_msg_type(ran_msghdr_t *hdr)
   }
   else if (!strcmp(hdr->type, "config_set")){
       hdr->typeid = RAN_CTRL_ACK;
-  }
+  } else if (!strcmp(hdr->type, "handover"))
+      hdr->typeid = RAN_CTRL_ACK;
   else{
       ret = false;
   }

@@ -721,22 +721,25 @@ static bool json_decode_ctrl(const ran_msghdr_t *in_hdr, ctrl_ev_reply_t *out, c
 
   memset(out, 0, sizeof (ctrl_ev_reply_t));
   assert(out->ans.type == CTRL_OUTCOME_SM_AG_IF_ANS_V0);
-  switch (out->ans.ctrl_out.type)
-  {
-    case MAC_AGENT_IF_CTRL_ANS_V0:
-      out->ans.ctrl_out.mac.ans = (in_hdr->error == true) ?  MAC_CTRL_OUT_KO : MAC_CTRL_OUT_OK;
-      out->sm_id = SM_MAC_ID;
-      break;
-    case RLC_AGENT_IF_CTRL_ANS_V0:
-    case PDCP_AGENT_IF_CTRL_ANS_V0:
-    case SLICE_AGENT_IF_CTRL_ANS_V0:
-    case TC_AGENT_IF_CTRL_ANS_V0:
-    case GTP_AGENT_IF_CTRL_ANS_V0:
-    default:
-      lwsl_err("%s: message unsupported %d\n", LOG_MODULE_STR, out->ans.type);
-      assert (0!=0 && "programming error\n");
-  }
-
+    switch (out->ans.ctrl_out.type) {
+        case RAN_CTRL_V1_3_AGENT_IF_CTRL_ANS_V0:
+            // TODO: Finish the control out
+            out->ans.ctrl_out.rc.format = FORMAT_1_E2SM_RC_CTRL_OUT; // 7.6.4.5
+            out->sm_id = SM_RC_ID;
+            break;
+        case MAC_AGENT_IF_CTRL_ANS_V0:
+            out->ans.ctrl_out.mac.ans = (in_hdr->error == true) ?  MAC_CTRL_OUT_KO : MAC_CTRL_OUT_OK;
+            out->sm_id = SM_MAC_ID;
+            break;
+        case RLC_AGENT_IF_CTRL_ANS_V0:
+        case PDCP_AGENT_IF_CTRL_ANS_V0:
+        case SLICE_AGENT_IF_CTRL_ANS_V0:
+        case TC_AGENT_IF_CTRL_ANS_V0:
+        case GTP_AGENT_IF_CTRL_ANS_V0:
+        default:
+            lwsl_err("%s: message unsupported %d\n", LOG_MODULE_STR, out->ans.type);
+            assert (0!=0 && "programming error\n");
+    }
   return true;
 }
 
