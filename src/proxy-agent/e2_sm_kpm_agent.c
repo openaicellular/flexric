@@ -90,13 +90,14 @@ meas_info_format_1_lst_t * fill_kpm_meas_info_frm_1(const size_t len, const kpm_
 }
 
 static
-meas_record_lst_t fill_meas_value(meas_type_t meas_info_type, const amarisoft_ue_stats_t* ue_stats)
+meas_record_lst_t fill_meas_value(meas_type_t meas_info_type, const amarisoft_ue_stats_t* ue_stats, const ran_config_t* ran_config)
 {
   meas_record_lst_t meas_record = {0};
   // Get Meas Info Name from Action Definition
   char* meas_info_name_str = copy_ba_to_str(&meas_info_type.name);
   defer({free(meas_info_name_str); } );
 
+  // TODO: Fix info name
   // Get value based on Meas Info Name
   if (!strcmp(meas_info_name_str, "DRB.UEThpDl")) {
     meas_record.value = REAL_MEAS_VALUE;
@@ -108,8 +109,24 @@ meas_record_lst_t fill_meas_value(meas_type_t meas_info_type, const amarisoft_ue
     meas_record.value = INTEGER_MEAS_VALUE;
     meas_record.real_val = ue_stats->cells[0].dl_tx*8; // bits// TODO:
   } else if (!strcmp(meas_info_name_str, "DRB.PdcpSduVolumeUL")) {
-    meas_record.value = INTEGER_MEAS_VALUE;
-    meas_record.real_val = ue_stats->cells[0].ul_tx*8; // bits TODO:
+      meas_record.value = INTEGER_MEAS_VALUE;
+      meas_record.real_val = ue_stats->cells[0].ul_tx * 8; // bits TODO:
+  } else if (!strcmp(meas_info_name_str, "amr.n_id_nrcell")) {
+      meas_record.value = INTEGER_MEAS_VALUE;
+      for (size_t i=0; i < ran_config->len_nr_cell; i++){
+          if (ue_stats->cells[0].cell_id == ran_config->nr_cells[i].cell_id){
+              meas_record.int_val = ran_config->nr_cells[i].n_id_nrcell;
+              break;
+          }
+      }
+  } else if (!strcmp(meas_info_name_str, "amr.n_id_neighbor_cell")) {
+      meas_record.value = INTEGER_MEAS_VALUE;
+      for (size_t i=0; i < ran_config->len_nr_cell; i++){
+          if (ue_stats->cells[0].cell_id != ran_config->nr_cells[i].cell_id){
+              meas_record.int_val = ran_config->nr_cells[i].n_id_nrcell;
+              break;
+          }
+      }
   } else {
     // TODO: need metrics from AMR and need mapping name from 3GPP
     printf("not implement value for measurement name %s\n", meas_info_name_str);
@@ -120,7 +137,7 @@ meas_record_lst_t fill_meas_value(meas_type_t meas_info_type, const amarisoft_ue
 }
 
 static
-kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1_in_monolithic(const amarisoft_ue_stats_t* ue, const kpm_act_def_format_1_t* act_def_fr1)
+kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1_in_monolithic(const amarisoft_ue_stats_t* ue, const kpm_act_def_format_1_t* act_def_fr1, const ran_ind_t* ws_ind)
 {
   kpm_ind_msg_format_1_t msg_frm_1 = {0};
 
@@ -144,7 +161,7 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1_in_monolithic(const amarisoft_ue_s
       {
         case NAME_MEAS_TYPE:
         {
-          meas_data->meas_record_lst[j] = fill_meas_value(meas_info_type, ue);
+          meas_data->meas_record_lst[j] = fill_meas_value(meas_info_type, ue, &ws_ind->ran_config);
           break;
         }
         case ID_MEAS_TYPE:
@@ -233,7 +250,6 @@ kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_in_monolithic(const matched_ues_t 
 {
   assert(act_def_fr_1 != NULL);
 
-
   kpm_ind_msg_format_3_t msg_frm_3 = {0};
 
   // Fill UE Measurement Reports
@@ -247,7 +263,7 @@ kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_in_monolithic(const matched_ues_t 
     msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb = fill_gnb_data(&matched_ues.ue_list[i], ws_ind->global_e2_node_id);
 
     // Fill UE related info
-    msg_frm_3.meas_report_per_ue[i].ind_msg_format_1 = fill_kpm_ind_msg_frm_1_in_monolithic(&matched_ues.ue_list[i], act_def_fr_1);
+    msg_frm_3.meas_report_per_ue[i].ind_msg_format_1 = fill_kpm_ind_msg_frm_1_in_monolithic(&matched_ues.ue_list[i], act_def_fr_1, ws_ind);
   }
 
   return msg_frm_3;

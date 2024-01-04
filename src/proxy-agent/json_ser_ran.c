@@ -18,6 +18,7 @@
 #include "util/alg_ds/alg/defer.h"
 #include "lib/e2ap/e2ap_global_node_id_wrapper.h"
 #include "sm/mac_sm/mac_sm_id.h"
+#include "sm/rc_sm/rc_sm_id.h"
 #include "sm/rc_sm/ie/ir/ran_param_list.h"
 
 #include "ran_if.h"
@@ -856,41 +857,42 @@ static const char *json_encode_ctrl_rc(int msg_id, rc_ctrl_req_data_t ctrl_msg)
                    "NULL CHOICE_target_cell->ran_param_val.strct->ran_param_struct");
 
             seq_ran_param_t *cell = &choice_target_cell->ran_param_val.strct->ran_param_struct[0];
-            if (cell->ran_param_id == NR_cell_8_4_4_1) {
-                assert(cell->ran_param_id == NR_cell_8_4_4_1 && "wrong NR_cell id");
-                assert(cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong NR_cell type");
-                assert(cell->ran_param_val.strct != NULL && "NULL nr_cell->ran_param_val.strct");
-                assert(cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
-                       "wrong NR_cell->ran_param_val.strct->sz_ran_param_struct");
-                assert(cell->ran_param_val.strct->ran_param_struct != NULL &&
-                       "NULL NR_cell->ran_param_val.strct->ran_param_struct");
+            // TODO: Add 4g cell id
+//            if (cell->ran_param_id == NR_cell_8_4_4_1) {
+            assert(cell->ran_param_id == NR_cell_8_4_4_1 && "wrong NR_cell id");
+            assert(cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong NR_cell type");
+            assert(cell->ran_param_val.strct != NULL && "NULL nr_cell->ran_param_val.strct");
+            assert(cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
+                   "wrong NR_cell->ran_param_val.strct->sz_ran_param_struct");
+            assert(cell->ran_param_val.strct->ran_param_struct != NULL &&
+                   "NULL NR_cell->ran_param_val.strct->ran_param_struct");
 
-                seq_ran_param_t *nr_cgi = &cell->ran_param_val.strct->ran_param_struct[0];
-                assert(nr_cgi->ran_param_id == NR_CGI_8_4_4_1 && "wrong NR_CGI id");
-                assert(nr_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE &&
-                       "wrong NR_CGI type");
-                assert(nr_cgi->ran_param_val.flag_false != NULL && "NULL NR_CGI->ran_param_val.flag_false");
-                assert(nr_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
-                       "wrong NR_CGI->ran_param_val.flag_false type");
-                pci = copy_ba_to_str(&nr_cgi->ran_param_val.flag_false->bit_str_ran);
-            } else {
-                assert(cell->ran_param_id == E_ULTRA_Cell_8_4_4_1 && "wrong id");
-                assert(cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong e_ultra_cell type");
-                assert(cell->ran_param_val.strct != NULL && "NULL e_ultra_cell->ran_param_val.strct");
-                assert(cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
-                       "wrong e_ultra_cell->ran_param_val.strct->sz_ran_param_struct");
-                assert(cell->ran_param_val.strct->ran_param_struct != NULL &&
-                       "NULL e_ultra_cell->ran_param_val.strct->ran_param_struct");
-
-                seq_ran_param_t *e_ultra_cgi = &cell->ran_param_val.strct->ran_param_struct[0];
-                assert(e_ultra_cgi->ran_param_id == E_ULTRA_CGI_8_4_4_1 && "wrong E_ULTRA_CGI id");
-                assert(e_ultra_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE &&
-                       "wrong E_ULTRA_CGI type");
-                assert(e_ultra_cgi->ran_param_val.flag_false != NULL && "NULL E_ULTRA_CGI->ran_param_val.flag_false");
-                assert(e_ultra_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
-                       "wrong E_ULTRA_CGI->ran_param_val.flag_false type");
-                pci = copy_ba_to_str(&e_ultra_cgi->ran_param_val.flag_false->bit_str_ran);
-            }
+            seq_ran_param_t *nr_cgi = &cell->ran_param_val.strct->ran_param_struct[0];
+            assert(nr_cgi->ran_param_id == NR_CGI_8_4_4_1 && "wrong NR_CGI id");
+            assert(nr_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE &&
+                   "wrong NR_CGI type");
+            assert(nr_cgi->ran_param_val.flag_false != NULL && "NULL NR_CGI->ran_param_val.flag_false");
+            assert(nr_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
+                   "wrong NR_CGI->ran_param_val.flag_false type");
+            pci = copy_ba_to_str(&nr_cgi->ran_param_val.flag_false->bit_str_ran);
+//            } else {
+//                assert(cell->ran_param_id == E_ULTRA_Cell_8_4_4_1 && "wrong id");
+//                assert(cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong e_ultra_cell type");
+//                assert(cell->ran_param_val.strct != NULL && "NULL e_ultra_cell->ran_param_val.strct");
+//                assert(cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
+//                       "wrong e_ultra_cell->ran_param_val.strct->sz_ran_param_struct");
+//                assert(cell->ran_param_val.strct->ran_param_struct != NULL &&
+//                       "NULL e_ultra_cell->ran_param_val.strct->ran_param_struct");
+//
+//                seq_ran_param_t *e_ultra_cgi = &cell->ran_param_val.strct->ran_param_struct[0];
+//                assert(e_ultra_cgi->ran_param_id == E_ULTRA_CGI_8_4_4_1 && "wrong E_ULTRA_CGI id");
+//                assert(e_ultra_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE &&
+//                       "wrong E_ULTRA_CGI type");
+//                assert(e_ultra_cgi->ran_param_val.flag_false != NULL && "NULL E_ULTRA_CGI->ran_param_val.flag_false");
+//                assert(e_ultra_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
+//                       "wrong E_ULTRA_CGI->ran_param_val.flag_false type");
+//                pci = copy_ba_to_str(&e_ultra_cgi->ran_param_val.flag_false->bit_str_ran);
+//            }
 
             int rc = snprintf(enc_gbuf,
                               sizeof(enc_gbuf),

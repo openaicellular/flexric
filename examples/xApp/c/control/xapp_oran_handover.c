@@ -39,6 +39,7 @@ static e2_node_arr_t nodes;
 bool stop_flag = false;
 bool triggerCondition = false;
 nr_cgi_t nr_cgi;
+uint64_t ran_ue_id;
 
 static void sigint_handler(int sig)
 {
@@ -193,7 +194,7 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over()
     amr_ran_ue_id->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
     assert(amr_ran_ue_id->ran_param_val.flag_false != NULL && "Memory exhausted");
     amr_ran_ue_id->ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-    amr_ran_ue_id->ran_param_val.flag_false->int_ran = 11; // TODO: Fix this number
+    amr_ran_ue_id->ran_param_val.flag_false->int_ran = ran_ue_id; // TODO: Fix this number
 
     gen_target_primary_cell_id(&dst.ran_param[1]);
     // TODO: List of PDU sessions for handover
@@ -347,48 +348,31 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node){
         #else
                 static_assert(0!=0, "Unknown KPM version");
         #endif
-        if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE) {
-            kpm_ind_msg_format_1_t const* msg_frm_1 = &kpm->msg.frm_1;
-            for (size_t i = 0; i < msg_frm_1->meas_data_lst_len; i++) {
-                const char* name = copy_ba_to_str(&msg_frm_1->meas_info_lst[i].meas_type.name);
-                printf("[kpm] info name %s \n", name);
-                for (size_t j = 0; j < msg_frm_1->meas_data_lst[i].meas_record_len; j++) {
-                    if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == INTEGER_MEAS_VALUE) {
-                        uint32_t val = msg_frm_1->meas_data_lst[i].meas_record_lst[j].int_val;
-                        printf("meas record INTEGER_MEAS_VALUE value %d\n", val);
-                        if (val > 100) {
-                            triggerCondition = true;
-                            nr_cgi.nr_cell_id = (uint64_t) val;
-                        } else if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == REAL_MEAS_VALUE)
-                            printf("meas record REAL_MEAS_VALUE value %f\n",
-                                   msg_frm_1->meas_data_lst[i].meas_record_lst[j].real_val);
-                        else
-                            printf("meas record NO_VALUE_MEAS_VALUE value\n");
-                    }
-                }
-            }
-        } else if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE){
+        if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE){
+            uint32_t main_pci = 0;
+            uint32_t neighbor_pci = 0;
             kpm_ind_msg_format_3_t const* msg_frm_3 = &kpm->msg.frm_3;
             for (size_t i = 0; i < msg_frm_3->ue_meas_report_lst_len; i++){
+
                 uint64_t id = *msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id;
-                printf("[KPM] KPM measurement report %zu with ran_ue_id %ld \n", i, id);
+                ran_ue_id = id;
                 kpm_ind_msg_format_1_t const* msg_frm_1 = &msg_frm_3->meas_report_per_ue[i].ind_msg_format_1;
-                for (size_t i = 0; i < msg_frm_1->meas_data_lst_len; i++) {
-                    for (size_t j = 0; j < msg_frm_1->meas_data_lst[i].meas_record_len; j++) {
-                        if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == INTEGER_MEAS_VALUE) {
-                            uint32_t val = msg_frm_1->meas_data_lst[i].meas_record_lst[j].int_val;
-                            printf("meas record INTEGER_MEAS_VALUE value %d\n", val);
-                            if (val > 100) {
-                                triggerCondition = true;
+                for (size_t j = 0; j < msg_frm_1->meas_data_lst_len; j++) {
+                    // TODO: For some reason, it is extend the k values
+                    for (size_t k = 0; k < msg_frm_1->meas_data_lst[k].meas_record_len; ++k) {
+                        if (msg_frm_1->meas_data_lst[j].meas_record_lst[k].value == INTEGER_MEAS_VALUE) {
+                            uint32_t val = msg_frm_1->meas_data_lst[j].meas_record_lst[k].int_val;
+                            if (k == 1) {
                                 nr_cgi.nr_cell_id = (uint64_t) val;
-                            } else if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == REAL_MEAS_VALUE)
-                                printf("meas record REAL_MEAS_VALUE value %f\n",
-                                       msg_frm_1->meas_data_lst[i].meas_record_lst[j].real_val);
-                            else
-                                printf("meas record NO_VALUE_MEAS_VALUE value\n");
+                                neighbor_pci = val;
+                            }
+                            if(k == 0){
+                                main_pci = val;
+                            }
                         }
                     }
                 }
+                printf("[KPM] UE %zu in cell(PCI) %d - neighbor cell(PCI) %d\n", i, main_pci, neighbor_pci);
             }
         }
         counter++;
@@ -431,37 +415,29 @@ size_t send_sub_req(e2_node_connected_t* n, fr_args_t args, sm_ans_xapp_t *kpm_h
     return n_handle;
 }
 
-void *threadFunc(){
-    while(!stop_flag){
-        if (triggerCondition && nr_cgi.nr_cell_id != 0){
-            // RC Control
-            // CONTROL Service Style 3: Connected mode mobility control
-            // Action ID 1: Handover Control
-            // E2SM-RC Control Header Format 1
-            // E2SM-RC Control Message Format 1
+void start_control(){
+    // RC Control
+    // CONTROL Service Style 3: Connected mode mobility control
+    // Action ID 1: Handover Control
+    // E2SM-RC Control Header Format 1
+    // E2SM-RC Control Message Format 1
 
-            rc_ctrl_req_data_t rc_ctrl = {0};
-            ue_id_e2sm_t ue_id = gen_rc_ue_id(GNB_UE_ID_E2SM);
+    rc_ctrl_req_data_t rc_ctrl = {0};
+    ue_id_e2sm_t ue_id = gen_rc_ue_id(GNB_UE_ID_E2SM);
 
-            rc_ctrl.hdr = gen_rc_ctrl_hdr(FORMAT_1_E2SM_RC_CTRL_HDR, ue_id, 3, Handover_control_7_6_4_1);
-            rc_ctrl.msg = gen_rc_ctrl_msg(FORMAT_1_E2SM_RC_CTRL_MSG);
+    rc_ctrl.hdr = gen_rc_ctrl_hdr(FORMAT_1_E2SM_RC_CTRL_HDR, ue_id, 3, Handover_control_7_6_4_1);
+    rc_ctrl.msg = gen_rc_ctrl_msg(FORMAT_1_E2SM_RC_CTRL_MSG);
 
-            int64_t st = time_now_us();
-            for(size_t i =0; i < nodes.len; ++i){
-                // TODO: Find a way to send nr_cgi and e_ultra_cgi
-                control_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_ctrl);
-            }
-            printf("[xApp]: Control Loop Latency: %ld us\n", time_now_us() - st);
-            free_rc_ctrl_req_data(&rc_ctrl);
-
-            triggerCondition = false;
-            nr_cgi.nr_cell_id = 0;
-        }
+    int64_t st = time_now_us();
+    for(size_t i =0; i < nodes.len; ++i){
+        // TODO: Find a way to send nr_cgi and e_ultra_cgi
+        control_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_ctrl);
     }
+    printf("[xApp]: Control Loop Latency: %ld us\n", time_now_us() - st);
+    free_rc_ctrl_req_data(&rc_ctrl);
 }
 
 int main(int argc, char *argv[]){
-    pthread_t threadCtrl;
     fr_args_t args = init_fr_args(argc, argv);
     defer({ free_fr_args(&args); });
 
@@ -476,10 +452,6 @@ int main(int argc, char *argv[]){
     assert(nodes.len > 0);
     defer({free_e2_node_arr(&nodes);});
     printf("Connected E2 nodes = %d\n", nodes.len);
-
-    int rc_ctrl = pthread_create(&threadCtrl, NULL, threadFunc, NULL);
-    int rc = pthread_mutex_init(&mtx, NULL);
-    assert(rc == 0 && rc_ctrl == 0);
 
     int max_handle = 256;
     sm_ans_xapp_t *kpm_handle = NULL;
@@ -498,7 +470,12 @@ int main(int argc, char *argv[]){
     }
 
     sleep(5);
-    printf("CTRL+C detect\n");
+
+    start_control();
+
+    sleep(5);
+
+    // End the xApp
     for(size_t i = 0; i < n_handle; ++i){
         rm_report_sm_xapp_api(kpm_handle[i].u.handle);
     }
@@ -508,10 +485,6 @@ int main(int argc, char *argv[]){
     //Stop the xApp
     while(try_stop_xapp_api() == false)
         usleep(1000);
-
-    stop_flag = true;
-    int rc_end = pthread_join(threadCtrl, NULL);
-    assert(rc_end == 0);
 
     printf("Test xApp run SUCCESSFULLY\n");
 }
