@@ -30,7 +30,7 @@ ran_function_t cp_ran_function(const ran_function_t* src)
 {
   assert(src != NULL);
   ran_function_t dst = {.id = src->id, .rev = src->rev }; 
-  dst.def = copy_byte_array(src->def);
+  dst.defn = copy_byte_array(src->defn);
   dst.oid = copy_byte_array(src->oid);
   return dst;
 }
@@ -38,7 +38,7 @@ ran_function_t cp_ran_function(const ran_function_t* src)
 void free_ran_function(ran_function_t* src)
 {
   assert(src != NULL);
-  free_byte_array(src->def);
+  free_byte_array(src->defn);
   free_byte_array(src->oid);
 }
 
@@ -57,7 +57,7 @@ bool eq_ran_function(const ran_function_t* m0, const ran_function_t* m1)
   if(m0 == NULL || m1 == NULL)
     return false;
 
-  if(eq_byte_array(&m0->def, &m1->def) == false)
+  if(eq_byte_array(&m0->defn, &m1->defn) == false)
     return false;
 
   if(m0->id != m1->id)

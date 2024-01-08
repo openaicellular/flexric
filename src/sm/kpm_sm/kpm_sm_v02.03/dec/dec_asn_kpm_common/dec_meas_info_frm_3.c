@@ -21,7 +21,7 @@ meas_info_format_3_lst_t * kpm_dec_meas_info_cond_asn(const MeasurementCondList_
         case MeasurementType_PR_measName:
         {
             meas_info_cond[i].meas_type.type = NAME_MEAS_TYPE;
-            meas_info_cond[i].meas_type.name.buf = calloc(meas_type_asn->choice.measName.size + 1, sizeof(char));
+            meas_info_cond[i].meas_type.name.buf = calloc(meas_type_asn->choice.measName.size + 1, sizeof(uint8_t));
             assert(meas_info_cond[i].meas_type.name.buf != NULL && "Memory exhausted");
             memcpy(meas_info_cond[i].meas_type.name.buf, meas_type_asn->choice.measName.buf, meas_type_asn->choice.measName.size);
             meas_info_cond[i].meas_type.name.len = meas_type_asn->choice.measName.size;
@@ -50,11 +50,14 @@ meas_info_format_3_lst_t * kpm_dec_meas_info_cond_asn(const MeasurementCondList_
             meas_info_cond[i].matching_cond_lst[j] = kpm_dec_matching_cond_asn(meas_info_cond_asn->list.array[i]->matchingCond.list.array[j]);
         }
 
-        // Bin Range Definition
-        // not yet implemented in ASN.1 - possible extension
-        meas_info_cond[i].bin_range_def = calloc(1, sizeof(bin_range_def_t));
-        assert(meas_info_cond[i].bin_range_def != NULL && "Memory exhausted");
-        *meas_info_cond[i].bin_range_def = kpm_dec_bin_range_def(meas_info_cond_asn->list.array[i]->binRangeDef);
+        if(meas_info_cond_asn->list.array[i]->binRangeDef != NULL){
+          // Bin Range Definition
+          // not yet implemented in ASN.1 - possible extension
+          meas_info_cond[i].bin_range_def = calloc(1, sizeof(bin_range_def_t));
+          assert(meas_info_cond[i].bin_range_def != NULL && "Memory exhausted");
+          *meas_info_cond[i].bin_range_def = kpm_dec_bin_range_def(meas_info_cond_asn->list.array[i]->binRangeDef);
+        }
+
     }
 
     return meas_info_cond;

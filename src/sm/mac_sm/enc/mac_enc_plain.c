@@ -57,9 +57,9 @@ byte_array_t mac_enc_ind_hdr_plain(mac_ind_hdr_t const* ind_hdr)
   byte_array_t ba = {0};
 
   ba.len = sizeof(mac_ind_hdr_t);
-  ba.buf = malloc(sizeof(mac_ind_msg_t));
+  ba.buf = calloc(ba.len,  sizeof(uint8_t));
   assert(ba.buf != NULL && "memory exhausted");
-  memcpy(ba.buf, ind_hdr, sizeof(mac_ind_hdr_t));
+  memcpy(ba.buf, ind_hdr, ba.len);
 
   return ba;
 }
@@ -106,12 +106,12 @@ byte_array_t mac_enc_ctrl_hdr_plain(mac_ctrl_hdr_t const* ctrl_hdr)
 {
   assert(ctrl_hdr != NULL);
   byte_array_t  ba = {0};
-  ba.buf = malloc(sizeof(mac_ind_msg_t)); 
+  ba.len = sizeof(mac_ctrl_hdr_t);
+  ba.buf = calloc(ba.len ,sizeof(uint8_t));
   assert(ba.buf != NULL);
 
-  memcpy(ba.buf, ctrl_hdr, sizeof(mac_ctrl_hdr_t));
+  memcpy(ba.buf, ctrl_hdr, ba.len);
 
-  ba.len = sizeof(mac_ctrl_hdr_t);
   return ba;
 }
 
@@ -134,7 +134,7 @@ byte_array_t mac_enc_ctrl_msg_plain(mac_ctrl_msg_t const* ctrl_msg)
   assert(ptr == ba.buf + sz && "Data layout mismacth");
 
   ba.len = sz;
-  
+
   return ba;
 }
 

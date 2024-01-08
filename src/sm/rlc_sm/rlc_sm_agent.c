@@ -68,40 +68,41 @@ subscribe_timer_t on_subscription_rlc_sm_ag(sm_agent_t const* sm_agent, const sm
 }
 
 static
-sm_ind_data_t on_indication_rlc_sm_ag(sm_agent_t const* sm_agent,void* act_def)
+exp_ind_data_t on_indication_rlc_sm_ag(sm_agent_t const* sm_agent,void* act_def)
 {
 //  printf("on_indication RLC called \n");
   assert(sm_agent != NULL);
   assert(act_def == NULL && "Action Definition data not needed for this SM");
   sm_rlc_agent_t* sm = (sm_rlc_agent_t*)sm_agent;
 
-  sm_ind_data_t ret = {0};
+  exp_ind_data_t ret = {.has_value = true};
 
   // Fill Indication Header
   rlc_ind_hdr_t hdr = {.dummy = 0 };
   byte_array_t ba_hdr = rlc_enc_ind_hdr(&sm->enc, &hdr );
-  ret.ind_hdr = ba_hdr.buf;
-  ret.len_hdr = ba_hdr.len;
+  ret.data.ind_hdr = ba_hdr.buf;
+  ret.data.len_hdr = ba_hdr.len;
 
   // Fill Indication Message 
   //sm_ag_if_rd_t rd_if = {.type = INDICATION_MSG_AGENT_IF_ANS_V0};
   //rd_if.ind.type = RLC_STATS_V0;
 
   rlc_ind_data_t rlc = {0};
-  sm->base.io.read_ind(&rlc);
-
-  // Liberate the memory if previously allocated by the RAN. It sucks
+ // Liberate the memory if previously allocated by the RAN. It sucks
   defer({ free_rlc_ind_hdr(&rlc.hdr) ;});
   defer({ free_rlc_ind_msg(&rlc.msg) ;});
   defer({ free_rlc_call_proc_id(rlc.proc_id);});
 
+  if(sm->base.io.read_ind(&rlc) == false)
+    return (exp_ind_data_t){.has_value = false};
+
   byte_array_t ba = rlc_enc_ind_msg(&sm->enc, &rlc.msg);
-  ret.ind_msg = ba.buf;
-  ret.len_msg = ba.len;
+  ret.data.ind_msg = ba.buf;
+  ret.data.len_msg = ba.len;
 
   // Fill Call Process ID
-  ret.call_process_id = NULL;
-  ret.len_cpid = 0;
+  ret.data.call_process_id = NULL;
+  ret.data.len_cpid = 0;
 
   return ret;
 }

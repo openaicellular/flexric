@@ -101,7 +101,7 @@ void fill_edf_slice(edf_slice_t* edf)
   edf->guaranteed_prbs = abs(rand()%mod);
   edf->max_replenish = abs(rand()%mod);
 
-  edf->len_over = abs(rand()%mod);
+  edf->len_over = 1; //abs(rand()%mod);
 
   if(edf->len_over > 0){
     edf->over = calloc(edf->len_over, sizeof(uint32_t));

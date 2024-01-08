@@ -27,7 +27,7 @@
 #include "agent_if/ans/sm_ag_if_ans.h"
 
 // Read
-typedef void (*read_ind_fp)(void* data);
+typedef bool (*read_ind_fp)(void* data);
 typedef void (*read_e2_setup_fp)(void* data);
 typedef void (*read_rsu_fp)(void* data);
 

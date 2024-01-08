@@ -21,7 +21,7 @@ extern "C" {
 
 /* E42updateE2node */
 typedef struct E42updateE2node {
-	ProtocolIE_Container_1491P17_t	 protocolIEs;
+	ProtocolIE_Container_1492P17_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

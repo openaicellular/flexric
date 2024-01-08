@@ -26,11 +26,11 @@
 #define MAX_NUM_CUST_SM 6
 #define MAX_NUM_ORAN_SM 8 // consider diff ran type
 
-struct RanFunction{
-  byte_array_t def;
+struct swig_ran_function_t {
+  byte_array_t defn;
   uint16_t id;
   uint16_t rev;
-  // TODO: std::vector<byte_array_t> oid; // optional
+  byte_array_t oid; // optional
 };
 
 struct swig_global_e2_node_id_t {
@@ -42,7 +42,7 @@ struct swig_global_e2_node_id_t {
 
 struct E2Node {
   swig_global_e2_node_id_t id;
-  std::vector<RanFunction> ran_func;
+  std::vector<swig_ran_function_t> ran_func;
 };
 
 typedef struct {

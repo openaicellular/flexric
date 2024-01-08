@@ -329,6 +329,7 @@ L7_filter_t cp_L7_filter(L7_filter_t const* flt)
 {
   assert(flt != NULL);
   assert(0!=0 && "not implemented");
+  return (L7_filter_t){0};
 }
 
 bool eq_tc_cls_osi_filter(tc_cls_osi_filter_t const* m0, tc_cls_osi_filter_t const* m1)

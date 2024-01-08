@@ -37,7 +37,7 @@ static
 const uint16_t SM_RC_REV = 1; 
 
 __attribute__((unused)) static
-const char SM_RAN_CTRL_SHORT_NAME[] = "ORAN-E2SM-RC";
+const char SM_RAN_CTRL_SHORT_NAME[] = "ORAN-E2SM-RC-v01.0";
 
 //iso(1) identified-organization(3)
 //dod(6) internet(1) private(4)

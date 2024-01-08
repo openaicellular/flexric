@@ -43,8 +43,10 @@ bool eq_e2sm_rc_act_def_frmt_4(e2sm_rc_act_def_frmt_4_t const* m0, e2sm_rc_act_d
     return false;
 
   for(size_t i = 0; i < m0->sz_seq_ins_style; ++i){
-    if(eq_seq_ins_style(&m0->seq_ins_style[i], &m1->seq_ins_style[i] ) == false)
+    if(eq_seq_ins_style(&m0->seq_ins_style[i], &m1->seq_ins_style[i] ) == false){
+      assert(0 != 0 && "Debug");
       return false;
+    }
   }
 
   // UE ID

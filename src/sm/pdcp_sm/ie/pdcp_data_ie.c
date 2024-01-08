@@ -195,9 +195,10 @@ pdcp_ind_msg_t cp_pdcp_ind_msg(pdcp_ind_msg_t const* src)
   if(dst.len > 0){
     dst.rb = calloc(dst.len, sizeof(*dst.rb) );
     assert(dst.rb != NULL && "Memory exhausted"); 
+
+    memcpy(dst.rb, src->rb, sizeof(*dst.rb)*src->len);
   }
 
-  memcpy(dst.rb, src->rb, sizeof(*dst.rb)*src->len);
   return dst;
 }
 

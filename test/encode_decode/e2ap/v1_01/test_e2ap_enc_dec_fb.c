@@ -271,15 +271,15 @@ void test_control_request_failure()
 void test_setup_request()
 {
   const plmn_t plmn = {.mcc = 10, .mnc = 15, .mnc_digit_len = 2};
-  const global_e2_node_id_t ge2ni = {.type = e2ap_ngran_gNB, .plmn = plmn, .nb_id = 5555};
+  const global_e2_node_id_t ge2ni = {.type = ngran_gNB, .plmn = plmn, .nb_id = 5555};
   const char* func_def = "PDCP_stats";
   const size_t len_rf = 1;
   ran_function_t r[len_rf];
   memset(&r, 0, sizeof(r));
   r[0].id = 1;
   r[0].rev = 0;
-  r[0].definition.buf = (uint8_t*) func_def;
-  r[0].definition.len = strlen(func_def);
+  r[0].def.buf = (uint8_t*) func_def;
+  r[0].def.len = strlen(func_def);
 
   e2_setup_request_t sr_begin = {
     .id = ge2ni,

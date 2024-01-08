@@ -46,6 +46,8 @@ global_e2_node_id_t cp_global_e2_node_id(global_e2_node_id_t const* src);
 
 void free_global_e2_node_id(global_e2_node_id_t* src);
 
+void free_global_e2_node_id_wrapper(void* src);
+
 bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id_t* m1); 
 
 bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id_t* m1);

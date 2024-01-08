@@ -44,7 +44,7 @@ typedef struct
   assoc_rb_tree_t sm_ds; // key: ran_func_id, value: sm_agent_t* 
   pthread_mutex_t sm_ds_mtx;
 
-  int sockfd;
+//  int sockfd;
   pthread_t thread_rx;
 
   atomic_bool flag_shutdown;

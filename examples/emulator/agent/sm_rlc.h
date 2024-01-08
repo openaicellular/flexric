@@ -3,7 +3,11 @@
 
 #include "../../../src/agent/e2_agent_api.h"
 
-void read_rlc_sm(void*);
+void init_rlc_sm(void);
+
+void free_rlc_sm(void);
+
+bool read_rlc_sm(void*);
 
 void read_rlc_setup_sm(void* data);
 

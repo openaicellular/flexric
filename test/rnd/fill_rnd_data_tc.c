@@ -45,7 +45,7 @@ void fill_tc_sch(tc_sch_t* sch)
 //    sch->rr = ;
   } else if(sch->type == TC_SCHED_PRIO){
     sch->prio.len_q_prio = rand()%2;
-    sch->prio.q_prio = calloc(sch->prio.len_q_prio, sizeof(sch->prio.q_prio) ); 
+    sch->prio.q_prio = calloc(sch->prio.len_q_prio, sizeof(*sch->prio.q_prio) ); 
     assert(sch->prio.q_prio != NULL && "Memory exhausted");
     for(size_t i = 0; i < sch->prio.len_q_prio; ++i){
       sch->prio.q_prio[i] = rand()%16;

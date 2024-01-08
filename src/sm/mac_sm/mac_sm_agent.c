@@ -69,41 +69,43 @@ subscribe_timer_t on_subscription_mac_sm_ag(sm_agent_t const* sm_agent, const sm
 }
 
 static
-sm_ind_data_t on_indication_mac_sm_ag(sm_agent_t const* sm_agent, void* act_def)
+exp_ind_data_t on_indication_mac_sm_ag(sm_agent_t const* sm_agent, void* act_def)
 {
   //printf("on_indication called \n");
   assert(sm_agent != NULL);
   assert(act_def == NULL && "Action definition data not needed for this SM");
   sm_mac_agent_t* sm = (sm_mac_agent_t*)sm_agent;
 
-  sm_ind_data_t ret = {0};
+  exp_ind_data_t ret = {.has_value = true};
 
   // Fill Indication Header
   mac_ind_hdr_t hdr = {.dummy = 0 };
   byte_array_t ba_hdr = mac_enc_ind_hdr(&sm->enc, &hdr);
-  ret.ind_hdr = ba_hdr.buf;
-  ret.len_hdr = ba_hdr.len;
+  ret.data.ind_hdr = ba_hdr.buf;
+  ret.data.len_hdr = ba_hdr.len;
 
   // Fill Indication Message 
   //sm_ag_if_rd_t rd_if = {.type = INDICATION_MSG_AGENT_IF_ANS_V0};
   //rd_if.ind.type = MAC_STATS_V0;
 
   mac_ind_data_t mac = {0};
-  // This may allocate memory by the RAN
-  sm->base.io.read_ind(&mac);
-  // Liberate the memory if previously allocated by the RAN. It sucks. Profoundly
+ // Liberate the memory if previously allocated by the RAN. It sucks. Profoundly
   //  defer({ free_sm_rd_if(&rd_if); }; );
   defer({ free_mac_ind_hdr(&mac.hdr) ;});
   defer({ free_mac_ind_msg(&mac.msg) ;});
   defer({ free_mac_call_proc_id(mac.proc_id);});
 
+  // This may allocate memory by the RAN
+  if(sm->base.io.read_ind(&mac) == false)
+    return (exp_ind_data_t){.has_value = false};
+
   byte_array_t ba = mac_enc_ind_msg(&sm->enc, &mac.msg);
-  ret.ind_msg = ba.buf;
-  ret.len_msg = ba.len;
+  ret.data.ind_msg = ba.buf;
+  ret.data.len_msg = ba.len;
 
   // Fill the optional Call Process ID
-  ret.call_process_id = NULL;
-  ret.len_cpid = 0;
+  ret.data.call_process_id = NULL;
+  ret.data.len_cpid = 0;
 
   return ret;
 }
@@ -169,7 +171,7 @@ sm_e2_setup_data_t on_e2_setup_mac_sm_ag(sm_agent_t const* sm_agent)
   assert(setup.ran_fun_def != NULL);
 
   memcpy(setup.ran_fun_def, SM_MAC_STR , sz);
- 
+
   /*
   setup.len_rfd = strlen(sm->base.ran_func_name);
   setup.ran_fun_def = calloc(1, strlen(sm->base.ran_func_name));
@@ -177,7 +179,7 @@ sm_e2_setup_data_t on_e2_setup_mac_sm_ag(sm_agent_t const* sm_agent)
   memcpy(setup.ran_fun_def, sm->base.ran_func_name, strlen(sm->base.ran_func_name));
 
   // RAN Function
-  setup.rf.definition = cp_str_to_ba(SM_MAC_SHORT_NAME);
+  setup.rf.def = cp_str_to_ba(SM_MAC_SHORT_NAME);
   setup.rf.id = SM_MAC_ID;
   setup.rf.rev = SM_MAC_REV;
 
@@ -223,7 +225,7 @@ char const* def_mac_sm_ag(void)
 static
 uint16_t id_mac_sm_ag(void)
 {
-  return SM_MAC_ID; 
+  return SM_MAC_ID;
 }
 
   // Revision
@@ -274,7 +276,7 @@ sm_agent_t* make_mac_sm_agent(sm_io_ag_ran_t io)
 
 
 
-  //*(uint16_t*)(&sm->base.ran_func_id) = SM_MAC_ID; 
+  //*(uint16_t*)(&sm->base.ran_func_id) = SM_MAC_ID;
   //assert(strlen( SM_MAC_STR ) < sizeof(sm->base.ran_func_name));
   //memcpy(sm->base.ran_func_name, SM_MAC_STR, strlen(SM_MAC_STR));
 

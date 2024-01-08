@@ -404,7 +404,7 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       lwsl_info("[RAN - WS] It is time to ask for indication from the RAN (subscription to a %d ms frequency)\n", 
                 ran_p->io->priv_data->indication_polling_ms);
       
-      ind_event_t *ev = bi_map_extract_left(&ran_p->ind_event, &loop_io_userds->indication_sm_id, sizeof(loop_io_userds->indication_sm_id));
+      ind_event_t *ev = bi_map_extract_left(&ran_p->ind_event, &loop_io_userds->indication_sm_id, sizeof(loop_io_userds->indication_sm_id), NULL);
       assert ( ev != NULL && "missing indication event from the bi_map: should not happen\n");
       
       ran_io_rmtimer(loop_io_userds->indication_sm_id);

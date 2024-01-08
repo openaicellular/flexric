@@ -99,6 +99,7 @@ typedef struct e42_xapp_s
   db_xapp_t db;
   #endif
 
+  pthread_mutex_t conn_mtx;
   atomic_bool connected;
   atomic_bool stopped;
   atomic_bool stop_token;

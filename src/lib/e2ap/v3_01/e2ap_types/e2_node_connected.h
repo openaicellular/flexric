@@ -24,12 +24,17 @@
 #define E2_NODE_CONNECTED 
 
 #include "common/e2ap_global_node_id.h"
+#include "common/e2ap_node_component_config_add.h"
 #include "common/e2ap_ran_function.h"
 
 #include <stdbool.h>
 
 typedef struct{
   global_e2_node_id_t id;
+
+  // [1-256]
+  uint8_t len_cca; // one less than in the standard, but should be OK
+  e2ap_node_component_config_add_t* cca;
 
   size_t len_rf;
   ran_function_t* ack_rf;

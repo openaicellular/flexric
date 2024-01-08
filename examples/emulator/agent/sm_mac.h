@@ -3,7 +3,11 @@
 
 #include "../../../src/agent/e2_agent_api.h"
 
-void read_mac_sm(void*);
+void init_mac_sm(void);
+
+void free_mac_sm(void);
+
+bool read_mac_sm(void*);
 
 void read_mac_setup_sm(void*);
 

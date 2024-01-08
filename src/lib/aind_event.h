@@ -33,5 +33,11 @@ typedef struct{
   void* ind_data;
 } aind_event_t;
 
+typedef struct{
+  size_t len;
+  aind_event_t* arr;
+} arr_aind_event_t;
+
+
 #endif
 

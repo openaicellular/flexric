@@ -21,7 +21,7 @@ extern "C" {
 
 /* E2nodeConnected-List */
 typedef struct E2nodeConnected_List {
-	ProtocolIE_Container_1491P28_t	 protocolIEs;
+	ProtocolIE_Container_1492P28_t	 protocolIEs;
 	
 	/* Context for parsing across buffer boundaries */
 	asn_struct_ctx_t _asn_ctx;

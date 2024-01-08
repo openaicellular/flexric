@@ -6,8 +6,9 @@
 
 bin_range_def_t kpm_dec_bin_range_def(const BinRangeDefinition_t * bin_range_def_asn)
 {
-  bin_range_def_t bin_range_def = {0};
+  assert(bin_range_def_asn != NULL);
 
+  bin_range_def_t bin_range_def = {0};
 
   // Bin X
   bin_range_def.bin_x_lst_len = bin_range_def_asn->binRangeListX.list.count;

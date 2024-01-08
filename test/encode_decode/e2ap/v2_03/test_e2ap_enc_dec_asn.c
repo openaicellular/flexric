@@ -24,9 +24,11 @@
 
 #include <E2AP-PDU.h>
 
+#include "../../../rnd/fill_rnd_data_e2_setup_req.h"
 #include "../src/lib/e2ap/e2ap_msg_enc_generic_wrapper.h"
 #include "../src/lib/e2ap/e2ap_msg_dec_generic_wrapper.h"
 #include "../src/lib/e2ap/e2ap_msg_free_wrapper.h"
+
 
 static
 byte_array_t copy_str_to_ba(const char* str)
@@ -178,11 +180,12 @@ void test_subscription_failure()
     .ric_inst_id = 2,
     .ran_func_id = 12};
 
-
   ric_action_not_admitted_t* na = calloc(1,sizeof(ric_action_not_admitted_t)); 
   na->ric_act_id = 2;
   na->cause.present = CAUSE_PROTOCOL;
   na->cause.protocol = CAUSE_PROTOCOL_SEMANTIC_ERROR;	
+  assert(0!=0 && "Memory leak! ");
+
 
   criticality_diagnostics_t* crit_diag = NULL; 
 
@@ -192,6 +195,7 @@ void test_subscription_failure()
     .ric_id = ric_id,
     .cause = cause,
     .crit_diag = crit_diag, // optional
+     //
   };
 
   E2AP_PDU_t* pdu = e2ap_enc_subscription_failure_asn_pdu(&sf_begin);   
@@ -481,7 +485,7 @@ void test_setup_request()
   ran_func_item[0].rev = 0;
 
   const char def[] = "This is the possible definition";
-  ran_func_item[0].def = copy_str_to_ba(def);
+  ran_func_item[0].defn = copy_str_to_ba(def);
 
   const char oid[] = "1.3.6.1.4.1.53148.1.3.2.2";
   ran_func_item[0].oid = copy_str_to_ba(oid);
@@ -605,7 +609,7 @@ void test_setup_failure()
 {
   cause_t cause = {.present = CAUSE_RICREQUEST, .ricRequest = CAUSE_RIC_RAN_FUNCTION_ID_INVALID};
 
-//  e2ap_time_to_wait_e* time_to_wait_ms = NULL;
+  //  e2ap_time_to_wait_e* time_to_wait_ms = NULL;
   e2ap_time_to_wait_e* time_to_wait_ms = calloc(1, sizeof(e2ap_time_to_wait_e)); 
   *time_to_wait_ms = TIMETOWAIT_V1S; 
 
@@ -616,23 +620,26 @@ void test_setup_failure()
   memcpy(tl_info->address.buf, addr, strlen(addr) );
   tl_info->address.len = strlen(addr); 
   tl_info->port = calloc(1,sizeof(byte_array_t));
-  const char* port = "1010";
+  const char* port = "10";
   tl_info->port->buf = malloc(strlen(port));
   memcpy(tl_info->port->buf, port, strlen(port));
   tl_info->port->len = strlen(port);  
 
   e2_setup_failure_t sf_begin = {
-  .cause = cause,
-  .time_to_wait_ms = time_to_wait_ms,            // optional
-  .crit_diag = crit_diag, // optional
-  .tl_info = tl_info, // optional
-};
+    .cause = cause,
+    .time_to_wait_ms = time_to_wait_ms,            // optional
+    .crit_diag = crit_diag, // optional
+    .tl_info = tl_info, // optional
+  };
 
-  E2AP_PDU_t* pdu = e2ap_enc_setup_failure_asn_pdu(&sf_begin);
+  byte_array_t ba = e2ap_enc_setup_failure_asn(&sf_begin);
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
   e2ap_msg_t msg = e2ap_dec_setup_failure(pdu);
-  free_pdu(pdu); 
-  assert(msg.type == E2_SETUP_FAILURE); 
-  e2_setup_failure_t* sf_end  = &msg.u_msgs.e2_stp_fail;
+  free_pdu(pdu);
+
+  assert(msg.type == E2_SETUP_FAILURE);
+  e2_setup_failure_t* sf_end = &msg.u_msgs.e2_stp_fail;
 
   assert(eq_e2_setup_failure(&sf_begin, sf_end) == true);
   e2ap_free_setup_failure(&sf_begin);
@@ -686,7 +693,7 @@ void test_service_update()
   ran_function_t* added = calloc(len_added, sizeof(ran_function_t ));
   added->id = 42;
   added->rev = 0;
-  added->def = ba;
+  added->defn = ba;
 
   ran_function_t* modified = NULL;
   const size_t len_modified = 0;
@@ -716,7 +723,7 @@ void test_service_update()
 void test_service_update_ack()
 {
   const size_t len_accepted = 1;
-  ran_function_id_t* accepted = calloc(len_accepted, sizeof(ran_function_t));
+  ran_function_id_t* accepted = calloc(len_accepted, sizeof(ran_function_id_t));
   accepted->id = 3;
   accepted->rev = 0;
 
@@ -837,10 +844,10 @@ void fill_ran_function(ran_function_t* rf)
   const char* def = "Definition";
   size_t const sz = strlen(def);
 
-  rf->def.len = sz;
-  rf->def.buf = malloc(sz);
-  assert(rf->def.buf != NULL && "Memory exhauested"); 
-  memcpy(rf->def.buf, def, sz);
+  rf->defn.len = sz;
+  rf->defn.buf = malloc(sz);
+  assert(rf->defn.buf != NULL && "Memory exhauested");
+  memcpy(rf->defn.buf, def, sz);
 
   rf->id = rand()%1024;  
   rf->rev = rand()%8; 
@@ -893,7 +900,6 @@ void test_e42_setup_request()
   e2ap_free_e42_setup_request(sr_end);
 }
 
-
 void test_e42_setup_response()
 {
   time_t t;
@@ -920,6 +926,7 @@ void test_e42_setup_response()
     .len_e2_nodes_conn = (rand()%4)+1,
   };
 
+
   if(sr_begin.len_e2_nodes_conn > 0 ){
     sr_begin.nodes = calloc(sr_begin.len_e2_nodes_conn, sizeof( e2_node_connected_t ) );
     assert(sr_begin.nodes != NULL && "Memory exhausted");
@@ -928,6 +935,13 @@ void test_e42_setup_response()
   for(size_t i = 0; i < sr_begin.len_e2_nodes_conn; ++i){
     e2_node_connected_t* n = &sr_begin.nodes[i];
     n->id = id; 
+
+    n->len_cca = 1;
+    n->cca = calloc(1, sizeof(e2ap_node_component_config_add_t));
+    assert(n->cca != NULL && "Memory exhausted");
+    for(size_t j = 0; j < n->len_cca; ++j){
+      n->cca[0] = fill_ngap_e2ap_node_component_config_add();
+    }
 
     uint32_t const r = (rand()%8) + 1;
 
@@ -1139,8 +1153,8 @@ int main()
    
     test_setup_request();
     test_setup_response();
+    test_setup_failure();
 
-    //test_setup_failure();
     //test_reset_request(); 
     //test_reset_response();
     //test_service_update();

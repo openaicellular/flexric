@@ -1150,7 +1150,38 @@ void to_mysql_string_kpm_hdr(global_e2_node_id_t const* id,
   const char* sender_name_str = hdr.sender_name ? (char*)hdr.sender_name->buf : "NULL";
   const char* sender_type_str = hdr.sender_type ? (char*)hdr.sender_type->buf : "NULL";
   const char* vendor_name_str = hdr.vendor_name ? (char*)hdr.vendor_name->buf : "NULL";
-
+#if defined(KPM_V2_01) || defined (KPM_V2_03)
+  int const rc = snprintf(out, max,
+                           "("
+                           "%lu,"   //tstamp
+                           "%d,"    //ngran_node
+                           "%d,"    //mcc
+                           "%d,"    //mnc
+                           "%d,"    //mnc_digit_len
+                           "%d,"    //nb_id
+                           "'%s',"  //cu_du_id
+                           "%d,"    //format
+                           "%u,"   // collectStartTime
+                           "'%s',"  // fileformat_version
+                           "'%s',"  // sender_name
+                           "'%s',"  // sender_type
+                           "'%s'"   // vendor_name
+                           ")"
+                          ,timestamp
+                          ,id->type
+                          ,id->plmn.mcc
+                          ,id->plmn.mnc
+                          ,id->plmn.mnc_digit_len
+                          ,id->nb_id.nb_id
+                          ,id->cu_du_id ? c_cu_du_id : c_null
+                          ,format + 1
+                          ,hdr.collectStartTime
+                          ,fileformat_version_str
+                          ,sender_name_str
+                          ,sender_type_str
+                          ,vendor_name_str
+                          );
+#elif defined(KPM_V3_00)
   int const rc = snprintf(out, max,
                            "("
                            "%lu,"   //tstamp
@@ -1181,6 +1212,7 @@ void to_mysql_string_kpm_hdr(global_e2_node_id_t const* id,
                           ,sender_type_str
                           ,vendor_name_str
                           );
+#endif
   assert(rc < (int)max && "Not enough space in the char array to write all the data");
   return;
 }
@@ -1420,7 +1452,7 @@ void to_mysql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             "%d,"    //plmn_id_mnc
                             "%d,"    //plmn_id_mnc_digit_len
                             "%d,"    //sliceID_sST
-                            "'%s',"  //sliceID_sD
+                            "%d,"  //sliceID_sD
                             "%d,"    //fiveQI
                             "%d,"    //qFI
                             "%d,"    //qCI
@@ -1512,7 +1544,7 @@ void to_mysql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             "%d,"    //plmn_id_mnc
                             "%d,"    //plmn_id_mnc_digit_len
                             "%d,"    //sliceID_sST
-                            "'%s',"  //sliceID_sD
+                            "%d,"  //sliceID_sD
                             "%d,"    //fiveQI
                             "%d,"    //qFI
                             "%d,"    //qCI

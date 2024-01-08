@@ -294,7 +294,7 @@ void e2ap_free_setup_request(e2_setup_request_t* sr)
 
   for(size_t i = 0; i < sr->len_rf; ++i){
     ran_function_t* dst = &sr->ran_func_item[i];
-    free_byte_array(dst->def);
+    free_byte_array(dst->defn);
     free_ba_if_not_null(dst->oid);
   }
   free(sr->ran_func_item);
@@ -403,14 +403,14 @@ void e2ap_free_service_update(ric_service_update_t* su)
   assert(su != NULL);
   for(size_t i = 0; i < su->len_added; ++i){
     ran_function_t* dst = &su->added[i]; 
-    free_byte_array(dst->def);
+    free_byte_array(dst->defn);
     free_ba_if_not_null(dst->oid);
   }
   free(su->added);
 
   for(size_t i = 0; i < su->len_modified; ++i){
     ran_function_t* dst = &su->modified[i]; 
-    free_byte_array(dst->def);
+    free_byte_array(dst->defn);
     free_ba_if_not_null(dst->oid);
   }
   free(su->modified);
@@ -626,7 +626,7 @@ void e2ap_free_e42_setup_request(e42_setup_request_t* sr)
   assert(sr != NULL);
   for(size_t i = 0; i < sr->len_rf; ++i){
     ran_function_t* dst = &sr->ran_func_item[i];
-    free_byte_array(dst->def);
+    free_byte_array(dst->defn);
     free_ba_if_not_null(dst->oid);
   }
   free(sr->ran_func_item);

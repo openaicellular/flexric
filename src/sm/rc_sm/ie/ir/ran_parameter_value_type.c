@@ -86,6 +86,8 @@ ran_param_val_type_t cp_ran_param_val_type(ran_param_val_type_t const* src)
     assert(0!=0 && "Unknown type");
   }
 
+  assert( eq_ran_param_val_type(&dst, src) == true );
+
   return dst;
 }
 

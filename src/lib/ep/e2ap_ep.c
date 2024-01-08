@@ -33,8 +33,25 @@ void e2ap_ep_init(e2ap_ep_t* ep)
 void e2ap_ep_free(e2ap_ep_t* ep)
 {
   assert(ep != NULL);
-  int rc = pthread_mutex_destroy(&ep->mtx);
+
+  int rc = close(ep->fd);
   assert(rc == 0);
+
+  rc = pthread_mutex_destroy(&ep->mtx);
+  assert(rc == 0);
+
+//  rc = shutdown(ep->fd, SHUT_RDWR);
+//  if(rc != 0){
+//    printf("[Warning]: in shutdown socket: %s \n", strerror(errno));
+//  }
+
+
+//  struct linger lin;
+//unsigned int len =sizeof(lin);
+//lin.l_onoff=1;
+//lin.l_linger=10000;
+//setsockopt(ep->fd,SOL_SOCKET, SO_LINGER,&lin, len);
+
 }
 
 void e2ap_send_sctp_msg(const e2ap_ep_t* ep, sctp_msg_t* msg)
@@ -48,8 +65,13 @@ void e2ap_send_sctp_msg(const e2ap_ep_t* ep, sctp_msg_t* msg)
 
   lock_guard(&((e2ap_ep_t*)ep)->mtx);
 
-  const int rc = sctp_sendmsg(ep->fd, (void*)ba.buf, ba.len, (struct sockaddr *)addr, sizeof(*addr), sri->sinfo_ppid, sri->sinfo_flags, sri->sinfo_stream, 0, 0) ;
+  const int rc = sctp_sendmsg(
+      ep->fd, (void *)ba.buf, ba.len, (struct sockaddr *)addr, sizeof(*addr),
+      sri->sinfo_ppid, sri->sinfo_flags, sri->sinfo_stream, 0, 0);
   assert(rc != 0);
+  if(rc == -1){
+    printf("Error sending sctp message \n");
+  }
 }
 
 
@@ -70,23 +92,28 @@ struct sctp_assoc_change cp_sn_assoc_change( struct sctp_assoc_change const* src
 
   switch(src->sac_state) {
     case SCTP_COMM_UP:
-      assert(0 !=0 && "Not implemented");
+      printf(" SCTP_COMM_UP \n");
+      //assert(0 !=0 && "Not implemented");
       break;
 
     case SCTP_COMM_LOST:
-      assert(0 !=0 && "Not implemented");
+      printf(" SCTP_COMM_LOST \n");
+      //assert(0 !=0 && "Not implemented");
       break;
 
     case SCTP_RESTART:
-      assert(0 !=0 && "Not implemented");
+      printf(" SCTP_RESTART  \n");
+      //assert(0 !=0 && "Not implemented");
       break;
 
     case SCTP_SHUTDOWN_COMP:
-      assert(0 !=0 && "Not implemented");
+      printf("SCTP_SHUTDOWN_COMP \n");
+      //assert(0 !=0 && "Not implemented");
       break;
 
     case SCTP_CANT_STR_ASSOC:
-      assert(0 !=0 && "Not implemented");
+      printf("  SCTP_CANT_STR_ASSOC \n");
+      //assert(0 !=0 && "Not implemented");
       break;
     default:
       assert(0!=0 && "Impossible data path. enum sctp_sac_state only has 5 states" );
@@ -95,6 +122,24 @@ struct sctp_assoc_change cp_sn_assoc_change( struct sctp_assoc_change const* src
   return dst;
 }
 
+static
+struct sctp_send_failed cp_sn_send_failed(struct sctp_send_failed const* src)
+{
+  assert(src != NULL);
+  struct sctp_send_failed dst = {
+     .ssf_type = src->ssf_type,
+     .ssf_flags= src->ssf_flags,
+     .ssf_length= src->ssf_length,
+     .ssf_error= src->ssf_error,
+     .ssf_info = src->ssf_info,
+     .ssf_assoc_id = src->ssf_assoc_id,
+     // We losse this data as Flexible Arrat members cannot be copied in the stack...
+     //.ssf_data = src->ssf_data
+
+  };
+
+  return dst;
+}
 
 
 
@@ -104,12 +149,15 @@ union sctp_notification cp_sctp_notification(union sctp_notification const* src,
   assert(src != NULL);
   assert(sizeof(((union sctp_notification*)NULL)->sn_header) <= len);
 
-  union sctp_notification dst = {.sn_header.sn_type = src-> sn_header.sn_type};
+  union sctp_notification dst = {.sn_header = src->sn_header};
 
   switch(src->sn_header.sn_type) {
     case SCTP_ASSOC_CHANGE:   //This tag indicates that an association has either been opened or closed. Refer to Section 6.1.1 for details.
-                              assert(sizeof(struct sctp_assoc_change) >= len && "Error notification msg size is smaller than struct sctp_assoc_change size\n");
+                              assert(sizeof(struct sctp_assoc_change) <= len && "Error notification msg size is smaller than struct sctp_assoc_change size\n");
                               dst.sn_assoc_change = cp_sn_assoc_change(&src->sn_assoc_change);
+                              dst.sn_header = src->sn_header;
+                              assert(src->sn_header.sn_type == SCTP_ASSOC_CHANGE );
+                              assert(dst.sn_header.sn_type == SCTP_ASSOC_CHANGE);
                               break;
                               
     case SCTP_PEER_ADDR_CHANGE: //This tag indicates that an address that is part of an existing association has experienced a change of state (e.g., a failure or return to service of the reachability of an endpoint via a specific transport address). Please see Section 6.1.2 for data structure details.
@@ -121,11 +169,15 @@ union sctp_notification cp_sctp_notification(union sctp_notification const* src,
                               break;
 
     case SCTP_SEND_FAILED: //The attached datagram could not be sent to the remote endpoint. This structure includes the original SCTP_SNDINFO that was used in sending this message; i.e., this structure uses the sctp_sndinfo per Section 6.1.11.
-                              assert(0!=0 && "Not implemented");
+                              assert(sizeof(struct sctp_send_failed) <= len && "Error notification msg size is smaller than struct sctp_assoc_change size\n");
+                              printf("[E2AP]: SCTP_SEND_FAILED \n");
+                              dst.sn_send_failed = cp_sn_send_failed(&src->sn_send_failed);
                               break;
 
     case SCTP_SHUTDOWN_EVENT: // The peer has sent a SHUTDOWN. No further data should be sent on this socket.
-                               assert( sizeof(struct sctp_shutdown_event) >= len);
+                               assert( sizeof(struct sctp_shutdown_event) <= len);
+
+                              printf("[E2AP]: SCTP_SHUTDOWN_EVENT \n");
                                dst.sn_shutdown_event = cp_sn_shutdown_event(&src->sn_shutdown_event);
                                break;
                              
@@ -180,11 +232,10 @@ sctp_msg_t e2ap_recv_sctp_msg(e2ap_ep_t* ep)
     free(from.ba.buf); 
 
     from.type = SCTP_MSG_NOTIFICATION;
-    //from.notif = cp_sctp_notification((union sctp_notification*) buf, rc); 
     from.notif = calloc(1,sizeof(union sctp_notification));
     assert(from.notif != NULL && "Memory exhausted");
 
-    *from.notif = cp_sctp_notification((union sctp_notification*) buf, rc); 
+    *from.notif = cp_sctp_notification((union sctp_notification*) buf, rc);
   } else {
     from.type = SCTP_MSG_PAYLOAD;
     from.ba.len = rc; // set actually received number of bytes

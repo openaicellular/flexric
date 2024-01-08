@@ -4,10 +4,7 @@ set(ASN_MODULE_SRCS
   AMFSetID.c
   AMF-UE-NGAP-ID.c
   ANY_aper.c
-  ANY_ber.c
   ANY.c
-  ANY_jer.c
-  ANY_uper.c
   ANY_xer.c
   aper_decoder.c
   aper_encoder.c
@@ -15,14 +12,12 @@ set(ASN_MODULE_SRCS
   aper_support.c
   asn_application.c
   asn_bit_data.c
-  asn_codecs_prim_ber.c
   asn_codecs_prim.c
   asn_codecs_prim_xer.c
   asn_internal.c
   asn_random_fill.c
   asn_SEQUENCE_OF.c
   asn_SET_OF.c
-  ber_decoder.c
   ber_tlv_length.c
   ber_tlv_tag.c
   BinIndex.c
@@ -31,54 +26,36 @@ set(ASN_MODULE_SRCS
   BinRangeList.c
   BinRangeValue.c
   BIT_STRING.c
-  BIT_STRING_jer.c
   BIT_STRING_print.c
   BIT_STRING_rfill.c
-  BIT_STRING_uper.c
   BIT_STRING_xer.c
   BOOLEAN_aper.c
-  BOOLEAN_ber.c
   BOOLEAN.c
-  BOOLEAN_jer.c
   BOOLEAN_print.c
   BOOLEAN_rfill.c
-  BOOLEAN_uper.c
   BOOLEAN_xer.c
   CGI.c
   constraints.c
   constr_CHOICE_aper.c
-  constr_CHOICE_ber.c
   constr_CHOICE.c
-  constr_CHOICE_jer.c
   constr_CHOICE_print.c
   constr_CHOICE_rfill.c
-  constr_CHOICE_uper.c
   constr_CHOICE_xer.c
   constr_SEQUENCE_aper.c
-  constr_SEQUENCE_ber.c
   constr_SEQUENCE.c
-  constr_SEQUENCE_jer.c
   constr_SEQUENCE_OF_aper.c
-  constr_SEQUENCE_OF_ber.c
   constr_SEQUENCE_OF.c
-  constr_SEQUENCE_OF_jer.c
-  constr_SEQUENCE_OF_uper.c
   constr_SEQUENCE_OF_xer.c
   constr_SEQUENCE_print.c
   constr_SEQUENCE_rfill.c
-  constr_SEQUENCE_uper.c
   constr_SEQUENCE_xer.c
   constr_SET_OF_aper.c
-  constr_SET_OF_ber.c
   constr_SET_OF.c
-  constr_SET_OF_jer.c
   constr_SET_OF_print.c
   constr_SET_OF_rfill.c
-  constr_SET_OF_uper.c
   constr_SET_OF_xer.c
   constr_TYPE.c
   CoreCPID.c
-  der_encoder.c
   DistMeasurementBinRangeItem.c
   DistMeasurementBinRangeList.c
   E2SM-KPM-ActionDefinition.c
@@ -126,12 +103,9 @@ set(ASN_MODULE_SRCS
   GUMMEI.c
   IndexToRFSP.c
   INTEGER_aper.c
-  INTEGER_ber.c
   INTEGER.c
-  INTEGER_jer.c
   INTEGER_print.c
   INTEGER_rfill.c
-  INTEGER_uper.c
   INTEGER_xer.c
   InterfaceID-E1.c
   InterfaceIdentifier.c
@@ -143,7 +117,6 @@ set(ASN_MODULE_SRCS
   InterfaceID-Xn.c
   Interface-MessageID.c
   InterfaceType.c
-  jer_encoder.c
   LabelInfoItem.c
   LabelInfoList.c
   LogicalOR.c
@@ -181,24 +154,16 @@ set(ASN_MODULE_SRCS
   MME-UE-S1AP-ID.c
   NativeEnumerated_aper.c
   NativeEnumerated.c
-  NativeEnumerated_jer.c
-  NativeEnumerated_uper.c
   NativeEnumerated_xer.c
   NativeInteger_aper.c
-  NativeInteger_ber.c
   NativeInteger.c
-  NativeInteger_jer.c
   NativeInteger_print.c
   NativeInteger_rfill.c
-  NativeInteger_uper.c
   NativeInteger_xer.c
   NativeReal_aper.c
-  NativeReal_ber.c
   NativeReal.c
-  NativeReal_jer.c
   NativeReal_print.c
   NativeReal_rfill.c
-  NativeReal_uper.c
   NativeReal_xer.c
   NGENB-CU-UE-W1AP-ID.c
   NGENB-DU-ID.c
@@ -213,31 +178,22 @@ set(ASN_MODULE_SRCS
   NRFrequencyShift7p5khz.c
   NR-PCI.c
   NULL_aper.c
-  NULL_ber.c
   NULL.c
-  NULL_jer.c
   NULL_print.c
   NULL_rfill.c
-  NULL_uper.c
   NULL_xer.c
   ObjectDescriptor.c
   OBJECT_IDENTIFIER.c
-  OBJECT_IDENTIFIER_jer.c
   OBJECT_IDENTIFIER_print.c
   OBJECT_IDENTIFIER_rfill.c
   OBJECT_IDENTIFIER_xer.c
   OCTET_STRING_aper.c
-  OCTET_STRING_ber.c
   OCTET_STRING.c
-  OCTET_STRING_jer.c
   OCTET_STRING_print.c
   OCTET_STRING_rfill.c
-  OCTET_STRING_uper.c
   OCTET_STRING_xer.c
   OPEN_TYPE_aper.c
-  OPEN_TYPE_ber.c
   OPEN_TYPE.c
-  OPEN_TYPE_uper.c
   OPEN_TYPE_xer.c
   per_decoder.c
   per_encoder.c
@@ -252,10 +208,8 @@ set(ASN_MODULE_SRCS
   RANUEID.c
   REAL_aper.c
   REAL.c
-  REAL_jer.c
   REAL_print.c
   REAL_rfill.c
-  REAL_uper.c
   REAL_xer.c
   RIC-EventTriggerStyle-Item.c
   RIC-Format-Type.c
@@ -292,10 +246,6 @@ set(ASN_MODULE_SRCS
   UEID-NG-ENB-DU.c
   UEMeasurementReportItem.c
   UEMeasurementReportList.c
-  uper_decoder.c
-  uper_encoder.c
-  uper_opentype.c
-  uper_support.c
   xer_decoder.c
   xer_encoder.c
   xer_support.c
@@ -308,7 +258,7 @@ target_include_directories(e2sm_kpm_asn1_obj
                            )
 
 target_compile_options(e2sm_kpm_asn1_obj PUBLIC "-DASN_DISABLE_OER_SUPPORT")
-#target_compile_options(e2sm_kpm_asn1_obj PUBLIC "-DASN_DISABLE_JER_SUPPORT")
+target_compile_options(e2sm_kpm_asn1_obj PUBLIC "-DASN_DISABLE_JER_SUPPORT")
 target_compile_options(e2sm_kpm_asn1_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC)
 
 

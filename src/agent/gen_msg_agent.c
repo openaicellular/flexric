@@ -30,7 +30,7 @@ e2_setup_request_t gen_setup_request_v1(e2_agent_t* ag)
   assert(ag != NULL);
 
   const size_t len_rf = assoc_size(&ag->plugin.sm_ds);
-  assert(len_rf > 0 && "No RAN function/service model registered. Check if the Service Models are located at shared library paths, default location is /usr/local/flexric/");
+  assert(len_rf > 0 && "No RAN function/service model registered. Check if the Service Models are located at shared library paths, default location is /usr/local/lib/flexric/ ");
 
   ran_function_t* ran_func = calloc(len_rf, sizeof(*ran_func));
   assert(ran_func != NULL);
@@ -50,8 +50,8 @@ e2_setup_request_t gen_setup_request_v1(e2_agent_t* ag)
 
     sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
     // Pass memory ownership
-    ran_func[i].def.len = def.len_rfd;
-    ran_func[i].def.buf = def.ran_fun_def;
+    ran_func[i].defn.len = def.len_rfd;
+    ran_func[i].defn.buf = def.ran_fun_def;
 
     ran_func[i].id = sm->info.id();
     ran_func[i].rev = sm->info.rev();
@@ -71,7 +71,7 @@ e2_setup_request_t gen_setup_request_v2(e2_agent_t* ag)
   assert(ag != NULL);
 
   const size_t len_rf = assoc_size(&ag->plugin.sm_ds);
-  assert(len_rf > 0 && "No RAN function/service model registered. Check if the Service Models are located at shared library paths, default location is /usr/local/flexric/");
+  assert(len_rf > 0 && "No RAN function/service model registered. Check if the Service Models are located at shared library paths, default location is /usr/local/lib/flexric/ ");
 
   ran_function_t* ran_func = calloc(len_rf, sizeof(*ran_func));
   assert(ran_func != NULL);
@@ -79,7 +79,7 @@ e2_setup_request_t gen_setup_request_v2(e2_agent_t* ag)
   // ToDO: Transaction ID needs to be considered within the pending messages
   e2_setup_request_t sr = {
     .trans_id = ag->trans_id_setup_req++,
-    .id = ag->global_e2_node_id,
+    .id = cp_global_e2_node_id(&ag->global_e2_node_id),
     .ran_func_item = ran_func,
     .len_rf = len_rf,
   };
@@ -91,8 +91,8 @@ e2_setup_request_t gen_setup_request_v2(e2_agent_t* ag)
 
     sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
     // Pass memory ownership
-    ran_func[i].def.len = def.len_rfd;
-    ran_func[i].def.buf = def.ran_fun_def;
+    ran_func[i].defn.len = def.len_rfd;
+    ran_func[i].defn.buf = def.ran_fun_def;
 
     ran_func[i].id = sm->info.id();
     ran_func[i].rev = sm->info.rev();
@@ -102,15 +102,13 @@ e2_setup_request_t gen_setup_request_v2(e2_agent_t* ag)
   assert(it == assoc_end(&ag->plugin.sm_ds) && "Length mismatch");
 
   // E2 Node Component Configuration Addition List
-  // ToDO: This needs to be filled by the RAN
-  sr.len_cca = 1; 
-  sr.comp_conf_add = calloc(sr.len_cca, sizeof(e2ap_node_component_config_add_t));
-  assert(sr.comp_conf_add != NULL && "Memory exhausted");
- 
-  assert(ag->read_setup_ran != NULL);
-  ag->read_setup_ran(sr.comp_conf_add);
+  arr_node_component_config_add_t arr = {0};
+  ag->read_setup_ran(&arr);
+  // Move ownership
+  sr.len_cca = arr.len_cca;
+  sr.comp_conf_add = arr.cca;
 
- return sr;
+  return sr;
 }
 
 e2_setup_request_t gen_setup_request_v3(e2_agent_t* ag)

@@ -98,7 +98,21 @@ void init_write_subs(write_subs_fp (*write_subs_tbl)[SM_AGENT_IF_WRITE_SUBS_V0_E
 }
 
 static
-sm_io_ag_ran_t init_io_ag()
+void init_sm(void)
+{
+  init_gtp_sm();
+  init_kpm_sm();
+  init_mac_sm();
+  init_pdcp_sm();
+  init_rc_sm();
+  init_rlc_sm();
+  init_slice_sm();
+  init_tc_sm();
+
+}
+
+static
+sm_io_ag_ran_t init_io_ag(void)
 {
   sm_io_ag_ran_t io = {0};
   init_read_ind_tbl(&io.read_ind_tbl);
@@ -109,8 +123,18 @@ sm_io_ag_ran_t init_io_ag()
   init_write_ctrl(&io.write_ctrl_tbl);
   init_write_subs(&io.write_subs_tbl);
 
+  init_sm();
+
+
   return io;
 }
+
+static
+void free_io_ag(void)
+{
+  free_kpm_sm();
+}
+
 
 /*
 static
@@ -157,7 +181,7 @@ pthread_once_t once = PTHREAD_ONCE_INIT;
 static
 void sig_handler(int sig_num)
 {
-  printf("\nEnding the E2 Agent with signal number = %d\n. Please, wait.", sig_num);
+  printf("\n[E2 AGENT]: Abruptly ending with signal number = %d\n[E2 AGENT]: Please, wait.\n", sig_num);
   // For the impatient, do not break my code
   pthread_once(&once, stop_and_exit);
 }
@@ -191,6 +215,8 @@ int main(int argc, char *argv[])
   while(1){
     poll(NULL, 0, 1000);
   }
+
+  free_io_ag();
 
   return EXIT_SUCCESS;
 }

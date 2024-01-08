@@ -117,8 +117,8 @@ TestCond-Value ::= CHOICE{
         valueBitS                       BIT STRING,
         valueOctS                       OCTET STRING, 
         valuePrtS                       PrintableString,
-        ...,
-        valueReal                       REAL
+        valueReal                       REAL,
+        ...
 }
 
 -- **************************************************************

@@ -310,9 +310,9 @@ kpm_ric_ind_hdr_format_1_t kpm_ind_hdr_frm_1(ran_ind_t* ws_ind)
   kpm_ric_ind_hdr_format_1_t hdr_frm_1 = {0};
 
   int64_t const t = time_now_us();
-#if defined KPM_V2
+#if defined(KPM_V2_01) || defined (KPM_V2_03)
   hdr_frm_1.collectStartTime = t/1000000; // seconds
-#elif defined KPM_V3
+#elif defined(KPM_V3_00)
   hdr_frm_1.collectStartTime = t; // microseconds
 #else
   static_assert(0!=0, "Undefined KPM SM Version");
@@ -374,10 +374,10 @@ void read_kpm_sm(void* data)
           case S_NSSAI_TEST_COND_TYPE: {
             assert(frm_4->matching_cond_lst[i].test_info_lst.S_NSSAI == TRUE_TEST_COND_TYPE && "Must be true");
             assert(frm_4->matching_cond_lst[i].test_info_lst.test_cond != NULL && "Even though is optional..");
-            assert(frm_4->matching_cond_lst[i].test_info_lst.int_value != NULL && "Even though is optional..");
+            assert(frm_4->matching_cond_lst[i].test_info_lst.test_cond_value != NULL && "Even though is optional..");
 
             test_cond_e const test_cond = *frm_4->matching_cond_lst[i].test_info_lst.test_cond;
-            int64_t const value = *frm_4->matching_cond_lst[i].test_info_lst.int_value;
+            int64_t const value = *frm_4->matching_cond_lst[i].test_info_lst.test_cond_value->int_value;
             // Check E2 Node NG-RAN Type
             if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)) {
               matched_ues_t matched_ues = filter_ues_by_s_nssai_in_du_or_monolithic(test_cond, value, &ws_ind);

@@ -31,11 +31,22 @@ typedef enum {
     Dedicated_PRB_Policy_Ratio_8_4_3_6 = 12,
 } slice_level_PRB_quota_param_id_e;
 
-void read_rc_sm(void* data)
+void init_rc_sm(void)
+{
+  // No allocation needed
+}
+
+void free_rc_sm(void)
+{
+  // No allocation needed
+}
+
+bool read_rc_sm(void* data)
 {
   assert(data != NULL);
 //  assert(data->type == RAN_CTRL_STATS_V1_03);
   assert(0!=0 && "Not implemented");
+  return true;
 }
 
 void read_rc_setup_sm(void* data)

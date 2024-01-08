@@ -46,9 +46,9 @@
 
 #ifdef E2AP_V1
 #define NUM_HANDLE_MSG 32 // 31 + E42-UPDATE-E2-NODE
-#elif E2AP_V2 
+#elif E2AP_V2
 #define NUM_HANDLE_MSG 35 // 34 + E42-UPDATE-E2-NODE
-#elif E2AP_V3 
+#elif E2AP_V3
 #define NUM_HANDLE_MSG 44 // 43 + E42-UPDATE-E2-NODE
 #else
 static_assert(0!=0, "Unknown E2AP version");
@@ -77,14 +77,14 @@ typedef struct e2_agent_s
 
   // Pending events
   bi_map_t pending;  // left: fd, right: pending_event_t 
-  
+
   global_e2_node_id_t global_e2_node_id;
 
   // Aperiodic Indication events
   tsq_t aind; // aind_event_t Events that occurred 
 
 #if defined(E2AP_V2) || defined (E2AP_V3)
-  // Read RAN 
+  // Read RAN
   void (*read_setup_ran)(void* data);
   _Atomic uint32_t trans_id_setup_req;
 #endif
@@ -130,7 +130,7 @@ void e2_send_control_failure(e2_agent_t* ag, const ric_control_failure_t* cf);
 
 ////////////////////////////////////////////////
 
-#undef NUM_HANDLE_MSG 
+#undef NUM_HANDLE_MSG
 
 #endif
 

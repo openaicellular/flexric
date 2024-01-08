@@ -123,8 +123,8 @@ generate_setup_request_from_ran(e2_agent_t* ag, global_e2_node_id_t ge2ni)
 
     sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
     // Pass memory ownership
-    ran_func[whitelisted_idx].def.len = def.len_rfd;
-    ran_func[whitelisted_idx].def.buf = def.ran_fun_def;
+    ran_func[whitelisted_idx].defn.len = def.len_rfd;
+    ran_func[whitelisted_idx].defn.buf = def.ran_fun_def;
 
     ran_func[whitelisted_idx].id = sm->info.id();
     ran_func[whitelisted_idx].rev = sm->info.rev();
@@ -167,8 +167,8 @@ e2_setup_request_t generate_setup_request_from_ran(e2_agent_t* ag, global_e2_nod
 
     sm_e2_setup_data_t def = sm->proc.on_e2_setup(sm);
     // Pass memory ownership
-    ran_func[i].def.len = def.len_rfd;
-    ran_func[i].def.buf = def.ran_fun_def;
+    ran_func[i].defn.len = def.len_rfd;
+    ran_func[i].defn.buf = def.ran_fun_def;
 
     ran_func[i].id = sm->info.id();
     ran_func[i].rev = sm->info.rev();
@@ -314,7 +314,7 @@ void fwd_ran_e2_ctrl_reply (e2_agent_t *e2_if, ctrl_ev_reply_t reply)
   lwsl_info("[E2 -> RIC]: sending RIC_CONTROL_RESPONSE\n");
   pending_event_t ev = CONTROL_REQUEST_AGENT_PENDING_EVENT;
   lock_guard(&e2_if->pend_mtx);
-  int* fd = bi_map_extract_right(&e2_if->pending, &ev, sizeof(ev));
+  int* fd = bi_map_extract_right(&e2_if->pending, &ev, sizeof(ev), NULL);
   assert(*fd > 0);
   int fdcorr = *fd;
   rm_fd_asio_agent(&e2_if->io, *fd);
@@ -322,7 +322,7 @@ void fwd_ran_e2_ctrl_reply (e2_agent_t *e2_if, ctrl_ev_reply_t reply)
   
   correlation_event_t *corr;
   lock_guard(&e2_if->corr_mtx);
-  corr = bi_map_extract_left(&e2_if->correlation, &fdcorr, sizeof(int));
+  corr = bi_map_extract_left(&e2_if->correlation, &fdcorr, sizeof(int), NULL);
   assert(corr != NULL);
   defer({free(corr); } ); 
 

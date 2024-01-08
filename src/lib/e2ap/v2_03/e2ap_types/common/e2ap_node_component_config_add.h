@@ -49,5 +49,10 @@ e2ap_node_component_config_add_t cp_e2ap_node_component_config_add(e2ap_node_com
 
 bool eq_e2ap_node_component_config_add(e2ap_node_component_config_add_t const* m0, e2ap_node_component_config_add_t const* m1);
 
+typedef struct{
+  e2ap_node_component_config_add_t* cca;
+  size_t len_cca;
+} arr_node_component_config_add_t ;
+
 #endif
 

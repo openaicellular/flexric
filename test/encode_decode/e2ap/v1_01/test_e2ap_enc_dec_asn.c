@@ -409,9 +409,9 @@ void test_setup_rquest()
   ran_func_item[0].id = 32;
   ran_func_item[0].rev = 0;
   const char* def = "This is the possible deficniotn";
-  ran_func_item[0].def.buf = malloc(strlen(def));
-  memcpy(ran_func_item[0].def.buf, def, strlen(def)); 
-  ran_func_item[0].def.len = strlen(def); 
+  ran_func_item[0].defn.buf = malloc(strlen(def));
+  memcpy(ran_func_item[0].defn.buf, def, strlen(def));
+  ran_func_item[0].defn.len = strlen(def);
 
 
   e2_node_component_config_update_t* comp_conf_update = NULL;
@@ -510,7 +510,7 @@ void test_setup_failure()
   e2ap_msg_t msg = e2ap_dec_setup_failure(pdu);
   free_pdu(pdu); 
   assert(msg.type == E2_SETUP_FAILURE); 
-  e2_setup_failure_t* sf_end  = &msg.u_msgs.e2_stp_fail;
+  e2_setup_failure_t* sf_end = &msg.u_msgs.e2_stp_fail;
 
   assert(eq_e2_setup_failure(&sf_begin, sf_end) == true);
   e2ap_free_setup_failure(&sf_begin);
@@ -564,7 +564,7 @@ void test_service_update()
   ran_function_t* added = calloc(len_added, sizeof(ran_function_t ));
   added->id = 42;
   added->rev = 0;
-  added->def = ba;
+  added->defn = ba;
 
   ran_function_t* modified = NULL;
   const size_t len_modified = 0;
@@ -711,10 +711,10 @@ void fill_ran_function(ran_function_t* rf)
   const char* def = "Definition";
   size_t const sz = strlen(def);
 
-  rf->def.len = sz;
-  rf->def.buf = malloc(sz);
-  assert(rf->def.buf != NULL && "Memory exhauested"); 
-  memcpy(rf->def.buf, def, sz);
+  rf->defn.len = sz;
+  rf->defn.buf = malloc(sz);
+  assert(rf->defn.buf != NULL && "Memory exhauested");
+  memcpy(rf->defn.buf, def, sz);
 
   rf->id = rand()%1024;  
   rf->rev = rand()%8; 
@@ -757,20 +757,6 @@ void test_e42_setup_request()
     ran_function_t* rf = &sr_begin.ran_func_item[i];
     fill_ran_function(rf);
   }
-
-
-/*
-  byte_array_t ba = e2ap_enc_e42_setup_request_asn(&sr_begin);
-  assert(ba.buf != NULL && ba.len > 0);
-  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
-  assert(pdu != NULL);
-//  const e2_msg_type_t msg_type =  e2ap_get_msg_type(pdu);  
-//  printf("Decoding message type = %d \n", msg_type);
-  e2ap_msg_t msg =  e2ap_dec_e42_setup_request(pdu);
-*/
-
-
-
 
   E2AP_PDU_t* pdu = e2ap_enc_e42_setup_request_asn_pdu(&sr_begin);
   e2ap_msg_t msg = e2ap_dec_e42_setup_request(pdu);
@@ -818,7 +804,7 @@ void test_e42_setup_response()
     e2_node_connected_t* n = &sr_begin.nodes[i];
     n->id = id; 
 
-    uint32_t r = rand()%8;
+    uint32_t const r = rand()%8;
 
     n->len_rf = r;
     if(r > 0){

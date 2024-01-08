@@ -32,12 +32,11 @@ NativeInteger_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
     if(rval.code == RC_OK) {
         if((specs&&specs->field_unsigned)
             ? asn_INTEGER2ulong(&tmpint, (unsigned long *)native)
-            : asn_INTEGER2long(&tmpint, native)) {
-          rval.code = RC_FAIL;
-        } else {
-          ASN_DEBUG("NativeInteger %s got value %ld",
-                    td->name, *native);
-        }
+            : asn_INTEGER2long(&tmpint, native))
+            rval.code = RC_FAIL;
+        else
+            ASN_DEBUG("NativeInteger %s got value %ld",
+                      td->name, *native);
     }
     ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_INTEGER, &tmpint);
 
