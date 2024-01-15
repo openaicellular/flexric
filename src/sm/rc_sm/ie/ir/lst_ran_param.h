@@ -34,7 +34,7 @@ typedef struct{
   // Mandatory
   // 9.3.8
   //1.. 4294967295
-  // uint32_t ran_param_id;
+  uint32_t ran_param_id;
 
   // RAN Parameter Structure
   // Mandatory

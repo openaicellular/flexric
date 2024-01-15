@@ -83,7 +83,6 @@ void sm_cb_kpm_oran_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2
 
   kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
 
-  int64_t now = time_now_us();
 
   printf("----------Indication # %d from E2-Node type %d nb_id %d-------------\n", indicationCount++, e2_node->type, e2_node->nb_id.nb_id);
 
@@ -91,9 +90,9 @@ void sm_cb_kpm_oran_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2
 
   for(unsigned int i=0;i<kpm->msg.frm_2.meas_data_lst_len;i++){
     printf("Slice {%d-%d%d%d} measurment \"%s\" = ", kpm->msg.frm_2.meas_info_cond_ue_lst[i].matching_cond_lst->label_info_lst.sliceID->sST,
-           *kpm->msg.frm_2.meas_info_cond_ue_lst[i].matching_cond_lst->label_info_lst.sliceID->sD[0],
-           *kpm->msg.frm_2.meas_info_cond_ue_lst[i].matching_cond_lst->label_info_lst.sliceID->sD[1],
-           *kpm->msg.frm_2.meas_info_cond_ue_lst[i].matching_cond_lst->label_info_lst.sliceID->sD[2],
+           kpm->msg.frm_2.meas_info_cond_ue_lst[i].matching_cond_lst->label_info_lst.sliceID->sD[0],
+           kpm->msg.frm_2.meas_info_cond_ue_lst[i].matching_cond_lst->label_info_lst.sliceID->sD[1],
+           kpm->msg.frm_2.meas_info_cond_ue_lst[i].matching_cond_lst->label_info_lst.sliceID->sD[2],
            kpm->msg.frm_2.meas_info_cond_ue_lst[i].meas_type.name.buf);
 
     if(kpm->msg.frm_2.meas_data_lst[i].meas_record_lst->value == INTEGER_MEAS_VALUE){
@@ -211,13 +210,12 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char* action)
   assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
   *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
 
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
+ dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
   assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
-  dst.matching_cond_lst[0].test_info_lst.int_value = malloc(sizeof(int64_t));
-  assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.int_value = 0;
-
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value->type =  INTEGER_TEST_COND_VALUE;
+  // *dst.matching_cond_lst[0].test_info_lst.test_cond_value = 0;
   // Action definition Format 1
   dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
 
