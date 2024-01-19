@@ -37,7 +37,7 @@ byte_array_t copy_str_to_ba(const char* str)
   assert(str != NULL);
 
   size_t const sz = strlen(str);
-  byte_array_t dst = {.len = sz };
+  byte_array_t dst = {.len = sz }; 
   dst.buf = calloc(sz ,sizeof(uint8_t) );
   assert(dst.buf != NULL);
 
@@ -57,7 +57,7 @@ static
 {
   assert(rd != NULL);
   assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
-  assert(rd->ind.type == KPM_STATS_V3_0);
+  assert(rd->ind.type == KPM_STATS_V3_0); 
 
   kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
 
@@ -68,7 +68,7 @@ static
 
   {
     lock_guard(&mtx);
-    free_ue_id_e2sm(&ue_id);
+    free_ue_id_e2sm(&ue_id); 
     ue_id = cp_ue_id_e2sm(&kpm->msg.frm_3.meas_report_per_ue[0].ue_meas_report_lst);
   }
   printf("UE ID %ld \n ", ue_id.gnb.amf_ue_ngap_id);
@@ -83,6 +83,7 @@ void sm_cb_kpm_oran_slice(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2
 
   kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
 
+  
 
   printf("----------Indication # %d from E2-Node type %d nb_id %d-------------\n", indicationCount++, e2_node->type, e2_node->nb_id.nb_id);
 
@@ -113,26 +114,26 @@ kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
 
   return dst;
 }
+/*
+static
+meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
+{
+  meas_info_format_1_lst_t dst = {0}; 
 
-//static
-//meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
-//{
-//  meas_info_format_1_lst_t dst = {0};
-//
-//  dst.meas_type.type = NAME_MEAS_TYPE;
-//  // ETSI TS 128 552
-//  dst.meas_type.name = copy_str_to_ba(  action );
-//
-//  dst.label_info_lst_len = 1;
-//  dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
-//  assert(dst.label_info_lst != NULL && "Memory exhausted");
-//  dst.label_info_lst[0].noLabel = calloc(1, sizeof(enum_value_e));
-//  assert(dst.label_info_lst[0].noLabel != NULL && "Memory exhausted");
-//  *dst.label_info_lst[0].noLabel = TRUE_ENUM_VALUE;
-//
-//  return dst;
-//}
-/*modified by joe*/
+  dst.meas_type.type = NAME_MEAS_TYPE;
+  // ETSI TS 128 552
+  dst.meas_type.name = copy_str_to_ba(  action );
+
+  dst.label_info_lst_len = 1;
+  dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
+  assert(dst.label_info_lst != NULL && "Memory exhausted");
+  dst.label_info_lst[0].noLabel = calloc(1, sizeof(enum_value_e));
+  assert(dst.label_info_lst[0].noLabel != NULL && "Memory exhausted");
+  *dst.label_info_lst[0].noLabel = TRUE_ENUM_VALUE;
+
+  return dst;
+}
+*/
 static
 meas_info_format_3_lst_t gen_meas_info_format_3_lst(const char action[])
 {
@@ -153,24 +154,25 @@ meas_info_format_3_lst_t gen_meas_info_format_3_lst(const char action[])
 
   return dst;
 }
-/*modified by joe*/
-//static
-//kpm_act_def_format_1_t gen_act_def_frmt_1(const char* action)
-//{
-//  kpm_act_def_format_1_t dst = {0};
-//
-//  dst.gran_period_ms = 100;
-//
-//  // [1, 65535]
-//  dst.meas_info_lst_len = 1;
-//  dst.meas_info_lst = calloc(1, sizeof(meas_info_format_1_lst_t));
-//  assert(dst.meas_info_lst != NULL && "Memory exhausted");
-//
-//  *dst.meas_info_lst = gen_meas_info_format_1_lst(action);
-//
-//  return dst;
-//}
-/*modified by joe*/
+
+/*modified by joe
+static
+kpm_act_def_format_1_t gen_act_def_frmt_1(const char* action)
+{
+  kpm_act_def_format_1_t dst = {0};
+
+  dst.gran_period_ms = 100;
+
+  // [1, 65535]
+  dst.meas_info_lst_len = 1;
+  dst.meas_info_lst = calloc(1, sizeof(meas_info_format_1_lst_t));
+  assert(dst.meas_info_lst != NULL && "Memory exhausted");
+
+  *dst.meas_info_lst = gen_meas_info_format_1_lst(action);
+ 
+  return dst;
+}
+modified by joe*/
 static
 kpm_act_def_format_3_t gen_act_def_frmt_3(const char action[][25])
 {
@@ -190,45 +192,47 @@ kpm_act_def_format_3_t gen_act_def_frmt_3(const char action[][25])
 
   return dst;
 }
-/*modified by joe*/
-//static
-//kpm_act_def_format_4_t gen_act_def_frmt_4(const char* action)
-//{
-//  kpm_act_def_format_4_t dst = {0};
-//
-//  // [1, 32768]
-//  dst.matching_cond_lst_len = 1;
-//
-//  dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
-//  assert(dst.matching_cond_lst != NULL && "Memory exhausted");
-//
-//  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
-//  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
-//  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
-//
-//  dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
-//  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-//  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
-//
-// dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
-//  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
-//  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
-//  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
-//  dst.matching_cond_lst[0].test_info_lst.test_cond_value->type =  INTEGER_TEST_COND_VALUE;
-//  // *dst.matching_cond_lst[0].test_info_lst.test_cond_value = 0;
-//  // Action definition Format 1
-//  dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
-//
-//  return dst;
-//}
 
-/*modified by joe, change to format3*/
+/*modified by joe
+static
+kpm_act_def_format_4_t gen_act_def_frmt_4(const char* action)
+{
+  kpm_act_def_format_4_t dst = {0};
+
+  // [1, 32768]
+  dst.matching_cond_lst_len = 1;  
+
+  dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
+  assert(dst.matching_cond_lst != NULL && "Memory exhausted");
+ 
+  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
+  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
+  
+  dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value->type =  INTEGER_TEST_COND_VALUE;
+  // *dst.matching_cond_lst[0].test_info_lst.test_cond_value = 0;
+  // Action definition Format 1 
+  dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
+
+  return dst;
+}
+
+modified by joe, change to format3*/
+
 static
 kpm_act_def_t gen_act_def(const char act[][25])
 {
-  kpm_act_def_t dst = {0};
+  kpm_act_def_t dst = {0}; 
 
-  dst.type = FORMAT_3_ACTION_DEFINITION;
+  dst.type = FORMAT_3_ACTION_DEFINITION; 
   dst.frm_3 = gen_act_def_frmt_3(act);
   return dst;
 }
@@ -259,7 +263,7 @@ e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1(void)
   // CONTROL Service Style 1: Radio Bearer Control
   dst.ric_style_type = 1;
 
-  // QoS flow mapping conf
+  // QoS flow mapping conf 
   dst.ctrl_act_id = QoS_flow_mapping_configuration_7_6_2_1 ;
 
   return dst;
@@ -278,7 +282,7 @@ e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(void)
 
 typedef enum{
   DRB_ID_Bearer_Context_Setup = 26101,
-  CHOICE_DRB_Type_Bearer_Context_Setup = 26102,
+  CHOICE_DRB_Type_Bearer_Context_Setup = 26102, 
 
   NG_RAN_DRB_Bearer_Context_Setup = 26103,
   E_UTRA_DRB_Bearer_Context_Setup = 26104,
@@ -353,7 +357,7 @@ seq_ran_param_t gen_false_ng_ran_drb(ng_ran_data_radio_bearer_e id , int64_t val
   dst.ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(dst.ran_param_val.flag_false != NULL && "Memory exhausted");
 
-  dst.ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE ;
+  dst.ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE ; 
   dst.ran_param_val.flag_false->int_ran = val;
 
   return dst;
@@ -368,7 +372,7 @@ seq_ran_param_t gen_true_ng_ran_drb(ng_ran_data_radio_bearer_e id , int64_t val)
   dst.ran_param_val.flag_true = calloc(1, sizeof(ran_parameter_value_t));
   assert(dst.ran_param_val.flag_true != NULL && "Memory exhausted");
 
-  dst.ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE ;
+  dst.ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE ; 
   dst.ran_param_val.flag_false->int_ran = val;
 
   return dst;
@@ -381,7 +385,7 @@ seq_ran_param_t gen_5qi(int five_qi)
 {
   // TS 38.463
   // TS 38.463 INTEGER (0..255, …)
-  assert(five_qi > - 1 && five_qi < 256);
+  assert(five_qi > - 1 && five_qi < 256); 
   return gen_false_ng_ran_drb(FIVE_QI_8_1_1_5, five_qi);
 }
 
@@ -404,7 +408,7 @@ seq_ran_param_t gen_per(int32_t scalar, int32_t exp)
   // Exponent [0-9]
   assert(scalar > -1 &&  scalar < 10);
   assert(exp > -1 && exp < 10);
-
+ 
   // The packet error rate is
   // expressed as Scalar x 10-k
   // where k is the Exponent.
@@ -498,10 +502,10 @@ ran_param_val_type_t gen_structure_ran_parameter_val_type(void)
 static
 seq_ran_param_t gen_allo_ret_prio()
 {
-  seq_ran_param_t dst = {0};
+  seq_ran_param_t dst = {0}; 
   dst.ran_param_id = NG_RAN_DRB_ALLOCATION_AND_RETENTION_PRIORITY_8_1_1_5;
   dst.ran_param_val = gen_structure_ran_parameter_val_type();
-  dst.ran_param_val.strct->sz_ran_param_struct = 3;
+  dst.ran_param_val.strct->sz_ran_param_struct = 3; 
   dst.ran_param_val.strct->ran_param_struct = calloc(dst.ran_param_val.strct->sz_ran_param_struct, sizeof(seq_ran_param_t));
   assert(dst.ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
 
@@ -586,15 +590,15 @@ seq_ran_param_t gen_mplru(int64_t mplru)
 static
 seq_ran_param_t gen_qpgf(void)
 {
-  seq_ran_param_t dst = {0};
+  seq_ran_param_t dst = {0}; 
   dst.ran_param_id = QOS_PARAMETERS_FOR_GBR_FLOWS_IN_NG_RAN_BEARER_8_1_1_5;
   dst.ran_param_val = gen_structure_ran_parameter_val_type();
 
-  dst.ran_param_val.strct->sz_ran_param_struct = 6;
+  dst.ran_param_val.strct->sz_ran_param_struct = 6; 
   dst.ran_param_val.strct->ran_param_struct = calloc( dst.ran_param_val.strct->sz_ran_param_struct, sizeof(seq_ran_param_t));
   assert(dst.ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
 
-  seq_ran_param_t* rps = dst.ran_param_val.strct->ran_param_struct;
+  seq_ran_param_t* rps = dst.ran_param_val.strct->ran_param_struct; 
 
   // Maximum Flow Bit
   // Rate Downlink
@@ -649,7 +653,7 @@ seq_ran_param_t gen_ulc(int64_t ulc)
 static
 seq_ran_param_t gen_rat_type(int64_t rat_type)
 {
-  // ENUMERATED (E-UTRA, NR,…)
+  // ENUMERATED (E-UTRA, NR,…) 
   assert(rat_type == 0 || rat_type == 1);
   return gen_false_ng_ran_drb(RAT_TYPE_CELL_GROUP, rat_type);
 }
@@ -676,7 +680,7 @@ seq_ran_param_t gen_cgs(void)
   dst.ran_param_val.strct->ran_param_struct = calloc(3, sizeof(seq_ran_param_t));
   assert(dst.ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
 
-  seq_ran_param_t* rps = dst.ran_param_val.strct->ran_param_struct;
+  seq_ran_param_t* rps = dst.ran_param_val.strct->ran_param_struct; 
 
   // UL Configuration
   int64_t ulc;
@@ -702,12 +706,12 @@ seq_ran_param_t gen_lst_cell_group_add(void)
   dst.ran_param_val.lst = calloc(1, sizeof(ran_param_list_t));
   assert(dst.ran_param_val.lst != NULL && "Memory exhausted");
 
-  dst.ran_param_val.lst->sz_lst_ran_param = 1;
+  dst.ran_param_val.lst->sz_lst_ran_param = 1; 
   dst.ran_param_val.lst->lst_ran_param = calloc(1, sizeof(lst_ran_param_t));
   assert(dst.ran_param_val.lst->lst_ran_param != NULL && "Memory exhausted");
-  lst_ran_param_t* lst_ran_param = dst.ran_param_val.lst->lst_ran_param;
+  lst_ran_param_t* lst_ran_param = dst.ran_param_val.lst->lst_ran_param; 
 
-  lst_ran_param->ran_param_id = CELL_GROUP_ITEM_8_1_1_5 ;
+  lst_ran_param->ran_param_id = CELL_GROUP_ITEM_8_1_1_5 ; 
   lst_ran_param->ran_param_struct.sz_ran_param_struct = 2;
   lst_ran_param->ran_param_struct.ran_param_struct = calloc(2, sizeof(seq_ran_param_t));
   assert(lst_ran_param->ran_param_struct.ran_param_struct != NULL && "Memory exhausted");
@@ -719,7 +723,7 @@ seq_ran_param_t gen_lst_cell_group_add(void)
   int64_t cell_gid = 2;
   rps[0] = gen_cgid(cell_gid);
 
-  // Cell Group
+  // Cell Group 
   // Structure
   rps[1] = gen_cgs();
 
@@ -757,7 +761,7 @@ seq_ran_param_t gen_pdu_ses(int64_t pdu_ses)
 static
 seq_ran_param_t gen_sdap_conf(void)
 {
-seq_ran_param_t dst = {0};
+seq_ran_param_t dst = {0}; 
 dst.ran_param_id = SDAP_CONFIGURATION_8_1_1_5 ;
 dst.ran_param_val.type =STRUCTURE_RAN_PARAMETER_VAL_TYPE ;
 dst.ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
@@ -767,7 +771,7 @@ dst.ran_param_val.strct->sz_ran_param_struct = 3;
 dst.ran_param_val.strct->ran_param_struct = calloc(3, sizeof(seq_ran_param_t));
 assert(dst.ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
 
-seq_ran_param_t* rps = dst.ran_param_val.strct->ran_param_struct;
+seq_ran_param_t* rps = dst.ran_param_val.strct->ran_param_struct; 
 
 // PDU Session ID
 int64_t pdu_sid = 3;
@@ -789,30 +793,30 @@ return dst;
 static
 ran_param_val_type_t gen_ng_ran_drb(void)
 {
-  ran_param_val_type_t dst = {0};
+  ran_param_val_type_t dst = {0}; 
 
   dst.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
   dst.strct = calloc(1, sizeof(ran_param_struct_t));
   assert(dst.strct != NULL && "Memory exhausted");
-  dst.strct->sz_ran_param_struct = 1;
+  dst.strct->sz_ran_param_struct = 1; 
   dst.strct->ran_param_struct = calloc(dst.strct->sz_ran_param_struct, sizeof(seq_ran_param_t));
   assert(dst.strct->ran_param_struct != NULL && "Memory exhausted");
-  dst.strct->ran_param_struct[0].ran_param_id = NG_RAN_DRB_Bearer_Context_Setup;
-  dst.strct->ran_param_struct[0].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+  dst.strct->ran_param_struct[0].ran_param_id = NG_RAN_DRB_Bearer_Context_Setup; 
+  dst.strct->ran_param_struct[0].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE; 
 
   dst.strct->ran_param_struct[0].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t) );
   assert(dst.strct->ran_param_struct[0].ran_param_val.strct != NULL && "Memory exhausted");
-  dst.strct->ran_param_struct[0].ran_param_val.strct->sz_ran_param_struct = 13;
-  dst.strct->ran_param_struct[0].ran_param_val.strct->ran_param_struct = calloc(13, sizeof(seq_ran_param_t));
+  dst.strct->ran_param_struct[0].ran_param_val.strct->sz_ran_param_struct = 13; 
+  dst.strct->ran_param_struct[0].ran_param_val.strct->ran_param_struct = calloc(13, sizeof(seq_ran_param_t)); 
   assert(dst.strct->ran_param_struct[0].ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
-
+  
   seq_ran_param_t* rps = dst.strct->ran_param_struct[0].ran_param_val.strct->ran_param_struct;
 
   // 5QI
   int five_qi = 10;
   rps[0] = gen_5qi(five_qi);
 
-  // Packet Delay Budget
+  // Packet Delay Budget 
   int pdb = 1000;
   rps[1] = gen_pdb(pdb);
 
@@ -823,13 +827,13 @@ ran_param_val_type_t gen_ng_ran_drb(void)
 
   // NG-RAN DRB
   // Allocation and
-  // Retention Priority
-  rps[3] = gen_allo_ret_prio();
+  // Retention Priority 
+  rps[3] = gen_allo_ret_prio(); 
 
   // Priority Level of the
   // mapped QoS flows
   int64_t plqf = 5;
-  rps[4] = gen_plqf( plqf );
+  rps[4] = gen_plqf( plqf ); 
 
   // QoS parameters
   // for GBR flows in
@@ -839,17 +843,17 @@ ran_param_val_type_t gen_ng_ran_drb(void)
   // QoS Monitoring
   // Enable Request
   int64_t mon_req = 0;
-  rps[6] = gen_mon_req(mon_req);
+  rps[6] = gen_mon_req(mon_req); 
 
   // QoS Monitoring
   // Reporting
   // Frequency
   int64_t mon_rep = 5;
-  rps[7] = gen_mon_rep(mon_rep);
+  rps[7] = gen_mon_rep(mon_rep); 
 
   // QoS Monitoring
   // Disabled
-  int64_t mon_dis = 0;
+  int64_t mon_dis = 0; 
   rps[8] = gen_mon_dis(mon_dis);
 
   // Reflective QoS
@@ -890,7 +894,7 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1(void)
   // DRB-Identity defined in TS 38.331
   // drb-Identity add/mod
   // Let's suppose that 1 is the default bearer
-  dst.ran_param[0].ran_param_val.flag_true->int_ran = 2; // [1-32]
+  dst.ran_param[0].ran_param_val.flag_true->int_ran = 2; // [1-32] 
 
   // CHOICE DRB Type
   dst.ran_param[1].ran_param_id = CHOICE_DRB_Type_Bearer_Context_Setup;
@@ -910,7 +914,7 @@ typedef enum {
 static
 e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
 {
-  e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
+  e2sm_rc_ctrl_msg_frmt_1_t dst = {0}; 
 
   // 8.4.2.2 QoS flow mapping configuration
   dst.sz_ran_param = 2;
@@ -922,9 +926,9 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
   dst.ran_param[0].ran_param_val.flag_true = calloc(1, sizeof(ran_parameter_value_t)) ;
   assert(dst.ran_param[0].ran_param_val.flag_true != NULL && "Memory exhausted");
 
-  // Let's suppose that it is the DRB 5
-  dst.ran_param[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE;
-  dst.ran_param[0].ran_param_val.flag_true->int_ran = 5;
+  // Let's suppose that it is the DRB 5 
+  dst.ran_param[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE; 
+  dst.ran_param[0].ran_param_val.flag_true->int_ran = 5; 
 
   // List of QoS Flows to be modified in DRB
   dst.ran_param[1].ran_param_id = LIST_OF_QOS_FLOWS_MOD_IN_DRB_8_4_2_2;
@@ -933,11 +937,11 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
   assert(dst.ran_param[1].ran_param_val.lst != NULL && "Memory exhausted");
   ran_param_list_t* rpl = dst.ran_param[1].ran_param_val.lst;
 
-  rpl->sz_lst_ran_param = 1;
+  rpl->sz_lst_ran_param = 1; 
   rpl->lst_ran_param = calloc(1, sizeof(lst_ran_param_t));
 
   // QoS Flow Item
-  rpl->lst_ran_param[0].ran_param_id = QOS_FLOW_ITEM_8_4_2_2;
+  rpl->lst_ran_param[0].ran_param_id = QOS_FLOW_ITEM_8_4_2_2; 
   rpl->lst_ran_param[0].ran_param_struct.sz_ran_param_struct = 2;
   rpl->lst_ran_param[0].ran_param_struct.ran_param_struct = calloc(2, sizeof(seq_ran_param_t));
   assert(rpl->lst_ran_param[0].ran_param_struct.ran_param_struct != NULL && "Memory exhausted");
@@ -948,19 +952,19 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
   rps[0].ran_param_val.type = ELEMENT_KEY_FLAG_TRUE_RAN_PARAMETER_VAL_TYPE;
   rps[0].ran_param_val.flag_true = calloc(1, sizeof(ran_parameter_value_t));
   assert(rps[0].ran_param_val.flag_true != NULL && "Memory exhausted");
-  rps[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE;
+  rps[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE; 
   // Let's suppose that we have QFI 10
-  rps[0].ran_param_val.flag_true->int_ran = 10;
+  rps[0].ran_param_val.flag_true->int_ran = 10; 
 
   // QoS Flow Mapping Indication
   rps[1].ran_param_id = QOS_FLOW_MAPPING_IND_8_4_2_2;
-  rps[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  rps[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE; 
   rps[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-  assert(rps[1].ran_param_val.flag_false != NULL && "Memory exhausted");
+  assert(rps[1].ran_param_val.flag_false != NULL && "Memory exhausted"); 
 
-  // ENUMERATED (ul, dl, ...)
+  // ENUMERATED (ul, dl, ...) 
   rps[1].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  rps[1].ran_param_val.flag_false->int_ran = 1;
+  rps[1].ran_param_val.flag_false->int_ran = 1; 
 
   return dst;
 }
@@ -970,28 +974,46 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
 static
 e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg(void)
 {
-  e2sm_rc_ctrl_msg_t dst = {0};
+  e2sm_rc_ctrl_msg_t dst = {0}; 
   // Radio Bearer Control
   dst.format = FORMAT_1_E2SM_RC_CTRL_MSG;
   //dst.frmt_1 = gen_rc_ctrl_msg_frmt_1();
   dst.frmt_1 = gen_rc_ctrl_msg_frmt_1_qos_flow_map();
-
+ 
   return dst;
 }
 */
 
 typedef enum{
-    DRB_QoS_Configuration_7_6_2_1 = 1,
-    QoS_flow_mapping_configuration_7_6_2_1 = 2,
-    Logical_channel_configuration_7_6_2_1 = 3,
-    Radio_admission_control_7_6_2_1 = 4,
-    DRB_termination_control_7_6_2_1 = 5,
-    DRB_split_ratio_control_7_6_2_1 = 6,
-    PDCP_Duplication_control_7_6_2_1 = 7,
+  DRB_QoS_Configuration_7_6_2_1 = 1,
+  QoS_flow_mapping_configuration_7_6_2_1 = 2,
+  Logical_channel_configuration_7_6_2_1 = 3,
+  Radio_admission_control_7_6_2_1 = 4,
+  DRB_termination_control_7_6_2_1 = 5,
+  DRB_split_ratio_control_7_6_2_1 = 6,
+  PDCP_Duplication_control_7_6_2_1 = 7,
 } rc_ctrl_service_style_1_e;
-
+/*
 static
 e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1(void)
+{
+  e2sm_rc_ctrl_hdr_frmt_1_t dst = {0};
+
+  // 6.2.2.6
+  {
+  lock_guard(&mtx);
+  dst.ue_id = cp_ue_id_e2sm(&ue_id);
+  }
+  // CONTROL Service Style 1: Radio Bearer Control
+  dst.ric_style_type = 1;
+
+  // QoS flow mapping conf 
+  dst.ctrl_act_id = QoS_flow_mapping_configuration_7_6_2_1 ;
+
+  return dst;
+}*/
+static
+e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1_oran(void)
 {
   e2sm_rc_ctrl_hdr_frmt_1_t dst = {0};
 
@@ -1001,14 +1023,23 @@ e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1(void)
     dst.ue_id = cp_ue_id_e2sm(&ue_id);
   }
   // CONTROL Service Style 1: Radio Bearer Control
-  dst.ric_style_type = 1;
+  dst.ric_style_type = 2;                                      
 
   // QoS flow mapping conf
-  dst.ctrl_act_id = QoS_flow_mapping_configuration_7_6_2_1 ;
+  dst.ctrl_act_id = 6;
 
   return dst;
 }
-
+static
+e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr_oran(void)
+{
+  e2sm_rc_ctrl_hdr_t dst = {0};
+  // Radio Bearer Control
+  dst.format = FORMAT_1_E2SM_RC_CTRL_HDR;
+  dst.frmt_1 = gen_rc_ctrl_hdr_frmt_1_oran();
+  return dst;
+}
+/*
 static
 e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(void)
 {
@@ -1018,19 +1049,19 @@ e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(void)
   dst.frmt_1 = gen_rc_ctrl_hdr_frmt_1();
   return dst;
 }
-
+*/
 typedef enum {
-    DRB_ID_8_4_2_2 = 1,
-    LIST_OF_QOS_FLOWS_MOD_IN_DRB_8_4_2_2 = 2,
-    QOS_FLOW_ITEM_8_4_2_2 = 3,
-    QOS_FLOW_ID_8_4_2_2 = 4,
-    QOS_FLOW_MAPPING_IND_8_4_2_2 = 5,
+  DRB_ID_8_4_2_2 = 1,
+  LIST_OF_QOS_FLOWS_MOD_IN_DRB_8_4_2_2 = 2,
+  QOS_FLOW_ITEM_8_4_2_2 = 3,
+  QOS_FLOW_ID_8_4_2_2 = 4,
+  QOS_FLOW_MAPPING_IND_8_4_2_2 = 5,
 } qos_flow_mapping_conf_e;
-
+/*
 static
 e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
 {
-  e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
+  e2sm_rc_ctrl_msg_frmt_1_t dst = {0}; 
 
   // 8.4.2.2 QoS flow mapping configuration
   dst.sz_ran_param = 2;
@@ -1042,9 +1073,9 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
   dst.ran_param[0].ran_param_val.flag_true = calloc(1, sizeof(ran_parameter_value_t)) ;
   assert(dst.ran_param[0].ran_param_val.flag_true != NULL && "Memory exhausted");
 
-  // Let's suppose that it is the DRB 5
-  dst.ran_param[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE;
-  dst.ran_param[0].ran_param_val.flag_true->int_ran = 5;
+  // Let's suppose that it is the DRB 5 
+  dst.ran_param[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE; 
+  dst.ran_param[0].ran_param_val.flag_true->int_ran = 5; 
 
   // List of QoS Flows to be modified in DRB
   dst.ran_param[1].ran_param_id = LIST_OF_QOS_FLOWS_MOD_IN_DRB_8_4_2_2;
@@ -1053,12 +1084,12 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
   assert(dst.ran_param[1].ran_param_val.lst != NULL && "Memory exhausted");
   ran_param_list_t* rpl = dst.ran_param[1].ran_param_val.lst;
 
-  rpl->sz_lst_ran_param = 1;
+  rpl->sz_lst_ran_param = 1; 
   rpl->lst_ran_param = calloc(1, sizeof(lst_ran_param_t));
   assert(rpl->lst_ran_param != NULL && "Memory exhausted");
 
   // QoS Flow Item
-  //rpl->lst_ran_param[0].ran_param_id = QOS_FLOW_ITEM_8_4_2_2;
+  rpl->lst_ran_param[0].ran_param_id = QOS_FLOW_ITEM_8_4_2_2; 
   rpl->lst_ran_param[0].ran_param_struct.sz_ran_param_struct = 2;
   rpl->lst_ran_param[0].ran_param_struct.ran_param_struct = calloc(2, sizeof(seq_ran_param_t));
   assert(rpl->lst_ran_param[0].ran_param_struct.ran_param_struct != NULL && "Memory exhausted");
@@ -1069,36 +1100,139 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
   rps[0].ran_param_val.type = ELEMENT_KEY_FLAG_TRUE_RAN_PARAMETER_VAL_TYPE;
   rps[0].ran_param_val.flag_true = calloc(1, sizeof(ran_parameter_value_t));
   assert(rps[0].ran_param_val.flag_true != NULL && "Memory exhausted");
-  rps[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE;
+  rps[0].ran_param_val.flag_true->type = INTEGER_RAN_PARAMETER_VALUE; 
   // Let's suppose that we have QFI 10
-  rps[0].ran_param_val.flag_true->int_ran = 10;
+  rps[0].ran_param_val.flag_true->int_ran = 10; 
 
   // QoS Flow Mapping Indication
   rps[1].ran_param_id = QOS_FLOW_MAPPING_IND_8_4_2_2;
-  rps[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  rps[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE; 
   rps[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-  assert(rps[1].ran_param_val.flag_false != NULL && "Memory exhausted");
+  assert(rps[1].ran_param_val.flag_false != NULL && "Memory exhausted"); 
 
-  // ENUMERATED (ul, dl, ...)
+  // ENUMERATED (ul, dl, ...) 
   rps[1].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  rps[1].ran_param_val.flag_false->int_ran = 1;
+  rps[1].ran_param_val.flag_false->int_ran = 1; 
+
+  return dst;
+}*/
+uint8_t fill_rrm_policy(ran_param_struct_t *ran_param, uint8_t *plmnid, uint8_t *sst, uint8_t *sd, int minPrb, int maxPrb, int dedPrb){
+
+  ran_param->sz_ran_param_struct = 4;
+  ran_param->ran_param_struct = calloc(4, sizeof(seq_ran_param_t));
+  ran_param->ran_param_struct[0].ran_param_id = 3;
+  ran_param->ran_param_struct[0].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+  ran_param->ran_param_struct[0].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
+  ran_param->ran_param_struct[0].ran_param_val.strct->sz_ran_param_struct = 1;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_id = 5;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.type = LIST_RAN_PARAMETER_VAL_TYPE;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst = calloc(1, sizeof(ran_param_list_t));
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->sz_lst_ran_param = 1;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param = calloc(1, sizeof(lst_ran_param_t));
+  /*ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_id = 6;*/
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.sz_ran_param_struct = 2;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct = calloc(2, sizeof(seq_ran_param_t));
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_id = 7;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.flag_false->type = OCTET_STRING_RAN_PARAMETER_VALUE;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.len = 6;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.buf = calloc(6, sizeof(uint8_t));
+  memcpy(ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.buf, plmnid, 6);  // plmnid
+
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_id = 8;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->sz_ran_param_struct = 2;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct = calloc(2,sizeof(seq_ran_param_t));
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_id = 9;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_false->type = OCTET_STRING_RAN_PARAMETER_VALUE;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.len = 1;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.buf = calloc(1, sizeof(uint8_t));
+  memcpy(ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[0].ran_param_val.flag_false->octet_str_ran.buf, sst, 1); // S-NSSAI
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_id = 10;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.flag_false->type = OCTET_STRING_RAN_PARAMETER_VALUE;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.flag_false->octet_str_ran.len = 3;
+  ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.flag_false->octet_str_ran.buf = calloc(3, sizeof(uint8_t));
+  memcpy(ran_param->ran_param_struct[0].ran_param_val.strct->ran_param_struct->ran_param_val.lst->lst_ran_param->ran_param_struct.ran_param_struct[1].ran_param_val.strct->ran_param_struct[1].ran_param_val.flag_false->octet_str_ran.buf, sd, 3); // S-NSSAI
+
+  ran_param->ran_param_struct[1].ran_param_id = 11;
+  ran_param->ran_param_struct[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  ran_param->ran_param_struct[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  ran_param->ran_param_struct[1].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
+  ran_param->ran_param_struct[1].ran_param_val.flag_false->int_ran = minPrb; // Min
+  ran_param->ran_param_struct[2].ran_param_id = 12;
+  ran_param->ran_param_struct[2].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  ran_param->ran_param_struct[2].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  ran_param->ran_param_struct[2].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
+  ran_param->ran_param_struct[2].ran_param_val.flag_false->int_ran = maxPrb; // Max
+  ran_param->ran_param_struct[3].ran_param_id = 13;
+  ran_param->ran_param_struct[3].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  ran_param->ran_param_struct[3].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  ran_param->ran_param_struct[3].ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
+  ran_param->ran_param_struct[3].ran_param_val.flag_false->int_ran = dedPrb; // Ded
+
+  return 0;
+}
+
+
+
+static
+e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_rrm_policy(int rrmPolicy[3][3])
+{
+  e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
+  uint8_t plmnid[][6] = {{3,1,1,4,8,0}, {3,1,1,4,8,0}, {3,1,1,4,8,0}};
+  uint8_t sst[][1] = {{1}, {2}, {3}};
+  uint8_t sd[][3] = {{2,3,4}, {3,3,4}, {4,3,4}};
+  int dedPrb[] = {rrmPolicy[0][2],rrmPolicy[1][2],rrmPolicy[2][2]};
+  int maxPrb[] = {rrmPolicy[0][0],rrmPolicy[1][0],rrmPolicy[2][0]};
+  int minPrb[] = {rrmPolicy[0][1],rrmPolicy[1][1],rrmPolicy[2][1]};
+
+  // RRM Policy configuration
+  dst.sz_ran_param = 1;
+  dst.ran_param = calloc(1, sizeof(seq_ran_param_t));
+  dst.ran_param->ran_param_id = 1;
+  dst.ran_param->ran_param_val.type = LIST_RAN_PARAMETER_VAL_TYPE;
+  dst.ran_param->ran_param_val.lst = calloc(3, sizeof(ran_param_list_t));
+  dst.ran_param->ran_param_val.lst->sz_lst_ran_param = 3;
+  dst.ran_param->ran_param_val.lst->lst_ran_param = calloc(3, sizeof(lst_ran_param_t));
+ /* dst.ran_param->ran_param_val.lst->lst_ran_param[0].ran_param_id = 2;
+  dst.ran_param->ran_param_val.lst->lst_ran_param[1].ran_param_id = 2;
+  dst.ran_param->ran_param_val.lst->lst_ran_param[2].ran_param_id = 2;*/
+  assert(dst.ran_param != NULL && "Memory exhausted");
+
+
+  for(int i=0;i<3;i++){
+    fill_rrm_policy(&dst.ran_param->ran_param_val.lst->lst_ran_param[i].ran_param_struct, plmnid[i], sst[i], sd[i], minPrb[i], maxPrb[i], dedPrb[i]);
+  }
+
+  for(int i=0;i<3;i++){
+    printf("RRM Policy # %d\nPlmnID = %d%d%d%d%d%d, S-NSSAI = {%d-%d%d%d}\n", i, plmnid[i][0], plmnid[i][1], plmnid[i][2], plmnid[i][3], plmnid[i][4], plmnid[i][5], sst[i][0], sd[i][0], sd[i][1], sd[i][2]);
+    printf("Min PRB Policy Ratio = %d\n", minPrb[i]);
+    printf("Max PRB Policy Ratio = %d\n", maxPrb[i]);
+    printf("Dedicated PRB Policy Ratio = %d\n\n", dedPrb[i]);
+  }
 
   return dst;
 }
 
 static
-e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg(void)
+e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg_oran(int rrmPolicy [3][3])
 {
   e2sm_rc_ctrl_msg_t dst = {0};
 
   // Radio Bearer Control
   dst.format = FORMAT_1_E2SM_RC_CTRL_MSG;
   //dst.frmt_1 = gen_rc_ctrl_msg_frmt_1();
-  dst.frmt_1 = gen_rc_ctrl_msg_frmt_1_qos_flow_map();
+  dst.frmt_1 = gen_rc_ctrl_msg_frmt_1_rrm_policy(rrmPolicy);
 
   return dst;
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -1114,7 +1248,7 @@ int main(int argc, char *argv[])
 
   printf("Connected E2 nodes = %d\n", nodes.len);
 
-  sm_ans_xapp_t* h = calloc(nodes.len, sizeof(sm_ans_xapp_t));
+  sm_ans_xapp_t* h = calloc(nodes.len, sizeof(sm_ans_xapp_t)); 
   assert(h != NULL && "Memory exhausted");
 
 
@@ -1123,9 +1257,9 @@ int main(int argc, char *argv[])
   assert(rc == 0);
 
 
-  ////////////
-  // START KPM
-  ////////////
+  //////////// 
+  // START KPM 
+  //////////// 
   kpm_sub_data_t kpm_sub = {0};
 
   // KPM Event Trigger
@@ -1139,25 +1273,30 @@ int main(int argc, char *argv[])
   /*modified by joe*/
   const char act[][25] = {"DRB.UEThpDl.SNSSAI", "RRU.PrbUsedDl.SNSSAI"};
   /*modified by joe*/
-  *kpm_sub.ad = gen_act_def(act);
+ /* const char sst[][1] = {{1},{2},{3}};
+  const char sd[][3] = {{2,3,4}, {3,3,4}, {4,3,4}};*/
+  int rrmPolicy [3][3] = {{100,34,10}, {100,33,10}, {100,33,10}};
+  int rrmPolicy1 [3][3] = {{100,20,10}, {100,40,10}, {100,40,10}};
+  int rrmPolicy2 [3][3] = {{100,60,10}, {100,20,10}, {100,20,10}};
 
+  *kpm_sub.ad = gen_act_def(act);
   const int KPM_ran_function = 2;
 
-  for(size_t i =0; i < nodes.len; ++i){
+  for(size_t i =0; i < nodes.len; ++i){ 
     h[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm_oran_slice);
     assert(h[i].success == true);
-  }
-  free_kpm_sub_data(&kpm_sub);
+  } 
+  free_kpm_sub_data(&kpm_sub); 
 
-  ////////////
-  // END KPM
-  ////////////
+  //////////// 
+  // END KPM 
+  //////////// 
 
   sleep(5);
 
-  ////////////
-  // START RC
-  ////////////
+  //////////// 
+  // START RC 
+  //////////// 
 
   // RC On Demand report
   //  rc_sub_data_t rc_sub = {0};
@@ -1166,25 +1305,43 @@ int main(int argc, char *argv[])
   //  assert(h_2.success == true);
 
 
+  
+  // RC Control 
+ rc_ctrl_req_data_t rc_ctrl = {0};
 
-  // RC Control
-  rc_ctrl_req_data_t rc_ctrl = {0};
-
-  rc_ctrl.hdr = gen_rc_ctrl_hdr();
-  rc_ctrl.msg = gen_rc_ctrl_msg();
+  rc_ctrl.hdr = gen_rc_ctrl_hdr_oran();
+  rc_ctrl.msg = gen_rc_ctrl_msg_oran(rrmPolicy);
 
   const int RC_ran_function = 3;
+
+  for(size_t i =0; i < nodes.len; ++i){ 
+    control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
+  }
+  free_rc_ctrl_req_data(&rc_ctrl);
+    sleep(15);
+  rc_ctrl.hdr = gen_rc_ctrl_hdr_oran();
+  rc_ctrl.msg = gen_rc_ctrl_msg_oran(rrmPolicy2);
 
   for(size_t i =0; i < nodes.len; ++i){
     control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
   }
   free_rc_ctrl_req_data(&rc_ctrl);
 
-  // free_rc_ctrl_req_data(&rc_ctrl);
+  sleep(300);
+
+  rc_ctrl.hdr = gen_rc_ctrl_hdr_oran();
+  rc_ctrl.msg = gen_rc_ctrl_msg_oran(rrmPolicy1);
+
+  for(size_t i =0; i < nodes.len; ++i){
+    control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
+  }
+  free_rc_ctrl_req_data(&rc_ctrl);
+
+  // free_rc_ctrl_req_data(&rc_ctrl); 
 //
-  ////////////
-  // END RC
-  ////////////
+  //////////// 
+  // END RC 
+  //////////// 
 
   sleep(600);
 
@@ -1200,7 +1357,7 @@ int main(int argc, char *argv[])
 
   free(h);
 
-  free_e2_node_arr(&nodes);
+  free_e2_node_arr(&nodes); 
 
   rc = pthread_mutex_destroy(&mtx);
   assert(rc == 0);
