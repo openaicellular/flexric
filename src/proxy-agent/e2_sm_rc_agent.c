@@ -144,18 +144,11 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
         }
 
         else if(ctrl->hdr.frmt_1.ric_style_type == 3 && ctrl->hdr.frmt_1.ctrl_act_id == Handover_control_7_6_4_1) {
-            printf("[E2 AGENT]: Recv control message for handover");
+            printf("[E2 AGENT]: Recv control message for handover \n");
             e2sm_rc_ctrl_msg_frmt_1_t const *msg = &ctrl->msg.frmt_1;
-            assert(msg->sz_ran_param == 2 && "not support msg->sz_ran_param != 2");
-            seq_ran_param_t *amr_ran_ue_id = &msg->ran_param[0];
-            assert(amr_ran_ue_id->ran_param_id == Amarisoft_ran_ue_id && "wrong ran ue id");
-            assert(amr_ran_ue_id->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong ran ue id type");
-            assert(amr_ran_ue_id->ran_param_val.flag_false != NULL && "NULL amr_ran_ue_id->ran_param_val.flag_false");
-            assert(amr_ran_ue_id->ran_param_val.flag_false->type == INTEGER_RAN_PARAMETER_VALUE &&
-                   "wrong amr_ran_ue_id->ran_param_val.flag_false type");
-            uint64_t ran_ue_id = amr_ran_ue_id->ran_param_val.flag_false->int_ran;
+            assert(msg->sz_ran_param == 1 && "not support msg->sz_ran_param != 2");
 
-            seq_ran_param_t *target_primary_cell_id = &msg->ran_param[1];
+            seq_ran_param_t *target_primary_cell_id = &msg->ran_param[0];
             assert(target_primary_cell_id->ran_param_id == Target_primary_cell_id_8_4_4_1 &&
                    "Wrong Target_primary_cell_id id ");
             assert(target_primary_cell_id->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE &&
@@ -212,7 +205,10 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
                    "wrong E_ULTRA_CGI->ran_param_val.flag_false type");
             char *e_ultra_cgi_str = copy_ba_to_str(&e_ultra_cgi->ran_param_val.flag_false->bit_str_ran);
 
-            printf("RC SM: Handover control from src ran_ue_id %ld to target NR_CGI %s E_ULTRA_CGI %s \n", ran_ue_id, nr_cgi_str, e_ultra_cgi_str);
+            ue_id_e2sm_t ue_id = ctrl->hdr.frmt_1.ue_id;
+            assert(ue_id.type == GNB_UE_ID_E2SM && "Wrong ue_id_e2sm type");
+            assert(ue_id.gnb.ran_ue_id != NULL && "NULL GNB_RAN_UE_ID");
+            printf("RC SM: Handover control from src ran_ue_id %ld to target NR_CGI %s E_ULTRA_CGI %s \n", *ue_id.gnb.ran_ue_id, nr_cgi_str, e_ultra_cgi_str);
             free(nr_cgi_str);
             free(e_ultra_cgi_str);
         }

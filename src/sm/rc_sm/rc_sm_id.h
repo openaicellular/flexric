@@ -61,13 +61,12 @@ typedef enum{
 } rc_ctrl_service_style_3_act_id_e;
 
 typedef enum{
-    Amarisoft_ran_ue_id = 1,
-    Target_primary_cell_id_8_4_4_1 = 2,
-    CHOICE_target_cell_8_4_4_1 = 3,
-    NR_cell_8_4_4_1 = 4,
-    NR_CGI_8_4_4_1 = 5,
-    E_ULTRA_Cell_8_4_4_1 = 6,
-    E_ULTRA_CGI_8_4_4_1 = 7,
+    Target_primary_cell_id_8_4_4_1 = 1,
+    CHOICE_target_cell_8_4_4_1 = 2,
+    NR_cell_8_4_4_1 = 3,
+    NR_CGI_8_4_4_1 = 4,
+    E_ULTRA_Cell_8_4_4_1 = 5,
+    E_ULTRA_CGI_8_4_4_1 = 6,
 } handover_control_param_id_e;
 
 static

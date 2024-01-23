@@ -137,26 +137,17 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over()
 
     // 8.4.4.1
     // Target Primary Cell ID, STRUCTURE (len 1)
-    // > RAN UE Id, ELEMENT // TODO: Not follow to standard
     // > CHOICE Target Cell, STRUCTURE (len 2)
     // >> NR Cell, STRUCTURE (len 1)
     // >>> NR CGI, ELEMENT
     // >> E-ULTRA Cell, STRUCTURE (len 1)
     // >>> E-ULTRA CGI, ELEMENT
 
-    dst.sz_ran_param = 2;
-    dst.ran_param = calloc(2, sizeof(seq_ran_param_t));
+    dst.sz_ran_param = 1;
+    dst.ran_param = calloc(1, sizeof(seq_ran_param_t));
     assert(dst.ran_param != NULL && "Memory exhausted");
 
-    seq_ran_param_t* amr_ran_ue_id = &dst.ran_param[0];
-    amr_ran_ue_id->ran_param_id = Amarisoft_ran_ue_id;
-    amr_ran_ue_id->ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-    amr_ran_ue_id->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-    assert(amr_ran_ue_id->ran_param_val.flag_false != NULL && "Memory exhausted");
-    amr_ran_ue_id->ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-    amr_ran_ue_id->ran_param_val.flag_false->int_ran = 20; // TODO: Fix this number
-
-    gen_target_primary_cell_id(&dst.ran_param[1]);
+    gen_target_primary_cell_id(&dst.ran_param[0]);
     // TODO: List of PDU sessions for handover
     // TODO: List of PRBs for handover
     // TODO: List of secondary cells to be setup
@@ -185,7 +176,8 @@ ue_id_e2sm_t gen_rc_ue_id(ue_id_e2sm_e type)
     ue_id_e2sm_t ue_id = {0};
     if (type == GNB_UE_ID_E2SM) {
         ue_id.type = GNB_UE_ID_E2SM;
-        // TODO
+        ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
+        *ue_id.gnb.ran_ue_id = 1;
         ue_id.gnb.amf_ue_ngap_id = 0;
         ue_id.gnb.guami.plmn_id.mcc = 1;
         ue_id.gnb.guami.plmn_id.mnc = 1;

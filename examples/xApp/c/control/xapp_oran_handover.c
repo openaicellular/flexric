@@ -63,6 +63,8 @@ ue_id_e2sm_t gen_rc_ue_id(ue_id_e2sm_e type)
         ue_id.gnb.guami.amf_region_id = 0;
         ue_id.gnb.guami.amf_set_id = 0;
         ue_id.gnb.guami.amf_ptr = 0;
+        ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
+        *ue_id.gnb.ran_ue_id = ran_ue_id;
     } else {
         assert(0!=0 && "not supported UE ID type");
     }
@@ -177,26 +179,17 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over()
 
     // 8.4.4.1
     // Target Primary Cell ID, STRUCTURE (len 1)
-    // > RAN UE Id, ELEMENT // TODO: Not follow to standard
     // > CHOICE Target Cell, STRUCTURE (len 2)
     // >> NR Cell, STRUCTURE (len 1)
     // >>> NR CGI, ELEMENT
     // >> E-ULTRA Cell, STRUCTURE (len 1)
     // >>> E-ULTRA CGI, ELEMENT
 
-    dst.sz_ran_param = 2;
-    dst.ran_param = calloc(2, sizeof(seq_ran_param_t));
+    dst.sz_ran_param = 1;
+    dst.ran_param = calloc(1, sizeof(seq_ran_param_t));
     assert(dst.ran_param != NULL && "Memory exhausted");
 
-    seq_ran_param_t* amr_ran_ue_id = &dst.ran_param[0];
-    amr_ran_ue_id->ran_param_id = Amarisoft_ran_ue_id;
-    amr_ran_ue_id->ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-    amr_ran_ue_id->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-    assert(amr_ran_ue_id->ran_param_val.flag_false != NULL && "Memory exhausted");
-    amr_ran_ue_id->ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-    amr_ran_ue_id->ran_param_val.flag_false->int_ran = ran_ue_id; // TODO: Fix this number
-
-    gen_target_primary_cell_id(&dst.ran_param[1]);
+    gen_target_primary_cell_id(&dst.ran_param[0]);
     // TODO: List of PDU sessions for handover
     // TODO: List of PRBs for handover
     // TODO: List of secondary cells to be setup
@@ -354,8 +347,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node){
             kpm_ind_msg_format_3_t const* msg_frm_3 = &kpm->msg.frm_3;
             for (size_t i = 0; i < msg_frm_3->ue_meas_report_lst_len; i++){
 
-                uint64_t id = *msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id;
-                ran_ue_id = id;
+                ran_ue_id = *msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id;
                 kpm_ind_msg_format_1_t const* msg_frm_1 = &msg_frm_3->meas_report_per_ue[i].ind_msg_format_1;
                 for (size_t j = 0; j < msg_frm_1->meas_data_lst_len; j++) {
                     // TODO: For some reason, it is extend the k values

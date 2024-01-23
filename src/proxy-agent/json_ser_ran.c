@@ -825,16 +825,9 @@ static const char *json_encode_ctrl_rc(int msg_id, rc_ctrl_req_data_t ctrl_msg)
     if (ctrl_msg.hdr.format == FORMAT_1_E2SM_RC_CTRL_HDR){
         if(ctrl_msg.hdr.frmt_1.ric_style_type == 3 && ctrl_msg.hdr.frmt_1.ctrl_act_id == Handover_control_7_6_4_1){
             e2sm_rc_ctrl_msg_frmt_1_t const *msg = &ctrl_msg.msg.frmt_1;
-            assert(msg->sz_ran_param == 2 && "not support msg->sz_ran_param != 2");
-            seq_ran_param_t *amr_ran_ue_id = &msg->ran_param[0];
-            assert(amr_ran_ue_id->ran_param_id == Amarisoft_ran_ue_id && "wrong ran ue id");
-            assert(amr_ran_ue_id->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong ran ue id type");
-            assert(amr_ran_ue_id->ran_param_val.flag_false != NULL && "NULL amr_ran_ue_id->ran_param_val.flag_false");
-            assert(amr_ran_ue_id->ran_param_val.flag_false->type == INTEGER_RAN_PARAMETER_VALUE &&
-                   "wrong amr_ran_ue_id->ran_param_val.flag_false type");
-            uint64_t ran_ue_id = amr_ran_ue_id->ran_param_val.flag_false->int_ran;
+            assert(msg->sz_ran_param == 1 && "not support msg->sz_ran_param != 1");
 
-            seq_ran_param_t *target_primary_cell_id = &msg->ran_param[1];
+            seq_ran_param_t *target_primary_cell_id = &msg->ran_param[0];
             assert(target_primary_cell_id->ran_param_id == Target_primary_cell_id_8_4_4_1 &&
                    "Wrong Target_primary_cell_id id ");
             assert(target_primary_cell_id->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE &&
@@ -894,10 +887,13 @@ static const char *json_encode_ctrl_rc(int msg_id, rc_ctrl_req_data_t ctrl_msg)
 //                pci = copy_ba_to_str(&e_ultra_cgi->ran_param_val.flag_false->bit_str_ran);
 //            }
 
+            ue_id_e2sm_t ue_id = ctrl_msg.hdr.frmt_1.ue_id;
+            assert(ue_id.type == GNB_UE_ID_E2SM && "Wrong ue_id_e2sm type");
+            assert(ue_id.gnb.ran_ue_id != NULL && "NULL GNB_RAN_UE_ID");
             int rc = snprintf(enc_gbuf,
                               sizeof(enc_gbuf),
                               "{\"message\":\"handover\",\"ran_ue_id\":%ld,\"pci\":%s,\"message_id\":\"%d\"}",
-                              ran_ue_id, pci,
+                              *ue_id.gnb.ran_ue_id, pci,
                               msg_id);
             if (rc >= (int)sizeof(enc_gbuf))
             {

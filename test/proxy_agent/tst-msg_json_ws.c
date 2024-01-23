@@ -189,7 +189,7 @@ void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id, uint64_
 }
 
 static
-e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over(int64_t ran_ue_id, uint64_t pci)
+e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over(uint64_t pci)
 {
     e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
 
@@ -202,19 +202,11 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over(int64_t ran_ue_id, ui
     // >> E-ULTRA Cell, STRUCTURE (len 1)
     // >>> E-ULTRA CGI, ELEMENT
 
-    dst.sz_ran_param = 2;
-    dst.ran_param = calloc(2, sizeof(seq_ran_param_t));
+    dst.sz_ran_param = 1;
+    dst.ran_param = calloc(1, sizeof(seq_ran_param_t));
     assert(dst.ran_param != NULL && "Memory exhausted");
 
-    seq_ran_param_t* amr_ran_ue_id = &dst.ran_param[0];
-    amr_ran_ue_id->ran_param_id = Amarisoft_ran_ue_id;
-    amr_ran_ue_id->ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-    amr_ran_ue_id->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-    assert(amr_ran_ue_id->ran_param_val.flag_false != NULL && "Memory exhausted");
-    amr_ran_ue_id->ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-    amr_ran_ue_id->ran_param_val.flag_false->int_ran = ran_ue_id;
-
-    gen_target_primary_cell_id(&dst.ran_param[1], pci);
+    gen_target_primary_cell_id(&dst.ran_param[0], pci);
     return dst;
 }
 
@@ -276,8 +268,10 @@ int main()
   ctrl_msg_rc.rc_ctrl.hdr.format = FORMAT_1_E2SM_RC_CTRL_HDR;
   ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ric_style_type = 3;
   ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ctrl_act_id = Handover_control_7_6_4_1;
+  ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
+  *ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id = 11;
   ctrl_msg_rc.rc_ctrl.msg.format = FORMAT_1_E2SM_RC_CTRL_MSG;
-  ctrl_msg_rc.rc_ctrl.msg.frmt_1 = gen_rc_ctrl_msg_frmt_1_hand_over(11, 8);
+  ctrl_msg_rc.rc_ctrl.msg.frmt_1 = gen_rc_ctrl_msg_frmt_1_hand_over(8);
 
   char *expected_rc_ctrl = "{\"message\":\"handover\",\"ran_ue_id\":11,\"pci\":8,\"message_id\":\"1\"}";
   const char *p_rc = ser->encode_ctrl(1, ctrl_msg_rc);
@@ -286,5 +280,6 @@ int main()
     ret_status = EXIT_FAILURE;
   }
 
+  free(ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id);
   return ret_status;
 }
