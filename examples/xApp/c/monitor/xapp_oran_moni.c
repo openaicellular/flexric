@@ -25,6 +25,8 @@
 #include "../../../../src/util/e2ap_ngran_types.h"
 #include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "../../../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
+#include "../../../../src/sm/rc_sm/rc_sm_id.h"
+#include "../../../../src/sm/rc_sm/ie/rc_data_ie.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -42,6 +44,44 @@ static void sigint_handler(int sig)
 
 static
 pthread_mutex_t mtx;
+
+////////////
+// Get RC Indication Messages -> begin
+////////////
+
+static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node)
+{
+  assert(rd != NULL);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == RAN_CTRL_STATS_V1_03);
+  (void) e2_node;
+
+  // Reading Indication Message Format 2
+  e2sm_rc_ind_msg_frmt_2_t const *msg_frm_2 = &rd->ind.rc.ind.msg.frmt_2;
+
+  printf("\n RC REPORT Style 2 - Call Process Outcome\n");
+
+  // Sequence of UE Identifier
+  //[1-65535]
+  for (size_t i = 0; i < msg_frm_2->sz_seq_ue_id; i++)
+  {
+    // UE ID
+    // Mandatory
+    // 9.3.10
+    switch (msg_frm_2->seq_ue_id[i].ue_id.type)
+    {
+      case GNB_UE_ID_E2SM:
+        printf("UE connected to gNB with amf_ue_ngap_id = %lu\n", msg_frm_2->seq_ue_id[i].ue_id.gnb.amf_ue_ngap_id);
+        break;
+      default:
+        printf("Not yet implemented UE ID type");
+    }
+  }
+}
+
+////////////
+// Get RC Indication Messages -> end
+////////////
 
 static
 void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
@@ -322,6 +362,155 @@ kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm, uint32_
   return dst;
 }
 
+typedef enum
+{
+  CURRENT_UE_ID_8_2_2 = 1,
+  OLD_UE_ID_8_2_2 = 2,
+  CURRENT_RRC_STATE_8_2_2 = 3,
+  OLD_RRC_STATE_8_2_2 = 4,
+  UE_CONTEXT_INFO_CONTAINER_8_2_2 = 5,
+  CELL_GLOBAL_ID_8_2_2 = 6,
+  UE_INFORMATION_8_2_2 = 7,
+  MASTER_NODE_8_1_1_17 = 21501,
+  GNB_MEASUREMENTS_MASTER_NODE_8_1_1_17 = 21502,
+  CHOICE_PRIMARY_CELL_OF_MCG_8_1_1_17 = 21503,
+  NR_CELL_PRIMARY_MCG_8_1_1_17 = 21504,
+  EUTRA_CELL_PRIMARY_MCG_8_1_1_17 = 21505,
+  LIST_OF_SECONDARY_CELLS_OF_MCG_8_1_1_17 = 21506,
+  SCELL_ITEM_MCG_8_1_1_17 = 21507,
+  CHOICE_SCELL_MSG_8_1_1_17 = 21508,
+  NR_CELL_SECONDARY_MCG_8_1_1_17 = 21509,
+  EUTRA_CELL_SECONDARY_MCG_8_1_1_17 = 21510,
+  SECONDARY_NODE_8_1_1_17 = 21511,
+  GNB_MEASUREMENTS_SECONDARY_NODE_8_1_1_17 = 21512,
+  CHOICE_PRIMARY_CELL_OF_SCG_8_1_1_17 = 21513,
+  NR_CELL_PRIMARY_SCG_8_1_1_17 = 21514,
+  EUTRA_CELL_PRIMARY_SCG_8_1_1_17 = 21515,
+  LIST_OF_SECONDARY_CELLS_OF_SCG_8_1_1_17 = 21516,
+  SCELL_ITEM_SCG_8_1_1_17 = 21517,
+  CHOICE_SCELL_SCG_8_1_1_17 = 21518,
+  NR_CELL_SECONDARY_SCG_8_1_1_17 = 21519,
+  EUTRA_CELL_SECONDARY_SCG_8_1_1_17 = 21520,
+  LIST_OF_PDU_SESSIONS_8_1_1_17 = 21521,
+  PDU_SESSION_ITEM_8_1_1_17 = 21522,
+  PDU_SESSION_ID_8_1_1_17 = 21543,
+  PDU_SESSION_8_1_1_17 = 21523,
+  LIST_OF_DRBS_8_1_1_17 = 21524,
+  DRB_ITEM_8_1_1_17 = 21525,
+  DRB_ID_8_1_1_17 = 21546,
+  DRB_8_1_1_17 = 21547,
+  LIST_OF_QOS_FLOWS_MAPPED_TO_DRB_8_1_1_17 = 21526,
+  QOS_FLOW_ITEM_8_1_1_17 = 21527,
+  QOS_FLOW_IDENTIFIER_8_1_1_17 = 21548,
+  QOS_FLOW_8_1_1_17 = 21549,
+  LIST_OF_NEIGHBOR_CELLS_8_1_1_17 = 21528,
+  NEIGHBOR_CELL_ITEM_8_1_1_17 = 21529,
+  CHOICE_NEIGHBOR_CELL_8_1_1_17 = 21530,
+  NR_CELL_NEIGHBOR_8_1_1_17 = 21531,
+  EUTRA_CELL_NEIGHBOR_8_1_1_17 = 21532,
+
+} ran_param_report_style_2_e;
+
+
+//static e2sm_rc_act_def_frmt_1_t gen_rc_act_def_frm_1(const char** action)
+//{
+//  e2sm_rc_act_def_frmt_1_t act_def_frm_1 = {0};
+//
+//  size_t count = 0;
+//  while (action[count] != NULL) {
+//    count++;
+//  }
+//
+//  // Parameters to be Reported List
+//  // [1-65535]
+//  // 8.2.2
+//  act_def_frm_1.sz_param_report_def = count;
+//  act_def_frm_1.param_report_def = calloc(act_def_frm_1.sz_param_report_def, sizeof(param_report_def_t));
+//  assert(act_def_frm_1.param_report_def != NULL && "Memory exhausted");
+//  for(size_t i = 0; i < act_def_frm_1.sz_param_report_def; i++) {
+//    act_def_frm_1.param_report_def[i].ran_param_id = (uint32_t) action[i];
+//    // TODO: Add parameters report definition
+//  }
+//
+//  return act_def_frm_1;
+//}
+
+static e2sm_rc_ev_trg_frmt_2_t gen_rc_event_trigger_frm_2(void)
+{
+  e2sm_rc_ev_trg_frmt_2_t ev_trigger = {0};
+
+  //  Call Process Type ID
+  //  Mandatory
+  //  9.3.15
+  ev_trigger.call_proc_type_id = 3; // Mobility Management
+
+  // Call Breakpoint ID
+  // Mandatory
+  // 9.3.49
+  ev_trigger.call_break_id = 1; // Handover Preparation
+
+  // Associated E2 Node Info
+  // Optional
+  // 9.3.29
+  ev_trigger.assoc_e2_node_info = NULL;
+
+  // Associated UE Info
+  // Optional
+  // 9.3.26
+  ev_trigger.assoc_ue_info = NULL;
+
+  return ev_trigger;
+}
+
+
+//static e2sm_rc_action_def_t gen_rc_act_def(const char** act, e2sm_rc_act_def_format_e act_frm)
+//{
+//  e2sm_rc_action_def_t dst = {0};
+//
+//  if (act_frm == FORMAT_1_E2SM_RC_ACT_DEF) {
+//    dst.format = FORMAT_1_E2SM_RC_ACT_DEF;
+//    dst.frmt_1 = gen_rc_act_def_frm_1(act);
+//  } else {
+//    assert(0!=0 && "not support action definition type");
+//  }
+//
+//  return dst;
+//}
+
+static e2sm_rc_act_def_frmt_1_t gen_rc_act_def_frm_1_manually(void)
+{
+  e2sm_rc_act_def_frmt_1_t act_def_frm_1 = {0};
+
+  // Parameters to be Reported List
+  // [1-65535]
+  // 8.2.2
+  act_def_frm_1.sz_param_report_def = 3;
+  act_def_frm_1.param_report_def = calloc(act_def_frm_1.sz_param_report_def, sizeof(param_report_def_t));
+  assert(act_def_frm_1.param_report_def != NULL && "Memory exhausted");
+
+  // Current UE ID RAN Parameter
+  act_def_frm_1.param_report_def[0].ran_param_id = CURRENT_UE_ID_8_2_2;
+  act_def_frm_1.param_report_def[1].ran_param_id = CELL_GLOBAL_ID_8_2_2;
+  act_def_frm_1.param_report_def[2].ran_param_id = LIST_OF_NEIGHBOR_CELLS_8_1_1_17;
+
+  return act_def_frm_1;
+}
+
+static
+e2sm_rc_event_trigger_t gen_rc_ev_trigger(e2sm_rc_ev_trigger_format_e act_frm)
+{
+  e2sm_rc_event_trigger_t dst = {0};
+
+  if (act_frm == FORMAT_2_E2SM_RC_EV_TRIGGER_FORMAT) {
+    dst.format = FORMAT_2_E2SM_RC_EV_TRIGGER_FORMAT;
+    dst.frmt_2 = gen_rc_event_trigger_frm_2();
+  } else {
+    assert(0!=0 && "not support event trigger type");
+  }
+
+  return dst;
+}
+
 static
 size_t send_sub_req(e2_node_connected_t* n, fr_args_t args, sm_ans_xapp_t *kpm_handle, size_t n_handle)
 {
@@ -359,6 +548,39 @@ size_t send_sub_req(e2_node_connected_t* n, fr_args_t args, sm_ans_xapp_t *kpm_h
       kpm_handle[n_handle] = report_sm_xapp_api(&n->id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
       assert(kpm_handle[n_handle].success == true);
       n_handle += 1;
+    } else if (!strcasecmp(args.sub_oran_sm[j].name, "rc")) {
+      rc_sub_data_t rc_sub = {0};
+      defer({ free_rc_sub_data(&rc_sub); });
+
+      // RC Event Trigger
+      rc_sub.et = gen_rc_ev_trigger(FORMAT_2_E2SM_RC_EV_TRIGGER_FORMAT);
+
+      // RC Action Definition
+      rc_sub.sz_ad = 1;
+      rc_sub.ad = calloc(rc_sub.sz_ad, sizeof(e2sm_rc_action_def_t));
+      assert(rc_sub.ad != NULL && "Memory exhausted");
+
+//      e1sm_rc_act_def_format_e act_type;
+//      if (args.sub_oran_sm[j].format == 4)
+//          act_type = FORMAT_0_E2SM_RC_ACT_DEF;
+//      else
+//          assert(-1!=0 && "not supported action definition format");
+      rc_sub.ad[0].ric_style_type = 2; // 7.4.1
+      rc_sub.ad[0].format = FORMAT_1_E2SM_RC_ACT_DEF;
+      rc_sub.ad[0].frmt_1 = gen_rc_act_def_frm_1_manually();
+
+//      *rc_sub.ad = gen_rc_act_def((const char**)args.sub_oran_sm[j].actions, act_type);
+//      *rc_sub.ad = gen_rc_act_def_frm_1();
+
+      // RC HO only supports for e1ap_ngran_gNB
+      if (n->id.type == e2ap_ngran_eNB || n->id.type == e2ap_ngran_gNB_CU || n->id.type == e2ap_ngran_gNB_DU)
+          continue;
+      if (strcasecmp(args.sub_oran_sm[j].ran_type, get_e2ap_ngran_name(n->id.type)))
+          continue;
+
+      kpm_handle[n_handle] = report_sm_xapp_api(&n->id, SM_RC_ID, &rc_sub, sm_cb_rc);
+      assert(kpm_handle[n_handle].success == true);
+      n_handle += 0;
     } else {
       assert(0!=0 && "unknown SM in .conf");
     }
