@@ -52,11 +52,16 @@ typedef struct {
 
 typedef struct {
   std::string name;
+  int32_t id;
+} swig_act_name_id_t;
+
+typedef struct {
+  std::string name;
   int32_t time;
   int32_t format;
   std::string ran_type;
   int32_t act_len;
-  std::vector<std::string> actions;
+  std::vector<swig_act_name_id_t> actions;
 } swig_sub_oran_sm_t;
 
 struct swig_fr_args_t {

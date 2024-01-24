@@ -248,6 +248,7 @@ namespace std {
   %template(StringMap) std::map<std::string, std::string>;
   %template(SwigSubOranSmVector) vector<swig_sub_oran_sm_t>;
   %template(SwigSubCustSmVector) vector<swig_sub_cust_sm_t>;
+  %template(SwigActNameIdVector) vector<swig_act_name_id_t>;
   %template(IntVector) vector<int>;
   %template(E2NodeVector) vector<E2Node>;
   %template(RANVector) vector<swig_ran_function_t>;
