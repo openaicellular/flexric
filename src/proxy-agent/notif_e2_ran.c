@@ -178,13 +178,11 @@ e2_setup_request_t generate_setup_request_from_ran(e2_agent_t* ag, global_e2_nod
   assert(it == assoc_end(&ag->plugin.sm_ds) && "Length mismatch");
 
   // E2 Node Component Configuration Addition List
-  // ToDO: This needs to be filled by the RAN
-  sr.len_cca = 1;
-  sr.comp_conf_add = calloc(sr.len_cca, sizeof(e2ap_node_component_config_add_t));
-  assert(sr.comp_conf_add != NULL && "Memory exhausted");
-
-  assert(ag->read_setup_ran != NULL);
-  ag->read_setup_ran(sr.comp_conf_add);
+  arr_node_component_config_add_t arr = {0};
+  ag->read_setup_ran(&arr);
+  // Move ownership
+  sr.len_cca = arr.len_cca;
+  sr.comp_conf_add = arr.cca;
 
  return sr;
 }

@@ -81,8 +81,22 @@ void init_write_subs(write_subs_fp (*write_subs_tbl)[SM_AGENT_IF_WRITE_SUBS_V0_E
   (*write_subs_tbl)[TC_SUBS_V0] = NULL;
   (*write_subs_tbl)[GTP_SUBS_V0] = NULL;
   (*write_subs_tbl)[KPM_SUBS_V3_0] = NULL;
-  (*write_subs_tbl)[RAN_CTRL_SUBS_V1_03] = NULL;
+  (*write_subs_tbl)[RAN_CTRL_SUBS_V1_03] = write_subs_rc_sm;
 }
+
+//static
+//void init_sm(void)
+//{
+//    init_gtp_sm();
+//    init_kpm_sm();
+//    init_mac_sm();
+//    init_pdcp_sm();
+//    init_rc_sm();
+//    init_rlc_sm();
+//    init_slice_sm();
+//    init_tc_sm();
+//
+//}
 
 sm_io_ag_ran_t init_io_proxy_ag()
 {
@@ -97,6 +111,12 @@ sm_io_ag_ran_t init_io_proxy_ag()
 
   return io;
 }
+
+//static
+//void free_io_ag(void)
+//{
+//    free_kpm_sm();
+//}
 
 /*
  * We send the message into the notification system that will reach RAN interface that will take care of creating the serialization 
