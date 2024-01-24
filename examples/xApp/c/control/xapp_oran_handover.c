@@ -285,12 +285,12 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action, uint32_t period_m
 
     dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
     assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
-    *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
-    dst.matching_cond_lst[0].test_info_lst.int_value = malloc(sizeof(int64_t));
-    assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
-    *dst.matching_cond_lst[0].test_info_lst.int_value = 1;
+    dst.matching_cond_lst[0].test_info_lst.test_cond_value->type =  INTEGER_TEST_COND_VALUE;
+    dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = malloc(sizeof(int64_t));
+    assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value != NULL && "Memory exhausted");
+    *dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = 1;
 
-    printf("[xApp]: Filter UEs by S-NSSAI criteria where SST = %lu\n", *dst.matching_cond_lst[0].test_info_lst.int_value);
+    //printf("[xApp]: Filter UEs by S-NSSAI criteria where SST = %lu\n", *dst.matching_cond_lst[0].test_info_lst.int_value);
 
     dst.action_def_format_1 = gen_act_def_frmt_1(action, period_ms);  // 8.2.1.2.1
 
@@ -328,12 +328,12 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node){
     {
         lock_guard(&mtx);
         static int counter = 1;
-        #ifdef KPM_V2
+        #if defined(KPM_V2_01) || defined (KPM_V2_03)
                 // collectStartTime (32bit) unit is second
             printf("%7d, KPM v2 ind_msg latency > %ld s (minimum time unit is in second) from E2-node type %d ID %d\n",
                    counter, now/1000000 - hdr_frm_1->collectStartTime,
                    e2_node->type, e2_node->nb_id.nb_id);
-        #elif defined(KPM_V3)
+        #elif defined(KPM_V3_00)
                 // collectStartTime (64bit) unit is micro-second
             printf("%7d, KPM v3 ind_msg latency = %ld μs from E2-node type %d ID %d\n",
                    counter, now - hdr_frm_1->collectStartTime,

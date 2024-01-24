@@ -11,6 +11,7 @@
 #include "util/time_now_us.h"
 #include "util/byte_array.h"
 #include "util/alg_ds/alg/defer.h"
+#include "util/alg_ds/ds/assoc_container/assoc_generic.h"
 
 #include "e2_sm_agent.h"
 #include "ran_if.h"
@@ -18,6 +19,44 @@
 #include "ran_msg_hdlr.h"
 #include "ringbuffer.h"
 #include "notif_e2_ran.h"
+
+//static
+//assoc_ht_open_t ht;
+
+static
+void init_lst_measurements(void)
+{
+//    assoc_ht_open_init(&ht, sizeof(char*), cmp_str, free_str, hash_func);
+//
+//    const size_t nelem = sizeof(lst_measure) / sizeof(lst_measure[0]);
+//    for(size_t i = 0; i < nelem; ++i){
+//        const size_t sz = strlen(lst_measure[i].key);
+//        char* key = calloc(sz + 1, sizeof(char));
+//        memcpy(key, lst_measure[i].key, sz);
+//
+//        kpm_fp* value = calloc(1, sizeof(kpm_fp));
+//        assert(value != NULL && "Memory exhausted");
+//        *value = lst_measure[i].value;
+//        assoc_insert(&ht, &key, sizeof(char*), value);
+//    }
+//    assert(assoc_size(&ht) == nelem);
+}
+
+void init_kpm_sm(void)
+{
+//    init_lst_measurements();
+}
+
+static
+void free_lst_measurements(void)
+{
+//    assoc_free(&ht);
+}
+
+void free_kpm_sm(void)
+{
+//    free_lst_measurements();
+}
 
 static
 gnb_e2sm_t fill_gnb_data(const amarisoft_ue_stats_t* ue, global_e2_node_id_t id)
@@ -371,7 +410,7 @@ kpm_ind_hdr_t kpm_ind_hdr(ran_ind_t* ws_ind)
   return hdr;
 }
 
-void read_kpm_sm(void* data)
+bool read_kpm_sm(void* data)
 {
   ran_ind_t ws_ind = get_ringbuffer_data();
 

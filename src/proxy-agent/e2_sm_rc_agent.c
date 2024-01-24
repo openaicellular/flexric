@@ -15,7 +15,17 @@
 #include "e2_sm_agent.h"
 #include "proxy_agent.h"
 
-void read_rc_sm(void* data)
+void init_rc_sm(void)
+{
+    // No allocation needed
+}
+
+void free_rc_sm(void)
+{
+    // No allocation needed
+}
+
+bool read_rc_sm(void* data)
 {
   assert(data != NULL);
 //  assert(data->type == RAN_CTRL_STATS_V1_03);

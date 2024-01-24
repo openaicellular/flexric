@@ -13,8 +13,17 @@
 #include "ringbuffer.h"
 #include "notif_e2_ran.h"
 
+void init_mac_sm(void)
+{
+    // No allocation needed
+}
 
-void read_mac_sm(void* data)
+void free_mac_sm(void)
+{
+    // No allocation needed
+}
+
+bool read_mac_sm(void* data)
 {
   sm_ag_if_rd_t *rd = (sm_ag_if_rd_t*)data;
   assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
