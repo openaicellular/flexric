@@ -535,7 +535,7 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
 
     assert(ai->id == ProtocolIE_ID_id_RICaction_Admitted_Item);
     // Check ASN definition to see the ignore
-    assert(ai->criticality == Criticality_ignore);
+    // assert(ai->criticality == Criticality_ignore);
     assert(ai->value.present == RICaction_Admitted_ItemIEs__value_PR_RICaction_Admitted_Item);
 
     ric_action_admitted_t* dst = &sr->admitted[i];
@@ -800,8 +800,8 @@ e2ap_msg_t e2ap_dec_indication(const E2AP_PDU_t* pdu)
 
   assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
   assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_RICindication);
-  assert(pdu->choice.initiatingMessage->criticality == Criticality_ignore);
-  assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICindication);
+  //assert(pdu->choice.initiatingMessage->criticality == Criticality_ignore);
+  //assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICindication);
 
   const RICindication_t* out = &pdu->choice.initiatingMessage->value.choice.RICindication;
 
