@@ -306,31 +306,43 @@ void get_Sub_SM_List(fr_args_t* args, config_t cfg)
       args->sub_oran_sm[i].name = malloc(strlen(name) + 1);
       strcpy(args->sub_oran_sm[i].name, name);
       args->sub_oran_sm[i].time = time;
-//      printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args->sub_oran_sm[i].name, args->sub_oran_sm[i].time);
+      printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args->sub_oran_sm[i].name, args->sub_oran_sm[i].time);
 
       args->sub_oran_sm[i].format = format;
       args->sub_oran_sm[i].ran_type = malloc(strlen(ran_type) + 1);
       strcpy(args->sub_oran_sm[i].ran_type, ran_type);
+       printf("[LibConf]: ran type %s, format %d\n", args->sub_oran_sm[i].ran_type, format);
       int act_count = config_setting_length(actions_arr);
       args->sub_oran_sm[i].act_len = act_count + 1; // for C xApp, save the latest value as NULL
-      args->sub_oran_sm[i].actions = malloc(args->sub_oran_sm[i].act_len * sizeof(char*));
-      // printf("[LibConf]: ran type %s, format %d\n", args->sub_oran_sm[i].ran_type, format);
+      args->sub_oran_sm[i].actions = malloc(args->sub_oran_sm[i].act_len * sizeof(act_name_id_t));
       for (int j = 0; j < args->sub_oran_sm[i].act_len; ++j) {
         if (j == act_count) {
-          args->sub_oran_sm[i].actions[j] = NULL;
+          args->sub_oran_sm[i].actions[j].name = NULL;
+          args->sub_oran_sm[i].actions[j].id = 0;
           continue;
         }
 
         config_setting_t *action_item = config_setting_get_elem(actions_arr, j);
-        const char *action_name;
-
-        if (!config_setting_lookup_string(action_item, "name", &action_name))
-          assert(0!=0 && "Error parsing action name in Sub_ORAN_SM_List in .conf");
-
-        args->sub_oran_sm[i].actions[j] = strdup(action_name);
-//        printf("%s, ", args->sub_oran_sm[i].actions[j]);
+        if (!strcasecmp(args->sub_oran_sm[i].name, "kpm")) {
+          const char *action_name;
+          if (!config_setting_lookup_string(action_item, "name", &action_name))
+            assert(0!=0 && "Error parsing action name in Sub_ORAN_SM_List in .conf");
+          args->sub_oran_sm[i].actions[j].name = strdup(action_name);
+          args->sub_oran_sm[i].actions[j].id = 0;
+          //printf("%s, ", args->sub_oran_sm[i].actions[j].name);
+        } else if (!strcasecmp(args->sub_oran_sm[i].name, "rc")) {
+          int32_t action_id;
+          if (!config_setting_lookup_int(action_item, "id", &action_id))
+            assert(0!=0 && "Error parsing action id in Sub_ORAN_SM_List in .conf");
+          args->sub_oran_sm[i].actions[j].id = action_id;
+          args->sub_oran_sm[i].actions[j].name = "null";
+          //printf("%d, ", args->sub_oran_sm[i].actions[j].id);
+        } else {
+          assert(0!=0 && "Unknown name in Sub_ORAN_SM_List, note: we only support name = 'KPM' or  name = 'RC'\n");
+        }
       }
-//      printf("\n");
+      //printf("\n");
+
     }
   }
 }
@@ -480,9 +492,15 @@ fr_args_t init_fr_args(int argc, char* argv[])
     for (int32_t i = 0; i < args.sub_oran_sm_len; i++) {
       printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args.sub_oran_sm[i].name, args.sub_oran_sm[i].time);
       printf("[LibConf]: format %d, RAN type %s, actions = ", args.sub_oran_sm[i].format,  args.sub_oran_sm[i].ran_type);
-      for (int32_t j = 0; j < args.sub_oran_sm[i].act_len - 1; j++)
-        printf("%s ", args.sub_oran_sm[i].actions[j]);
-      printf("\n");
+      if (!strcasecmp(args.sub_oran_sm[i].name, "kpm")) {
+        for (int32_t j = 0; j < args.sub_oran_sm[i].act_len - 1; j++)
+          printf("%s ", args.sub_oran_sm[i].actions[j].name);
+        printf("\n");
+      } else if (!strcasecmp(args.sub_oran_sm[i].name, "rc")) {
+        for (int32_t j = 0; j < args.sub_oran_sm[i].act_len - 1; j++)
+          printf("%d ", args.sub_oran_sm[i].actions[j].id);
+        printf("\n");
+      }
     }
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
     // xApp_DB
@@ -544,7 +562,8 @@ void free_fr_args(fr_args_t* args)
     free(args->sub_oran_sm[i].name);
     free(args->sub_oran_sm[i].ran_type);
     for (int32_t j = 0; j < args->sub_oran_sm[i].act_len; j++)
-      free(args->sub_oran_sm[i].actions[j]);
+      free(args->sub_oran_sm[i].actions[j].name);
+    free(args->sub_oran_sm[i].actions);
   }
 
   free_db_params(&args->db_params);
