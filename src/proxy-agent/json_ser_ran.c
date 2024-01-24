@@ -445,8 +445,8 @@ static bool json_decode_ran_config_get(const ran_msg_t *in_msg, ran_config_t *ou
   struct json_object *version;
   if (!json_object_object_get_ex(root_json_obj, "version", &version))
     return false;
-  const char *exp_ver = json_object_get_string(version);
   // TODO: Fix API version
+  // const char *exp_ver = json_object_get_string(version);
 //  if (exp_ver && (strcmp(exp_ver, AMARISOFT_SUPPORTED_VERSION)))
 //    lwsl_warn("%s: Amarisoft version mismatch ! Supported one is %s, got instead %s\n",
 //              LOG_MODULE_STR,
