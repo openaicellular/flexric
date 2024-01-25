@@ -38,7 +38,7 @@
 static e2_node_arr_t nodes;
 bool stop_flag = false;
 bool triggerCondition = false;
-nr_cgi_t nr_cgi;
+uint64_t nr_cgi;
 uint64_t ran_ue_id;
 
 static void sigint_handler(int sig)
@@ -141,7 +141,7 @@ void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id)
     // NR CGI IE in TS 38.423 [15] Clause 9.2.2.7
     NR_cgi->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
     char nr_cgi_val[30];
-    sprintf(nr_cgi_val, "%lu", nr_cgi.nr_cell_id);
+    sprintf(nr_cgi_val, "%lu", nr_cgi);
     byte_array_t nr_cgi_ba = cp_str_to_ba(nr_cgi_val);
     NR_cgi->ran_param_val.flag_false->bit_str_ran.buf = nr_cgi_ba.buf;
     NR_cgi->ran_param_val.flag_false->bit_str_ran.len = nr_cgi_ba.len;
@@ -355,7 +355,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node){
                         if (msg_frm_1->meas_data_lst[j].meas_record_lst[k].value == INTEGER_MEAS_VALUE) {
                             uint32_t val = msg_frm_1->meas_data_lst[j].meas_record_lst[k].int_val;
                             if (k == 1) {
-                                nr_cgi.nr_cell_id = (uint64_t) val;
+                                nr_cgi = (uint64_t) val;
                                 neighbor_pci = val;
                             }
                             if(k == 0){
