@@ -244,30 +244,26 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
 }
 
 static
-kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action, uint32_t period_ms)
+kpm_act_def_format_1_t gen_act_def_frmt_1(const sub_oran_sm_t action, uint32_t period_ms)
 {
     kpm_act_def_format_1_t dst = {0};
 
     dst.gran_period_ms = period_ms;
 
     // [1, 65535]
-    size_t count = 0;
-    while (action[count] != NULL) {
-        count++;
-    }
-    dst.meas_info_lst_len = count;
-    dst.meas_info_lst = calloc(count, sizeof(meas_info_format_1_lst_t));
+    dst.meas_info_lst_len = action.act_len - 1;
+    dst.meas_info_lst = calloc(dst.meas_info_lst_len, sizeof(meas_info_format_1_lst_t));
     assert(dst.meas_info_lst != NULL && "Memory exhausted");
 
     for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
-        dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action[i]);
+        dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action.actions[i].name);
     }
 
     return dst;
 }
 
 static
-kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action, uint32_t period_ms)
+kpm_act_def_format_4_t gen_act_def_frmt_4(const sub_oran_sm_t action, uint32_t period_ms)
 {
     kpm_act_def_format_4_t dst = {0};
 
@@ -298,7 +294,7 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action, uint32_t period_m
 }
 
 static
-kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm, uint32_t period_ms)
+kpm_act_def_t gen_act_def(const sub_oran_sm_t act, format_action_def_e act_frm, uint32_t period_ms)
 {
     kpm_act_def_t dst = {0};
 
@@ -350,7 +346,6 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node){
                 ran_ue_id = *msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id;
                 kpm_ind_msg_format_1_t const* msg_frm_1 = &msg_frm_3->meas_report_per_ue[i].ind_msg_format_1;
                 for (size_t j = 0; j < msg_frm_1->meas_data_lst_len; j++) {
-                    // TODO: For some reason, it is extend the k values
                     for (size_t k = 0; k < msg_frm_1->meas_data_lst[k].meas_record_len; ++k) {
                         if (msg_frm_1->meas_data_lst[j].meas_record_lst[k].value == INTEGER_MEAS_VALUE) {
                             uint32_t val = msg_frm_1->meas_data_lst[j].meas_record_lst[k].int_val;
@@ -397,7 +392,7 @@ size_t send_sub_req(e2_node_connected_t* n, fr_args_t args, sm_ans_xapp_t *kpm_h
                 assert(0 != 0 && "not supported action definition format");
             }
 
-            *kpm_sub.ad = gen_act_def((const char**)args.sub_oran_sm[i].actions, act_type, period_ms);
+            *kpm_sub.ad = gen_act_def((const sub_oran_sm_t)args.sub_oran_sm[i], act_type, period_ms);
 
             kpm_handle[n_handle] = report_sm_xapp_api(&n->id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
             assert(kpm_handle[n_handle].success == true);
