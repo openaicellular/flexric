@@ -167,8 +167,8 @@ static ran_errcodes_t io_ran_ws_write(const uint8_t *jsonbuf, size_t len)
    * caveats: the pointer containing our data must have LWS_PRE valid allocated preamble memory behind it. 
    * You can leave that memory empty, lws_write will use it to handle context
    */
-  char buf[LWS_PRE + 150];
-  assert (msg_len < 150 && "Hard limit on msg length buffer hit. Programming error. You should enlarge buffer in io_ran_ws_write()\n");
+  char buf[LWS_PRE + 200];
+  assert (msg_len < 200 && "Hard limit on msg length buffer hit. Programming error. You should enlarge buffer in io_ran_ws_write()\n");
 
   lws_strncpy(&buf[LWS_PRE], (const char *)jsonbuf, msg_len);
   lwsl_debug("[E2 -> RAN] Sending on wire '%s'\n", &buf[LWS_PRE]);
@@ -411,7 +411,7 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       
       ran_io_rmtimer(loop_io_userds->indication_sm_id);
 
-      const char *p = ran_p->ser->encode_indication(0, ev->sm->info.id());
+      const char *p = ran_p->ser->encode_indication(0, ev->sm->info.id(), (double)ws_ran_io.priv_data->indication_polling_ms/1000);
       
       io_ran_enqueue_for_next_write(NULL, p, sizeof(loop_io_userds->encmsg));
         

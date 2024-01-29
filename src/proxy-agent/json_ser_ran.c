@@ -748,15 +748,15 @@ static bool json_decode_ctrl(const ran_msghdr_t *in_hdr, ctrl_ev_reply_t *out, c
 /* ----------------------------------------------------------------------------------- 
  *                                       Encoding
  * ----------------------------------------------------------------------------------- */
-static const char *json_encode_ran_indication(int msg_id, int sm_id)
+static const char *json_encode_ran_indication(int msg_id, int sm_id, double initial_delay)
 {
   (void)sm_id; // unused for the moment
   snprintf(enc_gbuf,
            sizeof(enc_gbuf),
-           "[{\"message\":\"stats\",\"message_id\":\"%d\"},"
+           "[{\"message\":\"stats\",\"message_id\":\"%d\",\"initial_delay\": %.1f},"
            "{\"message\":\"ue_get\",\"message_id\":\"%d\",\"stats\":1},"
            "{\"message\":\"config_get\",\"message_id\":\"%d\"}]",
-           msg_id, msg_id, msg_id);
+           msg_id, initial_delay, msg_id, msg_id);
   return enc_gbuf;
 }
 
