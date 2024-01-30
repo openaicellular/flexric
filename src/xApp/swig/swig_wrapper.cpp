@@ -192,7 +192,7 @@ void init(std::vector<std::string>& argv)
     global_swig_args.sub_oran_sm[i].time = args.sub_oran_sm[i].time;
     global_swig_args.sub_oran_sm[i].format = args.sub_oran_sm[i].format;
     global_swig_args.sub_oran_sm[i].ran_type = args.sub_oran_sm[i].ran_type;
-    global_swig_args.sub_oran_sm[i].act_len = args.sub_oran_sm[i].act_len - 1;
+    global_swig_args.sub_oran_sm[i].act_len = args.sub_oran_sm[i].act_len;
     for (int32_t j = 0; j < global_swig_args.sub_oran_sm[i].act_len; ++j) {
       swig_act_name_id_t tmp_act;
       tmp_act.name = args.sub_oran_sm[i].actions[j].name;

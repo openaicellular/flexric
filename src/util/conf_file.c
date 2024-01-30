@@ -306,22 +306,16 @@ void get_Sub_SM_List(fr_args_t* args, config_t cfg)
       args->sub_oran_sm[i].name = malloc(strlen(name) + 1);
       strcpy(args->sub_oran_sm[i].name, name);
       args->sub_oran_sm[i].time = time;
-      printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args->sub_oran_sm[i].name, args->sub_oran_sm[i].time);
+      //printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args->sub_oran_sm[i].name, args->sub_oran_sm[i].time);
 
       args->sub_oran_sm[i].format = format;
       args->sub_oran_sm[i].ran_type = malloc(strlen(ran_type) + 1);
       strcpy(args->sub_oran_sm[i].ran_type, ran_type);
-       printf("[LibConf]: ran type %s, format %d\n", args->sub_oran_sm[i].ran_type, format);
+      //printf("[LibConf]: ran type %s, format %d\n", args->sub_oran_sm[i].ran_type, format);
       int act_count = config_setting_length(actions_arr);
-      args->sub_oran_sm[i].act_len = act_count + 1; // for C xApp, save the latest value as NULL
+      args->sub_oran_sm[i].act_len = act_count;
       args->sub_oran_sm[i].actions = malloc(args->sub_oran_sm[i].act_len * sizeof(act_name_id_t));
       for (int j = 0; j < args->sub_oran_sm[i].act_len; ++j) {
-        if (j == act_count) {
-          args->sub_oran_sm[i].actions[j].name = NULL;
-          args->sub_oran_sm[i].actions[j].id = 0;
-          continue;
-        }
-
         config_setting_t *action_item = config_setting_get_elem(actions_arr, j);
         if (!strcasecmp(args->sub_oran_sm[i].name, "kpm")) {
           const char *action_name;
@@ -335,7 +329,7 @@ void get_Sub_SM_List(fr_args_t* args, config_t cfg)
           if (!config_setting_lookup_int(action_item, "id", &action_id))
             assert(0!=0 && "Error parsing action id in Sub_ORAN_SM_List in .conf");
           args->sub_oran_sm[i].actions[j].id = action_id;
-          args->sub_oran_sm[i].actions[j].name = "null";
+          args->sub_oran_sm[i].actions[j].name = strdup("null");
           //printf("%d, ", args->sub_oran_sm[i].actions[j].id);
         } else {
           assert(0!=0 && "Unknown name in Sub_ORAN_SM_List, note: we only support name = 'KPM' or  name = 'RC'\n");
@@ -561,8 +555,9 @@ void free_fr_args(fr_args_t* args)
   for (int32_t i = 0; i < args->sub_oran_sm_len; i++) {
     free(args->sub_oran_sm[i].name);
     free(args->sub_oran_sm[i].ran_type);
-    for (int32_t j = 0; j < args->sub_oran_sm[i].act_len; j++)
+    for (int32_t j = 0; j < args->sub_oran_sm[i].act_len; j++) {
       free(args->sub_oran_sm[i].actions[j].name);
+    }
     free(args->sub_oran_sm[i].actions);
   }
 

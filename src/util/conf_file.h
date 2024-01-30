@@ -13,6 +13,7 @@ typedef struct {
 } sub_cust_sm_t;
 
 typedef struct {
+// TODO: add enum for type name and id
     char* name;
     int32_t id;
 } act_name_id_t;
