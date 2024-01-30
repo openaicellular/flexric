@@ -105,12 +105,45 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
           kpm_ind_msg_format_1_t const* msg_frm_1 = &kpm->msg.frm_1;
           for (size_t i = 0; i < msg_frm_1->meas_data_lst_len; i++) {
             for (size_t j = 0; j < msg_frm_1->meas_data_lst[i].meas_record_len; j++) {
-              if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == INTEGER_MEAS_VALUE)
-                printf("meas record INTEGER_MEAS_VALUE value %d\n",msg_frm_1->meas_data_lst[i].meas_record_lst[j].int_val);
-              else if (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value == REAL_MEAS_VALUE)
-                printf("meas record REAL_MEAS_VALUE value %f\n", msg_frm_1->meas_data_lst[i].meas_record_lst[j].real_val);
-              else
-                printf("meas record NO_VALUE_MEAS_VALUE value\n");
+              if (msg_frm_1->meas_info_lst_len > 0) {
+                switch (msg_frm_1->meas_info_lst[i].meas_type.type) {
+                  case NAME_MEAS_TYPE:
+                  {
+                    // Get the Measurement Name
+                    char meas_info_name_str[msg_frm_1->meas_info_lst[i].meas_type.name.len + 1];
+                    memcpy(meas_info_name_str, msg_frm_1->meas_info_lst[i].meas_type.name.buf,
+                           msg_frm_1->meas_info_lst[i].meas_type.name.len);
+                    meas_info_name_str[msg_frm_1->meas_info_lst[i].meas_type.name.len] = '\0';
+                    // Get the value of the Measurement
+                    switch (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value)
+                    {
+                      case INTEGER_MEAS_VALUE: {
+                        //printf("meas record INTEGER_MEAS_VALUE value %d\n",msg_frm_1->meas_data_lst[i].meas_record_lst[j].int_val);
+                        printf("%s = %d\n", meas_info_name_str, msg_frm_1->meas_data_lst[i].meas_record_lst[j].int_val);
+                        break;
+                      }
+
+                      case REAL_MEAS_VALUE: {
+                        //printf("meas record REAL_MEAS_VALUE value %f\n", msg_frm_1->meas_data_lst[i].meas_record_lst[j].real_val);
+                        printf("%s = %.2f\n", meas_info_name_str, msg_frm_1->meas_data_lst[i].meas_record_lst[j].real_val);
+                        break;
+                      }
+
+                      case NO_VALUE_MEAS_VALUE: {
+                        printf("meas record NO_VALUE_MEAS_VALUE value\n");
+                        break;
+                      }
+
+                      default:
+                        assert("Value not recognized");
+                    }
+                    break;
+                  }
+
+                  default:
+                    assert(false && "Measurement Type not yet implemented");
+                }
+              }
             }
           }
         } else if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE) {
