@@ -335,7 +335,7 @@ void get_Sub_SM_List(fr_args_t* args, config_t cfg)
           if (!config_setting_lookup_int(action_item, "id", &action_id))
             assert(0!=0 && "Error parsing action id in Sub_ORAN_SM_List in .conf");
           args->sub_oran_sm[i].actions[j].id = action_id;
-          args->sub_oran_sm[i].actions[j].name = "null";
+          args->sub_oran_sm[i].actions[j].name = strdup("null");
           //printf("%d, ", args->sub_oran_sm[i].actions[j].id);
         } else {
           assert(0!=0 && "Unknown name in Sub_ORAN_SM_List, note: we only support name = 'KPM' or  name = 'RC'\n");
@@ -561,8 +561,11 @@ void free_fr_args(fr_args_t* args)
   for (int32_t i = 0; i < args->sub_oran_sm_len; i++) {
     free(args->sub_oran_sm[i].name);
     free(args->sub_oran_sm[i].ran_type);
-    for (int32_t j = 0; j < args->sub_oran_sm[i].act_len; j++)
+    for (int32_t j = 0; j < args->sub_oran_sm[i].act_len; j++){
+      if(j == args->sub_oran_sm[i].act_len - 1) // Last index always NULL
+        break;
       free(args->sub_oran_sm[i].actions[j].name);
+    }
     free(args->sub_oran_sm[i].actions);
   }
 
