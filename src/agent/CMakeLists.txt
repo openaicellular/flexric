@@ -41,7 +41,6 @@ if(E2AP_ENCODING STREQUAL "ASN")
             $<TARGET_OBJECTS:e2ap_ie_obj>
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             )
-  target_link_libraries(e2_agent -lconfig)
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS")
           add_library(e2_agent ${E2_AGENT_BLD_LIB} #STATIC or SHARED
@@ -58,14 +57,6 @@ if(INCL_WHAT_YOU_USE)
   set_property(TARGET e2_agent  PROPERTY C_INCLUDE_WHAT_YOU_USE ${iwyu_path})
 endif()
 
-if(${BUILDING_LIBRARY} STREQUAL "DYNAMIC" )
-  target_link_libraries(e2_agent  
-                       PUBLIC  
-                       -ldl
-                       -lconfig
-                       )
-endif()
-
-target_link_libraries(e2_agent PRIVATE -pthread -lsctp)
+target_link_libraries(e2_agent PRIVATE -pthread -ldl -lsctp -lconfig)
 target_compile_definitions(e2_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 
