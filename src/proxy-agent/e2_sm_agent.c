@@ -22,7 +22,7 @@
 bool is_sm_whitelisted(int sm_id) 
 {
   bool ret = false;
-  int whitelisted_sm_proxy_agent[] = { SM_KPM_ID, SM_MAC_ID };
+  int whitelisted_sm_proxy_agent[] = { SM_KPM_ID, SM_MAC_ID, SM_RC_ID };
   for (size_t i = 0; i < sizeof(whitelisted_sm_proxy_agent)/sizeof(int); i++)
   {
     if (sm_id == whitelisted_sm_proxy_agent[i])

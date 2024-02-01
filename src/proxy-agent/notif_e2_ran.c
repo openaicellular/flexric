@@ -427,16 +427,15 @@ static void ran_handle_notif_subsrmtimer (ran_if_t *ran_if, e2_agent_t *e2_if, c
 static void ran_handle_notif_subsaddtimer (ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id)
 {
   (void)msg_id;
-  
-  ran_io_addtimer(notif_event->subs_ev.sm_id, notif_event->subs_ev.time_ms);
-
-  ind_event_t *ev = calloc(1, sizeof(ind_event_t));
-  ev->sm = sm_plugin_ag(&e2_if->plugin, notif_event->subs_ev.sm_id);
-  ev->action_id = notif_event->subs_ev.ric_action_id;
-  ev->ric_id = notif_event->subs_ev.ric_id;
-  ev->act_def = notif_event->subs_ev.act_def;
-  bi_map_insert(&ran_if->ind_event, &notif_event->subs_ev.sm_id, sizeof(notif_event->subs_ev.sm_id), ev, sizeof(ind_event_t));
-
+  if (notif_event->subs_ev.time_ms > 0){
+    ran_io_addtimer(notif_event->subs_ev.sm_id, notif_event->subs_ev.time_ms);
+    ind_event_t *ev = calloc(1, sizeof(ind_event_t));
+    ev->sm = sm_plugin_ag(&e2_if->plugin, notif_event->subs_ev.sm_id);
+    ev->action_id = notif_event->subs_ev.ric_action_id;
+    ev->ric_id = notif_event->subs_ev.ric_id;
+    ev->act_def = notif_event->subs_ev.act_def;
+    bi_map_insert(&ran_if->ind_event, &notif_event->subs_ev.sm_id, sizeof(notif_event->subs_ev.sm_id), ev, sizeof(ind_event_t));
+  }
   fwd_ran_e2_ric_subscription_response(e2_if, notif_event->subs_ev);
 }
 

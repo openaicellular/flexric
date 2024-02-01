@@ -30,6 +30,7 @@
 #ifdef PROXY_AGENT
 #include "proxy-agent/notif_e2_ran.h"
 #include "lib/correlation_events.h"
+#include "proxy-agent/proxy_agent.h"
 #endif
 
 #include <assert.h>
@@ -197,7 +198,20 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   e2_ran_sub.ric_id = sr->ric_id;
   e2_ran_sub.sm = sm;
   e2_ran_sub.act_def = t.act_def;
-  fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
+  if (t.ms > 0){
+    // Periodic indication message generated i.e., every 5 ms
+    assert(t.ms < 10001 && "Subscription for granularity larger than 10 seconds requested? ");
+    fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
+  } else if (t.ms == 0){
+    // Aperiodic indication generated i.e., the RAN will generate it via
+    // void async_event_agent_api(uint32_t ric_req_id, void* ind_data);
+    int fd = 0;
+    e2_agent_t* proxy_agent = get_proxy_agent()->e2_if;
+    bi_map_insert(&proxy_agent->ind_event, &fd, sizeof(fd), &e2_ran_sub, sizeof(e2_ran_sub));
+    fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
+  } else {
+    assert(0!=0 && "Unknown subscription timer value");
+  }
   // wait for a reply before generating subscription response
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   #else
