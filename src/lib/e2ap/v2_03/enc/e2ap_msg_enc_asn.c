@@ -3163,7 +3163,7 @@ struct E2AP_PDU* e2ap_enc_e42_setup_response_asn_pdu(const e42_setup_response_t*
 
   int rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
   assert(rc == 0);
-  assert(sr->len_e2_nodes_conn > 0 && "No global node conected??");
+  //assert(sr->len_e2_nodes_conn > 0 && "No global node conected??");
 
   for(size_t i = 0; i < sr->len_e2_nodes_conn; ++i){
 
