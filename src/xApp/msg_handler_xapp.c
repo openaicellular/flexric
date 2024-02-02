@@ -623,7 +623,7 @@ e2ap_msg_t e2ap_handle_e42_update_e2_node_xapp(e42_xapp_t* xapp, const e2ap_msg_
   size_t update_nodes_len = sr->len_e2_nodes_conn;
   // 1) remove all the existing e2 nodes from tree
   for(size_t i = 0; i < cur_nodes_len; ++i) {
-    global_e2_node_id_t const* id = &sr->nodes[i].id;
+    global_e2_node_id_t const* id = &cur_nodes.n[i].id;
     rm_reg_e2_node(&xapp->e2_nodes, id);
   }
 
