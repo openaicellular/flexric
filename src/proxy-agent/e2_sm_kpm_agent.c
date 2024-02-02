@@ -23,9 +23,9 @@
 //static
 //assoc_ht_open_t ht;
 
-static
-void init_lst_measurements(void)
-{
+//static
+//void init_lst_measurements(void)
+//{
 //    assoc_ht_open_init(&ht, sizeof(char*), cmp_str, free_str, hash_func);
 //
 //    const size_t nelem = sizeof(lst_measure) / sizeof(lst_measure[0]);
@@ -40,18 +40,18 @@ void init_lst_measurements(void)
 //        assoc_insert(&ht, &key, sizeof(char*), value);
 //    }
 //    assert(assoc_size(&ht) == nelem);
-}
+//}
 
-void init_kpm_sm(void)
-{
+//void init_kpm_sm(void)
+//{
 //    init_lst_measurements();
-}
-
-static
-void free_lst_measurements(void)
-{
+//}
+//
+//static
+//void free_lst_measurements(void)
+//{
 //    assoc_free(&ht);
-}
+//}
 
 void free_kpm_sm(void)
 {
@@ -461,6 +461,7 @@ bool read_kpm_sm(void* data)
       break;
     }
   }
+  return true;
 }
 
 void read_kpm_setup_sm(void* e2ap)
