@@ -2607,7 +2607,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
     assert(conn_list->id == ProtocolIE_ID_id_E2nodesConnected);
     assert(conn_list->criticality == Criticality_reject);
     assert(conn_list->value.present == E42setupResponseIEs__value_PR_E2nodeConnected_List);
-    assert(conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.count == 2 && "Need the Global E2 Node ID and the RAN functions" );
+    assert(conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.count == 3 && "Need the Global E2 Node ID, the Component Configuration Addition list and the RAN functions" );
 
     // Global E2 Node ID. Mandatory
     E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
@@ -2624,7 +2624,6 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       GlobalE2node_gNB_ID_t *e2gnb = src->value.choice.GlobalE2node_ID.choice.gNB;
       assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
       PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, dst->id.plmn.mcc, dst->id.plmn.mnc, dst->id.plmn.mnc_digit_len);
-      // BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, dst->id.nb_id);
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
       if (e2gnb->gNB_CU_UP_ID) {
@@ -2650,9 +2649,47 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, dst->id.nb_id.nb_id);
     }
 
-    E2nodeConnected_ItemIEs_t const* src_ran = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[1];
+    // Component Configuration Addition
+    // E2 Node Component Configuration Addition List
+    // Mandatory
+    // [1 - 256] uint8_t. should be fine
+    E2nodeConnected_ItemIEs_t const* src_cca = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[1];
+    assert(src_cca->id == ProtocolIE_ID_id_E2nodeComponentConfigAddition);
+    assert(src_cca->criticality == Criticality_reject);
+    assert(src_cca->value.present == E2nodeConnected_ItemIEs__value_PR_E2nodeComponentConfigAddition_List);
+    assert(src_cca->value.choice.E2nodeComponentConfigAddition_List.list.count > 0 && src_cca->value.choice.E2nodeComponentConfigAddition_List.list.count < 256);
 
-    assert(src_ran->id ==   ProtocolIE_ID_id_RANfunctionsAdded);
+    dst->len_cca = src_cca->value.choice.E2nodeComponentConfigAddition_List.list.count;
+    dst->cca = calloc(dst->len_cca, sizeof(e2ap_node_component_config_add_t));
+    assert(dst->cca != NULL && "memory exhausted");
+
+    E2nodeComponentConfigAddition_ItemIEs_t** arr_cca = (E2nodeComponentConfigAddition_ItemIEs_t**)src_cca->value.choice.E2nodeComponentConfigAddition_List.list.array;
+    for(size_t i = 0; i < dst->len_cca; ++i){
+      assert(arr_cca[i]->id == ProtocolIE_ID_id_E2nodeComponentConfigAddition_Item);
+      assert(arr_cca[i]->criticality == Criticality_reject);
+      assert(arr_cca[i]->value.present == E2nodeComponentConfigAddition_ItemIEs__value_PR_E2nodeComponentConfigAddition_Item);
+      dst->cca[i] = e2ap_dec_node_component_conf_addition(arr_cca[i]);
+    }
+
+    // Abuse of the standard/interpretation. Since CUCP and CU do not have a flag, assume that
+    // CU = NGAP + F1AP
+    // CUCP = NGAP + F1AP + E1AP
+    if(dst->id.type == e2ap_ngran_gNB){
+      if(dst->len_cca == 2){
+        assert(dst->cca[0].e2_node_comp_interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE
+               && dst->cca[1].e2_node_comp_interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE);
+        dst->id.type = e2ap_ngran_gNB_CU;
+      } else if(dst->len_cca == 3){
+        assert(dst->cca[0].e2_node_comp_interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE
+               && dst->cca[1].e2_node_comp_interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE
+               && dst->cca[2].e2_node_comp_interface_type == E1_E2AP_NODE_COMP_INTERFACE_TYPE);
+        dst->id.type = e2ap_ngran_gNB_CUCP;
+      }
+    }
+
+    // RAN functions
+    E2nodeConnected_ItemIEs_t const* src_ran = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[2];
+    assert(src_ran->id == ProtocolIE_ID_id_RANfunctionsAdded);
     assert(src_ran->criticality == Criticality_reject);
     assert(src_ran->value.present == E2nodeConnected_ItemIEs__value_PR_RANfunctions_List);
 

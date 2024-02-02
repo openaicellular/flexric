@@ -105,11 +105,15 @@ std::vector<swig_sub_oran_sm_t> get_oran_sm_conf()
     tmp.ran_type = global_swig_args.sub_oran_sm[i].ran_type;
     tmp.act_len = global_swig_args.sub_oran_sm[i].act_len;
     for (int j = 0; j < tmp.act_len; j++) {
-      tmp.actions.push_back(global_swig_args.sub_oran_sm[i].actions[j]);
+      swig_act_name_id_t act;
+      act.name = global_swig_args.sub_oran_sm[i].actions[j].name;
+      act.id =  global_swig_args.sub_oran_sm[i].actions[j].id;
+      tmp.actions.push_back(act);
     }
 //    printf("[SWIG]: getting action definition from the saving configuration:\n");
 //    for (int32_t j = 0; j < tmp.act_len; ++j) {
-//      std::cout << tmp.actions[j] << std::endl;
+//      std::cout << "Name"  << tmp.actions[j].name << std::endl;
+//      std::cout << "ID " << tmp.actions[j].id << std::endl;
 //    }
     ret.push_back(tmp);
   }
@@ -188,13 +192,17 @@ void init(std::vector<std::string>& argv)
     global_swig_args.sub_oran_sm[i].time = args.sub_oran_sm[i].time;
     global_swig_args.sub_oran_sm[i].format = args.sub_oran_sm[i].format;
     global_swig_args.sub_oran_sm[i].ran_type = args.sub_oran_sm[i].ran_type;
-    global_swig_args.sub_oran_sm[i].act_len = args.sub_oran_sm[i].act_len - 1;
+    global_swig_args.sub_oran_sm[i].act_len = args.sub_oran_sm[i].act_len;
     for (int32_t j = 0; j < global_swig_args.sub_oran_sm[i].act_len; ++j) {
-      global_swig_args.sub_oran_sm[i].actions.push_back(args.sub_oran_sm[i].actions[j]);
+      swig_act_name_id_t tmp_act;
+      tmp_act.name = args.sub_oran_sm[i].actions[j].name;
+      tmp_act.id = args.sub_oran_sm[i].actions[j].id;
+      global_swig_args.sub_oran_sm[i].actions.push_back(tmp_act);
     }
 //    printf("[SWIG]: generating action definition from the list of required measurement data:\n");
 //    for (int32_t j = 0; j < global_swig_args.sub_oran_sm[i].act_len; ++j) {
-//      std::cout << global_swig_args.sub_oran_sm[i].actions[j] << std::endl;
+//      std::cout << "Name " << global_swig_args.sub_oran_sm[i].actions[j].name << std::endl;
+//      std::cout << "ID " << global_swig_args.sub_oran_sm[i].actions[j].id << std::endl;
 //    }
   }
 

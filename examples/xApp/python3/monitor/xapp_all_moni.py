@@ -331,14 +331,17 @@ def send_subscription_req(nodes, cust_sm, oran_sm):
 
     for sm_info in oran_sm:
         sm_name = sm_info.name
+        if sm_name != "KPM":
+            print(f"not support {sm_name} in python")
+            continue
         sm_time = sm_info.time
         tti = get_oran_tti(sm_time)
         sm_format = sm_info.format
         ran_type = sm_info.ran_type
         act_len = sm_info.act_len
         act = []
-        for act_name in sm_info.actions:
-            act.append(act_name)
+        for a in sm_info.actions:
+            act.append(a.name)
         if nodes.id.type == ric.e2ap_ngran_eNB:
             continue
         if ran_type == ric.get_e2ap_ngran_name(nodes.id.type):
