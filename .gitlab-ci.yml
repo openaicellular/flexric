@@ -1,0 +1,25 @@
+image: ubuntu:20.04 
+
+build:
+  stage: build
+  script:
+    - apt update
+    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
+    - mkdir build
+    - cd build
+    - ccmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
+    - make -j
+    - make install
+#   artifacts:
+#     paths:
+#       - mybinary
+
+test:
+  stage: test
+  script:
+    - ctest
+
+deploy:
+  stage: deploy
+  script: echo "Define your deployment script!"
+  environment: development
