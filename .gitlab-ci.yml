@@ -1,25 +1,238 @@
-image: ubuntu:20.04 
+image: ubuntu:20.04
 
-build:
+stages:
+  - build
+  - test
+
+# E2AP-v2-KPM-v2.01
+E2AP-v2-KPM-v2.01-build:
   stage: build
+  tags:
+    - test
   script:
     - apt update
     - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
-    - mkdir build
-    - cd build
-    - ccmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
+    - mkdir build-e2ap-v2-kpm-v2.01
+    - cd build-e2ap-v2-kpm-v2.01
+    - cmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V2_01 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
     - make -j
-    - make install
-#   artifacts:
-#     paths:
-#       - mybinary
+  artifacts:
+    paths:
+      - build-e2ap-v2-kpm-v2.01/
 
-test:
+E2AP-v2-KPM-v2.01-test:
   stage: test
+  tags:
+    - test
   script:
+    - cd build-e2ap-v2-kpm-v2.01
+    - make install
     - ctest
 
-deploy:
-  stage: deploy
-  script: echo "Define your deployment script!"
-  environment: development
+# E2AP-v2-KPM-v2.03
+E2AP-v2-KPM-v2.03-build:
+  stage: build
+  tags:
+    - test
+  script:
+    - apt update
+    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
+    - mkdir build-e2ap-v2-kpm-v2.03
+    - cd build-e2ap-v2-kpm-v2.03
+    - cmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V2_03 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
+    - make -j
+  artifacts:
+    paths:
+      - build-e2ap-v2-kpm-v2.03/
+
+E2AP-v2-KPM-v2.03-test:
+  stage: test
+  tags:
+    - test
+  script:
+    - cd build-e2ap-v2-kpm-v2.03
+    - make install
+    - ctest
+
+# E2AP-v2-KPM-v3.00
+E2AP-v2-KPM-v3.00-build:
+  stage: build
+  tags:
+    - test
+  script:
+    - apt update
+    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
+    - mkdir build-e2ap-v2-kpm-v3.00
+    - cd build-e2ap-v2-kpm-v3.00
+    - cmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
+    - make -j
+  artifacts:
+    paths:
+      - build-e2ap-v2-kpm-v3.00/
+
+E2AP-v2-KPM-v3.00-test:
+  stage: test
+  tags:
+    - test
+  script:
+    - cd build-e2ap-v2-kpm-v3.00
+    - make install
+    - ctest
+
+
+# E2AP-v3-KPM-v2.01
+E2AP-v3-KPM-v2.01-build:
+  stage: build
+  tags:
+    - test
+  script:
+    - apt update
+    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
+    - mkdir build-e2ap-v3-kpm-v2.01
+    - cd build-e2ap-v3-kpm-v2.01
+    - cmake -DE2AP_VERSION=E2AP_V3 -DKPM_VERSION=KPM_V2_01 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
+    - make -j
+  artifacts:
+    paths:
+      - build-e2ap-v3-kpm-v2.01/
+
+E2AP-v3-KPM-v2.01-test:
+  stage: test
+  tags:
+    - test
+  script:
+    - cd build-e2ap-v3-kpm-v2.01
+    - make install
+    - ctest
+
+# E2AP-v3-KPM-v2.03
+E2AP-v3-KPM-v2.03-build:
+  stage: build
+  tags:
+    - test
+  script:
+    - apt update
+    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
+    - mkdir build-e2ap-v3-kpm-v2.03
+    - cd build-e2ap-v3-kpm-v2.03
+    - cmake -DE2AP_VERSION=E2AP_V3 -DKPM_VERSION=KPM_V2_03 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
+    - make -j
+  artifacts:
+    paths:
+      - build-e2ap-v3-kpm-v2.03/
+
+E2AP-v3-KPM-v2.03-test:
+  stage: test
+  tags:
+    - test
+  script:
+    - cd build-e2ap-v3-kpm-v2.03
+    - make install
+    - ctest
+
+# E2AP-v3-KPM-v3.00
+E2AP-v3-KPM-v3.00-build:
+  stage: build
+  tags:
+    - test
+  script:
+    - apt update
+    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
+    - mkdir build-e2ap-v3-kpm-v3.00
+    - cd build-e2ap-v3-kpm-v3.00
+    - cmake -DE2AP_VERSION=E2AP_V3 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
+    - make -j
+  artifacts:
+    paths:
+      - build-e2ap-v3-kpm-v3.00/
+
+E2AP-v3-KPM-v3.00-test:
+  stage: test
+  tags:
+    - test
+  script:
+    - cd build-e2ap-v3-kpm-v3.00
+    - make install
+    - ctest
+
+# E2AP-v1-KPM-v2.01
+E2AP-v1-KPM-v2.01-build:
+  stage: build
+  tags:
+    - test
+  script:
+    - apt update
+    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
+    - mkdir build-e2ap-v1-kpm-v2.01
+    - cd build-e2ap-v1-kpm-v2.01
+    - cmake -DE2AP_VERSION=E2AP_V1 -DKPM_VERSION=KPM_V2_01 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
+    - make -j
+  artifacts:
+    paths:
+      - build-e2ap-v1-kpm-v2.01/
+
+E2AP-v1-KPM-v2.01-test:
+  stage: test
+  tags:
+    - test
+  script:
+    - cd build-e2ap-v1-kpm-v2.01
+    - make install
+    - ctest
+
+# E2AP-v1-KPM-v2.03
+E2AP-v1-KPM-v2.03-build:
+  stage: build
+  tags:
+    - test
+  script:
+    - apt update
+    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
+    - mkdir build-e2ap-v1-kpm-v2.03
+    - cd build-e2ap-v1-kpm-v2.03
+    - cmake -DE2AP_VERSION=E2AP_V1 -DKPM_VERSION=KPM_V2_03 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
+    - make -j
+  artifacts:
+    paths:
+      - build-e2ap-v1-kpm-v2.03/
+
+E2AP-v1-KPM-v2.03-test:
+  stage: test
+  tags:
+    - test
+  script:
+    - cd build-e2ap-v1-kpm-v2.03
+    - make install
+    - ctest
+
+# E2AP-v1-KPM-v3.00
+E2AP-v1-KPM-v3.00-build:
+  stage: build
+  tags:
+    - test
+  script:
+    - apt update
+    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
+    - mkdir build-e2ap-v1-kpm-v3.00
+    - cd build-e2ap-v1-kpm-v3.00
+    - cmake -DE2AP_VERSION=E2AP_V1 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
+    - make -j
+  artifacts:
+    paths:
+      - build-e2ap-v1-kpm-v3.00/
+
+E2AP-v1-KPM-v3.00-test:
+  stage: test
+  tags:
+    - test
+  script:
+    - cd build-e2ap-v1-kpm-v3.00
+    - make install
+    - ctest
+
+# deploy:
+#   stage: deploy
+#   tags:
+#     - test
+#   script: echo "Define your deployment script!"
+#   environment: development
