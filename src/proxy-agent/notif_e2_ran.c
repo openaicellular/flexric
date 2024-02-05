@@ -236,6 +236,17 @@ void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long interv
   notif_send_ran_event(ran_if, &msg);
 }
 
+void fwd_e2_ran_wr_sub_ev(ran_if_t *ran_if, uint32_t ric_req_id)
+{
+
+  notif_e2_ran_event_t msg = {
+      .type = E2_WRITE_SUBSCRIPTION_EVENT,
+      .wr_subs_ev.ric_req_id = ric_req_id,
+  };
+
+  notif_send_ran_event(ran_if, &msg);
+}
+
 void fwd_e2_ran_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id) 
 {
   printf("Removing subscription request for SM %d\n", ric_id.ran_func_id);
@@ -411,6 +422,18 @@ static void ran_handle_notif_ctrl(ran_if_t *ran_if, e2_agent_t *e2_if, const not
     ran_if->io->write_to_ran(&ev, p, strlen(p) + 1);
 }
 
+static void ran_handle_notif_write_sub(ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id)
+{
+  (void)e2_if;
+
+  const char *p = ran_if->ser->encode_indication(msg_id, SM_RC_ID, (double)get_proxy_agent()->conf.io_ran_conf.timer/1000);
+  ws_ioloop_event_t ev = {
+      .msg_type               = E2_WRITE_SUBSCRIPTION_EVENT,
+      .wr_subs_ev.ric_req_id  = notif_event->wr_subs_ev.ric_req_id,
+  };
+  ran_if->io->write_to_ran(&ev, p, strlen(p) + 1);
+}
+
 static void ran_handle_notif_subsrmtimer (ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id)
 {
   (void)ran_if;
@@ -441,10 +464,11 @@ static void ran_handle_notif_subsaddtimer (ran_if_t *ran_if, e2_agent_t *e2_if, 
 
 // Note that the remaining seats in array 'handle_notif' are initialized automatically to NULL(0)
 typedef void (*handle_msg_notif)(ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id);
-static handle_msg_notif handle_notif[4] = {
+static handle_msg_notif handle_notif[5] = {
     [E2_ADD_SUBSCRIPTION_TIMER_EVENT]      = &ran_handle_notif_subsaddtimer,
     [E2_REMOVE_SUBSCRIPTION_TIMER_EVENT]   = &ran_handle_notif_subsrmtimer,
-    [E2_CTRL_EVENT]                        = &ran_handle_notif_ctrl
+    [E2_CTRL_EVENT]                        = &ran_handle_notif_ctrl,
+    [E2_WRITE_SUBSCRIPTION_EVENT]          = &ran_handle_notif_write_sub,
 };
 
 

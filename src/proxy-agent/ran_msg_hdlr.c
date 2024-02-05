@@ -7,7 +7,9 @@
 #include "ringbuffer.h"
 #include "ws_io_ran.h"
 
-static next_msg_t handle_ran_indication_stats(proxy_agent_t * proxy, ran_msg_t msg, ran_msghdr_t msghdr, bi_map_t *sent_msg_list) 
+static int aperiodic_api_cnt = 0;
+
+static next_msg_t handle_ran_indication_stats(proxy_agent_t * proxy, ran_msg_t msg, ran_msghdr_t msghdr, bi_map_t *sent_msg_list)
 {
   (void)sent_msg_list;
   (void)msghdr;
@@ -15,6 +17,18 @@ static next_msg_t handle_ran_indication_stats(proxy_agent_t * proxy, ran_msg_t m
   lwsl_info("[WS] Received indication data\n");
 
   next_msg_t ret_msg = {. type_id = RAN_E2_NONE };
+  if (msghdr.msg_id != 0){
+    ret_msg.type_id = RAN_E2_WRT_FWD;
+    ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
+    assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
+    if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
+      ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
+      ret_msg.e2wrt_msg.msg_id = msghdr.msg_id;
+    } else {
+      assert(0 != 0 && "error extract RC ric_req_id or not properly remove RC ric_req_id from RAN interface");
+    }
+    aperiodic_api_cnt += 1;
+  }
   ran_ind_t ind = get_ringbuffer_data();
   if (get_IndTimer_sts() == false)
     set_IndTimer_sts(true);
@@ -33,6 +47,18 @@ static next_msg_t handle_ran_indication_ue(proxy_agent_t * proxy, ran_msg_t msg,
   lwsl_info("[WS] Received indication data\n");
 
   next_msg_t ret_msg = {.type_id = RAN_E2_NONE};
+  if (msghdr.msg_id != 0){
+    ret_msg.type_id = RAN_E2_WRT_FWD;
+    ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
+    assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
+    if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
+      ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
+      ret_msg.e2wrt_msg.msg_id = msghdr.msg_id;
+    } else {
+      assert(0 != 0 && "error extract RC ric_req_id or not properly remove RC ric_req_id from RAN interface");
+    }
+    aperiodic_api_cnt += 1;
+  }
   ran_ind_t ind = get_ringbuffer_data();
   if (get_IndTimer_sts() == false)
     set_IndTimer_sts(true);
@@ -51,6 +77,18 @@ static next_msg_t handle_ran_indication_config_get(proxy_agent_t * proxy, ran_ms
     lwsl_info("[WS] Received indication data\n");
 
     next_msg_t ret_msg = {.type_id = RAN_E2_NONE};
+    if (msghdr.msg_id != 0){
+      ret_msg.type_id = RAN_E2_WRT_FWD;
+      ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
+      assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
+      if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
+        ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
+        ret_msg.e2wrt_msg.msg_id = msghdr.msg_id;
+      } else {
+        assert(0 != 0 && "error extract RC ric_req_id or not properly remove RC ric_req_id from RAN interface");
+      }
+      aperiodic_api_cnt += 1;
+    }
     ran_ind_t ind = get_ringbuffer_data();
     if (get_IndTimer_sts() == false)
         set_IndTimer_sts(true);
@@ -205,4 +243,13 @@ next_msg_t ran_msg_handle(const char *buf, size_t len, bi_map_t *sent_msg_list)
   }
   assert(handle_msg [msghdr.typeid] != NULL);
   return handle_msg[msghdr.typeid](get_proxy_agent(), ran_rowmsg, msghdr, sent_msg_list); 
+}
+
+bool is_get_aperiodic_event(void){
+  // Get 3 API from indication
+  if (aperiodic_api_cnt == 3){
+    aperiodic_api_cnt = 0;
+    return true;
+  }
+  return false;
 }

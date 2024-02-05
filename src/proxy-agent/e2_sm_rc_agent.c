@@ -239,40 +239,21 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
     return ans;
 }
 
-static
-void* emulate_rrc_msg(void* ptr)
-{
-
-  uint32_t* ric_id = (uint32_t*)ptr;
-  for(size_t i = 0; i < 5; ++i){
-    usleep(rand()%4000);
-    rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t));
-    assert(d != NULL && "Memory exhausted");
-    *d = fill_rnd_rc_ind_data();
-    async_event_agent_api(*ric_id, d);
-    printf("Event for RIC Req ID %u generated\n", *ric_id);
-  }
-
-  free(ptr);
-  return NULL;
+void proxy_fill_rnd_rc_ind_data(uint32_t ric_id){
+  rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t));
+  assert(d != NULL && "Memory exhausted");
+  *d = fill_rnd_rc_ind_data();
+  async_event_agent_api(ric_id, d);
+  printf("Event for RIC Req ID %u generated\n", ric_id);
 }
 
-static
-pthread_t t_ran_ctrl;
-
-// TODO: Fix memory leak
 sm_ag_if_ans_t write_subs_rc_sm(void const* src)
 {
   assert(src != NULL);
   wr_rc_sub_data_t* wr_rc = (wr_rc_sub_data_t*)src;
   printf("ric req id %d \n", wr_rc->ric_req_id);
 
-  uint32_t* ptr = malloc(sizeof(uint32_t));
-  assert(ptr != NULL);
-  *ptr = wr_rc->ric_req_id;
-
-  int rc = pthread_create(&t_ran_ctrl, NULL, emulate_rrc_msg, ptr);
-  assert(rc == 0);
+  fwd_e2_ran_wr_sub_ev(&get_proxy_agent()->ran_if, wr_rc->ric_req_id);
 
   sm_ag_if_ans_t ans = {0};
 

@@ -20,7 +20,8 @@ typedef enum {
       RAN_E2_CTRL_FWD,
       ASK_RAN_SETUP,
       ASK_RAN_INDICATION,
-      ASK_RAN_CTRL
+      ASK_RAN_CTRL,
+      RAN_E2_WRT_FWD,
 } ran_e2_type_id_t;
 
 typedef struct ran_e2_setup_t {
@@ -41,7 +42,13 @@ typedef struct ctrl_ev_t {
   ric_gen_id_t  ric_id; // XX: proably too be removed as we do not use anymore this mechansim of correlation data passing
   sm_ag_if_wr_ctrl_t req;
 } ctrl_ev_t;
-/* 
+
+typedef struct ran_e2_wrt_t {
+  uint32_t ric_req_id;
+  int msg_id;
+} ran_e2_wrt_t;
+
+/*
  * next_msg_t is a container for the next message to be sent in the state machine of I/O module for RAN. 
  * The next message can be in the direction of RAN endpoint or E2 endpoint
  */
@@ -52,6 +59,7 @@ typedef struct next_msg_t {
     ran_e2_config_t config_msg;
     ran_e2_setup_t  e2setup_msg;
     ctrl_ev_reply_t ctrl_msg;
+    ran_e2_wrt_t    e2wrt_msg;
   };
 } next_msg_t;
 

@@ -43,5 +43,6 @@ typedef struct {
  */
 next_msg_t ran_msg_handle(const char *buf, size_t len, bi_map_t *sent_msg);
 
+bool is_get_aperiodic_event(void);
 
 #endif

@@ -4,6 +4,7 @@
 
 #include "util/alg_ds/alg/defer.h"
 #include "util/alg_ds/ds/lock_guard/lock_guard.h"
+#include "e2_sm_rc_agent.h"
 
 #include "e2_sm_agent.h"
 #include "io_ran.h"
@@ -89,6 +90,8 @@ static int cmp_event (void const *key1_abs, void const *key2_abs)
       return memcmp (&key1->unsubs_ev, &key2->unsubs_ev, sizeof (key2->unsubs_ev));
     case E2_CTRL_EVENT:
       return memcmp (&key1->ctrl_ev, &key2->ctrl_ev, sizeof (key2->ctrl_ev));
+    case E2_WRITE_SUBSCRIPTION_EVENT:
+      return memcmp (&key1->wr_subs_ev, &key2->wr_subs_ev, sizeof (key2->wr_subs_ev));
     default:
       assert (0!=0 && "Unexpected event type\n");
   }
@@ -387,6 +390,15 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       }
       else if (next_msg_is(ans, RAN_E2_CTRL_FWD)){
         fwd_ran_e2_ctrl_reply(io_ran_instance->priv_data->pa->e2_if, ans.ctrl_msg);
+      } else if (next_msg_is(ans, RAN_E2_WRT_FWD)){
+        ws_ioloop_event_t ev = {
+            .msg_type               = E2_WRITE_SUBSCRIPTION_EVENT,
+            .wr_subs_ev.ric_req_id  = ans.e2wrt_msg.ric_req_id,
+        };
+        ws_ioloop_t *loop_io_p = (ws_ioloop_t *)io_ran_instance->priv_data->user;
+        bi_map_insert(&loop_io_p->ev, &ans.e2wrt_msg.msg_id, sizeof(int), &ev, sizeof(ws_ioloop_event_t));
+        if (is_get_aperiodic_event())
+          proxy_fill_rnd_rc_ind_data(ans.e2wrt_msg.ric_req_id);
       }
       // default is to send nothing to E2 or discard (programming error)
       break;
