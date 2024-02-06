@@ -43,7 +43,7 @@ typedef struct e2_subscribe_event_t {
 } e2_subscribe_event_t;
 
 typedef struct e2_wr_sub_event_t {
-  uint32_t ric_req_id;
+  wr_rc_sub_data_t wr_rc_sub_data;
 } e2_wr_sub_event_t;
 
 // types of events managed by I/O ran loop notification signal
@@ -76,7 +76,7 @@ char * notif_strevent(enum notif_event_t type);
 void ran_notif_msg_handle(ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id) ;
 
 /* -- E2AP functionalities --- */
-void fwd_e2_ran_wr_sub_ev(ran_if_t *ran_if, uint32_t ric_req_id);
+void fwd_e2_ran_wr_sub_ev(ran_if_t *ran_if, wr_rc_sub_data_t wr_rc_sub_data);
 void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long interval_ms) ;
 void fwd_e2_ran_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id);
 void fwd_e2_ran_ctrl (ran_if_t *ran_if, ctrl_ev_t in);

@@ -239,12 +239,12 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
     return ans;
 }
 
-void proxy_fill_rnd_rc_ind_data(uint32_t ric_id){
+void proxy_fill_rnd_rc_ind_data(wr_rc_sub_data_t wr_rc_sub){
   rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t));
   assert(d != NULL && "Memory exhausted");
   *d = fill_rnd_rc_ind_data();
-  async_event_agent_api(ric_id, d);
-  printf("Event for RIC Req ID %u generated\n", ric_id);
+  async_event_agent_api(wr_rc_sub.ric_req_id, d);
+  printf("Event for RIC Req ID %u generated\n", wr_rc_sub.ric_req_id);
 }
 
 sm_ag_if_ans_t write_subs_rc_sm(void const* src)
@@ -253,7 +253,7 @@ sm_ag_if_ans_t write_subs_rc_sm(void const* src)
   wr_rc_sub_data_t* wr_rc = (wr_rc_sub_data_t*)src;
   printf("ric req id %d \n", wr_rc->ric_req_id);
 
-  fwd_e2_ran_wr_sub_ev(&get_proxy_agent()->ran_if, wr_rc->ric_req_id);
+  fwd_e2_ran_wr_sub_ev(&get_proxy_agent()->ran_if, *wr_rc);
 
   sm_ag_if_ans_t ans = {0};
 

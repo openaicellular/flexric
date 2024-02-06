@@ -22,7 +22,7 @@ static next_msg_t handle_ran_indication_stats(proxy_agent_t * proxy, ran_msg_t m
     ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
     assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
     if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
-      ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
+      ret_msg.e2wrt_msg.wr_rc_sub_data = loop_event_p->wr_subs_ev.wr_rc_sub_data;
       ret_msg.e2wrt_msg.msg_id = msghdr.msg_id;
     } else {
       assert(0 != 0 && "error extract RC ric_req_id or not properly remove RC ric_req_id from RAN interface");
@@ -52,7 +52,7 @@ static next_msg_t handle_ran_indication_ue(proxy_agent_t * proxy, ran_msg_t msg,
     ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
     assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
     if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
-      ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
+      ret_msg.e2wrt_msg.wr_rc_sub_data = loop_event_p->wr_subs_ev.wr_rc_sub_data;
       ret_msg.e2wrt_msg.msg_id = msghdr.msg_id;
     } else {
       assert(0 != 0 && "error extract RC ric_req_id or not properly remove RC ric_req_id from RAN interface");
@@ -82,7 +82,7 @@ static next_msg_t handle_ran_indication_config_get(proxy_agent_t * proxy, ran_ms
       ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
       assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
       if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
-        ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
+        ret_msg.e2wrt_msg.wr_rc_sub_data = loop_event_p->wr_subs_ev.wr_rc_sub_data;
         ret_msg.e2wrt_msg.msg_id = msghdr.msg_id;
       } else {
         assert(0 != 0 && "error extract RC ric_req_id or not properly remove RC ric_req_id from RAN interface");

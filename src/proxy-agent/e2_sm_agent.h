@@ -44,7 +44,7 @@ typedef struct ctrl_ev_t {
 } ctrl_ev_t;
 
 typedef struct ran_e2_wrt_t {
-  uint32_t ric_req_id;
+  wr_rc_sub_data_t wr_rc_sub_data;
   int msg_id;
 } ran_e2_wrt_t;
 

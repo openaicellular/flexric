@@ -236,12 +236,12 @@ void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long interv
   notif_send_ran_event(ran_if, &msg);
 }
 
-void fwd_e2_ran_wr_sub_ev(ran_if_t *ran_if, uint32_t ric_req_id)
+void fwd_e2_ran_wr_sub_ev(ran_if_t *ran_if, wr_rc_sub_data_t wr_rc_sub_data)
 {
 
   notif_e2_ran_event_t msg = {
       .type = E2_WRITE_SUBSCRIPTION_EVENT,
-      .wr_subs_ev.ric_req_id = ric_req_id,
+      .wr_subs_ev.wr_rc_sub_data = wr_rc_sub_data,
   };
 
   notif_send_ran_event(ran_if, &msg);
@@ -429,7 +429,7 @@ static void ran_handle_notif_write_sub(ran_if_t *ran_if, e2_agent_t *e2_if, cons
   const char *p = ran_if->ser->encode_indication(msg_id, SM_RC_ID, (double)get_proxy_agent()->conf.io_ran_conf.timer/1000);
   ws_ioloop_event_t ev = {
       .msg_type               = E2_WRITE_SUBSCRIPTION_EVENT,
-      .wr_subs_ev.ric_req_id  = notif_event->wr_subs_ev.ric_req_id,
+      .wr_subs_ev.wr_rc_sub_data  = notif_event->wr_subs_ev.wr_rc_sub_data,
   };
   ran_if->io->write_to_ran(&ev, p, strlen(p) + 1);
 }

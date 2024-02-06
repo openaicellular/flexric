@@ -15,7 +15,7 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data);
 
 sm_ag_if_ans_t write_subs_rc_sm(void const* src);
 
-void proxy_fill_rnd_rc_ind_data(uint32_t ric_id);
+void proxy_fill_rnd_rc_ind_data(wr_rc_sub_data_t wr_rc_sub_data);
 
 #endif
 
