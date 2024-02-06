@@ -91,6 +91,16 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
         static_assert(0!=0, "Unknown KPM version");
 #endif
 
+        if (hdr_frm_1->fileformat_version)
+          printf("FileFormat Version {%s} ", hdr_frm_1->fileformat_version->buf);
+        if (hdr_frm_1->sender_name)
+          printf("Sender Name {%s} ", hdr_frm_1->sender_name->buf);
+        if (hdr_frm_1->sender_type)
+          printf("Sender Type {%s} ", hdr_frm_1->sender_type->buf);
+        if (hdr_frm_1->vendor_name)
+          printf("Vendor Name {%s} ", hdr_frm_1->vendor_name->buf);
+        printf("\n");
+
         if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE) {
           kpm_ind_msg_format_1_t const* msg_frm_1 = &kpm->msg.frm_1;
           for (size_t i = 0; i < msg_frm_1->meas_data_lst_len; i++) {
