@@ -106,14 +106,14 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
           for (size_t i = 0; i < msg_frm_1->meas_data_lst_len; i++) {
             for (size_t j = 0; j < msg_frm_1->meas_data_lst[i].meas_record_len; j++) {
               if (msg_frm_1->meas_info_lst_len > 0) {
-                switch (msg_frm_1->meas_info_lst[i].meas_type.type) {
+                switch (msg_frm_1->meas_info_lst[j].meas_type.type) {
                   case NAME_MEAS_TYPE:
                   {
                     // Get the Measurement Name
-                    char meas_info_name_str[msg_frm_1->meas_info_lst[i].meas_type.name.len + 1];
-                    memcpy(meas_info_name_str, msg_frm_1->meas_info_lst[i].meas_type.name.buf,
-                           msg_frm_1->meas_info_lst[i].meas_type.name.len);
-                    meas_info_name_str[msg_frm_1->meas_info_lst[i].meas_type.name.len] = '\0';
+                    char meas_info_name_str[msg_frm_1->meas_info_lst[j].meas_type.name.len + 1];
+                    memcpy(meas_info_name_str, msg_frm_1->meas_info_lst[j].meas_type.name.buf,
+                           msg_frm_1->meas_info_lst[j].meas_type.name.len);
+                    meas_info_name_str[msg_frm_1->meas_info_lst[j].meas_type.name.len] = '\0';
                     // Get the value of the Measurement
                     switch (msg_frm_1->meas_data_lst[i].meas_record_lst[j].value)
                     {
