@@ -91,29 +91,27 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
       }
 
       // UE information
+      // List of Neighbor cells
       // 8.1.1.17
-      if(cur_ran_param.ran_param_id == 7){
-          ran_param_struct_t* ue_info = cur_ran_param.ran_param_val.strct;
-          // List of Neighbor cells
-          if (ue_info->ran_param_struct[0].ran_param_id == 21529){
-            ran_param_list_t* ne_cell_lst = ue_info->ran_param_struct[0].ran_param_val.lst;
-            for (size_t cell_idx; cell_idx < ne_cell_lst->sz_lst_ran_param; cell_idx++){
-              lst_ran_param_t cur_cell = ne_cell_lst->lst_ran_param[cell_idx];
-              // NR Cell
-              // 8.1.1.1
-              if (cur_cell.ran_param_struct.ran_param_struct[0].ran_param_id == 21531){
-                ran_param_struct_t* nr_cell = cur_cell.ran_param_struct.ran_param_struct[0].ran_param_val.strct;
-                // NR PCI
-                // TS 38.473
-                // 9.3.1.29
-                if (nr_cell->ran_param_struct[0].ran_param_id == 10002){
-                  int64_t nr_pci = nr_cell->ran_param_struct[0].ran_param_val.flag_false->int_ran;
-                  printf("[RC_SM] UE %zu - Neighbor cell id %zu with PCI %ld ", i, cell_idx, nr_pci);
-                  LST_NR_CELL_ID[cell_idx] = nr_pci;
-                }
-              }
-            }
-          }
+      if(cur_ran_param.ran_param_id == 21528) {
+        ran_param_list_t* ne_cell_lst = cur_ran_param.ran_param_val.lst;
+        for (size_t cell_idx = 0; cell_idx < ne_cell_lst->sz_lst_ran_param; cell_idx++){
+          lst_ran_param_t cur_cell = ne_cell_lst->lst_ran_param[cell_idx];
+          // CHOICE Neighbor cell
+          // 21530
+          ran_param_struct_t* CHOICE_Neighbor_cell = cur_cell.ran_param_struct.ran_param_struct[0].ran_param_val.strct;
+          // NR Cell
+          // 8.1.1.1
+          // Support only 5G cell
+          assert(CHOICE_Neighbor_cell->sz_ran_param_struct == 1 && "Support only 5G cell");
+          ran_param_struct_t* nr_cell = CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_val.strct;
+          // NR PCI
+          // TS 38.473
+          // 9.3.1.29
+          int64_t nr_pci = nr_cell->ran_param_struct[0].ran_param_val.flag_false->int_ran;
+          printf("[RC_SM] UE %zu - Neighbor cell id %zu with PCI %ld \n", i, cell_idx, nr_pci);
+          LST_NR_CELL_ID[cell_idx] = nr_pci;
+        }
       }
     }
   }

@@ -6,6 +6,8 @@
 #include "../../test/rnd/fill_rnd_data_rc.h"
 #include "../sm/rc_sm/ie/ir/lst_ran_param.h"
 #include "../sm/rc_sm/ie/ir/ran_param_list.h"
+#include "../sm/rc_sm/ie/ir/e2sm_rc_ind_msg_frmt_2.h"
+#include "../sm/rc_sm/ie/ir/seq_ue_id.h"
 #include <assert.h>
 #include <stdio.h>
 #include <pthread.h>
@@ -13,7 +15,11 @@
 #include <libwebsockets.h>
 
 #include "e2_sm_agent.h"
+#include "ran_if.h"
 #include "proxy_agent.h"
+#include "ran_msg_hdlr.h"
+#include "ringbuffer.h"
+#include "notif_e2_ran.h"
 
 void init_rc_sm(void)
 {
@@ -239,21 +245,236 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
     return ans;
 }
 
-void proxy_fill_rnd_rc_ind_data(wr_rc_sub_data_t wr_rc_sub){
+static
+e2sm_rc_ind_hdr_frmt_1_t fill_rnd_rc_ind_hdr_frmt_1(void)
+{
+  e2sm_rc_ind_hdr_frmt_1_t dst = {0};
+
+  dst.ev_trigger_id = malloc(sizeof(uint16_t));
+  assert(dst.ev_trigger_id != NULL && "Memory exhausted" );
+
+  // Event Trigger Condition ID
+  // Optional
+  // 9.3.21
+  // [1 - 65535]
+  *dst.ev_trigger_id = (rand() % 65535) + 1;
+
+  return dst;
+}
+
+static
+e2sm_rc_ind_hdr_t rc_ind_hdr()
+{
+  e2sm_rc_ind_hdr_t hdr = {0};
+
+  hdr.format = FORMAT_1_E2SM_RC_IND_HDR;
+  // No event_trigger_condition in rc_event_trigger format 2.
+  // TODO: Research this
+  hdr.frmt_1 = fill_rnd_rc_ind_hdr_frmt_1();
+
+  return hdr;
+}
+
+static
+gnb_e2sm_t fill_gnb_data(const amarisoft_ue_stats_t* ue, global_e2_node_id_t id)
+{
+  gnb_e2sm_t gnb = {0};
+
+  gnb.amf_ue_ngap_id = ue->amf_ue_id;
+
+  gnb.guami.plmn_id = (e2sm_plmn_t) {.mcc = id.plmn.mcc, .mnc = id.plmn.mnc, .mnc_digit_len = id.plmn.mnc_digit_len};
+  // TODO: need metrics from AMR
+  gnb.guami.amf_region_id = (rand() % 2^8) + 0;
+  // TODO: need metrics from AMR
+  gnb.guami.amf_set_id = (rand() % 2^10) + 0;
+  // TODO: need metrics from AMR
+  gnb.guami.amf_ptr = (rand() % 2^6) + 0;
+
+  gnb.ran_ue_id = (uint64_t*)malloc(sizeof(uint64_t));
+  *(gnb.ran_ue_id) = (uint64_t)ue->ran_ue_id;
+  return gnb;
+}
+
+static
+ran_param_struct_t fill_neighbor_cell_item(amr_ncell_list_t cur_cell){
+  ran_param_struct_t res = {0};
+  res.sz_ran_param_struct = 1;
+  res.ran_param_struct = calloc(1, sizeof(ran_param_struct_t));
+  assert(res.ran_param_struct != NULL && "Memory exhausted");
+  // CHOICE Neighbor cell
+  // 21530
+  res.ran_param_struct[0].ran_param_id = 21530;
+  res.ran_param_struct[0].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+  res.ran_param_struct[0].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t ));
+  assert(res.ran_param_struct[0].ran_param_val.strct != NULL && "Memory exhausted");
+  ran_param_struct_t* CHOICE_Neighbor_cell = res.ran_param_struct[0].ran_param_val.strct;
+  CHOICE_Neighbor_cell->sz_ran_param_struct = 1;
+  CHOICE_Neighbor_cell->ran_param_struct = calloc(1, sizeof(seq_ran_param_t ));
+  assert(CHOICE_Neighbor_cell->ran_param_struct != NULL && "Memory exhausted");
+  // NR Cell
+  // 8.1.1.1
+  // 21531
+  CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_id = 21531;
+  CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+  CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t ));
+  assert(CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_val.strct != NULL && "Memory exhausted");
+  ran_param_struct_t* nr_cell = CHOICE_Neighbor_cell->ran_param_struct->ran_param_val.strct;
+  nr_cell->sz_ran_param_struct = 1; // Support only 5G
+  nr_cell->ran_param_struct = calloc(1, sizeof(seq_ran_param_t ));
+  assert(nr_cell->ran_param_struct != NULL && "Memory exhausted");
+  // NR PCI
+  // 8.1.1.1
+  // 10001
+  nr_cell->ran_param_struct[0].ran_param_id = 10002;
+  nr_cell->ran_param_struct[0].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  nr_cell->ran_param_struct[0].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  assert(nr_cell->ran_param_struct[0].ran_param_val.flag_false != NULL && "Memory exhausted");
+  ran_parameter_value_t* nr_pci = nr_cell->ran_param_struct[0].ran_param_val.flag_false;
+  nr_pci->type = INTEGER_RAN_PARAMETER_VALUE;
+  nr_pci->int_ran = cur_cell.n_id_nrcell;
+
+  return res;
+}
+
+static
+seq_ran_param_t fill_random_seq(){
+  seq_ran_param_t res = {0};
+
+  res.ran_param_id = -1;
+  res.ran_param_val.type= ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  res.ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  assert(res.ran_param_val.flag_false != NULL && "Memory exhausted");
+  res.ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
+  res.ran_param_val.flag_false->int_ran = rand()%1024;
+
+  return res;
+}
+
+
+static
+seq_ran_param_t fill_rc_value(size_t ue_index, const ran_ind_t* ws_ind, const param_report_def_t* param_def)
+{
+  const amarisoft_ue_stats_t cur_ue = ws_ind->ue_stats[ue_index];
+  seq_ran_param_t seq_ran_param = {0};
+  switch (param_def->ran_param_id) {
+    case 6: // Cell global ID
+      seq_ran_param.ran_param_id = param_def->ran_param_id;
+      seq_ran_param.ran_param_val.type= ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+      for(size_t i=0; i < ws_ind->ran_config.len_nr_cell; i++){
+        if (cur_ue.cells[0].cell_id == ws_ind->ran_config.nr_cells[i].cell_id){
+          char val[50];
+          sprintf(val, "%d", ws_ind->ran_config.nr_cells[i].n_id_nrcell);
+          byte_array_t ba = cp_str_to_ba(val);
+          seq_ran_param.ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+          assert(seq_ran_param.ran_param_val.flag_false != NULL && "Memory exhausted");
+          seq_ran_param.ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
+          seq_ran_param.ran_param_val.flag_false->octet_str_ran = ba;
+          break;
+        }
+      }
+      break;
+    case 21528:
+      if (ws_ind->ran_config.len_nr_cell > 0){
+        seq_ran_param.ran_param_id = 21528;
+        seq_ran_param.ran_param_val.type = LIST_RAN_PARAMETER_VAL_TYPE;
+        seq_ran_param.ran_param_val.lst = calloc(1, sizeof(ran_param_list_t));
+        assert(seq_ran_param.ran_param_val.lst != NULL && "Memory exhausted");
+        // UE Context Information
+        // 8.1.1.17
+        // List of Neighbor cells
+        for(size_t i=0; i < ws_ind->ran_config.len_nr_cell; i++){
+          nr_cell_conf_t cur_cell = ws_ind->ran_config.nr_cells[i];
+          // TODO: Implement case len ncell < 0
+          if (cur_ue.cells[0].cell_id == cur_cell.cell_id){
+            seq_ran_param.ran_param_val.lst->sz_lst_ran_param = cur_cell.len_ncell;
+            seq_ran_param.ran_param_val.lst->lst_ran_param = calloc(cur_cell.len_ncell, sizeof(lst_ran_param_t));
+            assert(seq_ran_param.ran_param_val.lst->lst_ran_param != NULL && "Memory exhausted");
+            lst_ran_param_t* list_ne_cell = seq_ran_param.ran_param_val.lst->lst_ran_param;
+
+            for (size_t cell_idx = 0; cell_idx < cur_cell.len_ncell; cell_idx++){
+              // Neighbor Cell Item
+              // 21529
+              // No id in cell item
+              list_ne_cell[cell_idx].ran_param_struct = fill_neighbor_cell_item(cur_cell.ncell_list[cell_idx]);
+            }
+          }
+        }
+      } else {
+        seq_ran_param = fill_random_seq();
+      }
+      break;
+    default:
+      printf("not implement value for measurement name %d\n", param_def->ran_param_id);
+      seq_ran_param = fill_random_seq();
+      break;
+  }
+  return seq_ran_param;
+}
+
+static
+e2sm_rc_ind_msg_frmt_2_t rc_ind_msg_frmt_2(const ran_ind_t* ws_ind, e2sm_rc_act_def_frmt_1_t ad_frmt_1){
+
+  e2sm_rc_ind_msg_frmt_2_t msg_frm_2 = {0};
+
+  // Fill UE Measurement reports
+  msg_frm_2.sz_seq_ue_id = ws_ind->len_ue_stats;
+  msg_frm_2.seq_ue_id = calloc(msg_frm_2.sz_seq_ue_id, sizeof(seq_ue_id_t));
+  assert(msg_frm_2.seq_ue_id != NULL && "Memory exhausted");
+
+  for (size_t i = 0; i < msg_frm_2.sz_seq_ue_id; i++){
+
+    // Fill UE ID data
+    msg_frm_2.seq_ue_id[i].ue_id.type = GNB_UE_ID_E2SM;
+    msg_frm_2.seq_ue_id[i].ue_id.gnb = fill_gnb_data(&ws_ind->ue_stats[i], ws_ind->global_e2_node_id);
+
+    // Fill UE related info
+    msg_frm_2.seq_ue_id[i].sz_seq_ran_param = ad_frmt_1.sz_param_report_def;
+    msg_frm_2.seq_ue_id[i].seq_ran_param = calloc(ad_frmt_1.sz_param_report_def, sizeof(seq_ran_param_t));
+
+    for (size_t j = 0; j < ad_frmt_1.sz_param_report_def; j++){
+      msg_frm_2.seq_ue_id[i].seq_ran_param[j] = fill_rc_value(i, ws_ind, &ad_frmt_1.param_report_def[j]);
+    }
+  }
+  return msg_frm_2;
+}
+
+void proxy_fill_rnd_rc_ind_data(uint32_t ric_req_id, e2sm_rc_action_def_t ad, e2sm_rc_event_trigger_t et){
+  ran_ind_t ws_ind = get_ringbuffer_data();
+
+  // Current support 1 action def - check on_subscription_rc_sm_ag
   rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t));
   assert(d != NULL && "Memory exhausted");
-  *d = fill_rnd_rc_ind_data();
-  async_event_agent_api(wr_rc_sub.ric_req_id, d);
-  printf("Event for RIC Req ID %u generated\n", wr_rc_sub.ric_req_id);
+
+  if (ws_ind.len_ue_stats > 0){
+    switch (ad.format) {
+      case FORMAT_1_E2SM_RC_ACT_DEF:
+        d->hdr = rc_ind_hdr();
+        d->msg.format = FORMAT_2_E2SM_RC_IND_MSG;
+        // Check E2 Node NG-RAN Type
+        if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)){
+          d->msg.frmt_2 = rc_ind_msg_frmt_2(&ws_ind, ad.frmt_1);
+        } else {
+          assert(0 != 0 && "NG-RAN Type not implemented");
+        }
+        break;
+      default:
+        assert(0 != 0 && "Unknown act definition RC format");
+    }
+  } else {
+    printf("[E2-AGENT] no UE connected to Amarisoft RAN - Fill random value\n");
+    *d = fill_rnd_rc_ind_data();
+  }
+
+  async_event_agent_api(ric_req_id, d);
+  printf("[E2-AGENT] Event for RIC Req ID %u generated\n", ric_req_id);
 }
 
 sm_ag_if_ans_t write_subs_rc_sm(void const* src)
 {
   assert(src != NULL);
   wr_rc_sub_data_t* wr_rc = (wr_rc_sub_data_t*)src;
-  printf("ric req id %d \n", wr_rc->ric_req_id);
 
-  fwd_e2_ran_wr_sub_ev(&get_proxy_agent()->ran_if, *wr_rc);
+  fwd_e2_ran_wr_sub_ev(&get_proxy_agent()->ran_if, wr_rc);
 
   sm_ag_if_ans_t ans = {0};
 
