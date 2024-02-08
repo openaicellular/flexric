@@ -358,19 +358,28 @@ seq_ran_param_t fill_rc_value(size_t ue_index, const ran_ind_t* ws_ind, const pa
   seq_ran_param_t seq_ran_param = {0};
   switch (param_def->ran_param_id) {
     case 6: // Cell global ID
-      seq_ran_param.ran_param_id = param_def->ran_param_id;
-      seq_ran_param.ran_param_val.type= ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-      for(size_t i=0; i < ws_ind->ran_config.len_nr_cell; i++){
-        if (cur_ue.cells[0].cell_id == ws_ind->ran_config.nr_cells[i].cell_id){
-          char val[50];
-          sprintf(val, "%d", ws_ind->ran_config.nr_cells[i].n_id_nrcell);
-          byte_array_t ba = cp_str_to_ba(val);
-          seq_ran_param.ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-          assert(seq_ran_param.ran_param_val.flag_false != NULL && "Memory exhausted");
-          seq_ran_param.ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
-          seq_ran_param.ran_param_val.flag_false->octet_str_ran = ba;
-          break;
+      if (ws_ind->ran_config.len_nr_cell > 0){
+        seq_ran_param.ran_param_id = param_def->ran_param_id;
+        seq_ran_param.ran_param_val.type= ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+        for(size_t i=0; i < ws_ind->ran_config.len_nr_cell; i++){
+          if (cur_ue.cells[0].cell_id == ws_ind->ran_config.nr_cells[i].cell_id){
+            char val[50];
+            sprintf(val, "%d", ws_ind->ran_config.nr_cells[i].n_id_nrcell);
+            byte_array_t ba = cp_str_to_ba(val);
+            seq_ran_param.ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+            assert(seq_ran_param.ran_param_val.flag_false != NULL && "Memory exhausted");
+            seq_ran_param.ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
+            seq_ran_param.ran_param_val.flag_false->octet_str_ran = ba;
+            break;
+          }
         }
+        if(seq_ran_param.ran_param_val.flag_false == NULL){
+          printf("[E2-AGENT] Action definition id %d - UE ran_ue_id %d - cannot find cell ID\n", param_def->ran_param_id, cur_ue.ran_ue_id);
+          goto random_seq;
+        }
+      } else {
+        printf("[E2-AGENT] Action definition id %d - UE ran_ue_id %d - no cell connected\n", param_def->ran_param_id, cur_ue.ran_ue_id);
+        goto random_seq;
       }
       break;
     case 21528:
