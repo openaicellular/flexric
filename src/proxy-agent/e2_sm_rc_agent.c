@@ -340,7 +340,7 @@ static
 seq_ran_param_t fill_random_seq(){
   seq_ran_param_t res = {0};
 
-  res.ran_param_id = -1;
+  res.ran_param_id = 99999;
   res.ran_param_val.type= ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
   res.ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(res.ran_param_val.flag_false != NULL && "Memory exhausted");
@@ -384,29 +384,36 @@ seq_ran_param_t fill_rc_value(size_t ue_index, const ran_ind_t* ws_ind, const pa
         // List of Neighbor cells
         for(size_t i=0; i < ws_ind->ran_config.len_nr_cell; i++){
           nr_cell_conf_t cur_cell = ws_ind->ran_config.nr_cells[i];
-          // TODO: Implement case len ncell < 0
           if (cur_ue.cells[0].cell_id == cur_cell.cell_id){
-            seq_ran_param.ran_param_val.lst->sz_lst_ran_param = cur_cell.len_ncell;
-            seq_ran_param.ran_param_val.lst->lst_ran_param = calloc(cur_cell.len_ncell, sizeof(lst_ran_param_t));
-            assert(seq_ran_param.ran_param_val.lst->lst_ran_param != NULL && "Memory exhausted");
-            lst_ran_param_t* list_ne_cell = seq_ran_param.ran_param_val.lst->lst_ran_param;
+            if (cur_cell.len_ncell > 0){
+              seq_ran_param.ran_param_val.lst->sz_lst_ran_param = cur_cell.len_ncell;
+              seq_ran_param.ran_param_val.lst->lst_ran_param = calloc(cur_cell.len_ncell, sizeof(lst_ran_param_t));
+              assert(seq_ran_param.ran_param_val.lst->lst_ran_param != NULL && "Memory exhausted");
+              lst_ran_param_t* list_ne_cell = seq_ran_param.ran_param_val.lst->lst_ran_param;
 
-            for (size_t cell_idx = 0; cell_idx < cur_cell.len_ncell; cell_idx++){
-              // Neighbor Cell Item
-              // 21529
-              // No id in cell item
-              list_ne_cell[cell_idx].ran_param_struct = fill_neighbor_cell_item(cur_cell.ncell_list[cell_idx]);
+              for (size_t cell_idx = 0; cell_idx < cur_cell.len_ncell; cell_idx++){
+                // Neighbor Cell Item
+                // 21529
+                // No id in cell item
+                list_ne_cell[cell_idx].ran_param_struct = fill_neighbor_cell_item(cur_cell.ncell_list[cell_idx]);
+              }
+            } else {
+              printf("[E2-AGENT] Action definition id %d - UE ran_ue_id %d - cell pci %d - no neighbor cell\n", param_def->ran_param_id, cur_ue.ran_ue_id, cur_cell.n_id_nrcell);
+              goto random_seq;
             }
           }
         }
       } else {
-        seq_ran_param = fill_random_seq();
+        printf("[E2-AGENT] Action definition id %d - UE ran_ue_id %d - no cell connected\n", param_def->ran_param_id, cur_ue.ran_ue_id);
+        goto random_seq;
       }
       break;
     default:
-      printf("not implement value for measurement name %d\n", param_def->ran_param_id);
-      seq_ran_param = fill_random_seq();
+      printf("[E2-AGENT] No implementation value for action definition id %d\n", param_def->ran_param_id);
+      goto random_seq;
       break;
+    random_seq:
+      seq_ran_param = fill_random_seq();
   }
   return seq_ran_param;
 }
@@ -438,7 +445,8 @@ e2sm_rc_ind_msg_frmt_2_t rc_ind_msg_frmt_2(const ran_ind_t* ws_ind, e2sm_rc_act_
   return msg_frm_2;
 }
 
-void proxy_fill_rnd_rc_ind_data(uint32_t ric_req_id, e2sm_rc_action_def_t ad, e2sm_rc_event_trigger_t et){
+void proxy_fill_rnd_rc_ind_data(uint32_t ric_req_id, e2sm_rc_action_def_t ad, e2sm_rc_event_trigger_t et){\
+  (void) et;
   ran_ind_t ws_ind = get_ringbuffer_data();
 
   // Current support 1 action def - check on_subscription_rc_sm_ag
