@@ -39,6 +39,7 @@ typedef struct {
     char* ip;
     int32_t port;
     int32_t logl;
+    int32_t timer;
 } proxy_ran_args_t;
 
 typedef struct {
