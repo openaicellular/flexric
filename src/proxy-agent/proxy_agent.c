@@ -98,7 +98,11 @@ static proxy_agent_t * init_proxy_agent(int argc, char *argv[])
   //printf("[E2-Proxy-Agent]: before ws_initconf(), ip %s, port %d, logl %d\n", proxy_agent->conf.io_ran_conf.address, proxy_agent->conf.io_ran_conf.port, proxy_agent->conf.io_ran_conf.logl);
   proxy_agent->conf = ws_initconf(argc, argv);
   defer({ free_fr_args(&proxy_agent->conf.e2args); });
-  printf("[E2-Proxy-Agent]: ws_initconf(), ip %s, port %d, logl %d\n", proxy_agent->conf.io_ran_conf.address, proxy_agent->conf.io_ran_conf.port, proxy_agent->conf.io_ran_conf.logl);
+  printf("[E2-Proxy-Agent]: ws_initconf(), ip %s, port %d, logl %d timer %d\n",
+         proxy_agent->conf.io_ran_conf.address,
+         proxy_agent->conf.io_ran_conf.port,
+         proxy_agent->conf.io_ran_conf.logl,
+         proxy_agent->conf.io_ran_conf.timer);
   init_e2if(proxy_agent, proxy_agent->conf.e2args);
   notif_init_ran(&proxy_agent->ran_if); 
   init_indication_event(&proxy_agent->ran_if.ind_event);
@@ -111,7 +115,8 @@ static proxy_agent_t * init_proxy_agent(int argc, char *argv[])
   }
   proxy_agent->ran_if.ser = ran_ser_get_instance();
   lwsl_user("websocket: starting scheduling a connection\n");
-  ran_errcodes_t retcode = proxy_agent->ran_if.io->open(10);
+  int time = proxy_agent->conf.io_ran_conf.timer;
+  ran_errcodes_t retcode = proxy_agent->ran_if.io->open(time);
   if (retcode != ERR_RAN_IO_NONE){
     free (proxy_agent);
     return NULL;
@@ -167,6 +172,7 @@ int main(int argc, char *argv[])
   
   // Poll RAN interface until interrupted. Note that polling E2 interface is done already by init_e2_agent_api()
   enum ran_errcodes_t n = ERR_RAN_IO_NONE;
+  // TODO: Fill in the open parameters ?
   while (n == ERR_RAN_IO_NONE  && proxy_get_exit_flag() == false)
     n = proxy_agent->ran_if.io->open(10); 
  

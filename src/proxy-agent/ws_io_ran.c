@@ -513,7 +513,7 @@ io_ran_abs_t *io_ran_get_instance(struct io_ran_conf_t conf,
 
   io_ran_instance->priv_data->ctx = lws_create_context(&info);
   assert(io_ran_instance->priv_data->ctx != NULL && "Error creating the context\n");
-  io_ran_instance->priv_data->indication_polling_ms = 10;
+  io_ran_instance->priv_data->indication_polling_ms = conf.timer;
   io_ran_instance->priv_data->read_cb = set_read_cb;
   io_ran_instance->priv_data->pa = get_proxy_agent();
   io_ran_instance->priv_data->e2_setup_done = false;

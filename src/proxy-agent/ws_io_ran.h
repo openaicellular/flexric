@@ -16,6 +16,7 @@ struct io_ran_conf_t {
   char                address[128]; /* ip address */
   int                 port;         /* port */
   enum lws_log_levels logl;         /* loglevel*/
+  int                 timer;
 };
 
 /* 
