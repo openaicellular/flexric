@@ -41,6 +41,10 @@ bool valid_logl(int logl)
 
 
 }
+static
+bool valid_timer(int timer){
+    return false ? timer < 100 : true;
+}
 #endif
 /*
 static
@@ -404,21 +408,30 @@ void get_Proxy_Agent(fr_args_t* args, config_t cfg)
     const char *ip;
     int32_t port;
     int32_t logl;
+    int32_t timer;
 
     if (!config_setting_lookup_string(pa_settings, "ip", &ip) ||
         !config_setting_lookup_int(pa_settings, "port", &port) ||
-        !config_setting_lookup_int(pa_settings, "logl", &logl))
-      assert(0!=0 && "cannnot find ip, port, and logl in Proxy_Agent in .conf");
+        !config_setting_lookup_int(pa_settings, "logl", &logl) ||
+        !config_setting_lookup_int(pa_settings, "timer", &timer))
+      assert(0!=0 && "cannnot find ip, port, logl and timer in Proxy_Agent in .conf");
 
     args->proxy_ran_args.ip = malloc(strlen(ip) + 1);
     strcpy(args->proxy_ran_args.ip, ip);
     args->proxy_ran_args.port = port;
     args->proxy_ran_args.logl = logl;
+    args->proxy_ran_args.timer = timer;
     if (valid_logl(args->proxy_ran_args.logl) == false){
       printf("RAN loglevel invalid = %d. Check the config file\n", logl);
       printf("Allowed levels are a bitwose combination of\n");
       printf("LLL_ERR(%d), LLL_WARN(%d),LLL_NOTICE(%d), LLL_INFO(%d), LLL_DEBUG(%d), LLL_PARSER(%d), LLL_HEADER(%d), LLL_EXT(%d), LLL_CLIENT(%d), LLL_LATENCY(%d), LLL_USER(%d), LLL_THREAD(%d)\n", LLL_ERR, LLL_WARN, LLL_NOTICE, LLL_INFO, LLL_DEBUG, LLL_PARSER, LLL_HEADER, LLL_EXT, LLL_CLIENT, LLL_LATENCY, LLL_USER, LLL_THREAD);
       assert(0!=0);
+    }
+    if(valid_timer(args->proxy_ran_args.timer) == false){
+        printf("Timer invalid = %d. Check the config file\n", logl);
+        printf("Allow polling timer for web socket >= 100(ms)\n");
+        printf("Timer = %d ms\n", args->proxy_ran_args.timer);
+        assert(0 != 0);
     }
   }
 }
@@ -516,7 +529,7 @@ fr_args_t init_fr_args(int argc, char* argv[])
     printf("[LibConf]: E2_Port Port: %d\n", args.e2_port);
     // Proxy_Agent
     get_Proxy_Agent(&args, cfg);
-    printf("[LibConf]: Proxy_Agent ip: %s, port: %d, logl: %d\n", args.proxy_ran_args.ip, args.proxy_ran_args.port, args.proxy_ran_args.logl);
+    printf("[LibConf]: Proxy_Agent ip: %s, port: %d, logl: %d, timer: %d\n", args.proxy_ran_args.ip, args.proxy_ran_args.port, args.proxy_ran_args.logl, args.proxy_ran_args.timer);
   }
 #endif
   else {
