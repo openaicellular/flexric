@@ -79,6 +79,31 @@ E2AP-v2-KPM-v3.00-test:
     - make install
     - ctest
 
+# E2AP-v2-KPM-v3.00-ProxyAgent
+ProxyAgent-build:
+  stage: build
+  tags:
+    - test
+  script:
+    - apt update
+    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
+    - mkdir build-e2ap-v2-kpm-v3.00-proxyagent
+    - cd build-e2ap-v2-kpm-v3.00-proxyagent
+    - cmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF -DPROXY_AGENT=ON ..
+    - make -j
+  artifacts:
+    paths:
+      - build-e2ap-v2-kpm-v3.00-proxyagent/
+
+ProxyAgent-test:
+  stage: test
+  tags:
+    - test
+  script:
+    - cd build-e2ap-v2-kpm-v3.00-proxyagent
+    - make install
+    - ctest
+
 
 # E2AP-v3-KPM-v2.01
 E2AP-v3-KPM-v2.01-build:
