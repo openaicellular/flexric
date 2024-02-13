@@ -142,6 +142,8 @@ if(XAPP_PYTHON_SWIG)
   # xapp_sdk
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/_xapp_sdk.so")
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/xapp_sdk.py")
+  # helloworld
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/helloworld/hw.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/helloworld/hw.py")
   # monitor
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/monitor/xapp_cust_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_cust_moni.py")
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/monitor/xapp_all_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_all_moni.py")
