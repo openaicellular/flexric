@@ -35,13 +35,6 @@
 #include <signal.h>
 #include <pthread.h>
 
-static bool exit_flag = false;
-static void sigint_handler(int sig)
-{
-  printf("signal %d received !\n", sig);
-  exit_flag = true;
-}
-
 static
 pthread_mutex_t mtx;
 
@@ -59,7 +52,7 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
   // Reading Indication Message Format 2
   e2sm_rc_ind_msg_frmt_2_t const *msg_frm_2 = &rd->ind.rc.ind.msg.frmt_2;
 
-  printf("\n RC REPORT Style 2 - Call Process Outcome\n");
+  printf("RC REPORT Style 2 - Call Process Outcome\n");
 
   // Sequence of UE Identifier
   //[1-65535]
@@ -74,7 +67,7 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
         printf("UE connected to gNB with amf_ue_ngap_id = %lu\n", msg_frm_2->seq_ue_id[i].ue_id.gnb.amf_ue_ngap_id);
         break;
       default:
-        printf("Not yet implemented UE ID type");
+        printf("Not yet implemented UE ID type\n");
     }
   }
 }
@@ -98,23 +91,21 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   {
     lock_guard(&mtx);
 
-    static int counter = 1;
 #if defined(KPM_V2_01) || defined (KPM_V2_03)
     // collectStartTime (32bit) unit is second
-    printf("%7d, KPM v2 ind_msg latency > %ld s (minimum time unit is in second) from E2-node type %d ID %d\n",
-           counter, now/1000000 - hdr_frm_1->collectStartTime,
+    printf("KPM-v2 ind_msg latency > %ld s (minimum time unit is in second) from E2-node type %d ID %d\n",
+           now/1000000 - hdr_frm_1->collectStartTime,
            e2_node->type, e2_node->nb_id.nb_id);
 #elif defined(KPM_V3_00)
     // collectStartTime (64bit) unit is micro-second
-    printf("%7d, KPM v3 ind_msg latency = %ld μs from E2-node type %d ID %d\n",
-           counter, now - hdr_frm_1->collectStartTime,
+    printf("KPM-v3 ind_msg latency = %ld μs from E2-node type %d ID %d\n",
+           now - hdr_frm_1->collectStartTime,
            e2_node->type, e2_node->nb_id.nb_id);
 #else
     static_assert(0!=0, "Unknown KPM version");
 #endif
 
-    if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE)
-    {
+    if (kpm->msg.type == FORMAT_1_INDICATION_MESSAGE) {
       kpm_ind_msg_format_1_t const* msg_frm_1 = &kpm->msg.frm_1;
       for (size_t i = 0; i < msg_frm_1->meas_data_lst_len; i++) {
         for (size_t j = 0; j < msg_frm_1->meas_data_lst[i].meas_record_len; j++) {
@@ -126,24 +117,17 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
             printf("meas record NO_VALUE_MEAS_VALUE value\n");
         }
       }
-    } else if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE)
-    {
+    } else if (kpm->msg.type == FORMAT_3_INDICATION_MESSAGE) {
       kpm_ind_msg_format_3_t const* msg_frm_3 = &kpm->msg.frm_3;
       // Reported list of measurements per UE
-      for (size_t i = 0; i < msg_frm_3->ue_meas_report_lst_len; i++)
-      {
+      for (size_t i = 0; i < msg_frm_3->ue_meas_report_lst_len; i++) {
         switch (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.type)
         {
           case GNB_UE_ID_E2SM:
-            if (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst != NULL)
-            {
+            if (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst != NULL) {
               for (size_t j = 0; j < msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst_len; j++)
-              {
                 printf("UE ID type = gNB-CU, gnb_cu_ue_f1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst[j]);
-              }
-            }
-            else
-            {
+            } else {
               printf("UE ID type = gNB, amf_ue_ngap_id = %lu\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id);
             }
             break;
@@ -162,14 +146,10 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
         kpm_ind_msg_format_1_t const* msg_frm_1 = &msg_frm_3->meas_report_per_ue[i].ind_msg_format_1;
 
         // UE Measurements per granularity period
-        for (size_t j = 0; j<msg_frm_1->meas_data_lst_len; j++)
-        {
-          for (size_t z = 0; z<msg_frm_1->meas_data_lst[j].meas_record_len; z++)
-          {
-            if (msg_frm_1->meas_info_lst_len > 0)
-            {
-              switch (msg_frm_1->meas_info_lst[z].meas_type.type)
-              {
+        for (size_t j = 0; j<msg_frm_1->meas_data_lst_len; j++) {
+          for (size_t z = 0; z<msg_frm_1->meas_data_lst[j].meas_record_len; z++) {
+            if (msg_frm_1->meas_info_lst_len > 0) {
+              switch (msg_frm_1->meas_info_lst[z].meas_type.type) {
                 case NAME_MEAS_TYPE:
                 {
                   // Get the Measurement Name
@@ -181,61 +161,16 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
                   switch (msg_frm_1->meas_data_lst[j].meas_record_lst[z].value)
                   {
                     case REAL_MEAS_VALUE:
-                    {
                       printf("%s = %.2f\n", meas_info_name_str, msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
-//                      if (strcmp(meas_info_name_str, "DRB.RlcSduDelayDl") == 0)
-//                      {
-//                        printf("DRB.RlcSduDelayDl = %.2f [μs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
-//                      }
-//                      else if (strcmp(meas_info_name_str, "DRB.UEThpDl") == 0)
-//                      {
-//                        printf("DRB.UEThpDl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
-//                      }
-//                      else if (strcmp(meas_info_name_str, "DRB.UEThpUl") == 0)
-//                      {
-//                        printf("DRB.UEThpUl = %.2f [kbps]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].real_val);
-//                      }
-//                      else
-//                      {
-//                        assert(false && "Measurement Name not yet implemented");
-//                      }
-
                       break;
-                    }
-
 
                     case INTEGER_MEAS_VALUE:
-                    {
                       printf("%s = %d\n", meas_info_name_str, msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
-//
-//                      if (strcmp(meas_info_name_str, "RRU.PrbTotDl") == 0)
-//                      {
-//                        printf("RRU.PrbTotDl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
-//                      }
-//                      else if (strcmp(meas_info_name_str, "RRU.PrbTotUl") == 0)
-//                      {
-//                        printf("RRU.PrbTotUl = %d [PRBs]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
-//                      }
-//                      else if (strcmp(meas_info_name_str, "DRB.PdcpSduVolumeDL") == 0)
-//                      {
-//                        printf("DRB.PdcpSduVolumeDL = %d [kb]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
-//                      }
-//                      else if (strcmp(meas_info_name_str, "DRB.PdcpSduVolumeUL") == 0)
-//                      {
-//                        printf("DRB.PdcpSduVolumeUL = %d [kb]\n", msg_frm_1->meas_data_lst[j].meas_record_lst[z].int_val);
-//                      }
-//                      else
-//                      {
-//                        assert(false && "Measurement Name not yet implemented");
-//                      }
-
                       break;
-                    }
 
                     default:
                       assert("Value not recognized");
                   }
-
                   break;
                 }
 
@@ -254,188 +189,10 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
       printf("unknown kpm ind format\n");
     }
 
-    counter++;
   }
 }
 
-static
-kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
-{
-  kpm_event_trigger_def_t dst = {0};
-
-  dst.type = FORMAT_1_RIC_EVENT_TRIGGER;
-  dst.kpm_ric_event_trigger_format_1.report_period_ms = period;
-
-  return dst;
-}
-
-static
-meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
-{
-  meas_info_format_1_lst_t dst = {0};
-
-  dst.meas_type.type = NAME_MEAS_TYPE;
-  // ETSI TS 128 552
-  dst.meas_type.name = cp_str_to_ba(action);
-
-  dst.label_info_lst_len = 1;
-  dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
-  assert(dst.label_info_lst != NULL && "Memory exhausted");
-  dst.label_info_lst[0].noLabel = calloc(1, sizeof(enum_value_e));
-  assert(dst.label_info_lst[0].noLabel != NULL && "Memory exhausted");
-  *dst.label_info_lst[0].noLabel = TRUE_ENUM_VALUE;
-
-  return dst;
-}
-
-static
-kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action, uint32_t period_ms)
-{
-  kpm_act_def_format_1_t dst = {0};
-
-  dst.gran_period_ms = period_ms;
-
-  // [1, 65535]
-  size_t count = 0;
-  while (action[count] != NULL) {
-    count++;
-  }
-  dst.meas_info_lst_len = count;
-  dst.meas_info_lst = calloc(count, sizeof(meas_info_format_1_lst_t));
-  assert(dst.meas_info_lst != NULL && "Memory exhausted");
-
-  for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
-    dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action[i]);
-  }
-
-  return dst;
-}
-
-static
-kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action, uint32_t period_ms)
-{
-  kpm_act_def_format_4_t dst = {0};
-
-  // [1, 32768]
-  dst.matching_cond_lst_len = 1;
-
-  dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
-  assert(dst.matching_cond_lst != NULL && "Memory exhausted");
-
-  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
-  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
-  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
-
-  dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
-
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value->type = INTEGER_TEST_COND_VALUE;
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = malloc(sizeof(int64_t));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = 0;
-
-  // Action definition Format 1
-  dst.action_def_format_1 = gen_act_def_frmt_1(action, period_ms);  // 8.2.1.2.1
-
-  return dst;
-}
-
-
-static
-kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm, uint32_t period_ms)
-{
-  kpm_act_def_t dst = {0};
-
-  if (act_frm == FORMAT_1_ACTION_DEFINITION) {
-    dst.type = FORMAT_1_ACTION_DEFINITION;
-    dst.frm_1 = gen_act_def_frmt_1(act, period_ms);
-  } else if (act_frm == FORMAT_4_ACTION_DEFINITION) {
-    dst.type = FORMAT_4_ACTION_DEFINITION;
-    dst.frm_4 = gen_act_def_frmt_4(act, period_ms);
-  } else {
-    assert(0!=0 && "not support action definition type");
-  }
-
-  return dst;
-}
-
-typedef enum
-{
-  CURRENT_UE_ID_8_2_2 = 1,
-  OLD_UE_ID_8_2_2 = 2,
-  CURRENT_RRC_STATE_8_2_2 = 3,
-  OLD_RRC_STATE_8_2_2 = 4,
-  UE_CONTEXT_INFO_CONTAINER_8_2_2 = 5,
-  CELL_GLOBAL_ID_8_2_2 = 6,
-  UE_INFORMATION_8_2_2 = 7,
-  MASTER_NODE_8_1_1_17 = 21501,
-  GNB_MEASUREMENTS_MASTER_NODE_8_1_1_17 = 21502,
-  CHOICE_PRIMARY_CELL_OF_MCG_8_1_1_17 = 21503,
-  NR_CELL_PRIMARY_MCG_8_1_1_17 = 21504,
-  EUTRA_CELL_PRIMARY_MCG_8_1_1_17 = 21505,
-  LIST_OF_SECONDARY_CELLS_OF_MCG_8_1_1_17 = 21506,
-  SCELL_ITEM_MCG_8_1_1_17 = 21507,
-  CHOICE_SCELL_MSG_8_1_1_17 = 21508,
-  NR_CELL_SECONDARY_MCG_8_1_1_17 = 21509,
-  EUTRA_CELL_SECONDARY_MCG_8_1_1_17 = 21510,
-  SECONDARY_NODE_8_1_1_17 = 21511,
-  GNB_MEASUREMENTS_SECONDARY_NODE_8_1_1_17 = 21512,
-  CHOICE_PRIMARY_CELL_OF_SCG_8_1_1_17 = 21513,
-  NR_CELL_PRIMARY_SCG_8_1_1_17 = 21514,
-  EUTRA_CELL_PRIMARY_SCG_8_1_1_17 = 21515,
-  LIST_OF_SECONDARY_CELLS_OF_SCG_8_1_1_17 = 21516,
-  SCELL_ITEM_SCG_8_1_1_17 = 21517,
-  CHOICE_SCELL_SCG_8_1_1_17 = 21518,
-  NR_CELL_SECONDARY_SCG_8_1_1_17 = 21519,
-  EUTRA_CELL_SECONDARY_SCG_8_1_1_17 = 21520,
-  LIST_OF_PDU_SESSIONS_8_1_1_17 = 21521,
-  PDU_SESSION_ITEM_8_1_1_17 = 21522,
-  PDU_SESSION_ID_8_1_1_17 = 21543,
-  PDU_SESSION_8_1_1_17 = 21523,
-  LIST_OF_DRBS_8_1_1_17 = 21524,
-  DRB_ITEM_8_1_1_17 = 21525,
-  DRB_ID_8_1_1_17 = 21546,
-  DRB_8_1_1_17 = 21547,
-  LIST_OF_QOS_FLOWS_MAPPED_TO_DRB_8_1_1_17 = 21526,
-  QOS_FLOW_ITEM_8_1_1_17 = 21527,
-  QOS_FLOW_IDENTIFIER_8_1_1_17 = 21548,
-  QOS_FLOW_8_1_1_17 = 21549,
-  LIST_OF_NEIGHBOR_CELLS_8_1_1_17 = 21528,
-  NEIGHBOR_CELL_ITEM_8_1_1_17 = 21529,
-  CHOICE_NEIGHBOR_CELL_8_1_1_17 = 21530,
-  NR_CELL_NEIGHBOR_8_1_1_17 = 21531,
-  EUTRA_CELL_NEIGHBOR_8_1_1_17 = 21532,
-
-} ran_param_report_style_2_e;
-
-
-//static e2sm_rc_act_def_frmt_1_t gen_rc_act_def_frm_1(const char** action)
-//{
-//  e2sm_rc_act_def_frmt_1_t act_def_frm_1 = {0};
-//
-//  size_t count = 0;
-//  while (action[count] != NULL) {
-//    count++;
-//  }
-//
-//  // Parameters to be Reported List
-//  // [1-65535]
-//  // 8.2.2
-//  act_def_frm_1.sz_param_report_def = count;
-//  act_def_frm_1.param_report_def = calloc(act_def_frm_1.sz_param_report_def, sizeof(param_report_def_t));
-//  assert(act_def_frm_1.param_report_def != NULL && "Memory exhausted");
-//  for(size_t i = 0; i < act_def_frm_1.sz_param_report_def; i++) {
-//    act_def_frm_1.param_report_def[i].ran_param_id = (uint32_t) action[i];
-//    // TODO: Add parameters report definition
-//  }
-//
-//  return act_def_frm_1;
-//}
-
-static e2sm_rc_ev_trg_frmt_2_t gen_rc_event_trigger_frm_2(void)
+static e2sm_rc_ev_trg_frmt_2_t gen_rc_ev_trig_frm_2(void)
 {
   e2sm_rc_ev_trg_frmt_2_t ev_trigger = {0};
 
@@ -462,48 +219,14 @@ static e2sm_rc_ev_trg_frmt_2_t gen_rc_event_trigger_frm_2(void)
   return ev_trigger;
 }
 
-
-//static e2sm_rc_action_def_t gen_rc_act_def(const char** act, e2sm_rc_act_def_format_e act_frm)
-//{
-//  e2sm_rc_action_def_t dst = {0};
-//
-//  if (act_frm == FORMAT_1_E2SM_RC_ACT_DEF) {
-//    dst.format = FORMAT_1_E2SM_RC_ACT_DEF;
-//    dst.frmt_1 = gen_rc_act_def_frm_1(act);
-//  } else {
-//    assert(0!=0 && "not support action definition type");
-//  }
-//
-//  return dst;
-//}
-
-static e2sm_rc_act_def_frmt_1_t gen_rc_act_def_frm_1_manually(void)
-{
-  e2sm_rc_act_def_frmt_1_t act_def_frm_1 = {0};
-
-  // Parameters to be Reported List
-  // [1-65535]
-  // 8.2.2
-  act_def_frm_1.sz_param_report_def = 3;
-  act_def_frm_1.param_report_def = calloc(act_def_frm_1.sz_param_report_def, sizeof(param_report_def_t));
-  assert(act_def_frm_1.param_report_def != NULL && "Memory exhausted");
-
-  // Current UE ID RAN Parameter
-  act_def_frm_1.param_report_def[0].ran_param_id = CURRENT_UE_ID_8_2_2;
-  act_def_frm_1.param_report_def[1].ran_param_id = CELL_GLOBAL_ID_8_2_2;
-  act_def_frm_1.param_report_def[2].ran_param_id = LIST_OF_NEIGHBOR_CELLS_8_1_1_17;
-
-  return act_def_frm_1;
-}
-
 static
-e2sm_rc_event_trigger_t gen_rc_ev_trigger(e2sm_rc_ev_trigger_format_e act_frm)
+e2sm_rc_event_trigger_t gen_rc_ev_trig(e2sm_rc_ev_trigger_format_e act_frm)
 {
   e2sm_rc_event_trigger_t dst = {0};
 
   if (act_frm == FORMAT_2_E2SM_RC_EV_TRIGGER_FORMAT) {
     dst.format = FORMAT_2_E2SM_RC_EV_TRIGGER_FORMAT;
-    dst.frmt_2 = gen_rc_event_trigger_frm_2();
+    dst.frmt_2 = gen_rc_ev_trig_frm_2();
   } else {
     assert(0!=0 && "not support event trigger type");
   }
@@ -512,80 +235,149 @@ e2sm_rc_event_trigger_t gen_rc_ev_trigger(e2sm_rc_ev_trigger_format_e act_frm)
 }
 
 static
-size_t send_sub_req(e2_node_connected_t* n, fr_args_t args, sm_ans_xapp_t *kpm_handle, size_t n_handle)
+kpm_event_trigger_def_t gen_kpm_ev_trig(uint64_t period)
 {
-  for (int32_t j = 0; j < args.sub_oran_sm_len; j++) {
-    if (!strcasecmp(args.sub_oran_sm[j].name, "kpm")) {
-      kpm_sub_data_t kpm_sub = {0};
-      defer({ free_kpm_sub_data(&kpm_sub); });
+  kpm_event_trigger_def_t dst = {0};
 
-      // KPM Event Trigger
-      uint64_t period_ms = args.sub_oran_sm[j].time;
-      kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
-      printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
+  dst.type = FORMAT_1_RIC_EVENT_TRIGGER;
+  dst.kpm_ric_event_trigger_format_1.report_period_ms = period;
 
-      // KPM Action Definition
-      kpm_sub.sz_ad = 1;
-      kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
-      assert(kpm_sub.ad != NULL && "Memory exhausted");
+  return dst;
+}
 
-      format_action_def_e act_type;
-      if (args.sub_oran_sm[j].format == 1)
-        act_type = FORMAT_1_ACTION_DEFINITION;
-      else if (args.sub_oran_sm[j].format == 4)
-        act_type = FORMAT_4_ACTION_DEFINITION;
-      else
-      assert(0!=0 && "not supported action definition format");
+static
+meas_info_format_1_lst_t gen_meas_info_format_1_lst(const act_name_id_t act)
+{
+  meas_info_format_1_lst_t dst = {0};
 
-      *kpm_sub.ad = gen_act_def((const char**)args.sub_oran_sm[j].actions, act_type, period_ms);
+  // use id
+  if (!strcasecmp(act.name, "null")) {
+    dst.meas_type.type = ID_MEAS_TYPE;
+    dst.meas_type.id = act.id;
+  } else { // use name
+    dst.meas_type.type = NAME_MEAS_TYPE;
+    // ETSI TS 128 552
+    dst.meas_type.name = cp_str_to_ba(act.name);
+  }
 
-      // TODO: implement e2ap_ngran_eNB
-      if (n->id.type == e2ap_ngran_eNB)
-        continue;
-      if (strcasecmp(args.sub_oran_sm[j].ran_type, get_e2ap_ngran_name(n->id.type)))
-        continue;
+  dst.label_info_lst_len = 1;
+  dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
+  assert(dst.label_info_lst != NULL && "Memory exhausted");
 
-      kpm_handle[n_handle] = report_sm_xapp_api(&n->id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
-      assert(kpm_handle[n_handle].success == true);
-      n_handle += 1;
-    } else if (!strcasecmp(args.sub_oran_sm[j].name, "rc")) {
-      rc_sub_data_t rc_sub = {0};
-      defer({ free_rc_sub_data(&rc_sub); });
+  // No Label
+  dst.label_info_lst[0].noLabel = calloc(1, sizeof(enum_value_e));
+  assert(dst.label_info_lst[0].noLabel != NULL && "Memory exhausted");
+  *dst.label_info_lst[0].noLabel = TRUE_ENUM_VALUE;
 
-      // RC Event Trigger
-      rc_sub.et = gen_rc_ev_trigger(FORMAT_2_E2SM_RC_EV_TRIGGER_FORMAT);
+  return dst;
+}
 
-      // RC Action Definition
-      rc_sub.sz_ad = 1;
-      rc_sub.ad = calloc(rc_sub.sz_ad, sizeof(e2sm_rc_action_def_t));
-      assert(rc_sub.ad != NULL && "Memory exhausted");
+static
+kpm_act_def_format_1_t gen_kpm_act_def_frmt_1(const sub_oran_sm_t sub_sm, uint32_t period_ms)
+{
+  kpm_act_def_format_1_t dst = {0};
 
-//      e1sm_rc_act_def_format_e act_type;
-//      if (args.sub_oran_sm[j].format == 4)
-//          act_type = FORMAT_0_E2SM_RC_ACT_DEF;
-//      else
-//          assert(-1!=0 && "not supported action definition format");
-      rc_sub.ad[0].ric_style_type = 2; // 7.4.1
-      rc_sub.ad[0].format = FORMAT_1_E2SM_RC_ACT_DEF;
-      rc_sub.ad[0].frmt_1 = gen_rc_act_def_frm_1_manually();
+  dst.gran_period_ms = period_ms;
 
-//      *rc_sub.ad = gen_rc_act_def((const char**)args.sub_oran_sm[j].actions, act_type);
-//      *rc_sub.ad = gen_rc_act_def_frm_1();
+  dst.meas_info_lst_len = sub_sm.act_len;
+  dst.meas_info_lst = calloc(dst.meas_info_lst_len, sizeof(meas_info_format_1_lst_t));
+  assert(dst.meas_info_lst != NULL && "Memory exhausted");
 
-      // RC HO only supports for e1ap_ngran_gNB
-      if (n->id.type == e2ap_ngran_eNB || n->id.type == e2ap_ngran_gNB_CU || n->id.type == e2ap_ngran_gNB_DU)
-          continue;
-      if (strcasecmp(args.sub_oran_sm[j].ran_type, get_e2ap_ngran_name(n->id.type)))
-          continue;
+  for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
+    dst.meas_info_lst[i] = gen_meas_info_format_1_lst(sub_sm.actions[i]);
+  }
 
-      kpm_handle[n_handle] = report_sm_xapp_api(&n->id, SM_RC_ID, &rc_sub, sm_cb_rc);
-      assert(kpm_handle[n_handle].success == true);
-      n_handle += 0;
-    } else {
-      assert(0!=0 && "unknown SM in .conf");
+  return dst;
+}
+
+static
+kpm_act_def_format_4_t gen_kpm_act_def_frmt_4(const sub_oran_sm_t sub_sm, uint32_t period_ms)
+{
+  kpm_act_def_format_4_t dst = {0};
+
+  // [1, 32768]
+  dst.matching_cond_lst_len = 1;
+
+  dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
+  assert(dst.matching_cond_lst != NULL && "Memory exhausted");
+
+  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
+  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
+  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
+
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value->type = INTEGER_TEST_COND_VALUE;
+  dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = malloc(sizeof(int64_t));
+  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value != NULL && "Memory exhausted");
+  *dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = 0;
+
+  // Action definition Format 1
+  dst.action_def_format_1 = gen_kpm_act_def_frmt_1(sub_sm, period_ms);  // 8.2.1.2.1
+
+  return dst;
+}
+
+static
+e2sm_rc_act_def_frmt_1_t gen_rc_act_def_frm_1(const sub_oran_sm_t sub_sm)
+{
+  e2sm_rc_act_def_frmt_1_t act_def_frm_1 = {0};
+
+  // Parameters to be Reported List
+  // [1-65535]
+  // 8.2.2
+  act_def_frm_1.sz_param_report_def = sub_sm.act_len;
+  act_def_frm_1.param_report_def = calloc(act_def_frm_1.sz_param_report_def, sizeof(param_report_def_t));
+  assert(act_def_frm_1.param_report_def != NULL && "Memory exhausted");
+
+  // Current UE ID RAN Parameter
+  for (size_t i = 0; i < act_def_frm_1.sz_param_report_def; i++) {
+    // use id
+    if (!strcasecmp(sub_sm.actions[i].name, "null")) {
+      act_def_frm_1.param_report_def[i].ran_param_id = sub_sm.actions[i].id;
+    } else { // use name
+      assert(0!=0 && "not supported Name for RC action definition\n");
     }
   }
-  return n_handle;
+
+  return act_def_frm_1;
+}
+
+static
+e2sm_rc_action_def_t gen_rc_act_def(const sub_oran_sm_t sub_sm, uint32_t ric_style_type, e2sm_rc_act_def_format_e act_frmt)
+{
+  e2sm_rc_action_def_t dst = {0};
+  dst.ric_style_type = ric_style_type;
+  dst.format = act_frmt;
+  if (act_frmt == FORMAT_1_E2SM_RC_ACT_DEF) {
+    dst.frmt_1 = gen_rc_act_def_frm_1(sub_sm);
+  } else {
+    assert(0!=0 && "not supported RC action definition\n");
+  }
+
+  return dst;
+}
+
+static
+kpm_act_def_t gen_kpm_act_def(const sub_oran_sm_t sub_sm, format_action_def_e act_frm, uint32_t period_ms)
+{
+  kpm_act_def_t dst = {0};
+
+  if (act_frm == FORMAT_1_ACTION_DEFINITION) {
+    dst.type = FORMAT_1_ACTION_DEFINITION;
+    dst.frm_1 = gen_kpm_act_def_frmt_1(sub_sm, period_ms);
+  } else if (act_frm == FORMAT_4_ACTION_DEFINITION) {
+    dst.type = FORMAT_4_ACTION_DEFINITION;
+    dst.frm_4 = gen_kpm_act_def_frmt_4(sub_sm, period_ms);
+  } else {
+    assert(0!=0 && "not support action definition type");
+  }
+
+  return dst;
 }
 
 int main(int argc, char *argv[])
@@ -595,103 +387,115 @@ int main(int argc, char *argv[])
 
   //Init the xApp
   init_xapp_api(&args);
-  signal(SIGINT, sigint_handler); // we override the signal mask set in init_xapp_api()
-  signal(SIGTERM, sigint_handler);
   sleep(1);
 
-  int max_handle = 256;
-  // KPM indication
-  sm_ans_xapp_t *kpm_handle = NULL;
-  if (max_handle > 0) {
-    kpm_handle = calloc(max_handle, sizeof(sm_ans_xapp_t *));
-    assert(kpm_handle != NULL);
-  }
-
-  size_t nodes_len = e2_nodes_len_xapp_api();
-  // start the xApp subscription procedure until detect connected E2 nodes
-  while (nodes_len <= 0) {
-    // get the original connected e2 nodes info
-    size_t tmp_len = e2_nodes_len_xapp_api();
-    if (tmp_len > nodes_len) {
-      printf("Update connected E2 nodes len = %ld\n", tmp_len);
-      nodes_len = tmp_len;
-    } else {
-      printf("No E2 node connects\n");
-      sleep(1);
-    }
-  }
-
-  pthread_mutexattr_t attr = {0};
-  int rc = pthread_mutex_init(&mtx, &attr);
-  assert(rc == 0);
-
-  size_t n_handle = 0;
-  // case1: send subscription req to the original connected e2 node
-  // get original e2 nodes info
   e2_node_arr_t nodes = e2_nodes_xapp_api();
   defer({ free_e2_node_arr(&nodes); });
+
+  assert(nodes.len > 0);
+
+  printf("Connected E2 nodes = %d\n", nodes.len);
+
+  //Init SM handler
+  sm_ans_xapp_t* kpm_handle = NULL;
+  sm_ans_xapp_t* rc_handle = NULL;
+
+  if(nodes.len > 0){
+    kpm_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) );
+    assert(kpm_handle  != NULL);
+    rc_handle = calloc( nodes.len, sizeof(sm_ans_xapp_t) );
+    assert(rc_handle  != NULL);
+  }
+
+  //Subscribe SMs for all the E2-nodes
   for (int i = 0; i < nodes.len; i++) {
     e2_node_connected_t* n = &nodes.n[i];
     for (size_t j = 0; j < n->len_rf; j++)
       printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
 
-    n_handle = send_sub_req(n, args, kpm_handle, n_handle);
-  }
+    for (int32_t j = 0; j < args.sub_oran_sm_len; j++) {
+      if (!strcasecmp(args.sub_oran_sm[j].name, "kpm")) {
+        kpm_sub_data_t kpm_sub = {0};
+        defer({ free_kpm_sub_data(&kpm_sub); });
 
-  // case2: send subscription req to the new connected e2 node
-  while(!exit_flag) {
-    size_t cur_nodes_len = e2_nodes_len_xapp_api();
+        // KPM Event Trigger
+        uint64_t period_ms = args.sub_oran_sm[j].time;
+        kpm_sub.ev_trg_def = gen_kpm_ev_trig(period_ms);
+        printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
 
-    if (cur_nodes_len != nodes_len) {
-      printf("/////// detect E2 nodes len update, new len = %ld, old len = %ld ///////\n", cur_nodes_len, nodes_len);
+        // KPM Action Definition
+        kpm_sub.sz_ad = 1;
+        kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
+        assert(kpm_sub.ad != NULL && "Memory exhausted");
+        format_action_def_e act_type;
+        if (args.sub_oran_sm[j].format == 1)
+          act_type = FORMAT_1_ACTION_DEFINITION;
+        else if (args.sub_oran_sm[j].format == 4)
+          act_type = FORMAT_4_ACTION_DEFINITION;
+        else
+          assert(0!=0 && "not supported action definition format");
 
-      if (cur_nodes_len != 0) {
-        // get the new e2 nodes info
-        e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
-        defer({ free_e2_node_arr(&cur_nodes); });
+        *kpm_sub.ad = gen_kpm_act_def((const sub_oran_sm_t)args.sub_oran_sm[j], act_type, period_ms);
+        // TODO: implement e2ap_ngran_eNB
+        if (n->id.type == e2ap_ngran_eNB)
+          continue;
+        if (strcasecmp(args.sub_oran_sm[j].ran_type, get_e2ap_ngran_name(n->id.type)))
+          continue;
+        printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_KPM_ID, i, n->id.nb_id.nb_id);
+        kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
+        assert(kpm_handle[i].success == true);
 
-        // TODO: send subscription request to new e2 node
-        for (size_t i = 0; i < cur_nodes_len; i++) {
-          //printf("/////////////// new E2 node list, idx %ld, nb_id %d, type %s //////////////\n", i,
-          //       cur_nodes.n[i].id.nb_id.nb_id, get_e2ap_ngran_name(cur_nodes.n[i].id.type));
-          e2ap_ngran_node_t cur_type = cur_nodes.n[i].id.type;
-          uint32_t cur_nb_id = cur_nodes.n[i].id.nb_id.nb_id;
-          bool new_type = 1;
-          bool new_nb_id = 1;
-          // compare the type between old and new e2 nodes list
-          for (size_t j = 0; j < nodes_len; j++) {
-            //printf("/////////////// old E2 node list, idx %ld, nb_id %d, type %s //////////////\n", j,
-            //       nodes.n[j].id.nb_id.nb_id, get_ngran_name(nodes.n[j].id.type));
-            if (nodes.n[j].id.type == cur_type) new_type = 0;
-            if (nodes.n[j].id.nb_id.nb_id == cur_nb_id) new_nb_id = 0;
-          }
-          if (new_type || new_nb_id) {
-            printf("/////////////// send sub req to new E2 node, nb_id %d, type %s //////////////\n", cur_nodes.n[i].id.nb_id.nb_id, get_e2ap_ngran_name(cur_nodes.n[i].id.type));
-            e2_node_connected_t* n = &cur_nodes.n[i];
-            for (size_t m = 0; m < n->len_rf; m++)
-              printf("Registered node %ld ran func id = %d \n ", i, n->ack_rf[m].id);
+      } else if (!strcasecmp(args.sub_oran_sm[j].name, "rc")) {
+        rc_sub_data_t rc_sub = {0};
+        defer({ free_rc_sub_data(&rc_sub); });
 
-            n_handle = send_sub_req(n, args, kpm_handle, n_handle);
-          }
-        }
+        // RC Event Trigger
+        rc_sub.et = gen_rc_ev_trig(FORMAT_2_E2SM_RC_EV_TRIGGER_FORMAT);
+
+        // RC Action Definition
+        rc_sub.sz_ad = 1;
+        rc_sub.ad = calloc(rc_sub.sz_ad, sizeof(e2sm_rc_action_def_t));
+        assert(rc_sub.ad != NULL && "Memory exhausted");
+        e2sm_rc_act_def_format_e act_type;
+        if (args.sub_oran_sm[j].format == 1)
+          act_type = FORMAT_1_E2SM_RC_ACT_DEF;
+        else
+          assert(0!=0 && "not supported action definition format");
+
+        // use RIC style 2 by default
+        *rc_sub.ad = gen_rc_act_def((const sub_oran_sm_t)args.sub_oran_sm[j], 2, act_type);
+
+        // RC HO only supports for e2ap_ngran_gNB
+        if (n->id.type == e2ap_ngran_eNB || n->id.type == e2ap_ngran_gNB_CU || n->id.type == e2ap_ngran_gNB_DU)
+          continue;
+        if (strcasecmp(args.sub_oran_sm[j].ran_type, get_e2ap_ngran_name(n->id.type)))
+          continue;
+        printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_RC_ID, i, n->id.nb_id.nb_id);
+        rc_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_sub, sm_cb_rc);
+        assert(rc_handle[i].success == true);
+
+      } else {
+        assert(0!=0 && "unknown SM in .conf");
       }
-      nodes_len = cur_nodes_len;
-      nodes = e2_nodes_xapp_api();
-
-      if (nodes_len == 0)
-        n_handle = 0;
     }
+
     sleep(1);
   }
 
+  sleep(10);
+
   printf("CTRL+C detect\n");
-  // TODO: send subscription request delete
-  for(size_t i = 0; i < n_handle; ++i)
+  for(int i = 0; i < nodes.len; ++i) {
     rm_report_sm_xapp_api(kpm_handle[i].u.handle);
+    rm_report_sm_xapp_api(rc_handle[i].u.handle);
+    sleep(1);
+  }
 
   // free sm handel
-  // TODO: free handle
-  free(kpm_handle);
+  if(nodes.len > 0) {
+    free(kpm_handle);
+    free(rc_handle);
+  }
 
   //Stop the xApp
   while(try_stop_xapp_api() == false)

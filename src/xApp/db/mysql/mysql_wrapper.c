@@ -1146,10 +1146,18 @@ void to_mysql_string_kpm_hdr(global_e2_node_id_t const* id,
   }
 
   uint64_t const timestamp = hdr.collectStartTime;
-  const char* fileformat_version_str = hdr.fileformat_version ? (char*)hdr.fileformat_version->buf : "NULL";
-  const char* sender_name_str = hdr.sender_name ? (char*)hdr.sender_name->buf : "NULL";
-  const char* sender_type_str = hdr.sender_type ? (char*)hdr.sender_type->buf : "NULL";
-  const char* vendor_name_str = hdr.vendor_name ? (char*)hdr.vendor_name->buf : "NULL";
+  const char* fileformat_version_str = (hdr.fileformat_version && hdr.fileformat_version->buf)
+                                ? strndup((char*)hdr.fileformat_version->buf, hdr.fileformat_version->len)
+                                : "NULL";
+  const char* sender_name_str = (hdr.sender_name && hdr.sender_name->buf)
+                                ? strndup((char*)hdr.sender_name->buf, hdr.sender_name->len)
+                                : "NULL";
+  const char* sender_type_str = (hdr.sender_type && hdr.sender_type->buf)
+                                ? strndup((char*)hdr.sender_type->buf, hdr.sender_type->len)
+                                : "NULL";
+  const char* vendor_name_str = (hdr.vendor_name && hdr.vendor_name->buf)
+                                ? strndup((char*)hdr.vendor_name->buf, hdr.vendor_name->len)
+                                : "NULL";
 #if defined(KPM_V2_01) || defined (KPM_V2_03)
   int const rc = snprintf(out, max,
                            "("
@@ -1214,6 +1222,14 @@ void to_mysql_string_kpm_hdr(global_e2_node_id_t const* id,
                           );
 #endif
   assert(rc < (int)max && "Not enough space in the char array to write all the data");
+  if (fileformat_version_str)
+    free((void*)fileformat_version_str);
+  if (sender_name_str)
+    free((void*)sender_name_str);
+  if (sender_type_str)
+    free((void*)sender_type_str);
+  if (vendor_name_str)
+    free((void*)vendor_name_str);
   return;
 }
 

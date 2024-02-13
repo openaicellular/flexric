@@ -2374,7 +2374,7 @@ ran_function_name_t fill_rc_ran_func_name(void)
     // RAN Function Short Name
     // Mandatory
     // PrintableString [1-150]
-    const char name[] = "E2SM-RC";
+    const char name[] = "ORAN-E2SM-RC";
     dst.name = cp_str_to_ba(name);
 
     // RAN Function Service Model OID

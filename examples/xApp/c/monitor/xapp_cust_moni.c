@@ -142,22 +142,27 @@ int main(int argc, char *argv[])
 
     for (int32_t j = 0; j < args.sub_cust_sm_len; j++) {
       if (!strcasecmp(args.sub_cust_sm[j].name, "mac")) {
+        printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_MAC_ID, i, n->id.nb_id.nb_id);
         mac_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_MAC_ID, (void*)args.sub_cust_sm[j].time, sm_cb_mac);
         assert(mac_handle[i].success == true);
 
       } else if (!strcasecmp(args.sub_cust_sm[j].name, "rlc")) {
+        printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_RLC_ID, i, n->id.nb_id.nb_id);
         rlc_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_RLC_ID, (void*)args.sub_cust_sm[j].time, sm_cb_rlc);
         assert(rlc_handle[i].success == true);
 
       } else if (!strcasecmp(args.sub_cust_sm[j].name, "pdcp")) {
+        printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_PDCP_ID, i, n->id.nb_id.nb_id);
         pdcp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_PDCP_ID, (void*)args.sub_cust_sm[j].time, sm_cb_pdcp);
         assert(pdcp_handle[i].success == true);
 
       } else if (!strcasecmp(args.sub_cust_sm[j].name, "gtp")) {
+        printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_GTP_ID, i, n->id.nb_id.nb_id);
         gtp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_GTP_ID, (void*)args.sub_cust_sm[j].time, sm_cb_gtp);
         assert(gtp_handle[i].success == true);
 
       } else if (!strcasecmp(args.sub_cust_sm[j].name, "slice")) {
+        printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_SLICE_ID, i, n->id.nb_id.nb_id);
         slice_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_SLICE_ID, (void*)args.sub_cust_sm[j].time, sm_cb_slice);
         assert(slice_handle[i].success == true);
 
