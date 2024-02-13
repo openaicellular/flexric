@@ -252,7 +252,7 @@ void fwd_e2_ran_wr_sub_ev(ran_if_t *ran_if, wr_rc_sub_data_t* wr_rc_sub_data)
 void fwd_e2_ran_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id) 
 {
   printf("Removing subscription request for SM %d\n", ric_id.ran_func_id);
-  
+
   notif_e2_ran_event_t msg = {
     .type = E2_REMOVE_SUBSCRIPTION_TIMER_EVENT,
     .unsubs_ev.sm_id = ric_id.ran_func_id,
@@ -404,6 +404,10 @@ char * notif_strevent(enum notif_event_t type)
       return "E2_REMOVE_SUBSCRIPTION_TIMER_EVENT";
     case E2_CTRL_EVENT:
       return "E2_CTRL_EVENT";
+    case E2_WRITE_SUBSCRIPTION_EVENT:
+      return "E2_WRITE_SUBSCRIPTION_EVENT";
+    case E2_REMOVE_RC_SUBSCRIPTION_EVENT:
+      return "E2_REMOVE_RC_SUBSCRIPTION_EVENT";
     default:
       return "bug"; 
   }

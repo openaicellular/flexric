@@ -391,15 +391,6 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       else if (next_msg_is(ans, RAN_E2_CTRL_FWD)){
         fwd_ran_e2_ctrl_reply(io_ran_instance->priv_data->pa->e2_if, ans.ctrl_msg);
       } else if (next_msg_is(ans, RAN_E2_WRT_FWD)){
-        ws_ioloop_event_t ev = {
-            .msg_type               = E2_WRITE_SUBSCRIPTION_EVENT,
-            .wr_subs_ev.ric_req_id = ans.e2wrt_msg.ric_req_id,
-            .wr_subs_ev.ad = ans.e2wrt_msg.ad,
-            .wr_subs_ev.et = ans.e2wrt_msg.et,
-        };
-        ws_ioloop_t *loop_io_p = (ws_ioloop_t *)io_ran_instance->priv_data->user;
-        // Re_insert again.
-        bi_map_insert(&loop_io_p->ev, &ans.e2wrt_msg.msg_id, sizeof(int), &ev, sizeof(ws_ioloop_event_t));
         if (is_get_aperiodic_event())
           proxy_fill_rnd_rc_ind_data(ans.e2wrt_msg.ric_req_id, ans.e2wrt_msg.ad, ans.e2wrt_msg.et);
       }
@@ -443,8 +434,12 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       ran_notif_msg_handle(ran_p, io_ran_instance->priv_data->pa->e2_if, notif_event, static_msg_id);
 
       if (notif_event->type == E2_ADD_SUBSCRIPTION_TIMER_EVENT)
-        loop_io_userds->indication_sm_id = notif_event->subs_ev.sm_id; 
-      
+        loop_io_userds->indication_sm_id = notif_event->subs_ev.sm_id;
+
+      if (notif_event->type == E2_REMOVE_RC_SUBSCRIPTION_EVENT){
+        // TODO: Remove event for each RC sub
+      }
+
       break;
     case LWS_CALLBACK_CLIENT_CLOSED:
       lwsl_err("Client connection closed\n");

@@ -28,6 +28,7 @@ typedef enum notif_event_t
   E2_REMOVE_SUBSCRIPTION_TIMER_EVENT,
   E2_CTRL_EVENT,
   E2_WRITE_SUBSCRIPTION_EVENT,
+  E2_REMOVE_RC_SUBSCRIPTION_EVENT,
 } notif_event_t;
 
 typedef struct e2_unsubscribe_event_t {

@@ -1,5 +1,6 @@
 #include <libwebsockets.h>
 
+#include "util/alg_ds/alg/find.h"
 #include "ran_msg_hdlr.h"
 #include "ran_if.h"
 #include "util/alg_ds/alg/defer.h"
@@ -8,6 +9,30 @@
 #include "ws_io_ran.h"
 
 static int aperiodic_api_cnt = 0;
+
+static
+bool cmp_msg_id(const void* value, const void* n)
+{
+  int* v = (int*)value;
+  int* it = (int*)n;
+//  printf("v %d it %d \n", *v, *it);
+  fflush(stdout);
+  return *v == *it;
+}
+
+static
+ws_ioloop_event_t* get_value_left_tree(bi_map_t* sent_msg_list, ran_msghdr_t msghdr){
+  bml_iter_t const f = bi_map_front_left(sent_msg_list);
+  bml_iter_t const l = bi_map_end_left(sent_msg_list);
+
+  assert(l.it != f.it && "Zero size");
+//  printf("Tree size = %zu \n", bi_map_size(sent_msg_list) );
+//  fflush(stdout);
+  assert(bi_map_size(sent_msg_list) != 0);
+  bml_iter_t const bml_it = find_if_bi_map_left(sent_msg_list, f, l, &msghdr.msg_id, cmp_msg_id);
+  assert(l.it != bml_it.it && "Key not found");
+  return (ws_ioloop_event_t *)bi_map_value_left(sent_msg_list, bml_it);
+}
 
 static next_msg_t handle_ran_indication_stats(proxy_agent_t * proxy, ran_msg_t msg, ran_msghdr_t msghdr, bi_map_t *sent_msg_list)
 {
@@ -19,7 +44,7 @@ static next_msg_t handle_ran_indication_stats(proxy_agent_t * proxy, ran_msg_t m
   next_msg_t ret_msg = {. type_id = RAN_E2_NONE };
   if (msghdr.msg_id != 0){
     ret_msg.type_id = RAN_E2_WRT_FWD;
-    ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
+    ws_ioloop_event_t *loop_event_p = get_value_left_tree(sent_msg_list, msghdr);
     assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
     if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
       ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
@@ -51,7 +76,7 @@ static next_msg_t handle_ran_indication_ue(proxy_agent_t * proxy, ran_msg_t msg,
   next_msg_t ret_msg = {.type_id = RAN_E2_NONE};
   if (msghdr.msg_id != 0){
     ret_msg.type_id = RAN_E2_WRT_FWD;
-    ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
+    ws_ioloop_event_t *loop_event_p = get_value_left_tree(sent_msg_list, msghdr);
     assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
     if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
       ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
@@ -83,7 +108,7 @@ static next_msg_t handle_ran_indication_config_get(proxy_agent_t * proxy, ran_ms
     next_msg_t ret_msg = {.type_id = RAN_E2_NONE};
     if (msghdr.msg_id != 0){
       ret_msg.type_id = RAN_E2_WRT_FWD;
-      ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
+      ws_ioloop_event_t *loop_event_p = get_value_left_tree(sent_msg_list, msghdr);
       assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
       if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
         ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
