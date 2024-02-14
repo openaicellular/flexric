@@ -54,67 +54,73 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
   (void) e2_node;
 
   // Reading Indication Message Format 2
-  e2sm_rc_ind_msg_frmt_2_t const *msg_frm_2 = &rd->ind.rc.ind.msg.frmt_2;
+  if (rd->ind.rc.ind.msg.format == FORMAT_2_E2SM_RC_IND_MSG) {
+    e2sm_rc_ind_msg_frmt_2_t const *msg_frm_2 = &rd->ind.rc.ind.msg.frmt_2;
 
-  printf("\n RC REPORT Style 2 - Call Process Outcome\n");
+    printf("\n RC REPORT Style 2 - Call Process Outcome\n");
 
-  // Sequence of UE Identifier
-  //[1-65535]
-  for (size_t i = 0; i < msg_frm_2->sz_seq_ue_id; i++)
-  {
-    // UE ID
-    // Mandatory
-    // 9.3.10
-    switch (msg_frm_2->seq_ue_id[i].ue_id.type)
+    // Sequence of UE Identifier
+    //[1-65535]
+    for (size_t i = 0; i < msg_frm_2->sz_seq_ue_id; i++)
     {
-      case GNB_UE_ID_E2SM:
-        printf("[RC_SM] UE %zu - ran_ue_id = %lu\n", i , *msg_frm_2->seq_ue_id[i].ue_id.gnb.ran_ue_id);
-        break;
-      default:
-        printf("[RC_SM] UE %zu Not yet implemented UE ID type \n", i );
-        break;
-    }
-
-    // Sequence of
-    // RAN Parameter
-    // [1- 65535]
-    // 8.2.2
-    for (size_t t = 0; t < msg_frm_2->seq_ue_id[i].sz_seq_ran_param; t++){
-      seq_ran_param_t cur_ran_param = msg_frm_2->seq_ue_id[i].seq_ran_param[t];
-      if(cur_ran_param.ran_param_id == 6){
-        // Cell Global ID
-        // 9.3.36
-        // O-RAN.WG3.E2SM-R003
-        // 6.2.2.5
-        char* cell_global_id = copy_ba_to_str(&cur_ran_param.ran_param_val.flag_false->octet_str_ran);
-        printf("[RC_SM] UE %zu - cell global id = %s \n", i, cell_global_id);
+      seq_ue_id_t* cur_ue_id = &msg_frm_2->seq_ue_id[i];
+      // UE ID
+      // Mandatory
+      // 9.3.10
+      if (cur_ue_id->ue_id.type == GNB_UE_ID_E2SM) {
+        if (cur_ue_id->ue_id.gnb.ran_ue_id != NULL)
+          printf("[RC_SM] UE %zu - ran_ue_id = %p\n", i, (void*)cur_ue_id->ue_id.gnb.ran_ue_id);
+        else
+          printf("[RC_SM] UE %zu - ran_ue_id is NULL\n", i);
+      } else {
+        printf("[RC_SM] UE %zu Not yet implemented UE ID type \n", i);
+        continue;
       }
 
-      // UE information
-      // List of Neighbor cells
-      // 8.1.1.17
-      if(cur_ran_param.ran_param_id == 21528) {
-        ran_param_list_t* ne_cell_lst = cur_ran_param.ran_param_val.lst;
-        for (size_t cell_idx = 0; cell_idx < ne_cell_lst->sz_lst_ran_param; cell_idx++){
-          lst_ran_param_t cur_cell = ne_cell_lst->lst_ran_param[cell_idx];
-          // CHOICE Neighbor cell
-          // 21530
-          ran_param_struct_t* CHOICE_Neighbor_cell = cur_cell.ran_param_struct.ran_param_struct[0].ran_param_val.strct;
-          // NR Cell
-          // 8.1.1.1
-          // Support only 5G cell
-          assert(CHOICE_Neighbor_cell->sz_ran_param_struct == 1 && "Support only 5G cell");
-          ran_param_struct_t* nr_cell = CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_val.strct;
-          // NR PCI
-          // TS 38.473
-          // 9.3.1.29
-          int64_t nr_pci = nr_cell->ran_param_struct[0].ran_param_val.flag_false->int_ran;
-          printf("[RC_SM] UE %zu - Neighbor cell id %zu with PCI %ld \n", i, cell_idx, nr_pci);
-          LST_NR_CELL_ID[cell_idx] = nr_pci;
+      // Sequence of
+      // RAN Parameter
+      // [1- 65535]
+      // 8.2.2
+      for (size_t t = 0; t < cur_ue_id->sz_seq_ran_param; t++){
+        seq_ran_param_t* cur_ran_param = &cur_ue_id->seq_ran_param[t];
+        if(cur_ran_param->ran_param_id == 6){
+          // Cell Global ID
+          // 9.3.36
+          // O-RAN.WG3.E2SM-R003
+          // 6.2.2.5
+          char* cell_global_id = copy_ba_to_str(&cur_ran_param->ran_param_val.flag_false->octet_str_ran);
+          printf("[RC_SM] UE %zu - cell global id = %s \n", i, cell_global_id);
+        }
+
+        // UE information
+        // List of Neighbor cells
+        // 8.1.1.17
+        if(cur_ran_param->ran_param_id == 21528) {
+          ran_param_list_t* ne_cell_lst = cur_ran_param->ran_param_val.lst;
+          for (size_t cell_idx = 0; cell_idx < ne_cell_lst->sz_lst_ran_param; cell_idx++){
+            lst_ran_param_t cur_cell = ne_cell_lst->lst_ran_param[cell_idx];
+            // CHOICE Neighbor cell
+            // 21530
+            ran_param_struct_t* CHOICE_Neighbor_cell = cur_cell.ran_param_struct.ran_param_struct[0].ran_param_val.strct;
+            // NR Cell
+            // 8.1.1.1
+            // Support only 5G cell
+            assert(CHOICE_Neighbor_cell->sz_ran_param_struct == 1 && "Support only 5G cell");
+            ran_param_struct_t* nr_cell = CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_val.strct;
+            // NR PCI
+            // TS 38.473
+            // 9.3.1.29
+            int64_t nr_pci = nr_cell->ran_param_struct[0].ran_param_val.flag_false->int_ran;
+            printf("[RC_SM] UE %zu - Neighbor cell id %zu with PCI %ld \n", i, cell_idx, nr_pci);
+            LST_NR_CELL_ID[cell_idx] = nr_pci;
+          }
         }
       }
     }
+  } else {
+    printf("Not support RC format %d\n", rd->ind.rc.ind.msg.format + 1);
   }
+
 }
 
 ////////////
