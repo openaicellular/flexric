@@ -97,6 +97,10 @@ add_executable(proxy_agent_ws
               notif_e2_ran.c
               ws_io_ran.c
 
+              # for kpm ds
+              ${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/murmur_hash_32.c
+              ${CMAKE_SOURCE_DIR}/src/util/alg_ds/ds/assoc_container/assoc_ht_open_address.c
+
               # for testing
               ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_kpm.c
               ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_mac.c
