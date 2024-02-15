@@ -69,6 +69,8 @@ static inline bool next_msg_is(next_msg_t msg, ran_e2_type_id_t val) { return ms
 
 sm_io_ag_ran_t init_io_proxy_ag();
 
+void free_io_ag(void);
+
 bool is_sm_whitelisted(int sm_id);
 
 #endif
