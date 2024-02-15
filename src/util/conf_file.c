@@ -500,11 +500,11 @@ fr_args_t init_fr_args(int argc, char* argv[])
       printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args.sub_oran_sm[i].name, args.sub_oran_sm[i].time);
       printf("[LibConf]: format %d, RAN type %s, actions = ", args.sub_oran_sm[i].format,  args.sub_oran_sm[i].ran_type);
       if (!strcasecmp(args.sub_oran_sm[i].name, "kpm")) {
-        for (int32_t j = 0; j < args.sub_oran_sm[i].act_len - 1; j++)
+        for (int32_t j = 0; j < args.sub_oran_sm[i].act_len; j++)
           printf("%s ", args.sub_oran_sm[i].actions[j].name);
         printf("\n");
       } else if (!strcasecmp(args.sub_oran_sm[i].name, "rc")) {
-        for (int32_t j = 0; j < args.sub_oran_sm[i].act_len - 1; j++)
+        for (int32_t j = 0; j < args.sub_oran_sm[i].act_len; j++)
           printf("%d ", args.sub_oran_sm[i].actions[j].id);
         printf("\n");
       }

@@ -251,7 +251,7 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const sub_oran_sm_t action, uint32_t p
     dst.gran_period_ms = period_ms;
 
     // [1, 65535]
-    dst.meas_info_lst_len = action.act_len - 1;
+    dst.meas_info_lst_len = action.act_len;
     dst.meas_info_lst = calloc(dst.meas_info_lst_len, sizeof(meas_info_format_1_lst_t));
     assert(dst.meas_info_lst != NULL && "Memory exhausted");
 
