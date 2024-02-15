@@ -26,18 +26,18 @@ typedef struct {
   ue_id_e2sm_t e2sm_ue_id;
 } matched_ues_t;
 
-static
-meas_record_lst_t fill_rnd_int_data(void)
-{
-  meas_record_lst_t dst = {0};
-
-  dst.value = INTEGER_MEAS_VALUE;
-  dst.int_val = rand()%1024;
-
-  //printf("measurement record value int %d \n", dst.meas_data_lst[i].meas_record_lst[0].int_val);                                                            //
-
-  return dst;
-}
+//static
+//meas_record_lst_t fill_rnd_int_data(void)
+//{
+//  meas_record_lst_t dst = {0};
+//
+//  dst.value = INTEGER_MEAS_VALUE;
+//  dst.int_val = rand()%1024;
+//
+//  //printf("measurement record value int %d \n", dst.meas_data_lst[i].meas_record_lst[0].int_val);                                                            //
+//
+//  return dst;
+//}
 
 static
 meas_record_lst_t fill_rnd_float_data(void)
@@ -53,9 +53,10 @@ meas_record_lst_t fill_rnd_float_data(void)
 }
 
 static
- meas_record_lst_t fill_DRB_PdcpSduVolumeDL(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const size_t cell_idx)
+ meas_record_lst_t fill_DRB_PdcpSduVolumeDL(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 {
   (void) ran_config;
+  (void) ran_stats;
   assert(ue_stats != NULL);
   //printf(" fill_DRB_PdcpSduVolumeDL\n");
   meas_record_lst_t meas_record = {0};
@@ -65,9 +66,10 @@ static
 }
 
 static
- meas_record_lst_t fill_DRB_PdcpSduVolumeUL(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const size_t cell_idx)
+ meas_record_lst_t fill_DRB_PdcpSduVolumeUL(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 {
   (void) ran_config;
+  (void) ran_stats;
   assert(ue_stats != NULL);
   //printf(" fill_DRB_PdcpSduVolumeUL\n");
   meas_record_lst_t meas_record = {0};
@@ -77,10 +79,11 @@ static
 }
 
 static
- meas_record_lst_t fill_DRB_RlcSduDelayDl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const size_t cell_idx)
+ meas_record_lst_t fill_DRB_RlcSduDelayDl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 {
   (void) ran_config;
   (void) cell_idx;
+  (void) ran_stats;
   assert(ue_stats != NULL);
   //printf("fill_DRB_RlcSduDelayDl \n");
   printf("[E2-AGENT] No implementation fill_DRB_RlcSduDelayDl - Fill random value\n");
@@ -88,9 +91,10 @@ static
 }
 
 static
- meas_record_lst_t fill_DRB_UEThpDl( amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const size_t cell_idx)
+ meas_record_lst_t fill_DRB_UEThpDl( amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 {
   (void) ran_config;
+  (void) ran_stats;
   assert(ue_stats != NULL);
   //printf(" fill_DRB_UEThpDl\n");
 
@@ -101,10 +105,10 @@ static
 }
 
 static
- meas_record_lst_t fill_DRB_UEThpUl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const size_t cell_idx)
+ meas_record_lst_t fill_DRB_UEThpUl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 {
   (void) ran_config;
-  (void) cell_idx;
+  (void) ran_stats;
   assert(ue_stats != NULL);
   //printf(" fill_DRB_UEThpUl\n");
   meas_record_lst_t meas_record = {0};
@@ -114,29 +118,47 @@ static
 }
 
 static
- meas_record_lst_t fill_RRU_PrbTotDl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const size_t cell_idx)
+ meas_record_lst_t fill_RRU_PrbTotDl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 {
   (void) ran_config;
-  (void) cell_idx;
-  assert(ue_stats != NULL);
-  printf("[E2-AGENT] No implementation fill_RRU_PrbTotDl - Fill random value\n");
-  return fill_rnd_int_data();
+  (void) ue_stats;
+  // Check ran_stats, this measurement is used for cell perspective instead UE perspective
+  assert(ran_stats != NULL);
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = REAL_MEAS_VALUE;
+  meas_record.real_val = ran_stats->cells[cell_idx].dl_use_avg*100;
+  return meas_record;
 }
 
 static
- meas_record_lst_t fill_RRU_PrbTotUl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const size_t cell_idx)
+ meas_record_lst_t fill_RRU_PrbTotUl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 {
   (void) ran_config;
-  (void) cell_idx;
+  (void) ue_stats;
+  // Check ran_stats, this measurement is used for cell perspective instead UE perspective
+  assert(ran_stats != NULL);
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = REAL_MEAS_VALUE;
+  meas_record.real_val = ran_stats->cells[cell_idx].ul_use_avg*100;
+  return meas_record;
+}
+
+static
+meas_record_lst_t fill_WBCQIDist_BinX(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ran_stats;
   assert(ue_stats != NULL);
-  printf("[E2-AGENT] No implementation fill_RRU_PrbTotUl - Fill random value\n");
-  return fill_rnd_int_data();
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = INTEGER_MEAS_VALUE;
+  meas_record.int_val = ue_stats->cells[cell_idx].cqi;
+  return meas_record;
 }
 
 static
 assoc_ht_open_t ht;
 
-typedef meas_record_lst_t (*kpm_fp)(const amarisoft_ue_stats_t* ue_stats, const ran_config_t* ran_config, const size_t cell_idx);
+typedef meas_record_lst_t (*kpm_fp)(const amarisoft_ue_stats_t* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx);
 
 typedef struct{
   const char* key;
@@ -152,6 +174,7 @@ const kv_measure_t lst_measure[] = {
   (kv_measure_t){.key = "DRB.UEThpUl", .value =  fill_DRB_UEThpUl },
   (kv_measure_t){.key = "RRU.PrbTotDl", .value =  fill_RRU_PrbTotDl },
   (kv_measure_t){.key = "RRU.PrbTotUl", .value =  fill_RRU_PrbTotUl },
+  (kv_measure_t){.key = "CARR.WBCQIDist.BinX", .value = fill_WBCQIDist_BinX },
   };
   // 3GPP TS 28.552
 
@@ -281,14 +304,14 @@ meas_info_format_1_lst_t * fill_kpm_meas_info_frm_1(const size_t len, const kpm_
 }
 
 static
-meas_record_lst_t fill_meas_value(meas_type_t meas_info_type, const amarisoft_ue_stats_t* ue_stats, const ran_config_t* ran_config, const size_t cell_idx)
+meas_record_lst_t fill_meas_value(meas_type_t meas_info_type, const amarisoft_ue_stats_t* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 {
   meas_record_lst_t meas_record = {0};
   // Get Meas Info Name from Action Definition
   const void* key = meas_info_type.name.buf;
 
   void* value = assoc_ht_open_value(&ht, &key);
-  meas_record = (*(kpm_fp*)value)(ue_stats, ran_config, cell_idx);
+  meas_record = (*(kpm_fp*)value)(ue_stats, ran_config, ran_stats, cell_idx);
 
   return meas_record;
 }
@@ -319,7 +342,7 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1_in_monolithic(const amarisoft_ue_s
       {
         case NAME_MEAS_TYPE:
         {
-          meas_data->meas_record_lst[j] = fill_meas_value(meas_info_type, ue, &ws_ind->ran_config, i);
+          meas_data->meas_record_lst[j] = fill_meas_value(meas_info_type, ue, &ws_ind->ran_config, &ws_ind->ran_stats, i);
           break;
         }
         case ID_MEAS_TYPE:
