@@ -155,6 +155,7 @@ static void close_proxy_agent (proxy_agent_t *proxy_agent) {
 
   free_ran_config(&proxy_agent->ranConfig);
   free (proxy_agent);
+  free_io_ag();
   proxy_agent = NULL;
 }
 
