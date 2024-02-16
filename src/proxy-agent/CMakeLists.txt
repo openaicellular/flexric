@@ -120,7 +120,7 @@ add_executable(proxy_agent_ws
 target_link_libraries(proxy_agent_ws
                       PUBLIC
                       e2_proxy_agent
-                      -pthread -lsctp -ldl ${LIBWEBSOCKETS_LIBRARIES} ${LIBJSON-C_LIBRARIES})
+                      -pthread -lsctp -ldl -lm ${LIBWEBSOCKETS_LIBRARIES} ${LIBJSON-C_LIBRARIES})
 
 target_compile_definitions(proxy_agent_ws PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 #target_compile_options(proxy_agent_ws PRIVATE -fcommon) # need to remove should not use static_user as global variable
