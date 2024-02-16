@@ -13,6 +13,7 @@
 #include "util/byte_array.h"
 #include "util/alg_ds/alg/defer.h"
 #include "util/alg_ds/ds/assoc_container/assoc_generic.h"
+#include "sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
 
 #include "e2_sm_agent.h"
 #include "ran_if.h"
@@ -599,7 +600,24 @@ bool amarisoft_ue_fullfills_predicate(test_cond_e cond, int64_t value, amarisoft
 }
 
 static
-seq_arr_t amarisoft_ues_fullfilling_pred(test_info_lst_t const*  info, ran_ind_t* ws_ind)
+bool is_ue_contain_global_cell_id(amarisoft_ue_stats_t ue_stats, cell_global_id_t const* cell_global_id, ran_ind_t* ws_ind){
+  if (cell_global_id != NULL){
+    for (size_t i = 0; i < ws_ind->ran_config.len_nr_cell; i++){
+      nr_cell_conf_t cur_cell = ws_ind->ran_config.nr_cells[i];
+      // UE only support 1 cell - TODO
+      if (ue_stats.cells[0].cell_id == cur_cell.cell_id){
+        if((uint64_t) cur_cell.n_id_nrcell == cell_global_id->nr_cgi.nr_cell_id){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  return true;
+}
+
+static
+seq_arr_t amarisoft_ues_fullfilling_pred(test_info_lst_t const*  info, cell_global_id_t const* cell_global_id, ran_ind_t* ws_ind)
 {
   assert(info != NULL);
 
@@ -609,7 +627,7 @@ seq_arr_t amarisoft_ues_fullfilling_pred(test_info_lst_t const*  info, ran_ind_t
   for(size_t i = 0; i < ws_ind->len_ue_stats; ++i){
     amarisoft_ue_stats_t ue_stats = ws_ind->ue_stats[i];
     bool const select_ue = amarisoft_ue_fullfills_predicate(*info->test_cond, *info->test_cond_value->int_value, ue_stats);
-    if(select_ue){
+    if(select_ue && is_ue_contain_global_cell_id(ue_stats, cell_global_id, ws_ind)){
       matched_ues_t ue = {0};
       ue.amr_ue_idx = i;
       ue.e2sm_ue_id.type = GNB_UE_ID_E2SM;
@@ -622,9 +640,10 @@ seq_arr_t amarisoft_ues_fullfilling_pred(test_info_lst_t const*  info, ran_ind_t
 
 
 static
-seq_arr_t match_gbr_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_gbr_test_cond_type(test_info_lst_t const* info,  ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
   (void) ws_ind;
+  (void) cell_global_id;
   assert(info != NULL);
   assert(info->test_cond_type == GBR_TEST_COND_TYPE);
 
@@ -632,9 +651,10 @@ seq_arr_t match_gbr_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind
 }
 
 static
-seq_arr_t match_ambr_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_ambr_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
   (void) ws_ind;
+  (void) cell_global_id;
   assert(info != NULL);
   assert(info->test_cond_type == AMBR_TEST_COND_TYPE);
 
@@ -642,9 +662,10 @@ seq_arr_t match_ambr_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_in
 }
 
 static
-seq_arr_t match_isstat_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_isstat_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
   (void) ws_ind;
+  (void) cell_global_id;
   assert(info != NULL);
   assert(info->test_cond_type == IsStat_TEST_COND_TYPE);
 
@@ -652,9 +673,10 @@ seq_arr_t match_isstat_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_
 }
 
 static
-seq_arr_t match_iscatm_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_iscatm_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
   (void) ws_ind;
+  (void) cell_global_id;
   assert(info != NULL);
   assert(info->test_cond_type == IsCatM_TEST_COND_TYPE);
 
@@ -662,9 +684,10 @@ seq_arr_t match_iscatm_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_
 }
 
 static
-seq_arr_t match_dl_rsrp_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_dl_rsrp_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
   (void) ws_ind;
+  (void) cell_global_id;
   assert(info != NULL);
   assert(info->test_cond_type == DL_RSRP_TEST_COND_TYPE);
 
@@ -672,9 +695,10 @@ seq_arr_t match_dl_rsrp_test_cond_type(test_info_lst_t const* info, ran_ind_t ws
 }
 
 static
-seq_arr_t match_dl_rsrq_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_dl_rsrq_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
   (void) ws_ind;
+  (void) cell_global_id;
   assert(info != NULL);
   assert(info->test_cond_type == DL_RSRQ_TEST_COND_TYPE);
 
@@ -683,9 +707,10 @@ seq_arr_t match_dl_rsrq_test_cond_type(test_info_lst_t const* info, ran_ind_t ws
 
 
 static
-seq_arr_t match_ul_rsrp_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_ul_rsrp_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
   (void) ws_ind;
+  (void) cell_global_id;
   assert(info != NULL);
   assert(info->test_cond_type == UL_RSRP_TEST_COND_TYPE);
 
@@ -693,7 +718,7 @@ seq_arr_t match_ul_rsrp_test_cond_type(test_info_lst_t const* info, ran_ind_t ws
 }
 
 static
-seq_arr_t match_cqi_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_cqi_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
   assert(info != NULL);
   assert(info->test_cond_type == CQI_TEST_COND_TYPE);
@@ -702,16 +727,17 @@ seq_arr_t match_cqi_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind
 
   // Check E2 Node NG-RAN Type
   if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)) {
-    return amarisoft_ues_fullfilling_pred(info, &ws_ind);
+    return amarisoft_ues_fullfilling_pred(info, cell_global_id, &ws_ind);
   } else {
     assert(false && "NG-RAN Type not implemented");
   }
 }
 
 static
-seq_arr_t match_fiveqi_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_fiveqi_test_cond_type(test_info_lst_t const* info,  ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
   (void) ws_ind;
+  (void) cell_global_id;
   assert(info != NULL);
   assert(info->test_cond_type == fiveQI_TEST_COND_TYPE);
 
@@ -719,7 +745,7 @@ seq_arr_t match_fiveqi_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_
 }
 
 static
-seq_arr_t match_qci_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_qci_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
   assert(info != NULL);
   assert(info->test_cond_type == CQI_TEST_COND_TYPE);
@@ -728,15 +754,16 @@ seq_arr_t match_qci_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind
 
   // Check E2 Node NG-RAN Type
   if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)) {
-    return amarisoft_ues_fullfilling_pred(info, &ws_ind);
+    return amarisoft_ues_fullfilling_pred(info, cell_global_id, &ws_ind);
   } else {
     assert(false && "NG-RAN Type not implemented");
   }
 }
 
 static
-seq_arr_t match_s_nssai_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind)
+seq_arr_t match_s_nssai_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
 {
+  (void) cell_global_id;
   assert(info != NULL);
   assert(info->test_cond_type == S_NSSAI_TEST_COND_TYPE);
   assert(info->test_cond != NULL && "Even though is optional..");
@@ -744,13 +771,13 @@ seq_arr_t match_s_nssai_test_cond_type(test_info_lst_t const* info, ran_ind_t ws
 
   // Check E2 Node NG-RAN Type
   if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)) {
-    return amarisoft_ues_fullfilling_pred(info, &ws_ind);
+    return amarisoft_ues_fullfilling_pred(info, cell_global_id, &ws_ind);
   } else {
     assert(false && "NG-RAN Type not implemented");
   }
 }
 
-typedef seq_arr_t (*fp_arr_cond)(test_info_lst_t const* info, ran_ind_t ws_ind);
+typedef seq_arr_t (*fp_arr_cond)(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id);
 
 static
 fp_arr_cond match_cond_arr[END_TEST_COND_TYPE_KPM_V2_01] = {
@@ -768,12 +795,14 @@ fp_arr_cond match_cond_arr[END_TEST_COND_TYPE_KPM_V2_01] = {
 };
 
 static
-seq_arr_t matching_ues(matching_condition_format_4_lst_t const* cond, size_t len, ran_ind_t ws_ind)
+seq_arr_t matching_ues(kpm_act_def_format_4_t const* act_def, cell_global_id_t const* cell_global_id, ran_ind_t ws_ind)
 {
-  assert(cond != NULL && "Condition equal NULL");
-  assert(len == 1 && "Only one condition supported");
+  assert(act_def != NULL && "Condition equal NULL");
+  assert(act_def->matching_cond_lst_len == 1 && "Only one condition supported");
 
-  seq_arr_t dst = match_cond_arr[cond->test_info_lst.test_cond_type](&cond->test_info_lst, ws_ind);
+  matching_condition_format_4_lst_t* cond = act_def->matching_cond_lst;
+
+  seq_arr_t dst = match_cond_arr[cond->test_info_lst.test_cond_type](&cond->test_info_lst, ws_ind, cell_global_id);
 
   return dst;
 }
@@ -816,7 +845,7 @@ bool read_kpm_sm(void* data)
       // Filter the UE by the test condition criteria
       kpm_act_def_format_4_t const* frm_4 = &kpm->act_def->frm_4; // 8.2.1.2.4
       // Matching UEs
-      seq_arr_t match_ues = matching_ues(frm_4->matching_cond_lst, frm_4->matching_cond_lst_len, ws_ind);
+      seq_arr_t match_ues = matching_ues(frm_4, frm_4->action_def_format_1.cell_global_id, ws_ind);
 //      printf("[E2-AGENT] Number of match ues: %ld \n", seq_size(&match_ues));
       // If no UEs match the condition, do not send data to the nearRT-RIC
       if(seq_size(&match_ues) == 0){

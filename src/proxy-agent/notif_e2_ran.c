@@ -51,7 +51,7 @@ static void
 notif_send_e2_event(e2_agent_t *e2_if, notif_e2_ran_event_t *ev)
 {
   pending_event_t pending_event = ev->type;
-  long const wait_ms = 3000;
+  long const wait_ms = 5000;
   int fd_timer = create_timer_ms_asio_agent(&e2_if->io, wait_ms, wait_ms); 
   lock_guard(&e2_if->pend_mtx);     
   bi_map_insert(&e2_if->pending, &fd_timer, sizeof(fd_timer), &pending_event, sizeof(pending_event)); 
@@ -367,6 +367,8 @@ void fwd_ran_e2_ctrl_reply (e2_agent_t *e2_if, ctrl_ev_reply_t reply)
    * Note that we do not need to create a message in notif queue like in fwd_ran_e2_setup_request()
    * as this message does not need ack. Instead it goes directly to SCTP endpoint.
    */
+  printf("[E2-AGENT]: CONTROL ACKNOWLEDGE tx\n");
+  fflush(stdout);
 }
 
 void fwd_e2_ran_ctrl (ran_if_t *ran_if, ctrl_ev_t in)
