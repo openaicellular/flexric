@@ -33,8 +33,9 @@ static char *LOG_MODULE_STR = "json parsing";
 
 struct amr_fields_t {
   const char *name;         // JSON field name
-  enum {AMR_DT_INT, 
-        AMR_DT_DOUBLE, 
+  enum {AMR_DT_INT,
+        AMR_DT_INT64,
+        AMR_DT_DOUBLE,
         AMR_DT_BOOL, 
         AMR_DT_STR} dtype;  // JSON datatype. Note that Enumerations mentioned in amarisoft specs can be mapped to JSON strings or integers
   void *dst_container;      // address of destination storage
@@ -89,6 +90,7 @@ static void parse_amarisoft_fields_unnested(const struct json_object *val, struc
         *tbl[i].dst_container_flag = true;
       double *pdouble;
       int *pint;
+      int64_t *pint64;
       bool *pbool;
       char **pstr;
       switch (tbl[i].dtype)
@@ -100,6 +102,10 @@ static void parse_amarisoft_fields_unnested(const struct json_object *val, struc
         case AMR_DT_INT:
           pint = (int *)tbl[i].dst_container;
           *pint = json_object_get_int(cell_field_tmp);
+          break;
+        case AMR_DT_INT64:
+          pint64 = (int64_t *)tbl[i].dst_container;
+          *pint64 = json_object_get_int64(cell_field_tmp);
           break;
         case AMR_DT_BOOL:
           pbool = (bool *)tbl[i].dst_container;
@@ -393,20 +399,21 @@ static bool json_decode_ran_indication_ue_get(const ran_msg_t *in_msg, ran_ind_t
 
   // parse array of objects `qos_flows` (Set for NR UEs)
     struct json_object *qos_flows;
-    if (json_object_object_get_ex(json_object_array_get_idx(ue_list, idx), "qos_flows", &qos_flows))
+    if (json_object_object_get_ex(json_object_array_get_idx(ue_list, idx), "qos_flow_list", &qos_flows))
     {
       out->ue_stats[idx].len_qos_flow = json_object_array_length(qos_flows);
       assert (out->ue_stats[idx].len_qos_flow < AMARISOFT_MAX_QOS_NUM && "hard limit on number of QOS hit\n");
 
       for (size_t j = 0; j < out->ue_stats[idx].len_qos_flow; j++)
       {
+        struct json_object *cur_qos = json_object_array_get_idx(qos_flows, j);
         struct amr_fields_t amr_qos_fields_tbl[] = {
           {"pdu_session_id" , AMR_DT_INT, &out->ue_stats[idx].qos_flows[j].pdu_session_id, &out->ue_stats[idx].qos_flows_flags[j].pdu_session_id},
           {"sst"            , AMR_DT_INT, &out->ue_stats[idx].qos_flows[j].sst           , &out->ue_stats[idx].qos_flows_flags[j].sst},
-          {"dl_total_bytes" , AMR_DT_INT, &out->ue_stats[idx].qos_flows[j].dl_total_bytes, &out->ue_stats[idx].qos_flows_flags[j].dl_total_bytes},
-          {"ul_total_bytes" , AMR_DT_INT, &out->ue_stats[idx].qos_flows[j].ul_total_bytes, &out->ue_stats[idx].qos_flows_flags[j].ul_total_bytes}
+          {"dl_total_bytes" , AMR_DT_INT64, &out->ue_stats[idx].qos_flows[j].dl_total_bytes, &out->ue_stats[idx].qos_flows_flags[j].dl_total_bytes},
+          {"ul_total_bytes" , AMR_DT_INT64, &out->ue_stats[idx].qos_flows[j].ul_total_bytes, &out->ue_stats[idx].qos_flows_flags[j].ul_total_bytes}
         };
-        parse_amarisoft_fields_unnested(json_object_array_get_idx(qos_flows, j), 
+        parse_amarisoft_fields_unnested(cur_qos,
                                         amr_qos_fields_tbl, 
                                         sizeof(amr_qos_fields_tbl)/sizeof (struct amr_fields_t));
       }
@@ -647,8 +654,8 @@ static bool json_decode_ran_indication_qos_flow_get(const ran_msg_t *in_msg, ran
           {"pdu_session_id", AMR_DT_INT, &out->qos_flow_stats[qos_flow_idx].pdu_session_id, &out->qos_flow_stats_flags[qos_flow_idx].pdu_session_id},
           {"sst", AMR_DT_INT, &out->qos_flow_stats[qos_flow_idx].sst, &out->qos_flow_stats_flags[qos_flow_idx].sst},
           {"sd", AMR_DT_INT, &out->qos_flow_stats[qos_flow_idx].sd, &out->qos_flow_stats_flags[qos_flow_idx].sd},
-          {"dl_total_bytes", AMR_DT_INT, &out->qos_flow_stats[qos_flow_idx].dl_total_bytes, &out->qos_flow_stats_flags[qos_flow_idx].dl_total_bytes},
-          {"ul_total_bytes", AMR_DT_INT, &out->qos_flow_stats[qos_flow_idx].ul_total_bytes, &out->qos_flow_stats_flags[qos_flow_idx].ul_total_bytes},
+          {"dl_total_bytes", AMR_DT_INT64, &out->qos_flow_stats[qos_flow_idx].dl_total_bytes, &out->qos_flow_stats_flags[qos_flow_idx].dl_total_bytes},
+          {"ul_total_bytes", AMR_DT_INT64, &out->qos_flow_stats[qos_flow_idx].ul_total_bytes, &out->qos_flow_stats_flags[qos_flow_idx].ul_total_bytes},
         };
 
         parse_amarisoft_fields_unnested(json_object_array_get_idx(item, qos_flow_idx), 

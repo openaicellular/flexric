@@ -22,6 +22,8 @@
 #include "ringbuffer.h"
 #include "notif_e2_ran.h"
 
+#include <math.h>
+
 typedef struct {
   size_t amr_ue_idx;
   ue_id_e2sm_t e2sm_ue_id;
@@ -58,11 +60,14 @@ static
 {
   (void) ran_config;
   (void) ran_stats;
+  (void) cell_idx;
   assert(ue_stats != NULL);
   //printf(" fill_DRB_PdcpSduVolumeDL\n");
   meas_record_lst_t meas_record = {0};
-  meas_record.value = INTEGER_MEAS_VALUE;
-  meas_record.int_val = ue_stats->cells[cell_idx].dl_tx*8; // bits// TODO:
+  meas_record.value = REAL_MEAS_VALUE;
+  // TODO: measurement report only supports one slice for each UE
+  assert(ue_stats->len_qos_flow == 1);
+  meas_record.real_val = ue_stats->qos_flows[0].dl_total_bytes; // xApp needs to convert data from bytes to Mbit followed TS 28.552
   return meas_record;
 }
 
@@ -71,11 +76,14 @@ static
 {
   (void) ran_config;
   (void) ran_stats;
+  (void) cell_idx;
   assert(ue_stats != NULL);
   //printf(" fill_DRB_PdcpSduVolumeUL\n");
   meas_record_lst_t meas_record = {0};
-  meas_record.value = INTEGER_MEAS_VALUE;
-  meas_record.int_val = ue_stats->cells[cell_idx].ul_tx * 8; // bits TODO:
+  meas_record.value = REAL_MEAS_VALUE;
+  // TODO: measurement report only supports one slice for each UE
+  assert(ue_stats->len_qos_flow == 1);
+  meas_record.real_val = ue_stats->qos_flows[0].ul_total_bytes; // xApp needs to convert data from bytes to Mbit followed TS 28.552
   return meas_record;
 }
 
@@ -101,7 +109,7 @@ static
 
   meas_record_lst_t meas_record = {0};
   meas_record.value = REAL_MEAS_VALUE;
-  meas_record.real_val = ue_stats->cells[cell_idx].dl_bitrate/1000; //Kbps // TODO:
+  meas_record.real_val = ue_stats->cells[cell_idx].dl_bitrate/1000; // Mbps
   return meas_record;
 }
 
@@ -114,7 +122,7 @@ static
   //printf(" fill_DRB_UEThpUl\n");
   meas_record_lst_t meas_record = {0};
   meas_record.value = REAL_MEAS_VALUE;
-  meas_record.real_val = ue_stats->cells[cell_idx].ul_bitrate/1000; // Kbps // TODO:
+  meas_record.real_val = ue_stats->cells[cell_idx].ul_bitrate/1000; // Mbps
   return meas_record;
 }
 
@@ -127,7 +135,14 @@ static
   assert(ran_stats != NULL);
   meas_record_lst_t meas_record = {0};
   meas_record.value = REAL_MEAS_VALUE;
-  meas_record.real_val = ran_stats->cells[cell_idx].dl_use_avg*100;
+  // todo: this measurement report is belong to per cell information, not for UE
+  int c_id = ue_stats->cells[cell_idx].cell_id;
+  for (size_t i = 0; i < ran_stats->len_cell; i++) {
+    if (ran_stats->cells[i].cell_id == c_id) {
+      meas_record.real_val = ran_stats->cells[i].dl_use_avg*100;
+      break;
+    }
+  }
   return meas_record;
 }
 
@@ -140,12 +155,19 @@ static
   assert(ran_stats != NULL);
   meas_record_lst_t meas_record = {0};
   meas_record.value = REAL_MEAS_VALUE;
-  meas_record.real_val = ran_stats->cells[cell_idx].ul_use_avg*100;
+  // todo: this measurement report is belong to per cell information, not for UE
+  int c_id = ue_stats->cells[cell_idx].cell_id;
+  for (size_t i = 0; i < ran_stats->len_cell; i++) {
+    if (ran_stats->cells[i].cell_id == c_id) {
+      meas_record.real_val = ran_stats->cells[i].ul_use_avg*100;
+      break;
+    }
+  }
   return meas_record;
 }
 
 static
-meas_record_lst_t fill_WBCQIDist_BinX(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+meas_record_lst_t fill_WBCQIDist_BinXYZ(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 {
   (void) ran_config;
   (void) ran_stats;
@@ -153,6 +175,56 @@ meas_record_lst_t fill_WBCQIDist_BinX(amarisoft_ue_stats_t const* ue_stats, cons
   meas_record_lst_t meas_record = {0};
   meas_record.value = INTEGER_MEAS_VALUE;
   meas_record.int_val = ue_stats->cells[cell_idx].cqi;
+  return meas_record;
+}
+
+static
+meas_record_lst_t fill_PDSCHMCSDist_BinXYZ(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ran_stats;
+  assert(ue_stats != NULL);
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = INTEGER_MEAS_VALUE;
+  meas_record.int_val = ue_stats->cells[cell_idx].dl_mcs;
+  return meas_record;
+}
+
+static
+meas_record_lst_t fill_PUSCHMCSDist_BinXYZ(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ran_stats;
+  assert(ue_stats != NULL);
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = INTEGER_MEAS_VALUE;
+  meas_record.int_val = ue_stats->cells[cell_idx].ul_mcs;
+  return meas_record;
+}
+
+static
+meas_record_lst_t fill_MeanTxPwr(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  // TS28.552 5.1.1.29.2
+  // This measurement is obtained by retaining the mean value of the total carrier power transmitted in the cell within the measurement granularity period.
+  // The power includes all radio power transmitted, included common channels, traffic channels, control channels. The value is expressed in dBm.
+  (void) ran_config;
+  assert(ran_stats != NULL);
+  assert(ue_stats != NULL);
+
+  // Get total used RBs from the associated cells
+  int used_rbs = 0;
+  int c_id = ue_stats->cells[cell_idx].cell_id;
+  for (size_t i = 0; i < ran_stats->len_cell; i++) {
+    if (ran_stats->cells[i].cell_id == c_id) {
+      used_rbs = ran_stats->cells[i].dl_use_avg*100;
+      break;
+    }
+  }
+
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = REAL_MEAS_VALUE;
+  meas_record.real_val = ue_stats->cells[cell_idx].epre + 10*log10(used_rbs*12);
   return meas_record;
 }
 
@@ -175,7 +247,10 @@ const kv_measure_t lst_measure[] = {
   (kv_measure_t){.key = "DRB.UEThpUl", .value =  fill_DRB_UEThpUl },
   (kv_measure_t){.key = "RRU.PrbTotDl", .value =  fill_RRU_PrbTotDl },
   (kv_measure_t){.key = "RRU.PrbTotUl", .value =  fill_RRU_PrbTotUl },
-  (kv_measure_t){.key = "CARR.WBCQIDist.BinX", .value = fill_WBCQIDist_BinX },
+  (kv_measure_t){.key = "CARR.WBCQIDist.BinX.BinY.BinZ", .value = fill_WBCQIDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.PDSCHMCSDist.BinX.BinY.BinZ", .value = fill_PDSCHMCSDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.PUSCHMCSDist.BinX.BinY.BinZ", .value = fill_PUSCHMCSDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.MeanTxPwr", .value = fill_MaxTxPwr },
   };
   // 3GPP TS 28.552
 

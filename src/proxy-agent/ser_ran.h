@@ -241,8 +241,8 @@ typedef struct amr_erabs_flags_t {
 typedef struct amr_qos_flow_t {
   int pdu_session_id;
   int sst;
-  int dl_total_bytes;
-  int ul_total_bytes;
+  int64_t dl_total_bytes;
+  int64_t ul_total_bytes;
 } amr_qos_flow_t;
 
 typedef struct amr_qos_flow_flag_t {
@@ -268,8 +268,8 @@ typedef struct amr_qos_flow_stats_t {
   int sst;
   size_t len_qfi_list;
   qfi_list_t qfi_list[AMARISOFT_MAX_QOS_NUM]; // Array of objects. List of QoS Flows associated with this bearer.
-  int dl_total_bytes;
-  int ul_total_bytes;
+  int64_t dl_total_bytes;
+  int64_t ul_total_bytes;
 } amr_qos_flow_stats_t;
 
 typedef struct amr_qos_flow_stats_flags_t
