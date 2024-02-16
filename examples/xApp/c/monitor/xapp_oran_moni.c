@@ -407,6 +407,8 @@ int main(int argc, char *argv[])
     assert(rc_handle  != NULL);
   }
 
+  int n_kpm_handle = 0;
+  int n_rc_handle = 0;
   //Subscribe SMs for all the E2-nodes
   for (int i = 0; i < nodes.len; i++) {
     e2_node_connected_t* n = &nodes.n[i];
@@ -444,6 +446,7 @@ int main(int argc, char *argv[])
         printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_KPM_ID, i, n->id.nb_id.nb_id);
         kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
         assert(kpm_handle[i].success == true);
+        n_kpm_handle += 1;
 
       } else if (!strcasecmp(args.sub_oran_sm[j].name, "rc")) {
         rc_sub_data_t rc_sub = {0};
@@ -473,6 +476,7 @@ int main(int argc, char *argv[])
         printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_RC_ID, i, n->id.nb_id.nb_id);
         rc_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_sub, sm_cb_rc);
         assert(rc_handle[i].success == true);
+        n_rc_handle += 1;
 
       } else {
         assert(0!=0 && "unknown SM in .conf");
@@ -485,9 +489,13 @@ int main(int argc, char *argv[])
   sleep(10);
 
   printf("CTRL+C detect\n");
-  for(int i = 0; i < nodes.len; ++i) {
+  for(int i = 0; i < n_kpm_handle; ++i) {
     rm_report_sm_xapp_api(kpm_handle[i].u.handle);
-    rm_report_sm_xapp_api(rc_handle[i].u.handle);
+    sleep(1);
+  }
+
+  for(int i = 0; i < n_rc_handle; ++i) {
+    rm_report_sm_xapp_api(kpm_handle[i].u.handle);
     sleep(1);
   }
 
