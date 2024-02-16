@@ -57,11 +57,14 @@ static
 {
   (void) ran_config;
   (void) ran_stats;
+  (void) cell_idx;
   assert(ue_stats != NULL);
   //printf(" fill_DRB_PdcpSduVolumeDL\n");
   meas_record_lst_t meas_record = {0};
-  meas_record.value = INTEGER_MEAS_VALUE;
-  meas_record.int_val = ue_stats->cells[cell_idx].dl_tx*8; // bits// TODO:
+  meas_record.value = REAL_MEAS_VALUE;
+  // TODO: measurement report only supports one slice for each UE
+  assert(ue_stats->len_qos_flow == 1);
+  meas_record.real_val = ue_stats->qos_flows[0].dl_total_bytes; // xApp needs to convert data from bytes to Mbit followed TS 28.552
   return meas_record;
 }
 
@@ -70,11 +73,14 @@ static
 {
   (void) ran_config;
   (void) ran_stats;
+  (void) cell_idx;
   assert(ue_stats != NULL);
   //printf(" fill_DRB_PdcpSduVolumeUL\n");
   meas_record_lst_t meas_record = {0};
-  meas_record.value = INTEGER_MEAS_VALUE;
-  meas_record.int_val = ue_stats->cells[cell_idx].ul_tx * 8; // bits TODO:
+  meas_record.value = REAL_MEAS_VALUE;
+  // TODO: measurement report only supports one slice for each UE
+  assert(ue_stats->len_qos_flow == 1);
+  meas_record.real_val = ue_stats->qos_flows[0].ul_total_bytes; // xApp needs to convert data from bytes to Mbit followed TS 28.552
   return meas_record;
 }
 
@@ -126,7 +132,14 @@ static
   assert(ran_stats != NULL);
   meas_record_lst_t meas_record = {0};
   meas_record.value = REAL_MEAS_VALUE;
-  meas_record.real_val = ran_stats->cells[cell_idx].dl_use_avg*100;
+  // todo: this measurement report is belong to per cell information, not for UE
+  int c_id = ue_stats->cells[cell_idx].cell_id;
+  for (size_t i = 0; i < ran_stats->len_cell; i++) {
+    if (ran_stats->cells[i].cell_id == c_id) {
+      meas_record.real_val = ran_stats->cells[i].dl_use_max*100;
+      break;
+    }
+  }
   return meas_record;
 }
 
@@ -139,7 +152,14 @@ static
   assert(ran_stats != NULL);
   meas_record_lst_t meas_record = {0};
   meas_record.value = REAL_MEAS_VALUE;
-  meas_record.real_val = ran_stats->cells[cell_idx].ul_use_avg*100;
+  // todo: this measurement report is belong to per cell information, not for UE
+  int c_id = ue_stats->cells[cell_idx].cell_id;
+  for (size_t i = 0; i < ran_stats->len_cell; i++) {
+    if (ran_stats->cells[i].cell_id == c_id) {
+      meas_record.real_val = ran_stats->cells[i].ul_use_max*100;
+      break;
+    }
+  }
   return meas_record;
 }
 
