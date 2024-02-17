@@ -1677,8 +1677,12 @@ void to_mysql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
   }
 
   if (sql_str_kpm.meas_type.type == NAME_MEAS_TYPE) {
-    uint8_t* meas_name = calloc(sql_str_kpm.meas_type.name.len, sizeof(uint8_t));
-    memcpy(meas_name, sql_str_kpm.meas_type.name.buf, sql_str_kpm.meas_type.name.len);
+    uint8_t *meas_name = NULL;
+    if (sql_str_kpm.meas_type.name.len > 0) {
+      uint8_t *meas_name = calloc(sql_str_kpm.meas_type.name.len, sizeof(uint8_t));
+      assert(meas_name != NULL && "Memory exhausted");
+      memcpy(meas_name, sql_str_kpm.meas_type.name.buf, sql_str_kpm.meas_type.name.len);
+    }
     int const rc = snprintf(out, max,
                             "("
                             "%lu,"   //tstamp
