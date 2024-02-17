@@ -91,6 +91,39 @@ static
 }
 
 static
+meas_record_lst_t fill_WBCQIDist_BinXYZ(ue_id_e2sm_t const* ue)
+{
+  assert(ue != NULL);
+  // where X represents the index of the CQI value (0 to 15). Y represents the index of rank value (1 to 8), Z represents the index of table value (1 to 4).
+  return fill_rnd_int_data();
+}
+
+static
+meas_record_lst_t fill_PDSCHMCSDist_BinXYZ(ue_id_e2sm_t const* ue)
+{
+  assert(ue != NULL);
+  // where X represents the index of rank value (1 to 8), Y represents the index of table value (1 to 4), and Z represents the index of the MCS value (0 to 31).
+  return fill_rnd_int_data();
+}
+
+static
+meas_record_lst_t fill_PUSCHMCSDist_BinXYZ(ue_id_e2sm_t const* ue)
+{
+  assert(ue != NULL);
+  return fill_rnd_int_data();
+}
+
+static
+meas_record_lst_t fill_MeanTxPwr(ue_id_e2sm_t const* ue)
+{
+  assert(ue != NULL);
+  // TS28.552 5.1.1.29.2
+  // This measurement is obtained by retaining the mean value of the total carrier power transmitted in the cell within the measurement granularity period.
+  // The power includes all radio power transmitted, included common channels, traffic channels, control channels. The value is expressed in dBm.
+  return fill_rnd_float_data();
+}
+
+static
 assoc_ht_open_t ht;
 
 typedef meas_record_lst_t (*kpm_fp)(ue_id_e2sm_t const* ue);
@@ -109,6 +142,10 @@ const kv_measure_t lst_measure[] = {
   (kv_measure_t){.key = "DRB.UEThpUl", .value =  fill_DRB_UEThpUl },
   (kv_measure_t){.key = "RRU.PrbTotDl", .value =  fill_RRU_PrbTotDl },
   (kv_measure_t){.key = "RRU.PrbTotUl", .value =  fill_RRU_PrbTotUl },
+  (kv_measure_t){.key = "CARR.WBCQIDist.BinX.BinY.BinZ", .value = fill_WBCQIDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.PDSCHMCSDist.BinX.BinY.BinZ", .value = fill_PDSCHMCSDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.PUSCHMCSDist.BinX.BinY.BinZ", .value = fill_PUSCHMCSDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.MeanTxPwr", .value = fill_MeanTxPwr },
   };
   // 3GPP TS 28.552
 
