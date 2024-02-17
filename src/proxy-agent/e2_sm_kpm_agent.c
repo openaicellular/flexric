@@ -182,6 +182,7 @@ meas_record_lst_t fill_WBCQIDist_BinXYZ(amarisoft_ue_stats_t const* ue_stats, co
   (void) ran_config;
   (void) ran_stats;
   assert(ue_stats != NULL);
+  // where X represents the index of the CQI value (0 to 15). Y represents the index of rank value (1 to 8), Z represents the index of table value (1 to 4).
   meas_record_lst_t meas_record = {0};
   meas_record.value = INTEGER_MEAS_VALUE;
   meas_record.int_val = ue_stats->cells[cell_idx].cqi;
@@ -194,6 +195,7 @@ meas_record_lst_t fill_PDSCHMCSDist_BinXYZ(amarisoft_ue_stats_t const* ue_stats,
   (void) ran_config;
   (void) ran_stats;
   assert(ue_stats != NULL);
+  // where X represents the index of rank value (1 to 8), Y represents the index of table value (1 to 4), and Z represents the index of the MCS value (0 to 31).
   meas_record_lst_t meas_record = {0};
   meas_record.value = INTEGER_MEAS_VALUE;
   meas_record.int_val = ue_stats->cells[cell_idx].dl_mcs;

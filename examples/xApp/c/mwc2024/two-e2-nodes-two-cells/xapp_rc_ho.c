@@ -19,14 +19,12 @@
  *      contact@openairinterface.org
  */
 
-#include "../../../../src/xApp/e42_xapp_api.h"
-#include "../../../../src/sm/rc_sm/ie/ir/ran_param_struct.h"
-#include "../../../../src/sm/rc_sm/ie/ir/ran_param_list.h"
-#include "../../../../src/util/time_now_us.h"
-#include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
-#include "../../../../src/sm/rc_sm/rc_sm_id.h"
-#include "../../../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
-//#include "../../../../src/sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
+#include "../../../../../src/xApp/e42_xapp_api.h"
+#include "../../../../../src/sm/rc_sm/ie/ir/ran_param_struct.h"
+#include "../../../../../src/sm/rc_sm/ie/ir/ran_param_list.h"
+#include "../../../../../src/util/time_now_us.h"
+#include "../../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
+#include "../../../../../src/sm/rc_sm/rc_sm_id.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -34,11 +32,6 @@
 #include <math.h>
 
 uint64_t LST_NR_CELL_ID[2] = {0};
-
-typedef struct lst_kpm_handle_t {
-  sm_ans_xapp_t* kpm_handle;
-  size_t n_handle;
-} lst_kpm_handle_t;
 
 ///////////
 // Get RC Indication Messages -> begin
@@ -126,30 +119,6 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
 // Get RC Indication Messages -> end
 ////////////
 
-////////////
-// Get KPM Indication Messages -> start
-////////////
-
-static
-void sm_cb_kpm_1(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node){
-  assert(rd != NULL);
-  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
-  assert(rd->ind.type == KPM_STATS_V3_0);
-  printf("[xAPP] KPM CB function 1 - %ld\n", LST_NR_CELL_ID[0]);
-}
-
-
-static
-void sm_cb_kpm_2(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node){
-  assert(rd != NULL);
-  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
-  assert(rd->ind.type == KPM_STATS_V3_0);
-  printf("[xAPP] KPM CB function 2 - %ld\n", LST_NR_CELL_ID[1]);
-}
-
-////////////
-// Get KPM Indication Messages -> end
-////////////
 
 // RC CTRL -> Start
 static
@@ -458,109 +427,6 @@ size_t send_sub_req_rc(e2_node_connected_t* n, fr_args_t args, sm_ans_xapp_t *rc
   return n_handle;
 }
 
-static
-kpm_event_trigger_def_t gen_ev_trig(uint64_t period)
-{
-  kpm_event_trigger_def_t dst = {0};
-
-  dst.type = FORMAT_1_RIC_EVENT_TRIGGER;
-  dst.kpm_ric_event_trigger_format_1.report_period_ms = period;
-
-  return dst;
-}
-
-static
-meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
-{
-  meas_info_format_1_lst_t dst = {0};
-
-  dst.meas_type.type = NAME_MEAS_TYPE;
-  // ETSI TS 128 552
-  dst.meas_type.name = cp_str_to_ba(action);
-
-  dst.label_info_lst_len = 1;
-  dst.label_info_lst = calloc(1, sizeof(label_info_lst_t));
-  assert(dst.label_info_lst != NULL && "Memory exhausted");
-
-  // No Label
-  dst.label_info_lst[0].noLabel = calloc(1, sizeof(enum_value_e));
-  assert(dst.label_info_lst[0].noLabel != NULL && "Memory exhausted");
-  *dst.label_info_lst[0].noLabel = TRUE_ENUM_VALUE;
-
-  return dst;
-}
-
-static
-kpm_act_def_format_1_t gen_act_def_frmt_1(const sub_oran_sm_t action, uint32_t period_ms, size_t cell_id)
-{
-  kpm_act_def_format_1_t dst = {0};
-
-  dst.gran_period_ms = period_ms;
-
-  // [1, 65535]
-  dst.meas_info_lst_len = action.act_len;
-  dst.meas_info_lst = calloc(dst.meas_info_lst_len, sizeof(meas_info_format_1_lst_t));
-  assert(dst.meas_info_lst != NULL && "Memory exhausted");
-
-  for(size_t i = 0; i < dst.meas_info_lst_len; i++) {
-    dst.meas_info_lst[i] = gen_meas_info_format_1_lst(action.actions[i].name);
-  }
-
-  dst.cell_global_id = malloc(sizeof(cell_global_id_t));
-  dst.cell_global_id->type = NR_CGI_RAT_TYPE;
-  dst.cell_global_id->nr_cgi.nr_cell_id = LST_NR_CELL_ID[cell_id];
-
-  return dst;
-}
-
-static
-kpm_act_def_format_4_t gen_act_def_frmt_4(const sub_oran_sm_t action, uint32_t period_ms, size_t cell_idx)
-{
-  kpm_act_def_format_4_t dst = {0};
-
-  dst.matching_cond_lst_len = 1;
-
-  dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
-  assert(dst.matching_cond_lst != NULL && "Memory exhausted");
-
-  dst.matching_cond_lst[0].test_info_lst.test_cond_type = S_NSSAI_TEST_COND_TYPE;
-  dst.matching_cond_lst[0].test_info_lst.S_NSSAI = TRUE_TEST_COND_TYPE;
-
-  dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond = EQUAL_TEST_COND;
-
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_e));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value->type =  INTEGER_TEST_COND_VALUE;
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = malloc(sizeof(int64_t));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = 1;
-
-  //printf("[xApp]: Filter UEs by S-NSSAI criteria where SST = %lu\n", *dst.matching_cond_lst[0].test_info_lst.int_value);
-
-  dst.action_def_format_1 = gen_act_def_frmt_1(action, period_ms, cell_idx);  // 8.2.1.2.1
-
-  return dst;
-}
-
-static
-kpm_act_def_t gen_act_def(const sub_oran_sm_t act, format_action_def_e act_frm, uint32_t period_ms, size_t cell_idx)
-{
-  kpm_act_def_t dst = {0};
-
-  if (act_frm == FORMAT_1_ACTION_DEFINITION) {
-    dst.type = FORMAT_1_ACTION_DEFINITION;
-    dst.frm_1 = gen_act_def_frmt_1(act, period_ms, cell_idx);
-  } else if (act_frm == FORMAT_4_ACTION_DEFINITION) {
-    dst.type = FORMAT_4_ACTION_DEFINITION;
-    dst.frm_4 = gen_act_def_frmt_4(act, period_ms, cell_idx);
-  } else {
-    assert(0!=0 && "not support action definition type");
-  }
-
-  return dst;
-}
 
 void start_rc_sub(fr_args_t args, e2_node_arr_t nodes){
   int max_handle = 256;
@@ -594,91 +460,18 @@ int main(int argc, char *argv[])
     sleep(1);
 
     e2_node_arr_t nodes = e2_nodes_xapp_api();
-    // TODO: FREE_E2_NODE_ARR
-    //    defer({ free_e2_node_arr(&nodes); });
+    defer({ free_e2_node_arr(&nodes); });
     assert(nodes.len > 0);
     printf("Connected E2 nodes = %d\n", nodes.len);
 
 
     start_rc_sub(args, nodes);
 
-//    start_control(nodes);
-
-//    sleep(5);
-
-    lst_kpm_handle_t* lst_kpm = calloc(2, sizeof(lst_kpm_handle_t*));
-    assert(lst_kpm  != NULL);
-
-    for(size_t cell_idx = 0; cell_idx < 2; cell_idx++) {
-      lst_kpm[cell_idx].kpm_handle = NULL;
-      lst_kpm[cell_idx].n_handle = 0;
-      if (nodes.len > 0) {
-        lst_kpm[cell_idx].kpm_handle = calloc(nodes.len, sizeof(lst_kpm[cell_idx].kpm_handle));
-        assert(lst_kpm[cell_idx].kpm_handle != NULL);
-      }
-    }
-
-    for(size_t cell_idx = 0; cell_idx < 2; cell_idx++) {
-      //Subscribe SMs for all the E2-nodes
-      for (int i = 0; i < nodes.len; i++) {
-        e2_node_connected_t* n = &nodes.n[i];
-
-
-        for (int32_t j = 0; j < args.sub_oran_sm_len; j++) {
-          if (!strcasecmp(args.sub_oran_sm[j].name, "kpm")) {
-            kpm_sub_data_t kpm_sub = {0};
-
-            // KPM Event Trigger
-            uint64_t period_ms = args.sub_oran_sm[j].time;
-            kpm_sub.ev_trg_def = gen_ev_trig(period_ms);
-            printf("[xApp]: reporting period = %lu [ms]\n", period_ms);
-
-            // KPM Action Definition
-            kpm_sub.sz_ad = 1;
-            kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
-            assert(kpm_sub.ad != NULL && "Memory exhausted");
-
-            format_action_def_e act_type;
-            if(args.sub_oran_sm[j].format == 1) {
-              act_type = FORMAT_1_ACTION_DEFINITION;
-            } else if (args.sub_oran_sm[j].format == 4) {
-              act_type = FORMAT_4_ACTION_DEFINITION;
-            } else {
-              assert(0 != 0 && "not supported action definition format");
-            }
-
-            *kpm_sub.ad = gen_act_def((const sub_oran_sm_t)args.sub_oran_sm[j], act_type, period_ms, cell_idx);
-
-            if (cell_idx == 0){
-              lst_kpm[cell_idx].kpm_handle[i] = report_sm_xapp_api(&n->id, SM_KPM_ID, &kpm_sub, sm_cb_kpm_1);
-            } else {
-              lst_kpm[cell_idx].kpm_handle[i] = report_sm_xapp_api(&n->id, SM_KPM_ID, &kpm_sub, sm_cb_kpm_2);
-            }
-            assert(lst_kpm[cell_idx].kpm_handle[i].success == true);
-
-            //free_kpm_sub_data(&kpm_sub);
-            lst_kpm[cell_idx].n_handle += 1;
-          }
-        }
-        sleep(1);
-      }
-    }
-
     sleep(5);
 
     start_control(nodes);
 
     sleep(5);
-
-      for(int i = 0; i < 2; ++i) {
-        for(size_t j = 0; j < lst_kpm[i].n_handle; ++j) {
-          rm_report_sm_xapp_api(lst_kpm[i].kpm_handle[j].u.handle);
-          sleep(1);
-      }
-      free(lst_kpm[i].kpm_handle);
-    }
-
-    free(lst_kpm);
 
     //Stop the xApp
     while(try_stop_xapp_api() == false)

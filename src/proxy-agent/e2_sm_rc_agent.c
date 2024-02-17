@@ -360,6 +360,11 @@ seq_ran_param_t fill_rc_value(size_t ue_index, const ran_ind_t* ws_ind, const pa
     case 6: // Cell global ID
       if (ws_ind->ran_config.len_nr_cell > 0){
         seq_ran_param.ran_param_id = param_def->ran_param_id;
+        // O-RAN Spec Bug:
+        // in E2SM-RC v01.03 8.2.2, it defines Cell Global ID as ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE
+        // however, in E2SM v2.03 6.2.2.5, it specifies Cell Global ID includes 6.2.3.7 NR CGI,
+        // which includes two mandatory IE: PLMN Identity (OCTET STRING) and NR Cell Identity (BIT STRING)
+        // (?Cell Global ID should be defined as STRUCTURE_RAN_PARAMETER_VAL_TYPE)
         seq_ran_param.ran_param_val.type= ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
         for(size_t i=0; i < ws_ind->ran_config.len_nr_cell; i++){
           if (cur_ue.cells[0].cell_id == ws_ind->ran_config.nr_cells[i].cell_id){
