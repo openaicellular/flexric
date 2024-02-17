@@ -66,7 +66,12 @@ static
   meas_record_lst_t meas_record = {0};
   meas_record.value = REAL_MEAS_VALUE;
   // TODO: measurement report only supports one slice for each UE
-  assert(ue_stats->len_qos_flow == 1);
+  if (ue_stats->len_qos_flow != 1) {
+    printf("len_qos_flow = %ld, fill DRB.PdcpSduVolumeDL as 0\n", ue_stats->len_qos_flow);
+    meas_record.real_val = 0;
+    return meas_record;
+  }
+
   meas_record.real_val = ue_stats->qos_flows[0].dl_total_bytes; // xApp needs to convert data from bytes to Mbit followed TS 28.552
   return meas_record;
 }
@@ -82,7 +87,12 @@ static
   meas_record_lst_t meas_record = {0};
   meas_record.value = REAL_MEAS_VALUE;
   // TODO: measurement report only supports one slice for each UE
-  assert(ue_stats->len_qos_flow == 1);
+  if (ue_stats->len_qos_flow != 1) {
+    printf("len_qos_flow = %ld, fill DRB.PdcpSduVolumeUL as 0\n", ue_stats->len_qos_flow);
+    meas_record.real_val = 0;
+    return meas_record;
+  }
+
   meas_record.real_val = ue_stats->qos_flows[0].ul_total_bytes; // xApp needs to convert data from bytes to Mbit followed TS 28.552
   return meas_record;
 }
@@ -224,7 +234,10 @@ meas_record_lst_t fill_MeanTxPwr(amarisoft_ue_stats_t const* ue_stats, const ran
 
   meas_record_lst_t meas_record = {0};
   meas_record.value = REAL_MEAS_VALUE;
-  meas_record.real_val = ue_stats->cells[cell_idx].epre + 10*log10(used_rbs*12);
+  meas_record.real_val = 0;
+  if (used_rbs <= 0)
+    return meas_record;
+  meas_record.real_val  = ue_stats->cells[cell_idx].epre + 10*log10(used_rbs*12);
   return meas_record;
 }
 
@@ -250,7 +263,7 @@ const kv_measure_t lst_measure[] = {
   (kv_measure_t){.key = "CARR.WBCQIDist.BinX.BinY.BinZ", .value = fill_WBCQIDist_BinXYZ },
   (kv_measure_t){.key = "CARR.PDSCHMCSDist.BinX.BinY.BinZ", .value = fill_PDSCHMCSDist_BinXYZ },
   (kv_measure_t){.key = "CARR.PUSCHMCSDist.BinX.BinY.BinZ", .value = fill_PUSCHMCSDist_BinXYZ },
-  (kv_measure_t){.key = "CARR.MeanTxPwr", .value = fill_MaxTxPwr },
+  (kv_measure_t){.key = "CARR.MeanTxPwr", .value = fill_MeanTxPwr },
   };
   // 3GPP TS 28.552
 
