@@ -31,7 +31,6 @@
 #include <unistd.h>
 #include <math.h>
 
-uint64_t LST_NR_CELL_ID[2] = {0};
 
 ///////////
 // Get RC Indication Messages -> begin
@@ -48,7 +47,8 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
   if (rd->ind.rc.ind.msg.format == FORMAT_2_E2SM_RC_IND_MSG) {
     e2sm_rc_ind_msg_frmt_2_t const *msg_frm_2 = &rd->ind.rc.ind.msg.frmt_2;
 
-    printf("\n RC REPORT Style 2 - Call Process Outcome\n");
+    printf("\nRC REPORT Style 2 - Call Process Outcome from E2-node type %d ID %d\n",
+           e2_node->type, e2_node->nb_id.nb_id);
 
     // Sequence of UE Identifier
     //[1-65535]
@@ -60,9 +60,9 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
       // 9.3.10
       if (cur_ue_id->ue_id.type == GNB_UE_ID_E2SM) {
         if (cur_ue_id->ue_id.gnb.ran_ue_id != NULL)
-          printf("[RC_SM] UE %zu - ran_ue_id = %p\n", i, (void*)cur_ue_id->ue_id.gnb.ran_ue_id);
+          printf("[RC_SM] UE %zu - RAN UE ID = %lu\n", i, *cur_ue_id->ue_id.gnb.ran_ue_id);
         else
-          printf("[RC_SM] UE %zu - ran_ue_id is NULL\n", i);
+          printf("[RC_SM] UE %zu - RAN UE ID is NULL\n", i);
       } else {
         printf("[RC_SM] UE %zu Not yet implemented UE ID type \n", i);
         continue;
@@ -80,11 +80,23 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
           // O-RAN.WG3.E2SM-R003
           // 6.2.2.5
           char* cell_global_id = copy_ba_to_str(&cur_ran_param->ran_param_val.flag_false->octet_str_ran);
-          printf("[RC_SM] UE %zu - cell global id = %s \n", i, cell_global_id);
-          sscanf(cell_global_id, "%ld", &LST_NR_CELL_ID[0]); // index 0 is global_cell_id
+          printf("[RC_SM] UE %zu - Cell Global ID - Cell ID = %s \n", i, cell_global_id);
         }
 
       }
+    }
+  } else if (rd->ind.rc.ind.msg.format == FORMAT_3_E2SM_RC_IND_MSG) {
+    e2sm_rc_ind_msg_frmt_3_t const *msg_frm_3 = &rd->ind.rc.ind.msg.frmt_3;
+
+    printf("\nRC REPORT Style 3 - Call Process Outcome from E2-node type %d ID %d\n",
+           e2_node->type, e2_node->nb_id.nb_id);
+    for (size_t i = 0; i < msg_frm_3->sz_seq_cell_info; i++) {
+      seq_cell_info_t* cur_cell_id = &msg_frm_3->seq_cell_info[i];
+      assert(cur_cell_id->cell_global_id.type == NR_CGI_RAT_TYPE);
+      printf("[RC_SM] Cell Global ID - NR CGI- PLMN mcc %d mnc %d - Cell ID %lu\n",
+             cur_cell_id->cell_global_id.nr_cgi.plmn_id.mcc,
+             cur_cell_id->cell_global_id.nr_cgi.plmn_id.mnc,
+             (unsigned long)cur_cell_id->cell_global_id.nr_cgi.nr_cell_id);
     }
   } else {
     printf("Not support RC format %d\n", rd->ind.rc.ind.msg.format + 1);
@@ -228,9 +240,8 @@ void start_rc_sub(fr_args_t args, e2_node_arr_t nodes){
   for (int i = 0; i < nodes.len; i++) {
     e2_node_connected_t* n = &nodes.n[i];
     n_handle = send_sub_req_rc(n, args, rc_handle, n_handle);
+    sleep(2);
   }
-
-  sleep(2);
 
   for(size_t i = 0; i < nodes.len; ++i){
     rm_report_sm_xapp_api(rc_handle[i].u.handle);

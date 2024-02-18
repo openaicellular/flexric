@@ -463,6 +463,34 @@ e2sm_rc_ind_msg_frmt_2_t rc_ind_msg_frmt_2(const ran_ind_t* ws_ind, e2sm_rc_act_
   return msg_frm_2;
 }
 
+static
+e2sm_rc_ind_msg_frmt_3_t rc_ind_msg_frmt_3(const ran_ind_t* ws_ind, e2sm_rc_act_def_frmt_1_t ad_frmt_1){
+
+  e2sm_rc_ind_msg_frmt_3_t msg_frm_3 = {0};
+  assert(ad_frmt_1.sz_param_report_def == 1 && "only support one action definition ID when there is no UE connected");
+  uint32_t act_id = ad_frmt_1.param_report_def[0].ran_param_id;
+  assert(act_id == 6 && "only support act id 6");
+
+  // Fill Cell information
+  msg_frm_3.sz_seq_cell_info = ws_ind->ran_config.len_nr_cell;
+  msg_frm_3.seq_cell_info = calloc(msg_frm_3.sz_seq_cell_info, sizeof(seq_cell_info_t));
+  assert(msg_frm_3.seq_cell_info != NULL && "Memory exhausted");
+
+  for (size_t i = 0; i < msg_frm_3.sz_seq_cell_info; i++){
+
+    // M: Fill Cell Global ID
+    msg_frm_3.seq_cell_info[i].cell_global_id.type = NR_CGI_RAT_TYPE;
+    msg_frm_3.seq_cell_info[i].cell_global_id.nr_cgi.plmn_id.mcc = ws_ind->ran_config.nr_cells[i].ncgi.plmn_id.mcc;
+    msg_frm_3.seq_cell_info[i].cell_global_id.nr_cgi.plmn_id.mnc = ws_ind->ran_config.nr_cells[i].ncgi.plmn_id.mnc;
+    msg_frm_3.seq_cell_info[i].cell_global_id.nr_cgi.plmn_id.mnc_digit_len = ws_ind->ran_config.nr_cells[i].ncgi.plmn_id.mnc_digit_len;
+    msg_frm_3.seq_cell_info[i].cell_global_id.nr_cgi.nr_cell_id = ws_ind->ran_config.nr_cells[i].n_id_nrcell;
+
+    // O: Neighbour Relation Table
+    // maybe can fill from xn connect info ?
+  }
+  return msg_frm_3;
+}
+
 void proxy_fill_rnd_rc_ind_data(uint32_t ric_req_id, e2sm_rc_action_def_t ad, e2sm_rc_event_trigger_t et){\
   (void) et;
   ran_ind_t ws_ind = get_ringbuffer_data();
@@ -471,6 +499,7 @@ void proxy_fill_rnd_rc_ind_data(uint32_t ric_req_id, e2sm_rc_action_def_t ad, e2
   rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t));
   assert(d != NULL && "Memory exhausted");
 
+  // RIC Report Service Style 2 - Call Process Outcome
   if (ws_ind.len_ue_stats > 0){
     switch (ad.format) {
       case FORMAT_1_E2SM_RC_ACT_DEF:
@@ -486,9 +515,23 @@ void proxy_fill_rnd_rc_ind_data(uint32_t ric_req_id, e2sm_rc_action_def_t ad, e2
       default:
         assert(0 != 0 && "Unknown act definition RC format");
     }
-  } else {
-    printf("[E2-AGENT] no UE connected to Amarisoft RAN - Fill random value\n");
-    *d = fill_rnd_rc_ind_data();
+  } else { // RIC Report Service Style 3 - E2 Node Information
+    //printf("[E2-AGENT] no UE connected to Amarisoft RAN - Fill random value\n");
+    //*d = fill_rnd_rc_ind_data();
+    switch (ad.format) {
+      case FORMAT_1_E2SM_RC_ACT_DEF:
+        d->hdr = rc_ind_hdr();
+        d->msg.format = FORMAT_3_E2SM_RC_IND_MSG;
+        // Check E2 Node NG-RAN Type
+        if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)){
+          d->msg.frmt_3 = rc_ind_msg_frmt_3(&ws_ind, ad.frmt_1);
+        } else {
+          assert(0 != 0 && "NG-RAN Type not implemented");
+        }
+        break;
+      default:
+        assert(0 != 0 && "Unknown act definition RC format");
+    }
   }
 
   async_event_agent_api(ric_req_id, d);
