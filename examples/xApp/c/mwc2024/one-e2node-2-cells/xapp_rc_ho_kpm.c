@@ -758,6 +758,10 @@ int main(int argc, char *argv[])
   assert(nodes.len > 0);
   printf("Connected E2 nodes = %d\n", nodes.len);
 
+  printf("\n///////// RC Report Service: Handover Preparation /////////\n");
+  start_rc_sub(args, nodes);
+  sleep(3);
+
   printf("\n///////// KPM Report Service: Subscription /////////\n");
   lst_kpm_handle_t* lst_kpm = NULL;
   int num_cells = 2;
@@ -818,11 +822,6 @@ int main(int argc, char *argv[])
       sleep(1);
     }
   }
-
-
-  printf("\n///////// RC Report Service: Handover Preparation /////////\n");
-  start_rc_sub(args, nodes);
-
   sleep(5);
 
   printf("\n///////// RC Control Service: Handover Control /////////\n");
