@@ -431,6 +431,10 @@ if (XAPP_C)
       DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   # slice ctrl
   install(TARGETS xapp_cust_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  # mwc
+  install(TARGETS xapp_rc_ho_kpm DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  install(TARGETS xapp_rc_ctrl_ho DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  install(TARGETS xapp_rc_moni_ho_pre DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
 endif ()
 
 
