@@ -220,7 +220,11 @@ void print_kpm_ind(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node){
           switch (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.type)
           {
             case GNB_UE_ID_E2SM:
-              printf("UE ID type = gNB, amf_ue_ngap_id = %lu\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id);
+              if (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id != NULL) {
+                printf("UE ID type = gNB, ran_ue_id = %lu, amf_ue_ngap_id = %lu\n",
+                       *msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id,
+                       msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id);
+              }
               break;
 
             default:
