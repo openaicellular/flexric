@@ -25,6 +25,7 @@
 #include "ran_msg_hdlr.h"
 #include "ser_ran.h"
 #include "notif_e2_ran.h"
+#include "ringbuffer.h"
 #include "ws_io_ran.h"
 
 static char enc_gbuf[1024];
@@ -542,7 +543,7 @@ static bool json_decode_ran_config_get(const ran_msg_t *in_msg, ran_config_t *ou
       if (json_object_object_get_ex(item, "plmn", &ncgi_plmn))
         out->nr_cells[idx].ncgi.plmn_id = conv_plmnstr_to_e2sm_plmnt(json_object_get_string(ncgi_plmn));
       if (json_object_object_get_ex(item, "nci", &ncgi_id))
-        out->nr_cells[idx].ncgi.nr_cell_id = json_object_get_int(gnb_id);
+        out->nr_cells[idx].ncgi.nr_cell_id = json_object_get_int(gnb_id); // TODO: this is wrong
     }
 
     // parse optional object `connected_mobility`
@@ -607,7 +608,7 @@ static bool json_decode_ran_config_get(const ran_msg_t *in_msg, ran_config_t *ou
           if (json_object_object_get_ex(ncgi, "plmn", &ncgi_plmn))
             out->nr_cells[idx].ncell_list[ncell_idx].ncgi.plmn_id = conv_plmnstr_to_e2sm_plmnt(json_object_get_string(ncgi_plmn));
           if (json_object_object_get_ex(ncgi, "nci", &ncgi_id))
-            out->nr_cells[idx].ncell_list[ncell_idx].ncgi.nr_cell_id = json_object_get_int(gnb_id);
+            out->nr_cells[idx].ncell_list[ncell_idx].ncgi.nr_cell_id = json_object_get_int(gnb_id); // TODO: this is wrong
         }
       }
     }  
@@ -897,17 +898,41 @@ static const char *json_encode_ctrl_rc(int msg_id, rc_ctrl_req_data_t ctrl_msg)
 
             ue_id_e2sm_t ue_id = ctrl_msg.hdr.frmt_1.ue_id;
             assert(ue_id.type == GNB_UE_ID_E2SM && "Wrong ue_id_e2sm type");
-            assert(ue_id.gnb.ran_ue_id != NULL && "NULL GNB_RAN_UE_ID");
-            int rc = snprintf(enc_gbuf,
-                              sizeof(enc_gbuf),
-                              "{\"message\":\"handover\",\"ran_ue_id\":%ld,\"pci\":%s,\"message_id\":\"%d\"}",
-                              *ue_id.gnb.ran_ue_id, pci,
-                              msg_id);
-            if (rc >= (int)sizeof(enc_gbuf))
-            {
+            //assert(ue_id.gnb.ran_ue_id != NULL && "NULL GNB_RAN_UE_ID");
+            int rc = 0;
+            if (ue_id.gnb.ran_ue_id != NULL) {
+              rc = snprintf(enc_gbuf,
+                           sizeof(enc_gbuf),
+                           "{\"message\":\"handover\",\"ran_ue_id\":%ld,\"pci\":%s,\"message_id\":\"%d\"}",
+                           *ue_id.gnb.ran_ue_id, pci,
+                           msg_id);
+              if (rc >= (int)sizeof(enc_gbuf))
+              {
                 lwsl_err("hit hard limit on internal buffer for command 'handover'\n");
                 return NULL;
+              }
+            } else {
+              // decrease cell gain specific cell
+              // let UEs to handover existing cell/gnb by themselves
+              ran_ind_t ws_ind = get_ringbuffer_data();
+              assert(ws_ind.ran_config.len_nr_cell == 1 && "only support to turn off one cell's gain");
+              int n_id_nrcell = atoi(pci);
+              if (ws_ind.ran_config.nr_cells[0].n_id_nrcell == n_id_nrcell) {
+                int cell_id = ws_ind.ran_config.nr_cells[0].cell_id;
+                rc = snprintf(enc_gbuf,
+                              sizeof(enc_gbuf),
+                              "{\"message\":\"cell_gain\",\"cell_id\":%d,\"gain\":-200,\"message_id\":\"%d\"}",
+                              cell_id, msg_id);
+              } else {
+                printf("Cannot find PCI %d\n", n_id_nrcell);
+              }
+              if (rc >= (int)sizeof(enc_gbuf))
+              {
+                lwsl_err("hit hard limit on internal buffer for command 'cell_gain'\n");
+                return NULL;
+              }
             }
+
             return enc_gbuf;
         }
     }

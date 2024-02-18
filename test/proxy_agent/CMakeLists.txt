@@ -13,10 +13,12 @@ endif()
 
 add_executable(test_msg_json
               tst-msg_json_ws.c
+              ${CMAKE_SOURCE_DIR}/src/proxy-agent/ringbuffer.c
               ${CMAKE_SOURCE_DIR}/src/proxy-agent/json_ser_ran.c
               )
 target_compile_definitions(test_msg_json PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 add_dependencies(test_msg_json
+        proxy_agent_ws
         e2ap_ds_obj
         e2_conv_obj
         e2ap_alg_obj
@@ -34,10 +36,12 @@ target_link_libraries(test_msg_json
 
 add_executable(test_perfmsg_json
         tst-perf_json_ws.c
+        ${CMAKE_SOURCE_DIR}/src/proxy-agent/ringbuffer.c
         ${CMAKE_SOURCE_DIR}/src/proxy-agent/json_ser_ran.c
         )
 target_compile_definitions(test_perfmsg_json PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 add_dependencies(test_perfmsg_json
+        proxy_agent_ws
         e2ap_ds_obj
         e2_conv_obj
         e2ap_alg_obj

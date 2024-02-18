@@ -209,9 +209,13 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
 
         ue_id_e2sm_t ue_id = ctrl->hdr.frmt_1.ue_id;
         assert(ue_id.type == GNB_UE_ID_E2SM && "Wrong ue_id_e2sm type");
-        assert(ue_id.gnb.ran_ue_id != NULL && "NULL GNB_RAN_UE_ID");
-        printf("RC SM: Handover control from src ran_ue_id %ld to target NR_CGI %s E_ULTRA_CGI %s \n", *ue_id.gnb.ran_ue_id, nr_cgi_str, e_ultra_cgi_str);
-        free(nr_cgi_str);
+        //assert(ue_id.gnb.ran_ue_id != NULL && "NULL GNB_RAN_UE_ID");
+        if (ue_id.gnb.ran_ue_id != NULL)
+          printf("RC SM: Handover control, handover ran_ue_id %ld to target cell NR_CGI %s\n", *ue_id.gnb.ran_ue_id, nr_cgi_str);
+        else
+          printf("RC SM: Handover control, decrease cell gain of current cell NR_CGI %s\n", nr_cgi_str);
+
+      free(nr_cgi_str);
         free(e_ultra_cgi_str);
     }
   }

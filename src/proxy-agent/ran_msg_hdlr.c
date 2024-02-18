@@ -208,31 +208,27 @@ static bool ws_associate_valid_msg_type(ran_msghdr_t *hdr)
 
   if (!strcmp(hdr->type, "ready")){
       hdr->typeid = RAN_READY;
-  }
-  else if (!strcmp(hdr->type, "register")){
+  } else if (!strcmp(hdr->type, "register")){
       hdr->typeid = RAN_REGISTRATION_ACK;
-  }
-  else if (!strcmp(hdr->type,"authenticate")){
+  } else if (!strcmp(hdr->type,"authenticate")){
       hdr->typeid = RAN_AUTHENTICATE_ACK;
-  }
-  else if (!strcmp(hdr->type, "config_get")){
+  } else if (!strcmp(hdr->type, "config_get")){
       if (get_proxy_agent()->ranConfig.len_nr_cell){
           hdr->typeid = RAN_INDICATION_CONFGET_RECV;
       } else {
           hdr->typeid = RAN_CONFIG_RECV;
       }
-  }
-  else if (!strcmp(hdr->type, "stats")){
+  } else if (!strcmp(hdr->type, "stats")){
       hdr->typeid = RAN_INDICATION_STATS_RECV;
-  }
-  else if (!strcmp(hdr->type, "ue_get")){
+  } else if (!strcmp(hdr->type, "ue_get")){
       hdr->typeid = RAN_INDICATION_UEGET_RECV;
-  }
-  else if (!strcmp(hdr->type, "config_set")){
+  } else if (!strcmp(hdr->type, "config_set")){
       hdr->typeid = RAN_CTRL_ACK;
-  } else if (!strcmp(hdr->type, "handover"))
+  } else if (!strcmp(hdr->type, "handover")){
       hdr->typeid = RAN_CTRL_ACK;
-  else{
+  } else if (!strcmp(hdr->type, "cell_gain")){
+      hdr->typeid = RAN_CTRL_ACK;
+  } else{
       ret = false;
   }
 
