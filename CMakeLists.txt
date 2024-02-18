@@ -128,7 +128,7 @@ endif()
 ########
 ### NUM_THREADS
 ########
-set(NUM_THREADS_RIC "2" CACHE STRING "Number of threads in the RIC's task manager")
+set(NUM_THREADS_RIC "4" CACHE STRING "Number of threads in the RIC's task manager")
 
 
 ########
