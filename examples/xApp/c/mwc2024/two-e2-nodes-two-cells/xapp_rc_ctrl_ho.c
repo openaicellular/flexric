@@ -62,7 +62,7 @@ e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(e2sm_rc_ctrl_hdr_e hdr_frmt, ue_id_e2sm_t ue_
 }
 
 static
-void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id, int32_t nr_cgi)
+void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id, const char* nr_cgi)
 {
     // Target Primary Cell ID, STRUCTURE (Target Primary Cell ID)
     Target_primary_cell_id->ran_param_id = Target_primary_cell_id_8_4_4_1;
@@ -101,9 +101,7 @@ void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id, int32_t
     assert(NR_cgi->ran_param_val.flag_false != NULL && "Memory exhausted");
     // NR CGI IE in TS 38.423 [15] Clause 9.2.2.7
     NR_cgi->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
-    char nr_cgi_val[30];
-    sprintf(nr_cgi_val, "%u=d", nr_cgi);
-    byte_array_t nr_cgi_ba = cp_str_to_ba(nr_cgi_val);
+    byte_array_t nr_cgi_ba = cp_str_to_ba(nr_cgi);
     NR_cgi->ran_param_val.flag_false->bit_str_ran.buf = nr_cgi_ba.buf;
     NR_cgi->ran_param_val.flag_false->bit_str_ran.len = nr_cgi_ba.len;
 
@@ -151,7 +149,7 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over()
     assert(dst.ran_param != NULL && "Memory exhausted");
 
     // assume we know the other cell's id
-    int32_t nr_cgi = 700;
+    const char* nr_cgi = "500";
     gen_target_primary_cell_id(&dst.ran_param[0], nr_cgi);
     // TODO: List of PDU sessions for handover
     // TODO: List of PRBs for handover
@@ -181,8 +179,10 @@ ue_id_e2sm_t gen_rc_ue_id(ue_id_e2sm_e type)
     ue_id_e2sm_t ue_id = {0};
     if (type == GNB_UE_ID_E2SM) {
         ue_id.type = GNB_UE_ID_E2SM;
-        ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
-        *ue_id.gnb.ran_ue_id = 1;
+        // optional: ran ue id
+        ue_id.gnb.ran_ue_id = NULL;
+        // ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
+        // *ue_id.gnb.ran_ue_id = 1;
         ue_id.gnb.amf_ue_ngap_id = 0;
         ue_id.gnb.guami.plmn_id.mcc = 1;
         ue_id.gnb.guami.plmn_id.mnc = 1;
@@ -211,8 +211,9 @@ void start_control(e2_node_arr_t nodes){
 
   int64_t st = time_now_us();
   for(size_t i =0; i < nodes.len; ++i){
-    // TODO: Find a way to send nr_cgi and e_ultra_cgi
-    control_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_ctrl);
+    // Only control one E2 Node
+    if (nodes.n[i].id.nb_id.nb_id == 3590)
+      control_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_ctrl);
   }
   printf("[xApp]: Control Loop Latency: %ld us\n", time_now_us() - st);
 
