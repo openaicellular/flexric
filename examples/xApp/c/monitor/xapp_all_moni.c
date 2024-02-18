@@ -157,7 +157,11 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
                   for (size_t j = 0; j < msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst_len; j++)
                     printf("UE ID type = gNB-CU, gnb_cu_ue_f1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst[j]);
                 } else {
-                  printf("UE ID type = gNB, amf_ue_ngap_id = %lu\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id);
+                  if (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id != NULL) {
+                    printf("UE ID type = gNB, ran_ue_id = %lu, amf_ue_ngap_id = %lu\n",
+                           *msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id,
+                           msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id);
+                  }
                 }
                 break;
 
@@ -319,7 +323,7 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const act_name_id_t act)
 }
 
 static
-kpm_act_def_format_1_t gen_kpm_act_def_frmt_1(const sub_oran_sm_t sub_sm, uint32_t period_ms)
+kpm_act_def_format_1_t gen_kpm_act_def_frmt_1(const sub_oran_sm_t sub_sm, uint32_t period_ms, e2_node_connected_t* n)
 {
   kpm_act_def_format_1_t dst = {0};
 
@@ -333,11 +337,26 @@ kpm_act_def_format_1_t gen_kpm_act_def_frmt_1(const sub_oran_sm_t sub_sm, uint32
     dst.meas_info_lst[i] = gen_meas_info_format_1_lst(sub_sm.actions[i]);
   }
 
+  // TODO: this is set for proxy agent, read from config?
+  int nr_cell_id = 0;
+  if (n->id.nb_id.nb_id == 3590)
+    nr_cell_id = 500;
+  else if (n->id.nb_id.nb_id == 3591)
+    nr_cell_id = 700;
+  if (nr_cell_id != 0) {
+    dst.cell_global_id = malloc(sizeof(cell_global_id_t));
+    dst.cell_global_id->type = NR_CGI_RAT_TYPE;
+    dst.cell_global_id->nr_cgi.nr_cell_id = nr_cell_id;
+    // Spec Bug, in RC ind cannot fill PLMN info
+    dst.cell_global_id->nr_cgi.plmn_id.mcc = 1;
+    dst.cell_global_id->nr_cgi.plmn_id.mnc = 0;
+    dst.cell_global_id->nr_cgi.plmn_id.mnc_digit_len = 2;
+  }
   return dst;
 }
 
 static
-kpm_act_def_format_4_t gen_kpm_act_def_frmt_4(const sub_oran_sm_t sub_sm, uint32_t period_ms)
+kpm_act_def_format_4_t gen_kpm_act_def_frmt_4(const sub_oran_sm_t sub_sm, uint32_t period_ms, e2_node_connected_t* n)
 {
   kpm_act_def_format_4_t dst = {0};
 
@@ -365,7 +384,7 @@ kpm_act_def_format_4_t gen_kpm_act_def_frmt_4(const sub_oran_sm_t sub_sm, uint32
   test_info_lst->test_cond_value = test_cond_value;
 
   // Action definition Format 1
-  dst.action_def_format_1 = gen_kpm_act_def_frmt_1(sub_sm, period_ms);  // 8.2.1.2.1
+  dst.action_def_format_1 = gen_kpm_act_def_frmt_1(sub_sm, period_ms, n);  // 8.2.1.2.1
 
   return dst;
 }
@@ -411,16 +430,16 @@ e2sm_rc_action_def_t gen_rc_act_def(const sub_oran_sm_t sub_sm, uint32_t ric_sty
 }
 
 static
-kpm_act_def_t gen_kpm_act_def(const sub_oran_sm_t sub_sm, format_action_def_e act_frm, uint32_t period_ms)
+kpm_act_def_t gen_kpm_act_def(const sub_oran_sm_t sub_sm, format_action_def_e act_frm, uint32_t period_ms, e2_node_connected_t* n)
 {
   kpm_act_def_t dst = {0};
 
   if (act_frm == FORMAT_1_ACTION_DEFINITION) {
     dst.type = FORMAT_1_ACTION_DEFINITION;
-    dst.frm_1 = gen_kpm_act_def_frmt_1(sub_sm, period_ms);
+    dst.frm_1 = gen_kpm_act_def_frmt_1(sub_sm, period_ms, n);
   } else if (act_frm == FORMAT_4_ACTION_DEFINITION) {
     dst.type = FORMAT_4_ACTION_DEFINITION;
-    dst.frm_4 = gen_kpm_act_def_frmt_4(sub_sm, period_ms);
+    dst.frm_4 = gen_kpm_act_def_frmt_4(sub_sm, period_ms, n);
   } else {
     assert(0!=0 && "not support action definition type");
   }
@@ -515,7 +534,7 @@ void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* 
       else
         assert(0!=0 && "not supported action definition format");
 
-      *kpm_sub.ad = gen_kpm_act_def((const sub_oran_sm_t)args.sub_oran_sm[i], act_type, period_ms);
+      *kpm_sub.ad = gen_kpm_act_def((const sub_oran_sm_t)args.sub_oran_sm[i], act_type, period_ms, n);
 
       // TODO: implement e2ap_ngran_eNB
       if (n->id.type == e2ap_ngran_eNB)
