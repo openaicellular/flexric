@@ -158,7 +158,7 @@ void sm_cb_all(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
                     printf("UE ID type = gNB-CU, gnb_cu_ue_f1ap = %u\n", msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.gnb_cu_ue_f1ap_lst[j]);
                 } else {
                   if (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id != NULL) {
-                    printf("UE ID type = gNB, ran_ue_id = %lu, amf_ue_ngap_id = %lu\n",
+                    printf("UE ID type = gNB, RAN UE ID = %lu, AMF UE NGAP ID = %lu\n",
                            *msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id,
                            msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id);
                   }

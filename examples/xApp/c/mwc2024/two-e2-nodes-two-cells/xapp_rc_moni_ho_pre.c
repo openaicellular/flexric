@@ -60,11 +60,12 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
       // 9.3.10
       if (cur_ue_id->ue_id.type == GNB_UE_ID_E2SM) {
         if (cur_ue_id->ue_id.gnb.ran_ue_id != NULL)
-          printf("[RC_SM] UE %zu - RAN UE ID = %lu\n", i, *cur_ue_id->ue_id.gnb.ran_ue_id);
+          printf("UE idx %zu - RAN UE ID = %lu, AMF UE NGAP ID = %lu\n",
+                 i, *cur_ue_id->ue_id.gnb.ran_ue_id, cur_ue_id->ue_id.gnb.amf_ue_ngap_id);
         else
-          printf("[RC_SM] UE %zu - RAN UE ID is NULL\n", i);
+          printf("UE idx %zu - RAN UE ID is NULL\n", i);
       } else {
-        printf("[RC_SM] UE %zu Not yet implemented UE ID type \n", i);
+        printf("UE idx %zu Not yet implemented UE ID type \n", i);
         continue;
       }
 
@@ -80,7 +81,7 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
           // O-RAN.WG3.E2SM-R003
           // 6.2.2.5
           char* cell_global_id = copy_ba_to_str(&cur_ran_param->ran_param_val.flag_false->octet_str_ran);
-          printf("[RC_SM] UE %zu - Cell Global ID - Cell ID = %s \n", i, cell_global_id);
+          printf("UE idx %zu - NR Cell ID = %s \n", i, cell_global_id);
         }
 
       }
@@ -93,7 +94,7 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
     for (size_t i = 0; i < msg_frm_3->sz_seq_cell_info; i++) {
       seq_cell_info_t* cur_cell_id = &msg_frm_3->seq_cell_info[i];
       assert(cur_cell_id->cell_global_id.type == NR_CGI_RAT_TYPE);
-      printf("[RC_SM] Cell Global ID - NR CGI- PLMN mcc %d mnc %d - Cell ID %lu\n",
+      printf("Cell Global ID - NR CGI- PLMN mcc %d mnc %d - NR Cell ID %lu\n",
              cur_cell_id->cell_global_id.nr_cgi.plmn_id.mcc,
              cur_cell_id->cell_global_id.nr_cgi.plmn_id.mnc,
              (unsigned long)cur_cell_id->cell_global_id.nr_cgi.nr_cell_id);

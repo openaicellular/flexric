@@ -69,12 +69,13 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
       if (cur_ue_id->ue_id.type == GNB_UE_ID_E2SM) {
         if (cur_ue_id->ue_id.gnb.ran_ue_id != NULL){
           ran_ue_id = *cur_ue_id->ue_id.gnb.ran_ue_id;
-          printf("[RC_SM] UE %zu - ran_ue_id = %lu\n", i, *cur_ue_id->ue_id.gnb.ran_ue_id);
+          printf("UE idx %zu - RAN UE ID = %lu, AMF UE NGAP ID = %lu\n",
+                 i, *cur_ue_id->ue_id.gnb.ran_ue_id, cur_ue_id->ue_id.gnb.amf_ue_ngap_id);
         } else {
-          printf("[RC_SM] UE %zu - ran_ue_id is NULL\n", i);
+          printf("UE idx %zu - RAN UE ID is NULL\n", i);
         }
       } else {
-        printf("[RC_SM] UE %zu Not yet implemented UE ID type \n", i);
+        printf("UE idx %zu Not yet implemented UE ID type \n", i);
         continue;
       }
 
@@ -90,7 +91,7 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
           // O-RAN.WG3.E2SM-R003
           // 6.2.2.5
           char* cell_global_id = copy_ba_to_str(&cur_ran_param->ran_param_val.flag_false->octet_str_ran);
-          printf("[RC_SM] UE %zu - cell global id = %s \n", i, cell_global_id);
+          printf("UE idx %zu - NR Cell ID = %s \n", i, cell_global_id);
           sscanf(cell_global_id, "%ld", &LST_NR_CELL_ID[0]); // index 0 is global_cell_id
         }
 
@@ -113,7 +114,7 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
             // TS 38.473
             // 9.3.1.29
             int64_t nr_pci = nr_cell->ran_param_struct[0].ran_param_val.flag_false->int_ran;
-            printf("[RC_SM] UE %zu - Neighbor cell id %zu with PCI %ld \n", i, cell_idx, nr_pci);
+            printf("UE idx %zu - Neighbor Cell idx %zu, NR Cell ID %ld \n", i, cell_idx, nr_pci);
             LST_NR_CELL_ID[cell_idx + 1] = nr_pci; // From 1->N: neighbor cell
           }
         }
@@ -224,7 +225,7 @@ void print_kpm_ind(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node){
           {
             case GNB_UE_ID_E2SM:
               if (msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id != NULL) {
-                printf("UE ID type = gNB, ran_ue_id = %lu, amf_ue_ngap_id = %lu\n",
+                printf("UE ID type = gNB, RAN UE ID = %lu, AMF UE NGAP ID = %lu\n",
                        *msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.ran_ue_id,
                        msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst.gnb.amf_ue_ngap_id);
               }
