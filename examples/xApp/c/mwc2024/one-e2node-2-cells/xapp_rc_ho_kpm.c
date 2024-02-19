@@ -34,6 +34,7 @@
 #include <pthread.h>
 
 uint64_t LST_NR_CELL_ID[2] = {0};
+uint64_t ran_ue_id = 1;
 
 typedef struct lst_kpm_handle_t {
   sm_ans_xapp_t* kpm_handle;
@@ -66,10 +67,12 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
       // Mandatory
       // 9.3.10
       if (cur_ue_id->ue_id.type == GNB_UE_ID_E2SM) {
-        if (cur_ue_id->ue_id.gnb.ran_ue_id != NULL)
-          printf("[RC_SM] UE %zu - ran_ue_id = %p\n", i, (void*)cur_ue_id->ue_id.gnb.ran_ue_id);
-        else
+        if (cur_ue_id->ue_id.gnb.ran_ue_id != NULL){
+          ran_ue_id = *cur_ue_id->ue_id.gnb.ran_ue_id;
+          printf("[RC_SM] UE %zu - ran_ue_id = %lu\n", i, *cur_ue_id->ue_id.gnb.ran_ue_id);
+        } else {
           printf("[RC_SM] UE %zu - ran_ue_id is NULL\n", i);
+        }
       } else {
         printf("[RC_SM] UE %zu Not yet implemented UE ID type \n", i);
         continue;
@@ -456,7 +459,7 @@ ue_id_e2sm_t gen_rc_ue_id(ue_id_e2sm_e type)
     if (type == GNB_UE_ID_E2SM) {
         ue_id.type = GNB_UE_ID_E2SM;
         ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
-        *ue_id.gnb.ran_ue_id = 1;
+        *ue_id.gnb.ran_ue_id = ran_ue_id;
         ue_id.gnb.amf_ue_ngap_id = 0;
         ue_id.gnb.guami.plmn_id.mcc = 1;
         ue_id.gnb.guami.plmn_id.mnc = 1;

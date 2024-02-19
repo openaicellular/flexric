@@ -899,22 +899,46 @@ static const char *json_encode_ctrl_rc(int msg_id, rc_ctrl_req_data_t ctrl_msg)
             ue_id_e2sm_t ue_id = ctrl_msg.hdr.frmt_1.ue_id;
             assert(ue_id.type == GNB_UE_ID_E2SM && "Wrong ue_id_e2sm type");
             //assert(ue_id.gnb.ran_ue_id != NULL && "NULL GNB_RAN_UE_ID");
+
+            // Assume control will go after indication message;
+            ran_ind_t ws_ind = get_ringbuffer_data();
             int rc = 0;
             if (ue_id.gnb.ran_ue_id != NULL) {
-              rc = snprintf(enc_gbuf,
-                           sizeof(enc_gbuf),
-                           "{\"message\":\"handover\",\"ran_ue_id\":%ld,\"pci\":%s,\"message_id\":\"%d\"}",
-                           *ue_id.gnb.ran_ue_id, pci,
-                           msg_id);
-              if (rc >= (int)sizeof(enc_gbuf))
-              {
-                lwsl_err("hit hard limit on internal buffer for command 'handover'\n");
-                return NULL;
+              int n_id_nrcell = atoi(pci);
+              for(size_t cell_idx = 0; cell_idx < ws_ind.ran_config.len_nr_cell; cell_idx++){
+                nr_cell_conf_t cur_cell = ws_ind.ran_config.nr_cells[cell_idx];
+                assert(cur_cell.len_ncell > 0 && "Encoding control - neighbor cell list <= 0");
+                for(size_t ne_cell_idx = 0; ne_cell_idx < ws_ind.ran_config.len_nr_cell; ne_cell_idx++){
+                  amr_ncell_list_t ne_cur_cell = cur_cell.ncell_list[ne_cell_idx];
+                  if (ne_cur_cell.n_id_nrcell == n_id_nrcell){
+                    rc = snprintf(enc_gbuf,
+                                  sizeof(enc_gbuf),
+                                  "{\"message\":\"handover\",\"ran_ue_id\":%ld,\"pci\":%s,\"ssb_nr_arfcn\":%d,\"message_id\":\"%d\"}",
+                                  *ue_id.gnb.ran_ue_id, pci,
+                                  ne_cur_cell.ssb_nr_arfcn, msg_id);
+                    if (rc >= (int)sizeof(enc_gbuf))
+                    {
+                      lwsl_err("hit hard limit on internal buffer for command 'handover'\n");
+                      return NULL;
+                    }
+                  }
+                }
+              }
+              if (rc == 0){
+                // If no pci match, send a message that return failure.
+                rc = snprintf(enc_gbuf,
+                              sizeof(enc_gbuf),
+                              "{\"message\":\"handover\",\"message_id\":\"%d\"}",
+                              msg_id);
+                if (rc >= (int)sizeof(enc_gbuf))
+                {
+                  lwsl_err("hit hard limit on internal buffer for command 'handover'\n");
+                  return NULL;
+                }
               }
             } else {
               // decrease cell gain specific cell
               // let UEs to handover existing cell/gnb by themselves
-              ran_ind_t ws_ind = get_ringbuffer_data();
               assert(ws_ind.ran_config.len_nr_cell == 1 && "only support to turn off one cell's gain");
               int n_id_nrcell = atoi(pci);
               if (ws_ind.ran_config.nr_cells[0].n_id_nrcell == n_id_nrcell) {

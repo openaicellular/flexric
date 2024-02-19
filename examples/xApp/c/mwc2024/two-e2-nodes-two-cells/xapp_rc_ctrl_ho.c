@@ -149,7 +149,7 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over()
     assert(dst.ran_param != NULL && "Memory exhausted");
 
     // assume we know the other cell's id
-    const char* nr_cgi = "500";
+    const char* nr_cgi = "700";
     gen_target_primary_cell_id(&dst.ran_param[0], nr_cgi);
     // TODO: List of PDU sessions for handover
     // TODO: List of PRBs for handover
@@ -180,9 +180,9 @@ ue_id_e2sm_t gen_rc_ue_id(ue_id_e2sm_e type)
     if (type == GNB_UE_ID_E2SM) {
         ue_id.type = GNB_UE_ID_E2SM;
         // optional: ran ue id
-        ue_id.gnb.ran_ue_id = NULL;
-        // ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
-        // *ue_id.gnb.ran_ue_id = 1;
+//        ue_id.gnb.ran_ue_id = NULL;
+        ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
+        *ue_id.gnb.ran_ue_id = 6;
         ue_id.gnb.amf_ue_ngap_id = 0;
         ue_id.gnb.guami.plmn_id.mcc = 1;
         ue_id.gnb.guami.plmn_id.mnc = 1;
