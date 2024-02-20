@@ -408,7 +408,7 @@ meas_record_lst_t fill_meas_value(meas_type_t meas_info_type, const amarisoft_ue
 }
 
 static
-kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1_in_monolithic(const amarisoft_ue_stats_t* ue, const kpm_act_def_format_1_t* act_def_fr1, const ran_ind_t* ws_ind)
+kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1_in_monolithic(const amarisoft_ue_stats_t* ue, const kpm_act_def_format_1_t* act_def_fr1, const ran_ind_t* ws_ind, int cell_idx)
 {
   (void)ws_ind;
   kpm_ind_msg_format_1_t msg_frm_1 = {0};
@@ -451,6 +451,10 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1_in_monolithic(const amarisoft_ue_s
   msg_frm_1.meas_info_lst_len = act_def_fr1->meas_info_lst_len;
   msg_frm_1.meas_info_lst = fill_kpm_meas_info_frm_1(msg_frm_1.meas_info_lst_len, act_def_fr1);
 
+  // Granularity Period - OPTIONAL
+  msg_frm_1.gran_period_ms = calloc(1, sizeof(*msg_frm_1.gran_period_ms));
+  assert(msg_frm_1.gran_period_ms != NULL && "Memory exhausted");
+  *msg_frm_1.gran_period_ms = cell_idx;
   return msg_frm_1;
 }
 
@@ -513,7 +517,7 @@ static kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(void)
 }
 
 static
-kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_in_monolithic(seq_arr_t const* ues, const kpm_act_def_format_1_t * act_def_fr_1, const ran_ind_t* ws_ind)
+kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_in_monolithic(seq_arr_t const* ues, const kpm_act_def_format_1_t * act_def_fr_1, const ran_ind_t* ws_ind, int cell_idx)
 {
   assert(act_def_fr_1 != NULL);
 
@@ -535,8 +539,13 @@ kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_in_monolithic(seq_arr_t const* ues
     // Fill UE ID data
     msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst = cp_ue_id_e2sm(&ue->e2sm_ue_id);
 
+    // Fill Cell ID (Note: need to remove)
+    msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.ng_ran_node_ue_xnap_id = calloc(1, sizeof(uint32_t));
+    assert(msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.ng_ran_node_ue_xnap_id != NULL && "Memory exhausted");
+    *msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb.ng_ran_node_ue_xnap_id = cell_idx;
+
     // Fill UE related info
-    msg_frm_3.meas_report_per_ue[i].ind_msg_format_1 = fill_kpm_ind_msg_frm_1_in_monolithic(&ws_ind->ue_stats[ue->amr_ue_idx], act_def_fr_1, ws_ind);
+    msg_frm_3.meas_report_per_ue[i].ind_msg_format_1 = fill_kpm_ind_msg_frm_1_in_monolithic(&ws_ind->ue_stats[ue->amr_ue_idx], act_def_fr_1, ws_ind, cell_idx);
 
     it = seq_next((seq_arr_t*)ues, it);
   }
@@ -562,7 +571,7 @@ kpm_ind_msg_format_3_t fill_rnd_kpm_ind_msg_frm_3()
 }
 
 static
-kpm_ric_ind_hdr_format_1_t kpm_ind_hdr_frm_1(ran_ind_t* ws_ind)
+kpm_ric_ind_hdr_format_1_t kpm_ind_hdr_frm_1(ran_ind_t* ws_ind, const char* cell_str)
 {
   kpm_ric_ind_hdr_format_1_t hdr_frm_1 = {0};
 
@@ -581,9 +590,9 @@ kpm_ric_ind_hdr_format_1_t kpm_ind_hdr_frm_1(ran_ind_t* ws_ind)
   if (E2AP_NODE_IS_MONOLITHIC(ws_ind->global_e2_node_id.type))
   {
     hdr_frm_1.sender_name = calloc(1, sizeof(byte_array_t));
-    hdr_frm_1.sender_name->buf = calloc(strlen("AMR-MONO") + 1, sizeof(uint8_t));
-    memcpy(hdr_frm_1.sender_name->buf, "AMR-MONO", strlen("AMR-MONO"));
-    hdr_frm_1.sender_name->len = strlen("AMR-MONO");
+    hdr_frm_1.sender_name->buf = calloc(strlen(cell_str) + 1, sizeof(uint8_t));
+    memcpy(hdr_frm_1.sender_name->buf, cell_str, strlen(cell_str));
+    hdr_frm_1.sender_name->len = strlen(cell_str);
 
     hdr_frm_1.sender_type = calloc(1, sizeof(byte_array_t));
     hdr_frm_1.sender_type->buf = calloc(strlen("MONO") + 1, sizeof(uint8_t));
@@ -602,12 +611,12 @@ kpm_ric_ind_hdr_format_1_t kpm_ind_hdr_frm_1(ran_ind_t* ws_ind)
 }
 
 static
-kpm_ind_hdr_t kpm_ind_hdr(ran_ind_t* ws_ind)
+kpm_ind_hdr_t kpm_ind_hdr(ran_ind_t* ws_ind, const char* cell_str)
 {
   kpm_ind_hdr_t hdr = {0};
 
   hdr.type = FORMAT_1_INDICATION_HEADER;
-  hdr.kpm_ric_ind_hdr_format_1 = kpm_ind_hdr_frm_1(ws_ind);
+  hdr.kpm_ric_ind_hdr_format_1 = kpm_ind_hdr_frm_1(ws_ind, cell_str);
 
   return hdr;
 }
@@ -920,6 +929,8 @@ void free_kpm_sm(void)
   free_lst_measurements();
 }
 
+const char* cell_str[] = {"1", "2"};
+
 bool read_kpm_sm(void* data)
 {
   ran_ind_t ws_ind = get_ringbuffer_data();
@@ -929,7 +940,10 @@ bool read_kpm_sm(void* data)
   assert(act_def!= NULL && "Cannot be NULL");
   switch (act_def->type) {
     case FORMAT_4_ACTION_DEFINITION:
-      kpm->ind.hdr = kpm_ind_hdr(&ws_ind);
+      if (kpm->act_def->frm_4.action_def_format_1.cell_global_id->nr_cgi.nr_cell_id == 500)
+        kpm->ind.hdr = kpm_ind_hdr(&ws_ind, cell_str[0]);
+      else
+        kpm->ind.hdr = kpm_ind_hdr(&ws_ind, cell_str[1]);
 
       kpm->ind.msg.type = FORMAT_3_INDICATION_MESSAGE;
       // Filter the UE by the test condition criteria
@@ -943,7 +957,11 @@ bool read_kpm_sm(void* data)
         return false;
       }
 
-      kpm_ind_msg_format_3_t info = fill_kpm_ind_msg_frm_3_in_monolithic(&match_ues, &frm_4->action_def_format_1, &ws_ind);
+      kpm_ind_msg_format_3_t info = {0};
+      if (kpm->act_def->frm_4.action_def_format_1.cell_global_id->nr_cgi.nr_cell_id == 500)
+        info = fill_kpm_ind_msg_frm_3_in_monolithic(&match_ues, &frm_4->action_def_format_1, &ws_ind, 1);
+      else
+        info = fill_kpm_ind_msg_frm_3_in_monolithic(&match_ues, &frm_4->action_def_format_1, &ws_ind, 2);
       // Message
       // 7.8 Supported RIC Styles and E2SM IE Formats
       // Format 4 corresponds to indication message 3
