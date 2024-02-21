@@ -205,9 +205,6 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   } else if (t.ms == 0){
     // Aperiodic indication generated i.e., the RAN will generate it via
     // void async_event_agent_api(uint32_t ric_req_id, void* ind_data);
-    int fd = 0;
-    e2_agent_t* proxy_agent = get_proxy_agent()->e2_if;
-    bi_map_insert(&proxy_agent->ind_event, &fd, sizeof(fd), &e2_ran_sub, sizeof(e2_ran_sub));
     fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
   } else {
     assert(0!=0 && "Unknown subscription timer value");

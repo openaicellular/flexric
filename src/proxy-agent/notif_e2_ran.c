@@ -284,8 +284,11 @@ void fwd_ran_e2_ric_subscription_response(e2_agent_t *e2_if, e2_subscribe_event_
                      .ric_id = reply.ric_id,
                      .sm = sm_plugin_ag(&e2_if->plugin, reply.sm_id),
                      .act_def = reply.act_def};
-  int fd_timer = create_timer_ms_asio_agent(&e2_if->io, reply.time_ms, reply.time_ms); 
-  assert(pthread_mutex_lock(&e2_if->mtx_ind_event) == 0);  
+  int fd_timer = 0;
+  if (reply.time_ms != 0){
+    fd_timer = create_timer_ms_asio_agent(&e2_if->io, reply.time_ms, reply.time_ms);
+  }
+  assert(pthread_mutex_lock(&e2_if->mtx_ind_event) == 0);
   bi_map_insert(&e2_if->ind_event, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev));
   assert(pthread_mutex_unlock(&e2_if->mtx_ind_event) == 0);  
   ric_subscription_response_t sr = generate_subscription_response(&ev.ric_id, ev.action_id); 

@@ -173,9 +173,8 @@ int main(int argc, char *argv[])
   
   // Poll RAN interface until interrupted. Note that polling E2 interface is done already by init_e2_agent_api()
   enum ran_errcodes_t n = ERR_RAN_IO_NONE;
-  // TODO: Fill in the open parameters ?
   while (n == ERR_RAN_IO_NONE  && proxy_get_exit_flag() == false)
-    n = proxy_agent->ran_if.io->open(10); 
+    n = proxy_agent->ran_if.io->open(proxy_agent->conf.io_ran_conf.timer);
  
   lwsl_user("Removing all resources. Closing all\n");
   close_proxy_agent(proxy_agent);
