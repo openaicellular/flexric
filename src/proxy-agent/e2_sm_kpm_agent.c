@@ -220,7 +220,6 @@ meas_record_lst_t fill_MeanTxPwr(amarisoft_ue_stats_t const* ue_stats, const ran
   // TS28.552 5.1.1.29.2
   // This measurement is obtained by retaining the mean value of the total carrier power transmitted in the cell within the measurement granularity period.
   // The power includes all radio power transmitted, included common channels, traffic channels, control channels. The value is expressed in dBm.
-  (void) ran_config;
   assert(ran_stats != NULL);
   assert(ue_stats != NULL);
 
@@ -228,8 +227,9 @@ meas_record_lst_t fill_MeanTxPwr(amarisoft_ue_stats_t const* ue_stats, const ran
   int used_rbs = 0;
   int c_id = ue_stats->cells[cell_idx].cell_id;
   for (size_t i = 0; i < ran_stats->len_cell; i++) {
-    if (ran_stats->cells[i].cell_id == c_id) {
-      used_rbs = ran_stats->cells[i].dl_use_avg*100;
+    assert(ran_config->len_nr_cell == ran_stats->len_cell && "ran_conf->len_nr_cell != ran_stats->len_cell");
+    if (ran_stats->cells[i].cell_id == c_id && ran_config->nr_cells[i].cell_id == c_id) {
+      used_rbs = ran_stats->cells[i].dl_use_avg*ran_config->nr_cells[i].n_rb_dl;
       break;
     }
   }
