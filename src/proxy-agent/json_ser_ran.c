@@ -435,13 +435,14 @@ static bool json_decode_ran_indication_ue_get(const ran_msg_t *in_msg, ran_ind_t
  */
 static bool json_decode_ran_config_get(const ran_msg_t *in_msg, ran_config_t *out_ran, ran_ind_t *out_ind)
 {
+  (void) out_ind;
   assert((in_msg != NULL) && "programming error\n");
-  ran_config_t *out = NULL;
-  if (out_ind != NULL){
-      out = &out_ind->ran_config;
-  } else {
-      out = out_ran;
-  }
+  ran_config_t *out = out_ran;
+//  if (out_ind != NULL){
+//      out = &out_ind->ran_config;
+//  } else {
+//      out = out_ran;
+//  }
 
   memset (&out->nr_cells_flag, 0, sizeof (out->nr_cells_flag)); //reset to false all the presence flags
 
@@ -762,9 +763,8 @@ static const char *json_encode_ran_indication(int msg_id, int sm_id, double init
   snprintf(enc_gbuf,
            sizeof(enc_gbuf),
            "[{\"message\":\"stats\",\"message_id\":\"%d\",\"initial_delay\": %.1f},"
-           "{\"message\":\"ue_get\",\"message_id\":\"%d\",\"stats\":1},"
-           "{\"message\":\"config_get\",\"message_id\":\"%d\"}]",
-           msg_id, initial_delay, msg_id, msg_id);
+           "{\"message\":\"ue_get\",\"message_id\":\"%d\",\"stats\":1}]",
+           msg_id, initial_delay, msg_id);
   return enc_gbuf;
 }
 

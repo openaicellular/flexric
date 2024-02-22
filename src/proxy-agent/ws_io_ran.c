@@ -433,7 +433,7 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       lwsl_user("I/O event loop: received event (type=%s)\n", notif_strevent(notif_event->type));
       ran_notif_msg_handle(ran_p, io_ran_instance->priv_data->pa->e2_if, notif_event, static_msg_id);
 
-      if (notif_event->type == E2_ADD_SUBSCRIPTION_TIMER_EVENT)
+      if (notif_event->type == E2_ADD_SUBSCRIPTION_TIMER_EVENT && notif_event->subs_ev.time_ms > 0)
         loop_io_userds->indication_sm_id = notif_event->subs_ev.sm_id;
 
       if (notif_event->type == E2_REMOVE_RC_SUBSCRIPTION_EVENT){

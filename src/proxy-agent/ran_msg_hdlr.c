@@ -57,6 +57,7 @@ static next_msg_t handle_ran_indication_stats(proxy_agent_t * proxy, ran_msg_t m
     aperiodic_api_cnt += 1;
   }
   ran_ind_t ind = get_ringbuffer_data();
+  ind.ran_config = proxy->ranConfig;
   if (get_IndTimer_sts() == false)
     set_IndTimer_sts(true);
   if (proxy->ran_if.ser->decode_indication_stats(&msg, &ind)  == true)
@@ -89,6 +90,7 @@ static next_msg_t handle_ran_indication_ue(proxy_agent_t * proxy, ran_msg_t msg,
     aperiodic_api_cnt += 1;
   }
   ran_ind_t ind = get_ringbuffer_data();
+  ind.ran_config = proxy->ranConfig;
   if (get_IndTimer_sts() == false)
     set_IndTimer_sts(true);
   if (proxy->ran_if.ser->decode_indication_ue_get(&msg, &ind)  == true)
@@ -274,7 +276,7 @@ next_msg_t ran_msg_handle(const char *buf, size_t len, bi_map_t *sent_msg_list)
 
 bool is_get_aperiodic_event(void){
   // Get 3 API from indication
-  if (aperiodic_api_cnt == 3){
+  if (aperiodic_api_cnt == 2){
     aperiodic_api_cnt = 0;
     return true;
   }
