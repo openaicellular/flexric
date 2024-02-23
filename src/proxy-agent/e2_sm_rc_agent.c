@@ -467,9 +467,9 @@ static
 e2sm_rc_ind_msg_frmt_3_t rc_ind_msg_frmt_3(const ran_ind_t* ws_ind, e2sm_rc_act_def_frmt_1_t ad_frmt_1){
 
   e2sm_rc_ind_msg_frmt_3_t msg_frm_3 = {0};
-  assert(ad_frmt_1.sz_param_report_def == 1 && "only support one action definition ID when there is no UE connected");
-  uint32_t act_id = ad_frmt_1.param_report_def[0].ran_param_id;
-  assert(act_id == 6 && "only support act id 6");
+  //assert(ad_frmt_1.sz_param_report_def == 1 && "only support one action definition ID when there is no UE connected");
+  //uint32_t act_id = ad_frmt_1.param_report_def[0].ran_param_id;
+  //assert(act_id == 6 && "only support act id 6");
 
   // Fill Cell information
   msg_frm_3.sz_seq_cell_info = ws_ind->ran_config.len_nr_cell;
