@@ -431,7 +431,28 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       // by design, the only case we arrive here is to read messages pushed from E2 on the notification queue
       notif_event = notif_get_ran_event(&io_ran_instance->priv_data->pa->ran_if);
       lwsl_user("I/O event loop: received event (type=%s)\n", notif_strevent(notif_event->type));
-      ran_notif_msg_handle(ran_p, io_ran_instance->priv_data->pa->e2_if, notif_event, static_msg_id);
+      if(notif_event->type == E2_CTRL_EVENT){
+        // If timer on, remove timer then restart timer.
+        // Check if there are any timers running
+        if(io_ran_instance->priv_data->timer_set){
+          // STOP the timer
+          lws_set_timer_usecs(io_ran_instance->priv_data->ws_instance, LWS_SET_TIMER_USEC_CANCEL);
+          lwsl_err("Stop timer to send control messages\n");
+          io_ran_instance->priv_data->timer_set = false;
+
+          // Send control messages
+          ran_notif_msg_handle(ran_p, io_ran_instance->priv_data->pa->e2_if, notif_event, static_msg_id);
+
+          // Restart the timer
+          lws_set_timer_usecs(io_ran_instance->priv_data->ws_instance, io_ran_instance->priv_data->indication_polling_ms * 1000);
+          io_ran_instance->priv_data->timer_set = true;
+        } else {
+          // Send control messages
+          ran_notif_msg_handle(ran_p, io_ran_instance->priv_data->pa->e2_if, notif_event, static_msg_id);
+        }
+      } else {
+        ran_notif_msg_handle(ran_p, io_ran_instance->priv_data->pa->e2_if, notif_event, static_msg_id);
+      }
 
       if (notif_event->type == E2_ADD_SUBSCRIPTION_TIMER_EVENT && notif_event->subs_ev.time_ms > 0)
         loop_io_userds->indication_sm_id = notif_event->subs_ev.sm_id;
