@@ -24,8 +24,15 @@ lws_sorted_usec_list_t global_sul;
 
 bool ran_open_success = false;
 
+static size_t MAX_ENC_MESS_LEN = 1024;
+static size_t MAX_CACHE_MESS_LEN = 8;
 static io_ran_abs_t *io_ran_instance = NULL;
 #define LIMITS_TIMER_SM_MAX_NUM 10 // max number of indication timers supported. One timer is associated to one Service Model
+
+typedef struct msg_t {
+  void* payload;
+  size_t len; // max 1024
+} msg_t;
 
 struct io_ran_priv_data_t {
   /* 
@@ -36,7 +43,8 @@ struct io_ran_priv_data_t {
    */
   struct lws *ws_instance; // needs to be multithreading for the notification functionality that is used by E2 thread
   pthread_mutex_t wsi_mtx;
-  struct lws_context *ctx; 
+  struct lws_context *ctx;
+  struct lws_ring *ring; // ring buffer to cache messages.
   int indication_polling_ms;  // fixed value for polling frequency. Initialized when you instanciate the module RAN I/O.
   next_msg_t (*read_cb)(const char *buf, size_t len, bi_map_t *sent_msg);   
   proxy_agent_t *pa;    // back reference to proxy_agent static variable
@@ -47,6 +55,17 @@ struct io_ran_priv_data_t {
   atomic_bool e2_setup_done;   // state machine of processed messages (e2 setup)
   atomic_bool ind_timer_ready; // state machine of processed messages (indication)
 };
+
+/* destroys the message when everyone has had a copy of it */
+static void
+__minimal_destroy_message(void *_msg)
+{
+  msg_t *msg = _msg;
+
+  free(msg->payload);
+  msg->payload = NULL;
+  msg->len = 0;
+}
 
 static int static_msg_id = 0; // lookup key for io_loop event map
 
@@ -170,8 +189,8 @@ static ran_errcodes_t io_ran_ws_write(const uint8_t *jsonbuf, size_t len)
    * caveats: the pointer containing our data must have LWS_PRE valid allocated preamble memory behind it. 
    * You can leave that memory empty, lws_write will use it to handle context
    */
-  char buf[LWS_PRE + 200];
-  assert (msg_len < 200 && "Hard limit on msg length buffer hit. Programming error. You should enlarge buffer in io_ran_ws_write()\n");
+  char buf[LWS_PRE + 2000];
+  assert (msg_len < 2000 && "Hard limit on msg length buffer hit. Programming error. You should enlarge buffer in io_ran_ws_write()\n");
 
   lws_strncpy(&buf[LWS_PRE], (const char *)jsonbuf, msg_len);
   lwsl_debug("[E2 -> RAN] Sending on wire '%s'\n", &buf[LWS_PRE]);
@@ -309,23 +328,39 @@ static ran_errcodes_t io_ran_ws_open(int ms)
  */
 static ran_errcodes_t io_ran_enqueue_for_next_write(const ws_ioloop_event_t *ev, const char *buf, size_t len) 
 {
+  msg_t amsg; // Temporary message
+
   if (buf == NULL) {
     lwsl_err("empty message to be sent\n");
     return ERR_RAN_IO_NONE;
   }
-  
+
+  amsg.len = len;
+  amsg.payload = malloc(len);
+  if  (!amsg.payload){
+    lwsl_user("OOM: dropping\n");
+    return ERR_RAN_IO_NONE;
+  }
+
+  memcpy((char *)amsg.payload, (void *)buf, len);
+  if (!lws_ring_insert(io_ran_instance->priv_data->ring, &amsg, 1)) {
+    __minimal_destroy_message(&amsg);
+    lwsl_err("Cannot cache message -> dropping!\n");
+    return ERR_RAN_IO_NONE;
+  }
+
   ws_ioloop_t *loop_io_p = (ws_ioloop_t *)io_ran_instance->priv_data->user;
   if (ev != NULL) {
     lwsl_debug("io_loop: inserting event id %d\n", static_msg_id);
+    // TODO: fix memo leak.
     bi_map_insert(&loop_io_p->ev, &static_msg_id, sizeof(int), ev, sizeof(ws_ioloop_event_t));
     static_msg_id++;
   }
-  if (len > sizeof(loop_io_p->encmsg)){
-    lwsl_err("internal limit attained. Discarded message longer than %ld\n", sizeof(loop_io_p->encmsg));
+  if (len > MAX_ENC_MESS_LEN){
+    lwsl_err("internal limit attained. Discarded message longer than %ld\n", MAX_ENC_MESS_LEN);
     return ERR_RAN_SEND_DATA;
   }
-  strcpy(loop_io_p->encmsg, buf);
-  
+
   if (lws_callback_on_writable_all_protocol(io_ran_instance->priv_data->ctx, &p[0]) !=0 )
     return ERR_RAN_SEND_DATA;
 
@@ -359,7 +394,8 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
   ws_ioloop_t *loop_io_userds = &static_user;
     
   io_ran_instance->priv_data->ws_instance = wsi;
-  
+  const msg_t *pmsg; // temporary message from ring buffer;
+
   switch (reason)
     {
     case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
@@ -382,7 +418,7 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       next_msg_t ans = io_ran_instance->priv_data->read_cb(in, len, &loop_io_userds->ev);
       if (next_msg_is(ans, ASK_RAN_SETUP)){
         loop_event.msg_type = RAN_SETUP_REQUEST_PENDING_EVENT;
-        io_ran_enqueue_for_next_write(&loop_event, ans.e2setup_msg.p, sizeof(loop_io_userds->encmsg));
+        io_ran_enqueue_for_next_write(&loop_event, ans.e2setup_msg.p, MAX_ENC_MESS_LEN);
       }
       else if (next_msg_is(ans, RAN_E2_CONFIG_FWD))
       {
@@ -403,9 +439,22 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
        * Note that you cannot send data using `lws_write()` outside of the LWS_CALLBACK_SERVER_WRITEABLE event.
        * Assumption: you arrive here immediately after io_ran_enqueue_for_next_write()
        */
-      if (io_ran_ws_write((uint8_t *)loop_io_userds->encmsg, strlen(loop_io_userds->encmsg)) != ERR_RAN_IO_NONE)
-        lwsl_err("Message not sent to RAN endpoint: %s\n", loop_io_userds->encmsg);
-      
+      pmsg = lws_ring_get_element(io_ran_instance->priv_data->ring, NULL);
+      if (!pmsg){
+        lwsl_err("Can not find message from buffer \n");
+        break;
+      }
+
+      if (io_ran_ws_write((uint8_t *)pmsg->payload, pmsg->len) != ERR_RAN_IO_NONE)
+        lwsl_err("Message not sent to RAN endpoint: %s\n", (unsigned char*)pmsg->payload);
+
+      // bring tail to head and free used messages
+      lws_ring_consume( io_ran_instance->priv_data->ring, NULL, NULL, 1);
+
+      // Send the rest if it exists. 1 message at a time
+      if (lws_ring_get_element(io_ran_instance->priv_data->ring, NULL))
+        lws_callback_on_writable(io_ran_instance->priv_data->ws_instance);
+
       break;
     case LWS_CALLBACK_TIMER:
       // by design, the only case we arrive here is when you have to pull info from the RAN at a regular interval set by a timer 
@@ -419,7 +468,7 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
 
       const char *p = ran_p->ser->encode_indication(0, ev->sm->info.id(), (double)ws_ran_io.priv_data->indication_polling_ms/1000);
       
-      io_ran_enqueue_for_next_write(NULL, p, sizeof(loop_io_userds->encmsg));
+      io_ran_enqueue_for_next_write(NULL, p, strlen(p));
         
       // Set timer again for the same event
       ran_io_expiredtimer(loop_io_userds->indication_sm_id);
@@ -431,28 +480,7 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       // by design, the only case we arrive here is to read messages pushed from E2 on the notification queue
       notif_event = notif_get_ran_event(&io_ran_instance->priv_data->pa->ran_if);
       lwsl_user("I/O event loop: received event (type=%s)\n", notif_strevent(notif_event->type));
-      if(notif_event->type == E2_CTRL_EVENT){
-        // If timer on, remove timer then restart timer.
-        // Check if there are any timers running
-        if(io_ran_instance->priv_data->timer_set){
-          // STOP the timer
-          lws_set_timer_usecs(io_ran_instance->priv_data->ws_instance, LWS_SET_TIMER_USEC_CANCEL);
-          lwsl_err("Stop timer to send control messages\n");
-          io_ran_instance->priv_data->timer_set = false;
-
-          // Send control messages
-          ran_notif_msg_handle(ran_p, io_ran_instance->priv_data->pa->e2_if, notif_event, static_msg_id);
-
-          // Restart the timer
-          lws_set_timer_usecs(io_ran_instance->priv_data->ws_instance, io_ran_instance->priv_data->indication_polling_ms * 1000);
-          io_ran_instance->priv_data->timer_set = true;
-        } else {
-          // Send control messages
-          ran_notif_msg_handle(ran_p, io_ran_instance->priv_data->pa->e2_if, notif_event, static_msg_id);
-        }
-      } else {
-        ran_notif_msg_handle(ran_p, io_ran_instance->priv_data->pa->e2_if, notif_event, static_msg_id);
-      }
+      ran_notif_msg_handle(ran_p, io_ran_instance->priv_data->pa->e2_if, notif_event, static_msg_id);
 
       if (notif_event->type == E2_ADD_SUBSCRIPTION_TIMER_EVENT && notif_event->subs_ev.time_ms > 0)
         loop_io_userds->indication_sm_id = notif_event->subs_ev.sm_id;
@@ -467,6 +495,7 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
       goto do_retry;
     case LWS_CALLBACK_PROTOCOL_DESTROY:
       lwsl_user("Received request from RAN to close all: %s\n\n", ws_strerror(reason));
+      lws_ring_destroy(io_ran_instance->priv_data->ring);
       ran_open_success = false;
       break;
     default:
@@ -543,6 +572,7 @@ io_ran_abs_t *io_ran_get_instance(struct io_ran_conf_t conf,
   assert(io_ran_instance->priv_data != NULL && "Memory exhausted\n");
 
   io_ran_instance->priv_data->ctx = lws_create_context(&info);
+  io_ran_instance->priv_data->ring = lws_ring_create(sizeof(msg_t), MAX_CACHE_MESS_LEN, __minimal_destroy_message);
   assert(io_ran_instance->priv_data->ctx != NULL && "Error creating the context\n");
   io_ran_instance->priv_data->indication_polling_ms = conf.timer;
   io_ran_instance->priv_data->read_cb = set_read_cb;

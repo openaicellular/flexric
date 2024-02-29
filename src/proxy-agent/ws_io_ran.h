@@ -26,7 +26,6 @@ struct io_ran_conf_t {
 typedef struct ws_ioloop_t 
 {
   bi_map_t        ev;               // will contain commands in progress towards the RAN endpoint
-  char            encmsg[1024];     // message already encoded (in json) to be sent to RAN
   int             indication_sm_id; // Service model ID: to be used just by indication message flow - only periodic indication
 } ws_ioloop_t;
 
