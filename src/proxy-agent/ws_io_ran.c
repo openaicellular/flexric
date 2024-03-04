@@ -352,7 +352,7 @@ static ran_errcodes_t io_ran_enqueue_for_next_write(const ws_ioloop_event_t *ev,
   ws_ioloop_t *loop_io_p = (ws_ioloop_t *)io_ran_instance->priv_data->user;
   if (ev != NULL) {
     lwsl_debug("io_loop: inserting event id %d\n", static_msg_id);
-    // TODO: fix memo leak.
+    // TODO: Fix memory leak for RC indication msg. Why ? We save msg_id for aperiodic incoming event.
     bi_map_insert(&loop_io_p->ev, &static_msg_id, sizeof(int), ev, sizeof(ws_ioloop_event_t));
     static_msg_id++;
   }

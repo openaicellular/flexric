@@ -423,13 +423,16 @@ static void ran_handle_notif_ctrl(ran_if_t *ran_if, e2_agent_t *e2_if, const not
 {
     (void)e2_if;
 
-    const char *p = ran_if->ser->encode_ctrl(msg_id, notif_event->ctrl_ev.req);
+    const char *p = ran_if->ser->encode_ctrl(msg_id, (const sm_ag_if_wr_ctrl_t)notif_event->ctrl_ev.req);
     ws_ioloop_event_t ev = {
       .msg_type       = E2_CTRL_EVENT, 
       .ctrl_ev.ric_inst_id = notif_event->ctrl_ev.ric_id.ric_inst_id,
       .ctrl_ev.ran_func_id = notif_event->ctrl_ev.ric_id.ran_func_id,
       .ctrl_ev.ric_req_id  = notif_event->ctrl_ev.ric_id.ric_req_id
     };
+
+    // TODO: Expand for mac ctrl
+    free_rc_ctrl_req_data((rc_ctrl_req_data_t*)&notif_event->ctrl_ev.req.rc_ctrl);
     ran_if->io->write_to_ran(&ev, p, strlen(p) + 1);
 }
 
@@ -465,7 +468,9 @@ static void ran_handle_notif_subsaddtimer (ran_if_t *ran_if, e2_agent_t *e2_if, 
   (void)msg_id;
   if (notif_event->subs_ev.time_ms > 0){
     ran_io_addtimer(notif_event->subs_ev.sm_id, notif_event->subs_ev.time_ms);
+    // ind_event_t for periodic event
     ind_event_t *ev = calloc(1, sizeof(ind_event_t));
+    defer({free(ev);};);
     ev->sm = sm_plugin_ag(&e2_if->plugin, notif_event->subs_ev.sm_id);
     ev->action_id = notif_event->subs_ev.ric_action_id;
     ev->ric_id = notif_event->subs_ev.ric_id;

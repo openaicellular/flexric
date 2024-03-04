@@ -22,10 +22,10 @@ static char enc_gbuf[1024 * 32]; //
 struct test_t {
   char *path;
 } tests[] = {
-  {"/home/khai/work/flexric/test/proxy_agent/config_get.2023.02.27.json"},
-  {"/home/khai/work/flexric/test/proxy_agent/stats.json"},
-  {"/home/khai/work/flexric/test/proxy_agent/ue_get.json"},
-  {"/home/khai/work/flexric/test/proxy_agent/qos_flow_get.json"}
+  {"/../../../flexric/test/proxy_agent/config_get.2023.02.27.json"},
+  {"/../../../test/proxy_agent/stats.json"},
+  {"/../../../flexric/test/proxy_agent/ue_get.json"},
+  {"/../../../flexric/test/proxy_agent/qos_flow_get.json"}
 };
 
 /* -----------------------------------------------------------------------------------

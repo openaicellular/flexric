@@ -303,7 +303,7 @@ static
 ran_param_struct_t fill_neighbor_cell_item(amr_ncell_list_t cur_cell){
   ran_param_struct_t res = {0};
   res.sz_ran_param_struct = 1;
-  res.ran_param_struct = calloc(1, sizeof(ran_param_struct_t));
+  res.ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
   assert(res.ran_param_struct != NULL && "Memory exhausted");
   // CHOICE Neighbor cell
   // 21530

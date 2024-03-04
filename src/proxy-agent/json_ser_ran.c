@@ -775,7 +775,7 @@ static const char *json_encode_ran_e2setup(int msg_id)
 }
 
 
-static const char *json_encode_ctrl_mac(int msg_id, mac_ctrl_req_data_t ctrl_msg)
+static const char *json_encode_ctrl_mac(int msg_id, const mac_ctrl_req_data_t ctrl_msg)
 { 
    /* 
    * Example of an expected output from this function:
@@ -828,7 +828,7 @@ static const char *json_encode_ctrl_mac(int msg_id, mac_ctrl_req_data_t ctrl_msg
   return enc_gbuf;
 }
 
-static const char *json_encode_ctrl_rc(int msg_id, rc_ctrl_req_data_t ctrl_msg)
+static const char *json_encode_ctrl_rc(int msg_id, const rc_ctrl_req_data_t ctrl_msg)
 {
     char* pci;
     if (ctrl_msg.hdr.format == FORMAT_1_E2SM_RC_CTRL_HDR){
@@ -956,7 +956,7 @@ static const char *json_encode_ctrl_rc(int msg_id, rc_ctrl_req_data_t ctrl_msg)
                 return NULL;
               }
             }
-
+            free(pci);
             return enc_gbuf;
         }
     }
@@ -964,7 +964,7 @@ static const char *json_encode_ctrl_rc(int msg_id, rc_ctrl_req_data_t ctrl_msg)
 }
 
 // Copy code to encode ctrl
-static const char *json_encode_ctrl(int msg_id, sm_ag_if_wr_ctrl_t write_msg)
+static const char *json_encode_ctrl(int msg_id, const  sm_ag_if_wr_ctrl_t write_msg)
 {
  /* 
   * caveats: we go only or a modified MAC service model, i.e. like its implementation by CCC, 

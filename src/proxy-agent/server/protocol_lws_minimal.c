@@ -199,6 +199,6 @@ callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 		"ws-client", \
 		callback_minimal, \
 		sizeof(struct per_session_data__minimal), \
-		128, \
+		3000, \
 		0, NULL, 0 \
 	}

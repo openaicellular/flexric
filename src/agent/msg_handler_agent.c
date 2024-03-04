@@ -316,7 +316,8 @@ e2ap_msg_t e2ap_handle_control_request_agent(e2_agent_t* ag, const e2ap_msg_t* m
   sm_agent_t* sm = sm_plugin_ag(&ag->plugin, ran_func_id);
 
 #ifdef PROXY_AGENT
-  (void)sm->proc.on_control(sm, &data);
+  sm_ctrl_out_data_t ctrl_ans = sm->proc.on_control(sm, &data);
+  defer({ free_sm_ctrl_out_data(&ctrl_ans); } );
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   // we will wait for a reply from the RAN if ever arrives
   pending_event_t ev = CONTROL_REQUEST_AGENT_PENDING_EVENT;
