@@ -1146,18 +1146,19 @@ void to_mysql_string_kpm_hdr(global_e2_node_id_t const* id,
   }
 
   uint64_t const timestamp = hdr.collectStartTime;
+  char null_str[] = "NULL";
   const char* fileformat_version_str = (hdr.fileformat_version && hdr.fileformat_version->buf)
                                 ? strndup((char*)hdr.fileformat_version->buf, hdr.fileformat_version->len)
-                                : "NULL";
+                                : strdup(null_str);
   const char* sender_name_str = (hdr.sender_name && hdr.sender_name->buf)
                                 ? strndup((char*)hdr.sender_name->buf, hdr.sender_name->len)
-                                : "NULL";
+                                : strdup(null_str);
   const char* sender_type_str = (hdr.sender_type && hdr.sender_type->buf)
                                 ? strndup((char*)hdr.sender_type->buf, hdr.sender_type->len)
-                                : "NULL";
+                                : strdup(null_str);
   const char* vendor_name_str = (hdr.vendor_name && hdr.vendor_name->buf)
                                 ? strndup((char*)hdr.vendor_name->buf, hdr.vendor_name->len)
-                                : "NULL";
+                                : strdup(null_str);
 #if defined(KPM_V2_01) || defined (KPM_V2_03)
   int const rc = snprintf(out, max,
                            "("
@@ -1722,7 +1723,7 @@ void to_mysql_string_kpm_meas_data_info(global_e2_node_id_t const* id,
                             ,sql_str_kpm.meas_info_idx
                             ,gran_period_ms ? *gran_period_ms : 0
                             ,"NAME_MEAS_TYPE"
-                            ,sql_str_kpm.meas_type.name.len > 0 ? (char*)meas_name : "null"
+                            ,sql_str_kpm.meas_type.name.len > 0 ? (char*)meas_name : "NULL"
                             ,c_value_type
                             ,int_value
                             ,real_value

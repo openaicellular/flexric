@@ -484,7 +484,6 @@ int main(int argc, char *argv[])
 
   sleep(10);
 
-  printf("CTRL+C detect\n");
   for(int i = 0; i < nodes.len; ++i) {
     rm_report_sm_xapp_api(kpm_handle[i].u.handle);
     rm_report_sm_xapp_api(rc_handle[i].u.handle);
