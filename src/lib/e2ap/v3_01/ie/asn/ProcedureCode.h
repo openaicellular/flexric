@@ -22,11 +22,11 @@ extern "C" {
 typedef long	 ProcedureCode_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_ProcedureCode_constr_1_e2ap_v3_01;
-extern asn_TYPE_descriptor_t asn_DEF_ProcedureCode_e2ap_v3_01;
+extern asn_per_constraints_t asn_PER_type_ProcedureCode_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_ProcedureCode;
 asn_struct_free_f ProcedureCode_free;
 asn_struct_print_f ProcedureCode_print;
-asn_constr_check_f ProcedureCode_constraint_e2ap_v3_01;
+asn_constr_check_f ProcedureCode_constraint;
 ber_type_decoder_f ProcedureCode_decode_ber;
 der_type_encoder_f ProcedureCode_encode_der;
 xer_type_decoder_f ProcedureCode_decode_xer;
