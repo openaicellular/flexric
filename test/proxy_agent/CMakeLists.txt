@@ -15,6 +15,7 @@ add_executable(test_msg_json
               tst-msg_json_ws.c
               ${CMAKE_SOURCE_DIR}/src/proxy-agent/ringbuffer.c
               ${CMAKE_SOURCE_DIR}/src/proxy-agent/json_ser_ran.c
+              ${CMAKE_SOURCE_DIR}/test/rnd/fill_rnd_data_rc.c
               )
 target_compile_definitions(test_msg_json PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 add_dependencies(test_msg_json
@@ -23,6 +24,8 @@ add_dependencies(test_msg_json
         e2_conv_obj
         e2ap_alg_obj
         e2ap_types_obj
+        e2sm_rc_ir_obj
+        sm_common_ie_obj
         3gpp_derived_ie_obj)
 target_link_libraries(test_msg_json  
                PUBLIC
@@ -32,6 +35,8 @@ target_link_libraries(test_msg_json
                $<TARGET_OBJECTS:e2ap_alg_obj>
                $<TARGET_OBJECTS:e2ap_types_obj>
                $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+               $<TARGET_OBJECTS:e2sm_rc_ir_obj>
+               $<TARGET_OBJECTS:sm_common_ie_obj>
                -pthread -lsctp -ldl -lwebsockets -ljson-c)
 
 add_executable(test_perfmsg_json

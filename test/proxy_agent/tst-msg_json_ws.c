@@ -7,6 +7,7 @@
 #include "proxy-agent/ran_msg_hdlr.h"
 #include "util/alg_ds/alg/defer.h"
 #include "sm/rc_sm/ie/ir/ran_param_list.h"
+#include "sm/rc_sm/ie/rc_data_ie.h"
 
 ran_ind_t expected1, expected2, expected3, expected4;
 
@@ -140,7 +141,7 @@ static bool cmp_ind_t_msg (ran_ind_t in, ran_ind_t *expected)
 }
 
 static
-void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id, uint64_t pci)
+void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id)
 {
     // Target Primary Cell ID, STRUCTURE (Target Primary Cell ID)
     Target_primary_cell_id->ran_param_id = Target_primary_cell_id_8_4_4_1;
@@ -180,16 +181,39 @@ void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id, uint64_
     // NR CGI IE in TS 38.423 [15] Clause 9.2.2.7
     NR_cgi->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
     char nr_cgi_val[30];
-    sprintf(nr_cgi_val, "%lu", pci);
+    sprintf(nr_cgi_val, "%lu", (uint64_t)8);
     byte_array_t nr_cgi_ba = cp_str_to_ba(nr_cgi_val);
     NR_cgi->ran_param_val.flag_false->bit_str_ran.buf = nr_cgi_ba.buf;
     NR_cgi->ran_param_val.flag_false->bit_str_ran.len = nr_cgi_ba.len;
+
+    // E-ULTRA Cell, STRUCTURE (CHOICE Target Cell -> E-ULTRA cell)
+    seq_ran_param_t* E_ultra_cell = &CHOICE_target_cell->ran_param_val.strct->ran_param_struct[1];
+    E_ultra_cell->ran_param_id = E_ULTRA_Cell_8_4_4_1;
+    E_ultra_cell->ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+    E_ultra_cell->ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
+    assert(E_ultra_cell->ran_param_val.strct != NULL && "Memory exhausted");
+    E_ultra_cell->ran_param_val.strct->sz_ran_param_struct = 1;
+    E_ultra_cell->ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
+    assert(E_ultra_cell->ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
+
+    // E-ULTRA CGI, ELEMENT (E-ULTRA Cell -> E-ULTRA CGI)
+    seq_ran_param_t* E_ultra_cgi = &E_ultra_cell->ran_param_val.strct->ran_param_struct[0];
+    E_ultra_cgi->ran_param_id = E_ULTRA_CGI_8_4_4_1;
+    E_ultra_cgi->ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+    E_ultra_cgi->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+    assert(E_ultra_cgi->ran_param_val.flag_false != NULL && "Memory exhausted");
+    // E-UTRA CGI IE in TS 38.423 [15] Clause 9.2.2.8
+    E_ultra_cgi->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
+    const char e_utra_cgi_val[] = "8";
+    byte_array_t e_ultra_cgi_ba = cp_str_to_ba(e_utra_cgi_val);
+    E_ultra_cgi->ran_param_val.flag_false->bit_str_ran.buf = e_ultra_cgi_ba.buf;
+    E_ultra_cgi->ran_param_val.flag_false->bit_str_ran.len = e_ultra_cgi_ba.len;
 
     return;
 }
 
 static
-e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over(uint64_t pci)
+e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over()
 {
     e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
 
@@ -206,7 +230,7 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over(uint64_t pci)
     dst.ran_param = calloc(1, sizeof(seq_ran_param_t));
     assert(dst.ran_param != NULL && "Memory exhausted");
 
-    gen_target_primary_cell_id(&dst.ran_param[0], pci);
+    gen_target_primary_cell_id(&dst.ran_param[0]);
     return dst;
 }
 
@@ -271,9 +295,10 @@ int main()
   ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
   *ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id = 11;
   ctrl_msg_rc.rc_ctrl.msg.format = FORMAT_1_E2SM_RC_CTRL_MSG;
-  ctrl_msg_rc.rc_ctrl.msg.frmt_1 = gen_rc_ctrl_msg_frmt_1_hand_over(8);
+  ctrl_msg_rc.rc_ctrl.msg.frmt_1 = gen_rc_ctrl_msg_frmt_1_hand_over();
 
-  char *expected_rc_ctrl = "{\"message\":\"handover\",\"ran_ue_id\":11,\"pci\":8,\"message_id\":\"1\"}";
+  // Return value depends on cell information from config_get api
+  char *expected_rc_ctrl = "{\"message\":\"handover\",\"message_id\":\"1\"}";
   const char *p_rc = ser->encode_ctrl(1, ctrl_msg_rc);
   if (strcmp(p_rc, expected_rc_ctrl)){
     printf ("FAIL encoding CTRL RC mismatch: Got '%s', expected '%s'\n", p_rc, expected_rc_ctrl);
@@ -281,5 +306,6 @@ int main()
   }
 
   free(ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id);
+  free_e2sm_rc_ctrl_msg_frmt_1(&ctrl_msg_rc.rc_ctrl.msg.frmt_1);
   return ret_status;
 }
