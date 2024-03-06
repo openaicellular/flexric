@@ -38,9 +38,9 @@ typedef struct GlobalE2node_ng_eNB_ID {
 } GlobalE2node_ng_eNB_ID_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_GlobalE2node_ng_eNB_ID;
-extern asn_SEQUENCE_specifics_t asn_SPC_GlobalE2node_ng_eNB_ID_specs_1;
-extern asn_TYPE_member_t asn_MBR_GlobalE2node_ng_eNB_ID_1[3];
+extern asn_TYPE_descriptor_t asn_DEF_GlobalE2node_ng_eNB_ID_e2ap_v2_03;
+extern asn_SEQUENCE_specifics_t asn_SPC_GlobalE2node_ng_eNB_ID_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_GlobalE2node_ng_eNB_ID_1_e2ap_v2_03[3];
 
 #ifdef __cplusplus
 }

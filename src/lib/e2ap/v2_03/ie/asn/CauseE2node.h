@@ -30,9 +30,9 @@ typedef enum CauseE2node {
 typedef long	 CauseE2node_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_CauseE2node_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_CauseE2node;
-extern const asn_INTEGER_specifics_t asn_SPC_CauseE2node_specs_1;
+extern asn_per_constraints_t asn_PER_type_CauseE2node_constr_1_e2ap_v2_03;
+extern asn_TYPE_descriptor_t asn_DEF_Cause_e2ap_v2_03E2node;
+extern const asn_INTEGER_specifics_t asn_SPC_CauseE2node_specs_1_e2ap_v2_03;
 asn_struct_free_f CauseE2node_free;
 asn_struct_print_f CauseE2node_print;
 asn_constr_check_f CauseE2node_constraint;

@@ -33,9 +33,9 @@ typedef struct E2nodeComponentConfigUpdateENB {
 } E2nodeComponentConfigUpdateENB_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentConfigUpdateENB;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeComponentConfigUpdateENB_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2nodeComponentConfigUpdateENB_1[2];
+extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentConfigUpdate_e2ap_v1_01ENB;
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeComponentConfigUpdateENB_specs_1_e2ap_v1_01;
+extern asn_TYPE_member_t asn_MBR_E2nodeComponentConfigUpdateENB_1_e2ap_v1_01[2];
 
 #ifdef __cplusplus
 }

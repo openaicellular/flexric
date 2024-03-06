@@ -32,9 +32,9 @@ typedef struct E2setupRequest {
 } E2setupRequest_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2setupRequest;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2setupRequest_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2setupRequest_1[1];
+extern asn_TYPE_descriptor_t asn_DEF_E2setupRequest_e2ap_v3_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_E2setupRequest_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_E2setupRequest_1_e2ap_v3_01[1];
 
 #ifdef __cplusplus
 }

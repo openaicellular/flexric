@@ -6,15 +6,15 @@
 #include <asn_internal.h>
 #include <INTEGER.h>
 
-asn_random_fill_result_t
-INTEGER_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
+asn_random_fill_e2ap_v1_01_result_t
+INTEGER_random_fill_e2ap_v1_01(const asn_TYPE_descriptor_t *td, void **sptr,
                     const asn_encoding_constraints_t *constraints,
                     size_t max_length) {
     const asn_INTEGER_specifics_t *specs =
         (const asn_INTEGER_specifics_t *)td->specifics;
-    asn_random_fill_result_t result_ok = {ARFILL_OK, 1};
-    asn_random_fill_result_t result_failed = {ARFILL_FAILED, 0};
-    asn_random_fill_result_t result_skipped = {ARFILL_SKIPPED, 0};
+    asn_random_fill_e2ap_v1_01_result_t result_ok = {ARFILL_OK, 1};
+    asn_random_fill_e2ap_v1_01_result_t result_failed = {ARFILL_FAILED, 0};
+    asn_random_fill_e2ap_v1_01_result_t result_skipped = {ARFILL_SKIPPED, 0};
     INTEGER_t *st = *sptr;
     const asn_INTEGER_enum_map_t *emap;
     size_t emap_len;
@@ -36,7 +36,7 @@ INTEGER_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
         if(specs->strict_enumeration) {
             find_inside_map = emap_len > 0;
         } else {
-            find_inside_map = emap_len ? asn_random_between(0, 1) : 0;
+            find_inside_map = emap_len ? asn_random_between_e2ap_v1_01(0, 1) : 0;
         }
     } else {
         emap = 0;
@@ -46,7 +46,7 @@ INTEGER_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
 
     if(find_inside_map) {
         assert(emap_len > 0);
-        value = emap[asn_random_between(0, emap_len - 1)].nat_value;
+        value = emap[asn_random_between_e2ap_v1_01(0, emap_len - 1)].nat_value;
     } else {
         static const long variants[] = {
             -65536, -65535, -65534, -32769, -32768, -32767, -16385, -16384,
@@ -56,10 +56,10 @@ INTEGER_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
             32768,  32769,  65534,  65535,  65536,  65537};
         if(specs && specs->field_unsigned) {
             assert(variants[18] == 0);
-            value = variants[asn_random_between(
+            value = variants[asn_random_between_e2ap_v1_01(
                 18, sizeof(variants) / sizeof(variants[0]) - 1)];
         } else {
-            value = variants[asn_random_between(
+            value = variants[asn_random_between_e2ap_v1_01(
                 0, sizeof(variants) / sizeof(variants[0]) - 1)];
         }
 
@@ -70,14 +70,14 @@ INTEGER_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
         ct = constraints ? constraints->per_constraints : 0;
         if(ct && (ct->value.flags & APC_CONSTRAINED)) {
             if(value < ct->value.lower_bound || value > ct->value.upper_bound) {
-                value = asn_random_between(ct->value.lower_bound,
+                value = asn_random_between_e2ap_v1_01(ct->value.lower_bound,
                                            ct->value.upper_bound);
             }
         }
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
     }
 
-    if(asn_imax2INTEGER(st, value)) {
+    if(asn_imax2INTEGER_e2ap_v1_01(st, value)) {
         if(st == *sptr) {
             ASN_STRUCT_RESET(*td, st);
         } else {

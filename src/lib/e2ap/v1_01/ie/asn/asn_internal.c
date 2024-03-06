@@ -1,7 +1,7 @@
 #include <asn_internal.h>
 
 ssize_t
-asn__format_to_callback(int (*cb)(const void *, size_t, void *key), void *key,
+asn__format_to_callback_e2ap_v1_01(int (*cb)(const void *, size_t, void *key), void *key,
                         const char *fmt, ...) {
     char scratch[64];
     char *buf = scratch;

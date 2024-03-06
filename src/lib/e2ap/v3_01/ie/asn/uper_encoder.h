@@ -20,7 +20,7 @@ struct asn_TYPE_descriptor_s;	/* Forward declaration */
  * field of the return value. Use the following formula to convert to bytes:
  * 	bytes = ((.encoded + 7) / 8)
  */
-asn_enc_rval_t uper_encode(
+asn_enc_rval_t uper_encode_e2ap_v3_01(
     const struct asn_TYPE_descriptor_s *type_descriptor,
     const asn_per_constraints_t *constraints,
     const void *struct_ptr,                    /* Structure to be encoded */
@@ -29,11 +29,11 @@ asn_enc_rval_t uper_encode(
 );
 
 /*
- * A variant of uper_encode() which encodes data into the existing buffer
+ * A variant of uper_encode_e2ap_v3_01() which encodes data into the existing buffer
  * WARNING: This function returns the number of encoded bits in the .encoded
  * field of the return value.
  */
-asn_enc_rval_t uper_encode_to_buffer(
+asn_enc_rval_t uper_encode_e2ap_v3_01_to_buffer(
     const struct asn_TYPE_descriptor_s *type_descriptor,
     const asn_per_constraints_t *constraints,
     const void *struct_ptr, /* Structure to be encoded */
@@ -42,13 +42,13 @@ asn_enc_rval_t uper_encode_to_buffer(
 );
 
 /*
- * A variant of uper_encode_to_buffer() which allocates buffer itself.
+ * A variant of uper_encode_e2ap_v3_01_to_buffer() which allocates buffer itself.
  * Returns the number of bytes in the buffer or -1 in case of failure.
  * WARNING: This function produces a "Production of the complete encoding",
  * with length of at least one octet. Contrast this to precise bit-packing
- * encoding of uper_encode() and uper_encode_to_buffer().
+ * encoding of uper_encode_e2ap_v3_01() and uper_encode_e2ap_v3_01_to_buffer().
  */
-ssize_t uper_encode_to_new_buffer(
+ssize_t uper_encode_e2ap_v3_01_to_new_buffer(
     const struct asn_TYPE_descriptor_s *type_descriptor,
     const asn_per_constraints_t *constraints,
     const void *struct_ptr, /* Structure to be encoded */

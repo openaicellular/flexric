@@ -1681,3 +1681,36 @@ tc_ind_data_t cp_tc_ind_data(tc_ind_data_t const* src)
   return dst;
 }
 
+void free_tc_func_def(tc_func_def_t* src)
+{
+  assert(src != NULL);
+  free(src->buf);
+}
+
+tc_func_def_t cp_tc_func_def(tc_func_def_t const* src)
+{
+  tc_func_def_t dst = {.len = src->len};
+  if(src->len > 0){
+    dst.buf = calloc(dst.len, sizeof(uint8_t)); 
+    assert(dst.buf != NULL && "memory exhausted");
+    memcpy(dst.buf, src->buf, dst.len);
+  }
+
+  return dst;
+}
+
+bool eq_tc_func_def(tc_func_def_t const* m0, tc_func_def_t const* m1)
+{
+  if(m0 == m1)
+    return true;
+
+  if(m0 == NULL || m1 == NULL)
+    return false;
+
+  if(m0->len != m1->len)
+    return false;
+
+  int rc = memcmp(m0, m1, m0->len);
+  return rc == 0;
+}
+

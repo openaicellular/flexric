@@ -2,7 +2,6 @@
 
 #include "enc_gnb_du.h"
 
-
 UEID_GNB_DU_t * enc_gNB_DU_UE_asn(const gnb_du_e2sm_t * gnb_du)
 {
     UEID_GNB_DU_t * gnb_du_asn = calloc(1, sizeof(UEID_GNB_DU_t));

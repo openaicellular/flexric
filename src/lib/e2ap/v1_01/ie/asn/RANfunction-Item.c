@@ -7,11 +7,11 @@
 
 #include "RANfunction-Item.h"
 
-asn_TYPE_member_t asn_MBR_RANfunction_Item_1[] = {
+asn_TYPE_member_t asn_MBR_RANfunction_Item_1_e2ap_v1_01[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct RANfunction_Item, ranFunctionID),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_RANfunctionID,
+		&asn_DEF_RANfunctionID_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -28,7 +28,7 @@ asn_TYPE_member_t asn_MBR_RANfunction_Item_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct RANfunction_Item, ranFunctionDefinition),
 		(ASN_TAG_CLASS_CONTEXT | (1 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_RANfunctionDefinition,
+		&asn_DEF_RANfunctionDefinition_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -45,7 +45,7 @@ asn_TYPE_member_t asn_MBR_RANfunction_Item_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct RANfunction_Item, ranFunctionRevision),
 		(ASN_TAG_CLASS_CONTEXT | (2 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_RANfunctionRevision,
+		&asn_DEF_RANfunctionRevision_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -62,7 +62,7 @@ asn_TYPE_member_t asn_MBR_RANfunction_Item_1[] = {
 	{ ATF_POINTER, 1, offsetof(struct RANfunction_Item, ranFunctionOID),
 		(ASN_TAG_CLASS_CONTEXT | (3 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_RANfunctionOID,
+		&asn_DEF_RANfunctionOID_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -77,35 +77,35 @@ asn_TYPE_member_t asn_MBR_RANfunction_Item_1[] = {
 		"ranFunctionOID"
 		},
 };
-static const int asn_MAP_RANfunction_Item_oms_1[] = { 3 };
-static const ber_tlv_tag_t asn_DEF_RANfunction_Item_tags_1[] = {
+static const int asn_MAP_RANfunction_Item_oms_1_e2ap_v1_01[] = { 3 };
+static const ber_tlv_tag_t asn_DEF_RANfunction_Item_e2ap_v1_01_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-static const asn_TYPE_tag2member_t asn_MAP_RANfunction_Item_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_RANfunction_Item_tag2el_1_e2ap_v1_01[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 }, /* ranFunctionID */
     { (ASN_TAG_CLASS_CONTEXT | (1 << 2)), 1, 0, 0 }, /* ranFunctionDefinition */
     { (ASN_TAG_CLASS_CONTEXT | (2 << 2)), 2, 0, 0 }, /* ranFunctionRevision */
     { (ASN_TAG_CLASS_CONTEXT | (3 << 2)), 3, 0, 0 } /* ranFunctionOID */
 };
-asn_SEQUENCE_specifics_t asn_SPC_RANfunction_Item_specs_1 = {
+asn_SEQUENCE_specifics_t asn_SPC_RANfunction_Item_specs_1_e2ap_v1_01 = {
 	sizeof(struct RANfunction_Item),
 	offsetof(struct RANfunction_Item, _asn_ctx),
-	asn_MAP_RANfunction_Item_tag2el_1,
+	asn_MAP_RANfunction_Item_tag2el_1_e2ap_v1_01,
 	4,	/* Count of tags in the map */
-	asn_MAP_RANfunction_Item_oms_1,	/* Optional members */
+	asn_MAP_RANfunction_Item_oms_1_e2ap_v1_01,	/* Optional members */
 	0, 1,	/* Root/Additions */
 	3,	/* First extension addition */
 };
-asn_TYPE_descriptor_t asn_DEF_RANfunction_Item = {
+asn_TYPE_descriptor_t asn_DEF_RANfunction_Item_e2ap_v1_01 = {
 	"RANfunction-Item",
 	"RANfunction-Item",
-	&asn_OP_SEQUENCE,
-	asn_DEF_RANfunction_Item_tags_1,
-	sizeof(asn_DEF_RANfunction_Item_tags_1)
-		/sizeof(asn_DEF_RANfunction_Item_tags_1[0]), /* 1 */
-	asn_DEF_RANfunction_Item_tags_1,	/* Same as above */
-	sizeof(asn_DEF_RANfunction_Item_tags_1)
-		/sizeof(asn_DEF_RANfunction_Item_tags_1[0]), /* 1 */
+	&asn_OP_SEQUENCE_e2ap_v1_01,
+	asn_DEF_RANfunction_Item_e2ap_v1_01_tags_1,
+	sizeof(asn_DEF_RANfunction_Item_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_RANfunction_Item_e2ap_v1_01_tags_1[0]), /* 1 */
+	asn_DEF_RANfunction_Item_e2ap_v1_01_tags_1,	/* Same as above */
+	sizeof(asn_DEF_RANfunction_Item_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_RANfunction_Item_e2ap_v1_01_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
@@ -113,10 +113,10 @@ asn_TYPE_descriptor_t asn_DEF_RANfunction_Item = {
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		SEQUENCE_constraint
+		SEQUENCE_constraint_e2ap_v1_01
 	},
-	asn_MBR_RANfunction_Item_1,
+	asn_MBR_RANfunction_Item_1_e2ap_v1_01,
 	4,	/* Elements count */
-	&asn_SPC_RANfunction_Item_specs_1	/* Additional specs */
+	&asn_SPC_RANfunction_Item_specs_1_e2ap_v1_01	/* Additional specs */
 };
 

@@ -81,7 +81,7 @@ void free_label_info(label_info_lst_t *l)
     free_s_nssai_e2sm(l->sliceID);
     free(l->sliceID);
   }
-  if (l->fiveQI != NULL) {
+	if (l->fiveQI != NULL) {
     free(l->fiveQI);
   }
 	if (l->qFI != NULL) {

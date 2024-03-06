@@ -39,28 +39,28 @@ typedef struct asn_CHOICE_specifics_s {
 /*
  * A set specialized functions dealing with the CHOICE type.
  */
-asn_struct_free_f CHOICE_free;
+asn_struct_free_f CHOICE_free_e2ap_v3_01;
 
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-asn_struct_print_f CHOICE_print;
+asn_struct_print_f CHOICE_print_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
 
-asn_struct_compare_f CHOICE_compare;
+asn_struct_compare_f CHOICE_compare_e2ap_v3_01;
 
-asn_constr_check_f CHOICE_constraint;
+asn_constr_check_f CHOICE_constraint_e2ap_v3_01;
 
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-ber_type_decoder_f CHOICE_decode_ber;
-der_type_encoder_f CHOICE_encode_der;
+ber_type_decoder_f CHOICE_decode_ber_e2ap_v3_01;
+der_type_encoder_f CHOICE_encode_der_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-xer_type_decoder_f CHOICE_decode_xer;
-xer_type_encoder_f CHOICE_encode_xer;
+xer_type_decoder_f CHOICE_decode_xer_e2ap_v3_01;
+xer_type_encoder_f CHOICE_encode_xer_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
-jer_type_encoder_f CHOICE_encode_jer;
+jer_type_encoder_f CHOICE_encode_jer_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -69,28 +69,28 @@ oer_type_encoder_f CHOICE_encode_oer;
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-per_type_decoder_f CHOICE_decode_uper;
-per_type_encoder_f CHOICE_encode_uper;
+per_type_decoder_f CHOICE_decode_uper_e2ap_v3_01;
+per_type_encoder_f CHOICE_encode_uper_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-per_type_decoder_f CHOICE_decode_aper;
-per_type_encoder_f CHOICE_encode_aper;
+per_type_decoder_f CHOICE_decode_aper_e2ap_v3_01;
+per_type_encoder_f CHOICE_encode_aper_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-asn_random_fill_f CHOICE_random_fill;
+asn_random_fill_e2ap_v3_01_f CHOICE_random_fill_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
 
-asn_outmost_tag_f CHOICE_outmost_tag;
+asn_outmost_tag_f CHOICE_outmost_tag_e2ap_v3_01;
 
-extern asn_TYPE_operation_t asn_OP_CHOICE;
+extern asn_TYPE_operation_t asn_OP_CHOICE_e2ap_v3_01;
 
-unsigned _fetch_present_idx(
+unsigned _fetch_present_idx_e2ap_v3_01(
         const void *struct_ptr,
         unsigned off,
         unsigned size);
 
-void _set_present_idx(
+void _set_present_idx_e2ap_v3_01(
         void *sptr,
         unsigned offset,
         unsigned size,
@@ -100,7 +100,7 @@ void _set_present_idx(
  * Return the 1-based choice variant presence index.
  * Returns 0 in case of error.
  */
-unsigned CHOICE_variant_get_presence(const asn_TYPE_descriptor_t *td,
+unsigned CHOICE_variant_get_presence_e2ap_v3_01(const asn_TYPE_descriptor_t *td,
                                      const void *structure_ptr);
 
 /*
@@ -109,7 +109,7 @@ unsigned CHOICE_variant_get_presence(const asn_TYPE_descriptor_t *td,
  * member is freed and zeroed-out first.
  * Returns 0 on success and -1 on error.
  */
-int CHOICE_variant_set_presence(const asn_TYPE_descriptor_t *td,
+int CHOICE_variant_set_presence_e2ap_v3_01(const asn_TYPE_descriptor_t *td,
                                 void *structure_ptr, unsigned present);
 
 #ifdef __cplusplus

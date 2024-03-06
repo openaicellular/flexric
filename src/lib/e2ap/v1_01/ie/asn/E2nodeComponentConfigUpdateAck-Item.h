@@ -38,9 +38,9 @@ typedef struct E2nodeComponentConfigUpdateAck_Item {
 } E2nodeComponentConfigUpdateAck_Item_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentConfigUpdateAck_Item;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeComponentConfigUpdateAck_Item_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2nodeComponentConfigUpdateAck_Item_1[3];
+extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentConfigUpdate_e2ap_v1_01Ack_Item;
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeComponentConfigUpdateAck_Item_specs_1_e2ap_v1_01;
+extern asn_TYPE_member_t asn_MBR_E2nodeComponentConfigUpdateAck_Item_1_e2ap_v1_01[3];
 
 #ifdef __cplusplus
 }

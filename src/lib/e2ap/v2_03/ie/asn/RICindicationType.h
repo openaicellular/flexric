@@ -31,9 +31,9 @@ typedef enum RICindicationType {
 typedef long	 RICindicationType_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_RICindicationType_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_RICindicationType;
-extern const asn_INTEGER_specifics_t asn_SPC_RICindicationType_specs_1;
+extern asn_per_constraints_t asn_PER_type_RICindicationType_constr_1_e2ap_v2_03;
+extern asn_TYPE_descriptor_t asn_DEF_RICindication_e2ap_v2_03Type;
+extern const asn_INTEGER_specifics_t asn_SPC_RICindicationType_specs_1_e2ap_v2_03;
 asn_struct_free_f RICindicationType_free;
 asn_struct_print_f RICindicationType_print;
 asn_constr_check_f RICindicationType_constraint;

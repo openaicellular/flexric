@@ -108,6 +108,12 @@ sm_ag_if_ans_t write_ctrl_rc(void const* data)
   return ans;
 }
 
+static
+void free_aperiodic_subscription(uint32_t ric_req_id)
+{
+  (void)ric_req_id;
+}
+
 static 
 sm_ag_if_ans_t write_subs_rc(void const* data)
 {
@@ -117,7 +123,9 @@ sm_ag_if_ans_t write_subs_rc(void const* data)
 
   cp_rc_sub = cp_rc_sub_data(&wr_rc->rc);
 
-  sm_ag_if_ans_t ans = {.type = NONE_SM_AG_IF_ANS_V0};
+  sm_ag_if_ans_t ans = {.type = SUBS_OUTCOME_SM_AG_IF_ANS_V0 };
+  ans.subs_out.type = APERIODIC_SUBSCRIPTION_FLRC;
+  ans.subs_out.aper.free_aper_subs = free_aperiodic_subscription;
   return ans;
 }
 
@@ -184,9 +192,11 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
   sm_subs_data_t data = ric->proc.on_subscription(ric, &rc);
   defer({ free_sm_subs_data(&data); });
 
-  subscribe_timer_t t = ag->proc.on_subscription(ag, &data); 
+  sm_ag_if_ans_subs_t const subs = ag->proc.on_subscription(ag, &data); 
+  assert(subs.type == APERIODIC_SUBSCRIPTION_FLRC);
+  assert(subs.aper.free_aper_subs != NULL);
+
   defer({  free_rc_sub_data(&cp_rc_sub); });
-  assert(t.ms == 0);
 
   assert(eq_rc_sub_data(&rc, &cp_rc_sub) == true);
 }

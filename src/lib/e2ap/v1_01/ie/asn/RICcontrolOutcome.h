@@ -22,7 +22,7 @@ extern "C" {
 typedef OCTET_STRING_t	 RICcontrolOutcome_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICcontrolOutcome;
+extern asn_TYPE_descriptor_t asn_DEF_RICcontrolOutcome_e2ap_v1_01;
 asn_struct_free_f RICcontrolOutcome_free;
 asn_struct_print_f RICcontrolOutcome_print;
 asn_constr_check_f RICcontrolOutcome_constraint;

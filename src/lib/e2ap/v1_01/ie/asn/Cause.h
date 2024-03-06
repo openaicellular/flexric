@@ -55,10 +55,10 @@ typedef struct Cause {
 } Cause_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_Cause;
-extern asn_CHOICE_specifics_t asn_SPC_Cause_specs_1;
-extern asn_TYPE_member_t asn_MBR_Cause_1[5];
-extern asn_per_constraints_t asn_PER_type_Cause_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_Cause_e2ap_v1_01;
+extern asn_CHOICE_specifics_t asn_SPC_Cause_specs_1_e2ap_v1_01;
+extern asn_TYPE_member_t asn_MBR_Cause_1_e2ap_v1_01[5];
+extern asn_per_constraints_t asn_PER_type_Cause_constr_1_e2ap_v1_01;
 
 #ifdef __cplusplus
 }

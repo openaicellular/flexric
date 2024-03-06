@@ -9,7 +9,7 @@
 #include <uper_opentype.h>
 
 asn_dec_rval_t
-OPEN_TYPE_uper_get(const asn_codec_ctx_t *opt_codec_ctx,
+OPEN_TYPE_uper_get_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
                    const asn_TYPE_descriptor_t *td, void *sptr,
                    const asn_TYPE_member_t *elm, asn_per_data_t *pd) {
     asn_type_selector_result_t selected;
@@ -43,7 +43,7 @@ OPEN_TYPE_uper_get(const asn_codec_ctx_t *opt_codec_ctx,
     }
     if(*memb_ptr2 != NULL) {
         /* Make sure we reset the structure first before encoding */
-        if(CHOICE_variant_set_presence(elm->type, *memb_ptr2, 0)
+        if(CHOICE_variant_set_presence_e2ap_v3_01(elm->type, *memb_ptr2, 0)
            != 0) {
             ASN__DECODE_FAILED;
         }
@@ -53,11 +53,11 @@ OPEN_TYPE_uper_get(const asn_codec_ctx_t *opt_codec_ctx,
         (char *)*memb_ptr2
         + elm->type->elements[selected.presence_index - 1].memb_offset;
 
-    rv = uper_open_type_get(opt_codec_ctx, selected.type_descriptor, NULL,
+    rv = uper_open_type_get_e2ap_v3_01(opt_codec_ctx, selected.type_descriptor, NULL,
                             &inner_value, pd);
     switch(rv.code) {
     case RC_OK:
-        if(CHOICE_variant_set_presence(elm->type, *memb_ptr2,
+        if(CHOICE_variant_set_presence_e2ap_v3_01(elm->type, *memb_ptr2,
                                        selected.presence_index)
            == 0) {
             break;
@@ -81,7 +81,7 @@ OPEN_TYPE_uper_get(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-OPEN_TYPE_encode_uper(const asn_TYPE_descriptor_t *td,
+OPEN_TYPE_encode_uper_e2ap_v3_01(const asn_TYPE_descriptor_t *td,
                       const asn_per_constraints_t *constraints,
                       const void *sptr, asn_per_outp_t *po) {
     const void *memb_ptr;   /* Pointer to the member */
@@ -91,7 +91,7 @@ OPEN_TYPE_encode_uper(const asn_TYPE_descriptor_t *td,
 
     (void)constraints;
 
-    present = CHOICE_variant_get_presence(td, sptr);
+    present = CHOICE_variant_get_presence_e2ap_v3_01(td, sptr);
     if(present == 0 || present > td->elements_count) {
         ASN__ENCODE_FAILED;
     } else {
@@ -110,7 +110,7 @@ OPEN_TYPE_encode_uper(const asn_TYPE_descriptor_t *td,
         memb_ptr = (const char *)sptr + elm->memb_offset;
     }
 
-    if(uper_open_type_put(elm->type, NULL, memb_ptr, po) < 0) {
+    if(uper_open_type_put_e2ap_v3_01(elm->type, NULL, memb_ptr, po) < 0) {
         ASN__ENCODE_FAILED;
     }
 

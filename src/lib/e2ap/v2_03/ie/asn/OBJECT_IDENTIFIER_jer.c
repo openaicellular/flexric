@@ -21,7 +21,7 @@ OBJECT_IDENTIFIER_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr,
         ASN__ENCODE_FAILED;
     }
 
-    er.encoded = OBJECT_IDENTIFIER__dump_body(st, cb, app_key);
+    er.encoded = OBJECT_IDENTIFIER__dump_body_e2ap_v2_03(st, cb, app_key);
     if(er.encoded < 0) ASN__ENCODE_FAILED;
 
     ASN__ENCODED_OK(er);

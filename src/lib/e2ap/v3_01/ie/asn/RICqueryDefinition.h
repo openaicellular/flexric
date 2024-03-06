@@ -22,7 +22,7 @@ extern "C" {
 typedef OCTET_STRING_t	 RICqueryDefinition_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICqueryDefinition;
+extern asn_TYPE_descriptor_t asn_DEF_RICqueryDefinition_e2ap_v3_01;
 asn_struct_free_f RICqueryDefinition_free;
 asn_struct_print_f RICqueryDefinition_print;
 asn_constr_check_f RICqueryDefinition_constraint;

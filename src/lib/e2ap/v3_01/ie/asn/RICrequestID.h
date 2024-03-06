@@ -33,9 +33,9 @@ typedef struct RICrequestID {
 } RICrequestID_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICrequestID;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICrequestID_specs_1;
-extern asn_TYPE_member_t asn_MBR_RICrequestID_1[2];
+extern asn_TYPE_descriptor_t asn_DEF_RICrequestID_e2ap_v3_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_RICrequestID_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_RICrequestID_1_e2ap_v3_01[2];
 
 #ifdef __cplusplus
 }

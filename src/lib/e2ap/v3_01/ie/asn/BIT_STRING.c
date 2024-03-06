@@ -8,38 +8,38 @@
 /*
  * BIT STRING basic type description.
  */
-static const ber_tlv_tag_t asn_DEF_BIT_STRING_tags[] = {
+static const ber_tlv_tag_t asn_DEF_BIT_STRING_e2ap_v3_01_tags[] = {
     (ASN_TAG_CLASS_UNIVERSAL | (3 << 2))
 };
-asn_OCTET_STRING_specifics_t asn_SPC_BIT_STRING_specs = {
+asn_OCTET_STRING_specifics_t asn_SPC_BIT_STRING_specs_e2ap_v3_01 = {
     sizeof(BIT_STRING_t),
     offsetof(BIT_STRING_t, _asn_ctx),
     ASN_OSUBV_BIT
 };
-asn_TYPE_operation_t asn_OP_BIT_STRING = {
-    OCTET_STRING_free,         /* Implemented in terms of OCTET STRING */
+asn_TYPE_operation_t asn_OP_BIT_STRING_e2ap_v3_01 = {
+    OCTET_STRING_free_e2ap_v3_01,         /* Implemented in terms of OCTET STRING */
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-    BIT_STRING_print,
+    BIT_STRING_print_e2ap_v3_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
-    BIT_STRING_compare,
+    BIT_STRING_compare_e2ap_v3_01,
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-    OCTET_STRING_decode_ber,   /* Implemented in terms of OCTET STRING */
-    OCTET_STRING_encode_der,   /* Implemented in terms of OCTET STRING */
+    OCTET_STRING_decode_ber_e2ap_v3_01,   /* Implemented in terms of OCTET STRING */
+    OCTET_STRING_encode_der_e2ap_v3_01,   /* Implemented in terms of OCTET STRING */
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-    OCTET_STRING_decode_xer_binary,
-    BIT_STRING_encode_xer,
+    OCTET_STRING_decode_xer_binary_e2ap_v3_01,
+    BIT_STRING_encode_xer_e2ap_v3_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 #if !defined(ASN_DISABLE_JER_SUPPORT)
-    BIT_STRING_encode_jer,
+    BIT_STRING_encode_jer_e2ap_v3_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
@@ -51,36 +51,36 @@ asn_TYPE_operation_t asn_OP_BIT_STRING = {
     0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-    BIT_STRING_decode_uper,  /* Unaligned PER decoder */
-    BIT_STRING_encode_uper,  /* Unaligned PER encoder */
+    BIT_STRING_decode_uper_e2ap_v3_01,  /* Unaligned PER decoder */
+    BIT_STRING_encode_uper_e2ap_v3_01,  /* Unaligned PER encoder */
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-    OCTET_STRING_decode_aper,  /* Aligned PER decoder */
-    OCTET_STRING_encode_aper,  /* Aligned PER encoder */
+    OCTET_STRING_decode_aper_e2ap_v3_01,  /* Aligned PER decoder */
+    OCTET_STRING_encode_aper_e2ap_v3_01,  /* Aligned PER encoder */
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-    BIT_STRING_random_fill,
+    BIT_STRING_random_fill_e2ap_v3_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
     0  /* Use generic outmost tag fetcher */
 };
-asn_TYPE_descriptor_t asn_DEF_BIT_STRING = {
+asn_TYPE_descriptor_t asn_DEF_BIT_STRING_e2ap_v3_01 = {
     "BIT STRING",
     "BIT_STRING",
-    &asn_OP_BIT_STRING,
-    asn_DEF_BIT_STRING_tags,
-    sizeof(asn_DEF_BIT_STRING_tags)
-      / sizeof(asn_DEF_BIT_STRING_tags[0]),
-    asn_DEF_BIT_STRING_tags,  /* Same as above */
-    sizeof(asn_DEF_BIT_STRING_tags)
-      / sizeof(asn_DEF_BIT_STRING_tags[0]),
+    &asn_OP_BIT_STRING_e2ap_v3_01,
+    asn_DEF_BIT_STRING_e2ap_v3_01_tags,
+    sizeof(asn_DEF_BIT_STRING_e2ap_v3_01_tags)
+      / sizeof(asn_DEF_BIT_STRING_e2ap_v3_01_tags[0]),
+    asn_DEF_BIT_STRING_e2ap_v3_01_tags,  /* Same as above */
+    sizeof(asn_DEF_BIT_STRING_e2ap_v3_01_tags)
+      / sizeof(asn_DEF_BIT_STRING_e2ap_v3_01_tags[0]),
     {
 #if !defined(ASN_DISABLE_OER_SUPPORT)
         0,
@@ -88,17 +88,17 @@ asn_TYPE_descriptor_t asn_DEF_BIT_STRING = {
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
         0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-        BIT_STRING_constraint
+        BIT_STRING_constraint_e2ap_v3_01
     },
     0, 0,  /* No members */
-    &asn_SPC_BIT_STRING_specs
+    &asn_SPC_BIT_STRING_specs_e2ap_v3_01
 };
 
 /*
  * BIT STRING generic constraint.
  */
 int
-BIT_STRING_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
+BIT_STRING_constraint_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                       asn_app_constraint_failed_f *ctfailcb, void *app_key) {
     const BIT_STRING_t *st = (const BIT_STRING_t *)sptr;
 
@@ -124,7 +124,7 @@ BIT_STRING_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
  * Non-destructively remove the trailing 0-bits from the given bit string.
  */
 const BIT_STRING_t *
-BIT_STRING__compactify(const BIT_STRING_t *st, BIT_STRING_t *tmp) {
+BIT_STRING__compactify_e2ap_v3_01(const BIT_STRING_t *st, BIT_STRING_t *tmp) {
     const uint8_t *b;
     union {
         const uint8_t *c_buf;
@@ -166,7 +166,7 @@ BIT_STRING__compactify(const BIT_STRING_t *st, BIT_STRING_t *tmp) {
  * and if it is the same return -1 for the smallest string.
  */
 int
-BIT_STRING_compare(const asn_TYPE_descriptor_t *td, const void *aptr,
+BIT_STRING_compare_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *aptr,
                    const void *bptr) {
     /*
      * Remove information about trailing bits, since
@@ -174,8 +174,8 @@ BIT_STRING_compare(const asn_TYPE_descriptor_t *td, const void *aptr,
      * "associated with [values that differ only in] the trailing 0 bits."
      */
     BIT_STRING_t compact_a, compact_b;
-    const BIT_STRING_t *a = BIT_STRING__compactify(aptr, &compact_a);
-    const BIT_STRING_t *b = BIT_STRING__compactify(bptr, &compact_b);
+    const BIT_STRING_t *a = BIT_STRING__compactify_e2ap_v3_01(aptr, &compact_a);
+    const BIT_STRING_t *b = BIT_STRING__compactify_e2ap_v3_01(bptr, &compact_b);
     const asn_OCTET_STRING_specifics_t *specs = td->specifics;
 
     (void)specs;

@@ -42,9 +42,9 @@ typedef struct CriticalityDiagnostics {
 } CriticalityDiagnostics_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_CriticalityDiagnostics;
-extern asn_SEQUENCE_specifics_t asn_SPC_CriticalityDiagnostics_specs_1;
-extern asn_TYPE_member_t asn_MBR_CriticalityDiagnostics_1[5];
+extern asn_TYPE_descriptor_t asn_DEF_Criticality_e2ap_v1_01Diagnostics;
+extern asn_SEQUENCE_specifics_t asn_SPC_CriticalityDiagnostics_specs_1_e2ap_v1_01;
+extern asn_TYPE_member_t asn_MBR_CriticalityDiagnostics_1_e2ap_v1_01[5];
 
 #ifdef __cplusplus
 }

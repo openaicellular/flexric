@@ -22,7 +22,7 @@ extern "C" {
 typedef OCTET_STRING_t	 RICindicationMessage_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICindicationMessage;
+extern asn_TYPE_descriptor_t asn_DEF_RICindication_e2ap_v1_01Message;
 asn_struct_free_f RICindicationMessage_free;
 asn_struct_print_f RICindicationMessage_print;
 asn_constr_check_f RICindicationMessage_constraint;

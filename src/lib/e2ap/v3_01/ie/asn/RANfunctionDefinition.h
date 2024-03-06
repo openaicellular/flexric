@@ -22,7 +22,7 @@ extern "C" {
 typedef OCTET_STRING_t	 RANfunctionDefinition_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RANfunctionDefinition;
+extern asn_TYPE_descriptor_t asn_DEF_RANfunctionDefinition_e2ap_v3_01;
 asn_struct_free_f RANfunctionDefinition_free;
 asn_struct_print_f RANfunctionDefinition_print;
 asn_constr_check_f RANfunctionDefinition_constraint;

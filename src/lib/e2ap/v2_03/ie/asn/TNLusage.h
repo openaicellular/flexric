@@ -32,9 +32,9 @@ typedef enum TNLusage {
 typedef long	 TNLusage_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_TNLusage_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_TNLusage;
-extern const asn_INTEGER_specifics_t asn_SPC_TNLusage_specs_1;
+extern asn_per_constraints_t asn_PER_type_TNLusage_constr_1_e2ap_v2_03;
+extern asn_TYPE_descriptor_t asn_DEF_TNLusage_e2ap_v2_03;
+extern const asn_INTEGER_specifics_t asn_SPC_TNLusage_specs_1_e2ap_v2_03;
 asn_struct_free_f TNLusage_free;
 asn_struct_print_f TNLusage_print;
 asn_constr_check_f TNLusage_constraint;

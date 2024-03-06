@@ -36,9 +36,9 @@ typedef struct E2nodeComponentConfigAddition_Item {
 } E2nodeComponentConfigAddition_Item_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentConfigAddition_Item;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeComponentConfigAddition_Item_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2nodeComponentConfigAddition_Item_1[3];
+extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentConfigAddition_Item_e2ap_v3_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeComponentConfigAddition_Item_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_E2nodeComponentConfigAddition_Item_1_e2ap_v3_01[3];
 
 #ifdef __cplusplus
 }

@@ -40,9 +40,9 @@ typedef struct RICaction_ToBeSetup_Item {
 } RICaction_ToBeSetup_Item_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICaction_ToBeSetup_Item;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICaction_ToBeSetup_Item_specs_1;
-extern asn_TYPE_member_t asn_MBR_RICaction_ToBeSetup_Item_1[4];
+extern asn_TYPE_descriptor_t asn_DEF_RICaction_ToBeSetup_Item_e2ap_v1_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_RICaction_ToBeSetup_Item_specs_1_e2ap_v1_01;
+extern asn_TYPE_member_t asn_MBR_RICaction_ToBeSetup_Item_1_e2ap_v1_01[4];
 
 #ifdef __cplusplus
 }

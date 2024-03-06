@@ -110,12 +110,12 @@ _new_stack(void) {
  * Decode OCTET STRING type.
  */
 asn_dec_rval_t
-OCTET_STRING_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
+OCTET_STRING_decode_ber_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                         const asn_TYPE_descriptor_t *td, void **sptr,
                         const void *buf_ptr, size_t size, int tag_mode) {
     const asn_OCTET_STRING_specifics_t *specs = td->specifics
         ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-        : &asn_SPC_OCTET_STRING_specs;
+        : &asn_SPC_OCTET_STRING_specs_e2ap_v1_01;
     BIT_STRING_t *st = (BIT_STRING_t *)*sptr;
     asn_dec_rval_t rval;
     asn_struct_ctx_t *ctx;
@@ -147,7 +147,7 @@ OCTET_STRING_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
         /*
          * Check tags.
          */
-        rval = ber_check_tags(opt_codec_ctx, td, ctx,
+        rval = ber_check_tags_e2ap_v1_01(opt_codec_ctx, td, ctx,
             buf_ptr, size, tag_mode, -1,
             &ctx->left, &tlv_constr);
         if(rval.code != RC_OK)
@@ -215,7 +215,7 @@ OCTET_STRING_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
                 }
             }
 
-            tl = ber_fetch_tag(buf_ptr, Left, &tlv_tag);
+            tl = ber_fetch_tag_e2ap_v1_01(buf_ptr, Left, &tlv_tag);
             ASN_DEBUG("fetch tag(size=%ld,L=%ld), %sstack, left=%ld, wn=%ld, tl=%ld",
                       (long)size, (long)Left, sel?"":"!",
                       (long)(sel?sel->left:0),
@@ -228,10 +228,10 @@ OCTET_STRING_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
 
             tlv_constr = BER_TLV_CONSTRUCTED(buf_ptr);
 
-            ll = ber_fetch_length(tlv_constr,
+            ll = ber_fetch_length_e2ap_v1_01(tlv_constr,
                                   (const char *)buf_ptr + tl,Left - tl,&tlv_len);
             ASN_DEBUG("Got tag=%s, tc=%d, left=%ld, tl=%ld, len=%ld, ll=%ld",
-                      ber_tlv_tag_string(tlv_tag), tlv_constr,
+                      ber_tlv_tag_string_e2ap_v1_01(tlv_tag), tlv_constr,
                       (long)Left, (long)tl, (long)tlv_len, (long)ll);
             switch(ll) {
             case -1: RETURN(RC_FAIL);
@@ -294,9 +294,9 @@ OCTET_STRING_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
 
             if(tlv_tag != expected_tag) {
                 char buf[2][32];
-                ber_tlv_tag_snprint(tlv_tag,
+                ber_tlv_tag_snprint_e2ap_v1_01(tlv_tag,
                                     buf[0], sizeof(buf[0]));
-                ber_tlv_tag_snprint(td->tags[td->tags_count-1],
+                ber_tlv_tag_snprint_e2ap_v1_01(td->tags[td->tags_count-1],
                                     buf[1], sizeof(buf[1]));
                 ASN_DEBUG("Tag does not match expectation: %s != %s",
                           buf[0], buf[1]);
@@ -463,13 +463,13 @@ OCTET_STRING_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
  * Encode OCTET STRING type using DER.
  */
 asn_enc_rval_t
-OCTET_STRING_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
+OCTET_STRING_encode_der_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                         int tag_mode, ber_tlv_tag_t tag,
                         asn_app_consume_bytes_f *cb, void *app_key) {
     asn_enc_rval_t er = { 0, 0, 0 };
     const asn_OCTET_STRING_specifics_t *specs = td->specifics
         ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-        : &asn_SPC_OCTET_STRING_specs;
+        : &asn_SPC_OCTET_STRING_specs_e2ap_v1_01;
     const BIT_STRING_t *st = (const BIT_STRING_t *)sptr;
     enum asn_OS_Subvariant type_variant = specs->subvariant;
     int fix_last_byte = 0;
@@ -481,7 +481,7 @@ OCTET_STRING_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
      * Write tags.
      */
     if(type_variant != ASN_OSUBV_ANY || tag_mode == 1) {
-        er.encoded = der_write_tags(td,
+        er.encoded = der_write_tags_e2ap_v1_01(td,
                                     (type_variant == ASN_OSUBV_BIT) + st->size,
                                     tag_mode, type_variant == ASN_OSUBV_ANY, tag,
                                     cb, app_key);

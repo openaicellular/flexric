@@ -58,31 +58,31 @@ memb_ricInstanceID_constraint_1(const asn_TYPE_descriptor_t *td, const void *spt
 }
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static asn_per_constraints_t asn_PER_memb_ricRequestorID_constr_2 CC_NOTUSED = {
+static asn_per_constraints_t asn_PER_memb_ricRequestorID_constr_2_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (0..65535) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static asn_per_constraints_t asn_PER_memb_ricInstanceID_constr_3 CC_NOTUSED = {
+static asn_per_constraints_t asn_PER_memb_ricInstanceID_constr_3_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (0..65535) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-asn_TYPE_member_t asn_MBR_RICrequestID_1[] = {
+asn_TYPE_member_t asn_MBR_RICrequestID_1_e2ap_v1_01[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct RICrequestID, ricRequestorID),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_NativeInteger,
+		&asn_DEF_NativeInteger_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 			0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-			&asn_PER_memb_ricRequestorID_constr_2,
+			&asn_PER_memb_ricRequestorID_constr_2_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 			memb_ricRequestorID_constraint_1
 		},
@@ -92,14 +92,14 @@ asn_TYPE_member_t asn_MBR_RICrequestID_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct RICrequestID, ricInstanceID),
 		(ASN_TAG_CLASS_CONTEXT | (1 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_NativeInteger,
+		&asn_DEF_NativeInteger_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 			0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-			&asn_PER_memb_ricInstanceID_constr_3,
+			&asn_PER_memb_ricInstanceID_constr_3_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 			memb_ricInstanceID_constraint_1
 		},
@@ -107,31 +107,31 @@ asn_TYPE_member_t asn_MBR_RICrequestID_1[] = {
 		"ricInstanceID"
 		},
 };
-static const ber_tlv_tag_t asn_DEF_RICrequestID_tags_1[] = {
+static const ber_tlv_tag_t asn_DEF_RICrequestID_e2ap_v1_01_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-static const asn_TYPE_tag2member_t asn_MAP_RICrequestID_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_RICrequestID_tag2el_1_e2ap_v1_01[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 }, /* ricRequestorID */
     { (ASN_TAG_CLASS_CONTEXT | (1 << 2)), 1, 0, 0 } /* ricInstanceID */
 };
-asn_SEQUENCE_specifics_t asn_SPC_RICrequestID_specs_1 = {
+asn_SEQUENCE_specifics_t asn_SPC_RICrequestID_specs_1_e2ap_v1_01 = {
 	sizeof(struct RICrequestID),
 	offsetof(struct RICrequestID, _asn_ctx),
-	asn_MAP_RICrequestID_tag2el_1,
+	asn_MAP_RICrequestID_tag2el_1_e2ap_v1_01,
 	2,	/* Count of tags in the map */
 	0, 0, 0,	/* Optional elements (not needed) */
 	2,	/* First extension addition */
 };
-asn_TYPE_descriptor_t asn_DEF_RICrequestID = {
+asn_TYPE_descriptor_t asn_DEF_RICrequestID_e2ap_v1_01 = {
 	"RICrequestID",
 	"RICrequestID",
-	&asn_OP_SEQUENCE,
-	asn_DEF_RICrequestID_tags_1,
-	sizeof(asn_DEF_RICrequestID_tags_1)
-		/sizeof(asn_DEF_RICrequestID_tags_1[0]), /* 1 */
-	asn_DEF_RICrequestID_tags_1,	/* Same as above */
-	sizeof(asn_DEF_RICrequestID_tags_1)
-		/sizeof(asn_DEF_RICrequestID_tags_1[0]), /* 1 */
+	&asn_OP_SEQUENCE_e2ap_v1_01,
+	asn_DEF_RICrequestID_e2ap_v1_01_tags_1,
+	sizeof(asn_DEF_RICrequestID_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_RICrequestID_e2ap_v1_01_tags_1[0]), /* 1 */
+	asn_DEF_RICrequestID_e2ap_v1_01_tags_1,	/* Same as above */
+	sizeof(asn_DEF_RICrequestID_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_RICrequestID_e2ap_v1_01_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
@@ -139,10 +139,10 @@ asn_TYPE_descriptor_t asn_DEF_RICrequestID = {
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		SEQUENCE_constraint
+		SEQUENCE_constraint_e2ap_v1_01
 	},
-	asn_MBR_RICrequestID_1,
+	asn_MBR_RICrequestID_1_e2ap_v1_01,
 	2,	/* Elements count */
-	&asn_SPC_RICrequestID_specs_1	/* Additional specs */
+	&asn_SPC_RICrequestID_specs_1_e2ap_v1_01	/* Additional specs */
 };
 

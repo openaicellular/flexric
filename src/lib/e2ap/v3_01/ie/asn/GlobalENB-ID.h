@@ -34,9 +34,9 @@ typedef struct GlobalENB_ID {
 } GlobalENB_ID_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_GlobalENB_ID;
-extern asn_SEQUENCE_specifics_t asn_SPC_GlobalENB_ID_specs_1;
-extern asn_TYPE_member_t asn_MBR_GlobalENB_ID_1[2];
+extern asn_TYPE_descriptor_t asn_DEF_GlobalENB_ID_e2ap_v3_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_GlobalENB_ID_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_GlobalENB_ID_1_e2ap_v3_01[2];
 
 #ifdef __cplusplus
 }

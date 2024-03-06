@@ -22,19 +22,19 @@ extern "C" {
 typedef OCTET_STRING_t	 RICqueryHeader_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICqueryHeader;
+extern asn_TYPE_descriptor_t asn_DEF_RICqueryHeader_e2ap_v3_01;
 asn_struct_free_f RICqueryHeader_free;
 asn_struct_print_f RICqueryHeader_print;
 asn_constr_check_f RICqueryHeader_constraint;
 ber_type_decoder_f RICqueryHeader_decode_ber;
-der_type_encoder_f RICqueryHeader_encode_der;
+der_type_encoder_f RICqueryHeader_encode_e2ap_v3_01_der;
 xer_type_decoder_f RICqueryHeader_decode_xer;
-xer_type_encoder_f RICqueryHeader_encode_xer;
-jer_type_encoder_f RICqueryHeader_encode_jer;
+xer_type_encoder_f RICqueryHeader_encode_e2ap_v3_01_xer;
+jer_type_encoder_f RICqueryHeader_encode_e2ap_v3_01_jer;
 per_type_decoder_f RICqueryHeader_decode_uper;
-per_type_encoder_f RICqueryHeader_encode_uper;
+per_type_encoder_f RICqueryHeader_encode_e2ap_v3_01_uper;
 per_type_decoder_f RICqueryHeader_decode_aper;
-per_type_encoder_f RICqueryHeader_encode_aper;
+per_type_encoder_f RICqueryHeader_encode_e2ap_v3_01_aper;
 
 #ifdef __cplusplus
 }

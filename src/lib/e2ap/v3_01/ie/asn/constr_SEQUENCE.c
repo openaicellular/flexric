@@ -6,30 +6,30 @@
 #include <asn_internal.h>
 #include <constr_SEQUENCE.h>
 
-asn_TYPE_operation_t asn_OP_SEQUENCE = {
-    SEQUENCE_free,
+asn_TYPE_operation_t asn_OP_SEQUENCE_e2ap_v3_01 = {
+    SEQUENCE_free_e2ap_v3_01,
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-    SEQUENCE_print,
+    SEQUENCE_print_e2ap_v3_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
-    SEQUENCE_compare,
+    SEQUENCE_compare_e2ap_v3_01,
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-    SEQUENCE_decode_ber,
-    SEQUENCE_encode_der,
+    SEQUENCE_decode_ber_e2ap_v3_01,
+    SEQUENCE_encode_der_e2ap_v3_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-    SEQUENCE_decode_xer,
-    SEQUENCE_encode_xer,
+    SEQUENCE_decode_xer_e2ap_v3_01,
+    SEQUENCE_encode_xer_e2ap_v3_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 #if !defined(ASN_DISABLE_JER_SUPPORT)
-    SEQUENCE_encode_jer,
+    SEQUENCE_encode_jer_e2ap_v3_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
@@ -41,21 +41,21 @@ asn_TYPE_operation_t asn_OP_SEQUENCE = {
     0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-    SEQUENCE_decode_uper,
-    SEQUENCE_encode_uper,
+    SEQUENCE_decode_uper_e2ap_v3_01,
+    SEQUENCE_encode_uper_e2ap_v3_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-    SEQUENCE_decode_aper,
-    SEQUENCE_encode_aper,
+    SEQUENCE_decode_aper_e2ap_v3_01,
+    SEQUENCE_encode_aper_e2ap_v3_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-    SEQUENCE_random_fill,
+    SEQUENCE_random_fill_e2ap_v3_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
@@ -63,7 +63,7 @@ asn_TYPE_operation_t asn_OP_SEQUENCE = {
 };
 
 void
-SEQUENCE_free(const asn_TYPE_descriptor_t *td, void *sptr,
+SEQUENCE_free_e2ap_v3_01(const asn_TYPE_descriptor_t *td, void *sptr,
               enum asn_struct_free_method method) {
     size_t edx;
     const asn_SEQUENCE_specifics_t *specs =
@@ -107,7 +107,7 @@ SEQUENCE_free(const asn_TYPE_descriptor_t *td, void *sptr,
 }
 
 int
-SEQUENCE_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
+SEQUENCE_constraint_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                     asn_app_constraint_failed_f *ctfailcb, void *app_key) {
     size_t edx;
 
@@ -153,7 +153,7 @@ SEQUENCE_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
 }
 
 int
-SEQUENCE_compare(const asn_TYPE_descriptor_t *td, const void *aptr,
+SEQUENCE_compare_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *aptr,
                  const void *bptr) {
     size_t edx;
 

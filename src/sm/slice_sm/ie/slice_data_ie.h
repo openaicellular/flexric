@@ -452,9 +452,9 @@ typedef struct {
 
 void free_slice_func_def( slice_func_def_t* src); 
 
-slice_func_def_t cp_slice_func_def(slice_func_def_t* src);
+slice_func_def_t cp_slice_func_def(slice_func_def_t const* src);
 
-bool eq_slice_func_def(slice_func_def_t* m0, slice_func_def_t* m1);
+bool eq_slice_func_def(slice_func_def_t const* m0, slice_func_def_t const* m1);
 
 
 /*

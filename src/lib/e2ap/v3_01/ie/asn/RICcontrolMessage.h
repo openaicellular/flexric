@@ -22,7 +22,7 @@ extern "C" {
 typedef OCTET_STRING_t	 RICcontrolMessage_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICcontrolMessage;
+extern asn_TYPE_descriptor_t asn_DEF_RICcontrolMessage_e2ap_v3_01;
 asn_struct_free_f RICcontrolMessage_free;
 asn_struct_print_f RICcontrolMessage_print;
 asn_constr_check_f RICcontrolMessage_constraint;

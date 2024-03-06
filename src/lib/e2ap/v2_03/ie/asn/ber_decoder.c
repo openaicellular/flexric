@@ -27,7 +27,7 @@
  * The BER decoder of any type.
  */
 asn_dec_rval_t
-ber_decode(const asn_codec_ctx_t *opt_codec_ctx,
+ber_decode_e2ap_v2_03(const asn_codec_ctx_t *opt_codec_ctx,
            const asn_TYPE_descriptor_t *type_descriptor, void **struct_ptr,
            const void *ptr, size_t size) {
     asn_codec_ctx_t s_codec_ctx;
@@ -51,7 +51,7 @@ ber_decode(const asn_codec_ctx_t *opt_codec_ctx,
 	/*
 	 * Invoke type-specific decoder.
 	 */
-	return type_descriptor->op->ber_decoder(opt_codec_ctx, type_descriptor,
+	return type_descriptor->op->ber_decode_e2ap_v2_03r(opt_codec_ctx, type_descriptor,
 		struct_ptr,	/* Pointer to the destination structure */
 		ptr, size,	/* Buffer and its size */
 		0		/* Default tag mode is 0 */
@@ -62,7 +62,7 @@ ber_decode(const asn_codec_ctx_t *opt_codec_ctx,
  * Check the set of <TL<TL<TL...>>> tags matches the definition.
  */
 asn_dec_rval_t
-ber_check_tags(const asn_codec_ctx_t *opt_codec_ctx,
+ber_check_tags_e2ap_v2_03(const asn_codec_ctx_t *opt_codec_ctx,
                const asn_TYPE_descriptor_t *td, asn_struct_ctx_t *opt_ctx,
                const void *ptr, size_t size, int tag_mode, int last_tag_form,
                ber_tlv_len_t *last_length, int *opt_tlv_form) {
@@ -108,7 +108,7 @@ ber_check_tags(const asn_codec_ctx_t *opt_codec_ctx,
 	tagno = step	/* Continuing where left previously */
 		+ (tag_mode==1?-1:0)
 		;
-	ASN_DEBUG("ber_check_tags(%s, size=%ld, tm=%d, step=%d, tagno=%d)",
+	ASN_DEBUG("ber_check_tags_e2ap_v2_03(%s, size=%ld, tm=%d, step=%d, tagno=%d)",
 		td->name, (long)size, tag_mode, step, tagno);
 	/* assert(td->tags_count >= 1) May not be the case for CHOICE or ANY */
 
@@ -118,13 +118,13 @@ ber_check_tags(const asn_codec_ctx_t *opt_codec_ctx,
 		 * which outermost tag isn't known in advance.
 		 * Fetch the tag and length separately.
 		 */
-		tag_len = ber_fetch_tag(ptr, size, &tlv_tag);
+		tag_len = ber_fetch_tag_e2ap_v2_03(ptr, size, &tlv_tag);
 		switch(tag_len) {
 		case -1: RETURN(RC_FAIL);
 		case 0: RETURN(RC_WMORE);
 		}
 		tlv_constr = BER_TLV_CONSTRUCTED(ptr);
-		len_len = ber_fetch_length(tlv_constr,
+		len_len = ber_fetch_length_e2ap_v2_03(tlv_constr,
 			(const char *)ptr + tag_len, size - tag_len, &tlv_len);
 		switch(len_len) {
 		case -1: RETURN(RC_FAIL);
@@ -141,12 +141,12 @@ ber_check_tags(const asn_codec_ctx_t *opt_codec_ctx,
 		/*
 		 * Fetch and process T from TLV.
 		 */
-		tag_len = ber_fetch_tag(ptr, size, &tlv_tag);
+		tag_len = ber_fetch_tag_e2ap_v2_03(ptr, size, &tlv_tag);
 			ASN_DEBUG("Fetching tag from {%p,%ld}: "
 				"len %ld, step %d, tagno %d got %s",
 				ptr, (long)size,
 				(long)tag_len, step, tagno,
-				ber_tlv_tag_string(tlv_tag));
+				ber_tlv_tag_string_e2ap_v2_03(tlv_tag));
 		switch(tag_len) {
 		case -1: RETURN(RC_FAIL);
 		case 0: RETURN(RC_WMORE);
@@ -172,7 +172,7 @@ ber_check_tags(const asn_codec_ctx_t *opt_codec_ctx,
 			 */
 		    	ASN_DEBUG("Expected: %s, "
 				"expectation failed (tn=%d, tm=%d)",
-				ber_tlv_tag_string(td->tags[tagno]),
+				ber_tlv_tag_string_e2ap_v2_03(td->tags[tagno]),
 				tagno, tag_mode
 			);
 			RETURN(RC_FAIL);
@@ -204,7 +204,7 @@ ber_check_tags(const asn_codec_ctx_t *opt_codec_ctx,
 		/*
 		 * Fetch and process L from TLV.
 		 */
-		len_len = ber_fetch_length(tlv_constr,
+		len_len = ber_fetch_length_e2ap_v2_03(tlv_constr,
 			(const char *)ptr + tag_len, size - tag_len, &tlv_len);
 		ASN_DEBUG("Fetching len = %ld", (long)len_len);
 		switch(len_len) {

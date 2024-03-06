@@ -18,28 +18,28 @@ typedef struct ANY {
 	asn_struct_ctx_t _asn_ctx;	/* Parsing across buffer boundaries */
 } ANY_t;
 
-extern asn_TYPE_descriptor_t asn_DEF_ANY;
-extern asn_TYPE_operation_t asn_OP_ANY;
-extern asn_OCTET_STRING_specifics_t asn_SPC_ANY_specs;
+extern asn_TYPE_descriptor_t asn_DEF_ANY_e2ap_v1_01;
+extern asn_TYPE_operation_t asn_OP_ANY_e2ap_v1_01;
+extern asn_OCTET_STRING_specifics_t asn_SPC_ANY_specs_e2ap_v1_01;
 
-#define ANY_free OCTET_STRING_free
+#define ANY_free OCTET_STRING_free_e2ap_v1_01
 
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-#define ANY_print OCTET_STRING_print
+#define ANY_print OCTET_STRING_print_e2ap_v1_01
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
 
-#define ANY_compare OCTET_STRING_compare
+#define ANY_compare OCTET_STRING_compare_e2ap_v1_01
 
-#define ANY_constraint asn_generic_no_constraint
+#define ANY_constraint asn_generic_no_constraint_e2ap_v1_01
 
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-#define ANY_decode_ber OCTET_STRING_decode_ber
-#define ANY_encode_der OCTET_STRING_encode_der
+#define ANY_decode_ber OCTET_STRING_decode_ber_e2ap_v1_01
+#define ANY_encode_der OCTET_STRING_encode_der_e2ap_v1_01
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-#define ANY_decode_xer OCTET_STRING_decode_xer_hex
-xer_type_encoder_f ANY_encode_xer;
+#define ANY_decode_xer OCTET_STRING_decode_xer_hex_e2ap_v1_01
+xer_type_encoder_f ANY_encode_xer_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
@@ -47,12 +47,12 @@ jer_type_encoder_f ANY_encode_jer;
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-per_type_decoder_f ANY_decode_uper;
-per_type_encoder_f ANY_encode_uper;
+per_type_decoder_f ANY_decode_uper_e2ap_v1_01;
+per_type_encoder_f ANY_encode_uper_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-per_type_decoder_f ANY_decode_aper;
-per_type_encoder_f ANY_encode_aper;
+per_type_decoder_f ANY_decode_aper_e2ap_v1_01;
+per_type_encoder_f ANY_encode_aper_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 
 /******************************
@@ -60,22 +60,22 @@ per_type_encoder_f ANY_encode_aper;
  ******************************/
 
 /* Convert another ASN.1 type into the ANY. This implies DER encoding. */
-int ANY_fromType(ANY_t *, asn_TYPE_descriptor_t *td, void *struct_ptr);
-ANY_t *ANY_new_fromType(asn_TYPE_descriptor_t *td, void *struct_ptr);
+int ANY_fromType_e2ap_v1_01(ANY_t *, asn_TYPE_descriptor_t *td, void *struct_ptr);
+ANY_t *ANY_new_fromType_e2ap_v1_01(asn_TYPE_descriptor_t *td, void *struct_ptr);
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-int ANY_fromType_aper(ANY_t *st, asn_TYPE_descriptor_t *td, void *sptr);
-ANY_t *ANY_new_fromType_aper(asn_TYPE_descriptor_t *td, void *sptr);
+int ANY_fromType_e2ap_v1_01_aper(ANY_t *st, asn_TYPE_descriptor_t *td, void *sptr);
+ANY_t *ANY_new_fromType_e2ap_v1_01_aper(asn_TYPE_descriptor_t *td, void *sptr);
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 
 /* Convert the contents of the ANY type into the specified type. */
-int ANY_to_type(ANY_t *, asn_TYPE_descriptor_t *td, void **struct_ptr);
+int ANY_to_type_e2ap_v1_01(ANY_t *, asn_TYPE_descriptor_t *td, void **struct_ptr);
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-int ANY_to_type_aper(ANY_t *, asn_TYPE_descriptor_t *td, void **struct_ptr);
+int ANY_to_type_e2ap_v1_01_aper(ANY_t *, asn_TYPE_descriptor_t *td, void **struct_ptr);
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 
-#define	ANY_fromBuf(s, buf, size)	OCTET_STRING_fromBuf((s), (buf), (size))
-#define	ANY_new_fromBuf(buf, size)	OCTET_STRING_new_fromBuf(	\
-						&asn_DEF_ANY, (buf), (size))
+#define	ANY_fromBuf(s, buf, size)	OCTET_STRING_fromBuf_e2ap_v1_01((s), (buf), (size))
+#define	ANY_new_fromBuf(buf, size)	OCTET_STRING_new_fromBuf_e2ap_v1_01(	\
+						&asn_DEF_ANY_e2ap_v1_01, (buf), (size))
 
 #ifdef __cplusplus
 }

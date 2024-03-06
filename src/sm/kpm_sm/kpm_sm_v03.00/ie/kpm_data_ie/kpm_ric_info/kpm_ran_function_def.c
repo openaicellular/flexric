@@ -131,7 +131,7 @@ bool eq_kpm_ran_function_def(kpm_ran_function_def_t const * m0, kpm_ran_function
 
         // Bin Range Definition
         // not yet implemented in ASN.1
-        if(eq_ptr(m0->ric_report_style_list[i].meas_info_for_action_lst[j].bin_range_def, m1->ric_report_style_list[i].meas_info_for_action_lst[j].bin_range_def, eq_kpm_bin_range_def_wrapper) == false)
+        if(eq_kpm_bin_range_def(m0->ric_report_style_list[i].meas_info_for_action_lst[j].bin_range_def, m1->ric_report_style_list[i].meas_info_for_action_lst[j].bin_range_def) == false)
           return false;
       }
     

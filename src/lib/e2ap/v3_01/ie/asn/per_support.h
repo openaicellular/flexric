@@ -36,16 +36,16 @@ typedef struct asn_per_constraints_s {
 
 /* Temporary compatibility layer. Will get removed. */
 typedef struct asn_bit_data_s asn_per_data_t;
-#define per_get_few_bits(data, bits)   asn_get_few_bits(data, bits)
-#define per_get_undo(data, bits)   asn_get_undo(data, bits)
+#define per_get_few_bits(data, bits)   asn_get_few_bits_e2ap_v3_01(data, bits)
+#define per_get_undo(data, bits)   asn_get_undo_e2ap_v3_01(data, bits)
 #define per_get_many_bits(data, dst, align, bits) \
-    asn_get_many_bits(data, dst, align, bits)
+    asn_get_many_bits_e2ap_v3_01(data, dst, align, bits)
 
 /* Temporary compatibility layer. Will get removed. */
 typedef struct asn_bit_outp_s asn_per_outp_t;
-#define per_put_few_bits(out, bits, obits) asn_put_few_bits(out, bits, obits)
-#define per_put_many_bits(out, src, nbits) asn_put_many_bits(out, src, nbits)
-#define per_put_aligned_flush(out) asn_put_aligned_flush(out)
+#define per_put_few_bits(out, bits, obits) asn_put_few_bits_e2ap_v3_01(out, bits, obits)
+#define per_put_many_bits(out, src, nbits) asn_put_many_bits_e2ap_v3_01(out, src, nbits)
+#define per_put_aligned_flush(out) asn_put_aligned_flush_e2ap_v3_01(out)
 
 #ifdef __cplusplus
 }

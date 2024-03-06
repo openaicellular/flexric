@@ -22,11 +22,11 @@ extern "C" {
 typedef OCTET_STRING_t	 RICsubscriptionTime_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_RICsubscriptionTime_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_RICsubscriptionTime;
+extern asn_per_constraints_t asn_PER_type_RICsubscriptionTime_constr_1_e2ap_v3_01;
+extern asn_TYPE_descriptor_t asn_DEF_RICsubscriptionTime_e2ap_v3_01;
 asn_struct_free_f RICsubscriptionTime_free;
 asn_struct_print_f RICsubscriptionTime_print;
-asn_constr_check_f RICsubscriptionTime_constraint;
+asn_constr_check_f RICsubscriptionTime_constraint_e2ap_v3_01;
 ber_type_decoder_f RICsubscriptionTime_decode_ber;
 der_type_encoder_f RICsubscriptionTime_encode_der;
 xer_type_decoder_f RICsubscriptionTime_decode_xer;

@@ -10,7 +10,7 @@
  * Decode an always-primitive type.
  */
 asn_dec_rval_t
-ber_decode_primitive(const asn_codec_ctx_t *opt_codec_ctx,
+ber_decode_e2ap_v3_01_primitive(const asn_codec_ctx_t *opt_codec_ctx,
                      const asn_TYPE_descriptor_t *td, void **sptr,
                      const void *buf_ptr, size_t size, int tag_mode) {
     ASN__PRIMITIVE_TYPE_t *st = (ASN__PRIMITIVE_TYPE_t *)*sptr;
@@ -32,7 +32,7 @@ ber_decode_primitive(const asn_codec_ctx_t *opt_codec_ctx,
     /*
      * Check tags and extract value length.
      */
-    rval = ber_check_tags(opt_codec_ctx, td, 0, buf_ptr, size,
+    rval = ber_check_tags_e2ap_v3_01(opt_codec_ctx, td, 0, buf_ptr, size,
                           tag_mode, 0, &length, 0);
     if(rval.code != RC_OK)
         return rval;
@@ -81,7 +81,7 @@ ber_decode_primitive(const asn_codec_ctx_t *opt_codec_ctx,
  * Encode an always-primitive type using DER.
  */
 asn_enc_rval_t
-der_encode_primitive(const asn_TYPE_descriptor_t *td, const void *sptr,
+der_encode_e2ap_v3_01_primitive(const asn_TYPE_descriptor_t *td, const void *sptr,
                      int tag_mode, ber_tlv_tag_t tag,
                      asn_app_consume_bytes_f *cb, void *app_key) {
     asn_enc_rval_t erval = {0,0,0};
@@ -90,7 +90,7 @@ der_encode_primitive(const asn_TYPE_descriptor_t *td, const void *sptr,
     ASN_DEBUG("%s %s as a primitive type (tm=%d)",
               cb?"Encoding":"Estimating", td->name, tag_mode);
 
-    erval.encoded = der_write_tags(td, st->size, tag_mode, 0, tag,
+    erval.encoded = der_write_tags_e2ap_v3_01(td, st->size, tag_mode, 0, tag,
                                    cb, app_key);
     ASN_DEBUG("%s wrote tags %d", td->name, (int)erval.encoded);
     if(erval.encoded == -1) {

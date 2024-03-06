@@ -6,8 +6,8 @@
 extern "C" {
 #endif
 
-#include "../../../sm/rc_sm/ie/asn/GlobalNgENB-ID.h"
 #include "../ie/global_ng_enb_id.h"
+#include "dec_asn.h"
 
 global_ng_enb_id_t dec_global_ng_enb_asn(const GlobalNgENB_ID_t * global_ng_enb_id_asn);
 

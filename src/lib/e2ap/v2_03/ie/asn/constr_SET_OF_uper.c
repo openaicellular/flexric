@@ -7,7 +7,7 @@
 #include <constr_SET_OF.h>
 
 asn_dec_rval_t
-SET_OF_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
+SET_OF_decode_uper_e2ap_v2_03(const asn_codec_ctx_t *opt_codec_ctx,
                    const asn_TYPE_descriptor_t *td,
                    const asn_per_constraints_t *constraints, void **sptr,
                    asn_per_data_t *pd) {
@@ -58,7 +58,7 @@ SET_OF_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
     do {
         int i;
         if(nelems < 0) {
-            nelems = uper_get_length(pd, -1, 0, &repeat);
+            nelems = uper_get_length_e2ap_v2_03(pd, -1, 0, &repeat);
             ASN_DEBUG("Got to decode %" ASN_PRI_SSIZE " elements (eff %d)",
                       nelems, (int)(ct ? ct->effective_bits : -1));
             if(nelems < 0) ASN__DECODE_STARVED;
@@ -67,7 +67,7 @@ SET_OF_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
         for(i = 0; i < nelems; i++) {
             void *ptr = 0;
             ASN_DEBUG("SET OF %s decoding", elm->type->name);
-            rv = elm->type->op->uper_decoder(opt_codec_ctx, elm->type,
+            rv = elm->type->op->uper_decode_e2ap_v2_03r(opt_codec_ctx, elm->type,
                                              elm->encoding_constraints.per_constraints,
                                              &ptr, pd);
             ASN_DEBUG("%s SET OF %s decoded %d, %p",
@@ -92,7 +92,7 @@ SET_OF_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
             return rv;
         }
 
-        nelems = -1;  /* Allow uper_get_length() */
+        nelems = -1;  /* Allow uper_get_length_e2ap_v2_03() */
     } while(repeat);
 
     ASN_DEBUG("Decoded %s as SET OF", td->name);
@@ -103,7 +103,7 @@ SET_OF_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-SET_OF_encode_uper(const asn_TYPE_descriptor_t *td,
+SET_OF_encode_uper_e2ap_v2_03(const asn_TYPE_descriptor_t *td,
                    const asn_per_constraints_t *constraints, const void *sptr,
                    asn_per_outp_t *po) {
     const asn_anonymous_set_ *list;
@@ -151,7 +151,7 @@ SET_OF_encode_uper(const asn_TYPE_descriptor_t *td,
         /* When the list is empty add only the length determinant
          * X.691, #20.6 and #11.9.4.1
          */
-        if (uper_put_length(po, 0, 0)) {
+        if (uper_put_length_e2ap_v2_03(po, 0, 0)) {
             ASN__ENCODE_FAILED;
         }
         ASN__ENCODED_OK(er);
@@ -162,7 +162,7 @@ SET_OF_encode_uper(const asn_TYPE_descriptor_t *td,
      * Canonical UPER #22.1 mandates dynamic sorting of the SET OF elements
      * according to their encodings. Build an array of the encoded elements.
      */
-    encoded_els = SET_OF__encode_sorted(elm, list, SOES_CUPER);
+    encoded_els = SET_OF__encode_sorted_e2ap_v2_03(elm, list, SOES_CUPER);
 
     for(encoded_edx = 0; (ssize_t)encoded_edx < list->count;) {
         ssize_t may_encode;
@@ -173,25 +173,25 @@ SET_OF_encode_uper(const asn_TYPE_descriptor_t *td,
             may_encode = list->count;
         } else {
             may_encode =
-                uper_put_length(po, list->count - encoded_edx, &need_eom);
+                uper_put_length_e2ap_v2_03(po, list->count - encoded_edx, &need_eom);
             if(may_encode < 0) ASN__ENCODE_FAILED;
         }
 
         for(edx = encoded_edx; edx < encoded_edx + may_encode; edx++) {
             const struct _el_buffer *el = &encoded_els[edx];
-            if(asn_put_many_bits(po, el->buf,
+            if(asn_put_many_bits_e2ap_v2_03(po, el->buf,
                                  (8 * el->length) - el->bits_unused) < 0) {
                 break;
             }
         }
 
-        if(need_eom && uper_put_length(po, 0, 0))
+        if(need_eom && uper_put_length_e2ap_v2_03(po, 0, 0))
             ASN__ENCODE_FAILED;  /* End of Message length */
 
         encoded_edx += may_encode;
     }
 
-    SET_OF__encode_sorted_free(encoded_els, list->count);
+    SET_OF__encode_sorted_e2ap_v2_03_free(encoded_els, list->count);
 
     if((ssize_t)encoded_edx == list->count) {
         ASN__ENCODED_OK(er);

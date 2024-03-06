@@ -31,10 +31,10 @@ typedef struct RANfunctionsID_List {
 } RANfunctionsID_List_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RANfunctionsID_List;
-extern asn_SET_OF_specifics_t asn_SPC_RANfunctionsID_List_specs_1;
-extern asn_TYPE_member_t asn_MBR_RANfunctionsID_List_1[1];
-extern asn_per_constraints_t asn_PER_type_RANfunctionsID_List_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_RANfunctionsID_List_e2ap_v1_01;
+extern asn_SET_OF_specifics_t asn_SPC_RANfunctionsID_List_specs_1_e2ap_v1_01;
+extern asn_TYPE_member_t asn_MBR_RANfunctionsID_List_1_e2ap_v1_01[1];
+extern asn_per_constraints_t asn_PER_type_RANfunctionsID_List_constr_1_e2ap_v1_01;
 
 #ifdef __cplusplus
 }

@@ -7,7 +7,7 @@
 #include <constr_SET_OF.h>
 
 int
-SET_OF_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
+SET_OF_print_e2ap_v2_03(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
              asn_app_consume_bytes_f *cb, void *app_key) {
     asn_TYPE_member_t *elm = td->elements;
     const asn_anonymous_set_ *list = _A_CSET_FROM_VOID(sptr);

@@ -8,8 +8,8 @@
 #include <BIT_STRING.h>  /* for .bits_unused member */
 
 asn_enc_rval_t
-OCTET_STRING_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr,
-                        int ilevel, enum xer_encoder_flags_e flags,
+OCTET_STRING_encode_xer_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
+                        int ilevel, enum xer_encode_e2ap_v3_01r_flags_e flags,
                         asn_app_consume_bytes_f *cb, void *app_key) {
     const char * const h2c = "0123456789ABCDEF";
     const OCTET_STRING_t *st = (const OCTET_STRING_t *)sptr;
@@ -160,8 +160,8 @@ OCTET_STRING__handle_control_chars(void *struct_ptr, const void *chunk_buf, size
 }
 
 asn_enc_rval_t
-OCTET_STRING_encode_xer_utf8(const asn_TYPE_descriptor_t *td, const void *sptr,
-                             int ilevel, enum xer_encoder_flags_e flags,
+OCTET_STRING_encode_xer_e2ap_v3_01_utf8(const asn_TYPE_descriptor_t *td, const void *sptr,
+                             int ilevel, enum xer_encode_e2ap_v3_01r_flags_e flags,
                              asn_app_consume_bytes_f *cb, void *app_key) {
     const OCTET_STRING_t *st = (const OCTET_STRING_t *)sptr;
     asn_enc_rval_t er = { 0, 0, 0 };
@@ -540,7 +540,7 @@ OCTET_STRING__decode_xer(
     OCTET_STRING_t *st = (OCTET_STRING_t *)*sptr;
     const asn_OCTET_STRING_specifics_t *specs = td->specifics
         ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-        : &asn_SPC_OCTET_STRING_specs;
+        : &asn_SPC_OCTET_STRING_specs_e2ap_v3_01;
     const char *xml_tag = opt_mname ? opt_mname : td->xml_tag;
     asn_struct_ctx_t *ctx;  /* Per-structure parser context */
     asn_dec_rval_t rval;  /* Return value from the decoder */
@@ -573,7 +573,7 @@ OCTET_STRING__decode_xer(
     /* Restore parsing context */
     ctx = (asn_struct_ctx_t *)(((char *)*sptr) + specs->ctx_offset);
 
-    return xer_decode_general(opt_codec_ctx, ctx, *sptr, xml_tag,
+    return xer_decode_e2ap_v3_01_general(opt_codec_ctx, ctx, *sptr, xml_tag,
                               buf_ptr, size,
                               opt_unexpected_tag_decoder,
                               body_receiver);
@@ -590,7 +590,7 @@ sta_failed:
  * Decode OCTET STRING from the hexadecimal data.
  */
 asn_dec_rval_t
-OCTET_STRING_decode_xer_hex(const asn_codec_ctx_t *opt_codec_ctx,
+OCTET_STRING_decode_xer_hex_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
                             const asn_TYPE_descriptor_t *td, void **sptr,
                             const char *opt_mname, const void *buf_ptr,
                             size_t size) {
@@ -603,7 +603,7 @@ OCTET_STRING_decode_xer_hex(const asn_codec_ctx_t *opt_codec_ctx,
  * Decode OCTET STRING from the binary (0/1) data.
  */
 asn_dec_rval_t
-OCTET_STRING_decode_xer_binary(const asn_codec_ctx_t *opt_codec_ctx,
+OCTET_STRING_decode_xer_binary_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
                                const asn_TYPE_descriptor_t *td, void **sptr,
                                const char *opt_mname, const void *buf_ptr,
                                size_t size) {
@@ -616,7 +616,7 @@ OCTET_STRING_decode_xer_binary(const asn_codec_ctx_t *opt_codec_ctx,
  * Decode OCTET STRING from the string (ASCII/UTF-8) data.
  */
 asn_dec_rval_t
-OCTET_STRING_decode_xer_utf8(const asn_codec_ctx_t *opt_codec_ctx,
+OCTET_STRING_decode_xer_utf8_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
                              const asn_TYPE_descriptor_t *td, void **sptr,
                              const char *opt_mname, const void *buf_ptr,
                              size_t size) {

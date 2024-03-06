@@ -384,26 +384,37 @@ bool eq_pdcp_ctrl_out(pdcp_ctrl_out_t* m0, pdcp_ctrl_out_t* m1)
 void free_pdcp_func_def( pdcp_func_def_t* src)
 {
   assert(src != NULL);
-
-  assert(0!=0 && "Not implemented" ); 
+  free(src->buf);
 }
 
-pdcp_func_def_t cp_pdcp_func_def(pdcp_func_def_t* src)
+pdcp_func_def_t cp_pdcp_func_def(pdcp_func_def_t const* src)
 {
   assert(src != NULL);
+  pdcp_func_def_t dst = {.len = src->len};
+  if(src->len > 0){
+    dst.buf = calloc(dst.len, sizeof(uint8_t)); 
+    assert(dst.buf != NULL && "memory exhausted");
+    memcpy(dst.buf, src->buf, dst.len);
+  }
 
-  assert(0!=0 && "Not implemented" ); 
-  pdcp_func_def_t ret = {0};
-  return ret;
+  return dst;
 }
 
-bool eq_pdcp_func_def(pdcp_func_def_t* m0, pdcp_func_def_t* m1)
+bool eq_pdcp_func_def(pdcp_func_def_t const* m0, pdcp_func_def_t const* m1)
 {
-  assert(m0 != NULL);
-  assert(m1 != NULL);
+  if(m0 == m1)
+    return true;
 
-  assert(0!=0 && "Not implemented" ); 
-  return true;
+  if(m0 == NULL || m1 == NULL)
+    return false;
+
+  if(m0->len != m1->len)
+    return false;
+
+  int rc = memcmp(m0, m1, m0->len);
+  return rc == 0;
+
+
 }
 
 ///////////////

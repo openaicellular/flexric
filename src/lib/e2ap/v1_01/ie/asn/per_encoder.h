@@ -22,14 +22,14 @@ typedef asn_enc_rval_t(per_type_encoder_f)(
     const asn_per_constraints_t *constraints, const void *struct_ptr,
     asn_per_outp_t *per_output);
 
-int ignore_output(const void *data, size_t size, void *app_key);
+int ignore_output_e2ap_v1_01(const void *data, size_t size, void *app_key);
 
 typedef struct enc_dyn_arg {
     void *buffer;
     size_t length;
     size_t allocated;
 } enc_dyn_arg;
-int encode_dyn_cb(const void *buffer, size_t size, void *key);
+int encode_dyn_cb_e2ap_v1_01(const void *buffer, size_t size, void *key);
 
 #ifdef __cplusplus
 }

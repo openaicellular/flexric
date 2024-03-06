@@ -31,10 +31,10 @@ typedef struct E2connectionUpdateRemove_List {
 } E2connectionUpdateRemove_List_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2connectionUpdateRemove_List;
-extern asn_SET_OF_specifics_t asn_SPC_E2connectionUpdateRemove_List_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2connectionUpdateRemove_List_1[1];
-extern asn_per_constraints_t asn_PER_type_E2connectionUpdateRemove_List_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_E2connectionUpdate_e2ap_v2_03Remove_List;
+extern asn_SET_OF_specifics_t asn_SPC_E2connectionUpdateRemove_List_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_E2connectionUpdateRemove_List_1_e2ap_v2_03[1];
+extern asn_per_constraints_t asn_PER_type_E2connectionUpdateRemove_List_constr_1_e2ap_v2_03;
 
 #ifdef __cplusplus
 }

@@ -31,10 +31,10 @@ typedef struct CriticalityDiagnostics_IE_List {
 } CriticalityDiagnostics_IE_List_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_CriticalityDiagnostics_IE_List;
-extern asn_SET_OF_specifics_t asn_SPC_CriticalityDiagnostics_IE_List_specs_1;
-extern asn_TYPE_member_t asn_MBR_CriticalityDiagnostics_IE_List_1[1];
-extern asn_per_constraints_t asn_PER_type_CriticalityDiagnostics_IE_List_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_Criticality_e2ap_v2_03Diagnostics_IE_List;
+extern asn_SET_OF_specifics_t asn_SPC_CriticalityDiagnostics_IE_List_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_CriticalityDiagnostics_IE_List_1_e2ap_v2_03[1];
+extern asn_per_constraints_t asn_PER_type_CriticalityDiagnostics_IE_List_constr_1_e2ap_v2_03;
 
 #ifdef __cplusplus
 }

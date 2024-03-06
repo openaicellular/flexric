@@ -132,52 +132,52 @@ memb_long_Macro_eNB_ID_constraint_1(const asn_TYPE_descriptor_t *td, const void 
 }
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static asn_per_constraints_t asn_PER_memb_macro_eNB_ID_constr_2 CC_NOTUSED = {
+static asn_per_constraints_t asn_PER_memb_macro_eNB_ID_constr_2_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 0,  0,  20,  20 }	/* (SIZE(20..20)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static asn_per_constraints_t asn_PER_memb_home_eNB_ID_constr_3 CC_NOTUSED = {
+static asn_per_constraints_t asn_PER_memb_home_eNB_ID_constr_3_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 0,  0,  28,  28 }	/* (SIZE(28..28)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static asn_per_constraints_t asn_PER_memb_short_Macro_eNB_ID_constr_5 CC_NOTUSED = {
+static asn_per_constraints_t asn_PER_memb_short_Macro_eNB_ID_constr_5_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 0,  0,  18,  18 }	/* (SIZE(18..18)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static asn_per_constraints_t asn_PER_memb_long_Macro_eNB_ID_constr_6 CC_NOTUSED = {
+static asn_per_constraints_t asn_PER_memb_long_Macro_eNB_ID_constr_6_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 0,  0,  21,  21 }	/* (SIZE(21..21)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ENB_ID_constr_1 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ENB_ID_constr_1_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED | APC_EXTENSIBLE,  1,  1,  0,  1 }	/* (0..1,...) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-asn_TYPE_member_t asn_MBR_ENB_ID_1[] = {
+asn_TYPE_member_t asn_MBR_ENB_ID_1_e2ap_v1_01[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct ENB_ID, choice.macro_eNB_ID),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_BIT_STRING,
+		&asn_DEF_BIT_STRING_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 			0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-			&asn_PER_memb_macro_eNB_ID_constr_2,
+			&asn_PER_memb_macro_eNB_ID_constr_2_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 			memb_macro_eNB_ID_constraint_1
 		},
@@ -187,14 +187,14 @@ asn_TYPE_member_t asn_MBR_ENB_ID_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct ENB_ID, choice.home_eNB_ID),
 		(ASN_TAG_CLASS_CONTEXT | (1 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_BIT_STRING,
+		&asn_DEF_BIT_STRING_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 			0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-			&asn_PER_memb_home_eNB_ID_constr_3,
+			&asn_PER_memb_home_eNB_ID_constr_3_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 			memb_home_eNB_ID_constraint_1
 		},
@@ -204,14 +204,14 @@ asn_TYPE_member_t asn_MBR_ENB_ID_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct ENB_ID, choice.short_Macro_eNB_ID),
 		(ASN_TAG_CLASS_CONTEXT | (2 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_BIT_STRING,
+		&asn_DEF_BIT_STRING_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 			0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-			&asn_PER_memb_short_Macro_eNB_ID_constr_5,
+			&asn_PER_memb_short_Macro_eNB_ID_constr_5_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 			memb_short_Macro_eNB_ID_constraint_1
 		},
@@ -221,14 +221,14 @@ asn_TYPE_member_t asn_MBR_ENB_ID_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct ENB_ID, choice.long_Macro_eNB_ID),
 		(ASN_TAG_CLASS_CONTEXT | (3 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_BIT_STRING,
+		&asn_DEF_BIT_STRING_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 			0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-			&asn_PER_memb_long_Macro_eNB_ID_constr_6,
+			&asn_PER_memb_long_Macro_eNB_ID_constr_6_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 			memb_long_Macro_eNB_ID_constraint_1
 		},
@@ -236,26 +236,26 @@ asn_TYPE_member_t asn_MBR_ENB_ID_1[] = {
 		"long-Macro-eNB-ID"
 		},
 };
-static const asn_TYPE_tag2member_t asn_MAP_ENB_ID_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_ENB_ID_tag2el_1_e2ap_v1_01[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 }, /* macro-eNB-ID */
     { (ASN_TAG_CLASS_CONTEXT | (1 << 2)), 1, 0, 0 }, /* home-eNB-ID */
     { (ASN_TAG_CLASS_CONTEXT | (2 << 2)), 2, 0, 0 }, /* short-Macro-eNB-ID */
     { (ASN_TAG_CLASS_CONTEXT | (3 << 2)), 3, 0, 0 } /* long-Macro-eNB-ID */
 };
-asn_CHOICE_specifics_t asn_SPC_ENB_ID_specs_1 = {
+asn_CHOICE_specifics_t asn_SPC_ENB_ID_specs_1_e2ap_v1_01 = {
 	sizeof(struct ENB_ID),
 	offsetof(struct ENB_ID, _asn_ctx),
 	offsetof(struct ENB_ID, present),
 	sizeof(((struct ENB_ID *)0)->present),
-	asn_MAP_ENB_ID_tag2el_1,
+	asn_MAP_ENB_ID_tag2el_1_e2ap_v1_01,
 	4,	/* Count of tags in the map */
 	0, 0,
 	2	/* Extensions start */
 };
-asn_TYPE_descriptor_t asn_DEF_ENB_ID = {
+asn_TYPE_descriptor_t asn_DEF_ENB_ID_e2ap_v1_01 = {
 	"ENB-ID",
 	"ENB-ID",
-	&asn_OP_CHOICE,
+	&asn_OP_CHOICE_e2ap_v1_01,
 	0,	/* No effective tags (pointer) */
 	0,	/* No effective tags (count) */
 	0,	/* No tags (pointer) */
@@ -265,12 +265,12 @@ asn_TYPE_descriptor_t asn_DEF_ENB_ID = {
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ENB_ID_constr_1,
+		&asn_PER_type_ENB_ID_constr_1_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		CHOICE_constraint
+		CHOICE_constraint_e2ap_v1_01
 	},
-	asn_MBR_ENB_ID_1,
+	asn_MBR_ENB_ID_1_e2ap_v1_01,
 	4,	/* Elements count */
-	&asn_SPC_ENB_ID_specs_1	/* Additional specs */
+	&asn_SPC_ENB_ID_specs_1_e2ap_v1_01	/* Additional specs */
 };
 

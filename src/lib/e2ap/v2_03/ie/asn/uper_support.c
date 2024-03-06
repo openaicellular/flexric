@@ -11,7 +11,7 @@
  * Get the optionally constrained length "n" from the stream.
  */
 ssize_t
-uper_get_length(asn_per_data_t *pd, int ebits, size_t lower_bound,
+uper_get_length_e2ap_v2_03(asn_per_data_t *pd, int ebits, size_t lower_bound,
                 int *repeat) {
     ssize_t value;
 
@@ -49,7 +49,7 @@ uper_get_length(asn_per_data_t *pd, int ebits, size_t lower_bound,
  * for SET and SEQUENCE types.
  */
 ssize_t
-uper_get_nslength(asn_per_data_t *pd) {
+uper_get_nslength_e2ap_v2_03(asn_per_data_t *pd) {
 	ssize_t length;
 
 	ASN_DEBUG("Getting normally small length");
@@ -61,7 +61,7 @@ uper_get_nslength(asn_per_data_t *pd) {
 		return length;
 	} else {
 		int repeat;
-		length = uper_get_length(pd, -1, 0, &repeat);
+		length = uper_get_length_e2ap_v2_03(pd, -1, 0, &repeat);
 		if(length >= 0 && !repeat) return length;
 		return -1; /* Error, or do not support >16K extensions */
 	}
@@ -72,7 +72,7 @@ uper_get_nslength(asn_per_data_t *pd) {
  * X.691, #10.6
  */
 ssize_t
-uper_get_nsnnwn(asn_per_data_t *pd) {
+uper_get_nsnnwn_e2ap_v2_03(asn_per_data_t *pd) {
 	ssize_t value;
 
 	value = per_get_few_bits(pd, 7);
@@ -98,7 +98,7 @@ uper_get_nsnnwn(asn_per_data_t *pd) {
  * Encoding of a normally small non-negative whole number
  */
 int
-uper_put_nsnnwn(asn_per_outp_t *po, int n) {
+uper_put_nsnnwn_e2ap_v2_03(asn_per_outp_t *po, int n) {
 	int bytes;
 
 	if(n <= 63) {
@@ -121,7 +121,7 @@ uper_put_nsnnwn(asn_per_outp_t *po, int n) {
 
 
 /* X.691-2008/11, #11.5.6 -> #11.3 */
-int uper_get_constrained_whole_number(asn_per_data_t *pd, uintmax_t *out_value, int nbits) {
+int uper_get_constrained_whole_number_e2ap_v2_03(asn_per_data_t *pd, uintmax_t *out_value, int nbits) {
 	uintmax_t lhalf;    /* Lower half of the number*/
 	intmax_t half;
 
@@ -138,7 +138,7 @@ int uper_get_constrained_whole_number(asn_per_data_t *pd, uintmax_t *out_value, 
 	half = per_get_few_bits(pd, 31);
 	if(half < 0) return -1;
 
-	if(uper_get_constrained_whole_number(pd, &lhalf, nbits - 31))
+	if(uper_get_constrained_whole_number_e2ap_v2_03(pd, &lhalf, nbits - 31))
 		return -1;
 
 	*out_value = ((uintmax_t)half << (nbits - 31)) | lhalf;
@@ -148,13 +148,13 @@ int uper_get_constrained_whole_number(asn_per_data_t *pd, uintmax_t *out_value, 
 
 /* X.691-2008/11, #11.5.6 -> #11.3 */
 int
-uper_put_constrained_whole_number_u(asn_per_outp_t *po, uintmax_t v,
+uper_put_constrained_whole_number_u_e2ap_v2_03(asn_per_outp_t *po, uintmax_t v,
                                     int nbits) {
     if(nbits <= 31) {
         return per_put_few_bits(po, v, nbits);
     } else {
         /* Put higher portion first, followed by lower 31-bit */
-        if(uper_put_constrained_whole_number_u(po, v >> 31, nbits - 31))
+        if(uper_put_constrained_whole_number_u_e2ap_v2_03(po, v >> 31, nbits - 31))
             return -1;
         return per_put_few_bits(po, v, 31);
     }
@@ -165,7 +165,7 @@ uper_put_constrained_whole_number_u(asn_per_outp_t *po, uintmax_t v,
  * Put the length "n" (or part of it) into the stream.
  */
 ssize_t
-uper_put_length(asn_per_outp_t *po, size_t length, int *need_eom) {
+uper_put_length_e2ap_v2_03(asn_per_outp_t *po, size_t length, int *need_eom) {
     int dummy = 0;
     if(!need_eom) need_eom = &dummy;
 
@@ -198,14 +198,14 @@ uper_put_length(asn_per_outp_t *po, size_t length, int *need_eom) {
  * for SET and SEQUENCE types.
  */
 int
-uper_put_nslength(asn_per_outp_t *po, size_t length) {
+uper_put_nslength_e2ap_v2_03(asn_per_outp_t *po, size_t length) {
     if(length <= 64) {
         /* #11.9.3.4 */
         if(length == 0) return -1;
         return per_put_few_bits(po, length - 1, 7) ? -1 : 0;
     } else {
         int need_eom = 0;
-        if(uper_put_length(po, length, &need_eom) != (ssize_t)length
+        if(uper_put_length_e2ap_v2_03(po, length, &need_eom) != (ssize_t)length
            || need_eom) {
             /* This might happen in case of >16K extensions */
             return -1;
@@ -232,7 +232,7 @@ per__imax_range(intmax_t lb, intmax_t ub, uintmax_t *range_r) {
 }
 
 int
-per_imax_range_rebase(intmax_t v, intmax_t lb, intmax_t ub, uintmax_t *output) {
+per_imax_range_rebase_e2ap_v2_03(intmax_t v, intmax_t lb, intmax_t ub, uintmax_t *output) {
     uintmax_t range;
 
     assert(lb <= ub);
@@ -269,15 +269,15 @@ per_imax_range_rebase(intmax_t v, intmax_t lb, intmax_t ub, uintmax_t *output) {
 }
 
 int
-per_long_range_rebase(long v, intmax_t lb, intmax_t ub, unsigned long *output) {
+per_long_range_rebase_e2ap_v2_03(long v, intmax_t lb, intmax_t ub, unsigned long *output) {
     uintmax_t tmp = *output;
-    int rc = per_imax_range_rebase((intmax_t)v, lb, ub, &tmp);
+    int rc = per_imax_range_rebase_e2ap_v2_03((intmax_t)v, lb, ub, &tmp);
     *output = tmp;
     return rc;
 }
 
 int
-per_imax_range_unrebase(uintmax_t inp, intmax_t lb, intmax_t ub, intmax_t *outp) {
+per_imax_range_unrebase_e2ap_v2_03(uintmax_t inp, intmax_t lb, intmax_t ub, intmax_t *outp) {
     uintmax_t range;
 
     if(per__imax_range(lb, ub, &range) != 0) {
@@ -303,9 +303,9 @@ per_imax_range_unrebase(uintmax_t inp, intmax_t lb, intmax_t ub, intmax_t *outp)
 }
 
 int
-per_long_range_unrebase(unsigned long inp, intmax_t lb, intmax_t ub, long *outp) {
+per_long_range_unrebase_e2ap_v2_03(unsigned long inp, intmax_t lb, intmax_t ub, long *outp) {
     intmax_t tmp = *outp;
-    int rc = per_imax_range_unrebase((uintmax_t)inp, lb, ub, &tmp);
+    int rc = per_imax_range_unrebase_e2ap_v2_03((uintmax_t)inp, lb, ub, &tmp);
     *outp = tmp;
     return rc;
 }

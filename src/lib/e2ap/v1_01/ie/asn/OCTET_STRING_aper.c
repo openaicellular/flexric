@@ -15,21 +15,21 @@
         return tmprval;\
     } while(0)
 
-static asn_per_constraints_t asn_DEF_OCTET_STRING_constraints = {
+static asn_per_constraints_t asn_DEF_OCTET_STRING_e2ap_v1_01_constraints = {
     { APC_CONSTRAINED, 8, 8, 0, 255 },
     { APC_SEMI_CONSTRAINED, -1, -1, 0, 0 },
     0, 0
 };
 
 asn_dec_rval_t
-OCTET_STRING_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
+OCTET_STRING_decode_aper_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                          const asn_TYPE_descriptor_t *td,
                          const asn_per_constraints_t *constraints,
                          void **sptr, asn_per_data_t *pd) {
 
     const asn_OCTET_STRING_specifics_t *specs = td->specifics
         ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-        : &asn_SPC_OCTET_STRING_specs;
+        : &asn_SPC_OCTET_STRING_specs_e2ap_v1_01;
     const asn_per_constraints_t *pc = constraints
         ? constraints
         : td->encoding_constraints.per_constraints;
@@ -54,8 +54,8 @@ OCTET_STRING_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         cval = &pc->value;
         csiz = &pc->size;
     } else {
-        cval = &asn_DEF_OCTET_STRING_constraints.value;
-        csiz = &asn_DEF_OCTET_STRING_constraints.size;
+        cval = &asn_DEF_OCTET_STRING_e2ap_v1_01_constraints.value;
+        csiz = &asn_DEF_OCTET_STRING_e2ap_v1_01_constraints.size;
     }
 
     switch(specs->subvariant) {
@@ -109,8 +109,8 @@ OCTET_STRING_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         int inext = per_get_few_bits(pd, 1);
         if(inext < 0) RETURN(RC_WMORE);
         if(inext) {
-            csiz = &asn_DEF_OCTET_STRING_constraints.size;
-            cval = &asn_DEF_OCTET_STRING_constraints.value;
+            csiz = &asn_DEF_OCTET_STRING_e2ap_v1_01_constraints.size;
+            cval = &asn_DEF_OCTET_STRING_e2ap_v1_01_constraints.value;
             unit_bits = canonical_unit_bits;
         }
     }
@@ -133,13 +133,13 @@ OCTET_STRING_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         int ret;
         /* X.691 #16 NOTE 1 for fixed length (<= 16 bits) strings */
         if (st->size > 2 || csiz->range_bits != 0) {
-            if (aper_get_align(pd) < 0)
+            if (aper_get_align_e2ap_v1_01(pd) < 0)
                 RETURN(RC_FAIL);
         }
         if(bpc) {
             ASN_DEBUG("Decoding OCTET STRING size %lld",
                       (long long int)csiz->upper_bound);
-            ret = OCTET_STRING_per_get_characters(pd, st->buf,
+            ret = OCTET_STRING_per_get_characters_e2ap_v1_01(pd, st->buf,
                                                   csiz->upper_bound,
                                                   bpc, unit_bits,
                                                   cval->lower_bound,
@@ -174,9 +174,9 @@ OCTET_STRING_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         /* Get the PER length */
         if (csiz->upper_bound - csiz->lower_bound == 0)
             /* Indefinite length case */
-            raw_len = aper_get_length(pd, -1, -1, csiz->effective_bits, &repeat);
+            raw_len = aper_get_length_e2ap_v1_01(pd, -1, -1, csiz->effective_bits, &repeat);
         else
-            raw_len = aper_get_length(pd, csiz->lower_bound, csiz->upper_bound,
+            raw_len = aper_get_length_e2ap_v1_01(pd, csiz->lower_bound, csiz->upper_bound,
                                       csiz->effective_bits, &repeat);
         if(raw_len < 0) RETURN(RC_WMORE);
         raw_len += csiz->lower_bound;
@@ -188,7 +188,7 @@ OCTET_STRING_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         /* X.691 #16 NOTE 1  for fixed length (<=16 bits) strings */
         if ((raw_len > 2) || (csiz->upper_bound > 2) || (csiz->range_bits != 0))
         {
-            if (aper_get_align(pd) < 0)
+            if (aper_get_align_e2ap_v1_01(pd) < 0)
                 RETURN(RC_FAIL);
         }
 
@@ -207,7 +207,7 @@ OCTET_STRING_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         st->buf = (uint8_t *)p;
 
         if(bpc) {
-            ret = OCTET_STRING_per_get_characters(pd,
+            ret = OCTET_STRING_per_get_characters_e2ap_v1_01(pd,
                                                   &st->buf[st->size],
                                                   raw_len, bpc,
                                                   unit_bits,
@@ -228,13 +228,13 @@ OCTET_STRING_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-OCTET_STRING_encode_aper(const asn_TYPE_descriptor_t *td,
+OCTET_STRING_encode_aper_e2ap_v1_01(const asn_TYPE_descriptor_t *td,
                          const asn_per_constraints_t *constraints,
                          const void *sptr, asn_per_outp_t *po) {
 
     const asn_OCTET_STRING_specifics_t *specs = td->specifics
         ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-        : &asn_SPC_OCTET_STRING_specs;
+        : &asn_SPC_OCTET_STRING_specs_e2ap_v1_01;
     const asn_per_constraints_t *pc = constraints
         ? constraints
         : td->encoding_constraints.per_constraints;
@@ -263,8 +263,8 @@ OCTET_STRING_encode_aper(const asn_TYPE_descriptor_t *td,
         cval = &pc->value;
         csiz = &pc->size;
     } else {
-        cval = &asn_DEF_OCTET_STRING_constraints.value;
-        csiz = &asn_DEF_OCTET_STRING_constraints.size;
+        cval = &asn_DEF_OCTET_STRING_e2ap_v1_01_constraints.value;
+        csiz = &asn_DEF_OCTET_STRING_e2ap_v1_01_constraints.size;
     }
     ct_extensible = csiz->flags & APC_EXTENSIBLE;
 
@@ -320,8 +320,8 @@ OCTET_STRING_encode_aper(const asn_TYPE_descriptor_t *td,
         if((int)sizeinunits < csiz->lower_bound
         || (int)sizeinunits > csiz->upper_bound) {
             if(ct_extensible) {
-                cval = &asn_DEF_OCTET_STRING_constraints.value;
-                csiz = &asn_DEF_OCTET_STRING_constraints.size;
+                cval = &asn_DEF_OCTET_STRING_e2ap_v1_01_constraints.value;
+                csiz = &asn_DEF_OCTET_STRING_e2ap_v1_01_constraints.size;
                 unit_bits = canonical_unit_bits;
                 inext = 1;
             } else
@@ -345,7 +345,7 @@ OCTET_STRING_encode_aper(const asn_TYPE_descriptor_t *td,
                   st->size, (long long int)(sizeinunits - csiz->lower_bound),
                   csiz->effective_bits);
         if (csiz->effective_bits > 0) {
-                ret = aper_put_length(po, csiz->lower_bound, csiz->upper_bound,
+                ret = aper_put_length_e2ap_v1_01(po, csiz->lower_bound, csiz->upper_bound,
                                       sizeinunits - csiz->lower_bound, NULL);
                 if(ret < 0) ASN__ENCODE_FAILED;
         }
@@ -353,11 +353,11 @@ OCTET_STRING_encode_aper(const asn_TYPE_descriptor_t *td,
             || (csiz->upper_bound > (2 * 8 / unit_bits))
             || (csiz->range_bits != 0))
         { /* X.691 #16 NOTE 1 for fixed length (<=16 bits) strings*/
-            if (aper_put_align(po) < 0)
+            if (aper_put_align_e2ap_v1_01(po) < 0)
                 ASN__ENCODE_FAILED;
         }
         if(bpc) {
-            ret = OCTET_STRING_per_put_characters(po, st->buf,
+            ret = OCTET_STRING_per_put_characters_e2ap_v1_01(po, st->buf,
                                                   sizeinunits,
                                                   bpc, unit_bits,
                                                   cval->lower_bound,
@@ -374,7 +374,7 @@ OCTET_STRING_encode_aper(const asn_TYPE_descriptor_t *td,
     ASN_DEBUG("Encoding %zu bytes", st->size);
 
     if(sizeinunits == 0) {
-        if(aper_put_length(po, -1, -1, 0, NULL) < 0)
+        if(aper_put_length_e2ap_v1_01(po, -1, -1, 0, NULL) < 0)
             ASN__ENCODE_FAILED;
         ASN__ENCODED_OK(er);
     }
@@ -382,7 +382,7 @@ OCTET_STRING_encode_aper(const asn_TYPE_descriptor_t *td,
     buf = st->buf;
     while(sizeinunits) {
         int need_eom = 0;
-        ssize_t maySave = aper_put_length(po, -1, -1, sizeinunits, &need_eom);
+        ssize_t maySave = aper_put_length_e2ap_v1_01(po, -1, -1, sizeinunits, &need_eom);
 
         if(maySave < 0) ASN__ENCODE_FAILED;
 
@@ -390,7 +390,7 @@ OCTET_STRING_encode_aper(const asn_TYPE_descriptor_t *td,
                   (long)maySave, (long)sizeinunits);
 
         if(bpc) {
-            ret = OCTET_STRING_per_put_characters(po, buf, maySave,
+            ret = OCTET_STRING_per_put_characters_e2ap_v1_01(po, buf, maySave,
                                                   bpc, unit_bits,
                                                   cval->lower_bound,
                                                   cval->upper_bound,
@@ -406,7 +406,7 @@ OCTET_STRING_encode_aper(const asn_TYPE_descriptor_t *td,
             buf += maySave >> 3;
         sizeinunits -= maySave;
         assert(!(maySave & 0x07) || !sizeinunits);
-        if(need_eom && (aper_put_length(po, -1, -1, 0, NULL) < 0))
+        if(need_eom && (aper_put_length_e2ap_v1_01(po, -1, -1, 0, NULL) < 0))
             ASN__ENCODE_FAILED; /* End of Message length */
     }
 

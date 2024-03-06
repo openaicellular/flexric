@@ -6,16 +6,16 @@
 #include <asn_internal.h>
 #include <BIT_STRING.h>
 
-asn_random_fill_result_t
-BIT_STRING_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
+asn_random_fill_e2ap_v1_01_result_t
+BIT_STRING_random_fill_e2ap_v1_01(const asn_TYPE_descriptor_t *td, void **sptr,
                        const asn_encoding_constraints_t *constraints,
                        size_t max_length) {
     const asn_OCTET_STRING_specifics_t *specs =
         td->specifics ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-                      : &asn_SPC_BIT_STRING_specs;
-    asn_random_fill_result_t result_ok = {ARFILL_OK, 1};
-    asn_random_fill_result_t result_failed = {ARFILL_FAILED, 0};
-    asn_random_fill_result_t result_skipped = {ARFILL_SKIPPED, 0};
+                      : &asn_SPC_BIT_STRING_specs_e2ap_v1_01;
+    asn_random_fill_e2ap_v1_01_result_t result_ok = {ARFILL_OK, 1};
+    asn_random_fill_e2ap_v1_01_result_t result_failed = {ARFILL_FAILED, 0};
+    asn_random_fill_e2ap_v1_01_result_t result_skipped = {ARFILL_SKIPPED, 0};
     static unsigned lengths[] = {0,     1,     2,     3,     4,     8,
                                  126,   127,   128,   16383, 16384, 16385,
                                  65534, 65535, 65536, 65537};
@@ -37,7 +37,7 @@ BIT_STRING_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
     }
 
     /* Figure out how far we should go */
-    rnd_bits = lengths[asn_random_between(
+    rnd_bits = lengths[asn_random_between_e2ap_v1_01(
         0, sizeof(lengths) / sizeof(lengths[0]) - 1)];
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
     if(!constraints || !constraints->per_constraints)
@@ -52,7 +52,7 @@ BIT_STRING_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
                 return result_skipped;
             }
             if(pc->flags & APC_EXTENSIBLE) {
-                switch(asn_random_between(0, 5)) {
+                switch(asn_random_between_e2ap_v1_01(0, 5)) {
                 case 0:
                     if(pc->lower_bound > 0) {
                         rnd_bits = pc->lower_bound - 1;
@@ -69,15 +69,15 @@ BIT_STRING_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
                     }
                     /* Fall through */
                 default:
-                    rnd_bits = asn_random_between(pc->lower_bound,
+                    rnd_bits = asn_random_between_e2ap_v1_01(pc->lower_bound,
                                                   suggested_upper_bound);
                 }
             } else {
                 rnd_bits =
-                    asn_random_between(pc->lower_bound, suggested_upper_bound);
+                    asn_random_between_e2ap_v1_01(pc->lower_bound, suggested_upper_bound);
             }
         } else {
-            rnd_bits = asn_random_between(0, max_length - 1);
+            rnd_bits = asn_random_between_e2ap_v1_01(0, max_length - 1);
         }
     } else {
 #else
@@ -85,7 +85,7 @@ BIT_STRING_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
     {
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
         if(rnd_bits >= max_length) {
-            rnd_bits = asn_random_between(0, max_length - 1);
+            rnd_bits = asn_random_between_e2ap_v1_01(0, max_length - 1);
         }
     }
 
@@ -96,7 +96,7 @@ BIT_STRING_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
     bend = &buf[rnd_len];
 
     for(b = buf; b < bend; b++) {
-        *(uint8_t *)b = asn_random_between(0, 255);
+        *(uint8_t *)b = asn_random_between_e2ap_v1_01(0, 255);
     }
     *b = 0; /* Zero-terminate just in case. */
 

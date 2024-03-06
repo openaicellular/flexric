@@ -8,7 +8,7 @@
 #include <asn_SEQUENCE_OF.h>
 
 asn_enc_rval_t
-SEQUENCE_OF_encode_uper(const asn_TYPE_descriptor_t *td,
+SEQUENCE_OF_encode_uper_e2ap_v2_03(const asn_TYPE_descriptor_t *td,
                         const asn_per_constraints_t *constraints,
                         const void *sptr, asn_per_outp_t *po) {
     const asn_anonymous_sequence_ *list;
@@ -54,7 +54,7 @@ SEQUENCE_OF_encode_uper(const asn_TYPE_descriptor_t *td,
         /* When the list is empty add only the length determinant
          * X.691, #20.6 and #11.9.4.1
          */
-        if (uper_put_length(po, 0, 0)) {
+        if (uper_put_length_e2ap_v2_03(po, 0, 0)) {
             ASN__ENCODE_FAILED;
         }
         ASN__ENCODED_OK(er);
@@ -69,20 +69,20 @@ SEQUENCE_OF_encode_uper(const asn_TYPE_descriptor_t *td,
             may_encode = list->count;
         } else {
             may_encode =
-                uper_put_length(po, list->count - encoded_edx, &need_eom);
+                uper_put_length_e2ap_v2_03(po, list->count - encoded_edx, &need_eom);
             if(may_encode < 0) ASN__ENCODE_FAILED;
         }
 
         for(edx = encoded_edx; edx < encoded_edx + may_encode; edx++) {
             void *memb_ptr = list->array[edx];
             if(!memb_ptr) ASN__ENCODE_FAILED;
-            er = elm->type->op->uper_encoder(
+            er = elm->type->op->uper_encode_e2ap_v2_03r(
                 elm->type, elm->encoding_constraints.per_constraints, memb_ptr,
                 po);
             if(er.encoded == -1) ASN__ENCODE_FAILED;
         }
 
-        if(need_eom && uper_put_length(po, 0, 0))
+        if(need_eom && uper_put_length_e2ap_v2_03(po, 0, 0))
             ASN__ENCODE_FAILED; /* End of Message length */
 
         encoded_edx += may_encode;

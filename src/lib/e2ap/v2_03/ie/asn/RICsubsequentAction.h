@@ -34,9 +34,9 @@ typedef struct RICsubsequentAction {
 } RICsubsequentAction_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICsubsequentAction;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICsubsequentAction_specs_1;
-extern asn_TYPE_member_t asn_MBR_RICsubsequentAction_1[2];
+extern asn_TYPE_descriptor_t asn_DEF_RICsubsequentAction_e2ap_v2_03;
+extern asn_SEQUENCE_specifics_t asn_SPC_RICsubsequentAction_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_RICsubsequentAction_1_e2ap_v2_03[2];
 
 #ifdef __cplusplus
 }

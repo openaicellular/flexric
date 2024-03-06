@@ -10,7 +10,7 @@
  * The JER encoder of any type. May be invoked by the application.
  */
 asn_enc_rval_t
-jer_encode(const asn_TYPE_descriptor_t *td, const void *sptr,
+jer_encode_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
            asn_app_consume_bytes_f *cb,
            void *app_key) {
     asn_enc_rval_t er = {0, 0, 0};
@@ -26,7 +26,7 @@ jer_encode(const asn_TYPE_descriptor_t *td, const void *sptr,
 	ASN__CALLBACK3("{\n\"", 3, mname, mlen, "\":", 2);
 
         int xFlag = 0;
-	tmper = td->op->jer_encoder(td, sptr, 1, xFlag, cb, app_key);
+	tmper = td->op->jer_encode_e2ap_v3_01r(td, sptr, 1, xFlag, cb, app_key);
 	if(tmper.encoded == -1) return tmper;
 	er.encoded += tmper.encoded;
 
@@ -39,7 +39,7 @@ cb_failed:
 }
 
 /*
- * This is a helper function for jer_fprint, which directs all incoming data
+ * This is a helper function for jer_fprint_e2ap_v3_01, which directs all incoming data
  * into the provided file descriptor.
  */
 static int
@@ -53,14 +53,14 @@ jer__print2fp(const void *buffer, size_t size, void *app_key) {
 }
 
 int
-jer_fprint(FILE *stream, const asn_TYPE_descriptor_t *td, const void *sptr) {
+jer_fprint_e2ap_v3_01(FILE *stream, const asn_TYPE_descriptor_t *td, const void *sptr) {
 	asn_enc_rval_t er = {0,0,0};
 
 	if(!stream) stream = stdout;
 	if(!td || !sptr)
 		return -1;
 
-	er = jer_encode(td, sptr, jer__print2fp, stream);
+	er = jer_encode_e2ap_v3_01(td, sptr, jer__print2fp, stream);
 	if(er.encoded == -1)
 		return -1;
 

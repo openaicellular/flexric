@@ -7,7 +7,7 @@
 #include <INTEGER.h>
 
 asn_dec_rval_t
-INTEGER_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
+INTEGER_decode_aper_e2ap_v2_03(const asn_codec_ctx_t *opt_codec_ctx,
                     const asn_TYPE_descriptor_t *td,
                     const asn_per_constraints_t *constraints, void **sptr, asn_per_data_t *pd) {
     const asn_INTEGER_specifics_t *specs = (const asn_INTEGER_specifics_t *)td->specifics;
@@ -73,7 +73,7 @@ INTEGER_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
                 /* X.691 #12.2.6 length determinant + lb (1) */
                 length += 1;
                 ASN_DEBUG("Got length %d", length);
-                if (aper_get_align(pd) != 0)
+                if (aper_get_align_e2ap_v2_03(pd) != 0)
                     ASN__DECODE_FAILED;
                 while (length--) {
                     int buf = per_get_few_bits(pd, 8);
@@ -84,8 +84,8 @@ INTEGER_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 
                 value += ct->lower_bound;
                 if((specs && specs->field_unsigned)
-                        ? asn_uint642INTEGER(st, (unsigned long)value)
-                        : asn_int642INTEGER(st, value))
+                        ? asn_uint642INTEGER_e2ap_v2_03(st, (unsigned long)value)
+                        : asn_int642INTEGER_e2ap_v2_03(st, value))
                     ASN__DECODE_FAILED;
                 ASN_DEBUG("Got value %ld + low %lld",
                           value, (long long int)ct->lower_bound);
@@ -95,21 +95,21 @@ INTEGER_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
                     value = per_get_few_bits(pd, ct->range_bits);
                     if(value < 0) ASN__DECODE_STARVED;
                 } else if (ct->range_bits == 8) {
-                    if (aper_get_align(pd) < 0)
+                    if (aper_get_align_e2ap_v2_03(pd) < 0)
                         ASN__DECODE_FAILED;
                     value = per_get_few_bits(pd, ct->range_bits);
                     if(value < 0) ASN__DECODE_STARVED;
                 } else {
                     /* Align */
-                    if (aper_get_align(pd) < 0)
+                    if (aper_get_align_e2ap_v2_03(pd) < 0)
                         ASN__DECODE_FAILED;
                     value = per_get_few_bits(pd, 16);
                     if(value < 0) ASN__DECODE_STARVED;
                 }
                 value += ct->lower_bound;
                 if((specs && specs->field_unsigned)
-                        ? asn_ulong2INTEGER(st, value)
-                        : asn_long2INTEGER(st, value))
+                        ? asn_ulong2INTEGER_e2ap_v2_03(st, value)
+                        : asn_long2INTEGER_e2ap_v2_03(st, value))
                     ASN__DECODE_FAILED;
                 ASN_DEBUG("Got value %ld + low %lld",
                           value, (long long int)ct->lower_bound);
@@ -129,7 +129,7 @@ INTEGER_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         int ret;
 
         /* Get the PER length */
-        len = aper_get_length(pd, -1, -1, -1, &repeat);
+        len = aper_get_length_e2ap_v2_03(pd, -1, -1, -1, &repeat);
         if(len < 0) ASN__DECODE_STARVED;
 
         p = REALLOC(st->buf, st->size + len + 1);
@@ -148,9 +148,9 @@ INTEGER_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
          * TODO: replace by in-place arithmetics.
          */
         long value;
-        if(asn_INTEGER2long(st, &value))
+        if(asn_INTEGER2long_e2ap_v2_03(st, &value))
             ASN__DECODE_FAILED;
-        if(asn_long2INTEGER(st, value + ct->lower_bound))
+        if(asn_long2INTEGER_e2ap_v2_03(st, value + ct->lower_bound))
             ASN__DECODE_FAILED;
     }
 
@@ -158,7 +158,7 @@ INTEGER_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-INTEGER_encode_aper(const asn_TYPE_descriptor_t *td,
+INTEGER_encode_aper_e2ap_v2_03(const asn_TYPE_descriptor_t *td,
                     const asn_per_constraints_t *constraints,
                     const void *sptr, asn_per_outp_t *po) {
     const asn_INTEGER_specifics_t *specs = (const asn_INTEGER_specifics_t *)td->specifics;
@@ -180,7 +180,7 @@ INTEGER_encode_aper(const asn_TYPE_descriptor_t *td,
         int inext = 0;
         if(specs && specs->field_unsigned) {
             unsigned long uval;
-            if(asn_INTEGER2ulong(st, &uval))
+            if(asn_INTEGER2ulong_e2ap_v2_03(st, &uval))
                 ASN__ENCODE_FAILED;
             /* Check proper range */
             if(ct->flags & APC_SEMI_CONSTRAINED) {
@@ -198,7 +198,7 @@ INTEGER_encode_aper(const asn_TYPE_descriptor_t *td,
                       inext ? "ext" : "fix");
             value = uval;
         } else {
-            if(asn_INTEGER2long(st, &value)) ASN__ENCODE_FAILED;
+            if(asn_INTEGER2long_e2ap_v2_03(st, &value)) ASN__ENCODE_FAILED;
             /* Check proper range */
             if(ct->flags & APC_SEMI_CONSTRAINED) {
                 if(value < ct->lower_bound)
@@ -240,13 +240,13 @@ INTEGER_encode_aper(const asn_TYPE_descriptor_t *td,
             if(per_put_few_bits(po, 0x00 | v, ct->range_bits))
                 ASN__ENCODE_FAILED;
         } else if (ct->range_bits == 8) {
-            if(aper_put_align(po) < 0)
+            if(aper_put_align_e2ap_v2_03(po) < 0)
                 ASN__ENCODE_FAILED;
             if(per_put_few_bits(po, 0x00 | v, ct->range_bits))
                 ASN__ENCODE_FAILED;
         } else if (ct->range_bits <= 16) {
             /* Consume the bytes to align on octet */
-            if(aper_put_align(po) < 0)
+            if(aper_put_align_e2ap_v2_03(po) < 0)
                 ASN__ENCODE_FAILED;
             if(per_put_few_bits(po, 0x0000 | v, 16))
                 ASN__ENCODE_FAILED;
@@ -275,7 +275,7 @@ INTEGER_encode_aper(const asn_TYPE_descriptor_t *td,
                 ASN__ENCODE_FAILED;
 
             /* Consume the bits to align on octet */
-            if (aper_put_align(po) < 0)
+            if (aper_put_align_e2ap_v2_03(po) < 0)
                 ASN__ENCODE_FAILED;
             /* Put the value */
             for (i = 0; i <= j; i++) {
@@ -294,13 +294,13 @@ INTEGER_encode_aper(const asn_TYPE_descriptor_t *td,
 
     for(buf = st->buf, end = st->buf + st->size; buf < end;) {
         int need_eom = 0;
-        ssize_t mayEncode = aper_put_length(po, -1, -1, end - buf, &need_eom);
+        ssize_t mayEncode = aper_put_length_e2ap_v2_03(po, -1, -1, end - buf, &need_eom);
         if(mayEncode < 0)
             ASN__ENCODE_FAILED;
         if(per_put_many_bits(po, buf, 8 * mayEncode))
             ASN__ENCODE_FAILED;
         buf += mayEncode;
-        if(need_eom && (aper_put_length(po, -1, -1, 0, NULL) < 0))
+        if(need_eom && (aper_put_length_e2ap_v2_03(po, -1, -1, 0, NULL) < 0))
             ASN__ENCODE_FAILED;
     }
 

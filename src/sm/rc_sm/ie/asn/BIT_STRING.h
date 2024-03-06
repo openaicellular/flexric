@@ -45,6 +45,7 @@ xer_type_encoder_f BIT_STRING_encode_xer;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
+#define BIT_STRING_decode_jer OCTET_STRING_decode_jer_binary
 jer_type_encoder_f BIT_STRING_encode_jer;
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 

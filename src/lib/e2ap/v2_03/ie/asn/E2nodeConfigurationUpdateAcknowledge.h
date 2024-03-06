@@ -32,9 +32,9 @@ typedef struct E2nodeConfigurationUpdateAcknowledge {
 } E2nodeConfigurationUpdateAcknowledge_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2nodeConfigurationUpdateAcknowledge;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConfigurationUpdateAcknowledge_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2nodeConfigurationUpdateAcknowledge_1[1];
+extern asn_TYPE_descriptor_t asn_DEF_E2nodeConfigurationUpdate_e2ap_v2_03Acknowledge_e2ap_v2_03;
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConfigurationUpdateAcknowledge_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_E2nodeConfigurationUpdateAcknowledge_1_e2ap_v2_03[1];
 
 #ifdef __cplusplus
 }

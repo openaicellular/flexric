@@ -5,24 +5,24 @@
 #include <asn_internal.h>
 #include <constr_CHOICE.h>
 
-asn_TYPE_operation_t asn_OP_CHOICE = {
-    CHOICE_free,
+asn_TYPE_operation_t asn_OP_CHOICE_e2ap_v1_01 = {
+    CHOICE_free_e2ap_v1_01,
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-    CHOICE_print,
+    CHOICE_print_e2ap_v1_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
-    CHOICE_compare,
+    CHOICE_compare_e2ap_v1_01,
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-    CHOICE_decode_ber,
-    CHOICE_encode_der,
+    CHOICE_decode_ber_e2ap_v1_01,
+    CHOICE_encode_der_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-    CHOICE_decode_xer,
-    CHOICE_encode_xer,
+    CHOICE_decode_xer_e2ap_v1_01,
+    CHOICE_encode_xer_e2ap_v1_01,
 #else
     0,
     0,
@@ -40,29 +40,29 @@ asn_TYPE_operation_t asn_OP_CHOICE = {
     0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-    CHOICE_decode_uper,
-    CHOICE_encode_uper,
+    CHOICE_decode_uper_e2ap_v1_01,
+    CHOICE_encode_uper_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-    CHOICE_decode_aper,
-    CHOICE_encode_aper,
+    CHOICE_decode_aper_e2ap_v1_01,
+    CHOICE_encode_aper_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-    CHOICE_random_fill,
+    CHOICE_random_fill_e2ap_v1_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
-    CHOICE_outmost_tag
+    CHOICE_outmost_tag_e2ap_v1_01
 };
 
 ber_tlv_tag_t
-CHOICE_outmost_tag(const asn_TYPE_descriptor_t *td, const void *ptr, int tag_mode, ber_tlv_tag_t tag) {
+CHOICE_outmost_tag_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *ptr, int tag_mode, ber_tlv_tag_t tag) {
     const asn_CHOICE_specifics_t *specs = (const asn_CHOICE_specifics_t *)td->specifics;
     unsigned present;
 
@@ -72,7 +72,7 @@ CHOICE_outmost_tag(const asn_TYPE_descriptor_t *td, const void *ptr, int tag_mod
     /*
      * Figure out which CHOICE element is encoded.
      */
-    present = _fetch_present_idx(ptr, specs->pres_offset, specs->pres_size);
+    present = _fetch_present_idx_e2ap_v1_01(ptr, specs->pres_offset, specs->pres_size);
 
     if(present > 0 && present <= td->elements_count) {
         const asn_TYPE_member_t *elm = &td->elements[present-1];
@@ -86,7 +86,7 @@ CHOICE_outmost_tag(const asn_TYPE_descriptor_t *td, const void *ptr, int tag_mod
                     ((const char *)ptr + elm->memb_offset);
         }
 
-        return asn_TYPE_outmost_tag(elm->type, memb_ptr,
+        return asn_TYPE_outmost_tag_e2ap_v1_01(elm->type, memb_ptr,
                                     elm->tag_mode, elm->tag);
     } else {
         return (ber_tlv_tag_t)-1;
@@ -101,7 +101,7 @@ static const void *_get_member_ptr(const asn_TYPE_descriptor_t *,
                                    unsigned *present);
 
 int
-CHOICE_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
+CHOICE_constraint_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                   asn_app_constraint_failed_f *ctfailcb, void *app_key) {
     const asn_CHOICE_specifics_t *specs =
         (const asn_CHOICE_specifics_t *)td->specifics;
@@ -117,7 +117,7 @@ CHOICE_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
 	/*
 	 * Figure out which CHOICE element is encoded.
 	 */
-	present = _fetch_present_idx(sptr, specs->pres_offset,specs->pres_size);
+	present = _fetch_present_idx_e2ap_v1_01(sptr, specs->pres_offset,specs->pres_size);
 	if(present > 0 && present <= td->elements_count) {
 		asn_TYPE_member_t *elm = &td->elements[present-1];
 		const void *memb_ptr;
@@ -152,7 +152,7 @@ CHOICE_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
 }
 
 void
-CHOICE_free(const asn_TYPE_descriptor_t *td, void *ptr,
+CHOICE_free_e2ap_v1_01(const asn_TYPE_descriptor_t *td, void *ptr,
             enum asn_struct_free_method method) {
     const asn_CHOICE_specifics_t *specs =
         (const asn_CHOICE_specifics_t *)td->specifics;
@@ -166,7 +166,7 @@ CHOICE_free(const asn_TYPE_descriptor_t *td, void *ptr,
 	/*
 	 * Figure out which CHOICE element is encoded.
 	 */
-	present = _fetch_present_idx(ptr, specs->pres_offset, specs->pres_size);
+	present = _fetch_present_idx_e2ap_v1_01(ptr, specs->pres_offset, specs->pres_size);
 
 	/*
 	 * Free that element.
@@ -208,7 +208,7 @@ CHOICE_free(const asn_TYPE_descriptor_t *td, void *ptr,
  * produce packed code.
  */
 unsigned
-_fetch_present_idx(const void *struct_ptr, unsigned pres_offset,
+_fetch_present_idx_e2ap_v1_01(const void *struct_ptr, unsigned pres_offset,
                    unsigned pres_size) {
     const void *present_ptr;
 	unsigned present;
@@ -229,7 +229,7 @@ _fetch_present_idx(const void *struct_ptr, unsigned pres_offset,
 }
 
 void
-_set_present_idx(void *struct_ptr, unsigned pres_offset, unsigned pres_size,
+_set_present_idx_e2ap_v1_01(void *struct_ptr, unsigned pres_offset, unsigned pres_size,
                  unsigned present) {
     void *present_ptr;
 	present_ptr = ((char *)struct_ptr) + pres_offset;
@@ -260,7 +260,7 @@ _get_member_ptr(const asn_TYPE_descriptor_t *td, const void *sptr,
     /*
 	 * Figure out which CHOICE element is encoded.
 	 */
-	present = _fetch_present_idx(sptr, specs->pres_offset, specs->pres_size);
+	present = _fetch_present_idx_e2ap_v1_01(sptr, specs->pres_offset, specs->pres_size);
     *present_out = present;
 
     /*
@@ -287,7 +287,7 @@ _get_member_ptr(const asn_TYPE_descriptor_t *td, const void *sptr,
 }
 
 int
-CHOICE_compare(const asn_TYPE_descriptor_t *td, const void *aptr, const void *bptr) {
+CHOICE_compare_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *aptr, const void *bptr) {
     asn_TYPE_member_t *aelm;
     asn_TYPE_member_t *belm;
     unsigned apresent = 0;
@@ -316,10 +316,10 @@ CHOICE_compare(const asn_TYPE_descriptor_t *td, const void *aptr, const void *bp
  * Returns 0 in case of error.
  */
 unsigned
-CHOICE_variant_get_presence(const asn_TYPE_descriptor_t *td, const void *sptr) {
+CHOICE_variant_get_presence_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr) {
     const asn_CHOICE_specifics_t *specs =
         (const asn_CHOICE_specifics_t *)td->specifics;
-    return _fetch_present_idx(sptr, specs->pres_offset, specs->pres_size);
+    return _fetch_present_idx_e2ap_v1_01(sptr, specs->pres_offset, specs->pres_size);
 }
 
 /*
@@ -329,7 +329,7 @@ CHOICE_variant_get_presence(const asn_TYPE_descriptor_t *td, const void *sptr) {
  * Returns 0 on success and -1 on error.
  */
 int
-CHOICE_variant_set_presence(const asn_TYPE_descriptor_t *td, void *sptr,
+CHOICE_variant_set_presence_e2ap_v1_01(const asn_TYPE_descriptor_t *td, void *sptr,
                             unsigned present) {
     const asn_CHOICE_specifics_t *specs =
         (const asn_CHOICE_specifics_t *)td->specifics;
@@ -343,7 +343,7 @@ CHOICE_variant_set_presence(const asn_TYPE_descriptor_t *td, void *sptr,
         return -1;
 
     old_present =
-        _fetch_present_idx(sptr, specs->pres_offset, specs->pres_size);
+        _fetch_present_idx_e2ap_v1_01(sptr, specs->pres_offset, specs->pres_size);
     if(present == old_present)
         return 0;
 
@@ -352,7 +352,7 @@ CHOICE_variant_set_presence(const asn_TYPE_descriptor_t *td, void *sptr,
         ASN_STRUCT_RESET(*td, sptr);
     }
 
-    _set_present_idx(sptr, specs->pres_offset, specs->pres_size, present);
+    _set_present_idx_e2ap_v1_01(sptr, specs->pres_offset, specs->pres_size, present);
 
     return 0;
 }

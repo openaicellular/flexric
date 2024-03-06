@@ -17,13 +17,13 @@
     } while(0)
 
 asn_dec_rval_t
-ANY_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
+ANY_decode_uper_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                 const asn_TYPE_descriptor_t *td,
                 const asn_per_constraints_t *constraints, void **sptr,
                 asn_per_data_t *pd) {
     const asn_OCTET_STRING_specifics_t *specs =
         td->specifics ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-                      : &asn_SPC_ANY_specs;
+                      : &asn_SPC_ANY_specs_e2ap_v1_01;
     size_t consumed_myself = 0;
     int repeat;
     ANY_t *st = (ANY_t *)*sptr;
@@ -50,7 +50,7 @@ ANY_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
         int ret;
 
         /* Get the PER length */
-        raw_len = uper_get_length(pd, -1, 0, &repeat);
+        raw_len = uper_get_length_e2ap_v1_01(pd, -1, 0, &repeat);
         if(raw_len < 0) RETURN(RC_WMORE);
         if(raw_len == 0 && st->buf) break;
 
@@ -74,7 +74,7 @@ ANY_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-ANY_encode_uper(const asn_TYPE_descriptor_t *td,
+ANY_encode_uper_e2ap_v1_01(const asn_TYPE_descriptor_t *td,
                 const asn_per_constraints_t *constraints, const void *sptr,
                 asn_per_outp_t *po) {
     const ANY_t *st = (const ANY_t *)sptr;
@@ -91,7 +91,7 @@ ANY_encode_uper(const asn_TYPE_descriptor_t *td,
     size = st->size;
     do {
         int need_eom = 0;
-        ssize_t may_save = uper_put_length(po, size, &need_eom);
+        ssize_t may_save = uper_put_length_e2ap_v1_01(po, size, &need_eom);
         if(may_save < 0) ASN__ENCODE_FAILED;
 
         ret = per_put_many_bits(po, buf, may_save * 8);
@@ -100,7 +100,7 @@ ANY_encode_uper(const asn_TYPE_descriptor_t *td,
         buf += may_save;
         size -= may_save;
         assert(!(may_save & 0x07) || !size);
-        if(need_eom && uper_put_length(po, 0, 0))
+        if(need_eom && uper_put_length_e2ap_v1_01(po, 0, 0))
             ASN__ENCODE_FAILED; /* End of Message length */
     } while(size);
 

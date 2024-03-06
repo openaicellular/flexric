@@ -14,8 +14,8 @@ extern "C" {
 
 typedef ASN__PRIMITIVE_TYPE_t INTEGER_t;
 
-extern asn_TYPE_descriptor_t asn_DEF_INTEGER;
-extern asn_TYPE_operation_t asn_OP_INTEGER;
+extern asn_TYPE_descriptor_t asn_DEF_INTEGER_e2ap_v3_01;
+extern asn_TYPE_operation_t asn_OP_INTEGER_e2ap_v3_01;
 
 /* Map with <tag> to integer value association */
 typedef struct asn_INTEGER_enum_map_s {
@@ -35,33 +35,33 @@ typedef struct asn_INTEGER_specifics_s {
 	int field_unsigned;			/* Signed=0, unsigned=1 */
 } asn_INTEGER_specifics_t;
 
-ssize_t INTEGER__dump(const asn_TYPE_descriptor_t *td,
+ssize_t INTEGER__dump_e2ap_v3_01(const asn_TYPE_descriptor_t *td,
                       const INTEGER_t *st,
                       asn_app_consume_bytes_f *cb,
                       void *app_key, int plainOrXER);
 
-#define INTEGER_free ASN__PRIMITIVE_TYPE_free
+#define INTEGER_free ASN__PRIMITIVE_TYPE_free_e2ap_v3_01
 
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-asn_struct_print_f INTEGER_print;
+asn_struct_print_f INTEGER_print_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
 
-asn_struct_compare_f INTEGER_compare;
+asn_struct_compare_f INTEGER_compare_e2ap_v3_01;
 
-#define INTEGER_constraint asn_generic_no_constraint
+#define INTEGER_constraint asn_generic_no_constraint_e2ap_v3_01
 
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-#define INTEGER_decode_ber ber_decode_primitive
-der_type_encoder_f INTEGER_encode_der;
+#define INTEGER_decode_ber ber_decode_e2ap_v3_01_primitive
+der_type_encoder_f INTEGER_encode_der_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-xer_type_decoder_f INTEGER_decode_xer;
-xer_type_encoder_f INTEGER_encode_xer;
+xer_type_decoder_f INTEGER_decode_xer_e2ap_v3_01;
+xer_type_encoder_f INTEGER_encode_xer_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
-jer_type_encoder_f INTEGER_encode_jer;
+jer_type_encoder_f INTEGER_encode_jer_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -70,16 +70,16 @@ oer_type_encoder_f INTEGER_encode_oer;
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-per_type_decoder_f INTEGER_decode_uper;
-per_type_encoder_f INTEGER_encode_uper;
+per_type_decoder_f INTEGER_decode_uper_e2ap_v3_01;
+per_type_encoder_f INTEGER_encode_uper_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-per_type_decoder_f INTEGER_decode_aper;
-per_type_encoder_f INTEGER_encode_aper;
+per_type_decoder_f INTEGER_decode_aper_e2ap_v3_01;
+per_type_encoder_f INTEGER_encode_aper_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-asn_random_fill_f INTEGER_random_fill;
+asn_random_fill_e2ap_v3_01_f INTEGER_random_fill_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
 
 /***********************************
@@ -94,20 +94,20 @@ asn_random_fill_f INTEGER_random_fill;
  * -1/ERANGE: Value encoded is out of range for long representation
  * -1/ENOMEM: Memory allocation failed (in asn_*2INTEGER()).
  */
-int asn_INTEGER2imax(const INTEGER_t *i, intmax_t *l);
-int asn_INTEGER2umax(const INTEGER_t *i, uintmax_t *l);
-int asn_imax2INTEGER(INTEGER_t *i, intmax_t l);
-int asn_umax2INTEGER(INTEGER_t *i, uintmax_t l);
+int asn_INTEGER2imax_e2ap_v3_01(const INTEGER_t *i, intmax_t *l);
+int asn_INTEGER2umax_e2ap_v3_01(const INTEGER_t *i, uintmax_t *l);
+int asn_imax2INTEGER_e2ap_v3_01(INTEGER_t *i, intmax_t l);
+int asn_umax2INTEGER_e2ap_v3_01(INTEGER_t *i, uintmax_t l);
 
 /*
  * Size-specific conversion helpers.
  */
-int asn_INTEGER2long(const INTEGER_t *i, long *l);
-int asn_INTEGER2ulong(const INTEGER_t *i, unsigned long *l);
-int asn_long2INTEGER(INTEGER_t *i, long l);
-int asn_ulong2INTEGER(INTEGER_t *i, unsigned long l);
-int asn_int642INTEGER(INTEGER_t *i, int64_t l);
-int asn_uint642INTEGER(INTEGER_t *i, uint64_t l);
+int asn_INTEGER2long_e2ap_v3_01(const INTEGER_t *i, long *l);
+int asn_INTEGER2ulong_e2ap_v3_01(const INTEGER_t *i, unsigned long *l);
+int asn_long2INTEGER_e2ap_v3_01(INTEGER_t *i, long l);
+int asn_ulong2INTEGER_e2ap_v3_01(INTEGER_t *i, unsigned long l);
+int asn_int642INTEGER_e2ap_v3_01(INTEGER_t *i, int64_t l);
+int asn_uint642INTEGER_e2ap_v3_01(INTEGER_t *i, uint64_t l);
 
 /* A version of strtol/strtoimax(3) with nicer error reporting. */
 enum asn_strtox_result_e {
@@ -117,19 +117,19 @@ enum asn_strtox_result_e {
     ASN_STRTOX_OK          =  0,  /* Conversion succeeded, number ends at (*end) */
     ASN_STRTOX_EXTRA_DATA  =  1   /* Conversion succeeded, but the string has extra stuff */
 };
-enum asn_strtox_result_e asn_strtol_lim(const char *str, const char **end,
+enum asn_strtox_result_e asn_strtol_lim_e2ap_v3_01(const char *str, const char **end,
                                         long *l);
-enum asn_strtox_result_e asn_strtoul_lim(const char *str, const char **end,
+enum asn_strtox_result_e asn_strtoul_lim_e2ap_v3_01(const char *str, const char **end,
                                          unsigned long *l);
-enum asn_strtox_result_e asn_strtoimax_lim(const char *str, const char **end,
+enum asn_strtox_result_e asn_strtoimax_lim_e2ap_v3_01(const char *str, const char **end,
                                            intmax_t *l);
-enum asn_strtox_result_e asn_strtoumax_lim(const char *str, const char **end,
+enum asn_strtox_result_e asn_strtoumax_lim_e2ap_v3_01(const char *str, const char **end,
                                            uintmax_t *l);
 
 /*
  * Convert the integer value into the corresponding enumeration map entry.
  */
-const asn_INTEGER_enum_map_t *INTEGER_map_value2enum(
+const asn_INTEGER_enum_map_t *INTEGER_map_value2enum_e2ap_v3_01(
     const asn_INTEGER_specifics_t *specs, long value);
 
 #ifdef __cplusplus

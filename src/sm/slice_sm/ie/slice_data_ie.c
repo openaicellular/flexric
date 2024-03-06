@@ -890,7 +890,7 @@ void free_slice_func_def( slice_func_def_t* src)
     free(src->supported_alg);
 }
 
-slice_func_def_t cp_slice_func_def(slice_func_def_t* src)
+slice_func_def_t cp_slice_func_def(slice_func_def_t const* src)
 {
   assert(src != NULL);
 
@@ -906,7 +906,7 @@ slice_func_def_t cp_slice_func_def(slice_func_def_t* src)
   return ans;
 }
 
-bool eq_slice_func_def(slice_func_def_t* m0, slice_func_def_t* m1)
+bool eq_slice_func_def(slice_func_def_t const* m0, slice_func_def_t const* m1)
 {
   assert(m0 != NULL);
   assert(m1 != NULL);

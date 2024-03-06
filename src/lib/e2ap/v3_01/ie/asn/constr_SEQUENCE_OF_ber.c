@@ -11,7 +11,7 @@
  * The DER encoder of the SEQUENCE OF type.
  */
 asn_enc_rval_t
-SEQUENCE_OF_encode_der(const asn_TYPE_descriptor_t *td, const void *ptr,
+SEQUENCE_OF_encode_der_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *ptr,
                        int tag_mode, ber_tlv_tag_t tag,
                        asn_app_consume_bytes_f *cb, void *app_key) {
     asn_TYPE_member_t *elm = td->elements;
@@ -29,7 +29,7 @@ SEQUENCE_OF_encode_der(const asn_TYPE_descriptor_t *td, const void *ptr,
     for(edx = 0; edx < list->count; edx++) {
         void *memb_ptr = list->array[edx];
         if(!memb_ptr) continue;
-        erval = elm->type->op->der_encoder(elm->type, memb_ptr,
+        erval = elm->type->op->der_encode_e2ap_v3_01r(elm->type, memb_ptr,
                                            0, elm->tag,
                                            0, 0);
         if(erval.encoded == -1)
@@ -40,7 +40,7 @@ SEQUENCE_OF_encode_der(const asn_TYPE_descriptor_t *td, const void *ptr,
     /*
      * Encode the TLV for the sequence itself.
      */
-    encoding_size = der_write_tags(td, computed_size, tag_mode, 1, tag,
+    encoding_size = der_write_tags_e2ap_v3_01(td, computed_size, tag_mode, 1, tag,
                                    cb, app_key);
     if(encoding_size == -1) {
         erval.encoded = -1;
@@ -63,7 +63,7 @@ SEQUENCE_OF_encode_der(const asn_TYPE_descriptor_t *td, const void *ptr,
     for(edx = 0; edx < list->count; edx++) {
         void *memb_ptr = list->array[edx];
         if(!memb_ptr) continue;
-        erval = elm->type->op->der_encoder(elm->type, memb_ptr,
+        erval = elm->type->op->der_encode_e2ap_v3_01r(elm->type, memb_ptr,
                                            0, elm->tag,
                                            cb, app_key);
         if(erval.encoded == -1)

@@ -13,7 +13,7 @@ typedef struct jer_tmp_enc_s {
 } jer_tmp_enc_t;
 
 static int
-SET_OF_encode_jer_callback(const void *buffer, size_t size, void *key) {
+SET_OF_encode_jer_e2ap_v3_01_callback(const void *buffer, size_t size, void *key) {
     jer_tmp_enc_t *t = (jer_tmp_enc_t *)key;
     if(t->offset + size >= t->size) {
         size_t newsize = (t->size << 2) + size;
@@ -45,8 +45,8 @@ SET_OF_jer_order(const void *aptr, const void *bptr) {
 }
 
 asn_enc_rval_t
-SET_OF_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
-                  enum jer_encoder_flags_e flags, asn_app_consume_bytes_f *cb,
+SET_OF_encode_jer_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
+                  enum jer_encode_e2ap_v3_01r_flags_e flags, asn_app_consume_bytes_f *cb,
                   void *app_key) {
     asn_enc_rval_t er = {0,0,0};
     const asn_SET_OF_specifics_t *specs = (const asn_SET_OF_specifics_t *)td->specifics;
@@ -67,7 +67,7 @@ SET_OF_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
     if(xcan) {
         encs = (jer_tmp_enc_t *)MALLOC(list->count * sizeof(encs[0]));
         if(!encs) ASN__ENCODE_FAILED;
-        cb = SET_OF_encode_jer_callback;
+        cb = SET_OF_encode_jer_e2ap_v3_01_callback;
     }
 
     er.encoded = 0;
@@ -91,7 +91,7 @@ SET_OF_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
 
         if(!xcan && specs->as_XMLValueList == 1)
             ASN__TEXT_INDENT(1, ilevel + 1);
-        tmper = elm->type->op->jer_encoder(elm->type, memb_ptr,
+        tmper = elm->type->op->jer_encode_e2ap_v3_01r(elm->type, memb_ptr,
                                            ilevel + (specs->as_XMLValueList != 2),
                                            flags, cb, app_key);
         if(tmper.encoded == -1) return tmper;

@@ -13,13 +13,13 @@ extern "C" {
 
 struct asn_TYPE_descriptor_s;	/* Forward declaration */
 
-/* Flags used by the jer_encode() and (*jer_type_encoder_f), defined below
+/* Flags used by the jer_encode_e2ap_v3_01() and (*jer_type_encoder_f), defined below
  *
  * This isn't actually used, it might be used in the future to support
  * both normal JSON and prettified JSON output or removed.
  * It came from XER
  */
-enum jer_encoder_flags_e {
+enum jer_encode_e2ap_v3_01r_flags_e {
 	/* Mode of encoding */
 	JER_F	= 0x01,	/* JER (pretty-printing) */
 };
@@ -28,7 +28,7 @@ enum jer_encoder_flags_e {
  * The JER encoder of any type. May be invoked by the application.
  * Produces JER output.
  */
-asn_enc_rval_t jer_encode(const struct asn_TYPE_descriptor_s *type_descriptor,
+asn_enc_rval_t jer_encode_e2ap_v3_01(const struct asn_TYPE_descriptor_s *type_descriptor,
                           const void *struct_ptr, /* Structure to be encoded */
                           asn_app_consume_bytes_f *consume_bytes_cb,
                           void *app_key /* Arbitrary callback argument */
@@ -42,7 +42,7 @@ asn_enc_rval_t jer_encode(const struct asn_TYPE_descriptor_s *type_descriptor,
  * 	-1: Problem printing the structure.
  * WARNING: No sensible errno value is returned.
  */
-int jer_fprint(FILE *stream, const struct asn_TYPE_descriptor_s *td,
+int jer_fprint_e2ap_v3_01(FILE *stream, const struct asn_TYPE_descriptor_s *td,
                const void *struct_ptr);
 
 /*
@@ -74,7 +74,7 @@ typedef asn_enc_rval_t(jer_type_encoder_f)(
     const struct asn_TYPE_descriptor_s *type_descriptor,
     const void *struct_ptr, /* Structure to be encoded */
     int ilevel,             /* Level of indentation */
-    enum jer_encoder_flags_e jer_flags,
+    enum jer_encode_e2ap_v3_01r_flags_e jer_flags,
     asn_app_consume_bytes_f *consume_bytes_cb, /* Callback */
     void *app_key                              /* Arbitrary callback argument */
 );

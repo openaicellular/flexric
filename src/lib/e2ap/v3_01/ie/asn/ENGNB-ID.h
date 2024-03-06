@@ -43,10 +43,10 @@ typedef struct ENGNB_ID {
 } ENGNB_ID_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_ENGNB_ID;
-extern asn_CHOICE_specifics_t asn_SPC_ENGNB_ID_specs_1;
-extern asn_TYPE_member_t asn_MBR_ENGNB_ID_1[1];
-extern asn_per_constraints_t asn_PER_type_ENGNB_ID_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_ENGNB_ID_e2ap_v3_01;
+extern asn_CHOICE_specifics_t asn_SPC_ENGNB_ID_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_ENGNB_ID_1_e2ap_v3_01[1];
+extern asn_per_constraints_t asn_PER_type_ENGNB_ID_constr_1_e2ap_v3_01;
 
 #ifdef __cplusplus
 }

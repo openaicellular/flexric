@@ -31,10 +31,10 @@ typedef struct E2connectionUpdate_List {
 } E2connectionUpdate_List_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2connectionUpdate_List;
-extern asn_SET_OF_specifics_t asn_SPC_E2connectionUpdate_List_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2connectionUpdate_List_1[1];
-extern asn_per_constraints_t asn_PER_type_E2connectionUpdate_List_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_E2connectionUpdate_e2ap_v3_01_List;
+extern asn_SET_OF_specifics_t asn_SPC_E2connectionUpdate_List_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_E2connectionUpdate_List_1_e2ap_v3_01[1];
+extern asn_per_constraints_t asn_PER_type_E2connectionUpdate_List_constr_1_e2ap_v3_01;
 
 #ifdef __cplusplus
 }

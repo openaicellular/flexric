@@ -10,7 +10,7 @@
  * INTEGER specific human-readable output.
  */
 int
-NativeInteger_print(const asn_TYPE_descriptor_t *td, const void *sptr,
+NativeInteger_print_e2ap_v2_03(const asn_TYPE_descriptor_t *td, const void *sptr,
                     int ilevel, asn_app_consume_bytes_f *cb, void *app_key) {
     const asn_INTEGER_specifics_t *specs =
         (const asn_INTEGER_specifics_t *)td->specifics;
@@ -29,7 +29,7 @@ NativeInteger_print(const asn_TYPE_descriptor_t *td, const void *sptr,
         if(cb(scratch, ret, app_key) < 0) return -1;
         if(specs && (value >= 0 || !specs->field_unsigned)) {
             const asn_INTEGER_enum_map_t *el =
-                INTEGER_map_value2enum(specs, value);
+                INTEGER_map_value2enum_e2ap_v2_03(specs, value);
             if(el) {
                 if(cb(" (", 2, app_key) < 0) return -1;
                 if(cb(el->enum_name, el->enum_len, app_key) < 0) return -1;

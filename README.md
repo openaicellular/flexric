@@ -338,7 +338,36 @@ sudo phc2sys -m -s InterfaceName -w
 
 * Start different xApps
 
-  e.g, start the kpm monitoring xApp via `$ ./build/examples/xApp/c/monitor/xapp_kpm_moni`. The controlling sequence diagram is represented below:
+  * start the KPM monitor xApp
+    At the moment, the following measurements are supported:
+    * "DRB.PdcpSduVolumeDL"
+    * "DRB.PdcpSduVolumeUL"
+    * "DRB.RlcSduDelayDl"
+    * "DRB.UEThpDl"
+    * "DRB.UEThpUl"
+    * "RRU.PrbTotDl"
+    * "RRU.PrbTotUl"
+    
+  ```bash
+  $ ./build/examples/xApp/c/monitor/xapp_kpm_moni
+  ```
+
+  * start the RC monitor xApp - aperiodic subscription support for "UE RRC State Change"
+  ```bash
+  $ ./build/examples/xApp/c/monitor/xapp_rc_moni
+  ```
+
+  * start the RC control xApp - RAN control function "QoS flow mapping configuration" support, i.e. creating a new DRB
+  ```bash
+  $ ./build/examples/xApp/c/kpm_rc/xapp_kpm_rc
+  ```
+
+  * start the (MAC + RLC + PDCP + GTP) monitor xApp
+  ```bash
+  $ ./build/examples/xApp/c/monitor/xapp_gtp_mac_rlc_pdcp_moni
+  ```
+  
+  The controlling sequence diagram is represented below:
 
   ![alt text](fig/4.png)
 

@@ -8,11 +8,11 @@
 #include <constr_TYPE.h>
 
 int
-asn_random_fill(const struct asn_TYPE_descriptor_s *td, void **struct_ptr,
+asn_random_fill_e2ap_v3_01(const struct asn_TYPE_descriptor_s *td, void **struct_ptr,
                 size_t length) {
 
     if(td && td->op->random_fill) {
-        asn_random_fill_result_t res =
+        asn_random_fill_e2ap_v3_01_result_t res =
             td->op->random_fill(td, struct_ptr, 0, length);
         return (res.code == ARFILL_OK) ? 0 : -1;
     } else {
@@ -34,7 +34,7 @@ asn__intmax_range(intmax_t lb, intmax_t ub) {
 }
 
 intmax_t
-asn_random_between(intmax_t lb, intmax_t rb) {
+asn_random_between_e2ap_v3_01(intmax_t lb, intmax_t rb) {
     if(lb == rb) {
         return lb;
     } else {

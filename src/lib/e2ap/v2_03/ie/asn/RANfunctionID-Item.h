@@ -34,9 +34,9 @@ typedef struct RANfunctionID_Item {
 } RANfunctionID_Item_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RANfunctionID_Item;
-extern asn_SEQUENCE_specifics_t asn_SPC_RANfunctionID_Item_specs_1;
-extern asn_TYPE_member_t asn_MBR_RANfunctionID_Item_1[2];
+extern asn_TYPE_descriptor_t asn_DEF_RANfunctionID_e2ap_v2_03_Item;
+extern asn_SEQUENCE_specifics_t asn_SPC_RANfunctionID_Item_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_RANfunctionID_Item_1_e2ap_v2_03[2];
 
 #ifdef __cplusplus
 }

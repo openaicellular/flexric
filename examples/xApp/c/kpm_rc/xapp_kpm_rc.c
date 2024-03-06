@@ -52,7 +52,7 @@ static
 pthread_mutex_t mtx;
 
 static
-void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
+void sm_cb_kpm(sm_ag_if_rd_t const* rd)
 {
   assert(rd != NULL);
   assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
@@ -61,8 +61,7 @@ void sm_cb_kpm(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* e2_node)
   kpm_ind_data_t const* kpm = &rd->ind.kpm.ind;
 
   int64_t now = time_now_us();
-  printf("[KPM RC]: KPM ind_msg latency = %ld μs from E2-node type %d ID %d\n",
-         now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime, e2_node->type, e2_node->nb_id.nb_id);
+  printf("[KPM RC]: KPM ind_msg latency = %ld μs\n", now - kpm->hdr.kpm_ric_ind_hdr_format_1.collectStartTime);
 
 #if defined KPM_V2_03 || defined KPM_V3_00
   printf("[KPM RC]: Sojourn time %lf \n",kpm->msg.frm_3.meas_report_per_ue[0].ind_msg_format_1.meas_data_lst[0].meas_record_lst[0].real_val);
@@ -124,30 +123,46 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char* action)
 
 #if defined KPM_V2_03 || KPM_V3_00
 static
+test_info_lst_t filter_predicate(test_cond_type_e type, test_cond_e cond, int value)
+{
+  test_info_lst_t dst = {0};
+
+  dst.test_cond_type = type;
+  // It can only be TRUE_TEST_COND_TYPE so it does not matter the type
+  // but ugly ugly...
+  dst.S_NSSAI = TRUE_TEST_COND_TYPE;
+
+  dst.test_cond = calloc(1, sizeof(test_cond_e));
+  assert(dst.test_cond != NULL && "Memory exhausted");
+  *dst.test_cond = cond;
+
+  dst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
+  assert(dst.test_cond_value != NULL && "Memory exhausted");
+  dst.test_cond_value->type = INTEGER_TEST_COND_VALUE;
+
+  dst.test_cond_value->int_value = calloc(1, sizeof(int64_t));
+  assert(dst.test_cond_value->int_value != NULL && "Memory exhausted");
+  *dst.test_cond_value->int_value = value;
+
+  return dst;
+}
+
+static
 kpm_act_def_format_4_t gen_act_def_frmt_4(const char* action)
 {
   kpm_act_def_format_4_t dst = {0};
 
   // [1, 32768]
-  dst.matching_cond_lst_len = 1;  
+  dst.matching_cond_lst_len = 1;
 
   dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
   assert(dst.matching_cond_lst != NULL && "Memory exhausted");
- 
-  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
-  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
-  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
-  
-  dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
 
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted"); 
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value->type = INTEGER_TEST_COND_VALUE;
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = malloc(sizeof(int64_t));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = 0;
+  // Filter connected UEs by S-NSSAI criteria
+  test_cond_type_e const type = S_NSSAI_TEST_COND_TYPE; // CQI_TEST_COND_TYPE
+  test_cond_e const condition = EQUAL_TEST_COND; // GREATERTHAN_TEST_COND
+  int const value = 1;
+  dst.matching_cond_lst[0].test_info_lst = filter_predicate(type, condition, value);
 
   // Action definition Format 1 
   dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
@@ -162,10 +177,10 @@ kpm_act_def_t gen_act_def(const char* act)
   kpm_act_def_t dst = {0}; 
 
 #ifdef KPM_V2_01
-  dst.type = FORMAT_1_ACTION_DEFINITION;
+  dst.type = FORMAT_1_ACTION_DEFINITION; 
   dst.frm_1 = gen_act_def_frmt_1(act);
 #elif defined KPM_V2_03 || KPM_V3_00
-  dst.type = FORMAT_4_ACTION_DEFINITION;
+  dst.type = FORMAT_4_ACTION_DEFINITION; 
   dst.frm_4 = gen_act_def_frmt_4(act);
 #endif
   return dst;
@@ -260,8 +275,8 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_qos_flow_map()
  //
  // Misses RAN Parameter ID and only has RAN Parameter Structure
 
-  // rpl->lst_ran_param[0].ran_param_id = QOS_FLOW_ITEM_8_4_2_2;
-
+  // rpl->lst_ran_param[0].ran_param_id = QOS_FLOW_ITEM_8_4_2_2; 
+  
   rpl->lst_ran_param[0].ran_param_struct.sz_ran_param_struct = 2;
   rpl->lst_ran_param[0].ran_param_struct.ran_param_struct = calloc(2, sizeof(seq_ran_param_t));
   assert(rpl->lst_ran_param[0].ran_param_struct.ran_param_struct != NULL && "Memory exhausted");
@@ -302,24 +317,31 @@ e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg(void)
   return dst;
 }
 
+static
+char* get_first_meas_value(sm_ran_function_t const* rf)
+{
+  assert(rf != NULL);
+  const char* buf = (const char*)rf->defn.kpm.ric_report_style_list[0].meas_info_for_action_lst[0].name.buf;
+  const size_t sz = rf->defn.kpm.ric_report_style_list[0].meas_info_for_action_lst[0].name.len;
+  return strndup(buf,sz);
+}
+
 
 int main(int argc, char *argv[])
 {
   fr_args_t args = init_fr_args(argc, argv);
-  defer({ free_fr_args(&args); });
 
   //Init the xApp
   init_xapp_api(&args);
   sleep(1);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
   assert(nodes.len > 0);
 
   printf("[KPM RC]: Connected E2 nodes = %d\n", nodes.len);
 
   sm_ans_xapp_t* h = calloc(nodes.len, sizeof(sm_ans_xapp_t)); 
   assert(h != NULL && "Memory exhausted");
-
 
   pthread_mutexattr_t attr = {0};
   int rc = pthread_mutex_init(&mtx, &attr);
@@ -337,21 +359,29 @@ int main(int argc, char *argv[])
 
   const int KPM_ran_function = 2;
 
-  for(size_t i =0; i < nodes.len; ++i){
+  for(size_t i =0; i < nodes.len; ++i){ 
     // KPM Action Definition
     kpm_sub.sz_ad = 1;
     kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
     assert(kpm_sub.ad != NULL && "Memory exhausted");
 
-    e2ap_ngran_node_t const t = nodes.n[i].id.type;
-    bool du_or_gnb = t == e2ap_ngran_gNB || t == e2ap_ngran_gNB_DU;
-    const char* act = du_or_gnb ? "DRB.RlcSduDelayDl" : "DRB.PdcpSduVolumeDL";
-    *kpm_sub.ad = gen_act_def(act);
+    char* act = NULL;
+    for(size_t j = 0; j < nodes.n[i].len_rf; ++j){
+      sm_ran_function_t const* rf = nodes.n[i].rf;
+      if(rf[j].id == KPM_ran_function){
+        act = get_first_meas_value(&rf[j]);
+      }
+    }
+    assert(act != NULL && "No measurement list in KPM?");
+
+    *kpm_sub.ad = gen_act_def(act); 
 
     h[i] = report_sm_xapp_api(&nodes.n[i].id, KPM_ran_function, &kpm_sub, sm_cb_kpm);
     assert(h[i].success == true);
 
-    free_kpm_sub_data(&kpm_sub);
+    free_kpm_sub_data(&kpm_sub); 
+    if(act != NULL)
+      free(act);
   }
 
   //////////// 
@@ -369,7 +399,7 @@ int main(int argc, char *argv[])
   //  defer({ free_rc_sub_data(&rc_sub); });
   //  sm_ans_xapp_t h_2 = report_sm_xapp_api(&nodes.n[0].id, RC_ran_function, &rc_sub, sm_cb_rc);
   //  assert(h_2.success == true);
-
+  
   // RC Control 
   rc_ctrl_req_data_t rc_ctrl = {0};
 
@@ -379,8 +409,8 @@ int main(int argc, char *argv[])
   const int RC_ran_function = 3;
 
   for(size_t i =0; i < nodes.len; ++i){ 
-    e2ap_ngran_node_t const t = nodes.n[i].id.type;
-    if(t == e2ap_ngran_gNB || t == e2ap_ngran_gNB_CU)
+    ngran_node_t const t = nodes.n[i].id.type;
+    if(t == ngran_gNB || t == ngran_gNB_CU)
       control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
   }
   free_rc_ctrl_req_data(&rc_ctrl);
@@ -403,7 +433,7 @@ int main(int argc, char *argv[])
 
   free(h);
 
-  free_e2_node_arr(&nodes);
+  free_e2_node_arr_xapp(&nodes);
 
   rc = pthread_mutex_destroy(&mtx);
   assert(rc == 0);

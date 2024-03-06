@@ -22,11 +22,11 @@ extern "C" {
 typedef long	 RICindicationSN_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_RICindicationSN_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_RICindicationSN;
+extern asn_per_constraints_t asn_PER_type_RICindicationSN_constr_1_e2ap_v1_01;
+extern asn_TYPE_descriptor_t asn_DEF_RICindication_e2ap_v1_01SN;
 asn_struct_free_f RICindicationSN_free;
 asn_struct_print_f RICindicationSN_print;
-asn_constr_check_f RICindicationSN_constraint;
+asn_constr_check_f RICindicationSN_constraint_e2ap_v1_01;
 ber_type_decoder_f RICindicationSN_decode_ber;
 der_type_encoder_f RICindicationSN_encode_der;
 xer_type_decoder_f RICindicationSN_decode_xer;

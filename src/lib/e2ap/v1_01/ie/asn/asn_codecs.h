@@ -17,8 +17,8 @@ struct asn_TYPE_descriptor_s;	/* Forward declaration */
  * WARNING: if max_stack_size member is set, and you are calling the
  *   function pointers of the asn_TYPE_descriptor_t directly,
  *   this structure must be ALLOCATED ON THE STACK!
- *   If you can't always satisfy this requirement, use ber_decode(),
- *   xer_decode() and uper_decode() functions instead.
+ *   If you can't always satisfy this requirement, use ber_decode_e2ap_v1_01(),
+ *   xer_decode_e2ap_v1_01() and uper_decode_e2ap_v1_01() functions instead.
  */
 typedef struct asn_codec_ctx_s {
 	/*
@@ -36,7 +36,7 @@ typedef struct asn_codec_ctx_s {
 } asn_codec_ctx_t;
 
 /*
- * Type of the return value of the encoding functions (der_encode, xer_encode).
+ * Type of the return value of the encoding functions (der_encode_e2ap_v1_01, xer_encode_e2ap_v1_01).
  */
 typedef struct asn_enc_rval_s {
 	/*
@@ -71,7 +71,7 @@ typedef struct asn_enc_rval_s {
 } while(0)
 
 /*
- * Type of the return value of the decoding functions (ber_decode, xer_decode)
+ * Type of the return value of the decoding functions (ber_decode_e2ap_v1_01, xer_decode_e2ap_v1_01)
  * 
  * Please note that the number of consumed bytes is ALWAYS meaningful,
  * even if code==RC_FAIL. This is to indicate the number of successfully

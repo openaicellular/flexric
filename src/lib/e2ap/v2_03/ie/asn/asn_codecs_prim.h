@@ -16,16 +16,16 @@ typedef struct ASN__PRIMITIVE_TYPE_s {
     size_t size;   /* Size of the buffer */
 } ASN__PRIMITIVE_TYPE_t;  /* Do not use this type directly! */
 
-asn_struct_free_f ASN__PRIMITIVE_TYPE_free;
+asn_struct_free_f ASN__PRIMITIVE_TYPE_free_e2ap_v2_03;
 
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-ber_type_decoder_f ber_decode_primitive;
-der_type_encoder_f der_encode_primitive;
+ber_type_decoder_f ber_decode_e2ap_v2_03_primitive_e2ap_v2_03;
+der_type_encoder_f der_encode_e2ap_v2_03_primitive_e2ap_v2_03;
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_XER_SUPPORT)
 /*
- * A callback specification for the xer_decode_primitive() function below.
+ * A callback specification for the xer_decode_e2ap_v2_03_primitive_e2ap_v2_03() function below.
  */
 enum xer_pbd_rval {
     XPBD_SYSTEM_FAILURE,   /* System failure (memory shortage, etc) */
@@ -40,9 +40,9 @@ typedef enum xer_pbd_rval(xer_primitive_body_decoder_f)(
 
 /*
  * Specific function to decode simple primitive types.
- * Also see xer_decode_general() in xer_decoder.h
+ * Also see xer_decode_e2ap_v2_03_general() in xer_decode_e2ap_v2_03r.h
  */
-asn_dec_rval_t xer_decode_primitive(
+asn_dec_rval_t xer_decode_e2ap_v2_03_primitive_e2ap_v2_03(
     const asn_codec_ctx_t *opt_codec_ctx,
     const asn_TYPE_descriptor_t *type_descriptor, void **struct_ptr,
     size_t struct_size, const char *opt_mname, const void *buf_ptr, size_t size,

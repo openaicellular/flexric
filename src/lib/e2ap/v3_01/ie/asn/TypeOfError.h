@@ -31,9 +31,9 @@ typedef enum TypeOfError {
 typedef long	 TypeOfError_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_TypeOfError_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_TypeOfError;
-extern const asn_INTEGER_specifics_t asn_SPC_TypeOfError_specs_1;
+extern asn_per_constraints_t asn_PER_type_TypeOfError_constr_1_e2ap_v3_01;
+extern asn_TYPE_descriptor_t asn_DEF_TypeOfError_e2ap_v3_01;
+extern const asn_INTEGER_specifics_t asn_SPC_TypeOfError_specs_1_e2ap_v3_01;
 asn_struct_free_f TypeOfError_free;
 asn_struct_print_f TypeOfError_print;
 asn_constr_check_f TypeOfError_constraint;

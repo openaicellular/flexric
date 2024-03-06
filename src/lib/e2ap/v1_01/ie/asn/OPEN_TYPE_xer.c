@@ -8,7 +8,7 @@
 #include <constr_CHOICE.h>
 
 asn_dec_rval_t
-OPEN_TYPE_xer_get(const asn_codec_ctx_t *opt_codec_ctx,
+OPEN_TYPE_xer_get_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                   const asn_TYPE_descriptor_t *td, void *sptr,
                   const asn_TYPE_member_t *elm, const void *ptr, size_t size) {
     size_t consumed_myself = 0;
@@ -47,7 +47,7 @@ OPEN_TYPE_xer_get(const asn_codec_ctx_t *opt_codec_ctx,
     }
     if(*memb_ptr2 != NULL) {
         /* Make sure we reset the structure first before encoding */
-        if(CHOICE_variant_set_presence(elm->type, *memb_ptr2, 0)
+        if(CHOICE_variant_set_presence_e2ap_v1_01(elm->type, *memb_ptr2, 0)
            != 0) {
             ASN__DECODE_FAILED;
         }
@@ -57,7 +57,7 @@ OPEN_TYPE_xer_get(const asn_codec_ctx_t *opt_codec_ctx,
      * Confirm wrapper.
      */
     for(;;) {
-        ch_size = xer_next_token(&xer_context, ptr, size, &ch_type);
+        ch_size = xer_next_token_e2ap_v1_01(&xer_context, ptr, size, &ch_type);
         if(ch_size < 0) {
             ASN__DECODE_FAILED;
         } else {
@@ -78,7 +78,7 @@ OPEN_TYPE_xer_get(const asn_codec_ctx_t *opt_codec_ctx,
     /*
      * Wrapper value confirmed.
      */
-    switch(xer_check_tag(ptr, ch_size, elm->name)) {
+    switch(xer_check_tag_e2ap_v1_01(ptr, ch_size, elm->name)) {
     case XCT_OPENING:
         ADVANCE(ch_size);
         break;
@@ -91,13 +91,13 @@ OPEN_TYPE_xer_get(const asn_codec_ctx_t *opt_codec_ctx,
         (char *)*memb_ptr2
         + elm->type->elements[selected.presence_index - 1].memb_offset;
 
-    rv = selected.type_descriptor->op->xer_decoder(
+    rv = selected.type_descriptor->op->xer_decode_e2ap_v1_01r(
         opt_codec_ctx, selected.type_descriptor, &inner_value, NULL, ptr, size);
     ADVANCE(rv.consumed);
     rv.consumed = 0;
     switch(rv.code) {
     case RC_OK:
-        if(CHOICE_variant_set_presence(elm->type, *memb_ptr2,
+        if(CHOICE_variant_set_presence_e2ap_v1_01(elm->type, *memb_ptr2,
                                        selected.presence_index)
            == 0) {
             break;
@@ -130,7 +130,7 @@ OPEN_TYPE_xer_get(const asn_codec_ctx_t *opt_codec_ctx,
      * Finalize wrapper.
      */
     for(;;) {
-        ch_size = xer_next_token(&xer_context, ptr, size, &ch_type);
+        ch_size = xer_next_token_e2ap_v1_01(&xer_context, ptr, size, &ch_type);
         if(ch_size < 0) {
             ASN__DECODE_FAILED;
         } else {
@@ -151,7 +151,7 @@ OPEN_TYPE_xer_get(const asn_codec_ctx_t *opt_codec_ctx,
     /*
      * Wrapper value confirmed.
      */
-    switch(xer_check_tag(ptr, ch_size, elm->name)) {
+    switch(xer_check_tag_e2ap_v1_01(ptr, ch_size, elm->name)) {
     case XCT_CLOSING:
         ADVANCE(ch_size);
         break;

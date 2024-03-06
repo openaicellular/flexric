@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-asn_dec_rval_t uper_sot_suck(
+asn_dec_rval_t uper_sot_suck_e2ap_v2_03(
         const asn_codec_ctx_t *,
         const asn_TYPE_descriptor_t *td,
         const asn_per_constraints_t *constraints,

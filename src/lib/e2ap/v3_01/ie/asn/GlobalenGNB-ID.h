@@ -34,9 +34,9 @@ typedef struct GlobalenGNB_ID {
 } GlobalenGNB_ID_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_GlobalenGNB_ID;
-extern asn_SEQUENCE_specifics_t asn_SPC_GlobalenGNB_ID_specs_1;
-extern asn_TYPE_member_t asn_MBR_GlobalenGNB_ID_1[2];
+extern asn_TYPE_descriptor_t asn_DEF_GlobalenGNB_ID_e2ap_v3_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_GlobalenGNB_ID_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_GlobalenGNB_ID_1_e2ap_v3_01[2];
 
 #ifdef __cplusplus
 }

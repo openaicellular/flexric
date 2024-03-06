@@ -37,17 +37,18 @@ int main(int argc, char *argv[])
   init_xapp_api(&args);
   sleep(1);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
 
   assert(nodes.len > 0);
 
   printf("Connected E2 nodes = %d\n", nodes.len);
 
   for (int i = 0; i < nodes.len; i++) {
-    e2_node_connected_t* n = &nodes.n[i];
+    e2_node_connected_xapp_t* n = &nodes.n[i];
+
     for (size_t j = 0; j < n->len_rf; j++)
-      printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
+      printf("Registered node %d ran func id = %d \n ", i, n->rf[j].id);
 
     if(n->id.type == ngran_gNB || n->id.type == ngran_gNB_DU){
       mac_ctrl_req_data_t wr = {.hdr.dummy = 1, .msg.action = 42 };
@@ -64,10 +65,4 @@ int main(int argc, char *argv[])
 
   printf("Test xApp run SUCCESSFULLY\n");
 }
-
-
-
-
-
-
 

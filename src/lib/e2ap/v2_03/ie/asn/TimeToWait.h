@@ -35,9 +35,9 @@ typedef enum TimeToWait {
 typedef long	 TimeToWait_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_TimeToWait_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_TimeToWait;
-extern const asn_INTEGER_specifics_t asn_SPC_TimeToWait_specs_1;
+extern asn_per_constraints_t asn_PER_type_TimeToWait_constr_1_e2ap_v2_03;
+extern asn_TYPE_descriptor_t asn_DEF_TimeToWait_e2ap_v2_03;
+extern const asn_INTEGER_specifics_t asn_SPC_TimeToWait_specs_1_e2ap_v2_03;
 asn_struct_free_f TimeToWait_free;
 asn_struct_print_f TimeToWait_print;
 asn_constr_check_f TimeToWait_constraint;

@@ -16,24 +16,24 @@ extern "C" {
  * A set specialized functions dealing with the SEQUENCE OF type.
  * Generally implemented using SET OF.
  */
-#define SEQUENCE_OF_free SET_OF_free
+#define SEQUENCE_OF_free SET_OF_free_e2ap_v1_01
 
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-#define SEQUENCE_OF_print SET_OF_print
+#define SEQUENCE_OF_print SET_OF_print_e2ap_v1_01
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
 
-asn_struct_compare_f SEQUENCE_OF_compare;
+asn_struct_compare_f SEQUENCE_OF_compare_e2ap_v1_01;
 
-#define SEQUENCE_OF_constraint SET_OF_constraint
+#define SEQUENCE_OF_constraint SET_OF_constraint_e2ap_v1_01
 
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-#define SEQUENCE_OF_decode_ber SET_OF_decode_ber
-der_type_encoder_f SEQUENCE_OF_encode_der;
+#define SEQUENCE_OF_decode_ber SET_OF_decode_ber_e2ap_v1_01
+der_type_encoder_f SEQUENCE_OF_encode_der_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-#define SEQUENCE_OF_decode_xer SET_OF_decode_xer
-xer_type_encoder_f SEQUENCE_OF_encode_xer;
+#define SEQUENCE_OF_decode_xer SET_OF_decode_xer_e2ap_v1_01
+xer_type_encoder_f SEQUENCE_OF_encode_xer_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
@@ -46,19 +46,19 @@ jer_type_encoder_f SEQUENCE_OF_encode_jer;
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-#define SEQUENCE_OF_decode_uper SET_OF_decode_uper
-per_type_encoder_f SEQUENCE_OF_encode_uper;
+#define SEQUENCE_OF_decode_uper SET_OF_decode_uper_e2ap_v1_01
+per_type_encoder_f SEQUENCE_OF_encode_uper_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-#define SEQUENCE_OF_decode_aper SET_OF_decode_aper
-per_type_encoder_f SEQUENCE_OF_encode_aper;
+#define SEQUENCE_OF_decode_aper SET_OF_decode_aper_e2ap_v1_01
+per_type_encoder_f SEQUENCE_OF_encode_aper_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-#define SEQUENCE_OF_random_fill SET_OF_random_fill
+#define SEQUENCE_OF_random_fill SET_OF_random_fill_e2ap_v1_01
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
 
-extern asn_TYPE_operation_t asn_OP_SEQUENCE_OF;
+extern asn_TYPE_operation_t asn_OP_SEQUENCE_e2ap_v1_01_OF;
 
 #ifdef __cplusplus
 }

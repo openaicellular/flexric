@@ -10,8 +10,8 @@
  * The XER encoder of any type. May be invoked by the application.
  */
 asn_enc_rval_t
-xer_encode(const asn_TYPE_descriptor_t *td, const void *sptr,
-           enum xer_encoder_flags_e xer_flags, asn_app_consume_bytes_f *cb,
+xer_encode_e2ap_v2_03(const asn_TYPE_descriptor_t *td, const void *sptr,
+           enum xer_encode_e2ap_v2_03r_flags_e xer_flags, asn_app_consume_bytes_f *cb,
            void *app_key) {
     asn_enc_rval_t er = {0, 0, 0};
 	asn_enc_rval_t tmper;
@@ -26,7 +26,7 @@ xer_encode(const asn_TYPE_descriptor_t *td, const void *sptr,
 
 	ASN__CALLBACK3("<", 1, mname, mlen, ">", 1);
 
-	tmper = td->op->xer_encoder(td, sptr, 1, xer_flags, cb, app_key);
+	tmper = td->op->xer_encode_e2ap_v2_03r(td, sptr, 1, xer_flags, cb, app_key);
 	if(tmper.encoded == -1) return tmper;
 	er.encoded += tmper.encoded;
 
@@ -38,7 +38,7 @@ cb_failed:
 }
 
 /*
- * This is a helper function for xer_fprint, which directs all incoming data
+ * This is a helper function for xer_fprint_e2ap_v2_03, which directs all incoming data
  * into the provided file descriptor.
  */
 static int
@@ -52,14 +52,14 @@ xer__print2fp(const void *buffer, size_t size, void *app_key) {
 }
 
 int
-xer_fprint(FILE *stream, const asn_TYPE_descriptor_t *td, const void *sptr) {
+xer_fprint_e2ap_v2_03(FILE *stream, const asn_TYPE_descriptor_t *td, const void *sptr) {
 	asn_enc_rval_t er = {0,0,0};
 
 	if(!stream) stream = stdout;
 	if(!td || !sptr)
 		return -1;
 
-	er = xer_encode(td, sptr, XER_F_BASIC, xer__print2fp, stream);
+	er = xer_encode_e2ap_v2_03(td, sptr, XER_F_BASIC, xer__print2fp, stream);
 	if(er.encoded == -1)
 		return -1;
 
@@ -95,7 +95,7 @@ xer__buffer_append(const void *buffer, size_t size, void *app_key) {
 }
 
 enum xer_equivalence_e
-xer_equivalent(const struct asn_TYPE_descriptor_s *td, const void *struct1,
+xer_equivalent_e2ap_v2_03(const struct asn_TYPE_descriptor_s *td, const void *struct1,
                const void *struct2, FILE *opt_debug_stream) {
     struct xer_buffer xb1 = {0, 0, 0};
     struct xer_buffer xb2 = {0, 0, 0};
@@ -112,7 +112,7 @@ xer_equivalent(const struct asn_TYPE_descriptor_s *td, const void *struct1,
         return XEQ_FAILURE;
     }
 
-    e1 = xer_encode(td, struct1, XER_F_BASIC, xer__buffer_append, &xb1);
+    e1 = xer_encode_e2ap_v2_03(td, struct1, XER_F_BASIC, xer__buffer_append, &xb1);
     if(e1.encoded == -1) {
         if(opt_debug_stream) {
             fprintf(stderr, "XER Encoding of %s failed\n", td->name);
@@ -121,7 +121,7 @@ xer_equivalent(const struct asn_TYPE_descriptor_s *td, const void *struct1,
         return XEQ_ENCODE1_FAILED;
     }
 
-    e2 = xer_encode(td, struct2, XER_F_BASIC, xer__buffer_append, &xb2);
+    e2 = xer_encode_e2ap_v2_03(td, struct2, XER_F_BASIC, xer__buffer_append, &xb2);
     if(e2.encoded == -1) {
         if(opt_debug_stream) {
             fprintf(stderr, "XER Encoding of %s failed\n", td->name);
@@ -151,7 +151,7 @@ xer_equivalent(const struct asn_TYPE_descriptor_s *td, const void *struct1,
         }
     }
 
-    rval = xer_decode(NULL, td, (void **)&sptr, xb1.buffer,
+    rval = xer_decode_e2ap_v2_03(NULL, td, (void **)&sptr, xb1.buffer,
                xb1.buffer_size);
     switch(rval.code) {
     case RC_OK:
@@ -179,7 +179,7 @@ xer_equivalent(const struct asn_TYPE_descriptor_s *td, const void *struct1,
 
     if(rval.consumed != xb1.buffer_size
        && ((rval.consumed > xb1.buffer_size)
-           || xer_whitespace_span(xb1.buffer + rval.consumed,
+           || xer_whitespace_span_e2ap_v2_03(xb1.buffer + rval.consumed,
                                   xb1.buffer_size - rval.consumed)
                   != (xb1.buffer_size - rval.consumed))) {
         if(opt_debug_stream) {
@@ -200,7 +200,7 @@ xer_equivalent(const struct asn_TYPE_descriptor_s *td, const void *struct1,
     FREEMEM(xb2.buffer);
     memset(&xb2, 0, sizeof(xb2));
 
-    e2 = xer_encode(td, sptr, XER_F_BASIC, xer__buffer_append, &xb2);
+    e2 = xer_encode_e2ap_v2_03(td, sptr, XER_F_BASIC, xer__buffer_append, &xb2);
     if(e2.encoded == -1) {
         if(opt_debug_stream) {
             fprintf(stderr, "XER Encoding of round-trip decode of %s failed\n",

@@ -8,7 +8,7 @@
 #include <aper_opentype.h>
 
 static asn_dec_rval_t
-aper_open_type_get_simple(const asn_codec_ctx_t *ctx,
+aper_open_type_get_e2ap_v2_03_simple(const asn_codec_ctx_t *ctx,
                           const asn_TYPE_descriptor_t *td,
                           const asn_per_constraints_t *constraints, void **sptr, asn_per_data_t *pd) {
 	asn_dec_rval_t rv;
@@ -25,7 +25,7 @@ aper_open_type_get_simple(const asn_codec_ctx_t *ctx,
 	ASN_DEBUG("Getting open type %s...", td->name);
 
 	do {
-	        chunk_bytes = aper_get_length(pd, -1, -1, -1, &repeat);
+	        chunk_bytes = aper_get_length_e2ap_v2_03(pd, -1, -1, -1, &repeat);
 		if(chunk_bytes < 0) {
 			FREEMEM(buf);
 			ASN__DECODE_STARVED;
@@ -55,7 +55,7 @@ aper_open_type_get_simple(const asn_codec_ctx_t *ctx,
 	spd.nbits = bufLen << 3;
 
 	ASN_DEBUG_INDENT_ADD(+4);
-	rv = td->op->aper_decoder(ctx, td, constraints, sptr, &spd);
+	rv = td->op->aper_decode_e2ap_v2_03r(ctx, td, constraints, sptr, &spd);
 	ASN_DEBUG_INDENT_ADD(-4);
 
 	if(rv.code == RC_OK) {
@@ -86,7 +86,7 @@ aper_open_type_get_simple(const asn_codec_ctx_t *ctx,
 }
 
 int
-aper_open_type_put(const asn_TYPE_descriptor_t *td,
+aper_open_type_put_e2ap_v2_03(const asn_TYPE_descriptor_t *td,
                    const asn_per_constraints_t *constraints,
                    const void *sptr, asn_per_outp_t *po) {
 	void *buf;
@@ -96,17 +96,17 @@ aper_open_type_put(const asn_TYPE_descriptor_t *td,
 
 	ASN_DEBUG("Open type put %s ...", td->name);
 
-	size = aper_encode_to_new_buffer(td, constraints, sptr, &buf);
+	size = aper_encode_e2ap_v2_03_to_new_buffer(td, constraints, sptr, &buf);
 	if(size <= 0) return -1;
 
 	for(bptr = buf, toGo = size; toGo;) {
         int need_eom = 0;
-		ssize_t maySave = aper_put_length(po, -1, -1, toGo, &need_eom);
+		ssize_t maySave = aper_put_length_e2ap_v2_03(po, -1, -1, toGo, &need_eom);
 		if(maySave < 0) break;
 		if(per_put_many_bits(po, bptr, maySave * 8)) break;
 		bptr = (char *)bptr + maySave;
 		toGo -= maySave;
-        if(need_eom && (aper_put_length(po, -1, -1, 0, NULL) < 0)) {
+        if(need_eom && (aper_put_length_e2ap_v2_03(po, -1, -1, 0, NULL) < 0)) {
             FREEMEM(buf);
             return -1;
         }
@@ -122,16 +122,16 @@ aper_open_type_put(const asn_TYPE_descriptor_t *td,
 }
 
 asn_dec_rval_t
-aper_open_type_get(const asn_codec_ctx_t *ctx,
+aper_open_type_get_e2ap_v2_03(const asn_codec_ctx_t *ctx,
                    const asn_TYPE_descriptor_t *td,
                    const asn_per_constraints_t *constraints,
                    void **sptr, asn_per_data_t *pd) {
 
-	return aper_open_type_get_simple(ctx, td, constraints, sptr, pd);
+	return aper_open_type_get_e2ap_v2_03_simple(ctx, td, constraints, sptr, pd);
 }
 
 int
-aper_open_type_skip(const asn_codec_ctx_t *ctx, asn_per_data_t *pd) {
+aper_open_type_skip_e2ap_v2_03(const asn_codec_ctx_t *ctx, asn_per_data_t *pd) {
 	asn_TYPE_descriptor_t s_td;
 	asn_dec_rval_t rv;
 	asn_TYPE_operation_t op_t;
@@ -139,9 +139,9 @@ aper_open_type_skip(const asn_codec_ctx_t *ctx, asn_per_data_t *pd) {
 	memset(&op_t, 0, sizeof(op_t));
 	s_td.name = "<unknown extension>";
 	s_td.op = &op_t;
-	s_td.op->aper_decoder = uper_sot_suck;
+	s_td.op->aper_decode_e2ap_v2_03r = uper_sot_suck_e2ap_v2_03;
 
-	rv = aper_open_type_get(ctx, &s_td, 0, 0, pd);
+	rv = aper_open_type_get_e2ap_v2_03(ctx, &s_td, 0, 0, pd);
 	if(rv.code != RC_OK)
 		return -1;
 	else

@@ -6,8 +6,8 @@
 extern "C" {
 #endif
 
-#include "../../../sm/rc_sm/ie/asn/UEID-GNB.h"
 #include "../ie/gnb.h"
+#include "dec_asn.h"
 
 gnb_e2sm_t dec_gNB_UE_asn(const UEID_GNB_t * gnb_asn);
 

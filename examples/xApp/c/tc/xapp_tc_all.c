@@ -194,16 +194,16 @@ int main()
   init_xapp_api(&args);
   sleep(1);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
 
   assert(nodes.len > 0);
 
   printf("Connected E2 nodes = %d\n", nodes.len );
 
-  e2_node_connected_t* n = &nodes.n[0];
+  e2_node_connected_xapp_t* n = &nodes.n[0];
   for(size_t i = 0; i < n->len_rf; ++i)
-    printf("Registered ran func id = %d \n ", n->ack_rf[i].id );
+    printf("Registered ran func id = %d \n ", n->rf[i].id );
 
 
   const char* i = "5_ms";

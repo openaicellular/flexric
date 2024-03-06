@@ -32,9 +32,9 @@ typedef struct ResetResponse {
 } ResetResponse_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_ResetResponse;
-extern asn_SEQUENCE_specifics_t asn_SPC_ResetResponse_specs_1;
-extern asn_TYPE_member_t asn_MBR_ResetResponse_1[1];
+extern asn_TYPE_descriptor_t asn_DEF_ResetResponse_e2ap_v1_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_ResetResponse_specs_1_e2ap_v1_01;
+extern asn_TYPE_member_t asn_MBR_ResetResponse_1_e2ap_v1_01[1];
 
 #ifdef __cplusplus
 }

@@ -270,7 +270,7 @@ INTEGER__xer_body_decode(const asn_TYPE_descriptor_t *td, void *sptr,
         /* FALL THROUGH */
     case ST_DIGITS_TRAILSPACE:
         /* The last symbol encountered was a digit. */
-        switch(asn_strtoimax_lim(dec_value_start, &dec_value_end, &dec_value)) {
+        switch(asn_strtoimax_lim_e2ap_v1_01(dec_value_start, &dec_value_end, &dec_value)) {
         case ASN_STRTOX_OK:
             if(specs && specs->field_unsigned && (uintmax_t) dec_value <= ULONG_MAX) {
                 break;
@@ -314,7 +314,7 @@ INTEGER__xer_body_decode(const asn_TYPE_descriptor_t *td, void *sptr,
      * Convert the result of parsing of enumeration or a straight
      * decimal value into a BER representation.
      */
-    if(asn_imax2INTEGER(st, dec_value)) {
+    if(asn_imax2INTEGER_e2ap_v1_01(st, dec_value)) {
                 ASN_DEBUG("INTEGER decode %s conversion failed", td->name);
         return XPBD_SYSTEM_FAILURE;
         }
@@ -323,17 +323,17 @@ INTEGER__xer_body_decode(const asn_TYPE_descriptor_t *td, void *sptr,
 }
 
 asn_dec_rval_t
-INTEGER_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
+INTEGER_decode_xer_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                    const asn_TYPE_descriptor_t *td, void **sptr,
                    const char *opt_mname, const void *buf_ptr, size_t size) {
-    return xer_decode_primitive(opt_codec_ctx, td,
+    return xer_decode_e2ap_v1_01_primitive(opt_codec_ctx, td,
         sptr, sizeof(INTEGER_t), opt_mname,
         buf_ptr, size, INTEGER__xer_body_decode);
 }
 
 asn_enc_rval_t
-INTEGER_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr,
-                   int ilevel, enum xer_encoder_flags_e flags,
+INTEGER_encode_xer_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
+                   int ilevel, enum xer_encode_e2ap_v1_01r_flags_e flags,
                    asn_app_consume_bytes_f *cb, void *app_key) {
     const INTEGER_t *st = (const INTEGER_t *)sptr;
     asn_enc_rval_t er = {0,0,0};
@@ -344,7 +344,7 @@ INTEGER_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr,
     if(!st || !st->buf)
         ASN__ENCODE_FAILED;
 
-    er.encoded = INTEGER__dump(td, st, cb, app_key, 1);
+    er.encoded = INTEGER__dump_e2ap_v1_01(td, st, cb, app_key, 1);
     if(er.encoded < 0) ASN__ENCODE_FAILED;
 
     ASN__ENCODED_OK(er);

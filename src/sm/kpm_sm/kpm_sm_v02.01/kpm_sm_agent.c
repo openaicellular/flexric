@@ -53,7 +53,7 @@ typedef struct{
 } sm_kpm_agent_t;
 
 static
-subscribe_timer_t on_subscription_kpm_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
+sm_ag_if_ans_subs_t on_subscription_kpm_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 { 
   assert(sm_agent != NULL);
   assert(data != NULL);
@@ -75,7 +75,10 @@ subscribe_timer_t on_subscription_kpm_sm_ag(sm_agent_t const* sm_agent, const sm
 
   timer.act_def = tmp; 
 
-  return timer;
+  sm_ag_if_ans_subs_t ans = {.type = PERIODIC_SUBSCRIPTION_FLRC} ;
+  ans.per.t = timer;
+
+  return ans;
 }
 
 static 
@@ -114,6 +117,36 @@ exp_ind_data_t on_indication_kpm_sm_ag(sm_agent_t const* sm_agent, void* act_def
 }
 
 static
+ran_function_name_t fill_ran_function_name(void)
+{
+  ran_function_name_t dst = {0}; 
+
+  // RAN Function Short Name
+  // Mandatory
+  // PrintableString [1-150]
+  const char short_name[] = SM_KPM_STR;    
+  dst.name = cp_str_to_ba(short_name);
+
+  // RAN Function Service Model OID
+  // Mandatory
+  // PrintableString [1-1000]
+  const char oid[] = SM_KPM_OID;    
+  dst.oid = cp_str_to_ba(oid);
+
+  // RAN Function Description
+  // Mandatory
+  // PrintableString [1- 150]
+  const char des[] = SM_KPM_DESCRIPTION;    
+  dst.description = cp_str_to_ba(des);
+
+  // RAN Function Instance
+  // Optional
+  // INTEGER
+  // long* instance;	
+  return dst;
+}
+
+static
 sm_e2_setup_data_t on_e2_setup_kpm_sm_ag(sm_agent_t const* sm_agent)
 {
   assert(sm_agent != NULL);
@@ -123,6 +156,7 @@ sm_e2_setup_data_t on_e2_setup_kpm_sm_ag(sm_agent_t const* sm_agent)
   // Call the RAN and fill the data  
   kpm_e2_setup_t kpm = {0};
   sm->base.io.read_setup(&kpm);
+  kpm.ran_func_def.name = fill_ran_function_name();
 
   kpm_ran_function_def_t* ran_func = &kpm.ran_func_def; 
 

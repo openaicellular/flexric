@@ -3,7 +3,7 @@
 #include <aper_encoder.h>
 
 /*
- * Argument type and callback necessary for aper_encode_to_buffer().
+ * Argument type and callback necessary for aper_encode_e2ap_v1_01_to_buffer().
  */
 typedef struct enc_to_buf_arg {
 	void *buffer;
@@ -23,7 +23,7 @@ static int encode_to_buffer_cb(const void *buffer, size_t size, void *key) {
 }
 
 asn_enc_rval_t
-aper_encode_to_buffer(const asn_TYPE_descriptor_t *td,
+aper_encode_e2ap_v1_01_to_buffer(const asn_TYPE_descriptor_t *td,
                       const asn_per_constraints_t *constraints,
                       const void *sptr, void *buffer, size_t buffer_size) {
     enc_to_buf_arg key;
@@ -33,11 +33,11 @@ aper_encode_to_buffer(const asn_TYPE_descriptor_t *td,
 
     if(td) ASN_DEBUG("Encoding \"%s\" using ALIGNED PER", td->name);
 
-    return aper_encode(td, constraints, sptr, encode_to_buffer_cb, &key);
+    return aper_encode_e2ap_v1_01(td, constraints, sptr, encode_to_buffer_cb, &key);
 }
 
 ssize_t
-aper_encode_to_new_buffer(const asn_TYPE_descriptor_t *td,
+aper_encode_e2ap_v1_01_to_new_buffer(const asn_TYPE_descriptor_t *td,
                           const asn_per_constraints_t *constraints,
                           const void *sptr, void **buffer_r) {
     asn_enc_rval_t er = {0,0,0};
@@ -45,7 +45,7 @@ aper_encode_to_new_buffer(const asn_TYPE_descriptor_t *td,
 
 	memset(&key, 0, sizeof(key));
 
-	er = aper_encode(td, constraints, sptr, encode_dyn_cb, &key);
+	er = aper_encode_e2ap_v1_01(td, constraints, sptr, encode_dyn_cb_e2ap_v1_01, &key);
 	switch(er.encoded) {
 	case -1:
 		FREEMEM(key.buffer);
@@ -73,7 +73,7 @@ aper_encode_to_new_buffer(const asn_TYPE_descriptor_t *td,
 
 /* Flush partially filled buffer */
 static int
-_aper_encode_flush_outp(asn_per_outp_t *po) {
+_aper_encode_e2ap_v1_01_flush_outp(asn_per_outp_t *po) {
 	uint8_t *buf;
 
 	if(po->nboff == 0 && po->buffer == po->tmpspace)
@@ -93,7 +93,7 @@ _aper_encode_flush_outp(asn_per_outp_t *po) {
 }
 
 asn_enc_rval_t
-aper_encode(const asn_TYPE_descriptor_t *td,
+aper_encode_e2ap_v1_01(const asn_TYPE_descriptor_t *td,
         const asn_per_constraints_t *constraints,
         const void *sptr, asn_app_consume_bytes_f *cb, void *app_key) {
 	asn_per_outp_t po;
@@ -102,17 +102,17 @@ aper_encode(const asn_TYPE_descriptor_t *td,
 	/*
 	 * Invoke type-specific encoder.
 	 */
-	if(!td || !td->op->aper_encoder)
+	if(!td || !td->op->aper_encode_e2ap_v1_01r)
 		ASN__ENCODE_FAILED;	 /* PER is not compiled in */
 
 	po.buffer = po.tmpspace;
 	po.nboff = 0;
 	po.nbits = 8 * sizeof(po.tmpspace);
-	po.output = cb ? cb : ignore_output;
+	po.output = cb ? cb : ignore_output_e2ap_v1_01;
 	po.op_key = app_key;
 	po.flushed_bytes = 0;
 
-	er = td->op->aper_encoder(td, constraints, sptr, &po);
+	er = td->op->aper_encode_e2ap_v1_01r(td, constraints, sptr, &po);
 	if(er.encoded != -1) {
 		size_t bits_to_flush;
 
@@ -121,7 +121,7 @@ aper_encode(const asn_TYPE_descriptor_t *td,
 		/* Set number of bits encoded to a firm value */
 		er.encoded = (po.flushed_bytes << 3) + bits_to_flush;
 
-		if(_aper_encode_flush_outp(&po))
+		if(_aper_encode_e2ap_v1_01_flush_outp(&po))
 			ASN__ENCODE_FAILED;
 	}
 

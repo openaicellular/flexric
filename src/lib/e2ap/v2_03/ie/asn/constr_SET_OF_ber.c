@@ -72,7 +72,7 @@
  * The decoder of the SET OF type.
  */
 asn_dec_rval_t
-SET_OF_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
+SET_OF_decode_ber_e2ap_v2_03(const asn_codec_ctx_t *opt_codec_ctx,
                   const asn_TYPE_descriptor_t *td, void **struct_ptr,
                   const void *ptr, size_t size, int tag_mode) {
     /*
@@ -120,7 +120,7 @@ SET_OF_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
          * perfectly fits our expectations.
          */
 
-        rval = ber_check_tags(opt_codec_ctx, td, ctx, ptr, size,
+        rval = ber_check_tags_e2ap_v2_03(opt_codec_ctx, td, ctx, ptr, size,
                               tag_mode, 1, &ctx->left, 0);
         if(rval.code != RC_OK) {
             ASN_DEBUG("%s tagging check failed: %d",
@@ -166,7 +166,7 @@ SET_OF_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
             /*
              * Fetch the T from TLV.
              */
-            tag_len = ber_fetch_tag(ptr, LEFT, &tlv_tag);
+            tag_len = ber_fetch_tag_e2ap_v2_03(ptr, LEFT, &tlv_tag);
             switch(tag_len) {
             case 0: if(!SIZE_VIOLATION) RETURN(RC_WMORE);
                 /* Fall through */
@@ -196,9 +196,9 @@ SET_OF_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
                  */
                 } else {
                     ASN_DEBUG("Unexpected tag %s fixed SET OF %s",
-                              ber_tlv_tag_string(tlv_tag), td->name);
+                              ber_tlv_tag_string_e2ap_v2_03(tlv_tag), td->name);
                     ASN_DEBUG("%s SET OF has tag %s",
-                              td->name, ber_tlv_tag_string(elm->tag));
+                              td->name, ber_tlv_tag_string_e2ap_v2_03(elm->tag));
                     RETURN(RC_FAIL);
                 }
             }
@@ -212,7 +212,7 @@ SET_OF_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
             /*
              * Invoke the member fetch routine according to member's type
              */
-            rval = elm->type->op->ber_decoder(opt_codec_ctx,
+            rval = elm->type->op->ber_decode_e2ap_v2_03r(opt_codec_ctx,
                                               elm->type, &ctx->ptr,
                                               ptr, LEFT, 0);
             ASN_DEBUG("In %s SET OF %s code %d consumed %d",
@@ -276,7 +276,7 @@ SET_OF_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
  * The DER encoder of the SET OF type.
  */
 asn_enc_rval_t
-SET_OF_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
+SET_OF_encode_der_e2ap_v2_03(const asn_TYPE_descriptor_t *td, const void *sptr,
                   int tag_mode, ber_tlv_tag_t tag, asn_app_consume_bytes_f *cb,
                   void *app_key) {
     const asn_TYPE_member_t *elm = td->elements;
@@ -298,7 +298,7 @@ SET_OF_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
         if(!memb_ptr) ASN__ENCODE_FAILED;
 
         erval =
-            elm->type->op->der_encoder(elm->type, memb_ptr, 0, elm->tag, 0, 0);
+            elm->type->op->der_encode_e2ap_v2_03r(elm->type, memb_ptr, 0, elm->tag, 0, 0);
         if(erval.encoded == -1) return erval;
         computed_size += erval.encoded;
     }
@@ -307,7 +307,7 @@ SET_OF_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
      * Encode the TLV for the sequence itself.
      */
     encoding_size =
-        der_write_tags(td, computed_size, tag_mode, 1, tag, cb, app_key);
+        der_write_tags_e2ap_v2_03(td, computed_size, tag_mode, 1, tag, cb, app_key);
     if(encoding_size < 0) {
         ASN__ENCODE_FAILED;
     }
@@ -326,7 +326,7 @@ SET_OF_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
      * according to their encodings. Build an array of the
      * encoded elements.
      */
-    encoded_els = SET_OF__encode_sorted(elm, list, SOES_DER);
+    encoded_els = SET_OF__encode_sorted_e2ap_v2_03(elm, list, SOES_DER);
 
     /*
      * Report encoded elements to the application.
@@ -342,7 +342,7 @@ SET_OF_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
         }
     }
 
-    SET_OF__encode_sorted_free(encoded_els, list->count);
+    SET_OF__encode_sorted_e2ap_v2_03_free(encoded_els, list->count);
 
     if(edx == list->count) {
         asn_enc_rval_t erval = {0,0,0};

@@ -11,17 +11,17 @@
 #include "SuccessfulOutcome.h"
 #include "UnsuccessfulOutcome.h"
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static asn_per_constraints_t asn_PER_type_E2AP_PDU_constr_1 CC_NOTUSED = {
+static asn_per_constraints_t asn_PER_type_E2AP_PDU_constr_1_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED | APC_EXTENSIBLE,  2,  2,  0,  2 }	/* (0..2,...) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-static asn_TYPE_member_t asn_MBR_E2AP_PDU_1[] = {
+static asn_TYPE_member_t asn_MBR_E2AP_PDU_1_e2ap_v1_01[] = {
 	{ ATF_POINTER, 0, offsetof(struct E2AP_PDU, choice.initiatingMessage),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_InitiatingMessage,
+		&asn_DEF_InitiatingMessage_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -38,7 +38,7 @@ static asn_TYPE_member_t asn_MBR_E2AP_PDU_1[] = {
 	{ ATF_POINTER, 0, offsetof(struct E2AP_PDU, choice.successfulOutcome),
 		(ASN_TAG_CLASS_CONTEXT | (1 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_SuccessfulOutcome,
+		&asn_DEF_SuccessfulOutcome_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -55,7 +55,7 @@ static asn_TYPE_member_t asn_MBR_E2AP_PDU_1[] = {
 	{ ATF_POINTER, 0, offsetof(struct E2AP_PDU, choice.unsuccessfulOutcome),
 		(ASN_TAG_CLASS_CONTEXT | (2 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_UnsuccessfulOutcome,
+		&asn_DEF_UnsuccessfulOutcome_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -70,25 +70,25 @@ static asn_TYPE_member_t asn_MBR_E2AP_PDU_1[] = {
 		"unsuccessfulOutcome"
 		},
 };
-static const asn_TYPE_tag2member_t asn_MAP_E2AP_PDU_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_E2AP_PDU_tag2el_1_e2ap_v1_01[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 }, /* initiatingMessage */
     { (ASN_TAG_CLASS_CONTEXT | (1 << 2)), 1, 0, 0 }, /* successfulOutcome */
     { (ASN_TAG_CLASS_CONTEXT | (2 << 2)), 2, 0, 0 } /* unsuccessfulOutcome */
 };
-static asn_CHOICE_specifics_t asn_SPC_E2AP_PDU_specs_1 = {
+static asn_CHOICE_specifics_t asn_SPC_E2AP_PDU_specs_1_e2ap_v1_01 = {
 	sizeof(struct E2AP_PDU),
 	offsetof(struct E2AP_PDU, _asn_ctx),
 	offsetof(struct E2AP_PDU, present),
 	sizeof(((struct E2AP_PDU *)0)->present),
-	asn_MAP_E2AP_PDU_tag2el_1,
+	asn_MAP_E2AP_PDU_tag2el_1_e2ap_v1_01,
 	3,	/* Count of tags in the map */
 	0, 0,
 	3	/* Extensions start */
 };
-asn_TYPE_descriptor_t asn_DEF_E2AP_PDU = {
+asn_TYPE_descriptor_t asn_DEF_E2AP_PDU_e2ap_v1_01 = {
 	"E2AP-PDU",
 	"E2AP-PDU",
-	&asn_OP_CHOICE,
+	&asn_OP_CHOICE_e2ap_v1_01,
 	0,	/* No effective tags (pointer) */
 	0,	/* No effective tags (count) */
 	0,	/* No tags (pointer) */
@@ -98,12 +98,12 @@ asn_TYPE_descriptor_t asn_DEF_E2AP_PDU = {
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_E2AP_PDU_constr_1,
+		&asn_PER_type_E2AP_PDU_constr_1_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		CHOICE_constraint
+		CHOICE_constraint_e2ap_v1_01
 	},
-	asn_MBR_E2AP_PDU_1,
+	asn_MBR_E2AP_PDU_1_e2ap_v1_01,
 	3,	/* Elements count */
-	&asn_SPC_E2AP_PDU_specs_1	/* Additional specs */
+	&asn_SPC_E2AP_PDU_specs_1_e2ap_v1_01	/* Additional specs */
 };
 

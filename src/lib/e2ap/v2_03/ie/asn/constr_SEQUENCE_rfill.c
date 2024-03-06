@@ -6,15 +6,15 @@
 #include <asn_internal.h>
 #include <constr_SEQUENCE.h>
 
-asn_random_fill_result_t
-SEQUENCE_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
+asn_random_fill_e2ap_v2_03_result_t
+SEQUENCE_random_fill_e2ap_v2_03(const asn_TYPE_descriptor_t *td, void **sptr,
                    const asn_encoding_constraints_t *constr,
                    size_t max_length) {
     const asn_SEQUENCE_specifics_t *specs =
         (const asn_SEQUENCE_specifics_t *)td->specifics;
-    asn_random_fill_result_t result_ok = {ARFILL_OK, 0};
-    asn_random_fill_result_t result_failed = {ARFILL_FAILED, 0};
-    asn_random_fill_result_t result_skipped = {ARFILL_SKIPPED, 0};
+    asn_random_fill_e2ap_v2_03_result_t result_ok = {ARFILL_OK, 0};
+    asn_random_fill_e2ap_v2_03_result_t result_failed = {ARFILL_FAILED, 0};
+    asn_random_fill_e2ap_v2_03_result_t result_skipped = {ARFILL_SKIPPED, 0};
     void *st = *sptr;
     size_t edx;
 
@@ -33,9 +33,9 @@ SEQUENCE_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
         const asn_TYPE_member_t *elm = &td->elements[edx];
         void *memb_ptr;    /* Pointer to the member */
         void **memb_ptr2;  /* Pointer to that pointer */
-        asn_random_fill_result_t tmpres;
+        asn_random_fill_e2ap_v2_03_result_t tmpres;
 
-        if(elm->optional && asn_random_between(0, 4) == 2) {
+        if(elm->optional && asn_random_between_e2ap_v2_03(0, 4) == 2) {
             /* Sometimes decide not to fill the optional value */
             continue;
         }

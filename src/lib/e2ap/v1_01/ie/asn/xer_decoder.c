@@ -11,7 +11,7 @@
  * Decode the XER encoding of a given type.
  */
 asn_dec_rval_t
-xer_decode(const asn_codec_ctx_t *opt_codec_ctx,
+xer_decode_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
            const asn_TYPE_descriptor_t *td, void **struct_ptr,
            const void *buffer, size_t size) {
     asn_codec_ctx_t s_codec_ctx;
@@ -35,7 +35,7 @@ xer_decode(const asn_codec_ctx_t *opt_codec_ctx,
 	/*
 	 * Invoke type-specific decoder.
 	 */
-	return td->op->xer_decoder(opt_codec_ctx, td, struct_ptr, 0, buffer, size);
+	return td->op->xer_decode_e2ap_v1_01r(opt_codec_ctx, td, struct_ptr, 0, buffer, size);
 }
 
 
@@ -61,13 +61,13 @@ xer__token_cb(pxml_chunk_type_e type, const void *_chunk_data, size_t _chunk_siz
  * Fetch the next token from the XER/XML stream.
  */
 ssize_t
-xer_next_token(int *stateContext, const void *buffer, size_t size, pxer_chunk_type_e *ch_type) {
+xer_next_token_e2ap_v1_01(int *stateContext, const void *buffer, size_t size, pxer_chunk_type_e *ch_type) {
 	struct xer__cb_arg arg;
 	int new_stateContext = *stateContext;
 	ssize_t ret;
 
 	arg.callback_not_invoked = 1;
-	ret = pxml_parse(&new_stateContext, buffer, size, xer__token_cb, &arg);
+	ret = pxml_parse_e2ap_v1_01(&new_stateContext, buffer, size, xer__token_cb, &arg);
 	if(ret < 0) return -1;
 	if(arg.callback_not_invoked) {
 		assert(ret == 0);	/* No data was consumed */
@@ -105,11 +105,11 @@ xer_next_token(int *stateContext, const void *buffer, size_t size, pxer_chunk_ty
 #define	LANGLE	0x3c	/* '<' */
 #define	RANGLE	0x3e	/* '>' */
 
-xer_check_tag_e
-xer_check_tag(const void *buf_ptr, int size, const char *need_tag) {
+xer_check_tag_e2ap_v1_01_e
+xer_check_tag_e2ap_v1_01(const void *buf_ptr, int size, const char *need_tag) {
 	const char *buf = (const char *)buf_ptr;
 	const char *end;
-	xer_check_tag_e ct = XCT_OPENING;
+	xer_check_tag_e2ap_v1_01_e ct = XCT_OPENING;
 
 	if(size < 2 || buf[0] != LANGLE || buf[size-1] != RANGLE) {
 		if(size >= 2)
@@ -138,7 +138,7 @@ xer_check_tag(const void *buf_ptr, int size, const char *need_tag) {
 
 	/* Sometimes we don't care about the tag */
 	if(!need_tag || !*need_tag)
-		return (xer_check_tag_e)(XCT__UNK__MASK | ct);
+		return (xer_check_tag_e2ap_v1_01_e)(XCT__UNK__MASK | ct);
 
 	/*
 	 * Determine the tag name.
@@ -154,13 +154,13 @@ xer_check_tag(const void *buf_ptr, int size, const char *need_tag) {
 					return ct;
 				}
 			}
-			return (xer_check_tag_e)(XCT__UNK__MASK | ct);
+			return (xer_check_tag_e2ap_v1_01_e)(XCT__UNK__MASK | ct);
 		}
 		if(b == 0)
 			return XCT_BROKEN;	/* Embedded 0 in buf?! */
 	}
 	if(*need_tag)
-		return (xer_check_tag_e)(XCT__UNK__MASK | ct);
+		return (xer_check_tag_e2ap_v1_01_e)(XCT__UNK__MASK | ct);
 
 	return ct;
 }
@@ -202,7 +202,7 @@ xer_check_tag(const void *buf_ptr, int size, const char *need_tag) {
  * Generalized function for decoding the primitive values.
  */
 asn_dec_rval_t
-xer_decode_general(const asn_codec_ctx_t *opt_codec_ctx,
+xer_decode_e2ap_v1_01_general(const asn_codec_ctx_t *opt_codec_ctx,
 	asn_struct_ctx_t *ctx,	/* Type decoder context */
 	void *struct_key,
 	const char *xml_tag,	/* Expected XML tag */
@@ -228,12 +228,12 @@ xer_decode_general(const asn_codec_ctx_t *opt_codec_ctx,
 	for(;;) {
 		pxer_chunk_type_e ch_type;	/* XER chunk type */
 		ssize_t ch_size;		/* Chunk size */
-		xer_check_tag_e tcv;		/* Tag check value */
+		xer_check_tag_e2ap_v1_01_e tcv;		/* Tag check value */
 
 		/*
 		 * Get the next part of the XML stream.
 		 */
-		ch_size = xer_next_token(&ctx->context, buf_ptr, size,
+		ch_size = xer_next_token_e2ap_v1_01(&ctx->context, buf_ptr, size,
 			&ch_type);
 		if(ch_size == -1) {
             RETURN(RC_FAIL);
@@ -264,7 +264,7 @@ xer_decode_general(const asn_codec_ctx_t *opt_codec_ctx,
 
 		assert(ch_type == PXER_TAG && size);
 
-		tcv = xer_check_tag(buf_ptr, ch_size, xml_tag);
+		tcv = xer_check_tag_e2ap_v1_01(buf_ptr, ch_size, xml_tag);
 		/*
 		 * Phase 0:
 		 * 	Expecting the opening tag
@@ -321,7 +321,7 @@ xer_decode_general(const asn_codec_ctx_t *opt_codec_ctx,
 
 
 size_t
-xer_whitespace_span(const void *chunk_buf, size_t chunk_size) {
+xer_whitespace_span_e2ap_v1_01(const void *chunk_buf, size_t chunk_size) {
 	const char *p = (const char *)chunk_buf;
 	const char *pend = (p == NULL)? NULL : p + chunk_size;
 
@@ -347,7 +347,7 @@ xer_whitespace_span(const void *chunk_buf, size_t chunk_size) {
  * This is a vastly simplified, non-validating XML tree skipper.
  */
 int
-xer_skip_unknown(xer_check_tag_e tcv, ber_tlv_len_t *depth) {
+xer_skip_unknown_e2ap_v1_01(xer_check_tag_e2ap_v1_01_e tcv, ber_tlv_len_t *depth) {
 	assert(*depth > 0);
 	switch(tcv) {
 	case XCT_BOTH:

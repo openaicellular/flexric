@@ -625,9 +625,7 @@ void e2ap_free_e42_setup_request(e42_setup_request_t* sr)
 {
   assert(sr != NULL);
   for(size_t i = 0; i < sr->len_rf; ++i){
-    ran_function_t* dst = &sr->ran_func_item[i];
-    free_byte_array(dst->defn);
-    free_ba_if_not_null(dst->oid);
+    free_ran_function(&sr->ran_func_item[i]);
   }
   free(sr->ran_func_item);
 }

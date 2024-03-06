@@ -61,7 +61,7 @@ static
 void free_pdu(E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
-  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2AP_PDU,pdu);
+  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2AP_PDU_e2ap_v1_01,pdu);
   free(pdu);
 }
 
@@ -70,9 +70,9 @@ bool encode(byte_array_t* b, const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
   assert(b->buf != NULL);
- // xer_fprint(stderr, &asn_DEF_E2AP_PDU, pdu);
+ // xer_fprint_e2ap_v1_01(stderr, &asn_DEF_E2AP_PDU_e2ap_v1_01, pdu);
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
-  asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2AP_PDU, pdu, b->buf, b->len);
+  asn_enc_rval_t er = asn_encode_e2ap_v1_01_to_buffer(NULL, syntax, &asn_DEF_E2AP_PDU_e2ap_v1_01, pdu, b->buf, b->len);
   assert(er.encoded < (ssize_t) b->len);
   if(er.encoded == -1) {
     printf("Failed the encoding in type %s and xml_type = %s\n", er.failed_type->name, er.failed_type->xml_tag);
@@ -106,7 +106,8 @@ E2nodeComponentType_t get_e2nodeComponentType(ngran_node_t type)
 static inline
 OCTET_STRING_t copy_ba_to_ostring(byte_array_t ba)
 {
-  OCTET_STRING_t os = { .size = ba.len }; 
+  assert(ba.buf != NULL && ba.len > 0);
+  OCTET_STRING_t os = { .size = ba.len };
   os.buf = malloc(ba.len);
   memcpy(os.buf, ba.buf, ba.len);
   return os;
@@ -211,13 +212,13 @@ E2nodeComponentConfigUpdate_ItemIEs_t* copy_e2_node_component_conf_update(const 
         ccui->e2nodeComponentID->present = E2nodeComponentID_PR_e2nodeComponentTypeGNB_CU_UP;
         ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_CU_UP = calloc(1, sizeof(*ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_CU_UP));
         GNB_CU_UP_ID_t* gnb_cu_up_id = &ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_CU_UP->gNB_CU_UP_ID;
-        asn_uint642INTEGER(gnb_cu_up_id, src->gnb_cu_up_id);
+        asn_uint642INTEGER_e2ap_v1_01(gnb_cu_up_id, src->gnb_cu_up_id);
         break;
       case E2_NODE_COMPONENT_ID_E2_NODE_COMPONENT_TYPE_GNB_DU:
         ccui->e2nodeComponentID->present = E2nodeComponentID_PR_e2nodeComponentTypeGNB_DU;
         ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_DU = calloc(1, sizeof(*ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_DU));
         GNB_DU_ID_t *gnb_du_id = &ccui->e2nodeComponentID->choice.e2nodeComponentTypeGNB_DU->gNB_DU_ID;
-        asn_uint642INTEGER(gnb_du_id, src->gnb_du_id);
+        asn_uint642INTEGER_e2ap_v1_01(gnb_du_id, src->gnb_du_id);
         break;
     }
   }
@@ -1354,12 +1355,12 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
     if (sr->id.type == e2ap_ngran_gNB_CU || sr->id.type == e2ap_ngran_gNB_CUUP) {
       GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
       assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
-      asn_uint642INTEGER(e2gnb_cu_up_id, *sr->id.cu_du_id);
+      asn_uint642INTEGER_e2ap_v1_01(e2gnb_cu_up_id, *sr->id.cu_du_id);
       e2gnb->gNB_CU_UP_ID = e2gnb_cu_up_id;
     } else if (sr->id.type == e2ap_ngran_gNB_DU) {
       GNB_DU_ID_t *e2gnb_du_id = calloc(1, sizeof(GNB_DU_ID_t));
       assert(e2gnb_du_id != NULL && "Memory exhasued");
-      asn_uint642INTEGER(e2gnb_du_id, *sr->id.cu_du_id);
+      asn_uint642INTEGER_e2ap_v1_01(e2gnb_du_id, *sr->id.cu_du_id);
       e2gnb->gNB_DU_ID = e2gnb_du_id;
     }
 
@@ -2536,13 +2537,13 @@ struct E2AP_PDU* e2ap_enc_e42_subscription_request_asn_pdu(const e42_ric_subscri
     if (e42_sr->id.type == e2ap_ngran_gNB_CU || e42_sr->id.type == e2ap_ngran_gNB_CUUP) {
       GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
       assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
-      asn_uint642INTEGER(e2gnb_cu_up_id, *e42_sr->id.cu_du_id);
+      asn_uint642INTEGER_e2ap_v1_01(e2gnb_cu_up_id, *e42_sr->id.cu_du_id);
       e2gnb->gNB_CU_UP_ID = e2gnb_cu_up_id;
     }
     else if (e42_sr->id.type == e2ap_ngran_gNB_DU) {
       GNB_DU_ID_t *e2gnb_du_id = calloc(1, sizeof(GNB_DU_ID_t));
       assert(e2gnb_du_id != NULL && "Memory exhasued");
-      asn_uint642INTEGER(e2gnb_du_id, *e42_sr->id.cu_du_id);
+      asn_uint642INTEGER_e2ap_v1_01(e2gnb_du_id, *e42_sr->id.cu_du_id);
       e2gnb->gNB_DU_ID = e2gnb_du_id;
     }
 
@@ -2754,13 +2755,13 @@ struct E2AP_PDU* e2ap_enc_e42_setup_response_asn_pdu(const e42_setup_response_t*
       if (src_id->type == e2ap_ngran_gNB_CU || src_id->type == e2ap_ngran_gNB_CUUP) {
         GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
         assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
-        asn_uint642INTEGER(e2gnb_cu_up_id, *src_id->cu_du_id);
+        asn_uint642INTEGER_e2ap_v1_01(e2gnb_cu_up_id, *src_id->cu_du_id);
         e2gnb->gNB_CU_UP_ID = e2gnb_cu_up_id;
       }
       else if (src_id->type == e2ap_ngran_gNB_DU) {
         GNB_DU_ID_t *e2gnb_du_id = calloc(1, sizeof(GNB_DU_ID_t));
         assert(e2gnb_du_id != NULL && "Memory exhasued");
-        asn_uint642INTEGER(e2gnb_du_id, *src_id->cu_du_id);
+        asn_uint642INTEGER_e2ap_v1_01(e2gnb_du_id, *src_id->cu_du_id);
         e2gnb->gNB_DU_ID = e2gnb_du_id;
       }
 
@@ -2951,13 +2952,13 @@ E2AP_PDU_t* e2ap_enc_e42_control_request_asn_pdu(const e42_ric_control_request_t
     if (e42_ric_req->id.type == e2ap_ngran_gNB_CU || e42_ric_req->id.type == e2ap_ngran_gNB_CUUP) {
       GNB_CU_UP_ID_t *e2gnb_cu_up_id = calloc(1, sizeof(GNB_CU_UP_ID_t));
       assert(e2gnb_cu_up_id != NULL && "Memory exhasued");
-      asn_uint642INTEGER(e2gnb_cu_up_id, *e42_ric_req->id.cu_du_id);
+      asn_uint642INTEGER_e2ap_v1_01(e2gnb_cu_up_id, *e42_ric_req->id.cu_du_id);
       e2gnb->gNB_CU_UP_ID = e2gnb_cu_up_id;
     }
     else if (e42_ric_req->id.type == e2ap_ngran_gNB_DU) {
       GNB_DU_ID_t *e2gnb_du_id = calloc(1, sizeof(GNB_DU_ID_t));
       assert(e2gnb_du_id != NULL && "Memory exhasued");
-      asn_uint642INTEGER(e2gnb_du_id, *e42_ric_req->id.cu_du_id);
+      asn_uint642INTEGER_e2ap_v1_01(e2gnb_du_id, *e42_ric_req->id.cu_du_id);
       e2gnb->gNB_DU_ID = e2gnb_du_id;
     }
 

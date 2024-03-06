@@ -38,7 +38,7 @@
  * Decode the XER (XML) data.
  */
 asn_dec_rval_t
-SEQUENCE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
+SEQUENCE_decode_xer_e2ap_v2_03(const asn_codec_ctx_t *opt_codec_ctx,
                     const asn_TYPE_descriptor_t *td, void **struct_ptr,
                     const char *opt_mname, const void *ptr, size_t size) {
     /*
@@ -84,7 +84,7 @@ SEQUENCE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
     for(edx = ctx->step; ctx->phase <= 3;) {
         pxer_chunk_type_e ch_type;  /* XER chunk type */
         ssize_t ch_size;            /* Chunk size */
-        xer_check_tag_e tcv;        /* Tag check value */
+        xer_check_tag_e2ap_v2_03_e tcv;        /* Tag check value */
         asn_TYPE_member_t *elm;
 
         /*
@@ -106,10 +106,10 @@ SEQUENCE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
             }
 
             if(elm->flags & ATF_OPEN_TYPE) {
-                tmprval = OPEN_TYPE_xer_get(opt_codec_ctx, td, st, elm, ptr, size);
+                tmprval = OPEN_TYPE_xer_get_e2ap_v2_03(opt_codec_ctx, td, st, elm, ptr, size);
             } else {
                 /* Invoke the inner type decoder, m.b. multiple times */
-                tmprval = elm->type->op->xer_decoder(opt_codec_ctx,
+                tmprval = elm->type->op->xer_decode_e2ap_v2_03r(opt_codec_ctx,
                                                      elm->type, memb_ptr2, elm->name,
                                                      ptr, size);
             }
@@ -126,7 +126,7 @@ SEQUENCE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
         /*
          * Get the next part of the XML stream.
          */
-        ch_size = xer_next_token(&ctx->context, ptr, size,
+        ch_size = xer_next_token_e2ap_v2_03(&ctx->context, ptr, size,
             &ch_type);
         if(ch_size == -1) {
             RETURN(RC_FAIL);
@@ -143,13 +143,13 @@ SEQUENCE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
             }
         }
 
-        tcv = xer_check_tag(ptr, ch_size, xml_tag);
+        tcv = xer_check_tag_e2ap_v2_03(ptr, ch_size, xml_tag);
         ASN_DEBUG("XER/SEQUENCE: tcv = %d, ph=%d [%s]",
                   tcv, ctx->phase, xml_tag);
 
         /* Skip the extensions section */
         if(ctx->phase == 3) {
-            switch(xer_skip_unknown(tcv, &ctx->left)) {
+            switch(xer_skip_unknown_e2ap_v2_03(tcv, &ctx->left)) {
             case -1:
                 ctx->phase = 4;
                 RETURN(RC_FAIL);
@@ -213,7 +213,7 @@ SEQUENCE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
                     edx_end = td->elements_count;
                 for(n = edx; n < edx_end; n++) {
                     elm = &td->elements[n];
-                    tcv = xer_check_tag(ptr, ch_size, elm->name);
+                    tcv = xer_check_tag_e2ap_v2_03(ptr, ch_size, elm->name);
                     switch(tcv) {
                     case XCT_BOTH:
                     case XCT_OPENING:
@@ -280,8 +280,8 @@ SEQUENCE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-SEQUENCE_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr,
-                    int ilevel, enum xer_encoder_flags_e flags,
+SEQUENCE_encode_xer_e2ap_v2_03(const asn_TYPE_descriptor_t *td, const void *sptr,
+                    int ilevel, enum xer_encode_e2ap_v2_03r_flags_e flags,
                     asn_app_consume_bytes_f *cb, void *app_key) {
     asn_enc_rval_t er = {0,0,0};
     int xcan = (flags & XER_F_CANONICAL);
@@ -327,7 +327,7 @@ SEQUENCE_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr,
         ASN__CALLBACK3("<", 1, mname, mlen, ">", 1);
 
         /* Print the member itself */
-        tmper = elm->type->op->xer_encoder(elm->type, memb_ptr, ilevel + 1,
+        tmper = elm->type->op->xer_encode_e2ap_v2_03r(elm->type, memb_ptr, ilevel + 1,
                                            flags, cb, app_key);
         if(tmp_def_val) {
             ASN_STRUCT_FREE(*tmp_def_val_td, tmp_def_val);

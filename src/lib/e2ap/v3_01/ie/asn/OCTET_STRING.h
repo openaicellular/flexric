@@ -18,36 +18,36 @@ typedef struct OCTET_STRING {
 	asn_struct_ctx_t _asn_ctx;	/* Parsing across buffer boundaries */
 } OCTET_STRING_t;
 
-extern asn_TYPE_descriptor_t asn_DEF_OCTET_STRING;
-extern asn_TYPE_operation_t asn_OP_OCTET_STRING;
+extern asn_TYPE_descriptor_t asn_DEF_OCTET_STRING_e2ap_v3_01;
+extern asn_TYPE_operation_t asn_OP_OCTET_STRING_e2ap_v3_01;
 
-asn_struct_free_f OCTET_STRING_free;
+asn_struct_free_f OCTET_STRING_free_e2ap_v3_01;
 
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-asn_struct_print_f OCTET_STRING_print;
-asn_struct_print_f OCTET_STRING_print_utf8;
+asn_struct_print_f OCTET_STRING_print_e2ap_v3_01;
+asn_struct_print_f OCTET_STRING_print_e2ap_v3_01_utf8;
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
 
-asn_struct_compare_f OCTET_STRING_compare;
+asn_struct_compare_f OCTET_STRING_compare_e2ap_v3_01;
 
-#define OCTET_STRING_constraint asn_generic_no_constraint
+#define OCTET_STRING_constraint asn_generic_no_constraint_e2ap_v3_01
 
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-ber_type_decoder_f OCTET_STRING_decode_ber;
-der_type_encoder_f OCTET_STRING_encode_der;
+ber_type_decoder_f OCTET_STRING_decode_ber_e2ap_v3_01;
+der_type_encoder_f OCTET_STRING_encode_der_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-xer_type_decoder_f OCTET_STRING_decode_xer_hex;     /* Hexadecimal */
-xer_type_decoder_f OCTET_STRING_decode_xer_binary;  /* 01010111010 */
-xer_type_decoder_f OCTET_STRING_decode_xer_utf8;    /* ASCII/UTF-8 */
-xer_type_encoder_f OCTET_STRING_encode_xer;
-xer_type_encoder_f OCTET_STRING_encode_xer_utf8;
+xer_type_decoder_f OCTET_STRING_decode_xer_hex_e2ap_v3_01;     /* Hexadecimal */
+xer_type_decoder_f OCTET_STRING_decode_xer_binary_e2ap_v3_01;  /* 01010111010 */
+xer_type_decoder_f OCTET_STRING_decode_xer_utf8_e2ap_v3_01;    /* ASCII/UTF-8 */
+xer_type_encoder_f OCTET_STRING_encode_xer_e2ap_v3_01;
+xer_type_encoder_f OCTET_STRING_encode_xer_e2ap_v3_01_utf8;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
-jer_type_encoder_f OCTET_STRING_encode_jer;
-jer_type_encoder_f OCTET_STRING_encode_jer_utf8;
+jer_type_encoder_f OCTET_STRING_encode_jer_e2ap_v3_01;
+jer_type_encoder_f OCTET_STRING_encode_jer_e2ap_v3_01_utf8;
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -56,20 +56,20 @@ oer_type_encoder_f OCTET_STRING_encode_oer;
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-per_type_decoder_f OCTET_STRING_decode_uper;
-per_type_encoder_f OCTET_STRING_encode_uper;
+per_type_decoder_f OCTET_STRING_decode_uper_e2ap_v3_01;
+per_type_encoder_f OCTET_STRING_encode_uper_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-per_type_decoder_f OCTET_STRING_decode_aper;
-per_type_encoder_f OCTET_STRING_encode_aper;
+per_type_decoder_f OCTET_STRING_decode_aper_e2ap_v3_01;
+per_type_encoder_f OCTET_STRING_encode_aper_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-asn_random_fill_f  OCTET_STRING_random_fill;
+asn_random_fill_e2ap_v3_01_f  OCTET_STRING_random_fill_e2ap_v3_01;
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-int OCTET_STRING_per_get_characters(
+int OCTET_STRING_per_get_characters_e2ap_v3_01(
         asn_per_data_t *po,
         uint8_t *buf,
         size_t units,
@@ -79,7 +79,7 @@ int OCTET_STRING_per_get_characters(
         long ub,
         const asn_per_constraints_t *pc);
 
-int OCTET_STRING_per_put_characters(
+int OCTET_STRING_per_put_characters_e2ap_v3_01(
         asn_per_outp_t *po,
         const uint8_t *buf,
         size_t units,
@@ -102,17 +102,17 @@ int OCTET_STRING_per_put_characters(
  * current contents of the OCTET STRING.
  * Returns 0 if it was possible to perform operation, -1 otherwise.
  */
-int OCTET_STRING_fromBuf(OCTET_STRING_t *s, const char *str, int size);
+int OCTET_STRING_fromBuf_e2ap_v3_01(OCTET_STRING_t *s, const char *str, int size);
 
 /* Handy conversion from the C string into the OCTET STRING. */
-#define	OCTET_STRING_fromString(s, str)	OCTET_STRING_fromBuf(s, str, -1)
+#define	OCTET_STRING_fromString(s, str)	OCTET_STRING_fromBuf_e2ap_v3_01(s, str, -1)
 
 /*
  * Allocate and fill the new OCTET STRING and return a pointer to the newly
  * allocated object. NULL is permitted in str: the function will just allocate
  * empty OCTET STRING.
  */
-OCTET_STRING_t *OCTET_STRING_new_fromBuf(const asn_TYPE_descriptor_t *td,
+OCTET_STRING_t *OCTET_STRING_new_fromBuf_e2ap_v3_01(const asn_TYPE_descriptor_t *td,
                                          const char *str, int size);
 
 /****************************
@@ -135,9 +135,9 @@ typedef struct asn_OCTET_STRING_specifics_s {
     } subvariant;
 } asn_OCTET_STRING_specifics_t;
 
-extern asn_OCTET_STRING_specifics_t asn_SPC_OCTET_STRING_specs;
+extern asn_OCTET_STRING_specifics_t asn_SPC_OCTET_STRING_specs_e2ap_v3_01;
 
-size_t OCTET_STRING_random_length_constrained(
+size_t OCTET_STRING_random_length_constrained_e2ap_v3_01(
     const asn_TYPE_descriptor_t *, const asn_encoding_constraints_t *,
     size_t max_length);
 

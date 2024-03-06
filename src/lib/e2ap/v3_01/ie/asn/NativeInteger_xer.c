@@ -10,7 +10,7 @@
  * Decode the chunk of XML text encoding INTEGER.
  */
 asn_dec_rval_t
-NativeInteger_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
+NativeInteger_decode_xer_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
                          const asn_TYPE_descriptor_t *td, void **sptr,
                          const char *opt_mname, const void *buf_ptr,
                          size_t size) {
@@ -27,13 +27,13 @@ NativeInteger_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
     }
 
     memset(&st, 0, sizeof(st));
-    rval = INTEGER_decode_xer(opt_codec_ctx, td, &st_ptr,
+    rval = INTEGER_decode_xer_e2ap_v3_01(opt_codec_ctx, td, &st_ptr,
                               opt_mname, buf_ptr, size);
     if(rval.code == RC_OK) {
         long l;
         if((specs&&specs->field_unsigned)
-            ? asn_INTEGER2ulong(&st, (unsigned long *)&l) /* sic */
-            : asn_INTEGER2long(&st, &l)) {
+            ? asn_INTEGER2ulong_e2ap_v3_01(&st, (unsigned long *)&l) /* sic */
+            : asn_INTEGER2long_e2ap_v3_01(&st, &l)) {
             rval.code = RC_FAIL;
             rval.consumed = 0;
         } else {
@@ -47,14 +47,14 @@ NativeInteger_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
          */
         rval.consumed = 0;
     }
-    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_INTEGER, &st);
+    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_INTEGER_e2ap_v3_01, &st);
     return rval;
 }
 
 
 asn_enc_rval_t
-NativeInteger_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr,
-                         int ilevel, enum xer_encoder_flags_e flags,
+NativeInteger_encode_xer_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
+                         int ilevel, enum xer_encode_e2ap_v3_01r_flags_e flags,
                          asn_app_consume_bytes_f *cb, void *app_key) {
     const asn_INTEGER_specifics_t *specs =
         (const asn_INTEGER_specifics_t *)td->specifics;

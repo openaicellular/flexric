@@ -10,17 +10,17 @@
 #include "E2nodeComponentGNB-CU-UP-ID.h"
 #include "E2nodeComponentGNB-DU-ID.h"
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_E2nodeComponentID_constr_1 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_E2nodeComponentID_constr_1_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED | APC_EXTENSIBLE,  1,  1,  0,  1 }	/* (0..1,...) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-asn_TYPE_member_t asn_MBR_E2nodeComponentID_1[] = {
+asn_TYPE_member_t asn_MBR_E2nodeComponentID_1_e2ap_v1_01[] = {
 	{ ATF_POINTER, 0, offsetof(struct E2nodeComponentID, choice.e2nodeComponentTypeGNB_CU_UP),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_E2nodeComponentGNB_CU_UP_ID,
+		&asn_DEF_E2nodeComponentGNB_CU_UP_ID_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -37,7 +37,7 @@ asn_TYPE_member_t asn_MBR_E2nodeComponentID_1[] = {
 	{ ATF_POINTER, 0, offsetof(struct E2nodeComponentID, choice.e2nodeComponentTypeGNB_DU),
 		(ASN_TAG_CLASS_CONTEXT | (1 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_E2nodeComponentGNB_DU_ID,
+		&asn_DEF_E2nodeComponentGNB_DU_ID_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -52,24 +52,24 @@ asn_TYPE_member_t asn_MBR_E2nodeComponentID_1[] = {
 		"e2nodeComponentTypeGNB-DU"
 		},
 };
-static const asn_TYPE_tag2member_t asn_MAP_E2nodeComponentID_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_E2nodeComponentID_tag2el_1_e2ap_v1_01[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 }, /* e2nodeComponentTypeGNB-CU-UP */
     { (ASN_TAG_CLASS_CONTEXT | (1 << 2)), 1, 0, 0 } /* e2nodeComponentTypeGNB-DU */
 };
-asn_CHOICE_specifics_t asn_SPC_E2nodeComponentID_specs_1 = {
+asn_CHOICE_specifics_t asn_SPC_E2nodeComponentID_specs_1_e2ap_v1_01 = {
 	sizeof(struct E2nodeComponentID),
 	offsetof(struct E2nodeComponentID, _asn_ctx),
 	offsetof(struct E2nodeComponentID, present),
 	sizeof(((struct E2nodeComponentID *)0)->present),
-	asn_MAP_E2nodeComponentID_tag2el_1,
+	asn_MAP_E2nodeComponentID_tag2el_1_e2ap_v1_01,
 	2,	/* Count of tags in the map */
 	0, 0,
 	2	/* Extensions start */
 };
-asn_TYPE_descriptor_t asn_DEF_E2nodeComponentID = {
+asn_TYPE_descriptor_t asn_DEF_E2nodeComponentID_e2ap_v1_01 = {
 	"E2nodeComponentID",
 	"E2nodeComponentID",
-	&asn_OP_CHOICE,
+	&asn_OP_CHOICE_e2ap_v1_01,
 	0,	/* No effective tags (pointer) */
 	0,	/* No effective tags (count) */
 	0,	/* No tags (pointer) */
@@ -79,12 +79,12 @@ asn_TYPE_descriptor_t asn_DEF_E2nodeComponentID = {
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_E2nodeComponentID_constr_1,
+		&asn_PER_type_E2nodeComponentID_constr_1_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		CHOICE_constraint
+		CHOICE_constraint_e2ap_v1_01
 	},
-	asn_MBR_E2nodeComponentID_1,
+	asn_MBR_E2nodeComponentID_1_e2ap_v1_01,
 	2,	/* Elements count */
-	&asn_SPC_E2nodeComponentID_specs_1	/* Additional specs */
+	&asn_SPC_E2nodeComponentID_specs_1_e2ap_v1_01	/* Additional specs */
 };
 

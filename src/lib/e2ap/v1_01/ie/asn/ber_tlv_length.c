@@ -7,7 +7,7 @@
 #include <ber_tlv_tag.h>
 
 ssize_t
-ber_fetch_length(int _is_constructed, const void *bufptr, size_t size,
+ber_fetch_length_e2ap_v1_01(int _is_constructed, const void *bufptr, size_t size,
 		ber_tlv_len_t *len_r) {
 	const uint8_t *buf = (const uint8_t *)bufptr;
 	unsigned oct;
@@ -65,7 +65,7 @@ ber_fetch_length(int _is_constructed, const void *bufptr, size_t size,
 }
 
 ssize_t
-ber_skip_length(const asn_codec_ctx_t *opt_codec_ctx,
+ber_skip_length_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
 		int _is_constructed, const void *ptr, size_t size) {
 	ber_tlv_len_t vlen;	/* Length of V in TLV */
 	ssize_t tl;		/* Length of L in TLV */
@@ -81,7 +81,7 @@ ber_skip_length(const asn_codec_ctx_t *opt_codec_ctx,
 	/*
 	 * Determine the size of L in TLV.
 	 */
-	ll = ber_fetch_length(_is_constructed, ptr, size, &vlen);
+	ll = ber_fetch_length_e2ap_v1_01(_is_constructed, ptr, size, &vlen);
 	if(ll <= 0) return ll;
 
 	/*
@@ -102,10 +102,10 @@ ber_skip_length(const asn_codec_ctx_t *opt_codec_ctx,
 		ber_tlv_tag_t tag;
 
 		/* Fetch the tag */
-		tl = ber_fetch_tag(ptr, size, &tag);
+		tl = ber_fetch_tag_e2ap_v1_01(ptr, size, &tag);
 		if(tl <= 0) return tl;
 
-		ll = ber_skip_length(opt_codec_ctx,
+		ll = ber_skip_length_e2ap_v1_01(opt_codec_ctx,
 			BER_TLV_CONSTRUCTED(ptr),
 			((const char *)ptr) + tl, size - tl);
 		if(ll <= 0) return ll;
@@ -129,7 +129,7 @@ ber_skip_length(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 size_t
-der_tlv_length_serialize(ber_tlv_len_t len, void *bufp, size_t size) {
+der_tlv_length_serialize_e2ap_v1_01(ber_tlv_len_t len, void *bufp, size_t size) {
 	size_t required_size;	/* Size of len encoding */
 	uint8_t *buf = (uint8_t *)bufp;
 	uint8_t *end;
