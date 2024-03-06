@@ -19,7 +19,7 @@
 # TODO: cannot build proxy_agent when the gcc is 10, need to solve the global variable static_user,
 # TODO: reorganize the including header files
 
-add_subdirectory(server)
+#add_subdirectory(server)
 
 find_package(PkgConfig)
 pkg_check_modules(LIBWEBSOCKETS REQUIRED libwebsockets>3.0.0 libwebsockets<4.0.0)
