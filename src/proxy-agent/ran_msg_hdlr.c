@@ -48,8 +48,7 @@ static next_msg_t handle_ran_indication_stats(proxy_agent_t * proxy, ran_msg_t m
     assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
     if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
       ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
-      ret_msg.e2wrt_msg.ad = loop_event_p->wr_subs_ev.ad;
-      ret_msg.e2wrt_msg.et = loop_event_p->wr_subs_ev.et;
+      ret_msg.e2wrt_msg.rc = loop_event_p->wr_subs_ev.rc;
       ret_msg.e2wrt_msg.msg_id = msghdr.msg_id;
     } else {
       assert(0 != 0 && "error extract RC ric_req_id or not properly remove RC ric_req_id from RAN interface");
@@ -81,8 +80,7 @@ static next_msg_t handle_ran_indication_ue(proxy_agent_t * proxy, ran_msg_t msg,
     assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
     if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
       ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
-      ret_msg.e2wrt_msg.ad = loop_event_p->wr_subs_ev.ad;
-      ret_msg.e2wrt_msg.et = loop_event_p->wr_subs_ev.et;
+      ret_msg.e2wrt_msg.rc = loop_event_p->wr_subs_ev.rc;
       ret_msg.e2wrt_msg.msg_id = msghdr.msg_id;
     } else {
       assert(0 != 0 && "error extract RC ric_req_id or not properly remove RC ric_req_id from RAN interface");
@@ -114,8 +112,7 @@ static next_msg_t handle_ran_indication_config_get(proxy_agent_t * proxy, ran_ms
       assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
       if (loop_event_p->msg_type == E2_WRITE_SUBSCRIPTION_EVENT){
         ret_msg.e2wrt_msg.ric_req_id = loop_event_p->wr_subs_ev.ric_req_id;
-        ret_msg.e2wrt_msg.ad = loop_event_p->wr_subs_ev.ad;
-        ret_msg.e2wrt_msg.et = loop_event_p->wr_subs_ev.et;
+        ret_msg.e2wrt_msg.rc = loop_event_p->wr_subs_ev.rc;
         ret_msg.e2wrt_msg.msg_id = msghdr.msg_id;
       } else {
         assert(0 != 0 && "error extract RC ric_req_id or not properly remove RC ric_req_id from RAN interface");
@@ -152,6 +149,8 @@ static next_msg_t handle_ran_ctrl(proxy_agent_t * proxy, ran_msg_t ranmsg, ran_m
 
   next_msg_t ret_msg = { .type_id = RAN_E2_CTRL_FWD};
   ws_ioloop_event_t *loop_event_p = bi_map_extract_left(sent_msg_list, &msghdr.msg_id, sizeof(int), NULL);
+  // For some reason, need to free cause this cause memory leak.
+  defer({free(loop_event_p);};);
   assert (loop_event_p != NULL && "key not found in the io_loop datastructure. Should not happen.");
 
   if (proxy->ran_if.ser->decode_ctrl(&msghdr, &ret_msg.ctrl_msg, loop_event_p) == false) 

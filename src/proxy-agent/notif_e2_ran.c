@@ -242,8 +242,7 @@ void fwd_e2_ran_wr_sub_ev(ran_if_t *ran_if, wr_rc_sub_data_t* wr_rc_sub_data)
   notif_e2_ran_event_t msg = {
       .type = E2_WRITE_SUBSCRIPTION_EVENT,
       .wr_subs_ev.ric_req_id = wr_rc_sub_data->ric_req_id,
-      .wr_subs_ev.et = wr_rc_sub_data->rc.et,
-      .wr_subs_ev.ad = cp_e2sm_rc_action_def(&wr_rc_sub_data->rc.ad[0]), // Current support 1 ad
+      .wr_subs_ev.rc = cp_rc_sub_data(&wr_rc_sub_data->rc),
   };
 
   notif_send_ran_event(ran_if, &msg);
@@ -424,15 +423,20 @@ static void ran_handle_notif_ctrl(ran_if_t *ran_if, e2_agent_t *e2_if, const not
     (void)e2_if;
 
     const char *p = ran_if->ser->encode_ctrl(msg_id, (const sm_ag_if_wr_ctrl_t)notif_event->ctrl_ev.req);
+    /*
+     * Eventhough it extract and free from notif ring.
+     * There are pointer reference nested inside the structure
+     * When done using req, free the data structure
+     *  TODO: Create free ctrl for MAC
+    */
+    defer({free_rc_ctrl_req_data((rc_ctrl_req_data_t*)&notif_event->ctrl_ev.req.rc_ctrl);};);
     ws_ioloop_event_t ev = {
-      .msg_type       = E2_CTRL_EVENT, 
+      .msg_type       = E2_CTRL_EVENT,
       .ctrl_ev.ric_inst_id = notif_event->ctrl_ev.ric_id.ric_inst_id,
       .ctrl_ev.ran_func_id = notif_event->ctrl_ev.ric_id.ran_func_id,
       .ctrl_ev.ric_req_id  = notif_event->ctrl_ev.ric_id.ric_req_id
     };
 
-    // TODO: Expand for mac ctrl
-    free_rc_ctrl_req_data((rc_ctrl_req_data_t*)&notif_event->ctrl_ev.req.rc_ctrl);
     ran_if->io->write_to_ran(&ev, p, strlen(p) + 1);
 }
 
@@ -441,13 +445,25 @@ static void ran_handle_notif_write_sub(ran_if_t *ran_if, e2_agent_t *e2_if, cons
   (void)e2_if;
 
   const char *p = ran_if->ser->encode_indication(msg_id, SM_RC_ID, (double)get_proxy_agent()->conf.io_ran_conf.timer/1000);
-  ws_ioloop_event_t ev = {
-      .msg_type               = E2_WRITE_SUBSCRIPTION_EVENT,
-      .wr_subs_ev.ric_req_id  = notif_event->wr_subs_ev.ric_req_id,
-      .wr_subs_ev.et          = notif_event->wr_subs_ev.et,
-      .wr_subs_ev.ad          = notif_event->wr_subs_ev.ad,
-  };
-  ran_if->io->write_to_ran(&ev, p, strlen(p) + 1);
+  /*
+   * Eventhough it extract and free from notif ring.
+   * There are pointer reference nested inside the structure
+   * When done using req, free the data structure
+    */
+  defer({free_rc_sub_data((rc_sub_data_t *)&notif_event->wr_subs_ev.rc);};);
+
+  /*
+   * TODO: Find a way to free ev
+   * Temporary solve for this specific case
+   * Allocate ev memory to avoid undefined memory block in ev.
+    */
+  ws_ioloop_event_t* ev = calloc(1, sizeof(ws_ioloop_event_t));
+  defer({free(ev);};);
+  ev->msg_type = E2_WRITE_SUBSCRIPTION_EVENT;
+  ev->wr_subs_ev.ric_req_id  = notif_event->wr_subs_ev.ric_req_id;
+  ev->wr_subs_ev.rc          = cp_rc_sub_data(&notif_event->wr_subs_ev.rc);
+
+  ran_if->io->write_to_ran(ev, p, strlen(p) + 1);
 }
 
 static void ran_handle_notif_subsrmtimer (ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id)

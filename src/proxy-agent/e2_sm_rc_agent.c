@@ -491,9 +491,9 @@ e2sm_rc_ind_msg_frmt_3_t rc_ind_msg_frmt_3(const ran_ind_t* ws_ind, e2sm_rc_act_
   return msg_frm_3;
 }
 
-void proxy_fill_rnd_rc_ind_data(uint32_t ric_req_id, e2sm_rc_action_def_t ad, e2sm_rc_event_trigger_t et){\
-  (void) et;
+void proxy_fill_rnd_rc_ind_data(uint32_t ric_req_id, rc_sub_data_t rc){
   ran_ind_t ws_ind = get_ringbuffer_data();
+  e2sm_rc_action_def_t ad = rc.ad[0]; // Support 1 ad
 
   // Current support 1 action def - check on_subscription_rc_sm_ag
   rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t));

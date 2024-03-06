@@ -45,8 +45,7 @@ typedef struct e2_subscribe_event_t {
 
 typedef struct e2_wr_sub_event_t {
   uint32_t ric_req_id;
-  e2sm_rc_event_trigger_t et;
-  e2sm_rc_action_def_t ad; // Support 1 ad
+  rc_sub_data_t rc;
 } e2_wr_sub_event_t;
 
 // types of events managed by I/O ran loop notification signal

@@ -428,7 +428,7 @@ static int io_ran_ws_async_loop(struct lws *wsi,                  // Opaque webs
         fwd_ran_e2_ctrl_reply(io_ran_instance->priv_data->pa->e2_if, ans.ctrl_msg);
       } else if (next_msg_is(ans, RAN_E2_WRT_FWD)){
         if (is_get_aperiodic_event())
-          proxy_fill_rnd_rc_ind_data(ans.e2wrt_msg.ric_req_id, ans.e2wrt_msg.ad, ans.e2wrt_msg.et);
+          proxy_fill_rnd_rc_ind_data(ans.e2wrt_msg.ric_req_id, ans.e2wrt_msg.rc);
       }
       // default is to send nothing to E2 or discard (programming error)
       break;
