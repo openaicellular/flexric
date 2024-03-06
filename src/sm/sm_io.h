@@ -25,7 +25,7 @@
 #include "agent_if/read/sm_ag_if_rd.h"
 #include "agent_if/write/sm_ag_if_wr.h"
 #include "agent_if/ans/sm_ag_if_ans.h"
-#include "../util/ngran_types.h"
+#include "../util/e2ap_ngran_types.h"
 
 // Read
 typedef bool (*read_ind_fp)(void* data);
@@ -49,7 +49,7 @@ typedef struct{
 
 #if defined(E2AP_V2) || defined (E2AP_V3)
   // Read RAN 
-  void (*read_setup_ran)(void* data, const ngran_node_t node_type);
+  void (*read_setup_ran)(void* data, const e2ap_ngran_node_t node_type);
 #endif
 
   // Write SM

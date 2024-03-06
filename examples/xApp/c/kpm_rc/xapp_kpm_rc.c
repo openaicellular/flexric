@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
   const int RC_ran_function = 3;
 
   for(size_t i =0; i < nodes.len; ++i){ 
-    ngran_node_t const t = nodes.n[i].id.type;
+    e2ap_ngran_node_t const t = nodes.n[i].id.type;
     if(t == ngran_gNB || t == ngran_gNB_CU)
       control_sm_xapp_api(&nodes.n[i].id, RC_ran_function, &rc_ctrl);
   }

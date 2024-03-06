@@ -46,7 +46,7 @@ target_link_libraries(emu_agent_gnb
                       )
 
 target_compile_definitions(emu_agent_gnb PRIVATE TEST_AGENT_GNB 
-                                                 TEST_AGENT_RAN_TYPE=ngran_gNB
+                                                 TEST_AGENT_RAN_TYPE=e2ap_ngran_gNB
                                                  TEST_AGENT_MCC=505  
                                                  TEST_AGENT_MNC=1
                                                  TEST_AGENT_MNC_DIG_LEN=2
@@ -75,7 +75,7 @@ target_link_libraries(emu_agent_gnb_cu
                         )
 
 target_compile_definitions(emu_agent_gnb_cu PRIVATE TEST_AGENT_GNB_CU
-                                                    TEST_AGENT_RAN_TYPE=ngran_gNB_CU
+                                                    TEST_AGENT_RAN_TYPE=e2ap_ngran_gNB_CU
                                                     TEST_AGENT_MCC=505
                                                     TEST_AGENT_MNC=1
                                                     TEST_AGENT_MNC_DIG_LEN=2
@@ -104,7 +104,7 @@ target_link_libraries(emu_agent_gnb_du
                         )
 
 target_compile_definitions(emu_agent_gnb_du PRIVATE TEST_AGENT_GNB_DU
-                                                    TEST_AGENT_RAN_TYPE=ngran_gNB_DU
+                                                    TEST_AGENT_RAN_TYPE=e2ap_ngran_gNB_DU
                                                     TEST_AGENT_MCC=505
                                                     TEST_AGENT_MNC=1
                                                     TEST_AGENT_MNC_DIG_LEN=2
@@ -132,7 +132,7 @@ target_link_libraries(emu_agent_enb
                         )
 
 target_compile_definitions(emu_agent_enb PRIVATE TEST_AGENT_ENB
-                                                 TEST_AGENT_RAN_TYPE=ngran_eNB
+                                                 TEST_AGENT_RAN_TYPE=e2ap_ngran_eNB
                                                  TEST_AGENT_MCC=208
                                                  TEST_AGENT_MNC=94
                                                  TEST_AGENT_MNC_DIG_LEN=2

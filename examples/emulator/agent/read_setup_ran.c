@@ -27,7 +27,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-void read_setup_ran(void* data, const ngran_node_t node_type)
+void read_setup_ran(void* data, const e2ap_ngran_node_t node_type)
 {
   assert(data != NULL);
 #ifdef E2AP_V1
