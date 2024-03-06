@@ -9,262 +9,262 @@
 
 #include "ProtocolIE-Field.h"
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P0_constr_1_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P0_constr_1 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P1_constr_3_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P1_constr_3 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P2_constr_5_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P2_constr_5 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P3_constr_7_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P3_constr_7 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P4_constr_9_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P4_constr_9 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P5_constr_11_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P5_constr_11 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P6_constr_13_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P6_constr_13 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P7_constr_15_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P7_constr_15 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P8_constr_17_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P8_constr_17 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P9_constr_19_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P9_constr_19 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P10_constr_21_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P10_constr_21 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P11_constr_23_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P11_constr_23 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P12_constr_25_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P12_constr_25 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P13_constr_27_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P13_constr_27 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P14_constr_29_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P14_constr_29 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P15_constr_31_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P15_constr_31 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P16_constr_33_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P16_constr_33 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P17_constr_35_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P17_constr_35 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P18_constr_37_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P18_constr_37 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P19_constr_39_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P19_constr_39 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P20_constr_41_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P20_constr_41 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P21_constr_43_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P21_constr_43 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P22_constr_45_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P22_constr_45 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P23_constr_47_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P23_constr_47 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P24_constr_49_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P24_constr_49 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P25_constr_51_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P25_constr_51 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P26_constr_53_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P26_constr_53 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P27_constr_55_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P27_constr_55 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P28_constr_57_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P28_constr_57 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P29_constr_59_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P29_constr_59 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P30_constr_61_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P30_constr_61 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P31_constr_63_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P31_constr_63 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P32_constr_65_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P32_constr_65 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P33_constr_67_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P33_constr_67 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P34_constr_69_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P34_constr_69 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2148P35_constr_71_e2ap_v2_03 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_ProtocolIE_Container_2161P35_constr_71 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (SIZE(0..65535)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P0_1_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P0_1[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICsubscriptionRequest_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICsubscriptionRequest_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -279,43 +279,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P0_1_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P0_e2ap_v2_03_tags_1_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P0_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P0_specs_1_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P0),
-	offsetof(struct ProtocolIE_Container_2148P0, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P0_specs_1 = {
+	sizeof(struct ProtocolIE_Container_2161P0),
+	offsetof(struct ProtocolIE_Container_2161P0, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P0_e2ap_v2_03 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P0 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P0_e2ap_v2_03_tags_1_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P0_e2ap_v2_03_tags_1_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P0_e2ap_v2_03_tags_1_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P0_e2ap_v2_03_tags_1_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P0_e2ap_v2_03_tags_1_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P0_e2ap_v2_03_tags_1_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P0_tags_1,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P0_tags_1)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P0_tags_1[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P0_tags_1,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P0_tags_1)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P0_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P0_constr_1_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P0_constr_1,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P0_1_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P0_1,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P0_specs_1_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P0_specs_1	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P1_3_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P1_3[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICsubscriptionResponse_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICsubscriptionResponse_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -330,43 +330,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P1_3_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_03_tags_3_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P1_tags_3[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P1_specs_3_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P1),
-	offsetof(struct ProtocolIE_Container_2148P1, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P1_specs_3 = {
+	sizeof(struct ProtocolIE_Container_2161P1),
+	offsetof(struct ProtocolIE_Container_2161P1, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_03 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P1 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_03_tags_3_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_03_tags_3_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_03_tags_3_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_03_tags_3_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_03_tags_3_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_03_tags_3_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P1_tags_3,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P1_tags_3)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P1_tags_3[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P1_tags_3,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P1_tags_3)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P1_tags_3[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P1_constr_3_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P1_constr_3,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P1_3_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P1_3,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P1_specs_3_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P1_specs_3	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P2_5_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P2_5[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICsubscriptionFailure_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICsubscriptionFailure_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -381,43 +381,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P2_5_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_03_tags_5_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P2_tags_5[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P2_specs_5_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P2),
-	offsetof(struct ProtocolIE_Container_2148P2, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P2_specs_5 = {
+	sizeof(struct ProtocolIE_Container_2161P2),
+	offsetof(struct ProtocolIE_Container_2161P2, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_03 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P2 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_03_tags_5_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_03_tags_5_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_03_tags_5_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_03_tags_5_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_03_tags_5_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_03_tags_5_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P2_tags_5,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P2_tags_5)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P2_tags_5[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P2_tags_5,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P2_tags_5)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P2_tags_5[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P2_constr_5_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P2_constr_5,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P2_5_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P2_5,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P2_specs_5_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P2_specs_5	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P3_7_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P3_7[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICsubscriptionDeleteRequest_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICsubscriptionDeleteRequest_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -432,43 +432,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P3_7_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_03_tags_7_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P3_tags_7[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P3_specs_7_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P3),
-	offsetof(struct ProtocolIE_Container_2148P3, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P3_specs_7 = {
+	sizeof(struct ProtocolIE_Container_2161P3),
+	offsetof(struct ProtocolIE_Container_2161P3, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_03 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P3 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_03_tags_7_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_03_tags_7_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_03_tags_7_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_03_tags_7_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_03_tags_7_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_03_tags_7_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P3_tags_7,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P3_tags_7)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P3_tags_7[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P3_tags_7,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P3_tags_7)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P3_tags_7[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P3_constr_7_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P3_constr_7,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P3_7_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P3_7,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P3_specs_7_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P3_specs_7	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P4_9_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P4_9[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E42RICsubscriptionRequest_e2ap_v2_03_IEs,
+		&asn_DEF_E42RICsubscriptionRequest_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -483,43 +483,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P4_9_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P4_e2ap_v2_03_tags_9_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P4_tags_9[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P4_specs_9_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P4),
-	offsetof(struct ProtocolIE_Container_2148P4, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P4_specs_9 = {
+	sizeof(struct ProtocolIE_Container_2161P4),
+	offsetof(struct ProtocolIE_Container_2161P4, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P4_e2ap_v2_03 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P4 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P4_e2ap_v2_03_tags_9_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P4_e2ap_v2_03_tags_9_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P4_e2ap_v2_03_tags_9_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P4_e2ap_v2_03_tags_9_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P4_e2ap_v2_03_tags_9_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P4_e2ap_v2_03_tags_9_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P4_tags_9,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P4_tags_9)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P4_tags_9[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P4_tags_9,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P4_tags_9)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P4_tags_9[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P4_constr_9_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P4_constr_9,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P4_9_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P4_9,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P4_specs_9_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P4_specs_9	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P5_11_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P5_11[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E42RICsubscriptionDeleteRequest_e2ap_v2_03_IEs,
+		&asn_DEF_E42RICsubscriptionDeleteRequest_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -534,43 +534,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P5_11_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P5_e2ap_v2_03_tags_11_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P5_tags_11[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P5_specs_11_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P5),
-	offsetof(struct ProtocolIE_Container_2148P5, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P5_specs_11 = {
+	sizeof(struct ProtocolIE_Container_2161P5),
+	offsetof(struct ProtocolIE_Container_2161P5, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P5_e2ap_v2_03 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P5 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P5_e2ap_v2_03_tags_11_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P5_e2ap_v2_03_tags_11_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P5_e2ap_v2_03_tags_11_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P5_e2ap_v2_03_tags_11_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P5_e2ap_v2_03_tags_11_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P5_e2ap_v2_03_tags_11_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P5_tags_11,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P5_tags_11)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P5_tags_11[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P5_tags_11,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P5_tags_11)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P5_tags_11[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P5_constr_11_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P5_constr_11,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P5_11_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P5_11,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P5_specs_11_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P5_specs_11	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P6_13_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P6_13[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICsubscriptionDeleteResponse_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICsubscriptionDeleteResponse_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -585,43 +585,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P6_13_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P6_e2ap_v2_03_tags_13_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P6_tags_13[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P6_specs_13_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P6),
-	offsetof(struct ProtocolIE_Container_2148P6, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P6_specs_13 = {
+	sizeof(struct ProtocolIE_Container_2161P6),
+	offsetof(struct ProtocolIE_Container_2161P6, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P6_e2ap_v2_03 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P6 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P6_e2ap_v2_03_tags_13_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P6_e2ap_v2_03_tags_13_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P6_e2ap_v2_03_tags_13_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P6_e2ap_v2_03_tags_13_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P6_e2ap_v2_03_tags_13_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P6_e2ap_v2_03_tags_13_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P6_tags_13,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P6_tags_13)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P6_tags_13[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P6_tags_13,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P6_tags_13)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P6_tags_13[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P6_constr_13_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P6_constr_13,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P6_13_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P6_13,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P6_specs_13_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P6_specs_13	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P7_15_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P7_15[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICsubscriptionDeleteFailure_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICsubscriptionDeleteFailure_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -636,43 +636,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P7_15_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P7_e2ap_v2_03_tags_15_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P7_tags_15[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P7_specs_15_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P7),
-	offsetof(struct ProtocolIE_Container_2148P7, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P7_specs_15 = {
+	sizeof(struct ProtocolIE_Container_2161P7),
+	offsetof(struct ProtocolIE_Container_2161P7, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P7_e2ap_v2_03 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P7 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P7_e2ap_v2_03_tags_15_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P7_e2ap_v2_03_tags_15_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P7_e2ap_v2_03_tags_15_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P7_e2ap_v2_03_tags_15_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P7_e2ap_v2_03_tags_15_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P7_e2ap_v2_03_tags_15_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P7_tags_15,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P7_tags_15)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P7_tags_15[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P7_tags_15,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P7_tags_15)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P7_tags_15[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P7_constr_15_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P7_constr_15,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P7_15_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P7_15,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P7_specs_15_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P7_specs_15	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P8_17_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P8_17[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICsubscriptionDeleteRequired_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICsubscriptionDeleteRequired_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -687,43 +687,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P8_17_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P8_e2ap_v2_03_tags_17_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P8_tags_17[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P8_specs_17_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P8),
-	offsetof(struct ProtocolIE_Container_2148P8, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P8_specs_17 = {
+	sizeof(struct ProtocolIE_Container_2161P8),
+	offsetof(struct ProtocolIE_Container_2161P8, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P8_e2ap_v2_03 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P8 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P8_e2ap_v2_03_tags_17_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P8_e2ap_v2_03_tags_17_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P8_e2ap_v2_03_tags_17_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P8_e2ap_v2_03_tags_17_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P8_e2ap_v2_03_tags_17_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P8_e2ap_v2_03_tags_17_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P8_tags_17,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P8_tags_17)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P8_tags_17[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P8_tags_17,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P8_tags_17)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P8_tags_17[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P8_constr_17_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P8_constr_17,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P8_17_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P8_17,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P8_specs_17_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P8_specs_17	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P9_19_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P9_19[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICindication_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICindication_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -738,43 +738,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P9_19_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P9_e2ap_v2_03_tags_19_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P9_tags_19[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P9_specs_19_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P9),
-	offsetof(struct ProtocolIE_Container_2148P9, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P9_specs_19 = {
+	sizeof(struct ProtocolIE_Container_2161P9),
+	offsetof(struct ProtocolIE_Container_2161P9, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P9_e2ap_v2_03 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P9 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P9_e2ap_v2_03_tags_19_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P9_e2ap_v2_03_tags_19_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P9_e2ap_v2_03_tags_19_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P9_e2ap_v2_03_tags_19_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P9_e2ap_v2_03_tags_19_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P9_e2ap_v2_03_tags_19_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P9_tags_19,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P9_tags_19)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P9_tags_19[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P9_tags_19,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P9_tags_19)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P9_tags_19[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P9_constr_19_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P9_constr_19,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P9_19_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P9_19,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P9_specs_19_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P9_specs_19	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P10_21_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P10_21[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICcontrolRequest_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICcontrolRequest_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -789,43 +789,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P10_21_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_030_tags_21_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P10_tags_21[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P10_specs_21_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P10),
-	offsetof(struct ProtocolIE_Container_2148P10, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P10_specs_21 = {
+	sizeof(struct ProtocolIE_Container_2161P10),
+	offsetof(struct ProtocolIE_Container_2161P10, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_030 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P10 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_030_tags_21_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_030_tags_21_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_030_tags_21_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_030_tags_21_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_030_tags_21_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_030_tags_21_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P10_tags_21,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P10_tags_21)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P10_tags_21[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P10_tags_21,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P10_tags_21)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P10_tags_21[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P10_constr_21_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P10_constr_21,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P10_21_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P10_21,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P10_specs_21_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P10_specs_21	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P11_23_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P11_23[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E42RICcontrolRequest_e2ap_v2_03_IEs,
+		&asn_DEF_E42RICcontrolRequest_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -840,43 +840,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P11_23_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_031_tags_23_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P11_tags_23[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P11_specs_23_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P11),
-	offsetof(struct ProtocolIE_Container_2148P11, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P11_specs_23 = {
+	sizeof(struct ProtocolIE_Container_2161P11),
+	offsetof(struct ProtocolIE_Container_2161P11, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_031 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P11 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_031_tags_23_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_031_tags_23_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_031_tags_23_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_031_tags_23_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_031_tags_23_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_031_tags_23_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P11_tags_23,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P11_tags_23)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P11_tags_23[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P11_tags_23,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P11_tags_23)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P11_tags_23[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P11_constr_23_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P11_constr_23,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P11_23_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P11_23,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P11_specs_23_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P11_specs_23	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P12_25_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P12_25[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICcontrolAcknowledge_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICcontrolAcknowledge_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -891,43 +891,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P12_25_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_032_tags_25_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P12_tags_25[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P12_specs_25_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P12),
-	offsetof(struct ProtocolIE_Container_2148P12, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P12_specs_25 = {
+	sizeof(struct ProtocolIE_Container_2161P12),
+	offsetof(struct ProtocolIE_Container_2161P12, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_032 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P12 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_032_tags_25_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_032_tags_25_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_032_tags_25_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_032_tags_25_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_032_tags_25_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_032_tags_25_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P12_tags_25,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P12_tags_25)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P12_tags_25[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P12_tags_25,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P12_tags_25)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P12_tags_25[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P12_constr_25_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P12_constr_25,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P12_25_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P12_25,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P12_specs_25_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P12_specs_25	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P13_27_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P13_27[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICcontrolFailure_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICcontrolFailure_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -942,43 +942,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P13_27_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_033_tags_27_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P13_tags_27[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P13_specs_27_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P13),
-	offsetof(struct ProtocolIE_Container_2148P13, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P13_specs_27 = {
+	sizeof(struct ProtocolIE_Container_2161P13),
+	offsetof(struct ProtocolIE_Container_2161P13, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_033 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P13 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_033_tags_27_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_033_tags_27_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_033_tags_27_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_033_tags_27_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_033_tags_27_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_033_tags_27_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P13_tags_27,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P13_tags_27)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P13_tags_27[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P13_tags_27,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P13_tags_27)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P13_tags_27[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P13_constr_27_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P13_constr_27,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P13_27_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P13_27,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P13_specs_27_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P13_specs_27	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P14_29_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P14_29[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_ErrorIndication_e2ap_v2_03_IEs,
+		&asn_DEF_ErrorIndication_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -993,43 +993,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P14_29_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_034_tags_29_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P14_tags_29[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P14_specs_29_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P14),
-	offsetof(struct ProtocolIE_Container_2148P14, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P14_specs_29 = {
+	sizeof(struct ProtocolIE_Container_2161P14),
+	offsetof(struct ProtocolIE_Container_2161P14, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_034 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P14 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_034_tags_29_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_034_tags_29_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_034_tags_29_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_034_tags_29_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_034_tags_29_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_034_tags_29_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P14_tags_29,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P14_tags_29)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P14_tags_29[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P14_tags_29,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P14_tags_29)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P14_tags_29[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P14_constr_29_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P14_constr_29,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P14_29_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P14_29,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P14_specs_29_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P14_specs_29	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P15_31_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P15_31[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2setupRequest_e2ap_v2_03IEs,
+		&asn_DEF_E2setupRequestIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1044,43 +1044,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P15_31_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_035_tags_31_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P15_tags_31[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P15_specs_31_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P15),
-	offsetof(struct ProtocolIE_Container_2148P15, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P15_specs_31 = {
+	sizeof(struct ProtocolIE_Container_2161P15),
+	offsetof(struct ProtocolIE_Container_2161P15, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_035 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P15 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_035_tags_31_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_035_tags_31_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_035_tags_31_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_035_tags_31_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_035_tags_31_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_035_tags_31_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P15_tags_31,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P15_tags_31)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P15_tags_31[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P15_tags_31,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P15_tags_31)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P15_tags_31[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P15_constr_31_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P15_constr_31,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P15_31_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P15_31,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P15_specs_31_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P15_specs_31	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P16_33_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P16_33[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E42setupRequest_e2ap_v2_03IEs,
+		&asn_DEF_E42setupRequestIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1095,43 +1095,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P16_33_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_036_tags_33_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P16_tags_33[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P16_specs_33_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P16),
-	offsetof(struct ProtocolIE_Container_2148P16, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P16_specs_33 = {
+	sizeof(struct ProtocolIE_Container_2161P16),
+	offsetof(struct ProtocolIE_Container_2161P16, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_036 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P16 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_036_tags_33_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_036_tags_33_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_036_tags_33_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_036_tags_33_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_036_tags_33_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_036_tags_33_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P16_tags_33,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P16_tags_33)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P16_tags_33[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P16_tags_33,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P16_tags_33)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P16_tags_33[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P16_constr_33_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P16_constr_33,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P16_33_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P16_33,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P16_specs_33_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P16_specs_33	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P17_35_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P17_35[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2setupResponse_e2ap_v2_03IEs,
+		&asn_DEF_E2setupResponseIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1146,43 +1146,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P17_35_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_037_tags_35_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P17_tags_35[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P17_specs_35_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P17),
-	offsetof(struct ProtocolIE_Container_2148P17, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P17_specs_35 = {
+	sizeof(struct ProtocolIE_Container_2161P17),
+	offsetof(struct ProtocolIE_Container_2161P17, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_037 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P17 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_037_tags_35_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_037_tags_35_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_037_tags_35_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_037_tags_35_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_037_tags_35_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_037_tags_35_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P17_tags_35,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P17_tags_35)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P17_tags_35[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P17_tags_35,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P17_tags_35)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P17_tags_35[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P17_constr_35_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P17_constr_35,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P17_35_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P17_35,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P17_specs_35_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P17_specs_35	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P18_37_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P18_37[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E42setupResponse_e2ap_v2_03IEs,
+		&asn_DEF_E42setupResponseIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1197,43 +1197,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P18_37_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_038_tags_37_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P18_tags_37[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P18_specs_37_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P18),
-	offsetof(struct ProtocolIE_Container_2148P18, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P18_specs_37 = {
+	sizeof(struct ProtocolIE_Container_2161P18),
+	offsetof(struct ProtocolIE_Container_2161P18, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_038 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P18 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_038_tags_37_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_038_tags_37_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_038_tags_37_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_038_tags_37_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_038_tags_37_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_038_tags_37_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P18_tags_37,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P18_tags_37)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P18_tags_37[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P18_tags_37,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P18_tags_37)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P18_tags_37[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P18_constr_37_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P18_constr_37,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P18_37_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P18_37,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P18_specs_37_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P18_specs_37	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P19_39_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P19_39[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2setupFailure_e2ap_v2_03IEs,
+		&asn_DEF_E2setupFailureIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1248,43 +1248,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P19_39_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_039_tags_39_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P19_tags_39[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P19_specs_39_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P19),
-	offsetof(struct ProtocolIE_Container_2148P19, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P19_specs_39 = {
+	sizeof(struct ProtocolIE_Container_2161P19),
+	offsetof(struct ProtocolIE_Container_2161P19, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_039 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P19 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_039_tags_39_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_039_tags_39_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_039_tags_39_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_039_tags_39_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_039_tags_39_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P1_e2ap_v2_039_tags_39_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P19_tags_39,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P19_tags_39)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P19_tags_39[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P19_tags_39,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P19_tags_39)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P19_tags_39[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P19_constr_39_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P19_constr_39,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P19_39_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P19_39,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P19_specs_39_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P19_specs_39	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P20_41_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P20_41[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2connectionUpdate_e2ap_v2_03_IEs,
+		&asn_DEF_E2connectionUpdate_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1299,43 +1299,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P20_41_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_030_tags_41_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P20_tags_41[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P20_specs_41_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P20),
-	offsetof(struct ProtocolIE_Container_2148P20, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P20_specs_41 = {
+	sizeof(struct ProtocolIE_Container_2161P20),
+	offsetof(struct ProtocolIE_Container_2161P20, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_030 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P20 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_030_tags_41_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_030_tags_41_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_030_tags_41_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_030_tags_41_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_030_tags_41_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_030_tags_41_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P20_tags_41,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P20_tags_41)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P20_tags_41[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P20_tags_41,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P20_tags_41)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P20_tags_41[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P20_constr_41_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P20_constr_41,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P20_41_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P20_41,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P20_specs_41_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P20_specs_41	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P21_43_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P21_43[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2connectionUpdate_e2ap_v2_03Ack_IEs,
+		&asn_DEF_E2connectionUpdateAck_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1350,43 +1350,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P21_43_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_031_tags_43_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P21_tags_43[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P21_specs_43_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P21),
-	offsetof(struct ProtocolIE_Container_2148P21, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P21_specs_43 = {
+	sizeof(struct ProtocolIE_Container_2161P21),
+	offsetof(struct ProtocolIE_Container_2161P21, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_031 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P21 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_031_tags_43_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_031_tags_43_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_031_tags_43_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_031_tags_43_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_031_tags_43_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_031_tags_43_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P21_tags_43,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P21_tags_43)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P21_tags_43[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P21_tags_43,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P21_tags_43)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P21_tags_43[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P21_constr_43_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P21_constr_43,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P21_43_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P21_43,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P21_specs_43_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P21_specs_43	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P22_45_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P22_45[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2connectionUpdate_e2ap_v2_03Failure_IEs,
+		&asn_DEF_E2connectionUpdateFailure_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1401,43 +1401,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P22_45_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_032_tags_45_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P22_tags_45[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P22_specs_45_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P22),
-	offsetof(struct ProtocolIE_Container_2148P22, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P22_specs_45 = {
+	sizeof(struct ProtocolIE_Container_2161P22),
+	offsetof(struct ProtocolIE_Container_2161P22, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_032 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P22 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_032_tags_45_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_032_tags_45_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_032_tags_45_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_032_tags_45_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_032_tags_45_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_032_tags_45_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P22_tags_45,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P22_tags_45)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P22_tags_45[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P22_tags_45,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P22_tags_45)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P22_tags_45[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P22_constr_45_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P22_constr_45,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P22_45_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P22_45,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P22_specs_45_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P22_specs_45	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P23_47_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P23_47[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2nodeConfigurationUpdate_e2ap_v2_03_IEs,
+		&asn_DEF_E2nodeConfigurationUpdate_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1452,43 +1452,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P23_47_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_033_tags_47_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P23_tags_47[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P23_specs_47_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P23),
-	offsetof(struct ProtocolIE_Container_2148P23, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P23_specs_47 = {
+	sizeof(struct ProtocolIE_Container_2161P23),
+	offsetof(struct ProtocolIE_Container_2161P23, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_033 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P23 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_033_tags_47_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_033_tags_47_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_033_tags_47_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_033_tags_47_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_033_tags_47_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_033_tags_47_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P23_tags_47,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P23_tags_47)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P23_tags_47[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P23_tags_47,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P23_tags_47)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P23_tags_47[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P23_constr_47_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P23_constr_47,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P23_47_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P23_47,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P23_specs_47_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P23_specs_47	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P24_49_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P24_49[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2nodeConfigurationUpdate_e2ap_v2_03Acknowledge_e2ap_v2_03_IEs,
+		&asn_DEF_E2nodeConfigurationUpdateAcknowledge_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1503,43 +1503,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P24_49_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_034_tags_49_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P24_tags_49[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P24_specs_49_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P24),
-	offsetof(struct ProtocolIE_Container_2148P24, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P24_specs_49 = {
+	sizeof(struct ProtocolIE_Container_2161P24),
+	offsetof(struct ProtocolIE_Container_2161P24, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_034 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P24 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_034_tags_49_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_034_tags_49_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_034_tags_49_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_034_tags_49_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_034_tags_49_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_034_tags_49_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P24_tags_49,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P24_tags_49)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P24_tags_49[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P24_tags_49,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P24_tags_49)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P24_tags_49[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P24_constr_49_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P24_constr_49,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P24_49_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P24_49,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P24_specs_49_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P24_specs_49	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P25_51_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P25_51[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2nodeConfigurationUpdate_e2ap_v2_03Failure_IEs,
+		&asn_DEF_E2nodeConfigurationUpdateFailure_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1554,43 +1554,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P25_51_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_035_tags_51_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P25_tags_51[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P25_specs_51_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P25),
-	offsetof(struct ProtocolIE_Container_2148P25, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P25_specs_51 = {
+	sizeof(struct ProtocolIE_Container_2161P25),
+	offsetof(struct ProtocolIE_Container_2161P25, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_035 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P25 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_035_tags_51_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_035_tags_51_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_035_tags_51_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_035_tags_51_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_035_tags_51_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_035_tags_51_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P25_tags_51,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P25_tags_51)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P25_tags_51[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P25_tags_51,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P25_tags_51)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P25_tags_51[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P25_constr_51_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P25_constr_51,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P25_51_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P25_51,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P25_specs_51_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P25_specs_51	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P26_53_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P26_53[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_ResetRequest_e2ap_v2_03IEs_e2ap_v2_03,
+		&asn_DEF_ResetRequestIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1605,43 +1605,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P26_53_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_036_tags_53_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P26_tags_53[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P26_specs_53_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P26),
-	offsetof(struct ProtocolIE_Container_2148P26, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P26_specs_53 = {
+	sizeof(struct ProtocolIE_Container_2161P26),
+	offsetof(struct ProtocolIE_Container_2161P26, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_036 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P26 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_036_tags_53_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_036_tags_53_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_036_tags_53_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_036_tags_53_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_036_tags_53_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_036_tags_53_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P26_tags_53,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P26_tags_53)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P26_tags_53[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P26_tags_53,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P26_tags_53)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P26_tags_53[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P26_constr_53_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P26_constr_53,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P26_53_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P26_53,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P26_specs_53_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P26_specs_53	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P27_55_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P27_55[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_ResetResponse_e2ap_v2_03IEs_e2ap_v2_03,
+		&asn_DEF_ResetResponseIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1656,43 +1656,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P27_55_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_037_tags_55_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P27_tags_55[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P27_specs_55_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P27),
-	offsetof(struct ProtocolIE_Container_2148P27, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P27_specs_55 = {
+	sizeof(struct ProtocolIE_Container_2161P27),
+	offsetof(struct ProtocolIE_Container_2161P27, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_037 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P27 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_037_tags_55_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_037_tags_55_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_037_tags_55_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_037_tags_55_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_037_tags_55_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_037_tags_55_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P27_tags_55,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P27_tags_55)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P27_tags_55[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P27_tags_55,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P27_tags_55)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P27_tags_55[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P27_constr_55_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P27_constr_55,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P27_55_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P27_55,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P27_specs_55_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P27_specs_55	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P28_57_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P28_57[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICserviceUpdate_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICserviceUpdate_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1707,43 +1707,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P28_57_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_038_tags_57_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P28_tags_57[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P28_specs_57_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P28),
-	offsetof(struct ProtocolIE_Container_2148P28, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P28_specs_57 = {
+	sizeof(struct ProtocolIE_Container_2161P28),
+	offsetof(struct ProtocolIE_Container_2161P28, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_038 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P28 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_038_tags_57_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_038_tags_57_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_038_tags_57_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_038_tags_57_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_038_tags_57_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_038_tags_57_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P28_tags_57,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P28_tags_57)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P28_tags_57[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P28_tags_57,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P28_tags_57)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P28_tags_57[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P28_constr_57_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P28_constr_57,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P28_57_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P28_57,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P28_specs_57_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P28_specs_57	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P29_59_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P29_59[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2nodeConnected_ItemIEs_e2ap_v2_03,
+		&asn_DEF_E2nodeConnected_ItemIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1758,43 +1758,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P29_59_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_039_tags_59_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P29_tags_59[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P29_specs_59_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P29),
-	offsetof(struct ProtocolIE_Container_2148P29, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P29_specs_59 = {
+	sizeof(struct ProtocolIE_Container_2161P29),
+	offsetof(struct ProtocolIE_Container_2161P29, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_039 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P29 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_039_tags_59_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_039_tags_59_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_039_tags_59_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_039_tags_59_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_039_tags_59_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P2_e2ap_v2_039_tags_59_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P29_tags_59,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P29_tags_59)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P29_tags_59[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P29_tags_59,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P29_tags_59)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P29_tags_59[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P29_constr_59_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P29_constr_59,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P29_59_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P29_59,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P29_specs_59_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P29_specs_59	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P30_61_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P30_61[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICserviceUpdate_e2ap_v2_03Acknowledge_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICserviceUpdateAcknowledge_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1809,43 +1809,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P30_61_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_030_tags_61_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P30_tags_61[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P30_specs_61_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P30),
-	offsetof(struct ProtocolIE_Container_2148P30, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P30_specs_61 = {
+	sizeof(struct ProtocolIE_Container_2161P30),
+	offsetof(struct ProtocolIE_Container_2161P30, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_030 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P30 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_030_tags_61_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_030_tags_61_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_030_tags_61_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_030_tags_61_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_030_tags_61_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_030_tags_61_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P30_tags_61,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P30_tags_61)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P30_tags_61[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P30_tags_61,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P30_tags_61)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P30_tags_61[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P30_constr_61_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P30_constr_61,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P30_61_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P30_61,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P30_specs_61_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P30_specs_61	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P31_63_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P31_63[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICserviceUpdate_e2ap_v2_03Failure_IEs_e2ap_v2_03,
+		&asn_DEF_RICserviceUpdateFailure_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1860,43 +1860,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P31_63_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_031_tags_63_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P31_tags_63[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P31_specs_63_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P31),
-	offsetof(struct ProtocolIE_Container_2148P31, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P31_specs_63 = {
+	sizeof(struct ProtocolIE_Container_2161P31),
+	offsetof(struct ProtocolIE_Container_2161P31, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_031 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P31 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_031_tags_63_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_031_tags_63_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_031_tags_63_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_031_tags_63_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_031_tags_63_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_031_tags_63_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P31_tags_63,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P31_tags_63)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P31_tags_63[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P31_tags_63,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P31_tags_63)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P31_tags_63[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P31_constr_63_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P31_constr_63,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P31_63_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P31_63,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P31_specs_63_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P31_specs_63	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P32_65_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P32_65[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_RICserviceQuery_e2ap_v2_03_IEs_e2ap_v2_03,
+		&asn_DEF_RICserviceQuery_IEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1911,43 +1911,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P32_65_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_032_tags_65_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P32_tags_65[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P32_specs_65_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P32),
-	offsetof(struct ProtocolIE_Container_2148P32, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P32_specs_65 = {
+	sizeof(struct ProtocolIE_Container_2161P32),
+	offsetof(struct ProtocolIE_Container_2161P32, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_032 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P32 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_032_tags_65_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_032_tags_65_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_032_tags_65_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_032_tags_65_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_032_tags_65_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_032_tags_65_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P32_tags_65,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P32_tags_65)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P32_tags_65[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P32_tags_65,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P32_tags_65)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P32_tags_65[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P32_constr_65_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P32_constr_65,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P32_65_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P32_65,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P32_specs_65_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P32_specs_65	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P33_67_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P33_67[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2RemovalRequest_e2ap_v2_03IEs,
+		&asn_DEF_E2RemovalRequestIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -1962,43 +1962,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P33_67_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_033_tags_67_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P33_tags_67[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P33_specs_67_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P33),
-	offsetof(struct ProtocolIE_Container_2148P33, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P33_specs_67 = {
+	sizeof(struct ProtocolIE_Container_2161P33),
+	offsetof(struct ProtocolIE_Container_2161P33, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_033 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P33 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_033_tags_67_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_033_tags_67_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_033_tags_67_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_033_tags_67_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_033_tags_67_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_033_tags_67_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P33_tags_67,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P33_tags_67)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P33_tags_67[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P33_tags_67,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P33_tags_67)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P33_tags_67[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P33_constr_67_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P33_constr_67,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P33_67_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P33_67,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P33_specs_67_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P33_specs_67	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P34_69_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P34_69[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2RemovalResponse_e2ap_v2_03IEs,
+		&asn_DEF_E2RemovalResponseIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -2013,43 +2013,43 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P34_69_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_034_tags_69_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P34_tags_69[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P34_specs_69_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P34),
-	offsetof(struct ProtocolIE_Container_2148P34, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P34_specs_69 = {
+	sizeof(struct ProtocolIE_Container_2161P34),
+	offsetof(struct ProtocolIE_Container_2161P34, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_034 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P34 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_034_tags_69_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_034_tags_69_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_034_tags_69_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_034_tags_69_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_034_tags_69_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_034_tags_69_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P34_tags_69,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P34_tags_69)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P34_tags_69[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P34_tags_69,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P34_tags_69)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P34_tags_69[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P34_constr_69_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P34_constr_69,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P34_69_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P34_69,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P34_specs_69_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P34_specs_69	/* Additional specs */
 };
 
-asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P35_71_e2ap_v2_03[] = {
+asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2161P35_71[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_E2RemovalFailure_e2ap_v2_03IEs,
+		&asn_DEF_E2RemovalFailureIEs,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -2064,35 +2064,35 @@ asn_TYPE_member_t asn_MBR_ProtocolIE_Container_2148P35_71_e2ap_v2_03[] = {
 		""
 		},
 };
-static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_035_tags_71_e2ap_v2_03[] = {
+static const ber_tlv_tag_t asn_DEF_ProtocolIE_Container_2161P35_tags_71[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2148P35_specs_71_e2ap_v2_03 = {
-	sizeof(struct ProtocolIE_Container_2148P35),
-	offsetof(struct ProtocolIE_Container_2148P35, _asn_ctx),
+asn_SET_OF_specifics_t asn_SPC_ProtocolIE_Container_2161P35_specs_71 = {
+	sizeof(struct ProtocolIE_Container_2161P35),
+	offsetof(struct ProtocolIE_Container_2161P35, _asn_ctx),
 	0,	/* XER encoding is XMLDelimitedItemList */
 };
-asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_035 = {
+asn_TYPE_descriptor_t asn_DEF_ProtocolIE_Container_2161P35 = {
 	"ProtocolIE-Container",
 	"ProtocolIE-Container",
-	&asn_OP_SEQUENCE_e2ap_v2_03_OF,
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_035_tags_71_e2ap_v2_03,
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_035_tags_71_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_035_tags_71_e2ap_v2_03[0]), /* 1 */
-	asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_035_tags_71_e2ap_v2_03,	/* Same as above */
-	sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_035_tags_71_e2ap_v2_03)
-		/sizeof(asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_035_tags_71_e2ap_v2_03[0]), /* 1 */
+	&asn_OP_SEQUENCE_OF,
+	asn_DEF_ProtocolIE_Container_2161P35_tags_71,
+	sizeof(asn_DEF_ProtocolIE_Container_2161P35_tags_71)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P35_tags_71[0]), /* 1 */
+	asn_DEF_ProtocolIE_Container_2161P35_tags_71,	/* Same as above */
+	sizeof(asn_DEF_ProtocolIE_Container_2161P35_tags_71)
+		/sizeof(asn_DEF_ProtocolIE_Container_2161P35_tags_71[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_ProtocolIE_Container_2148P35_constr_71_e2ap_v2_03,
+		&asn_PER_type_ProtocolIE_Container_2161P35_constr_71,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		SEQUENCE_OF_constraint
 	},
-	asn_MBR_ProtocolIE_Container_2148P35_71_e2ap_v2_03,
+	asn_MBR_ProtocolIE_Container_2161P35_71,
 	1,	/* Single element */
-	&asn_SPC_ProtocolIE_Container_2148P35_specs_71_e2ap_v2_03	/* Additional specs */
+	&asn_SPC_ProtocolIE_Container_2161P35_specs_71	/* Additional specs */
 };
 
