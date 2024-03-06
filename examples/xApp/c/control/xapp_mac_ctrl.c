@@ -72,16 +72,16 @@ int main(int argc, char *argv[])
 
   // Init the xApp
   init_xapp_api(&args);
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
   assert(nodes.len > 0);
   printf("Connected E2 nodes = %d\n", nodes.len);
 
 
   for(size_t i = 0; i < nodes.len; ++i) {
-    e2_node_connected_t *n = &nodes.n[i];
+    e2_node_connected_xapp_t* n = &nodes.n[i];
     for (size_t j = 0; j < n->len_rf; ++j)
-      printf("Registered ran func id = %d \n ", n->ack_rf[j].id);
+      printf("Registered ran func id = %d \n ", n->rf[j].id);
     // do CTRL operations on the RAN
     sm_ag_if_wr_t ctrl_msg_add = fill_dummy_mac_sm_ctrl_req();
     control_sm_xapp_api(&nodes.n[i].id, SM_MAC_ID, &ctrl_msg_add);

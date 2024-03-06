@@ -389,8 +389,8 @@ int main(int argc, char *argv[])
   init_xapp_api(&args);
   sleep(1);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
 
   assert(nodes.len > 0);
 
@@ -409,9 +409,9 @@ int main(int argc, char *argv[])
 
   //Subscribe SMs for all the E2-nodes
   for (int i = 0; i < nodes.len; i++) {
-    e2_node_connected_t* n = &nodes.n[i];
+    e2_node_connected_xapp_t* n = &nodes.n[i];
     for (size_t j = 0; j < n->len_rf; j++)
-      printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
+      printf("Registered node %d ran func id = %d \n ", i, n->rf[j].id);
 
     for (int32_t j = 0; j < args.sub_oran_sm_len; j++) {
       if (!strcasecmp(args.sub_oran_sm[j].name, "kpm")) {
