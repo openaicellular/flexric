@@ -22,12 +22,14 @@
 #include "e2_read_setup_ran.h"
 #include "../src/lib/e2ap/e2ap_node_component_config_add_wrapper.h"
 #include "../test/rnd/fill_rnd_data_e2_setup_req.h"
+#include "../src/util/e2ap_ngran_types.h"
 #include <assert.h>
 #include <stdlib.h>
 
-void read_setup_ran(void* data)
+void read_setup_ran(void* data, const e2ap_ngran_node_t node_type)
 {
   assert(data != NULL);
+  assert(node_type != e2ap_ngran_gNB);
 #ifdef E2AP_V1
 
 #elif defined(E2AP_V2) || defined(E2AP_V3) 

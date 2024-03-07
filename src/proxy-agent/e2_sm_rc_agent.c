@@ -250,23 +250,6 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
 }
 
 static
-e2sm_rc_ind_hdr_frmt_1_t fill_rnd_rc_ind_hdr_frmt_1(void)
-{
-  e2sm_rc_ind_hdr_frmt_1_t dst = {0};
-
-  dst.ev_trigger_id = malloc(sizeof(uint16_t));
-  assert(dst.ev_trigger_id != NULL && "Memory exhausted" );
-
-  // Event Trigger Condition ID
-  // Optional
-  // 9.3.21
-  // [1 - 65535]
-  *dst.ev_trigger_id = (rand() % 65535) + 1;
-
-  return dst;
-}
-
-static
 e2sm_rc_ind_hdr_t rc_ind_hdr()
 {
   e2sm_rc_ind_hdr_t hdr = {0};
@@ -467,9 +450,19 @@ static
 e2sm_rc_ind_msg_frmt_3_t rc_ind_msg_frmt_3(const ran_ind_t* ws_ind, e2sm_rc_act_def_frmt_1_t ad_frmt_1){
 
   e2sm_rc_ind_msg_frmt_3_t msg_frm_3 = {0};
-  //assert(ad_frmt_1.sz_param_report_def == 1 && "only support one action definition ID when there is no UE connected");
-  //uint32_t act_id = ad_frmt_1.param_report_def[0].ran_param_id;
-  //assert(act_id == 6 && "only support act id 6");
+  assert(ad_frmt_1.sz_param_report_def != 0);
+  uint32_t act_id = 0;
+  for (size_t i = 0; i < ad_frmt_1.sz_param_report_def; i++) {
+    act_id = ad_frmt_1.param_report_def[i].ran_param_id;
+    if (act_id == 6)
+      break;
+  }
+  // current this format only support to fill cell global id
+  if (act_id != 6) {
+    printf("act_id not equal to 6 (Cell Global ID), do not fill anything\n");
+    return msg_frm_3;
+  }
+
 
   // Fill Cell information
   msg_frm_3.sz_seq_cell_info = ws_ind->ran_config.len_nr_cell;
