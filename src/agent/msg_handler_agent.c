@@ -210,6 +210,7 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
     assert(t.ms < 10001 && "Subscription for granularity larger than 10 seconds requested? ");
     fwd_e2_ran_subscription_timer(ag->ran_if, e2_ran_sub, t.ms);
   } else if (subs.type == APERIODIC_SUBSCRIPTION_FLRC){
+    e2_ran_sub.free_subs_aperiodic = subs.aper.free_aper_subs;
     // Aperiodic indication generated i.e., the RAN will generate it via
     // void async_event_agent_api(uint32_t ric_req_id, void* ind_data);
     fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);

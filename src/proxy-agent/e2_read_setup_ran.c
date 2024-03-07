@@ -29,7 +29,7 @@
 void read_setup_ran(void* data, const e2ap_ngran_node_t node_type)
 {
   assert(data != NULL);
-  assert(node_type != e2ap_ngran_gNB);
+  assert(node_type == e2ap_ngran_gNB);
 #ifdef E2AP_V1
 
 #elif defined(E2AP_V2) || defined(E2AP_V3) 

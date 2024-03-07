@@ -531,6 +531,12 @@ void proxy_fill_rnd_rc_ind_data(uint32_t ric_req_id, rc_sub_data_t rc){
   printf("[E2-AGENT] Event for RIC Req ID %u generated\n", ric_req_id);
 }
 
+static
+void free_aperiodic_subscription(uint32_t ric_req_id)
+{
+  (void)ric_req_id;
+}
+
 sm_ag_if_ans_t write_subs_rc_sm(void const* src)
 {
   assert(src != NULL);
@@ -538,7 +544,9 @@ sm_ag_if_ans_t write_subs_rc_sm(void const* src)
 
   fwd_e2_ran_wr_sub_ev(&get_proxy_agent()->ran_if, wr_rc);
 
-  sm_ag_if_ans_t ans = {0};
+  sm_ag_if_ans_t ans = {.type = SUBS_OUTCOME_SM_AG_IF_ANS_V0};
+  ans.subs_out.type = APERIODIC_SUBSCRIPTION_FLRC;
+  ans.subs_out.aper.free_aper_subs = free_aperiodic_subscription;
 
   return ans;
 }
