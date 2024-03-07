@@ -2,6 +2,7 @@
 #define SM_RAN_CTRL_READ_WRITE_AGENT_H
 
 #include "../../../src/agent/e2_agent_api.h"
+#include "../../../src/sm/rc_sm/rc_sm_id.h"
 
 void init_rc_sm(void);
 

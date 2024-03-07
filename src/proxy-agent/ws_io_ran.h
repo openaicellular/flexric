@@ -16,6 +16,7 @@ struct io_ran_conf_t {
   char                address[128]; /* ip address */
   int                 port;         /* port */
   enum lws_log_levels logl;         /* loglevel*/
+  int                 timer;
 };
 
 /* 
@@ -25,8 +26,7 @@ struct io_ran_conf_t {
 typedef struct ws_ioloop_t 
 {
   bi_map_t        ev;               // will contain commands in progress towards the RAN endpoint
-  char            encmsg[1024];     // message already encoded (in json) to be sent to RAN
-  int             indication_sm_id; // Service model ID: to be used just by indication message flow
+  int             indication_sm_id; // Service model ID: to be used just by indication message flow - only periodic indication
 } ws_ioloop_t;
 
 typedef struct ws_ioloop_event_t 
@@ -35,12 +35,13 @@ typedef struct ws_ioloop_event_t
     e2_unsubscribe_event_t              unsubs_ev;
     e2_subscribe_event_t                subs_ev;
     ric_gen_id_t                        ctrl_ev;
+    e2_wr_sub_event_t                   wr_subs_ev;
     struct {                        }   setup_ev;
   }; // anonymous union discriminated by `type` field 
   notif_event_t msg_type;
 } ws_ioloop_event_t ;
 
-ws_ioloop_t static_user; // XXX: probably you can bring inside the implementation instead of exposing it 
+//ws_ioloop_t static_user; // XXX: probably you can bring inside the implementation instead of exposing it
 
 void ran_io_rmtimer(int sm_id);
 void ran_io_addtimer(int sm_id, long int e2_subscription_tm);

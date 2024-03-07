@@ -9,8 +9,11 @@
 #include "sm/kpm_sm/kpm_data_ie_wrapper.h"
 #include "../../test/rnd/fill_rnd_data_kpm.h"
 #include "util/time_now_us.h"
+#include "util/alg_ds/alg/murmur_hash_32.h"
 #include "util/byte_array.h"
 #include "util/alg_ds/alg/defer.h"
+#include "util/alg_ds/ds/assoc_container/assoc_generic.h"
+#include "sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.h"
 
 #include "e2_sm_agent.h"
 #include "ran_if.h"
@@ -19,13 +22,315 @@
 #include "ringbuffer.h"
 #include "notif_e2_ran.h"
 
+#include <math.h>
+
+typedef struct {
+  size_t amr_ue_idx;
+  ue_id_e2sm_t e2sm_ue_id;
+} matched_ues_t;
+
+//static
+//meas_record_lst_t fill_rnd_int_data(void)
+//{
+//  meas_record_lst_t dst = {0};
+//
+//  dst.value = INTEGER_MEAS_VALUE;
+//  dst.int_val = rand()%1024;
+//
+//  //printf("measurement record value int %d \n", dst.meas_data_lst[i].meas_record_lst[0].int_val);                                                            //
+//
+//  return dst;
+//}
+
+static
+meas_record_lst_t fill_rnd_float_data(void)
+{
+  meas_record_lst_t dst = {0};
+
+  // Only 1 supported. It could change according to granularity period
+  dst.value = REAL_MEAS_VALUE;
+  dst.real_val = 5.0 + rand()%1024 /(double)((rand()%2048) + 1);
+  // printf("measurement record value %f \n", dst.meas_data_lst[i].meas_record_lst[0].real_val);
+
+  return dst;
+}
+
+static
+ meas_record_lst_t fill_DRB_PdcpSduVolumeDL(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ran_stats;
+  (void) cell_idx;
+  assert(ue_stats != NULL);
+  //printf(" fill_DRB_PdcpSduVolumeDL\n");
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = REAL_MEAS_VALUE;
+  // TODO: measurement report only supports one slice for each UE
+  if (ue_stats->len_qos_flow != 1) {
+    printf("len_qos_flow = %ld, fill DRB.PdcpSduVolumeDL as 0\n", ue_stats->len_qos_flow);
+    meas_record.real_val = 0;
+    return meas_record;
+  }
+
+  meas_record.real_val = ue_stats->qos_flows[0].dl_total_bytes; // xApp needs to convert data from bytes to Mbit followed TS 28.552
+  return meas_record;
+}
+
+static
+ meas_record_lst_t fill_DRB_PdcpSduVolumeUL(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ran_stats;
+  (void) cell_idx;
+  assert(ue_stats != NULL);
+  //printf(" fill_DRB_PdcpSduVolumeUL\n");
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = REAL_MEAS_VALUE;
+  // TODO: measurement report only supports one slice for each UE
+  if (ue_stats->len_qos_flow != 1) {
+    printf("len_qos_flow = %ld, fill DRB.PdcpSduVolumeUL as 0\n", ue_stats->len_qos_flow);
+    meas_record.real_val = 0;
+    return meas_record;
+  }
+
+  meas_record.real_val = ue_stats->qos_flows[0].ul_total_bytes; // xApp needs to convert data from bytes to Mbit followed TS 28.552
+  return meas_record;
+}
+
+static
+ meas_record_lst_t fill_DRB_RlcSduDelayDl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) cell_idx;
+  (void) ran_stats;
+  assert(ue_stats != NULL);
+  //printf("fill_DRB_RlcSduDelayDl \n");
+  printf("[E2-AGENT] No implementation fill_DRB_RlcSduDelayDl - Fill random value\n");
+  return fill_rnd_float_data();
+}
+
+static
+ meas_record_lst_t fill_DRB_UEThpDl( amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ran_stats;
+  assert(ue_stats != NULL);
+  //printf(" fill_DRB_UEThpDl\n");
+
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = REAL_MEAS_VALUE;
+  meas_record.real_val = ue_stats->cells[cell_idx].dl_bitrate/1000; // Mbps
+  return meas_record;
+}
+
+static
+ meas_record_lst_t fill_DRB_UEThpUl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ran_stats;
+  assert(ue_stats != NULL);
+  //printf(" fill_DRB_UEThpUl\n");
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = REAL_MEAS_VALUE;
+  meas_record.real_val = ue_stats->cells[cell_idx].ul_bitrate/1000; // Mbps
+  return meas_record;
+}
+
+static
+ meas_record_lst_t fill_RRU_PrbTotDl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ue_stats;
+  // Check ran_stats, this measurement is used for cell perspective instead UE perspective
+  assert(ran_stats != NULL);
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = REAL_MEAS_VALUE;
+  // todo: this measurement report is belong to per cell information, not for UE
+  int c_id = ue_stats->cells[cell_idx].cell_id;
+  for (size_t i = 0; i < ran_stats->len_cell; i++) {
+    if (ran_stats->cells[i].cell_id == c_id) {
+      meas_record.real_val = ran_stats->cells[i].dl_use_avg*100;
+      break;
+    }
+  }
+  return meas_record;
+}
+
+static
+ meas_record_lst_t fill_RRU_PrbTotUl(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ue_stats;
+  // Check ran_stats, this measurement is used for cell perspective instead UE perspective
+  assert(ran_stats != NULL);
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = REAL_MEAS_VALUE;
+  // todo: this measurement report is belong to per cell information, not for UE
+  int c_id = ue_stats->cells[cell_idx].cell_id;
+  for (size_t i = 0; i < ran_stats->len_cell; i++) {
+    if (ran_stats->cells[i].cell_id == c_id) {
+      meas_record.real_val = ran_stats->cells[i].ul_use_avg*100;
+      break;
+    }
+  }
+  return meas_record;
+}
+
+static
+meas_record_lst_t fill_WBCQIDist_BinXYZ(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ran_stats;
+  assert(ue_stats != NULL);
+  // where X represents the index of the CQI value (0 to 15). Y represents the index of rank value (1 to 8), Z represents the index of table value (1 to 4).
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = INTEGER_MEAS_VALUE;
+  meas_record.int_val = ue_stats->cells[cell_idx].cqi;
+  return meas_record;
+}
+
+static
+meas_record_lst_t fill_PDSCHMCSDist_BinXYZ(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ran_stats;
+  assert(ue_stats != NULL);
+  // where X represents the index of rank value (1 to 8), Y represents the index of table value (1 to 4), and Z represents the index of the MCS value (0 to 31).
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = INTEGER_MEAS_VALUE;
+  meas_record.int_val = ue_stats->cells[cell_idx].dl_mcs;
+  return meas_record;
+}
+
+static
+meas_record_lst_t fill_PUSCHMCSDist_BinXYZ(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  (void) ran_config;
+  (void) ran_stats;
+  assert(ue_stats != NULL);
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = INTEGER_MEAS_VALUE;
+  meas_record.int_val = ue_stats->cells[cell_idx].ul_mcs;
+  return meas_record;
+}
+
+static
+meas_record_lst_t fill_MeanTxPwr(amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
+{
+  // TS28.552 5.1.1.29.2
+  // This measurement is obtained by retaining the mean value of the total carrier power transmitted in the cell within the measurement granularity period.
+  // The power includes all radio power transmitted, included common channels, traffic channels, control channels. The value is expressed in dBm.
+  assert(ran_stats != NULL);
+  assert(ue_stats != NULL);
+
+  // Get total used RBs from the associated cells
+  int used_rbs = 0;
+  int c_id = ue_stats->cells[cell_idx].cell_id;
+  for (size_t i = 0; i < ran_stats->len_cell; i++) {
+    assert(ran_config->len_nr_cell == ran_stats->len_cell && "ran_conf->len_nr_cell != ran_stats->len_cell");
+    if (ran_stats->cells[i].cell_id == c_id && ran_config->nr_cells[i].cell_id == c_id) {
+      used_rbs = ran_stats->cells[i].dl_use_avg*ran_config->nr_cells[i].n_rb_dl;
+      break;
+    }
+  }
+
+  meas_record_lst_t meas_record = {0};
+  meas_record.value = REAL_MEAS_VALUE;
+  meas_record.real_val = 0;
+  if (used_rbs <= 0)
+    return meas_record;
+  meas_record.real_val  = ue_stats->cells[cell_idx].epre + 10*log10(used_rbs*12);
+  return meas_record;
+}
+
+static
+assoc_ht_open_t ht;
+
+typedef meas_record_lst_t (*kpm_fp)(const amarisoft_ue_stats_t* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx);
+
+typedef struct{
+  const char* key;
+  kpm_fp value;
+} kv_measure_t;
+
+static
+const kv_measure_t lst_measure[] = {
+  (kv_measure_t){.key = "DRB.PdcpSduVolumeDL", .value = fill_DRB_PdcpSduVolumeDL },
+  (kv_measure_t){.key = "DRB.PdcpSduVolumeUL", .value = fill_DRB_PdcpSduVolumeUL },
+  (kv_measure_t){.key = "DRB.RlcSduDelayDl", .value =  fill_DRB_RlcSduDelayDl },
+  (kv_measure_t){.key = "DRB.UEThpDl", .value =  fill_DRB_UEThpDl },
+  (kv_measure_t){.key = "DRB.UEThpUl", .value =  fill_DRB_UEThpUl },
+  (kv_measure_t){.key = "RRU.PrbTotDl", .value =  fill_RRU_PrbTotDl },
+  (kv_measure_t){.key = "RRU.PrbTotUl", .value =  fill_RRU_PrbTotUl },
+  (kv_measure_t){.key = "CARR.WBCQIDist.BinX.BinY.BinZ", .value = fill_WBCQIDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.PDSCHMCSDist.BinX.BinY.BinZ", .value = fill_PDSCHMCSDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.PUSCHMCSDist.BinX.BinY.BinZ", .value = fill_PUSCHMCSDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.MeanTxPwr", .value = fill_MeanTxPwr },
+  };
+  // 3GPP TS 28.552
+
+static
+uint32_t hash_func(const void* key_v)
+{
+  char* key = *(char**)(key_v);
+  static const uint32_t seed = 42;
+  return murmur3_32((uint8_t*)key, strlen(key), seed);
+}
+
+static
+bool cmp_str(const void* a, const void* b)
+{
+  char* a_str = *(char**)(a);
+  char* b_str = *(char**)(b);
+
+  int const ret = strcmp(a_str, b_str);
+  return ret == 0;
+}
+
+static
+void free_str(void* key, void* value)
+{
+  free(*(char**)key);
+  free(value);
+}
+
+static
+void free_lst_measurements(void)
+{
+  assoc_free(&ht);
+}
+
+static
+void init_lst_measurements(void)
+{
+  assoc_ht_open_init(&ht, sizeof(char*), cmp_str, free_str, hash_func);
+
+  const size_t nelem = sizeof(lst_measure) / sizeof(lst_measure[0]);
+  for(size_t i = 0; i < nelem; ++i){
+    const size_t sz = strlen(lst_measure[i].key);
+    char* key = calloc(sz + 1, sizeof(char));
+    memcpy(key, lst_measure[i].key, sz);
+
+    kpm_fp* value = calloc(1, sizeof(kpm_fp));
+    assert(value != NULL && "Memory exhausted");
+    *value = lst_measure[i].value;
+    assoc_insert(&ht, &key, sizeof(char*), value);
+  }
+  assert(assoc_size(&ht) == nelem);
+}
+
 static
 gnb_e2sm_t fill_gnb_data(const amarisoft_ue_stats_t* ue, global_e2_node_id_t id)
 {
   gnb_e2sm_t gnb = {0};
 
+  // 6.2.3.16
+  // Mandatory
+  // AMF UE NGAP ID
   gnb.amf_ue_ngap_id = ue->amf_ue_id;
 
+  // Mandatory
+  //GUAMI 6.2.3.17
   gnb.guami.plmn_id = (e2sm_plmn_t) {.mcc = id.plmn.mcc, .mnc = id.plmn.mnc, .mnc_digit_len = id.plmn.mnc_digit_len};
   // TODO: need metrics from AMR
   gnb.guami.amf_region_id = (rand() % 2^8) + 0;
@@ -40,7 +345,7 @@ gnb_e2sm_t fill_gnb_data(const amarisoft_ue_stats_t* ue, global_e2_node_id_t id)
 }
 
 static
-ue_id_e2sm_t fill_rnd_ue_id_data()
+ue_id_e2sm_t fill_rnd_ue_id_data(void)
 {
   ue_id_e2sm_t ue_id_data = {0};
   ue_id_data.type = GNB_UE_ID_E2SM;
@@ -90,38 +395,22 @@ meas_info_format_1_lst_t * fill_kpm_meas_info_frm_1(const size_t len, const kpm_
 }
 
 static
-meas_record_lst_t fill_meas_value(meas_type_t meas_info_type, const amarisoft_ue_stats_t* ue_stats)
+meas_record_lst_t fill_meas_value(meas_type_t meas_info_type, const amarisoft_ue_stats_t* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 {
   meas_record_lst_t meas_record = {0};
   // Get Meas Info Name from Action Definition
-  char* meas_info_name_str = copy_ba_to_str(&meas_info_type.name);
-  defer({free(meas_info_name_str); } );
+  const void* key = meas_info_type.name.buf;
 
-  // Get value based on Meas Info Name
-  if (!strcmp(meas_info_name_str, "DRB.UEThpDl")) {
-    meas_record.value = REAL_MEAS_VALUE;
-    meas_record.real_val = ue_stats->cells[0].dl_bitrate/1000; //Kbps // TODO:
-  } else if (!strcmp(meas_info_name_str, "DRB.UEThpUl")) {
-    meas_record.value = REAL_MEAS_VALUE;
-    meas_record.real_val = ue_stats->cells[0].ul_bitrate/1000; // Kbps // TODO:
-  } else if (!strcmp(meas_info_name_str, "DRB.PdcpSduVolumeDL")) {
-    meas_record.value = INTEGER_MEAS_VALUE;
-    meas_record.real_val = ue_stats->cells[0].dl_tx*8; // bits// TODO:
-  } else if (!strcmp(meas_info_name_str, "DRB.PdcpSduVolumeUL")) {
-    meas_record.value = INTEGER_MEAS_VALUE;
-    meas_record.real_val = ue_stats->cells[0].ul_tx*8; // bits TODO:
-  } else {
-    // TODO: need metrics from AMR and need mapping name from 3GPP
-    printf("not implement value for measurement name %s\n", meas_info_name_str);
-    meas_record.value = REAL_MEAS_VALUE;
-    meas_record.real_val = 1234;
-  }
+  void* value = assoc_ht_open_value(&ht, &key);
+  meas_record = (*(kpm_fp*)value)(ue_stats, ran_config, ran_stats, cell_idx);
+
   return meas_record;
 }
 
 static
-kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1_in_monolithic(const amarisoft_ue_stats_t* ue, const kpm_act_def_format_1_t* act_def_fr1)
+kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1_in_monolithic(const amarisoft_ue_stats_t* ue, const kpm_act_def_format_1_t* act_def_fr1, const ran_ind_t* ws_ind)
 {
+  (void)ws_ind;
   kpm_ind_msg_format_1_t msg_frm_1 = {0};
 
   // Measurement Data
@@ -144,7 +433,7 @@ kpm_ind_msg_format_1_t fill_kpm_ind_msg_frm_1_in_monolithic(const amarisoft_ue_s
       {
         case NAME_MEAS_TYPE:
         {
-          meas_data->meas_record_lst[j] = fill_meas_value(meas_info_type, ue);
+          meas_data->meas_record_lst[j] = fill_meas_value(meas_info_type, ue, &ws_ind->ran_config, &ws_ind->ran_stats, i);
           break;
         }
         case ID_MEAS_TYPE:
@@ -223,68 +512,36 @@ static kpm_ind_msg_format_1_t fill_rnd_kpm_ind_msg_frm_1(void)
   return msg_frm_1;
 }
 
-typedef struct {
-    size_t num_ues;
-    amarisoft_ue_stats_t ue_list[AMARISOFT_MAX_UE_NUM];
-} matched_ues_t;
-
 static
-kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_in_monolithic(const matched_ues_t matched_ues, const kpm_act_def_format_1_t * act_def_fr_1, const ran_ind_t* ws_ind)
+kpm_ind_msg_format_3_t fill_kpm_ind_msg_frm_3_in_monolithic(seq_arr_t const* ues, const kpm_act_def_format_1_t * act_def_fr_1, const ran_ind_t* ws_ind)
 {
   assert(act_def_fr_1 != NULL);
 
-
   kpm_ind_msg_format_3_t msg_frm_3 = {0};
 
+  const size_t sz = seq_size((seq_arr_t*)ues);
+
   // Fill UE Measurement Reports
-  msg_frm_3.ue_meas_report_lst_len = matched_ues.num_ues;
-  msg_frm_3.meas_report_per_ue = calloc(msg_frm_3.ue_meas_report_lst_len, sizeof(meas_report_per_ue_t));
-  assert(msg_frm_3.meas_report_per_ue != NULL && "Memory exhausted");
-  for (size_t i = 0; i<msg_frm_3.ue_meas_report_lst_len; i++)
-  {
+  msg_frm_3.ue_meas_report_lst_len = sz;
+  if (sz > 0){
+    msg_frm_3.meas_report_per_ue = calloc(sz, sizeof(meas_report_per_ue_t ));
+    assert(msg_frm_3.meas_report_per_ue != NULL && "Memory exhausted");
+  }
+
+  void* it = seq_front((seq_arr_t*)ues);
+  for(size_t i = 0; i < sz; ++i){
+    matched_ues_t const* ue = (matched_ues_t const*)it;
+
     // Fill UE ID data
-    msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst.type = GNB_UE_ID_E2SM;
-    msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst.gnb = fill_gnb_data(&matched_ues.ue_list[i], ws_ind->global_e2_node_id);
+    msg_frm_3.meas_report_per_ue[i].ue_meas_report_lst = cp_ue_id_e2sm(&ue->e2sm_ue_id);
 
     // Fill UE related info
-    msg_frm_3.meas_report_per_ue[i].ind_msg_format_1 = fill_kpm_ind_msg_frm_1_in_monolithic(&matched_ues.ue_list[i], act_def_fr_1);
+    msg_frm_3.meas_report_per_ue[i].ind_msg_format_1 = fill_kpm_ind_msg_frm_1_in_monolithic(&ws_ind->ue_stats[ue->amr_ue_idx], act_def_fr_1, ws_ind);
+
+    it = seq_next((seq_arr_t*)ues, it);
   }
 
   return msg_frm_3;
-}
-
-static
-matched_ues_t filter_ues_by_s_nssai_in_du_or_monolithic(test_cond_e const condition, int64_t const value, ran_ind_t* ws_ind)
-{
-  matched_ues_t matched_ues = {.num_ues = 0};
-
-  /* IMPORTANT: in the case of gNB-DU, it is not possible to filter UEs by S-NSSAI as the ngap context is stored in gNB-CU
-                instead, we take all connected UEs*/
-
-  // Take MAC info
-  for (size_t i = 0; i < ws_ind->len_ue_stats; i++)
-  {
-    // Filter connected UEs by S-NSSAI test condition to get list of matched UEs
-    // note: not possible to filter
-    switch (condition)
-    {
-      case EQUAL_TEST_COND:
-      {
-        if (ws_ind->ue_stats[i].len_qos_flow > 0) {
-          if (ws_ind->ue_stats[i].qos_flows[0].sst == value)
-            printf("condition map, find the same sst %ld\n", value);
-        }
-        matched_ues.ue_list[matched_ues.num_ues] = ws_ind->ue_stats[i];
-        matched_ues.num_ues++;
-        break;
-      }
-
-      default:
-        assert(false && "Condition not yet implemented");
-    }
-  }
-
-  return matched_ues;
 }
 
 static
@@ -315,7 +572,7 @@ kpm_ric_ind_hdr_format_1_t kpm_ind_hdr_frm_1(ran_ind_t* ws_ind)
 #elif defined(KPM_V3_00)
   hdr_frm_1.collectStartTime = t; // microseconds
 #else
-  static_assert(0!=0, "Undefined KPM SM Version");
+  static_assert(0!=0, "Unknown KPM version");
 #endif
 
   hdr_frm_1.fileformat_version = NULL;
@@ -324,22 +581,22 @@ kpm_ric_ind_hdr_format_1_t kpm_ind_hdr_frm_1(ran_ind_t* ws_ind)
   if (E2AP_NODE_IS_MONOLITHIC(ws_ind->global_e2_node_id.type))
   {
     hdr_frm_1.sender_name = calloc(1, sizeof(byte_array_t));
-    hdr_frm_1.sender_name->buf = calloc(strlen("AMR-MONO") + 1, sizeof(char));
+    hdr_frm_1.sender_name->buf = calloc(strlen("AMR-MONO") + 1, sizeof(uint8_t));
     memcpy(hdr_frm_1.sender_name->buf, "AMR-MONO", strlen("AMR-MONO"));
-    hdr_frm_1.sender_name->len = strlen("AMR-MONO") + 1;
+    hdr_frm_1.sender_name->len = strlen("AMR-MONO");
 
     hdr_frm_1.sender_type = calloc(1, sizeof(byte_array_t));
-    hdr_frm_1.sender_type->buf = calloc(strlen("MONO") + 1, sizeof(char));
+    hdr_frm_1.sender_type->buf = calloc(strlen("MONO") + 1, sizeof(uint8_t));
     memcpy(hdr_frm_1.sender_type->buf, "MONO", strlen("MONO"));
-    hdr_frm_1.sender_type->len = strlen("MONO") + 1;
+    hdr_frm_1.sender_type->len = strlen("MONO");
   } else {
     assert(0!=0 && "Unknown node type");
   }
 
   hdr_frm_1.vendor_name = calloc(1, sizeof(byte_array_t));
-  hdr_frm_1.vendor_name->buf = calloc(strlen("Amarisoft") + 1, sizeof(char));
+  hdr_frm_1.vendor_name->buf = calloc(strlen("Amarisoft") + 1, sizeof(uint8_t));
   memcpy(hdr_frm_1.vendor_name->buf, "Amarisoft", strlen("Amarisoft"));
-  hdr_frm_1.vendor_name->len = strlen("Amarisoft") + 1;
+  hdr_frm_1.vendor_name->len = strlen("Amarisoft");
 
   return hdr_frm_1;
 }
@@ -355,7 +612,315 @@ kpm_ind_hdr_t kpm_ind_hdr(ran_ind_t* ws_ind)
   return hdr;
 }
 
-void read_kpm_sm(void* data)
+static
+int dummy_cnt = 0;
+// Dummy function. It emulates a function where the UE fullfills (or not)
+// the condition
+static
+bool ue_fullfills_predicate(test_cond_e cond, int64_t value)
+{
+  assert(cond == EQUAL_TEST_COND
+         || cond == GREATERTHAN_TEST_COND
+         || cond == CONTAINS_TEST_COND
+         || cond == PRESENT_TEST_COND
+  );
+  assert(value > -1 && "Assuming this for testing");
+
+  dummy_cnt++;
+  if(dummy_cnt > 32 && dummy_cnt < 4*32){
+    //printf("[KPM-SM]: Emulating no UEs matching condition\n");
+    return false;
+  }
+
+  return rand()%2;
+}
+
+static
+seq_arr_t emulate_ues_fullfilling_pred(test_info_lst_t const*  info)
+{
+  assert(info != NULL);
+  size_t const num_ues = 16;
+
+  seq_arr_t dst = {0};
+  seq_init(&dst, sizeof(matched_ues_t )); //
+
+  for(size_t i = 0; i < num_ues; ++i){
+    bool const select_ue = ue_fullfills_predicate(*info->test_cond, *info->test_cond_value->int_value );
+    if(select_ue){
+//      ue_id_e2sm_t ue = fill_rnd_ue_id_data();
+      matched_ues_t ue = {0};
+      ue.e2sm_ue_id = fill_rnd_ue_id_data();
+      ue.amr_ue_idx = i;
+      seq_push_back(&dst, &ue, sizeof(matched_ues_t ));
+    }
+  }
+  return dst;
+}
+static
+bool amarisoft_ue_fullfills_predicate(test_cond_e cond, int64_t value, amarisoft_ue_stats_t ue_stats)
+{
+  /* IMPORTANT: in the case of gNB-DU, it is not possible to filter UEs by S-NSSAI as the ngap context is stored in gNB-CU
+              instead, we take all connected UEs*/
+
+  // Take MAC info
+  assert(cond == EQUAL_TEST_COND
+         || cond == GREATERTHAN_TEST_COND
+         || cond == CONTAINS_TEST_COND
+         || cond == PRESENT_TEST_COND
+  );
+
+  switch (cond)
+  {
+    case EQUAL_TEST_COND:
+      if (ue_stats.len_qos_flow > 0) {
+        if (ue_stats.qos_flows[0].sst == value)
+          printf("condition map, find the same sst %ld\n", value);
+      }
+      return true;
+    case GREATERTHAN_TEST_COND:
+      if (ue_stats.len_qos_flow > 0) {
+        if (ue_stats.qos_flows[0].sst == value)
+          printf("condition map, find the same sst %ld\n", value);
+      }
+      return true;
+    default:
+      printf("[E2-agent] Condition not yet implemented\n");
+      return false;
+  }
+}
+
+static
+bool is_ue_contain_global_cell_id(amarisoft_ue_stats_t ue_stats, cell_global_id_t const* cell_global_id, ran_ind_t* ws_ind){
+  if (cell_global_id != NULL){
+    for (size_t i = 0; i < ws_ind->ran_config.len_nr_cell; i++){
+      nr_cell_conf_t cur_cell = ws_ind->ran_config.nr_cells[i];
+      // UE only support 1 cell - TODO
+      if (ue_stats.cells[0].cell_id == cur_cell.cell_id){
+        if((uint64_t) cur_cell.n_id_nrcell == cell_global_id->nr_cgi.nr_cell_id){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  return true;
+}
+
+static
+seq_arr_t amarisoft_ues_fullfilling_pred(test_info_lst_t const*  info, cell_global_id_t const* cell_global_id, ran_ind_t* ws_ind)
+{
+  assert(info != NULL);
+
+  seq_arr_t dst = {0};
+  seq_init(&dst, sizeof(matched_ues_t)); //
+
+  for(size_t i = 0; i < ws_ind->len_ue_stats; ++i){
+    amarisoft_ue_stats_t ue_stats = ws_ind->ue_stats[i];
+    bool const select_ue = amarisoft_ue_fullfills_predicate(*info->test_cond, *info->test_cond_value->int_value, ue_stats);
+    if(select_ue && is_ue_contain_global_cell_id(ue_stats, cell_global_id, ws_ind)){
+      matched_ues_t ue = {0};
+      ue.amr_ue_idx = i;
+      ue.e2sm_ue_id.type = GNB_UE_ID_E2SM;
+      ue.e2sm_ue_id.gnb = fill_gnb_data(&ue_stats, ws_ind->global_e2_node_id);
+      seq_push_back(&dst, &ue, sizeof(matched_ues_t ));
+    }
+  }
+  return dst;
+}
+
+
+static
+seq_arr_t match_gbr_test_cond_type(test_info_lst_t const* info,  ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  (void) ws_ind;
+  (void) cell_global_id;
+  assert(info != NULL);
+  assert(info->test_cond_type == GBR_TEST_COND_TYPE);
+
+  return emulate_ues_fullfilling_pred(info);
+}
+
+static
+seq_arr_t match_ambr_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  (void) ws_ind;
+  (void) cell_global_id;
+  assert(info != NULL);
+  assert(info->test_cond_type == AMBR_TEST_COND_TYPE);
+
+  return emulate_ues_fullfilling_pred(info);
+}
+
+static
+seq_arr_t match_isstat_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  (void) ws_ind;
+  (void) cell_global_id;
+  assert(info != NULL);
+  assert(info->test_cond_type == IsStat_TEST_COND_TYPE);
+
+  return emulate_ues_fullfilling_pred(info);
+}
+
+static
+seq_arr_t match_iscatm_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  (void) ws_ind;
+  (void) cell_global_id;
+  assert(info != NULL);
+  assert(info->test_cond_type == IsCatM_TEST_COND_TYPE);
+
+  return emulate_ues_fullfilling_pred(info);
+}
+
+static
+seq_arr_t match_dl_rsrp_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  (void) ws_ind;
+  (void) cell_global_id;
+  assert(info != NULL);
+  assert(info->test_cond_type == DL_RSRP_TEST_COND_TYPE);
+
+  return emulate_ues_fullfilling_pred(info);
+}
+
+static
+seq_arr_t match_dl_rsrq_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  (void) ws_ind;
+  (void) cell_global_id;
+  assert(info != NULL);
+  assert(info->test_cond_type == DL_RSRQ_TEST_COND_TYPE);
+
+  return emulate_ues_fullfilling_pred(info);
+}
+
+
+static
+seq_arr_t match_ul_rsrp_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  (void) ws_ind;
+  (void) cell_global_id;
+  assert(info != NULL);
+  assert(info->test_cond_type == UL_RSRP_TEST_COND_TYPE);
+
+  return emulate_ues_fullfilling_pred(info);
+}
+
+static
+seq_arr_t match_cqi_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  assert(info != NULL);
+  assert(info->test_cond_type == CQI_TEST_COND_TYPE);
+  assert(info->test_cond != NULL && "Even though is optional..");
+  assert(info->test_cond_value != NULL && "Even though is optional..");
+
+  // Check E2 Node NG-RAN Type
+  if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)) {
+    return amarisoft_ues_fullfilling_pred(info, cell_global_id, &ws_ind);
+  } else {
+    assert(false && "NG-RAN Type not implemented");
+  }
+}
+
+static
+seq_arr_t match_fiveqi_test_cond_type(test_info_lst_t const* info,  ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  (void) ws_ind;
+  (void) cell_global_id;
+  assert(info != NULL);
+  assert(info->test_cond_type == fiveQI_TEST_COND_TYPE);
+
+  return emulate_ues_fullfilling_pred(info);
+}
+
+static
+seq_arr_t match_qci_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  assert(info != NULL);
+  assert(info->test_cond_type == CQI_TEST_COND_TYPE);
+  assert(info->test_cond != NULL && "Even though is optional..");
+  assert(info->test_cond_value != NULL && "Even though is optional..");
+
+  // Check E2 Node NG-RAN Type
+  if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)) {
+    return amarisoft_ues_fullfilling_pred(info, cell_global_id, &ws_ind);
+  } else {
+    assert(false && "NG-RAN Type not implemented");
+  }
+}
+
+static
+seq_arr_t match_s_nssai_test_cond_type(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id)
+{
+  (void) cell_global_id;
+  assert(info != NULL);
+  assert(info->test_cond_type == S_NSSAI_TEST_COND_TYPE);
+  assert(info->test_cond != NULL && "Even though is optional..");
+  assert(info->test_cond_value != NULL && "Even though is optional..");
+
+  // Check E2 Node NG-RAN Type
+  if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)) {
+    return amarisoft_ues_fullfilling_pred(info, cell_global_id, &ws_ind);
+  } else {
+    assert(false && "NG-RAN Type not implemented");
+  }
+}
+
+typedef seq_arr_t (*fp_arr_cond)(test_info_lst_t const* info, ran_ind_t ws_ind, cell_global_id_t const* cell_global_id);
+
+static
+fp_arr_cond match_cond_arr[END_TEST_COND_TYPE_KPM_V2_01] = {
+    match_gbr_test_cond_type,
+    match_ambr_test_cond_type,
+    match_isstat_test_cond_type,
+    match_iscatm_test_cond_type,
+    match_dl_rsrp_test_cond_type,
+    match_dl_rsrq_test_cond_type,
+    match_ul_rsrp_test_cond_type,
+    match_cqi_test_cond_type,
+    match_fiveqi_test_cond_type,
+    match_qci_test_cond_type,
+    match_s_nssai_test_cond_type,
+};
+
+static
+seq_arr_t matching_ues(kpm_act_def_format_4_t const* act_def, cell_global_id_t const* cell_global_id, ran_ind_t ws_ind)
+{
+  assert(act_def != NULL && "Condition equal NULL");
+  assert(act_def->matching_cond_lst_len == 1 && "Only one condition supported");
+
+  matching_condition_format_4_lst_t* cond = act_def->matching_cond_lst;
+
+  seq_arr_t dst = match_cond_arr[cond->test_info_lst.test_cond_type](&cond->test_info_lst, ws_ind, cell_global_id);
+
+  return dst;
+}
+
+static
+void free_matched_ues(matched_ues_t* it){
+  assert(it != NULL);
+  free_ue_id_e2sm(&it->e2sm_ue_id);
+}
+
+static
+void free_ue_id_e2sm_wrapper(void* it)
+{
+  assert(it != NULL);
+  free_matched_ues((matched_ues_t*) it);
+}
+
+void init_kpm_sm(void)
+{
+  init_lst_measurements();
+}
+
+void free_kpm_sm(void)
+{
+  free_lst_measurements();
+}
+
+bool read_kpm_sm(void* data)
 {
   ran_ind_t ws_ind = get_ringbuffer_data();
 
@@ -363,49 +928,37 @@ void read_kpm_sm(void* data)
   kpm_act_def_t const* act_def = kpm->act_def;
   assert(act_def!= NULL && "Cannot be NULL");
   switch (act_def->type) {
-    case FORMAT_4_ACTION_DEFINITION: {
+    case FORMAT_4_ACTION_DEFINITION:
       kpm->ind.hdr = kpm_ind_hdr(&ws_ind);
 
       kpm->ind.msg.type = FORMAT_3_INDICATION_MESSAGE;
       // Filter the UE by the test condition criteria
       kpm_act_def_format_4_t const* frm_4 = &kpm->act_def->frm_4; // 8.2.1.2.4
-      for (size_t i = 0; i < frm_4->matching_cond_lst_len; i++) {
-        switch (frm_4->matching_cond_lst[i].test_info_lst.test_cond_type) {
-          case S_NSSAI_TEST_COND_TYPE: {
-            assert(frm_4->matching_cond_lst[i].test_info_lst.S_NSSAI == TRUE_TEST_COND_TYPE && "Must be true");
-            assert(frm_4->matching_cond_lst[i].test_info_lst.test_cond != NULL && "Even though is optional..");
-            assert(frm_4->matching_cond_lst[i].test_info_lst.test_cond_value != NULL && "Even though is optional..");
-
-            test_cond_e const test_cond = *frm_4->matching_cond_lst[i].test_info_lst.test_cond;
-            int64_t const value = *frm_4->matching_cond_lst[i].test_info_lst.test_cond_value->int_value;
-            // Check E2 Node NG-RAN Type
-            if (E2AP_NODE_IS_MONOLITHIC(ws_ind.global_e2_node_id.type)) {
-              matched_ues_t matched_ues = filter_ues_by_s_nssai_in_du_or_monolithic(test_cond, value, &ws_ind);
-              if (matched_ues.num_ues <= 0)
-                goto rnd_data_label;
-              kpm->ind.msg.frm_3 = fill_kpm_ind_msg_frm_3_in_monolithic(matched_ues, &frm_4->action_def_format_1, &ws_ind);
-            } else {
-              assert(false && "NG-RAN Type not implemented");
-            }
-
-            break;
-          }
-
-          default:
-            assert(false && "Unknown Test condition");
-        }
+      // Matching UEs
+      seq_arr_t match_ues = matching_ues(frm_4, frm_4->action_def_format_1.cell_global_id, ws_ind);
+//      printf("[E2-AGENT] Number of match ues: %ld \n", seq_size(&match_ues));
+      // If no UEs match the condition, do not send data to the nearRT-RIC
+      if(seq_size(&match_ues) == 0){
+        seq_arr_free(&match_ues, free_ue_id_e2sm_wrapper);
+        return false;
       }
+
+      kpm_ind_msg_format_3_t info = fill_kpm_ind_msg_frm_3_in_monolithic(&match_ues, &frm_4->action_def_format_1, &ws_ind);
+      // Message
+      // 7.8 Supported RIC Styles and E2SM IE Formats
+      // Format 4 corresponds to indication message 3
+      kpm->ind.msg.type = FORMAT_3_INDICATION_MESSAGE;
+      kpm->ind.msg.frm_3 = info;
+      seq_arr_free(&match_ues, free_ue_id_e2sm_wrapper);
       break;
-    }
     default: {
       printf("Not supported action definition type %d, fill the dummy indication msg\n", act_def->type);
-    rnd_data_label:
       kpm->ind.hdr = fill_rnd_kpm_ind_hdr();
       kpm->ind.msg.frm_3 = fill_rnd_kpm_ind_msg_frm_3();
-
       break;
     }
   }
+  return true;
 }
 
 void read_kpm_setup_sm(void* e2ap)

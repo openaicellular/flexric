@@ -28,7 +28,12 @@ proxy_conf_t ws_initconf(int argc, char *argv[])
     conf.io_ran_conf.logl = conf.e2args.proxy_ran_args.logl;
     //printf("[E2-Proxy-Agent]: get RAN log levels %d from\n", conf.io_ran_conf.logl);
   }
-  
+
+  if (conf.e2args.proxy_ran_args.timer) {
+    conf.io_ran_conf.timer = conf.e2args.proxy_ran_args.timer;
+    //printf("[E2-Proxy-Agent]: get RAN ws pooling timer %d from\n", conf.io_ran_conf.timer);
+  }
+
 //  char *envar = getenv("WS_RAN_HOST");
 //  if (envar)
 //  {
@@ -65,6 +70,7 @@ void ws_initconf_print_help(void){
   default_host_port, default_log_level);
 }
 
+// TODO: Need to fill the timer
 void ws_conf_print(proxy_conf_t * c)
 { 
   printf(

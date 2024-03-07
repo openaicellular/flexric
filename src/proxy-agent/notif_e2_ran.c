@@ -51,7 +51,7 @@ static void
 notif_send_e2_event(e2_agent_t *e2_if, notif_e2_ran_event_t *ev)
 {
   pending_event_t pending_event = ev->type;
-  long const wait_ms = 3000;
+  long const wait_ms = 5000;
   int fd_timer = create_timer_ms_asio_agent(&e2_if->io, wait_ms, wait_ms); 
   lock_guard(&e2_if->pend_mtx);     
   bi_map_insert(&e2_if->pending, &fd_timer, sizeof(fd_timer), &pending_event, sizeof(pending_event)); 
@@ -178,13 +178,12 @@ e2_setup_request_t generate_setup_request_from_ran(e2_agent_t* ag, global_e2_nod
   assert(it == assoc_end(&ag->plugin.sm_ds) && "Length mismatch");
 
   // E2 Node Component Configuration Addition List
-  // ToDO: This needs to be filled by the RAN
-  sr.len_cca = 1;
-  sr.comp_conf_add = calloc(sr.len_cca, sizeof(e2ap_node_component_config_add_t));
-  assert(sr.comp_conf_add != NULL && "Memory exhausted");
-
-  assert(ag->read_setup_ran != NULL);
-  ag->read_setup_ran(sr.comp_conf_add);
+  arr_node_component_config_add_t arr = {0};
+  e2ap_ngran_node_t node_type = e2ap_ngran_gNB;
+  ag->read_setup_ran(&arr, node_type);
+  // Move ownership
+  sr.len_cca = arr.len_cca;
+  sr.comp_conf_add = arr.cca;
 
  return sr;
 }
@@ -238,10 +237,22 @@ void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long interv
   notif_send_ran_event(ran_if, &msg);
 }
 
+void fwd_e2_ran_wr_sub_ev(ran_if_t *ran_if, wr_rc_sub_data_t* wr_rc_sub_data)
+{
+
+  notif_e2_ran_event_t msg = {
+      .type = E2_WRITE_SUBSCRIPTION_EVENT,
+      .wr_subs_ev.ric_req_id = wr_rc_sub_data->ric_req_id,
+      .wr_subs_ev.rc = cp_rc_sub_data(&wr_rc_sub_data->rc),
+  };
+
+  notif_send_ran_event(ran_if, &msg);
+}
+
 void fwd_e2_ran_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id) 
 {
   printf("Removing subscription request for SM %d\n", ric_id.ran_func_id);
-  
+
   notif_e2_ran_event_t msg = {
     .type = E2_REMOVE_SUBSCRIPTION_TIMER_EVENT,
     .unsubs_ev.sm_id = ric_id.ran_func_id,
@@ -273,8 +284,11 @@ void fwd_ran_e2_ric_subscription_response(e2_agent_t *e2_if, e2_subscribe_event_
                      .ric_id = reply.ric_id,
                      .sm = sm_plugin_ag(&e2_if->plugin, reply.sm_id),
                      .act_def = reply.act_def};
-  int fd_timer = create_timer_ms_asio_agent(&e2_if->io, reply.time_ms, reply.time_ms); 
-  assert(pthread_mutex_lock(&e2_if->mtx_ind_event) == 0);  
+  int fd_timer = 0;
+  if (reply.time_ms != 0){
+    fd_timer = create_timer_ms_asio_agent(&e2_if->io, reply.time_ms, reply.time_ms);
+  }
+  assert(pthread_mutex_lock(&e2_if->mtx_ind_event) == 0);
   bi_map_insert(&e2_if->ind_event, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev));
   assert(pthread_mutex_unlock(&e2_if->mtx_ind_event) == 0);  
   ric_subscription_response_t sr = generate_subscription_response(&ev.ric_id, ev.action_id); 
@@ -356,6 +370,8 @@ void fwd_ran_e2_ctrl_reply (e2_agent_t *e2_if, ctrl_ev_reply_t reply)
    * Note that we do not need to create a message in notif queue like in fwd_ran_e2_setup_request()
    * as this message does not need ack. Instead it goes directly to SCTP endpoint.
    */
+  printf("[E2-AGENT]: CONTROL ACKNOWLEDGE tx\n");
+  fflush(stdout);
 }
 
 void fwd_e2_ran_ctrl (ran_if_t *ran_if, ctrl_ev_t in)
@@ -393,6 +409,10 @@ char * notif_strevent(enum notif_event_t type)
       return "E2_REMOVE_SUBSCRIPTION_TIMER_EVENT";
     case E2_CTRL_EVENT:
       return "E2_CTRL_EVENT";
+    case E2_WRITE_SUBSCRIPTION_EVENT:
+      return "E2_WRITE_SUBSCRIPTION_EVENT";
+    case E2_REMOVE_RC_SUBSCRIPTION_EVENT:
+      return "E2_REMOVE_RC_SUBSCRIPTION_EVENT";
     default:
       return "bug"; 
   }
@@ -403,14 +423,48 @@ static void ran_handle_notif_ctrl(ran_if_t *ran_if, e2_agent_t *e2_if, const not
 {
     (void)e2_if;
 
-    const char *p = ran_if->ser->encode_ctrl(msg_id, notif_event->ctrl_ev.req);
+    const char *p = ran_if->ser->encode_ctrl(msg_id, (const sm_ag_if_wr_ctrl_t)notif_event->ctrl_ev.req);
+    /*
+     * Eventhough it extract and free from notif ring.
+     * There are pointer reference nested inside the structure
+     * When done using req, free the data structure
+     *  TODO: Create free ctrl for MAC
+    */
+    defer({free_rc_ctrl_req_data((rc_ctrl_req_data_t*)&notif_event->ctrl_ev.req.rc_ctrl);};);
     ws_ioloop_event_t ev = {
-      .msg_type       = E2_CTRL_EVENT, 
+      .msg_type       = E2_CTRL_EVENT,
       .ctrl_ev.ric_inst_id = notif_event->ctrl_ev.ric_id.ric_inst_id,
       .ctrl_ev.ran_func_id = notif_event->ctrl_ev.ric_id.ran_func_id,
       .ctrl_ev.ric_req_id  = notif_event->ctrl_ev.ric_id.ric_req_id
     };
+
     ran_if->io->write_to_ran(&ev, p, strlen(p) + 1);
+}
+
+static void ran_handle_notif_write_sub(ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id)
+{
+  (void)e2_if;
+
+  const char *p = ran_if->ser->encode_indication(msg_id, SM_RC_ID, (double)get_proxy_agent()->conf.io_ran_conf.timer/1000);
+  /*
+   * Eventhough it extract and free from notif ring.
+   * There are pointer reference nested inside the structure
+   * When done using req, free the data structure
+    */
+  defer({free_rc_sub_data((rc_sub_data_t *)&notif_event->wr_subs_ev.rc);};);
+
+  /*
+   * TODO: Find a way to free ev
+   * Temporary solve for this specific case
+   * Allocate ev memory to avoid undefined memory block in ev.
+    */
+  ws_ioloop_event_t* ev = calloc(1, sizeof(ws_ioloop_event_t));
+  defer({free(ev);};);
+  ev->msg_type = E2_WRITE_SUBSCRIPTION_EVENT;
+  ev->wr_subs_ev.ric_req_id  = notif_event->wr_subs_ev.ric_req_id;
+  ev->wr_subs_ev.rc          = cp_rc_sub_data(&notif_event->wr_subs_ev.rc);
+
+  ran_if->io->write_to_ran(ev, p, strlen(p) + 1);
 }
 
 static void ran_handle_notif_subsrmtimer (ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id)
@@ -429,25 +483,27 @@ static void ran_handle_notif_subsrmtimer (ran_if_t *ran_if, e2_agent_t *e2_if, c
 static void ran_handle_notif_subsaddtimer (ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id)
 {
   (void)msg_id;
-  
-  ran_io_addtimer(notif_event->subs_ev.sm_id, notif_event->subs_ev.time_ms);
-
-  ind_event_t *ev = calloc(1, sizeof(ind_event_t));
-  ev->sm = sm_plugin_ag(&e2_if->plugin, notif_event->subs_ev.sm_id);
-  ev->action_id = notif_event->subs_ev.ric_action_id;
-  ev->ric_id = notif_event->subs_ev.ric_id;
-  ev->act_def = notif_event->subs_ev.act_def;
-  bi_map_insert(&ran_if->ind_event, &notif_event->subs_ev.sm_id, sizeof(notif_event->subs_ev.sm_id), ev, sizeof(ind_event_t));
-
+  if (notif_event->subs_ev.time_ms > 0){
+    ran_io_addtimer(notif_event->subs_ev.sm_id, notif_event->subs_ev.time_ms);
+    // ind_event_t for periodic event
+    ind_event_t *ev = calloc(1, sizeof(ind_event_t));
+    defer({free(ev);};);
+    ev->sm = sm_plugin_ag(&e2_if->plugin, notif_event->subs_ev.sm_id);
+    ev->action_id = notif_event->subs_ev.ric_action_id;
+    ev->ric_id = notif_event->subs_ev.ric_id;
+    ev->act_def = notif_event->subs_ev.act_def;
+    bi_map_insert(&ran_if->ind_event, &notif_event->subs_ev.sm_id, sizeof(notif_event->subs_ev.sm_id), ev, sizeof(ind_event_t));
+  }
   fwd_ran_e2_ric_subscription_response(e2_if, notif_event->subs_ev);
 }
 
 // Note that the remaining seats in array 'handle_notif' are initialized automatically to NULL(0)
 typedef void (*handle_msg_notif)(ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id);
-static handle_msg_notif handle_notif[4] = {
+static handle_msg_notif handle_notif[5] = {
     [E2_ADD_SUBSCRIPTION_TIMER_EVENT]      = &ran_handle_notif_subsaddtimer,
     [E2_REMOVE_SUBSCRIPTION_TIMER_EVENT]   = &ran_handle_notif_subsrmtimer,
-    [E2_CTRL_EVENT]                        = &ran_handle_notif_ctrl
+    [E2_CTRL_EVENT]                        = &ran_handle_notif_ctrl,
+    [E2_WRITE_SUBSCRIPTION_EVENT]          = &ran_handle_notif_write_sub,
 };
 
 

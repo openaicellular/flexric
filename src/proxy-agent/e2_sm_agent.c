@@ -22,7 +22,7 @@
 bool is_sm_whitelisted(int sm_id) 
 {
   bool ret = false;
-  int whitelisted_sm_proxy_agent[] = { SM_KPM_ID, SM_MAC_ID };
+  int whitelisted_sm_proxy_agent[] = { SM_KPM_ID, SM_MAC_ID, SM_RC_ID };
   for (size_t i = 0; i < sizeof(whitelisted_sm_proxy_agent)/sizeof(int); i++)
   {
     if (sm_id == whitelisted_sm_proxy_agent[i])
@@ -67,7 +67,7 @@ void init_write_ctrl( write_ctrl_fp (*write_ctrl_tbl)[SM_AGENT_IF_WRITE_CTRL_V0_
   (*write_ctrl_tbl)[SLICE_CTRL_REQ_V0] =  NULL;
   (*write_ctrl_tbl)[TC_CTRL_REQ_V0] =  NULL;
   (*write_ctrl_tbl)[GTP_CTRL_REQ_V0] =  NULL;
-  (*write_ctrl_tbl)[RAN_CONTROL_CTRL_V1_03] =  NULL;
+  (*write_ctrl_tbl)[RAN_CONTROL_CTRL_V1_03] =  write_ctrl_rc_sm;
 }
 
 
@@ -81,7 +81,21 @@ void init_write_subs(write_subs_fp (*write_subs_tbl)[SM_AGENT_IF_WRITE_SUBS_V0_E
   (*write_subs_tbl)[TC_SUBS_V0] = NULL;
   (*write_subs_tbl)[GTP_SUBS_V0] = NULL;
   (*write_subs_tbl)[KPM_SUBS_V3_0] = NULL;
-  (*write_subs_tbl)[RAN_CTRL_SUBS_V1_03] = NULL;
+  (*write_subs_tbl)[RAN_CTRL_SUBS_V1_03] = write_subs_rc_sm;
+}
+
+static
+void init_sm(void)
+{
+//    init_gtp_sm();
+    init_kpm_sm();
+//    init_mac_sm();
+//    init_pdcp_sm();
+    init_rc_sm();
+//    init_rlc_sm();
+//    init_slice_sm();
+//    init_tc_sm();
+
 }
 
 sm_io_ag_ran_t init_io_proxy_ag()
@@ -95,7 +109,14 @@ sm_io_ag_ran_t init_io_proxy_ag()
   init_write_ctrl(&io.write_ctrl_tbl);
   init_write_subs(&io.write_subs_tbl);
 
+  init_sm();
+
   return io;
+}
+
+void free_io_ag(void)
+{
+  free_kpm_sm();
 }
 
 /*

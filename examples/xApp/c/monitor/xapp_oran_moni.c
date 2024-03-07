@@ -301,20 +301,22 @@ kpm_act_def_format_4_t gen_kpm_act_def_frmt_4(const sub_oran_sm_t sub_sm, uint32
   dst.matching_cond_lst = calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t));
   assert(dst.matching_cond_lst != NULL && "Memory exhausted");
 
-  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
-  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
-  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
+  test_info_lst_t* test_info_lst = &dst.matching_cond_lst[0].test_info_lst;
+  test_info_lst->test_cond_type = S_NSSAI_TEST_COND_TYPE;
+  test_info_lst->S_NSSAI = TRUE_TEST_COND_TYPE;
 
-  dst.matching_cond_lst[0].test_info_lst.test_cond = calloc(1, sizeof(test_cond_e));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
+  test_cond_e* test_cond = calloc(1, sizeof(test_cond_e));
+  assert(test_cond != NULL && "Memory exhausted");
+  *test_cond = EQUAL_TEST_COND;
+  test_info_lst->test_cond = test_cond;
 
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value = calloc(1, sizeof(test_cond_value_t));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value->type = INTEGER_TEST_COND_VALUE;
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = malloc(sizeof(int64_t));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = 0;
+  test_cond_value_t* test_cond_value = calloc(1, sizeof(test_cond_value_t));
+  assert(test_cond_value != NULL && "Memory exhausted");
+  test_cond_value->type = INTEGER_TEST_COND_VALUE;
+  test_cond_value->int_value = calloc(1, sizeof(int64_t));
+  assert(test_cond_value->int_value != NULL && "Memory exhausted");
+  *test_cond_value->int_value = 1;
+  test_info_lst->test_cond_value = test_cond_value;
 
   // Action definition Format 1
   dst.action_def_format_1 = gen_kpm_act_def_frmt_1(sub_sm, period_ms);  // 8.2.1.2.1
@@ -407,6 +409,8 @@ int main(int argc, char *argv[])
     assert(rc_handle  != NULL);
   }
 
+  int n_kpm_handle = 0;
+  int n_rc_handle = 0;
   //Subscribe SMs for all the E2-nodes
   for (int i = 0; i < nodes.len; i++) {
     e2_node_connected_xapp_t* n = &nodes.n[i];
@@ -444,6 +448,7 @@ int main(int argc, char *argv[])
         printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_KPM_ID, i, n->id.nb_id.nb_id);
         kpm_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_KPM_ID, &kpm_sub, sm_cb_kpm);
         assert(kpm_handle[i].success == true);
+        n_kpm_handle += 1;
 
       } else if (!strcasecmp(args.sub_oran_sm[j].name, "rc")) {
         rc_sub_data_t rc_sub = {0};
@@ -473,6 +478,7 @@ int main(int argc, char *argv[])
         printf("xApp subscribes RAN Func ID %d in E2 node idx %d, nb_id %d\n", SM_RC_ID, i, n->id.nb_id.nb_id);
         rc_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_sub, sm_cb_rc);
         assert(rc_handle[i].success == true);
+        n_rc_handle += 1;
 
       } else {
         assert(0!=0 && "unknown SM in .conf");
@@ -484,17 +490,24 @@ int main(int argc, char *argv[])
 
   sleep(10);
 
-  for(int i = 0; i < nodes.len; ++i) {
+  for(int i = 0; i < n_kpm_handle; ++i) {
     rm_report_sm_xapp_api(kpm_handle[i].u.handle);
+    sleep(1);
+  }
+
+  for(int i = 0; i < n_rc_handle; ++i) {
     rm_report_sm_xapp_api(rc_handle[i].u.handle);
     sleep(1);
   }
 
   // free sm handel
-  if(nodes.len > 0) {
+  if(n_kpm_handle > 0) {
     free(kpm_handle);
+  }
+  if(n_rc_handle > 0) {
     free(rc_handle);
   }
+
 
   //Stop the xApp
   while(try_stop_xapp_api() == false)

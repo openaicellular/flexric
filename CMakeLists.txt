@@ -128,7 +128,7 @@ endif()
 ########
 ### NUM_THREADS
 ########
-set(NUM_THREADS_RIC "2" CACHE STRING "Number of threads in the RIC's task manager")
+set(NUM_THREADS_RIC "4" CACHE STRING "Number of threads in the RIC's task manager")
 
 
 ########
@@ -433,7 +433,11 @@ if (XAPP_C)
       xapp_oran_moni
       DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   # slice ctrl
-  install(TARGETS xapp_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  install(TARGETS xapp_cust_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  # mwc
+  install(TARGETS xapp_rc_ho_kpm DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  install(TARGETS xapp_rc_ctrl_ho DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  install(TARGETS xapp_rc_moni_ho_pre DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
 endif ()
 
 

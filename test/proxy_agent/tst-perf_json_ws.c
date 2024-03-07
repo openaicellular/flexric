@@ -85,7 +85,7 @@ int main()
       switch (tests[t].op)
       {
         case decode_config_get:          
-          tmp_ret = ser->decode_config_get(&in_msg, &config_out);
+          tmp_ret = ser->decode_config_get(&in_msg, &config_out, NULL);
           free_ran_config(&config_out);
           break;
         case decode_stats:

@@ -10,6 +10,7 @@ typedef enum{
       RAN_REGISTRATION_ACK,
       RAN_AUTHENTICATE_ACK,
       RAN_INDICATION_UEGET_RECV,
+      RAN_INDICATION_CONFGET_RECV,
       RAN_INDICATION_STATS_RECV,
       RAN_CONFIG_RECV,
       RAN_CTRL_ACK,
@@ -42,5 +43,6 @@ typedef struct {
  */
 next_msg_t ran_msg_handle(const char *buf, size_t len, bi_map_t *sent_msg);
 
+bool is_get_aperiodic_event(void);
 
 #endif

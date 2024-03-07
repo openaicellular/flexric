@@ -30,6 +30,7 @@
 #ifdef PROXY_AGENT
 #include "proxy-agent/notif_e2_ran.h"
 #include "lib/correlation_events.h"
+#include "proxy-agent/proxy_agent.h"
 #endif
 
 #include <assert.h>
@@ -196,13 +197,26 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   sm_ag_if_ans_subs_t const subs = sm->proc.on_subscription(sm, &data);
 
   #ifdef PROXY_AGENT
+  subscribe_timer_t const t = subs.per.t;
   printf("[E2-AGENT] asking RAN to create a subscription timer of %ld ms for sm %d.\n", t.ms, ran_func_id);
-  ind_event_t e2_ran_sub;
+  ind_event_t e2_ran_sub = {0};
   e2_ran_sub.action_id = sr->action[0].id;
   e2_ran_sub.ric_id = sr->ric_id;
   e2_ran_sub.sm = sm;
+  e2_ran_sub.type = subs.type;
   e2_ran_sub.act_def = t.act_def;
-  fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
+  if (subs.type == PERIODIC_SUBSCRIPTION_FLRC){
+    // Periodic indication message generated i.e., every 5 ms
+    assert(t.ms < 10001 && "Subscription for granularity larger than 10 seconds requested? ");
+    fwd_e2_ran_subscription_timer(ag->ran_if, e2_ran_sub, t.ms);
+  } else if (subs.type == APERIODIC_SUBSCRIPTION_FLRC){
+    e2_ran_sub.free_subs_aperiodic = subs.aper.free_aper_subs;
+    // Aperiodic indication generated i.e., the RAN will generate it via
+    // void async_event_agent_api(uint32_t ric_req_id, void* ind_data);
+    fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
+  } else {
+    assert(0!=0 && "Unknown subscription timer value");
+  }
   // wait for a reply before generating subscription response
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   #else
@@ -213,6 +227,7 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   ev.ric_id = sr->ric_id;
   ev.sm = sm;
   ev.type = subs.type;
+  printf("handle sub request ag: get type %d\n", ev.type);
 
   if(ev.type == PERIODIC_SUBSCRIPTION_FLRC){
     subscribe_timer_t const t = subs.per.t;
@@ -234,7 +249,7 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   }
 
   printf("[E2-AGENT]: RIC_SUBSCRIPTION_REQUEST rx\n");
-
+  fflush(stdout);
   uint8_t const ric_act_id = sr->action[0].id;
   e2ap_msg_t ans = {.type = RIC_SUBSCRIPTION_RESPONSE, 
                     .u_msgs.ric_sub_resp = generate_subscription_response(&sr->ric_id, ric_act_id) };
@@ -313,7 +328,8 @@ e2ap_msg_t e2ap_handle_control_request_agent(e2_agent_t* ag, const e2ap_msg_t* m
   sm_agent_t* sm = sm_plugin_ag(&ag->plugin, ran_func_id);
 
 #ifdef PROXY_AGENT
-  (void)sm->proc.on_control(sm, &data);
+  sm_ctrl_out_data_t ctrl_ans = sm->proc.on_control(sm, &data);
+  defer({ free_sm_ctrl_out_data(&ctrl_ans); } );
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   // we will wait for a reply from the RAN if ever arrives
   pending_event_t ev = CONTROL_REQUEST_AGENT_PENDING_EVENT;

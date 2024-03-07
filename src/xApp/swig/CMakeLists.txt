@@ -81,6 +81,10 @@ if(XAPP_PYTHON_SWIG)
       ../../util/byte_array.c
       ../../util/alg_ds/alg/eq_float.c
       ../../util/e2ap_ngran_type.c
+      ../e2_node_arr_xapp.c
+      ../e2_node_connected_xapp.c
+      ../sm_ran_function.c
+      ../sm_ran_function_def.c
       ${KPM_VERSION_SRC}
       $<TARGET_OBJECTS:kpm_ric_info_common_obj>
       $<TARGET_OBJECTS:kpm_ric_info_obj>
@@ -109,6 +113,10 @@ if(XAPP_GO_SWIG)
       ../../util/alg_ds/alg/eq_float.c
       ../../util/e2ap_ngran_type.c
       ../../
+      ../e2_node_arr_xapp.c
+      ../e2_node_connected_xapp.c
+      ../sm_ran_function.c
+      ../sm_ran_function_def.c
       ${KPM_VERSION_SRC}
       $<TARGET_OBJECTS:kpm_ric_info_common_obj>
       $<TARGET_OBJECTS:kpm_ric_info_obj>

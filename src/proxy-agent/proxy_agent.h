@@ -48,6 +48,7 @@ typedef struct proxy_agent_t
 
   // Registered SMs
   // plugin_ag_t plugin;
+  ran_config_t ranConfig;
 
 } proxy_agent_t;
 

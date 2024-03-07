@@ -723,7 +723,7 @@ void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, ui
   // after which an event will be generated
   pending_event_ric_t ev = {.ev = CONTROL_REQUEST_PENDING_EVENT, .id = ctrl_req.ric_id };
 
-  long const wait_ms = 3000;
+  long const wait_ms = 5000;
   int fd_timer = create_timer_ms_asio_ric(&ric->io, wait_ms, wait_ms); 
   //printf("RIC: Control fd_timer for control with value created == %d\n", fd_timer);
 

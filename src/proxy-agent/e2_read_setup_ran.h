@@ -22,6 +22,8 @@
 #ifndef E2_READ_SETUP_RAN_E2_AGENT_H
 #define E2_READ_SETUP_RAN_E2_AGENT_H
 
-void read_setup_ran(void* data);
+#include "../src/util/e2ap_ngran_types.h"
+
+void read_setup_ran(void* data, const e2ap_ngran_node_t node_type);
 
 #endif

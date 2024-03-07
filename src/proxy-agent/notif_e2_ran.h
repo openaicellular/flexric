@@ -26,7 +26,9 @@ typedef enum notif_event_t
   // E2->RAN 
   E2_ADD_SUBSCRIPTION_TIMER_EVENT, 
   E2_REMOVE_SUBSCRIPTION_TIMER_EVENT,
-  E2_CTRL_EVENT
+  E2_CTRL_EVENT,
+  E2_WRITE_SUBSCRIPTION_EVENT,
+  E2_REMOVE_RC_SUBSCRIPTION_EVENT,
 } notif_event_t;
 
 typedef struct e2_unsubscribe_event_t {
@@ -41,15 +43,20 @@ typedef struct e2_subscribe_event_t {
   void* act_def;
 } e2_subscribe_event_t;
 
+typedef struct e2_wr_sub_event_t {
+  uint32_t ric_req_id;
+  rc_sub_data_t rc;
+} e2_wr_sub_event_t;
 
-// types of events managed by I/O ran loop notification signal 
+// types of events managed by I/O ran loop notification signal
 typedef struct notif_e2_ran_event_t {
   union {
     e2_unsubscribe_event_t  unsubs_ev;
     e2_subscribe_event_t    subs_ev;
     ctrl_ev_t               ctrl_ev;
     ctrl_ev_reply_t         ctrl_ev_reply;
-  }; // anonymous union discriminated by `type` field 
+    e2_wr_sub_event_t       wr_subs_ev;
+  }; // anonymous union discriminated by `type` field
   notif_event_t type;
 } notif_e2_ran_event_t;
 
@@ -71,6 +78,7 @@ char * notif_strevent(enum notif_event_t type);
 void ran_notif_msg_handle(ran_if_t *ran_if, e2_agent_t *e2_if, const notif_e2_ran_event_t *notif_event, int msg_id) ;
 
 /* -- E2AP functionalities --- */
+void fwd_e2_ran_wr_sub_ev(ran_if_t *ran_if, wr_rc_sub_data_t* wr_rc_sub_data);
 void fwd_e2_ran_subscription_timer(ran_if_t *ran_if, ind_event_t ev, long interval_ms) ;
 void fwd_e2_ran_remove_subscription_timer(ran_if_t *ran_if, ric_gen_id_t ric_id);
 void fwd_e2_ran_ctrl (ran_if_t *ran_if, ctrl_ev_t in);
