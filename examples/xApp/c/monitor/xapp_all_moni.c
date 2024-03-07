@@ -323,7 +323,7 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const act_name_id_t act)
 }
 
 static
-kpm_act_def_format_1_t gen_kpm_act_def_frmt_1(const sub_oran_sm_t sub_sm, uint32_t period_ms, e2_node_connected_t* n)
+kpm_act_def_format_1_t gen_kpm_act_def_frmt_1(const sub_oran_sm_t sub_sm, uint32_t period_ms, e2_node_connected_xapp_t* n)
 {
   kpm_act_def_format_1_t dst = {0};
 
@@ -356,7 +356,7 @@ kpm_act_def_format_1_t gen_kpm_act_def_frmt_1(const sub_oran_sm_t sub_sm, uint32
 }
 
 static
-kpm_act_def_format_4_t gen_kpm_act_def_frmt_4(const sub_oran_sm_t sub_sm, uint32_t period_ms, e2_node_connected_t* n)
+kpm_act_def_format_4_t gen_kpm_act_def_frmt_4(const sub_oran_sm_t sub_sm, uint32_t period_ms, e2_node_connected_xapp_t* n)
 {
   kpm_act_def_format_4_t dst = {0};
 
@@ -430,7 +430,7 @@ e2sm_rc_action_def_t gen_rc_act_def(const sub_oran_sm_t sub_sm, uint32_t ric_sty
 }
 
 static
-kpm_act_def_t gen_kpm_act_def(const sub_oran_sm_t sub_sm, format_action_def_e act_frm, uint32_t period_ms, e2_node_connected_t* n)
+kpm_act_def_t gen_kpm_act_def(const sub_oran_sm_t sub_sm, format_action_def_e act_frm, uint32_t period_ms, e2_node_connected_xapp_t* n)
 {
   kpm_act_def_t dst = {0};
 

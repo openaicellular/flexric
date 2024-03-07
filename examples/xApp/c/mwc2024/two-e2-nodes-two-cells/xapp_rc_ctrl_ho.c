@@ -196,7 +196,7 @@ ue_id_e2sm_t gen_rc_ue_id(ue_id_e2sm_e type)
     return ue_id;
 }
 
-void start_control(e2_node_arr_t nodes){
+void start_control(e2_node_arr_xapp_t nodes){
   // RC Control
   // CONTROL Service Style 3: Connected mode mobility control
   // Action ID 1: Handover Control
@@ -231,8 +231,8 @@ int main(int argc, char *argv[])
     init_xapp_api(&args);
     sleep(1);
 
-    e2_node_arr_t nodes = e2_nodes_xapp_api();
-    defer({ free_e2_node_arr(&nodes); });
+    e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+    defer({ free_e2_node_arr_xapp(&nodes); });
     assert(nodes.len > 0);
     printf("Connected E2 nodes = %d\n", nodes.len);
 

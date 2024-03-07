@@ -474,7 +474,7 @@ ue_id_e2sm_t gen_rc_ue_id(ue_id_e2sm_e type)
     return ue_id;
 }
 
-void start_control(e2_node_arr_t nodes){
+void start_control(e2_node_arr_xapp_t nodes){
   // RC Control
   // CONTROL Service Style 3: Connected mode mobility control
   // Action ID 1: Handover Control
@@ -578,7 +578,7 @@ e2sm_rc_event_trigger_t gen_rc_ev_trigger(e2sm_rc_ev_trigger_format_e act_frm)
 }
 
 static
-size_t send_sub_req_rc(e2_node_connected_t* n, fr_args_t args, sm_ans_xapp_t *rc_handle, size_t n_handle)
+size_t send_sub_req_rc(e2_node_connected_xapp_t* n, fr_args_t args, sm_ans_xapp_t *rc_handle, size_t n_handle)
 {
   for (int32_t j = 0; j < args.sub_oran_sm_len; j++) {
     if (!strcasecmp(args.sub_oran_sm[j].name, "rc")) {
@@ -730,7 +730,7 @@ kpm_act_def_t gen_act_def(const sub_oran_sm_t act, format_action_def_e act_frm, 
   return dst;
 }
 
-void start_rc_sub(fr_args_t args, e2_node_arr_t nodes){
+void start_rc_sub(fr_args_t args, e2_node_arr_xapp_t nodes){
   int max_handle = 256;
   // RC indication
   sm_ans_xapp_t *rc_handle = NULL;
@@ -739,7 +739,7 @@ void start_rc_sub(fr_args_t args, e2_node_arr_t nodes){
 
   size_t n_handle = 0;
   for (int i = 0; i < nodes.len; i++) {
-    e2_node_connected_t* n = &nodes.n[i];
+    e2_node_connected_xapp_t* n = &nodes.n[i];
     n_handle = send_sub_req_rc(n, args, rc_handle, n_handle);
   }
 
@@ -761,8 +761,8 @@ int main(int argc, char *argv[])
   init_xapp_api(&args);
   sleep(1);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
   assert(nodes.len > 0);
   printf("Connected E2 nodes = %d\n", nodes.len);
 
@@ -788,7 +788,7 @@ int main(int argc, char *argv[])
   for(int cell_idx = 0; cell_idx < num_cells; cell_idx++) {
     //Subscribe SMs for all the E2-nodes
     for (int i = 0; i < nodes.len; i++) {
-      e2_node_connected_t* n = &nodes.n[i];
+      e2_node_connected_xapp_t* n = &nodes.n[i];
 
 
       for (int32_t j = 0; j < args.sub_oran_sm_len; j++) {
