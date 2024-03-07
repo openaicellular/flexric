@@ -94,6 +94,23 @@ class GTPCallback(ric.gtp_cb):
             t_diff = t_now - t_gtp
             print(f"GTP Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id.nb_id}")
 
+####################
+#### SLICE INDICATION CALLBACK
+####################
+
+# Create a callback for SLICE which derived it from C++ class slice_cb
+class SLICECallback(ric.slice_cb):
+    def __init__(self):
+        # Inherit C++ gtp_cb class
+        ric.slice_cb.__init__(self)
+    # Create an override C++ method
+    def handle(self, ind):
+        t_now = time.time_ns() / 1000.0
+        t_slice = ind.tstamp / 1.0
+        t_diff = t_now - t_slice
+        print(f"SLICE Indication tstamp {t_now} diff {t_diff} e2 node type {ind.id.type} nb_id {ind.id.nb_id.nb_id}")
+
+
 def get_cust_tti(tti):
     if tti == "1_ms":
         return ric.Interval_ms_1
@@ -115,6 +132,7 @@ mac_hndlr = []
 rlc_hndlr = []
 pdcp_hndlr = []
 gtp_hndlr = []
+slice_hndlr = []
 ####################
 ####  GENERAL 
 ####################
@@ -174,6 +192,13 @@ if __name__ == '__main__':
                 hndlr = ric.report_gtp_sm(conn[i].id, tti, gtp_cb)
                 gtp_hndlr.append(hndlr)
                 time.sleep(1)
+        elif sm_name == "SLICE":
+            for i in range(0, len(conn)):
+                # SLICE
+                slice_cb = SLICECallback()
+                hndlr = ric.report_slice_sm(conn[i].id, tti, slice_cb)
+                slice_hndlr.append(hndlr)
+                time.sleep(1)
         else:
             print(f"not yet implemented function to send subscription for {sm_name}")
 
@@ -191,6 +216,9 @@ if __name__ == '__main__':
 
     for i in range(0, len(gtp_hndlr)):
         ric.rm_report_gtp_sm(gtp_hndlr[i])
+
+    for i in range(0, len(slice_hndlr)):
+        ric.rm_report_slice_sm(slice_hndlr[i])
 
     # Avoid deadlock. ToDo revise architecture
     while ric.try_stop == 0:

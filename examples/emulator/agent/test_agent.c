@@ -108,7 +108,6 @@ void init_sm(void)
   init_rlc_sm();
   init_slice_sm();
   init_tc_sm();
-
 }
 
 static

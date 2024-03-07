@@ -84,8 +84,8 @@ typedef struct e2_agent_s
   tsq_t aind; // aind_event_t Events that occurred 
 
 #if defined(E2AP_V2) || defined (E2AP_V3)
-  // Read RAN
-  void (*read_setup_ran)(void* data);
+  // Read RAN 
+  void (*read_setup_ran)(void* data, const e2ap_ngran_node_t node_type);
   _Atomic uint32_t trans_id_setup_req;
 #endif
 

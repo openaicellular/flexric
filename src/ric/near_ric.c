@@ -47,24 +47,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/*
-static inline
-void free_sm_ric(void* key, void* value)
-{
-  assert(key != NULL);
-  assert(value != NULL);
-
-  sm_ric_t* sm = (sm_ric_t*)value;
-
-  void* handle = sm->handle;
-  sm->free_sm(sm);
-
-  if(handle != NULL)
-      dlclose(handle);
-}
-*/
-
-
 static inline
 void free_fd(void* key, void* value)
 {

@@ -34,7 +34,7 @@ typedef struct sm_agent_s sm_agent_t;
 typedef struct{
 
   // @return granularity in ms or -1 if no periodic timer needed
-  subscribe_timer_t (*on_subscription)(sm_agent_t const* sm, sm_subs_data_t const* data);
+  sm_ag_if_ans_subs_t (*on_subscription)(sm_agent_t const* sm, sm_subs_data_t const* data);
 
   exp_ind_data_t (*on_indication)(sm_agent_t const* sm, void* act_def);
 

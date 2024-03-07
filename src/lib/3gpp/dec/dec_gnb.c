@@ -1,13 +1,64 @@
 #include <assert.h>
+#include <errno.h>
 
 #include "../../../util/conversions.h"
-#include "../../../sm/rc_sm/ie/asn/asn_constant.h"
-#include "../../../sm/rc_sm/ie/asn/UEID-GNB-CU-F1AP-ID-List.h"
-#include "../../../sm/rc_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-List.h"
-
+#include "dec_asn.h"
 #include "dec_gnb.h"
 #include "dec_global_gnb_id.h"
 #include "dec_global_ng_ran.h"
+
+
+#if defined(KPM_V2_01) || defined(KPM_V2_03) || defined(KPM_V3_00) || defined(RC_SM)
+
+// Copied from the generated asn1c code to avoid dependencies
+/* FIXME: negative INTEGER values are silently interpreted as large unsigned ones. */
+static 
+int asn_INTEGER2umax_static(const INTEGER_t *iptr, uintmax_t *lptr) {
+	uint8_t *b, *end;
+	uintmax_t value;
+	size_t size;
+
+	if(!iptr || !iptr->buf || !lptr) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	b = iptr->buf;
+	size = iptr->size;
+	end = b + size;
+
+	/* If all extra leading bytes are zeroes, ignore them */
+	for(; size > sizeof(value); b++, size--) {
+		if(*b) {
+			/* Value won't fit into uintmax_t */
+			errno = ERANGE;
+			return -1;
+		}
+	}
+
+	/* Conversion engine */
+	for(value = 0; b < end; b++)
+		value = (value << 8) | *b;
+
+	*lptr = value;
+	return 0;
+}
+
+static
+int asn_INTEGER2ulong_static(const INTEGER_t *iptr, unsigned long *l) {
+    uintmax_t v;
+    if(asn_INTEGER2umax_static(iptr, &v) == 0) {
+        if(v > ULONG_MAX) {
+            errno = ERANGE;
+            return -1;
+        }
+        *l = v;
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
 
 
 gnb_e2sm_t dec_gNB_UE_asn(const UEID_GNB_t * gnb_asn)
@@ -20,7 +71,8 @@ gnb_e2sm_t dec_gNB_UE_asn(const UEID_GNB_t * gnb_asn)
     assert(gnb_asn->amf_UE_NGAP_ID.buf != NULL);
     assert(gnb_asn->amf_UE_NGAP_ID.size < 6); // 2^40 max -> 2^(8*5) max 
 
-    asn_INTEGER2ulong(&gnb_asn->amf_UE_NGAP_ID, &gnb.amf_ue_ngap_id );
+    //asn_INTEGER2ulong_e2ap_v2_03(&gnb_asn->amf_UE_NGAP_ID, &gnb.amf_ue_ngap_id );
+    asn_INTEGER2ulong_static(&gnb_asn->amf_UE_NGAP_ID, &gnb.amf_ue_ngap_id );
 //    memcpy(&gnb.amf_ue_ngap_id, gnb_asn->amf_UE_NGAP_ID.buf, gnb_asn->amf_UE_NGAP_ID.size);
     assert(gnb.amf_ue_ngap_id < (1UL << 40) );
 
@@ -117,3 +169,5 @@ gnb_e2sm_t dec_gNB_UE_asn(const UEID_GNB_t * gnb_asn)
 
     return gnb;
 }
+#endif
+

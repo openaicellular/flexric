@@ -34,6 +34,7 @@ extern "C" {
  */
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 
@@ -190,14 +191,15 @@ bool eq_pdcp_ctrl_out(pdcp_ctrl_out_t* m0, pdcp_ctrl_out_t* m1);
 /////////////////////////////////////
 
 typedef struct {
-  uint32_t dummy;
+  uint8_t* buf;
+  size_t len;
 } pdcp_func_def_t;
 
-void free_pdcp_func_def( pdcp_func_def_t* src); 
+void free_pdcp_func_def(pdcp_func_def_t* src); 
 
-pdcp_func_def_t cp_pdcp_func_def(pdcp_func_def_t* src);
+pdcp_func_def_t cp_pdcp_func_def(pdcp_func_def_t const* src);
 
-bool eq_pdcp_func_def(pdcp_func_def_t* m0, pdcp_func_def_t* m1);
+bool eq_pdcp_func_def(pdcp_func_def_t const* m0, pdcp_func_def_t const* m1);
 
 /////////////////////////////////////////////////
 //////////////////////////////////////////////////

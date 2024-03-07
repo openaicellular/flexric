@@ -1,6 +1,4 @@
 add_subdirectory(helloworld)
 add_subdirectory(monitor)
-add_subdirectory(tc)
-add_subdirectory(kpm_rc)
 add_subdirectory(control)
 add_subdirectory(mwc2024)

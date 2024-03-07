@@ -1,8 +1,7 @@
 #include <assert.h>
 
 #include "../../../util/conversions.h"
-#include "../../../sm/rc_sm/ie/asn/asn_constant.h"
-
+#include "enc_asn.h"
 #include "enc_enb.h"
 #include "enc_global_enb_id.h"
 

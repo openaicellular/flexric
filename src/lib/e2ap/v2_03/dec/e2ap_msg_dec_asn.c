@@ -496,11 +496,7 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      // This is an abuse but the standard does not define how to
-      // differentiate between ngran_gNB_CU and ngran_gNB
-      // Here we do not know if it is a real CUUP or a CU. Assuming CU
-      // id->type = e2ap_ngran_gNB_CUUP;
-      id->type = e2ap_ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CUUP;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id  != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
@@ -1129,11 +1125,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      // This is an abuse but the standard does not define how to
-      // differentiate between ngran_gNB_CU and ngran_gNB
-      // Here we do not know if it is a real CUUP or a CU. Assuming CU
-      // id->type = e2ap_ngran_gNB_CUUP;
-      id->type = e2ap_ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CUUP;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
@@ -1461,7 +1453,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     sr->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      sr->id.type = e2ap_ngran_gNB_CU;
+      sr->id.type = e2ap_ngran_gNB_CUUP;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, sr->id.cu_du_id);
@@ -2427,13 +2419,8 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, dst->id.plmn.mcc, dst->id.plmn.mnc, dst->id.plmn.mnc_digit_len);
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
-
       if (e2gnb->gNB_CU_UP_ID) {
-        // This is an abuse but the standard does not define how to
-        // differentiate between ngran_gNB_CU and ngran_gNB
-        // Here we do not know if it is a real CUUP or a CU. Assuming CU
-        // dst->id.type = e2ap_ngran_gNB_CUUP;
-        dst->id.type = e2ap_ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CUUP;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
@@ -2860,7 +2847,7 @@ E2AP_PDU_t* e2ap_create_pdu(const uint8_t* buffer, int buffer_len)
   //fprintf(stdout, "length of data %ld\n", rval.consumed);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGEND_BASIC_PER syntax?");
 
-  //xer_fprint(stdout, &asn_DEF_E2AP_PDU, pdu);
+  //xer_fprint_e2ap_v2_03(stdout, &asn_DEF_E2AP_PDU, pdu);
   //fflush(stdout);
 
   return pdu;
@@ -2875,7 +2862,7 @@ e2ap_msg_t e2ap_msg_dec_asn(e2ap_asn_t* asn, byte_array_t ba)
   //printf("Decoding message type = %d \n", msg_type);
   assert(asn->dec_msg[msg_type] != NULL);
   e2ap_msg_t msg = asn->dec_msg[msg_type](pdu);
-//  xer_fprint(stdout, &asn_DEF_E2AP_PDU, pdu);
+//  xer_fprint_e2ap_v2_03(stdout, &asn_DEF_E2AP_PDU, pdu);
 //  fflush(stdout);
   ASN_STRUCT_FREE(asn_DEF_E2AP_PDU,pdu);
   return msg; 

@@ -19,3 +19,4 @@ set(KPM_RIC_INFO_SRCS
 add_library(kpm_ric_info_obj OBJECT
                             ${KPM_RIC_INFO_SRCS}
                             )
+target_compile_options(kpm_ric_info_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC -fvisibility=hidden)

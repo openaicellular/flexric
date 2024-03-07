@@ -28,6 +28,7 @@
 
 #include <assert.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 
@@ -790,16 +791,15 @@ bool eq_tc_ctrl_out(tc_ctrl_out_t* m0, tc_ctrl_out_t* m1);
 /////////////////////////////////////
 
 typedef struct {
-  uint32_t dummy;
-//  uint32_t len_supported_alg;
-//  tc_algorithm_e* supported_alg;
+  uint8_t* buf;
+  size_t len;
 } tc_func_def_t;
 
 void free_tc_func_def( tc_func_def_t* src); 
 
-tc_func_def_t cp_tc_func_def(tc_func_def_t* src);
+tc_func_def_t cp_tc_func_def(tc_func_def_t const* src);
 
-bool eq_tc_func_def(tc_func_def_t* m0, tc_func_def_t* m1);
+bool eq_tc_func_def(tc_func_def_t const* m0, tc_func_def_t const* m1);
 
 
 

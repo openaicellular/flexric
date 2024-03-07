@@ -226,7 +226,7 @@ bool try_stop()
 
 std::vector<E2Node> conn_e2_nodes(void)
 {
-  e2_node_arr_t arr = e2_nodes_xapp_api();
+  e2_node_arr_xapp_t arr = e2_nodes_xapp_api();
 
   std::vector<E2Node> x;
 
@@ -234,7 +234,7 @@ std::vector<E2Node> conn_e2_nodes(void)
 
     E2Node tmp;
 
-    e2_node_connected_t const* src = &arr.n[i];
+    e2_node_connected_xapp_t const* src = &arr.n[i];
 
     tmp.id.type = src->id.type;
     tmp.id.plmn.mcc = src->id.plmn.mcc;
@@ -252,17 +252,18 @@ std::vector<E2Node> conn_e2_nodes(void)
     std::vector<swig_ran_function_t> ran_func;//(src->len_rf);
 
     for(size_t j = 0; j < src->len_rf; ++j){
-      ran_function_t rf = cp_ran_function(&src->ack_rf[j]);
+      sm_ran_function_t rf = cp_sm_ran_function(&src->rf[j]);
 
       swig_ran_function_t tmp_ran;
 
       tmp_ran.id = rf.id;
       tmp_ran.rev = rf.rev;
-      tmp_ran.defn = copy_byte_array(rf.defn);
+      // TODO: need to define the ran function definition for each sm in swig
+      // tmp_ran.defn = copy_byte_array(rf.defn);
       #if defined(E2AP_V2) || defined (E2AP_V3)
         tmp_ran.oid = copy_byte_array(rf.oid);
       #endif
-      //TODO: oid for E2AP V1
+      //TODO: oid for E2AP V1 is optional
 
       ran_func.push_back(tmp_ran);// [j] = rf;
     }
@@ -270,7 +271,7 @@ std::vector<E2Node> conn_e2_nodes(void)
     x.push_back(tmp);//[i] = tmp;
   }
 
-  free_e2_node_arr(&arr);
+  free_e2_node_arr_xapp(&arr);
 
   return x;
 }

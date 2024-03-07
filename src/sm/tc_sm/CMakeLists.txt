@@ -32,7 +32,7 @@ if(SM_ENCODING_TC STREQUAL "PLAIN")
     )
   # Shared
   add_library(tc_sm SHARED ${SM_ENCODING_TC_SRC_PLAIN}) 
-  target_compile_options(tc_sm PRIVATE -fvisibility=hidden)
+  target_compile_options(tc_sm PRIVATE -fPIC -fvisibility=hidden)
 
   # Static
   add_library(tc_sm_static STATIC ${SM_ENCODING_TC_SRC_PLAIN}) 

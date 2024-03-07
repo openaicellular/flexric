@@ -1497,17 +1497,18 @@ E2SM_RC_IndicationHeader_Format1_t* cp_ind_hdr_frmt_1(e2sm_rc_ind_hdr_frmt_1_t c
 
   E2SM_RC_IndicationHeader_Format1_t* dst = calloc(1, sizeof(E2SM_RC_IndicationHeader_Format1_t));
   assert(dst != NULL && "Memory exhausted");
-
-  assert(src->ev_trigger_id !=NULL && "Optional but not much sense to not fill it"); 
-  dst->ric_eventTriggerCondition_ID = calloc(1, sizeof(RIC_EventTriggerCondition_ID_t)) ;
-  assert(dst->ric_eventTriggerCondition_ID != NULL && "Memory exhauested");
-
+    
   // Event Trigger Condition ID
   // Optional
   // 9.3.21
   // [1 - 65535]
-  assert(*src->ev_trigger_id > 0);
-  *dst->ric_eventTriggerCondition_ID = *src->ev_trigger_id;
+  if(src->ev_trigger_id != NULL) {
+    dst->ric_eventTriggerCondition_ID = calloc(1, sizeof(RIC_EventTriggerCondition_ID_t)) ;
+    assert(dst->ric_eventTriggerCondition_ID != NULL && "Memory exhauested");
+
+    assert(*src->ev_trigger_id > 0);
+    *dst->ric_eventTriggerCondition_ID = *src->ev_trigger_id;
+  }
 
   return dst;
 }

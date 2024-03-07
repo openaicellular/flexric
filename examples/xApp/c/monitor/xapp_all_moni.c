@@ -451,7 +451,7 @@ size_t max_handle = 256;
 size_t c_handle = 0;
 
 static
-void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* handle, fr_args_t args) {
+void send_subscription_req(e2_node_connected_xapp_t* n, size_t n_idx, sm_ans_xapp_t* handle, fr_args_t args) {
   // send subscription request to each e2 nodes
   if (E2AP_NODE_IS_MONOLITHIC(n->id.type))
     printf("E2 node idx %ld info: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n",
@@ -471,7 +471,7 @@ void send_subscription_req(e2_node_connected_t* n, size_t n_idx, sm_ans_xapp_t* 
            get_e2ap_ngran_name(n->id.type),
            *n->id.cu_du_id);
   for (size_t j = 0; j < n->len_rf; j++)
-    printf("Registered E2 node idx %ld, supported RAN Func ID = %d\n ", n_idx, n->ack_rf[j].id);
+    printf("Registered E2 node idx %ld, supported RAN Func ID = %d\n ", n_idx, n->rf[j].id);
 
   uint16_t num_cust_sm = args.sub_cust_sm_len;
   for (int32_t i = 0; i < num_cust_sm; i++) {
@@ -615,8 +615,8 @@ int main(int argc, char *argv[])
 
   // case1: send subscription req to the original connected e2 node
   // get original e2 nodes info
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
   for (size_t i = 0; i < nodes.len; i++) {
     send_subscription_req(&nodes.n[i], i, handle, args);
   }
@@ -630,8 +630,8 @@ int main(int argc, char *argv[])
 
       if (cur_nodes_len != 0) {
         // get the new e2 nodes info
-        e2_node_arr_t cur_nodes = e2_nodes_xapp_api();
-        defer({ free_e2_node_arr(&cur_nodes); });
+        e2_node_arr_xapp_t cur_nodes = e2_nodes_xapp_api();
+        defer({ free_e2_node_arr_xapp(&nodes); });
 
         // TODO: send subscription request to new e2 node
         for (size_t i = 0; i < cur_nodes_len; i++) {

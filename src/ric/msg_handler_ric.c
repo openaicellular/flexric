@@ -29,7 +29,6 @@
 #include "util/alg_ds/alg/alg.h"
 #include "util/compare.h"
 #include "util/e2ap_ngran_types.h"
-//#include "act_req.h"
 #include "e2ap_ric.h"
 #include "near_ric.h"
 #include "e2_node.h"
@@ -313,8 +312,12 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   char* ran_type = get_e2ap_ngran_name(req->id.type);
 
 #if defined(E2AP_V2) || defined(E2AP_V3)
-  if(req->id.type == e2ap_ngran_gNB && req->len_cca == 2)
+  if(req->id.type == e2ap_ngran_gNB && req->len_cca == 2){
     ran_type = "ngran_gNB_CU";
+  }
+  else if (req->id.type == e2ap_ngran_gNB && req->len_cca == 3) {
+    ran_type = "ngran_gNB_CUCP";
+  }
 #endif
 
   if (E2AP_NODE_IS_MONOLITHIC(req->id.type))

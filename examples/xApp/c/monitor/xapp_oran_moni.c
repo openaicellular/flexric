@@ -391,8 +391,8 @@ int main(int argc, char *argv[])
   init_xapp_api(&args);
   sleep(1);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
 
   assert(nodes.len > 0);
 
@@ -413,9 +413,9 @@ int main(int argc, char *argv[])
   int n_rc_handle = 0;
   //Subscribe SMs for all the E2-nodes
   for (int i = 0; i < nodes.len; i++) {
-    e2_node_connected_t* n = &nodes.n[i];
+    e2_node_connected_xapp_t* n = &nodes.n[i];
     for (size_t j = 0; j < n->len_rf; j++)
-      printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
+      printf("Registered node %d ran func id = %d \n ", i, n->rf[j].id);
 
     for (int32_t j = 0; j < args.sub_oran_sm_len; j++) {
       if (!strcasecmp(args.sub_oran_sm[j].name, "kpm")) {
@@ -490,22 +490,24 @@ int main(int argc, char *argv[])
 
   sleep(10);
 
-  printf("CTRL+C detect\n");
   for(int i = 0; i < n_kpm_handle; ++i) {
     rm_report_sm_xapp_api(kpm_handle[i].u.handle);
     sleep(1);
   }
 
   for(int i = 0; i < n_rc_handle; ++i) {
-    rm_report_sm_xapp_api(kpm_handle[i].u.handle);
+    rm_report_sm_xapp_api(rc_handle[i].u.handle);
     sleep(1);
   }
 
   // free sm handel
-  if(nodes.len > 0) {
+  if(n_kpm_handle > 0) {
     free(kpm_handle);
+  }
+  if(n_rc_handle > 0) {
     free(rc_handle);
   }
+
 
   //Stop the xApp
   while(try_stop_xapp_api() == false)

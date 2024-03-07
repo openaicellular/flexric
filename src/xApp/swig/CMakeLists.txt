@@ -35,7 +35,7 @@ if (XAPP_MULTILANGUAGE)
     option(XAPP_PYTHON_ML "Enable AI/ML xApps in Python" OFF)
     message(STATUS "Enable AI/ML xApps in Python: ${XAPP_PYTHON_ML}")
   endif()
-  option(XAPP_GO_SWIG "Build xApp in Golang" OFF)
+  option(XAPP_GO_SWIG "Build xApp in Golang" ON)
   message(STATUS "Build xApp in Golang: ${XAPP_GO_SWIG}")
   option(XAPP_JAVA_SWIG "Build xApp in Java" OFF)
   message(STATUS "Build xApp in Java: ${XAPP_JAVA_SWIG}")
@@ -84,15 +84,8 @@ if(XAPP_PYTHON_SWIG)
       ${KPM_VERSION_SRC}
       $<TARGET_OBJECTS:kpm_ric_info_common_obj>
       $<TARGET_OBJECTS:kpm_ric_info_obj>
-      $<TARGET_OBJECTS:e2sm_common_ie_obj>
-      $<TARGET_OBJECTS:3gpp_common_ie_obj>
       $<TARGET_OBJECTS:sm_common_ie_obj>
       $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-      $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-      $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
-      $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-      $<TARGET_OBJECTS:sm_common_enc_asn_obj>
-      $<TARGET_OBJECTS:sm_common_ie_obj>
       )
 endif()
 
@@ -119,15 +112,8 @@ if(XAPP_GO_SWIG)
       ${KPM_VERSION_SRC}
       $<TARGET_OBJECTS:kpm_ric_info_common_obj>
       $<TARGET_OBJECTS:kpm_ric_info_obj>
-      $<TARGET_OBJECTS:e2sm_common_ie_obj>
-      $<TARGET_OBJECTS:3gpp_common_ie_obj>
       $<TARGET_OBJECTS:sm_common_ie_obj>
       $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-      $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-      $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
-      $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-      $<TARGET_OBJECTS:sm_common_enc_asn_obj>
-      $<TARGET_OBJECTS:sm_common_ie_obj>
       )
 endif()
 
@@ -142,6 +128,8 @@ if(XAPP_PYTHON_SWIG)
   # xapp_sdk
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/_xapp_sdk.so" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/_xapp_sdk.so")
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/xapp_sdk.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/xapp_sdk.py")
+  # helloworld
+  add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/helloworld/hw.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/helloworld/hw.py")
   # monitor
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/monitor/xapp_cust_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_cust_moni.py")
   add_custom_command(TARGET xapp_sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/examples/xApp/python3/monitor/xapp_all_moni.py" "${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_all_moni.py")

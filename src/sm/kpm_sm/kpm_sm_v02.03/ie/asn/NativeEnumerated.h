@@ -13,6 +13,7 @@
 #define	_NativeEnumerated_H_
 
 #include <NativeInteger.h>
+#include <ENUMERATED.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +43,7 @@ xer_type_encoder_f NativeEnumerated_encode_xer;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
+jer_type_decoder_f NativeEnumerated_decode_jer;
 jer_type_encoder_f NativeEnumerated_encode_jer;
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 

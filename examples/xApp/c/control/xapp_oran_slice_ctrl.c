@@ -266,7 +266,8 @@ int main(int argc, char *argv[])
   init_xapp_api(&args);
   sleep(1);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
   assert(nodes.len > 0);
   printf("Connected E2 nodes = %d\n", nodes.len);
 
@@ -303,7 +304,6 @@ int main(int argc, char *argv[])
   while(try_stop_xapp_api() == false)
     usleep(1000);
 
-  free_e2_node_arr(&nodes);
   printf("Test xApp run SUCCESSFULLY\n");
 
 }

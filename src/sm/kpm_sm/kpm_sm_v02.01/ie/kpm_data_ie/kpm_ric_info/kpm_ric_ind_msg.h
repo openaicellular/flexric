@@ -19,16 +19,13 @@ typedef enum {
     END_INDICATION_MESSAGE,
 } format_ind_msg_e;
 
-typedef struct
-{
-    format_ind_msg_e type;
-    union {
-        kpm_ind_msg_format_1_t frm_1;  // 8.2.1.4.1
-        kpm_ind_msg_format_2_t frm_2;  // 8.2.1.4.2
-        kpm_ind_msg_format_3_t frm_3;  // 8.2.1.4.3
-    };
-    
-    
+typedef struct {
+  format_ind_msg_e type;
+  union {
+    kpm_ind_msg_format_1_t frm_1; // 8.2.1.4.1
+    kpm_ind_msg_format_2_t frm_2; // 8.2.1.4.2
+    kpm_ind_msg_format_3_t frm_3; // 8.2.1.4.3
+  };
 } kpm_ind_msg_t;
 
 void free_kpm_ind_msg(kpm_ind_msg_t * src);

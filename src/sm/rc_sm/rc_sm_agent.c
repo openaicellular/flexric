@@ -127,7 +127,7 @@ e2sm_rc_func_def_t fill_rc_ran_func_def(sm_rc_agent_t const* sm)
 // E2 Setup and RIC Service Update. 
 //
 static
-subscribe_timer_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
+sm_ag_if_ans_subs_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 {
   assert(sm_agent != NULL);
   sm_rc_agent_t* sm = (sm_rc_agent_t*)sm_agent;
@@ -151,11 +151,10 @@ subscribe_timer_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const sm_
 
   wr_rc.rc.ad[0] = rc_dec_action_def(&sm->enc, data->len_ad, data->action_def);
 
-  sm->base.io.write_subs(&wr_rc);
-
-  subscribe_timer_t timer = {.ms = 0};
-
-  return timer;
+ sm_ag_if_ans_t subs = sm->base.io.write_subs(&wr_rc);
+ assert(subs.type == SUBS_OUTCOME_SM_AG_IF_ANS_V0);
+ assert(subs.subs_out.type == APERIODIC_SUBSCRIPTION_FLRC);
+ return subs.subs_out;
 }
 
 static
