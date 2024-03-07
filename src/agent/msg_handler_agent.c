@@ -197,17 +197,19 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   sm_ag_if_ans_subs_t const subs = sm->proc.on_subscription(sm, &data);
 
   #ifdef PROXY_AGENT
+  subscribe_timer_t const t = subs.per.t;
   printf("[E2-AGENT] asking RAN to create a subscription timer of %ld ms for sm %d.\n", t.ms, ran_func_id);
   ind_event_t e2_ran_sub;
   e2_ran_sub.action_id = sr->action[0].id;
   e2_ran_sub.ric_id = sr->ric_id;
   e2_ran_sub.sm = sm;
+  e2_ran_sub.type = subs.type;
   e2_ran_sub.act_def = t.act_def;
-  if (t.ms > 0){
+  if (subs.type == PERIODIC_SUBSCRIPTION_FLRC){
     // Periodic indication message generated i.e., every 5 ms
     assert(t.ms < 10001 && "Subscription for granularity larger than 10 seconds requested? ");
-    fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
-  } else if (t.ms == 0){
+    fwd_e2_ran_subscription_timer(ag->ran_if, e2_ran_sub, t.ms);
+  } else if (subs.type == APERIODIC_SUBSCRIPTION_FLRC){
     // Aperiodic indication generated i.e., the RAN will generate it via
     // void async_event_agent_api(uint32_t ric_req_id, void* ind_data);
     fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
