@@ -199,7 +199,7 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   #ifdef PROXY_AGENT
   subscribe_timer_t const t = subs.per.t;
   printf("[E2-AGENT] asking RAN to create a subscription timer of %ld ms for sm %d.\n", t.ms, ran_func_id);
-  ind_event_t e2_ran_sub;
+  ind_event_t e2_ran_sub = {0};
   e2_ran_sub.action_id = sr->action[0].id;
   e2_ran_sub.ric_id = sr->ric_id;
   e2_ran_sub.sm = sm;
@@ -226,6 +226,7 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   ev.ric_id = sr->ric_id;
   ev.sm = sm;
   ev.type = subs.type;
+  printf("handle sub request ag: get type %d\n", ev.type);
 
   if(ev.type == PERIODIC_SUBSCRIPTION_FLRC){
     subscribe_timer_t const t = subs.per.t;
