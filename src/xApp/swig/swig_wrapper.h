@@ -12,6 +12,8 @@
 #include "../../lib/e2ap/e2ap_plmn_wrapper.h"
 #include "../../lib/e2ap/e2ap_ran_function_wrapper.h"
 #include "../../lib/3gpp/ie/e2ap_gnb_id.h"
+#include "../e2_node_arr_xapp.h"
+#include "../e2_node_connected_xapp.h"
 
 #include "../../sm/mac_sm/ie/mac_data_ie.h"
 #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
