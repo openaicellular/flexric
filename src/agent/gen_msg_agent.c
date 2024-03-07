@@ -103,7 +103,7 @@ e2_setup_request_t gen_setup_request_v2(e2_agent_t* ag)
 
   // E2 Node Component Configuration Addition List
   arr_node_component_config_add_t arr = {0};
-  ag->read_setup_ran(&arr);
+  ag->read_setup_ran(&arr, ag->global_e2_node_id.type);
   // Move ownership
   sr.len_cca = arr.len_cca;
   sr.comp_conf_add = arr.cca;

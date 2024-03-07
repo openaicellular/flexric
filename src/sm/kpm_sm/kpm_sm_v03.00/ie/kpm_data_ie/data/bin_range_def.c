@@ -22,8 +22,11 @@ void free_kpm_bin_range_def(bin_range_def_t* src)
 
 bool eq_kpm_bin_range_def(bin_range_def_t const * m0, bin_range_def_t const * m1)
 {
-  assert(m0 != NULL);
-  assert(m1 != NULL);
+  if(m0 == m1)
+    return true;
+
+  if(m0 == NULL || m1 == NULL)
+    return false;
 
   // Bin X
   if (m0->bin_x_lst_len != m1->bin_x_lst_len)

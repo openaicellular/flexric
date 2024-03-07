@@ -70,7 +70,7 @@ bool encode(byte_array_t* b, const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
   assert(b->buf != NULL);
- // xer_fprint(stderr, &asn_DEF_E2AP_PDU, pdu);
+ // xer_fprint_e2ap_v1_01(stderr, &asn_DEF_E2AP_PDU, pdu);
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2AP_PDU, pdu, b->buf, b->len);
   assert(er.encoded < (ssize_t) b->len);
@@ -106,7 +106,8 @@ E2nodeComponentType_t get_e2nodeComponentType(ngran_node_t type)
 static inline
 OCTET_STRING_t copy_ba_to_ostring(byte_array_t ba)
 {
-  OCTET_STRING_t os = { .size = ba.len }; 
+  assert(ba.buf != NULL && ba.len > 0);
+  OCTET_STRING_t os = { .size = ba.len };
   os.buf = malloc(ba.len);
   memcpy(os.buf, ba.buf, ba.len);
   return os;

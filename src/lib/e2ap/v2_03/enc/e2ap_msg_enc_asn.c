@@ -69,7 +69,7 @@ bool encode(byte_array_t* b, const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
   assert(b->buf != NULL);
-  //xer_fprint(stderr, &asn_DEF_E2AP_PDU, pdu);
+  //xer_fprint_e2ap_v2_03(stderr, &asn_DEF_E2AP_PDU, pdu);
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2AP_PDU, pdu, b->buf, b->len);
   assert(er.encoded < (ssize_t) b->len);
@@ -580,7 +580,7 @@ struct E2AP_PDU* e2ap_enc_subscription_response_asn_pdu(const ric_subscription_r
     ai->id = ProtocolIE_ID_id_RICaction_Admitted_Item;
 
     // Check ASN definition to see the ignore
-    ai->criticality =  Criticality_ignore;
+    ai->criticality = Criticality_ignore;
     ai->value.present = RICaction_Admitted_ItemIEs__value_PR_RICaction_Admitted_Item;
     const ric_action_admitted_t* src = &sr->admitted[i];
     ai->value.choice.RICaction_Admitted_Item.ricActionID = src->ric_act_id; 
@@ -1521,7 +1521,7 @@ E2AP_PDU_t* e2ap_enc_setup_request_asn_pdu(const e2_setup_request_t* sr)
     e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
     const e2ap_plmn_t* plmn = &sr->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
-    // ToDo: Take care of the unused bits
+    // ToDo: consider unused bits
     MACRO_ENB_ID_TO_BIT_STRING(sr->id.nb_id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.eNB = e2enb;
     rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
@@ -1825,7 +1825,7 @@ struct E2AP_PDU* e2ap_enc_setup_response_asn_pdu(const e2_setup_response_t* sr)
       ie->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeF1 = calloc(1, sizeof(struct E2nodeComponentInterfaceF1));
       assert(ie->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeF1 != NULL && "Memory exhausted");
 
-      asn_long2INTEGER(&ie->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, src->e2_node_comp_id.f1_gnb_du_id);
+      asn_long2INTEGER_e2ap_v2_03(&ie->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, src->e2_node_comp_id.f1_gnb_du_id);
 
       //E2nodeComponentConfiguration_t e2nodeComponentConfiguration;
       ie->e2nodeComponentConfigurationAck.updateOutcome	= src->e2_node_comp_conf_ack.outcome;	
@@ -2303,8 +2303,7 @@ E2AP_PDU_t* e2ap_enc_service_update_failure_asn_pdu(const ric_service_update_fai
     crit_diag_ie->value.present = RICserviceUpdateFailure_IEs__value_PR_CriticalityDiagnostics; 
     assert(0!=0 && "Not implememnted");
 //    crit_diag_ie->value.choice.CriticalityDiagnostics = *crit_diag;
-    rc =
-      ASN_SEQUENCE_ADD(&out->protocolIEs.list, update_failure);
+    rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, update_failure);
     assert(rc == 0);
   }
   return pdu;

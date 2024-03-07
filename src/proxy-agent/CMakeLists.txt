@@ -67,13 +67,8 @@ if(E2AP_ENCODING STREQUAL "ASN")
               $<TARGET_OBJECTS:e2ap_msg_dec_obj>
               $<TARGET_OBJECTS:e2ap_msg_free_obj>
               $<TARGET_OBJECTS:e2_ngran_obj>
-              $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-              $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-              $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
               $<TARGET_OBJECTS:sm_common_ie_obj>
-              $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-              $<TARGET_OBJECTS:sm_common_enc_asn_obj>
-              $<TARGET_OBJECTS:e2sm_common_ie_obj>
+              $<TARGET_OBJECTS:3gpp_derived_ie_obj>
               )
 else()
   message(FATAL_ERROR "Error, while compiling the agent" )

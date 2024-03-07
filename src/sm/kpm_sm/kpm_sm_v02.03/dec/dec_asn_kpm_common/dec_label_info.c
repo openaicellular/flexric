@@ -19,7 +19,6 @@ label_info_lst_t kpm_dec_label_info_asn(const MeasurementLabel_t * meas_label_as
       *label_info.noLabel = TRUE_ENUM_VALUE;
     }
 
- 
     if (meas_label_asn->plmnID != NULL) {
         label_info.plmn_id = calloc(1, sizeof( e2sm_plmn_t ));  
         assert(label_info.plmn_id != NULL && "Memory exhausted");

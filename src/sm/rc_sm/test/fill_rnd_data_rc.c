@@ -1,5 +1,6 @@
 #include "fill_rnd_data_rc.h"
 
+#include "../rc_sm_id.h"
 #include "../ie/ir/ran_param_struct.h"
 #include "../ie/ir/ran_param_list.h"
 
@@ -2266,8 +2267,9 @@ ran_function_name_t fill_rc_ran_func_name(void)
     // RAN Function Short Name
     // Mandatory
     // PrintableString [1-150]
-    const char name[] = "ORAN-E2SM-RC";
-    dst.name = cp_str_to_ba(name);
+    dst.name.buf = calloc(strlen(SM_RAN_CTRL_SHORT_NAME) + 1, sizeof(uint8_t));
+    memcpy(dst.name.buf, SM_RAN_CTRL_SHORT_NAME, strlen(SM_RAN_CTRL_SHORT_NAME));
+    dst.name.len = strlen(SM_RAN_CTRL_SHORT_NAME);
 
     // RAN Function Service Model OID
     // Mandatory
@@ -2278,8 +2280,9 @@ ran_function_name_t fill_rc_ran_func_name(void)
     //enterprise(1) 53148 e2(1)
     // version1 (1) e2sm(2) e2sm-RC-
     // IEs (3)
-    const char oid[] = "1.3.6.1.4.1.53148.1.1.2.3"; 
-    dst.oid = cp_str_to_ba(oid);
+    dst.oid.buf = calloc(strlen(SM_RAN_CTRL_OID) + 1, sizeof(uint8_t));
+    memcpy(dst.oid.buf, SM_RAN_CTRL_OID, strlen(SM_RAN_CTRL_OID));
+    dst.oid.len = strlen(SM_RAN_CTRL_OID);
 
     // RAN Function Description
     // Mandatory
@@ -2293,8 +2296,9 @@ ran_function_name_t fill_rc_ran_func_name(void)
     //- Execution of policies that may result in change of
     //RAN control behavior 
 
-    const char description[] = "RAN Control"; 
-    dst.description = cp_str_to_ba(description);
+    dst.description.buf = calloc(strlen(SM_RAN_CTRL_DESCRIPTION) + 1, sizeof(uint8_t));
+    memcpy(dst.description.buf, SM_RAN_CTRL_DESCRIPTION, strlen(SM_RAN_CTRL_DESCRIPTION));
+    dst.description.len = strlen(SM_RAN_CTRL_DESCRIPTION);
 
     // RAN Function Instance
     // Optional

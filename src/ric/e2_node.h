@@ -30,7 +30,6 @@
 
 
 typedef struct{
-
   global_e2_node_id_t id;
 
   accepted_ran_function_t* accepted;

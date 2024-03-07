@@ -71,7 +71,7 @@ bool encode(byte_array_t* b, const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
   assert(b->buf != NULL);
- // xer_fprint(stderr, &asn_DEF_E2AP_PDU, pdu);
+ // xer_fprint_e2ap_v3_01(stderr, &asn_DEF_E2AP_PDU, pdu);
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2AP_PDU, pdu, b->buf, b->len);
   assert(er.encoded < (ssize_t) b->len);
@@ -1722,7 +1722,7 @@ E2AP_PDU_t* e2ap_enc_setup_failure_asn_pdu(const e2_setup_failure_t* sf)
   //Transport Layer Information. Optional
   if(sf->tl_info != NULL){
     E2setupFailureIEs_t* transport_layer = calloc(1, sizeof( E2setupFailureIEs_t)); 
-    transport_layer->id =  ProtocolIE_ID_id_TNLinformation; 
+    transport_layer->id = ProtocolIE_ID_id_TNLinformation;
     transport_layer->criticality = Criticality_ignore;
     transport_layer->value.present = E2setupFailureIEs__value_PR_TNLinformation; 
     transport_layer->value.choice.TNLinformation.tnlAddress = copy_ba_to_bit_string(sf->tl_info->address);
@@ -2576,13 +2576,15 @@ byte_array_t e2ap_enc_removal_request_asn(const e2_removal_request_t* rr)
   free_pdu(pdu);
   return ba;
 }
+
 byte_array_t e2ap_enc_removal_request_asn_msg(const e2ap_msg_t* msg)
 {
   assert(msg != NULL);
   assert(msg->type == E2_REMOVAL_REQUEST);
   return e2ap_enc_removal_request_asn(&msg->u_msgs.e2_rem_req);
 }
-struct E2AP_PDU* e2ap_enc_removal_request_asn_pdu(const e2_removal_request_t *rr)
+
+struct E2AP_PDU* e2ap_enc_removal_request_asn_pdu(const e2_removal_request_t* rr)
 {
   assert(rr != NULL);
   assert(0 !=0 && "Not implemented");
@@ -2985,7 +2987,7 @@ struct E2AP_PDU* e2ap_enc_e42_subscription_request_asn_pdu(const e42_ric_subscri
     e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
     const e2ap_plmn_t* plmn = &e42_sr->id.plmn;
     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
-    // ToDo: consider unused bits 
+    // ToDo: consider unused bits
     MACRO_ENB_ID_TO_BIT_STRING(e42_sr->id.nb_id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
     setup_rid->value.choice.GlobalE2node_ID.choice.eNB = e2enb;
     rc = ASN_SEQUENCE_ADD(&out->protocolIEs.list, setup_rid);
@@ -3204,7 +3206,7 @@ struct E2AP_PDU* e2ap_enc_e42_setup_response_asn_pdu(const e42_setup_response_t*
       e2enb->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
       const e2ap_plmn_t* plmn = &src_id->plmn;
       MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_len, &e2enb->global_eNB_ID.pLMN_Identity);
-      // ToDo: consider unused biits
+      // ToDo: consider unused bits
       MACRO_ENB_ID_TO_BIT_STRING(src_id->nb_id.nb_id, &e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID);
 
       conn_item->value.choice.GlobalE2node_ID.present = GlobalE2node_ID_PR_eNB;

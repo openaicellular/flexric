@@ -37,7 +37,7 @@ typedef struct
   const char* dir_path;
 
   // Registered SMs
-  assoc_rb_tree_t sm_ds; // key: ran_func_id, value: sm_agent_t* 
+  assoc_rb_tree_t sm_ds; // key: ran_func_id, value: sm_ric_t* 
 
 } plugin_ric_t;
 

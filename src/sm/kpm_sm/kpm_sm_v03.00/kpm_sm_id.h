@@ -31,15 +31,12 @@ static const uint16_t SM_KPM_ID = 2;
 static const uint16_t SM_KPM_REV = 3; 
 
 // O-RAN.WG3.E2SM-KPM-R003-v03.00, $7.2
-__attribute__((unused)) static
-const char SM_KPM_STR[] = "ORAN-E2SM-KPM-v03.00";
+#define SM_KPM_STR "ORAN-E2SM-KPM"
 
-__attribute__((unused)) static
-const char SM_KPM_DESCRIPTION[] = "KPM Monitor";
+#define SM_KPM_DESCRIPTION "KPM Monitor"
 
 // iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) oran(53148) e2(1) version3(3) e2sm(2) e2sm-KPMMON-IEs (2)
 // FYI, ORAN identification `O-RAN Alliance e.V.`, is associated to number 53148.
-__attribute__((unused)) static
-const char SM_KPM_OID[] = "1.3.6.1.4.1.53148.1.3.2.2";
+#define SM_KPM_OID "1.3.6.1.4.1.53148.1.3.2.2"
 
 #endif

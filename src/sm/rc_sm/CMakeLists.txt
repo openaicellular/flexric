@@ -15,7 +15,6 @@ set(SM_ENCODING_RC_SRC
   ie/rc_data_ie.c 
   )
 
-
 if(SM_ENCODING_RC STREQUAL "PLAIN")
   message(FATAL_ERROR "RC SM FB not implemented")
 elseif(SM_ENCODING_RC STREQUAL "ASN" )
@@ -33,11 +32,11 @@ elseif(SM_ENCODING_RC STREQUAL "ASN" )
     $<TARGET_OBJECTS:e2_conv_obj>
 
     $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-    $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-    $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
+    $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj_rc>
+    $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj_rc>
     $<TARGET_OBJECTS:sm_common_ie_obj>
-    $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-    $<TARGET_OBJECTS:sm_common_enc_asn_obj>
+    $<TARGET_OBJECTS:sm_common_dec_asn_obj_rc>
+    $<TARGET_OBJECTS:sm_common_enc_asn_obj_rc>
     )
 
 
@@ -45,17 +44,15 @@ elseif(SM_ENCODING_RC STREQUAL "ASN" )
   add_library(rc_sm SHARED ${SM_ENCODING_RC_SRC_ASN})
 
   target_include_directories(rc_sm PRIVATE "ie/asn")
-  target_compile_options(rc_sm  PRIVATE "-DASN_DISABLE_OER_SUPPORT")
-  target_compile_options(rc_sm  PRIVATE "-DASN_DISABLE_JER_SUPPORT")
-  target_compile_options(rc_sm PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fvisibility=hidden )
+  target_compile_options(rc_sm PRIVATE "-DASN_DISABLE_OER_SUPPORT" "-DASN_DISABLE_JER_SUPPORT" )
+  target_compile_options(rc_sm PRIVATE -fPIC -Wno-missing-field-initializers -Wno-unused-parameter -fvisibility=hidden)
   target_link_libraries(rc_sm PRIVATE -lm)  
 
 
   # Static
   add_library(rc_sm_static STATIC ${SM_ENCODING_RC_SRC_ASN})
   target_include_directories(rc_sm_static PRIVATE "ie/asn")
-  target_compile_options(rc_sm_static PRIVATE "-DASN_DISABLE_OER_SUPPORT")
-  target_compile_options(rc_sm_static PRIVATE "-DASN_DISABLE_JER_SUPPORT")
+  target_compile_options(rc_sm_static PRIVATE "-DASN_DISABLE_JER_SUPPORT" "-DASN_DISABLE_OER_SUPPORT")
   target_compile_options(rc_sm_static PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fvisibility=hidden )
   target_link_libraries(rc_sm_static PRIVATE -lm)  
 

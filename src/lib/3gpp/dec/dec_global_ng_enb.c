@@ -1,7 +1,6 @@
 #include <assert.h>
 
 #include "../../../util/conversions.h"
-
 #include "dec_global_ng_enb.h"
 
 global_ng_enb_id_t dec_global_ng_enb_asn(const GlobalNgENB_ID_t * global_ng_enb_id_asn)
