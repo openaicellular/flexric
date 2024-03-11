@@ -423,7 +423,7 @@ static void ran_handle_notif_ctrl(ran_if_t *ran_if, e2_agent_t *e2_if, const not
 {
     (void)e2_if;
 
-    const char *p = ran_if->ser->encode_ctrl(msg_id, (const sm_ag_if_wr_ctrl_t)notif_event->ctrl_ev.req);
+    const char *p = ran_if->ser->encode_ctrl(msg_id, (const sm_ag_if_wr_ctrl_t)notif_event->ctrl_ev.req, &get_proxy_agent()->ranConfig);
     /*
      * Eventhough it extract and free from notif ring.
      * There are pointer reference nested inside the structure

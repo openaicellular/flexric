@@ -110,12 +110,17 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
             // Support only 5G cell
             assert(CHOICE_Neighbor_cell->sz_ran_param_struct == 1 && "Support only 5G cell");
             ran_param_struct_t* nr_cell = CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_val.strct;
+            // NR CGI
+            // TS 38.473
+            // 9.3.1.29
+            char* nr_cgi = copy_ba_to_str(&nr_cell->ran_param_struct[0].ran_param_val.flag_false->octet_str_ran);
+            printf("UE idx %zu - Neighbor Cell idx %zu, NR Cell ID %s \n", i, cell_idx, nr_cgi);
+            sscanf(nr_cgi, "%ld", &LST_NR_CELL_ID[cell_idx + 1]);
             // NR PCI
             // TS 38.473
             // 9.3.1.29
-            int64_t nr_pci = nr_cell->ran_param_struct[0].ran_param_val.flag_false->int_ran;
-            printf("UE idx %zu - Neighbor Cell idx %zu, NR Cell ID %ld \n", i, cell_idx, nr_pci);
-            LST_NR_CELL_ID[cell_idx + 1] = nr_pci; // From 1->N: neighbor cell
+            int64_t nr_pci = nr_cell->ran_param_struct[1].ran_param_val.flag_false->int_ran;
+            printf("UE idx %zu - Neighbor Cell idx %zu, NR PCI %ld \n", i, cell_idx, nr_pci);
           }
         }
       }

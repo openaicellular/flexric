@@ -544,7 +544,7 @@ static bool json_decode_ran_config_get(const ran_msg_t *in_msg, ran_config_t *ou
       if (json_object_object_get_ex(item, "plmn", &ncgi_plmn))
         out->nr_cells[idx].ncgi.plmn_id = conv_plmnstr_to_e2sm_plmnt(json_object_get_string(ncgi_plmn));
       if (json_object_object_get_ex(item, "nci", &ncgi_id))
-        out->nr_cells[idx].ncgi.nr_cell_id = json_object_get_int(gnb_id); // TODO: this is wrong
+        out->nr_cells[idx].ncgi.nr_cell_id = json_object_get_int(ncgi_id);
     }
 
     // parse optional object `connected_mobility`
@@ -609,7 +609,7 @@ static bool json_decode_ran_config_get(const ran_msg_t *in_msg, ran_config_t *ou
           if (json_object_object_get_ex(ncgi, "plmn", &ncgi_plmn))
             out->nr_cells[idx].ncell_list[ncell_idx].ncgi.plmn_id = conv_plmnstr_to_e2sm_plmnt(json_object_get_string(ncgi_plmn));
           if (json_object_object_get_ex(ncgi, "nci", &ncgi_id))
-            out->nr_cells[idx].ncell_list[ncell_idx].ncgi.nr_cell_id = json_object_get_int(gnb_id); // TODO: this is wrong
+            out->nr_cells[idx].ncell_list[ncell_idx].ncgi.nr_cell_id = json_object_get_int(ncgi_id);
         }
       }
     }  
@@ -828,9 +828,42 @@ static const char *json_encode_ctrl_mac(int msg_id, const mac_ctrl_req_data_t ct
   return enc_gbuf;
 }
 
-static const char *json_encode_ctrl_rc(int msg_id, const rc_ctrl_req_data_t ctrl_msg)
+static int get_pci(const byte_array_t* nr_cgi, const ran_config_t ran_config){
+  char* nr_cgi_str = copy_ba_to_str(nr_cgi);
+  defer({free(nr_cgi_str);};);
+  int nr_id = atoi(nr_cgi_str);
+  for (size_t i = 0; i < ran_config.len_nr_cell; i++){
+    nr_cell_conf_t cur_cell = ran_config.nr_cells[i];
+    if(cur_cell.ncgi.nr_cell_id == (uint64_t)nr_id){ // Compare nr_cgi
+      return cur_cell.n_id_nrcell;
+    } else {
+      for (size_t j = 0; j < cur_cell.len_ncell; j++){
+        if (cur_cell.ncell_list[j].ncgi.nr_cell_id == (uint64_t)nr_id)
+          return cur_cell.ncell_list[j].n_id_nrcell;
+      }
+    }
+  }
+  return 0;
+}
+
+static int get_ssb(const int n_id_nrcell, const ran_config_t ran_config){
+  for(size_t cell_idx = 0; cell_idx < ran_config.len_nr_cell; cell_idx++){
+    nr_cell_conf_t cur_cell = ran_config.nr_cells[cell_idx];
+    if (cur_cell.n_id_nrcell == n_id_nrcell){ // Compare pci
+        return cur_cell.ssb_nr_arfcn;
+    } else {
+      for (size_t j = 0; j < cur_cell.len_ncell; j++){
+        if (cur_cell.ncell_list[j].n_id_nrcell == n_id_nrcell)
+          return cur_cell.ncell_list[j].ssb_nr_arfcn;
+      }
+    }
+  }
+  return 0;
+}
+
+static const char *json_encode_ctrl_rc(int msg_id, const rc_ctrl_req_data_t ctrl_msg, const ran_config_t ran_config)
 {
-    char* pci;
+    char pci[10];
     if (ctrl_msg.hdr.format == FORMAT_1_E2SM_RC_CTRL_HDR){
         if(ctrl_msg.hdr.frmt_1.ric_style_type == 3 && ctrl_msg.hdr.frmt_1.ctrl_act_id == Handover_control_7_6_4_1){
             e2sm_rc_ctrl_msg_frmt_1_t const *msg = &ctrl_msg.msg.frmt_1;
@@ -859,8 +892,7 @@ static const char *json_encode_ctrl_rc(int msg_id, const rc_ctrl_req_data_t ctrl
                    "NULL CHOICE_target_cell->ran_param_val.strct->ran_param_struct");
 
             seq_ran_param_t *cell = &choice_target_cell->ran_param_val.strct->ran_param_struct[0];
-            // TODO: Add 4g cell id
-//            if (cell->ran_param_id == NR_cell_8_4_4_1) {
+
             assert(cell->ran_param_id == NR_cell_8_4_4_1 && "wrong NR_cell id");
             assert(cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong NR_cell type");
             assert(cell->ran_param_val.strct != NULL && "NULL nr_cell->ran_param_val.strct");
@@ -869,6 +901,7 @@ static const char *json_encode_ctrl_rc(int msg_id, const rc_ctrl_req_data_t ctrl
             assert(cell->ran_param_val.strct->ran_param_struct != NULL &&
                    "NULL NR_cell->ran_param_val.strct->ran_param_struct");
 
+            // Support only 5G
             seq_ran_param_t *nr_cgi = &cell->ran_param_val.strct->ran_param_struct[0];
             assert(nr_cgi->ran_param_id == NR_CGI_8_4_4_1 && "wrong NR_CGI id");
             assert(nr_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE &&
@@ -876,73 +909,32 @@ static const char *json_encode_ctrl_rc(int msg_id, const rc_ctrl_req_data_t ctrl
             assert(nr_cgi->ran_param_val.flag_false != NULL && "NULL NR_CGI->ran_param_val.flag_false");
             assert(nr_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
                    "wrong NR_CGI->ran_param_val.flag_false type");
-            pci = copy_ba_to_str(&nr_cgi->ran_param_val.flag_false->bit_str_ran);
-//            } else {
-//                assert(cell->ran_param_id == E_ULTRA_Cell_8_4_4_1 && "wrong id");
-//                assert(cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong e_ultra_cell type");
-//                assert(cell->ran_param_val.strct != NULL && "NULL e_ultra_cell->ran_param_val.strct");
-//                assert(cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
-//                       "wrong e_ultra_cell->ran_param_val.strct->sz_ran_param_struct");
-//                assert(cell->ran_param_val.strct->ran_param_struct != NULL &&
-//                       "NULL e_ultra_cell->ran_param_val.strct->ran_param_struct");
-//
-//                seq_ran_param_t *e_ultra_cgi = &cell->ran_param_val.strct->ran_param_struct[0];
-//                assert(e_ultra_cgi->ran_param_id == E_ULTRA_CGI_8_4_4_1 && "wrong E_ULTRA_CGI id");
-//                assert(e_ultra_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE &&
-//                       "wrong E_ULTRA_CGI type");
-//                assert(e_ultra_cgi->ran_param_val.flag_false != NULL && "NULL E_ULTRA_CGI->ran_param_val.flag_false");
-//                assert(e_ultra_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
-//                       "wrong E_ULTRA_CGI->ran_param_val.flag_false type");
-//                pci = copy_ba_to_str(&e_ultra_cgi->ran_param_val.flag_false->bit_str_ran);
-//            }
+            sprintf(pci, "%d", get_pci(&nr_cgi->ran_param_val.flag_false->bit_str_ran, ran_config));
 
             ue_id_e2sm_t ue_id = ctrl_msg.hdr.frmt_1.ue_id;
             assert(ue_id.type == GNB_UE_ID_E2SM && "Wrong ue_id_e2sm type");
             //assert(ue_id.gnb.ran_ue_id != NULL && "NULL GNB_RAN_UE_ID");
 
-            // Assume control will go after indication message;
-            ran_ind_t ws_ind = get_ringbuffer_data();
             int rc = 0;
             if (ue_id.gnb.ran_ue_id != NULL) {
-              int n_id_nrcell = atoi(pci);
-              for(size_t cell_idx = 0; cell_idx < ws_ind.ran_config.len_nr_cell; cell_idx++){
-                nr_cell_conf_t cur_cell = ws_ind.ran_config.nr_cells[cell_idx];
-                assert(cur_cell.len_ncell > 0 && "Encoding control - neighbor cell list <= 0");
-                for(size_t ne_cell_idx = 0; ne_cell_idx < ws_ind.ran_config.len_nr_cell; ne_cell_idx++){
-                  amr_ncell_list_t ne_cur_cell = cur_cell.ncell_list[ne_cell_idx];
-                  if (ne_cur_cell.n_id_nrcell == n_id_nrcell){
-                    rc = snprintf(enc_gbuf,
-                                  sizeof(enc_gbuf),
-                                  "{\"message\":\"handover\",\"ran_ue_id\":%ld,\"pci\":%s,\"ssb_nr_arfcn\":%d,\"message_id\":\"%d\"}",
-                                  *ue_id.gnb.ran_ue_id, pci,
-                                  ne_cur_cell.ssb_nr_arfcn, msg_id);
-                    if (rc >= (int)sizeof(enc_gbuf))
-                    {
-                      lwsl_err("hit hard limit on internal buffer for command 'handover'\n");
-                      return NULL;
-                    }
-                  }
-                }
-              }
-              if (rc == 0){
-                // If no pci match, send a message that return failure.
-                rc = snprintf(enc_gbuf,
-                              sizeof(enc_gbuf),
-                              "{\"message\":\"handover\",\"message_id\":\"%d\"}",
-                              msg_id);
-                if (rc >= (int)sizeof(enc_gbuf))
-                {
-                  lwsl_err("hit hard limit on internal buffer for command 'handover'\n");
-                  return NULL;
-                }
+              int ssb_nr_arfcn = get_ssb(atoi(pci), ran_config);
+              rc = snprintf(enc_gbuf,
+                            sizeof(enc_gbuf),
+                            "{\"message\":\"handover\",\"ran_ue_id\":%ld,\"pci\":%s,\"ssb_nr_arfcn\":%d,\"message_id\":\"%d\"}",
+                            *ue_id.gnb.ran_ue_id, pci,
+                            ssb_nr_arfcn, msg_id);
+              if (rc >= (int)sizeof(enc_gbuf))
+              {
+                lwsl_err("hit hard limit on internal buffer for command 'handover'\n");
+                return NULL;
               }
             } else {
               // decrease cell gain specific cell
               // let UEs to handover existing cell/gnb by themselves
-              assert(ws_ind.ran_config.len_nr_cell == 1 && "only support to turn off one cell's gain");
+              assert(ran_config.len_nr_cell == 1 && "only support to turn off one cell's gain");
               int n_id_nrcell = atoi(pci);
-              if (ws_ind.ran_config.nr_cells[0].n_id_nrcell == n_id_nrcell) {
-                int cell_id = ws_ind.ran_config.nr_cells[0].cell_id;
+              if (ran_config.nr_cells[0].n_id_nrcell == n_id_nrcell) {
+                int cell_id = ran_config.nr_cells[0].cell_id;
                 rc = snprintf(enc_gbuf,
                               sizeof(enc_gbuf),
                               "{\"message\":\"cell_gain\",\"cell_id\":%d,\"gain\":-200,\"message_id\":\"%d\"}",
@@ -956,7 +948,6 @@ static const char *json_encode_ctrl_rc(int msg_id, const rc_ctrl_req_data_t ctrl
                 return NULL;
               }
             }
-            free(pci);
             return enc_gbuf;
         }
     }
@@ -964,7 +955,7 @@ static const char *json_encode_ctrl_rc(int msg_id, const rc_ctrl_req_data_t ctrl
 }
 
 // Copy code to encode ctrl
-static const char *json_encode_ctrl(int msg_id, const  sm_ag_if_wr_ctrl_t write_msg)
+static const char *json_encode_ctrl(int msg_id, const sm_ag_if_wr_ctrl_t write_msg, const ran_config_t* ran_config)
 {
  /* 
   * caveats: we go only or a modified MAC service model, i.e. like its implementation by CCC, 
@@ -975,7 +966,7 @@ static const char *json_encode_ctrl(int msg_id, const  sm_ag_if_wr_ctrl_t write_
         case MAC_CTRL_REQ_V0:
             return json_encode_ctrl_mac(msg_id, write_msg.mac_ctrl);
         case RAN_CONTROL_CTRL_V1_03:
-            return json_encode_ctrl_rc(msg_id, write_msg.rc_ctrl);
+            return json_encode_ctrl_rc(msg_id, write_msg.rc_ctrl, *ran_config);
         default:
             return NULL;
     }

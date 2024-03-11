@@ -295,7 +295,7 @@ ran_param_struct_t fill_neighbor_cell_item(amr_ncell_list_t cur_cell){
   res.ran_param_struct[0].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t ));
   assert(res.ran_param_struct[0].ran_param_val.strct != NULL && "Memory exhausted");
   ran_param_struct_t* CHOICE_Neighbor_cell = res.ran_param_struct[0].ran_param_val.strct;
-  CHOICE_Neighbor_cell->sz_ran_param_struct = 1;
+  CHOICE_Neighbor_cell->sz_ran_param_struct = 1; // Support only 5G
   CHOICE_Neighbor_cell->ran_param_struct = calloc(1, sizeof(seq_ran_param_t ));
   assert(CHOICE_Neighbor_cell->ran_param_struct != NULL && "Memory exhausted");
   // NR Cell
@@ -306,17 +306,31 @@ ran_param_struct_t fill_neighbor_cell_item(amr_ncell_list_t cur_cell){
   CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t ));
   assert(CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_val.strct != NULL && "Memory exhausted");
   ran_param_struct_t* nr_cell = CHOICE_Neighbor_cell->ran_param_struct->ran_param_val.strct;
-  nr_cell->sz_ran_param_struct = 1; // Support only 5G
-  nr_cell->ran_param_struct = calloc(1, sizeof(seq_ran_param_t ));
+  nr_cell->sz_ran_param_struct = 2;
+  nr_cell->ran_param_struct = calloc(2, sizeof(seq_ran_param_t ));
   assert(nr_cell->ran_param_struct != NULL && "Memory exhausted");
-  // NR PCI
+  // NR CGI
   // 8.1.1.1
   // 10001
-  nr_cell->ran_param_struct[0].ran_param_id = 10002;
+  // Bug from O-RAN:
+  // Both 3GPP and O-RAN definition contains structural type
+  // However, NR CGI is defined as element => replace nr cell identity as NR CGI
+  nr_cell->ran_param_struct[0].ran_param_id = 10001;
   nr_cell->ran_param_struct[0].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
   nr_cell->ran_param_struct[0].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(nr_cell->ran_param_struct[0].ran_param_val.flag_false != NULL && "Memory exhausted");
-  ran_parameter_value_t* nr_pci = nr_cell->ran_param_struct[0].ran_param_val.flag_false;
+  char nci[10];
+  sprintf(nci, "%d", (int)cur_cell.ncgi.nr_cell_id); // 36 bits
+  nr_cell->ran_param_struct[0].ran_param_val.flag_false->type = OCTET_STRING_RAN_PARAMETER_VALUE;
+  nr_cell->ran_param_struct[0].ran_param_val.flag_false->bit_str_ran = cp_str_to_ba(nci);
+  // NR PCI
+  // 8.1.1.1
+  // 10002
+  nr_cell->ran_param_struct[1].ran_param_id = 10002;
+  nr_cell->ran_param_struct[1].ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  nr_cell->ran_param_struct[1].ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  assert(nr_cell->ran_param_struct[1].ran_param_val.flag_false != NULL && "Memory exhausted");
+  ran_parameter_value_t* nr_pci = nr_cell->ran_param_struct[1].ran_param_val.flag_false;
   nr_pci->type = INTEGER_RAN_PARAMETER_VALUE;
   nr_pci->int_ran = cur_cell.n_id_nrcell;
 
@@ -355,8 +369,8 @@ seq_ran_param_t fill_rc_value(size_t ue_index, const ran_ind_t* ws_ind, const pa
         seq_ran_param.ran_param_val.type= ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
         for(size_t i=0; i < ws_ind->ran_config.len_nr_cell; i++){
           if (cur_ue.cells[0].cell_id == ws_ind->ran_config.nr_cells[i].cell_id){
-            char val[50];
-            sprintf(val, "%d", ws_ind->ran_config.nr_cells[i].n_id_nrcell);
+            char val[10];
+            sprintf(val, "%d", (int)ws_ind->ran_config.nr_cells[i].ncgi.nr_cell_id);
             byte_array_t ba = cp_str_to_ba(val);
             seq_ran_param.ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
             assert(seq_ran_param.ran_param_val.flag_false != NULL && "Memory exhausted");
