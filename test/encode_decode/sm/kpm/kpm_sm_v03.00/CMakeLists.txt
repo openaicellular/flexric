@@ -22,5 +22,4 @@ target_compile_options(test_enc_dec_kpm_sm PRIVATE -Wno-missing-field-initialize
 ### CTest 
 ####
 enable_testing()
-add_test(Unit_test_enc_dec_kpm_sm_v03.00 test_enc_dec_kpm_sm)
-
+add_test(Unit_test_enc_dec_KPM_v3_00 test_enc_dec_kpm_sm)

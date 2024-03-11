@@ -21,4 +21,4 @@ target_compile_definitions(test_kpm_sm PUBLIC ${SM_ENCODING_KPM})
 target_link_libraries(test_kpm_sm PUBLIC kpm_sm_static -pthread -lm)
 
 enable_testing()
-add_test(Unit_test_KPM test_kpm_sm)
+add_test(Unit_test_KPM_v2_03 test_kpm_sm)

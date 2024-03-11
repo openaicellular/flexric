@@ -21,4 +21,4 @@ target_compile_definitions(test_gtp_sm PUBLIC ${SM_ENCODING_GTP} ${E2AP_VERSION}
 target_link_libraries(test_gtp_sm PUBLIC gtp_sm_static -pthread)
 
 enable_testing()
-add_test(Unit_test_GTP test_gtp_sm)  
+add_test(Unit_test_GTP_SM test_gtp_sm)

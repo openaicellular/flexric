@@ -24,4 +24,4 @@ target_compile_definitions(test_slice_sm PUBLIC ${SM_ENCODING_SLICE})
 target_link_libraries(test_slice_sm PUBLIC slice_sm_static -pthread)
 
 enable_testing()
-add_test(Unit_test_SLICE test_slice_sm)
+add_test(Unit_test_SLICE_SM test_slice_sm)

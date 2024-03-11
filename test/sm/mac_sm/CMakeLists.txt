@@ -19,4 +19,4 @@ target_compile_definitions(test_mac_sm PUBLIC ${SM_ENCODING_MAC})
 target_link_libraries(test_mac_sm PUBLIC mac_sm_static -pthread)
 
 enable_testing()
-add_test(Unit_test_MAC test_mac_sm)
+add_test(Unit_test_MAC_SM test_mac_sm)
