@@ -27,9 +27,21 @@
 #include "../../../../../src/sm/rc_sm/rc_sm_id.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 #include <unistd.h>
-#include <math.h>
+
+// 3GPP 38.423
+// 9.2.2.7
+static uint64_t NR_CGI;
+static int RAN_UE_ID;
+
+static
+uint64_t get_nb_id(uint64_t nr_cgi){
+  // Extract 36 bits from input
+  uint64_t res = nr_cgi & ((1UL << 36) - 1);
+  // nb_id default number of bits is 28 bits
+  // Shift to right 36 - 28 = 8
+  return res >> 8;
+}
 
 // RC CTRL -> Start
 static
@@ -62,7 +74,7 @@ e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(e2sm_rc_ctrl_hdr_e hdr_frmt, ue_id_e2sm_t ue_
 }
 
 static
-void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id, const char* nr_cgi)
+void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id)
 {
     // Target Primary Cell ID, STRUCTURE (Target Primary Cell ID)
     Target_primary_cell_id->ran_param_id = Target_primary_cell_id_8_4_4_1;
@@ -101,6 +113,8 @@ void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id, const c
     assert(NR_cgi->ran_param_val.flag_false != NULL && "Memory exhausted");
     // NR CGI IE in TS 38.423 [15] Clause 9.2.2.7
     NR_cgi->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
+    char nr_cgi[10];
+    sprintf(nr_cgi, "%ld", NR_CGI);
     byte_array_t nr_cgi_ba = cp_str_to_ba(nr_cgi);
     NR_cgi->ran_param_val.flag_false->bit_str_ran.buf = nr_cgi_ba.buf;
     NR_cgi->ran_param_val.flag_false->bit_str_ran.len = nr_cgi_ba.len;
@@ -148,9 +162,7 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over()
     dst.ran_param = calloc(1, sizeof(seq_ran_param_t));
     assert(dst.ran_param != NULL && "Memory exhausted");
 
-    // assume we know the other cell's id
-    const char* nr_cgi = "700";
-    gen_target_primary_cell_id(&dst.ran_param[0], nr_cgi);
+    gen_target_primary_cell_id(&dst.ran_param[0]);
     // TODO: List of PDU sessions for handover
     // TODO: List of PRBs for handover
     // TODO: List of secondary cells to be setup
@@ -182,7 +194,7 @@ ue_id_e2sm_t gen_rc_ue_id(ue_id_e2sm_e type)
         // optional: ran ue id
 //        ue_id.gnb.ran_ue_id = NULL;
         ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
-        *ue_id.gnb.ran_ue_id = 6;
+        *ue_id.gnb.ran_ue_id = RAN_UE_ID;
         ue_id.gnb.amf_ue_ngap_id = 0;
         ue_id.gnb.guami.plmn_id.mcc = 1;
         ue_id.gnb.guami.plmn_id.mnc = 1;
@@ -210,11 +222,17 @@ void start_control(e2_node_arr_xapp_t nodes){
   rc_ctrl.msg = gen_rc_ctrl_msg(FORMAT_1_E2SM_RC_CTRL_MSG);
 
   int64_t st = time_now_us();
+  uint64_t global_nb_id = get_nb_id(NR_CGI);
+  sm_ans_xapp_t ans = {.success = false};
   for(size_t i =0; i < nodes.len; ++i){
     // Only control one E2 Node
-    if (nodes.n[i].id.nb_id.nb_id == 3590)
-      control_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_ctrl);
+    if (nodes.n[i].id.nb_id.nb_id == global_nb_id)
+      ans = control_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_ctrl);
   }
+
+  if (!ans.success)
+    printf("[xApp]: Can not send control message with nb_id: %ld \n", global_nb_id);
+
   printf("[xApp]: Control Loop Latency: %ld us\n", time_now_us() - st);
 
   free_rc_ctrl_req_data(&rc_ctrl);
@@ -226,6 +244,15 @@ int main(int argc, char *argv[])
 {
     fr_args_t args = init_fr_args(argc, argv);
     defer({ free_fr_args(&args); });
+    for (int i = argc - 1; i > 0; i--){
+      if(i == argc - 1) // NR CGI
+        // only read decimal value - base 10
+        NR_CGI = atoi(argv[i]);
+      if(i == argc - 2) // RAN UE ID
+        RAN_UE_ID = atoi(argv[i]);
+      if(i < argc - 2)
+        break;
+    }
 
     //Init the xApp
     init_xapp_api(&args);
