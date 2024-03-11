@@ -97,7 +97,7 @@ class HtmlReport():
         year = date.strftime("%Y")
         cwd = os.getcwd()
         with open(os.path.join(cwd, REPORT_NAME), 'w') as wfile:
-            wfile.write(re.sub('Core Network Test ', '', generate_header(args)))
+            wfile.write(re.sub('Core Network Test ', 'FlexRIC Test', generate_header(args)))
             wfile.write(generate_git_info(args))
             wfile.write(build_summary(args, 'flexric', '22', '9'))
             wfile.write(ctest_summary(args, 'flexric_ctests.log'))

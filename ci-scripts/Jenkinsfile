@@ -124,7 +124,7 @@ pipeline {
         }
       }
     }
-    stage('Build Core Network Function') {
+    stage('Build FlexRIC Function') {
       parallel {
         stage ('Build Ubuntu FLEXRIC Image') {
           steps {
