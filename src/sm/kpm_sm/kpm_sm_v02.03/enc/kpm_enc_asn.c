@@ -51,7 +51,7 @@ byte_array_t encode(void* pdu, e2sm_kpm_e e)
 
   // XXX-tuning: 
   // below bytearray sizing needs to be reviewed and made dynamic. It looks too small for the general case of action definition.
-  byte_array_t ba = {.buf = malloc(4*1024), .len = 4*1024}; 
+  byte_array_t ba = {.buf = malloc(16*1024), .len = 16*1024};
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = {0};
   if(e == E2SM_KPM_EVENT_TRIGGER_DEFINITION_ENUM)
