@@ -47,7 +47,8 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
   if (rd->ind.rc.ind.msg.format == FORMAT_2_E2SM_RC_IND_MSG) {
     e2sm_rc_ind_msg_frmt_2_t const *msg_frm_2 = &rd->ind.rc.ind.msg.frmt_2;
 
-    printf("\nRC REPORT Style 2 - Call Process Outcome\n");
+    printf("\nRC REPORT Style 2 - Call Process Outcome from E2-node type %d ID %d\n",
+           e2_node->type, e2_node->nb_id.nb_id);
 
     // Sequence of UE Identifier
     //[1-65535]
