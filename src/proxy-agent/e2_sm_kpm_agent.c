@@ -668,20 +668,22 @@ bool amarisoft_ue_fullfills_predicate(test_cond_e cond, int64_t value, amarisoft
          || cond == CONTAINS_TEST_COND
          || cond == PRESENT_TEST_COND
   );
+  (void) ue_stats;
+  (void) value;
 
   switch (cond)
   {
     case EQUAL_TEST_COND:
-      if (ue_stats.len_qos_flow > 0) {
-        if (ue_stats.qos_flows[0].sst == value)
-          printf("condition map, find the same sst %ld\n", value);
-      }
+//      if (ue_stats.len_qos_flow > 0) {
+//        if (ue_stats.qos_flows[0].sst == value)
+//          printf("condition map, find the same sst %ld\n", value);
+//      }
       return true;
     case GREATERTHAN_TEST_COND:
-      if (ue_stats.len_qos_flow > 0) {
-        if (ue_stats.qos_flows[0].sst == value)
-          printf("condition map, find the same sst %ld\n", value);
-      }
+//      if (ue_stats.len_qos_flow > 0) {
+//        if (ue_stats.qos_flows[0].sst == value)
+//          printf("condition map, find the same sst %ld\n", value);
+//      }
       return true;
     default:
       printf("[E2-agent] Condition not yet implemented\n");
