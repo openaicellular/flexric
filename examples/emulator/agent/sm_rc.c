@@ -167,7 +167,7 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
         assert(choice_target_cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE &&
                "wrong CHOICE_target_cell type");
         assert(choice_target_cell->ran_param_val.strct != NULL && "NULL CHOICE_target_cell->ran_param_val.strct");
-        assert(choice_target_cell->ran_param_val.strct->sz_ran_param_struct == 2 &&
+        assert(choice_target_cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
                "wrong CHOICE_target_cell->ran_param_val.strct->sz_ran_param_struct");
         assert(choice_target_cell->ran_param_val.strct->ran_param_struct != NULL &&
                "NULL CHOICE_target_cell->ran_param_val.strct->ran_param_struct");
@@ -189,24 +189,6 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
                "wrong NR_CGI->ran_param_val.flag_false type");
         char *nr_cgi_str = copy_ba_to_str(&nr_cgi->ran_param_val.flag_false->bit_str_ran);
 
-        seq_ran_param_t *e_ultra_cell = &choice_target_cell->ran_param_val.strct->ran_param_struct[1];
-        assert(e_ultra_cell->ran_param_id == E_ULTRA_Cell_8_4_4_1 && "wrong id");
-        assert(e_ultra_cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong e_ultra_cell type");
-        assert(e_ultra_cell->ran_param_val.strct != NULL && "NULL e_ultra_cell->ran_param_val.strct");
-        assert(e_ultra_cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
-               "wrong e_ultra_cell->ran_param_val.strct->sz_ran_param_struct");
-        assert(e_ultra_cell->ran_param_val.strct->ran_param_struct != NULL &&
-               "NULL e_ultra_cell->ran_param_val.strct->ran_param_struct");
-
-        seq_ran_param_t *e_ultra_cgi = &e_ultra_cell->ran_param_val.strct->ran_param_struct[0];
-        assert(e_ultra_cgi->ran_param_id == E_ULTRA_CGI_8_4_4_1 && "wrong E_ULTRA_CGI id");
-        assert(e_ultra_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE &&
-               "wrong E_ULTRA_CGI type");
-        assert(e_ultra_cgi->ran_param_val.flag_false != NULL && "NULL E_ULTRA_CGI->ran_param_val.flag_false");
-        assert(e_ultra_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
-               "wrong E_ULTRA_CGI->ran_param_val.flag_false type");
-        char *e_ultra_cgi_str = copy_ba_to_str(&e_ultra_cgi->ran_param_val.flag_false->bit_str_ran);
-
         ue_id_e2sm_t ue_id = ctrl->hdr.frmt_1.ue_id;
         assert(ue_id.type == GNB_UE_ID_E2SM && "Wrong ue_id_e2sm type");
         //assert(ue_id.gnb.ran_ue_id != NULL && "NULL GNB_RAN_UE_ID");
@@ -216,7 +198,6 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
           printf("RC SM: Handover control, decrease cell gain of current cell NR_CGI %s\n", nr_cgi_str);
 
       free(nr_cgi_str);
-        free(e_ultra_cgi_str);
     }
   }
 

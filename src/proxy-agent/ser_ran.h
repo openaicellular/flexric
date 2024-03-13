@@ -460,7 +460,7 @@ typedef struct ran_ser_abs_t {
 
   const char * (*encode_e2setup)(int message_id);
   const char * (*encode_indication)(int message_id, int sm_id, double initial_delay);
-  const char * (*encode_ctrl)(int message_id, const sm_ag_if_wr_ctrl_t  ctrl_msg);
+  const char * (*encode_ctrl)(int message_id, const sm_ag_if_wr_ctrl_t ctrl_msg, const ran_config_t* ran_config);
 
 }ran_ser_abs_t; 
 

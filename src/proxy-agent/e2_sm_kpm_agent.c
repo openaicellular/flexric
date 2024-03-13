@@ -668,20 +668,22 @@ bool amarisoft_ue_fullfills_predicate(test_cond_e cond, int64_t value, amarisoft
          || cond == CONTAINS_TEST_COND
          || cond == PRESENT_TEST_COND
   );
+  (void) ue_stats;
+  (void) value;
 
   switch (cond)
   {
     case EQUAL_TEST_COND:
-      if (ue_stats.len_qos_flow > 0) {
-        if (ue_stats.qos_flows[0].sst == value)
-          printf("condition map, find the same sst %ld\n", value);
-      }
+//      if (ue_stats.len_qos_flow > 0) {
+//        if (ue_stats.qos_flows[0].sst == value)
+//          printf("condition map, find the same sst %ld\n", value);
+//      }
       return true;
     case GREATERTHAN_TEST_COND:
-      if (ue_stats.len_qos_flow > 0) {
-        if (ue_stats.qos_flows[0].sst == value)
-          printf("condition map, find the same sst %ld\n", value);
-      }
+//      if (ue_stats.len_qos_flow > 0) {
+//        if (ue_stats.qos_flows[0].sst == value)
+//          printf("condition map, find the same sst %ld\n", value);
+//      }
       return true;
     default:
       printf("[E2-agent] Condition not yet implemented\n");
@@ -696,7 +698,7 @@ bool is_ue_contain_global_cell_id(amarisoft_ue_stats_t ue_stats, cell_global_id_
       nr_cell_conf_t cur_cell = ws_ind->ran_config.nr_cells[i];
       // UE only support 1 cell - TODO
       if (ue_stats.cells[0].cell_id == cur_cell.cell_id){
-        if((uint64_t) cur_cell.n_id_nrcell == cell_global_id->nr_cgi.nr_cell_id){
+        if((uint64_t)cur_cell.ncgi.nr_cell_id == cell_global_id->nr_cgi.nr_cell_id){
           return true;
         }
       }

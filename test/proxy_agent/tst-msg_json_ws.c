@@ -11,7 +11,24 @@
 
 ran_ind_t expected1, expected2, expected3, expected4;
 
-static void initialize_expected1 (void) 
+ran_config_t global_ran_config;
+
+static void initialize_global_ran_config (void)
+{
+  memset(&global_ran_config, 0, sizeof(ran_config_t));
+  global_ran_config.len_nr_cell = 1;
+  global_ran_config.nr_cells[0].ncgi.nr_cell_id = 1;
+  global_ran_config.nr_cells[0].n_id_nrcell = 500;
+  global_ran_config.nr_cells[0].len_ncell = 1;
+  global_ran_config.nr_cells[0].ssb_nr_arfcn = 1;
+  // Nested cell
+  global_ran_config.nr_cells[0].ncell_list[0].n_id_nrcell = 700;
+  global_ran_config.nr_cells[0].ncell_list[0].ncgi.nr_cell_id = 2;
+  global_ran_config.nr_cells[0].ncell_list[0].ssb_nr_arfcn = 2;
+
+}
+
+static void initialize_expected1 (void)
 {
   memset(&expected1, 0, sizeof(ran_ind_t));
   expected1.ran_stats.cells[0].cell_id = 1;
@@ -141,7 +158,7 @@ static bool cmp_ind_t_msg (ran_ind_t in, ran_ind_t *expected)
 }
 
 static
-void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id)
+void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id, uint64_t nr_cgi)
 {
     // Target Primary Cell ID, STRUCTURE (Target Primary Cell ID)
     Target_primary_cell_id->ran_param_id = Target_primary_cell_id_8_4_4_1;
@@ -181,7 +198,7 @@ void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id)
     // NR CGI IE in TS 38.423 [15] Clause 9.2.2.7
     NR_cgi->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
     char nr_cgi_val[30];
-    sprintf(nr_cgi_val, "%lu", (uint64_t)8);
+    sprintf(nr_cgi_val, "%lu", nr_cgi);
     byte_array_t nr_cgi_ba = cp_str_to_ba(nr_cgi_val);
     NR_cgi->ran_param_val.flag_false->bit_str_ran.buf = nr_cgi_ba.buf;
     NR_cgi->ran_param_val.flag_false->bit_str_ran.len = nr_cgi_ba.len;
@@ -213,7 +230,7 @@ void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id)
 }
 
 static
-e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over()
+e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over(uint64_t nr_cgi)
 {
     e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
 
@@ -230,8 +247,24 @@ e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_hand_over()
     dst.ran_param = calloc(1, sizeof(seq_ran_param_t));
     assert(dst.ran_param != NULL && "Memory exhausted");
 
-    gen_target_primary_cell_id(&dst.ran_param[0]);
+    gen_target_primary_cell_id(&dst.ran_param[0], nr_cgi);
     return dst;
+}
+
+static
+sm_ag_if_wr_ctrl_t create_ctrl_msg(uint64_t ran_ue_id, uint64_t nr_cgi){
+  sm_ag_if_wr_ctrl_t ctrl_msg_rc = {
+      .type = RAN_CONTROL_CTRL_V1_03,
+  };
+  ctrl_msg_rc.rc_ctrl.hdr.format = FORMAT_1_E2SM_RC_CTRL_HDR;
+  ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ric_style_type = 3;
+  ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ctrl_act_id = Handover_control_7_6_4_1;
+  ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
+  *ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id = ran_ue_id; // ran_ue_id
+  ctrl_msg_rc.rc_ctrl.msg.format = FORMAT_1_E2SM_RC_CTRL_MSG;
+  ctrl_msg_rc.rc_ctrl.msg.frmt_1 = gen_rc_ctrl_msg_frmt_1_hand_over(nr_cgi);
+
+  return ctrl_msg_rc;
 }
 
 int main()
@@ -244,6 +277,7 @@ int main()
   initialize_expected2();
   initialize_expected3();
   initialize_expected4();
+  initialize_global_ran_config();
   for (size_t i = 0; i < ntests; ++i) 
   {
     ran_msg_t in_msg = {.buf = tests[i].json, .len = strlen(tests[i].json)};
@@ -279,33 +313,39 @@ int main()
   ctrl_msg.mac_ctrl.msg.ran_conf[0].pusch_mcs = 1;
   ctrl_msg.mac_ctrl.msg.ran_conf[0].isset_pusch_mcs = true;
   char *expected = "{\"message\":\"config_set\",\"cells\":[{\"cell_id\":1,\"pusch_mcs\":1}],\"message_id\":\"1\"}";
-  const char *p = ser->encode_ctrl(1, ctrl_msg);
+  const char *p = ser->encode_ctrl(1, ctrl_msg, &global_ran_config);
   if (strcmp(p, expected)){
     printf ("FAIL encoding CTRL mismatch: Got '%s', expected '%s'\n", p, expected);
     ret_status = EXIT_FAILURE;
   }
   free(ctrl_msg.mac_ctrl.msg.ran_conf);
 
-  sm_ag_if_wr_ctrl_t ctrl_msg_rc = {
-          .type = RAN_CONTROL_CTRL_V1_03,
-  };
-  ctrl_msg_rc.rc_ctrl.hdr.format = FORMAT_1_E2SM_RC_CTRL_HDR;
-  ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ric_style_type = 3;
-  ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ctrl_act_id = Handover_control_7_6_4_1;
-  ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id = malloc(sizeof(uint64_t));
-  *ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id = 11;
-  ctrl_msg_rc.rc_ctrl.msg.format = FORMAT_1_E2SM_RC_CTRL_MSG;
-  ctrl_msg_rc.rc_ctrl.msg.frmt_1 = gen_rc_ctrl_msg_frmt_1_hand_over();
+  // Outer cell test
+  sm_ag_if_wr_ctrl_t ctrl_msg_rc = create_ctrl_msg(1, 1);
 
   // Return value depends on cell information from config_get api
-  char *expected_rc_ctrl = "{\"message\":\"handover\",\"message_id\":\"1\"}";
-  const char *p_rc = ser->encode_ctrl(1, ctrl_msg_rc);
-  if (strcmp(p_rc, expected_rc_ctrl)){
-    printf ("FAIL encoding CTRL RC mismatch: Got '%s', expected '%s'\n", p_rc, expected_rc_ctrl);
+  char *expected_rc_ctrl_1 = "{\"message\":\"handover\",\"ran_ue_id\":1,\"pci\":500,\"ssb_nr_arfcn\":1,\"message_id\":\"1\"}";
+  const char *p_rc_1 = ser->encode_ctrl(1, ctrl_msg_rc, &global_ran_config);
+  if (strcmp(p_rc_1, expected_rc_ctrl_1)){
+    printf ("FAIL encoding CTRL RC mismatch: Got '%s', expected '%s'\n", p_rc_1, expected_rc_ctrl_1);
+    ret_status = EXIT_FAILURE;
+  }
+  free(ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id);
+  free_e2sm_rc_ctrl_msg_frmt_1(&ctrl_msg_rc.rc_ctrl.msg.frmt_1);
+
+  // inner cell test
+  sm_ag_if_wr_ctrl_t ctrl_msg_rc_2 = create_ctrl_msg(1, 2);
+
+  // Return value depends on cell information from config_get api
+  char *expected_rc_ctrl_2 = "{\"message\":\"handover\",\"ran_ue_id\":1,\"pci\":700,\"ssb_nr_arfcn\":2,\"message_id\":\"1\"}";
+  const char *p_rc_2 = ser->encode_ctrl(1, ctrl_msg_rc_2, &global_ran_config);
+  if (strcmp(p_rc_2, expected_rc_ctrl_2)){
+    printf ("FAIL encoding CTRL RC mismatch: Got '%s', expected '%s'\n", p_rc_2, expected_rc_ctrl_2);
     ret_status = EXIT_FAILURE;
   }
 
-  free(ctrl_msg_rc.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id);
-  free_e2sm_rc_ctrl_msg_frmt_1(&ctrl_msg_rc.rc_ctrl.msg.frmt_1);
+  free(ctrl_msg_rc_2.rc_ctrl.hdr.frmt_1.ue_id.gnb.ran_ue_id);
+  free_e2sm_rc_ctrl_msg_frmt_1(&ctrl_msg_rc_2.rc_ctrl.msg.frmt_1);
+
   return ret_status;
 }

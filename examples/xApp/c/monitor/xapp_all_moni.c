@@ -325,6 +325,7 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const act_name_id_t act)
 static
 kpm_act_def_format_1_t gen_kpm_act_def_frmt_1(const sub_oran_sm_t sub_sm, uint32_t period_ms, e2_node_connected_xapp_t* n)
 {
+  (void) n;
   kpm_act_def_format_1_t dst = {0};
 
   dst.gran_period_ms = period_ms;
@@ -337,21 +338,6 @@ kpm_act_def_format_1_t gen_kpm_act_def_frmt_1(const sub_oran_sm_t sub_sm, uint32
     dst.meas_info_lst[i] = gen_meas_info_format_1_lst(sub_sm.actions[i]);
   }
 
-  // TODO: this is set for proxy agent, read from config?
-  int nr_cell_id = 0;
-  if (n->id.nb_id.nb_id == 3590)
-    nr_cell_id = 500;
-  else if (n->id.nb_id.nb_id == 3591)
-    nr_cell_id = 700;
-  if (nr_cell_id != 0) {
-    dst.cell_global_id = malloc(sizeof(cell_global_id_t));
-    dst.cell_global_id->type = NR_CGI_RAT_TYPE;
-    dst.cell_global_id->nr_cgi.nr_cell_id = nr_cell_id;
-    // Spec Bug, in RC ind cannot fill PLMN info
-    dst.cell_global_id->nr_cgi.plmn_id.mcc = 1;
-    dst.cell_global_id->nr_cgi.plmn_id.mnc = 0;
-    dst.cell_global_id->nr_cgi.plmn_id.mnc_digit_len = 2;
-  }
   return dst;
 }
 
