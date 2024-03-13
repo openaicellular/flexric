@@ -31,7 +31,8 @@
 
 // 3GPP 38.423
 // 9.2.2.7
-static uint64_t NR_CGI;
+static uint64_t TARGET_NR_CGI;
+static uint64_t SOURCE_NR_CGI;
 static int RAN_UE_ID;
 
 static
@@ -200,7 +201,7 @@ void start_control(e2_node_arr_xapp_t nodes){
   rc_ctrl.msg = gen_rc_ctrl_msg(FORMAT_1_E2SM_RC_CTRL_MSG);
 
   int64_t st = time_now_us();
-  uint64_t global_nb_id = get_nb_id(NR_CGI);
+  uint64_t global_nb_id = get_nb_id(SOURCE_NR_CGI);
   sm_ans_xapp_t ans = {.success = false};
   for(size_t i =0; i < nodes.len; ++i){
     // Only control one E2 Node
@@ -225,10 +226,12 @@ int main(int argc, char *argv[])
     for (int i = argc - 1; i > 0; i--){
       if(i == argc - 1) // NR CGI
         // only read decimal value - base 10
-        NR_CGI = atoi(argv[i]);
+        TARGET_NR_CGI = atoi(argv[i]);
       if(i == argc - 2) // RAN UE ID
+        SOURCE_NR_CGI = atoi(argv[i]);
+      if(i == argc - 3) // RAN UE ID
         RAN_UE_ID = atoi(argv[i]);
-      if(i < argc - 2)
+      if(i < argc - 3)
         break;
     }
 

@@ -39,16 +39,15 @@
 static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node)
 {
   assert(rd != NULL);
+  assert(e2_node != NULL);
   assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
   assert(rd->ind.type == RAN_CTRL_STATS_V1_03);
-  (void) e2_node;
 
   // Reading Indication Message Format 2
   if (rd->ind.rc.ind.msg.format == FORMAT_2_E2SM_RC_IND_MSG) {
     e2sm_rc_ind_msg_frmt_2_t const *msg_frm_2 = &rd->ind.rc.ind.msg.frmt_2;
 
-    printf("\nRC REPORT Style 2 - Call Process Outcome from E2-node type %d ID %d\n",
-           e2_node->type, e2_node->nb_id.nb_id);
+    printf("\nRC REPORT Style 2 - Call Process Outcome\n");
 
     // Sequence of UE Identifier
     //[1-65535]
@@ -59,11 +58,12 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
       // Mandatory
       // 9.3.10
       if (cur_ue_id->ue_id.type == GNB_UE_ID_E2SM) {
-        if (cur_ue_id->ue_id.gnb.ran_ue_id != NULL)
+        if (cur_ue_id->ue_id.gnb.ran_ue_id != NULL){
           printf("UE idx %zu - RAN UE ID = %lu, AMF UE NGAP ID = %lu\n",
                  i, *cur_ue_id->ue_id.gnb.ran_ue_id, cur_ue_id->ue_id.gnb.amf_ue_ngap_id);
-        else
+        } else {
           printf("UE idx %zu - RAN UE ID is NULL\n", i);
+        }
       } else {
         printf("UE idx %zu Not yet implemented UE ID type \n", i);
         continue;
@@ -84,20 +84,34 @@ static void sm_cb_rc(sm_ag_if_rd_t const *rd, global_e2_node_id_t const* e2_node
           printf("UE idx %zu - NR Cell ID = %s \n", i, cell_global_id);
         }
 
+        // UE information
+        // List of Neighbor cells
+        // 8.1.1.17
+        if(cur_ran_param->ran_param_id == 21528) {
+          ran_param_list_t* ne_cell_lst = cur_ran_param->ran_param_val.lst;
+          for (size_t cell_idx = 0; cell_idx < ne_cell_lst->sz_lst_ran_param; cell_idx++){
+            lst_ran_param_t cur_cell = ne_cell_lst->lst_ran_param[cell_idx];
+            // CHOICE Neighbor cell
+            // 21530
+            ran_param_struct_t* CHOICE_Neighbor_cell = cur_cell.ran_param_struct.ran_param_struct[0].ran_param_val.strct;
+            // NR Cell
+            // 8.1.1.1
+            // Support only 5G cell
+            assert(CHOICE_Neighbor_cell->sz_ran_param_struct == 1 && "Support only 5G cell");
+            ran_param_struct_t* nr_cell = CHOICE_Neighbor_cell->ran_param_struct[0].ran_param_val.strct;
+            // NR CGI
+            // TS 38.473
+            // 9.3.1.29
+            char* nr_cgi = copy_ba_to_str(&nr_cell->ran_param_struct[0].ran_param_val.flag_false->octet_str_ran);
+            printf("UE idx %zu - Neighbor Cell idx %zu, NR Cell ID %s \n", i, cell_idx, nr_cgi);
+            // NR PCI
+            // TS 38.473
+            // 9.3.1.29
+            int64_t nr_pci = nr_cell->ran_param_struct[1].ran_param_val.flag_false->int_ran;
+            printf("UE idx %zu - Neighbor Cell idx %zu, NR PCI %ld \n", i, cell_idx, nr_pci);
+          }
+        }
       }
-    }
-  } else if (rd->ind.rc.ind.msg.format == FORMAT_3_E2SM_RC_IND_MSG) {
-    e2sm_rc_ind_msg_frmt_3_t const *msg_frm_3 = &rd->ind.rc.ind.msg.frmt_3;
-
-    printf("\nRC REPORT Style 3 - Call Process Outcome from E2-node type %d ID %d\n",
-           e2_node->type, e2_node->nb_id.nb_id);
-    for (size_t i = 0; i < msg_frm_3->sz_seq_cell_info; i++) {
-      seq_cell_info_t* cur_cell_id = &msg_frm_3->seq_cell_info[i];
-      assert(cur_cell_id->cell_global_id.type == NR_CGI_RAT_TYPE);
-      printf("Cell Global ID - NR CGI- PLMN mcc %d mnc %d - NR Cell ID %lu\n",
-             cur_cell_id->cell_global_id.nr_cgi.plmn_id.mcc,
-             cur_cell_id->cell_global_id.nr_cgi.plmn_id.mnc,
-             (unsigned long)cur_cell_id->cell_global_id.nr_cgi.nr_cell_id);
     }
   } else {
     printf("Not support RC format %d\n", rd->ind.rc.ind.msg.format + 1);
