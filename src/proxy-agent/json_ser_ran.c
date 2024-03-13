@@ -886,7 +886,7 @@ static const char *json_encode_ctrl_rc(int msg_id, const rc_ctrl_req_data_t ctrl
             assert(choice_target_cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE &&
                    "wrong CHOICE_target_cell type");
             assert(choice_target_cell->ran_param_val.strct != NULL && "NULL CHOICE_target_cell->ran_param_val.strct");
-            assert(choice_target_cell->ran_param_val.strct->sz_ran_param_struct == 2 &&
+            assert(choice_target_cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
                    "wrong CHOICE_target_cell->ran_param_val.strct->sz_ran_param_struct");
             assert(choice_target_cell->ran_param_val.strct->ran_param_struct != NULL &&
                    "NULL CHOICE_target_cell->ran_param_val.strct->ran_param_struct");

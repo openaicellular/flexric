@@ -76,6 +76,9 @@ e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(e2sm_rc_ctrl_hdr_e hdr_frmt, ue_id_e2sm_t ue_
 static
 void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id)
 {
+    char nr_cgi[10];
+    sprintf(nr_cgi, "%ld", TARGET_NR_CGI);
+
     // Target Primary Cell ID, STRUCTURE (Target Primary Cell ID)
     Target_primary_cell_id->ran_param_id = Target_primary_cell_id_8_4_4_1;
     Target_primary_cell_id->ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
@@ -91,8 +94,8 @@ void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id)
     CHOICE_target_cell->ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
     CHOICE_target_cell->ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
     assert(CHOICE_target_cell->ran_param_val.strct != NULL && "Memory exhausted");
-    CHOICE_target_cell->ran_param_val.strct->sz_ran_param_struct = 2;
-    CHOICE_target_cell->ran_param_val.strct->ran_param_struct = calloc(2, sizeof(seq_ran_param_t));
+    CHOICE_target_cell->ran_param_val.strct->sz_ran_param_struct = 1;
+    CHOICE_target_cell->ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
     assert(CHOICE_target_cell->ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
 
     // NR Cell, STRUCTURE (CHOICE target cell -> NR Cell)
@@ -113,34 +116,9 @@ void gen_target_primary_cell_id(seq_ran_param_t* Target_primary_cell_id)
     assert(NR_cgi->ran_param_val.flag_false != NULL && "Memory exhausted");
     // NR CGI IE in TS 38.423 [15] Clause 9.2.2.7
     NR_cgi->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
-    char nr_cgi[10];
-    sprintf(nr_cgi, "%ld", NR_CGI);
     byte_array_t nr_cgi_ba = cp_str_to_ba(nr_cgi);
     NR_cgi->ran_param_val.flag_false->bit_str_ran.buf = nr_cgi_ba.buf;
     NR_cgi->ran_param_val.flag_false->bit_str_ran.len = nr_cgi_ba.len;
-
-    // E-ULTRA Cell, STRUCTURE (CHOICE Target Cell -> E-ULTRA cell)
-    seq_ran_param_t* E_ultra_cell = &CHOICE_target_cell->ran_param_val.strct->ran_param_struct[1];
-    E_ultra_cell->ran_param_id = E_ULTRA_Cell_8_4_4_1;
-    E_ultra_cell->ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
-    E_ultra_cell->ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
-    assert(E_ultra_cell->ran_param_val.strct != NULL && "Memory exhausted");
-    E_ultra_cell->ran_param_val.strct->sz_ran_param_struct = 1;
-    E_ultra_cell->ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
-    assert(E_ultra_cell->ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
-
-    // E-ULTRA CGI, ELEMENT (E-ULTRA Cell -> E-ULTRA CGI)
-    seq_ran_param_t* E_ultra_cgi = &E_ultra_cell->ran_param_val.strct->ran_param_struct[0];
-    E_ultra_cgi->ran_param_id = E_ULTRA_CGI_8_4_4_1;
-    E_ultra_cgi->ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
-    E_ultra_cgi->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
-    assert(E_ultra_cgi->ran_param_val.flag_false != NULL && "Memory exhausted");
-    // E-UTRA CGI IE in TS 38.423 [15] Clause 9.2.2.8
-    E_ultra_cgi->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
-    const char e_utra_cgi_val[] = "8"; // TODO
-    byte_array_t e_ultra_cgi_ba = cp_str_to_ba(e_utra_cgi_val);
-    E_ultra_cgi->ran_param_val.flag_false->bit_str_ran.buf = e_ultra_cgi_ba.buf;
-    E_ultra_cgi->ran_param_val.flag_false->bit_str_ran.len = e_ultra_cgi_ba.len;
 
     return;
 }
