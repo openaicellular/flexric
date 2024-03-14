@@ -577,7 +577,7 @@ size_t send_sub_req_rc(e2_node_connected_xapp_t* n, fr_args_t args, sm_ans_xapp_
       rc_sub.ad = calloc(rc_sub.sz_ad, sizeof(e2sm_rc_action_def_t));
       assert(rc_sub.ad != NULL && "Memory exhausted");
 
-      e2sm_rc_act_def_format_e act_type;
+      e2sm_rc_act_def_format_e act_type = END_E2SM_RC_ACT_DEF;
       if (args.sub_oran_sm[j].format == 1)
         act_type = FORMAT_1_E2SM_RC_ACT_DEF;
       else

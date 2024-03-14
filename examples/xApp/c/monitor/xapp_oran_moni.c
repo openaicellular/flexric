@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
         kpm_sub.sz_ad = 1;
         kpm_sub.ad = calloc(1, sizeof(kpm_act_def_t));
         assert(kpm_sub.ad != NULL && "Memory exhausted");
-        format_action_def_e act_type;
+        format_action_def_e act_type = END_ACTION_DEFINITION;
         if (args.sub_oran_sm[j].format == 1)
           act_type = FORMAT_1_ACTION_DEFINITION;
         else if (args.sub_oran_sm[j].format == 4)
@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
         rc_sub.sz_ad = 1;
         rc_sub.ad = calloc(rc_sub.sz_ad, sizeof(e2sm_rc_action_def_t));
         assert(rc_sub.ad != NULL && "Memory exhausted");
-        e2sm_rc_act_def_format_e act_type;
+        e2sm_rc_act_def_format_e act_type = END_E2SM_RC_ACT_DEF;
         if (args.sub_oran_sm[j].format == 1)
           act_type = FORMAT_1_E2SM_RC_ACT_DEF;
         else
