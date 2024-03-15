@@ -4,7 +4,7 @@
 
 BIT_STRING_t cp_amf_region_id_to_bit_string(uint8_t src)
 {
-  assert(src < 64);    
+  assert(src < 256);
   
   BIT_STRING_t dst = {.bits_unused = 0, .buf = malloc(1), .size = 1}; 
   assert(dst.buf != NULL);
