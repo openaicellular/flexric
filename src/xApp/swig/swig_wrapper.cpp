@@ -1064,19 +1064,22 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action, uint32_t period_m
   assert(dst.matching_cond_lst != NULL && "Memory exhausted");
 
   // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
-  dst.matching_cond_lst[0].test_info_lst.test_cond_type = CQI_TEST_COND_TYPE;
-  dst.matching_cond_lst[0].test_info_lst.CQI = TRUE_TEST_COND_TYPE;
+  test_info_lst_t* test_info_lst = &dst.matching_cond_lst[0].test_info_lst;
+  test_info_lst->test_cond_type = S_NSSAI_TEST_COND_TYPE;
+  test_info_lst->S_NSSAI = TRUE_TEST_COND_TYPE;
 
-  dst.matching_cond_lst[0].test_info_lst.test_cond = static_cast<test_cond_e*>(calloc(1, sizeof(test_cond_e)));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond = GREATERTHAN_TEST_COND;
+  test_cond_e* test_cond = static_cast<test_cond_e*>(calloc(1, sizeof(test_cond_e)));
+  assert(test_cond != NULL && "Memory exhausted");
+  *test_cond = EQUAL_TEST_COND;
+  test_info_lst->test_cond = test_cond;
 
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value = static_cast<test_cond_value_t*>(calloc(1, sizeof(test_cond_value_t)));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value->type = INTEGER_TEST_COND_VALUE;
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = static_cast<int64_t*>(malloc(sizeof(int64_t)));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond_value->int_value = 0;
+  test_cond_value_t* test_cond_value = static_cast<test_cond_value_t*>(calloc(1, sizeof(test_cond_value_t)));
+  assert(test_cond_value != NULL && "Memory exhausted");
+  test_cond_value->type = INTEGER_TEST_COND_VALUE;
+  test_cond_value->int_value = static_cast<int64_t*>(malloc(sizeof(int64_t)));
+  assert(test_cond_value->int_value != NULL && "Memory exhausted");
+  *test_cond_value->int_value = 1;
+  test_info_lst->test_cond_value = test_cond_value;
 
   // Action definition Format 1
   dst.action_def_format_1 = gen_act_def_frmt_1(action, period_ms);  // 8.2.1.2.1
