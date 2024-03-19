@@ -1,0 +1,1 @@
+FlexRIC supports O-RAN CCC SM v03.00.
