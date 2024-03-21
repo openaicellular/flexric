@@ -18,36 +18,30 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
-
-
-#ifndef CCC_SERVICE_MODEL_ID_H
-#define CCC_SERVICE_MODEL_ID_H
-
-
 /*
- * Service Model ID needed for the agent as well as for the ric to ensure that they match. 
+ * Decoding interface for plain text encoding Information Elements in SM-KPM
  */
+#ifndef CCC_DECRYPTION_PLAIN_H
+#define CCC_DECRYPTION_PLAIN_H
 
-#include <stdint.h>
+#include <stddef.h>
+#include "../ie/ccc_data_ie.h"
 
-static
-const uint16_t SM_CCC_ID = 3; // TODO
+e2sm_ccc_event_trigger_t ccc_dec_event_trigger_plain(size_t len, uint8_t const ev_tr[len]);
 
+e2sm_ccc_action_def_t ccc_dec_action_def_plain(size_t len, uint8_t const action_def[len]);
 
-static
-const uint16_t SM_CCC_REV = 1; // TODO
+e2sm_ccc_ind_hdr_t ccc_dec_ind_hdr_plain(size_t len, uint8_t const ind_hdr[len]);
 
-#define SM_CCC_SHORT_NAME "ORAN-E2SM-CCC"
-//iso(1) identified-organization(3)
-//dod(6) internet(1) private(4)
-//enterprise(1) 53148 e2(1)
-// version1 (1) e2sm(2) e2sm-RC-
-// IEs (3)
+e2sm_ccc_ind_msg_t ccc_dec_ind_msg_plain(size_t len, uint8_t const ind_msg[len]);
 
-// TODO
-#define SM_CCC_OID "1.3.6.1.4.1.53148.1.1.2.3"
+e2sm_ccc_cpid_t ccc_dec_call_proc_id_plain(size_t len, uint8_t const call_proc_id[len]);
 
-#define SM_CCC_DESCRIPTION "Cell Configuration and Control"
+e2sm_ccc_ctrl_hdr_t ccc_dec_ctrl_hdr_plain(size_t len, uint8_t const ctrl_hdr[len]);
 
+e2sm_ccc_ctrl_msg_t ccc_dec_ctrl_msg_plain(size_t len, uint8_t const ctrl_msg[len]);
+
+e2sm_ccc_ctrl_out_t ccc_dec_ctrl_out_plain(size_t len, uint8_t const ctrl_out[len]);
+
+e2sm_ccc_func_def_t ccc_dec_func_def_plain(size_t len, uint8_t const func_def[len]);
 #endif
-

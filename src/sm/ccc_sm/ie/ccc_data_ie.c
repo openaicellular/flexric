@@ -77,7 +77,7 @@ e2sm_ccc_event_trigger_t cp_e2sm_ccc_event_trigger(e2sm_ccc_event_trigger_t cons
 {
   assert(src != NULL);
 
-  e2sm_rc_event_trigger_t dst = {.format = src->format};
+  e2sm_ccc_event_trigger_t dst = {.format = src->format};
 
   if(src->format == FORMAT_1_E2SM_CCC_EV_TRIGGER_FORMAT){
     // TODO
@@ -181,10 +181,6 @@ void free_e2sm_ccc_ind_hdr(e2sm_ccc_ind_hdr_t* src)
  
   if(src->format == FORMAT_1_E2SM_CCC_IND_HDR){
     // TODO
-  } else if(src->format == FORMAT_2_E2SM_CCC_IND_HDR){
-    // TODO
-  } else if(src->format == FORMAT_3_E2SM_CCC_IND_HDR){
-    // TODO
   } else {
     assert(0!=0 && "Unknown type");
   }
@@ -197,10 +193,6 @@ e2sm_ccc_ind_hdr_t cp_e2sm_ccc_ind_hdr(e2sm_ccc_ind_hdr_t const* src)
   e2sm_ccc_ind_hdr_t dst = {.format = src->format}; 
 
   if(src->format == FORMAT_1_E2SM_CCC_IND_HDR){
-    // TODO
-  } else if(src->format == FORMAT_2_E2SM_CCC_IND_HDR){
-    // TODO
-  } else if(src->format == FORMAT_3_E2SM_CCC_IND_HDR){
     // TODO
   } else {
     assert(0!=0 && "Unknown type");
@@ -222,10 +214,6 @@ bool eq_e2sm_ccc_ind_hdr(e2sm_ccc_ind_hdr_t const* m0, e2sm_ccc_ind_hdr_t const*
     return false;
 
   if(m0->format == FORMAT_1_E2SM_CCC_IND_HDR  ){
-    // TODO
-  } else if(m0->format == FORMAT_2_E2SM_CCC_IND_HDR ){
-    // TODO
-  }else if(m0->format == FORMAT_3_E2SM_CCC_IND_HDR ){
     // TODO
   } else {
     assert(0!=0 && "Unknown format");
@@ -304,26 +292,14 @@ bool eq_e2sm_ccc_ind_msg(e2sm_ccc_ind_msg_t const* m0, e2sm_ccc_ind_msg_t const*
 
 void free_e2sm_ccc_cpid(e2sm_ccc_cpid_t *src) 
 {
- // RIC Call Process ID
-  // Mandatory
-  // 9.3.18
-  // [ 1 - 4294967295]
-  assert(src->ric_cpid > 0);
-  // uint32_t ric_cpid;
-
+  assert(src != NULL);
 }
 
 e2sm_ccc_cpid_t cp_e2sm_ccc_cpid(e2sm_ccc_cpid_t const* src)
 {
   assert(src != NULL); 
  
-  // RIC Call Process ID
-  // Mandatory
-  // 9.3.18
-  // [ 1 - 4294967295]
-  assert(src->ric_cpid > 0);
-  
-  e2sm_ccc_cpid_t dst = { .ric_cpid = src->ric_cpid};
+  e2sm_ccc_cpid_t dst = {};
   return dst;
 }
 
@@ -333,15 +309,6 @@ bool eq_e2sm_ccc_cpid(e2sm_ccc_cpid_t const* m0, e2sm_ccc_cpid_t const* m1)
     return true;
 
   if(m0 == NULL || m1 == NULL)
-    return false;
-
-  // RIC Call Process ID
-  // Mandatory
-  // 9.3.18
-  // [ 1 - 4294967295]
-  assert(m0->ric_cpid > 0);
-  assert(m1->ric_cpid > 0);
-  if(m0->ric_cpid != m1->ric_cpid)
     return false;
 
   return true;
@@ -409,6 +376,8 @@ void free_e2sm_ccc_ctrl_msg(e2sm_ccc_ctrl_msg_t* src)
 
   if(src->format == FORMAT_1_E2SM_CCC_CTRL_MSG){
     // TODO
+  } else if(src->format == FORMAT_2_E2SM_CCC_CTRL_MSG){
+    // TODO
   } else {
     assert(0 && "Unknown format");
   }
@@ -422,6 +391,8 @@ e2sm_ccc_ctrl_msg_t cp_e2sm_ccc_ctrl_msg(e2sm_ccc_ctrl_msg_t const* src)
   e2sm_ccc_ctrl_msg_t dst = {.format = src->format};
 
   if(src->format == FORMAT_1_E2SM_CCC_CTRL_MSG){
+    // TODO
+  } else if(src->format == FORMAT_2_E2SM_CCC_CTRL_MSG){
     // TODO
   } else {
     assert(0!=0 && "Unknown format");
@@ -443,6 +414,8 @@ bool eq_e2sm_ccc_ctrl_msg(e2sm_ccc_ctrl_msg_t const* m0, e2sm_ccc_ctrl_msg_t con
 
   if(m0->format == FORMAT_1_E2SM_CCC_CTRL_MSG){
     // TODO
+  } else if(m0->format == FORMAT_2_E2SM_CCC_CTRL_MSG){
+    // TODO
   } else {
     assert(0 && "Unknown format");
   }
@@ -461,6 +434,8 @@ void free_e2sm_ccc_ctrl_out(e2sm_ccc_ctrl_out_t* src)
 
   if(src->format == FORMAT_1_E2SM_CCC_CTRL_OUT){
     // TODO
+  } else if(src->format == FORMAT_2_E2SM_CCC_CTRL_OUT){
+    // TODO
   } else {
     assert(0!=0 && "Unknown format");
   }
@@ -474,6 +449,8 @@ e2sm_ccc_ctrl_out_t cp_e2sm_ccc_ctrl_out(e2sm_ccc_ctrl_out_t const* src)
   e2sm_ccc_ctrl_out_t dst = {.format = src->format}; 
   
   if(dst.format == FORMAT_1_E2SM_CCC_CTRL_OUT ){
+    // TODO
+  } else if(src->format == FORMAT_2_E2SM_CCC_CTRL_OUT){
     // TODO
   }  else{
     assert(0!=0 && "Unknown format");
@@ -495,6 +472,8 @@ bool eq_e2sm_ccc_ctrl_out(e2sm_ccc_ctrl_out_t const* m0, e2sm_ccc_ctrl_out_t con
 
   if(m0->format == FORMAT_1_E2SM_CCC_CTRL_OUT){
     // TODO
+  } else if(m0->format == FORMAT_2_E2SM_CCC_CTRL_OUT){
+    // TODO
   } else {
     assert(0!=0 && "Unknown format");
   }
@@ -510,11 +489,6 @@ bool eq_e2sm_ccc_ctrl_out(e2sm_ccc_ctrl_out_t const* m0, e2sm_ccc_ctrl_out_t con
 void free_e2sm_ccc_func_def(e2sm_ccc_func_def_t* src)
 {
   assert(src != NULL);
-  //  RAN Function Name
-  //  Mandatory
-  //  9.3.2
-  //  6.2.2.1.
-  free_ran_function_name(&src->name);
 
   // TODO
 }
@@ -524,12 +498,6 @@ e2sm_ccc_func_def_t cp_e2sm_ccc_func_def(e2sm_ccc_func_def_t const* src)
   assert(src != NULL);
  
   e2sm_ccc_func_def_t dst = {0}; 
-  
-  //  RAN Function Name
-  //  Mandatory
-  //  9.3.2
-  //  6.2.2.1.
-  dst.name = cp_ran_function_name(&src->name);
 
   // TODO
 
@@ -542,13 +510,6 @@ bool eq_e2sm_ccc_func_def(e2sm_ccc_func_def_t const* m0, e2sm_ccc_func_def_t con
     return true;
 
   if(m0 == NULL || m1 == NULL)
-    return false;
-
-  //  RAN Function Name
-  //  Mandatory
-  //  9.3.2
-  //  6.2.2.1.
-  if(eq_ran_function_name(&m0->name, &m1->name) == false) 
     return false;
 
   return true;
@@ -630,8 +591,6 @@ void free_ccc_ind_data(ccc_ind_data_t* ind)
   
   free_e2sm_ccc_ind_hdr(&ind->hdr);
   free_e2sm_ccc_ind_msg(&ind->msg);
-  if(ind->proc_id != NULL)
-    free_e2sm_ccc_cpid(ind->proc_id); 
 }
 
 bool eq_ccc_ind_data(ccc_ind_data_t const* m0, ccc_ind_data_t const* m1)
@@ -652,11 +611,6 @@ bool eq_ccc_ind_data(ccc_ind_data_t const* m0, ccc_ind_data_t const* m1)
     return false;
   }
 
-  if(eq_e2sm_ccc_cpid(m0->proc_id, m1->proc_id) == false){
-    assert(0!=0 && "Debug");
-    return false;
-  }
-
   return true;
 }
 
@@ -668,12 +622,6 @@ ccc_ind_data_t cp_ccc_ind_data(ccc_ind_data_t const* src)
 
   dst.hdr = cp_e2sm_ccc_ind_hdr(&src->hdr);
   dst.msg = cp_e2sm_ccc_ind_msg(&src->msg);
-
-  if(src->proc_id != NULL){
-    dst.proc_id = malloc(sizeof(e2sm_ccc_cpid_t));
-    assert(dst.proc_id != NULL && "Memory exhausted");
-    *dst.proc_id = cp_e2sm_ccc_cpid(src->proc_id);
-  }
 
   return dst;
 }

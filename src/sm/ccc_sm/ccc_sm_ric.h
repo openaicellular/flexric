@@ -20,34 +20,16 @@
  */
 
 
-#ifndef CCC_SERVICE_MODEL_ID_H
-#define CCC_SERVICE_MODEL_ID_H
-
-
-/*
- * Service Model ID needed for the agent as well as for the ric to ensure that they match. 
- */
+#ifndef CCC_SERVICE_MODEL_SERVER_H
+#define CCC_SERVICE_MODEL_SERVER_H
 
 #include <stdint.h>
+#include "../../sm/sm_ric.h"
 
-static
-const uint16_t SM_CCC_ID = 3; // TODO
+__attribute__ ((visibility ("default"))) 
+sm_ric_t* make_ccc_sm_ric(void);
 
-
-static
-const uint16_t SM_CCC_REV = 1; // TODO
-
-#define SM_CCC_SHORT_NAME "ORAN-E2SM-CCC"
-//iso(1) identified-organization(3)
-//dod(6) internet(1) private(4)
-//enterprise(1) 53148 e2(1)
-// version1 (1) e2sm(2) e2sm-RC-
-// IEs (3)
-
-// TODO
-#define SM_CCC_OID "1.3.6.1.4.1.53148.1.1.2.3"
-
-#define SM_CCC_DESCRIPTION "Cell Configuration and Control"
+uint16_t id_ccc_sm_ric(sm_ric_t const* ); 
 
 #endif
 

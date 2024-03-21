@@ -19,35 +19,34 @@
  *      contact@openairinterface.org
  */
 
+#ifndef CCC_ENCRYPTION_PLAIN_H
+#define CCC_ENCRYPTION_PLAIN_H
 
-#ifndef CCC_SERVICE_MODEL_ID_H
-#define CCC_SERVICE_MODEL_ID_H
+#include "../../../util/byte_array.h"
+#include "../ie/ccc_data_ie.h"
 
+// Used for static polymorphism.
+// View ccc_enc_generic file
+typedef struct{
 
-/*
- * Service Model ID needed for the agent as well as for the ric to ensure that they match. 
- */
+} ccc_enc_plain_t;
 
-#include <stdint.h>
+byte_array_t ccc_enc_event_trigger_plain(e2sm_ccc_event_trigger_t const* event_trigger);
 
-static
-const uint16_t SM_CCC_ID = 3; // TODO
+byte_array_t ccc_enc_action_def_plain(e2sm_ccc_action_def_t const*);
 
+byte_array_t ccc_enc_ind_hdr_plain(e2sm_ccc_ind_hdr_t const*);
 
-static
-const uint16_t SM_CCC_REV = 1; // TODO
+byte_array_t ccc_enc_ind_msg_plain(e2sm_ccc_ind_msg_t const*);
 
-#define SM_CCC_SHORT_NAME "ORAN-E2SM-CCC"
-//iso(1) identified-organization(3)
-//dod(6) internet(1) private(4)
-//enterprise(1) 53148 e2(1)
-// version1 (1) e2sm(2) e2sm-RC-
-// IEs (3)
+byte_array_t ccc_enc_call_proc_id_plain(e2sm_ccc_cpid_t const*);
 
-// TODO
-#define SM_CCC_OID "1.3.6.1.4.1.53148.1.1.2.3"
+byte_array_t ccc_enc_ctrl_hdr_plain(e2sm_ccc_ctrl_hdr_t const*);
 
-#define SM_CCC_DESCRIPTION "Cell Configuration and Control"
+byte_array_t ccc_enc_ctrl_msg_plain(e2sm_ccc_ctrl_msg_t const*);
+
+byte_array_t ccc_enc_ctrl_out_plain(e2sm_ccc_ctrl_out_t const*);
+
+byte_array_t ccc_enc_func_def_plain(e2sm_ccc_func_def_t const*);
 
 #endif
-

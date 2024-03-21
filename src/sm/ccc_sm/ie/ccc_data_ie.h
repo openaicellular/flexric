@@ -37,68 +37,55 @@ extern "C" {
 // RIC Event Trigger Definition
 /////////////////////////////////////
 
-// TODO
-//#include "ir/e2sm_ccc_ev_trg_frmt_1.h"
-//#include "ir/e2sm_ccc_ev_trg_frmt_2.h"
-//#include "ir/e2sm_ccc_ev_trg_frmt_3.h"
+#include "ir/e2sm_ccc_ev_trg_frmt_1.h"
+#include "ir/e2sm_ccc_ev_trg_frmt_2.h"
+#include "ir/e2sm_ccc_ev_trg_frmt_3.h"
 
 
 //////////////////////////////////////
 // RIC Action Definition 
 /////////////////////////////////////
 
-// TODO
-//#include "ir/e2sm_ccc_act_def_frmt_1.h"
-//#include "ir/e2sm_ccc_act_def_frmt_2.h"
-
+#include "ir/e2sm_ccc_act_def_frmt_1.h"
+#include "ir/e2sm_ccc_act_def_frmt_2.h"
 
 /////////////////////////////////////
 // RIC Indication Header 
 /////////////////////////////////////
 
-// TODO
-//#include "ir/e2sm_ccc_ind_hdr_frmt_1.h"
-
+#include "ir/e2sm_ccc_ind_hdr_frmt_1.h"
 
 /////////////////////////////////////
 // RIC Indication Message 
 /////////////////////////////////////
 
-// TODO
-//#include "ir/e2sm_ccc_ind_msg_frmt_1.h"
-//#include "ir/e2sm_ccc_ind_msg_frmt_2.h"
-
+#include "ir/e2sm_ccc_ind_msg_frmt_1.h"
+#include "ir/e2sm_ccc_ind_msg_frmt_2.h"
 
 /////////////////////////////////////
 // RIC Control Header 
 /////////////////////////////////////
 
-// TODO
-//#include "ir/e2sm_ccc_ctrl_hdr_frmt_1.h"
-
+#include "ir/e2sm_ccc_ctrl_hdr_frmt_1.h"
 
 /////////////////////////////////////
 // RIC Control Message 
 /////////////////////////////////////
 
-// TODO
-//#include "ir/e2sm_ccc_ctrl_msg_frmt_1.h"
-//#include "ir/e2sm_ccc_ctrl_msg_frmt_2.h"
-
+#include "ir/e2sm_ccc_ctrl_msg_frmt_1.h"
+#include "ir/e2sm_ccc_ctrl_msg_frmt_2.h"
 
 /////////////////////////////////////
 // RIC Control Outcome 
 /////////////////////////////////////
 
-// TODO
-//#include "ir/e2sm_ccc_ctrl_out_frmt_1.h"
-//#include "ir/e2sm_ccc_ctrl_out_frmt_2.h"
+#include "ir/e2sm_ccc_ctrl_out_frmt_1.h"
+#include "ir/e2sm_ccc_ctrl_out_frmt_2.h"
 
 /////////////////////////////////////
 // RAN Function Definition 
 /////////////////////////////////////
 
-// TODO
 #include "../../../lib/sm/ie/ran_function_name.h"
 
 //////////////////////////////////////
