@@ -6,48 +6,8 @@
 #include <stddef.h>
 
 #include "../../../../util/byte_array.h"
-#include "cause.h"
-
-typedef struct{
-  // RAN Configuration Structure Name
-  // Mandatory
-  // 9.3.7
-  byte_array_t ran_conf_name;
-
-  // Old Values of Attributes
-  // Mandatory
-  byte_array_t old_atr_val;
-
-  // Current Values of Attributes
-  // Mandatory
-  byte_array_t cur_atr_val;
-
-  // Applied Timestamp
-  // Optional
-  byte_array_t app_timestamp;
-
-} ctrl_out_conf_accepted_t;
-
-typedef struct{
-  // RAN Configuration Structure Name
-  // Mandatory
-  // 9.3.7
-  byte_array_t ran_conf_name;
-
-  // Old Values of Attributes
-  // Mandatory
-  byte_array_t old_atr_val;
-
-  // Requested Values of Attributes
-  // Mandatory
-  byte_array_t req_atr_val;
-
-  // Cause
-  // Mandatory
-  // 9.3.11
-  ccc_cause_e cause;
-
-} ctrl_out_conf_failed_t;
+#include "ctrl_out_conf_failed.h"
+#include "ctrl_out_conf_accepted.h"
 
 // 9.2.1.8.1
 typedef struct{

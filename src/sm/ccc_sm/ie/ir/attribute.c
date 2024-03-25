@@ -1,7 +1,6 @@
 #include "attribute.h"
 
 #include <assert.h>
-#include <stdlib.h>
 
 void free_attribute(attribute_t* src)
 {

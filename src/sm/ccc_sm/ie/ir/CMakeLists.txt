@@ -1,4 +1,7 @@
 set (IR_CCC_SRC
+        attribute.c
+        ctrl_out_conf_accepted.c
+        ctrl_out_conf_failed.c
         e2sm_ccc_act_def_frmt_1.c
         e2sm_ccc_act_def_frmt_2.c
         e2sm_ccc_ctrl_hdr_frmt_1.c
@@ -12,7 +15,6 @@ set (IR_CCC_SRC
         e2sm_ccc_ind_hdr_frmt_1.c
         e2sm_ccc_ind_msg_frmt_1.c
         e2sm_ccc_ind_msg_frmt_2.c
-        attribute.c
   )
 
 add_library(e2sm_ccc_ir_obj OBJECT ${IR_CCC_SRC})

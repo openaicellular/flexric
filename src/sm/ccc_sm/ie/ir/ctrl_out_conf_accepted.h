@@ -1,0 +1,33 @@
+#ifndef CCC_CTRL_OUT_CONF_ACCEPTED_H
+#define CCC_CTRL_OUT_CONF_ACCEPTED_H
+
+#include "../../../../util/byte_array.h"
+
+typedef struct{
+  // RAN Configuration Structure Name
+  // Mandatory
+  // 9.3.7
+  byte_array_t ran_conf_name;
+
+  // Old Values of Attributes
+  // Mandatory
+  byte_array_t old_atr_val;
+
+  // Current Values of Attributes
+  // Mandatory
+  byte_array_t cur_atr_val;
+
+  // Applied Timestamp
+  // Optional
+  byte_array_t app_timestamp;
+
+} ctrl_out_conf_accepted_t;
+
+void free_ctrl_out_conf_accepted(ctrl_out_conf_accepted_t * src);
+
+bool eq_ctrl_out_conf_accepted(ctrl_out_conf_accepted_t const* m0, ctrl_out_conf_accepted_t const* m1);
+
+ctrl_out_conf_accepted_t cp_ctrl_out_conf_accepted(ctrl_out_conf_accepted_t const* src);
+
+#endif
+
