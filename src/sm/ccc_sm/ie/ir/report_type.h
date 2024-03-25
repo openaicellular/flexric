@@ -1,5 +1,5 @@
 #ifndef REPORT_TYPE_H
-#define  REPORT_TYPE_H
+#define REPORT_TYPE_H
 
 typedef enum{
   REPORT_TYPE_ALL,
