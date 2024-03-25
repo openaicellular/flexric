@@ -17,6 +17,9 @@ bool eq_e2sm_ccc_ctrl_hdr_frmt_1(e2sm_ccc_ctrl_hdr_frmt_1_t const* m0, e2sm_ccc_
   if(m0 == NULL || m1 == NULL)
     return false;
 
+  if(m0->ric_style_type != m1->ric_style_type)
+    return false;
+
   return true;
 }
 
@@ -24,8 +27,7 @@ e2sm_ccc_ctrl_hdr_frmt_1_t cp_e2sm_ccc_ctrl_hdr_frmt_1( e2sm_ccc_ctrl_hdr_frmt_1
 {
   assert(src != NULL);
 
-  e2sm_ccc_ctrl_hdr_frmt_1_t dst = {0}; 
-
+  e2sm_ccc_ctrl_hdr_frmt_1_t dst = { .ric_style_type = src->ric_style_type};
   return dst;
 }
 

@@ -150,9 +150,6 @@ bool eq_e2sm_ccc_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t const* m0, e2sm_ccc_ac
     return false;
 
 
-  assert(m0->sz_act_def_cell_report > 0);
-  assert(m1->sz_act_def_cell_report > 0);
-
   if(m0->sz_act_def_cell_report != m1->sz_act_def_cell_report)
     return false;
 

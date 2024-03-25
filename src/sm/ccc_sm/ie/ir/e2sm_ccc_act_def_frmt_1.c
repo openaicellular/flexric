@@ -92,9 +92,6 @@ bool eq_e2sm_ccc_act_def_frmt_1(e2sm_ccc_act_def_frmt_1_t const* m0, e2sm_ccc_ac
   if(m0 == NULL || m1 == NULL)
     return false;
 
-  assert(m0->sz_act_def_node_conf > 0);
-  assert(m1->sz_act_def_node_conf > 0);
-
   if(m0->sz_act_def_node_conf != m1->sz_act_def_node_conf)
     return false;
 

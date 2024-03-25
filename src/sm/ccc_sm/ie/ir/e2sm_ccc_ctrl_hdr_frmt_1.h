@@ -1,12 +1,16 @@
-#ifndef E2SM_CCC_CTRL_HDR_FRMT_1_E2SM_ccc_H
-#define E2SM_CCC_CTRL_HDR_FRMT_1_E2SM_ccc_H
+#ifndef E2SM_CCC_CTRL_HDR_FRMT_1_E2SM_H
+#define E2SM_CCC_CTRL_HDR_FRMT_1_E2SM_H
 
+#include <stdint.h>
 #include <stdbool.h>
-
 
 // 9.2.1.6.1
 typedef struct{
-  bool test;
+  //  RIC Style Type
+  //  Mandatory
+  //  9.3.3
+  //  Defined in common 6.2.2.2.
+  uint32_t ric_style_type;
 } e2sm_ccc_ctrl_hdr_frmt_1_t;
 
 void free_e2sm_ccc_ctrl_hdr_frmt_1(e2sm_ccc_ctrl_hdr_frmt_1_t* src);
