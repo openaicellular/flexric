@@ -70,7 +70,7 @@ void free_e2sm_ccc_ctrl_msg_frmt_1( e2sm_ccc_ctrl_msg_frmt_1_t* src)
 
   // List of Configuration Structures
   // [1-65535]
-  assert(src->sz_ctrl_msg_conf > 1 && src->sz_ctrl_msg_conf < 65535);
+  assert(src->sz_ctrl_msg_conf > 0 && src->sz_ctrl_msg_conf < 65535);
   for(size_t i = 0; i < src->sz_ctrl_msg_conf; ++i){
     free_ctrl_msg_conf(&src->ctrl_msg_conf[i]);
   }
@@ -87,8 +87,8 @@ bool eq_e2sm_ccc_ctrl_msg_frmt_1(e2sm_ccc_ctrl_msg_frmt_1_t const* m0, e2sm_ccc_
   if(m0->sz_ctrl_msg_conf != m1->sz_ctrl_msg_conf)
     return false;
 
-  assert(m0->sz_ctrl_msg_conf > 1 && m0->sz_ctrl_msg_conf < 65535);
-  assert(m1->sz_ctrl_msg_conf > 1 && m1->sz_ctrl_msg_conf < 65535);
+  assert(m0->sz_ctrl_msg_conf > 0 && m0->sz_ctrl_msg_conf < 65535);
+  assert(m1->sz_ctrl_msg_conf > 0 && m1->sz_ctrl_msg_conf < 65535);
   for(size_t i = 0; i < m0->sz_ctrl_msg_conf; ++i){
     if(eq_ctrl_msg_conf(&m0->ctrl_msg_conf[i], &m1->ctrl_msg_conf[i]) == false){
       return false;
@@ -105,10 +105,10 @@ e2sm_ccc_ctrl_msg_frmt_1_t cp_e2sm_ccc_ctrl_msg_frmt_1(e2sm_ccc_ctrl_msg_frmt_1_
 
   // List of Configuration Structures
   // [1-65535]
-  assert(src->sz_ctrl_msg_conf > 1 && src->sz_ctrl_msg_conf < 65535);
+  assert(src->sz_ctrl_msg_conf > 0 && src->sz_ctrl_msg_conf < 65535);
   dst.sz_ctrl_msg_conf = src->sz_ctrl_msg_conf;
 
-  dst.sz_ctrl_msg_conf = calloc(dst.sz_ctrl_msg_conf, sizeof(ctrl_msg_conf_t));
+  dst.ctrl_msg_conf = calloc(dst.sz_ctrl_msg_conf, sizeof(ctrl_msg_conf_t));
   assert(dst.ctrl_msg_conf != NULL && "Memory exhausted");
 
   for(size_t i = 0; i < src->sz_ctrl_msg_conf; ++i){

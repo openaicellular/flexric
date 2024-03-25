@@ -5,10 +5,45 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "../../../../lib/sm/ie/cell_global_id.h"
+#include "../../../../util/byte_array.h"
+
+typedef struct{
+// RAN Configuration Structure Name
+  // Mandatory
+  // 9.3.7
+  byte_array_t ran_conf_name;
+
+  // Old Values of Attributes
+  // Mandatory
+  byte_array_t old_atr_val;
+
+  // New Values of Attributes
+  // Mandatory
+  byte_array_t new_atr_val;
+
+} ctrl_msg_cell_conf_t;
+
+typedef struct{
+  // Cell global ID
+  // Mandatory
+  // 9.3.6
+  cell_global_id_t cell_global_id;
+
+  // List of Configuration Structures
+  // [1-65535]
+  size_t sz_ctrl_msg_cell_conf;
+  ctrl_msg_cell_conf_t* ctrl_msg_cell_conf;
+
+} ctrl_msg_cell_t;
+
 // 9.2.1.7.2
 typedef struct{
-  // TODO
-  int test;
+  // List of Cells
+  // [1-65535]
+  size_t sz_ctrl_msg_cell;
+  ctrl_msg_cell_t* ctrl_msg_cell;
+
 } e2sm_ccc_ctrl_msg_frmt_2_t;
 
 void free_e2sm_ccc_ctrl_msg_frmt_2( e2sm_ccc_ctrl_msg_frmt_2_t* src);
