@@ -52,13 +52,13 @@ ctrl_msg_cell_conf_t cp_ctrl_msg_cell_conf(ctrl_msg_cell_conf_t const* src)
 
   ctrl_msg_cell_conf_t dst = {0};
 
-  assert(dst.ran_conf_name.buf != NULL);
+  assert(src->ran_conf_name.buf != NULL);
   dst.ran_conf_name = copy_byte_array(src->ran_conf_name);
 
-  assert(dst.old_atr_val.buf != NULL);
+  assert(src->old_atr_val.buf != NULL);
   dst.old_atr_val= copy_byte_array(src->old_atr_val);
 
-  assert(dst.new_atr_val.buf != NULL);
+  assert(src->new_atr_val.buf != NULL);
   dst.new_atr_val= copy_byte_array(src->new_atr_val);
 
   return dst;

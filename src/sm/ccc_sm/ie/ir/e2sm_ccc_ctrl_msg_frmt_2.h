@@ -9,7 +9,7 @@
 #include "../../../../util/byte_array.h"
 
 typedef struct{
-// RAN Configuration Structure Name
+  // RAN Configuration Structure Name
   // Mandatory
   // 9.3.7
   byte_array_t ran_conf_name;
