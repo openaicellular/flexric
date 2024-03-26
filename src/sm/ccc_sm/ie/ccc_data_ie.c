@@ -37,14 +37,11 @@ void free_e2sm_ccc_event_trigger(e2sm_ccc_event_trigger_t* src)
   assert(src != NULL);
 
   if(src->format == FORMAT_1_E2SM_CCC_EV_TRIGGER_FORMAT){
-    // TODO
-
+    free_e2sm_ccc_ev_trg_frmt_1(&src->frmt_1);
   } else if(src->format == FORMAT_2_E2SM_CCC_EV_TRIGGER_FORMAT ){
-    // TODO
-
+    free_e2sm_ccc_ev_trg_frmt_2(&src->frmt_2);
   }else if(src->format == FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT ){
-    // TODO
-
+    free_e2sm_ccc_ev_trg_frmt_3(&src->frmt_3);
   } else {
     assert(0!=0 && "Not implemented");
   }
@@ -59,11 +56,11 @@ bool eq_e2sm_ccc_event_trigger(e2sm_ccc_event_trigger_t const* m0, e2sm_ccc_even
     return false;
 
   if(m0->format == FORMAT_1_E2SM_CCC_EV_TRIGGER_FORMAT){
-    // TODO
+    eq_e2sm_ccc_ev_trg_frmt_1(&m0->frmt_1, &m1->frmt_1);
   } else if(m0->format == FORMAT_2_E2SM_CCC_EV_TRIGGER_FORMAT ){
-    // TODO
+    eq_e2sm_ccc_ev_trg_frmt_2(&m0->frmt_2, &m1->frmt_2);
   }else if(m0->format == FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT ){
-    // TODO
+    eq_e2sm_ccc_ev_trg_frmt_3(&m0->frmt_3, &m1->frmt_3);
   } else {
     assert(0!=0 && "Not implemented");
   }
@@ -80,14 +77,11 @@ e2sm_ccc_event_trigger_t cp_e2sm_ccc_event_trigger(e2sm_ccc_event_trigger_t cons
   e2sm_ccc_event_trigger_t dst = {.format = src->format};
 
   if(src->format == FORMAT_1_E2SM_CCC_EV_TRIGGER_FORMAT){
-    // TODO
-
+    cp_e2sm_ccc_ev_trg_frmt_1(&src->frmt_1);
   } else if(src->format == FORMAT_2_E2SM_CCC_EV_TRIGGER_FORMAT){
-    // TODO
-
+    cp_e2sm_ccc_ev_trg_frmt_2(&src->frmt_2);
   }else if(src->format == FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT ){
-    // TODO
-
+    cp_e2sm_ccc_ev_trg_frmt_3(&src->frmt_3);
   } else {
     assert(0!=0 && "Not implemented");
   }
@@ -107,12 +101,12 @@ void free_e2sm_ccc_action_def(e2sm_ccc_action_def_t* src)
   //  Mandatory
   //  9.3.3
   // Defined in common 6.2.2.2.
-  // uint32_t ric_style_type; 
+  // uint32_t ric_style_type;
 
   if(src->format == FORMAT_1_E2SM_CCC_ACT_DEF ){
-    // TODO
+    free_e2sm_ccc_act_def_frmt_1(&src->frmt_1);
   } else if(src->format ==  FORMAT_2_E2SM_CCC_ACT_DEF ){
-    // TODO
+    free_e2sm_ccc_act_def_frmt_2(&src->frmt_2);
   } else {
     assert("Unknown format" );
   }
@@ -132,9 +126,9 @@ e2sm_ccc_action_def_t cp_e2sm_ccc_action_def(e2sm_ccc_action_def_t const* src)
 
   dst.format = src->format;
   if(dst.format == FORMAT_1_E2SM_CCC_ACT_DEF){
-    // TODO
+    cp_e2sm_ccc_act_def_frmt_1(&src->frmt_1);
   }else if(dst.format == FORMAT_2_E2SM_CCC_ACT_DEF){
-    // TODO
+    cp_e2sm_ccc_act_def_frmt_2(&src->frmt_2);
   } else {
     assert(0!=0 && "Unknown format");
   }
@@ -158,9 +152,9 @@ bool eq_e2sm_ccc_action_def(e2sm_ccc_action_def_t* m0,  e2sm_ccc_action_def_t* m
     return false;
 
   if(m0->format == FORMAT_1_E2SM_CCC_ACT_DEF){
-    // TODO
+    eq_e2sm_ccc_act_def_frmt_1(&m0->frmt_1, &m1->frmt_1);
   } else if(m0->format == FORMAT_2_E2SM_CCC_ACT_DEF){
-    // TODO
+    eq_e2sm_ccc_act_def_frmt_2(&m0->frmt_2, &m1->frmt_2);
   } else {
     assert( 0!= 0 && "Unknown format type");
   }
@@ -180,7 +174,7 @@ void free_e2sm_ccc_ind_hdr(e2sm_ccc_ind_hdr_t* src)
   assert(src != NULL);
  
   if(src->format == FORMAT_1_E2SM_CCC_IND_HDR){
-    // TODO
+    free_e2sm_ccc_ind_hdr_frmt_1(&src->frmt_1);
   } else {
     assert(0!=0 && "Unknown type");
   }
@@ -193,7 +187,7 @@ e2sm_ccc_ind_hdr_t cp_e2sm_ccc_ind_hdr(e2sm_ccc_ind_hdr_t const* src)
   e2sm_ccc_ind_hdr_t dst = {.format = src->format}; 
 
   if(src->format == FORMAT_1_E2SM_CCC_IND_HDR){
-    // TODO
+    cp_e2sm_ccc_ind_hdr_frmt_1(&src->frmt_1);
   } else {
     assert(0!=0 && "Unknown type");
   }
@@ -214,7 +208,7 @@ bool eq_e2sm_ccc_ind_hdr(e2sm_ccc_ind_hdr_t const* m0, e2sm_ccc_ind_hdr_t const*
     return false;
 
   if(m0->format == FORMAT_1_E2SM_CCC_IND_HDR  ){
-    // TODO
+    eq_e2sm_ccc_ind_hdr_frmt_1(&m0->frmt_1, &m1->frmt_1);
   } else {
     assert(0!=0 && "Unknown format");
   }
@@ -234,9 +228,9 @@ void free_e2sm_ccc_ind_msg(e2sm_ccc_ind_msg_t* src)
   assert(src != NULL);
 
   if(src->format == FORMAT_1_E2SM_CCC_IND_MSG){
-    // TODO
+    free_e2sm_ccc_ind_msg_frmt_1(&src->frmt_1);
   } else if(src->format == FORMAT_2_E2SM_CCC_IND_MSG){
-    // TODO
+    free_e2sm_ccc_ind_msg_frmt_2(&src->frmt_2);
   } else{
     assert(0 != 0 && "Unknown format");
   }
@@ -251,9 +245,9 @@ e2sm_ccc_ind_msg_t cp_e2sm_ccc_ind_msg(e2sm_ccc_ind_msg_t const* src)
   e2sm_ccc_ind_msg_t dst = {.format = src->format}; 
 
   if(src->format == FORMAT_1_E2SM_CCC_IND_MSG){
-    // TODO
+    cp_e2sm_ccc_ind_msg_frmt_1(&src->frmt_1);
   } else if(src->format == FORMAT_2_E2SM_CCC_IND_MSG){
-    // TODO
+    cp_e2sm_ccc_ind_msg_frmt_2(&src->frmt_2);
   } else{
     assert(0 != 0 && "Unknown format");
   }
@@ -273,9 +267,9 @@ bool eq_e2sm_ccc_ind_msg(e2sm_ccc_ind_msg_t const* m0, e2sm_ccc_ind_msg_t const*
     return false;
 
   if(m0->format == FORMAT_1_E2SM_CCC_IND_MSG ){
-    // TODO
+    eq_e2sm_ccc_ind_msg_frmt_1(&m0->frmt_1, &m1->frmt_1);
   } else if(m0->format == FORMAT_2_E2SM_CCC_IND_MSG){
-    // TODO
+    eq_e2sm_ccc_ind_msg_frmt_2(&m0->frmt_2, &m1->frmt_2);
   } else {
     assert(0 != 0 && "Unknown format");
   }
@@ -323,7 +317,7 @@ void free_e2sm_ccc_ctrl_hdr(e2sm_ccc_ctrl_hdr_t* src)
 {
   assert(src != NULL);
   if(src->format == FORMAT_1_E2SM_CCC_CTRL_HDR){
-    // TODO
+    free_e2sm_ccc_ctrl_hdr_frmt_1(&src->frmt_1);
   } else {
     assert(0!=0 && "Unknown type");
   }
@@ -336,7 +330,7 @@ e2sm_ccc_ctrl_hdr_t cp_e2sm_ccc_ctrl_hdr(e2sm_ccc_ctrl_hdr_t const* src)
   e2sm_ccc_ctrl_hdr_t dst = {.format = src->format};
 
   if(dst.format == FORMAT_1_E2SM_CCC_CTRL_HDR){
-    // TODO
+    cp_e2sm_ccc_ctrl_hdr_frmt_1(&src->frmt_1);
   } else{
     assert(0!=0 && "Unknown format type");
   } 
@@ -356,7 +350,7 @@ bool eq_e2sm_ccc_ctrl_hdr(e2sm_ccc_ctrl_hdr_t const* m0, e2sm_ccc_ctrl_hdr_t con
     return false;
 
   if(m0->format == FORMAT_1_E2SM_CCC_CTRL_HDR){
-    // TODO
+    eq_e2sm_ccc_ctrl_hdr_frmt_1(&m0->frmt_1, &m1->frmt_1);
   } else {
     assert(0!=0 && "Unknown type");
   }
@@ -375,9 +369,9 @@ void free_e2sm_ccc_ctrl_msg(e2sm_ccc_ctrl_msg_t* src)
   assert(src != NULL);
 
   if(src->format == FORMAT_1_E2SM_CCC_CTRL_MSG){
-    // TODO
+    free_e2sm_ccc_ctrl_msg_frmt_1(&src->frmt_1);
   } else if(src->format == FORMAT_2_E2SM_CCC_CTRL_MSG){
-    // TODO
+    free_e2sm_ccc_ctrl_msg_frmt_2(&src->frmt_2);
   } else {
     assert(0 && "Unknown format");
   }
@@ -391,9 +385,9 @@ e2sm_ccc_ctrl_msg_t cp_e2sm_ccc_ctrl_msg(e2sm_ccc_ctrl_msg_t const* src)
   e2sm_ccc_ctrl_msg_t dst = {.format = src->format};
 
   if(src->format == FORMAT_1_E2SM_CCC_CTRL_MSG){
-    // TODO
+    cp_e2sm_ccc_ctrl_msg_frmt_1(&src->frmt_1);
   } else if(src->format == FORMAT_2_E2SM_CCC_CTRL_MSG){
-    // TODO
+    cp_e2sm_ccc_ctrl_msg_frmt_2(&src->frmt_2);
   } else {
     assert(0!=0 && "Unknown format");
   }
@@ -413,9 +407,9 @@ bool eq_e2sm_ccc_ctrl_msg(e2sm_ccc_ctrl_msg_t const* m0, e2sm_ccc_ctrl_msg_t con
     return false;
 
   if(m0->format == FORMAT_1_E2SM_CCC_CTRL_MSG){
-    // TODO
+    eq_e2sm_ccc_ctrl_msg_frmt_1(&m0->frmt_1, &m1->frmt_1);
   } else if(m0->format == FORMAT_2_E2SM_CCC_CTRL_MSG){
-    // TODO
+    eq_e2sm_ccc_ctrl_msg_frmt_2(&m0->frmt_2, &m1->frmt_2);
   } else {
     assert(0 && "Unknown format");
   }
@@ -433,9 +427,9 @@ void free_e2sm_ccc_ctrl_out(e2sm_ccc_ctrl_out_t* src)
   assert(src != NULL);
 
   if(src->format == FORMAT_1_E2SM_CCC_CTRL_OUT){
-    // TODO
+    free_e2sm_ccc_ctrl_out_frmt_1(&src->frmt_1);
   } else if(src->format == FORMAT_2_E2SM_CCC_CTRL_OUT){
-    // TODO
+    free_e2sm_ccc_ctrl_out_frmt_2(&src->frmt_2);
   } else {
     assert(0!=0 && "Unknown format");
   }
@@ -449,9 +443,9 @@ e2sm_ccc_ctrl_out_t cp_e2sm_ccc_ctrl_out(e2sm_ccc_ctrl_out_t const* src)
   e2sm_ccc_ctrl_out_t dst = {.format = src->format}; 
   
   if(dst.format == FORMAT_1_E2SM_CCC_CTRL_OUT ){
-    // TODO
+    cp_e2sm_ccc_ctrl_out_frmt_1(&src->frmt_1);
   } else if(src->format == FORMAT_2_E2SM_CCC_CTRL_OUT){
-    // TODO
+    cp_e2sm_ccc_ctrl_out_frmt_2(&src->frmt_2);
   }  else{
     assert(0!=0 && "Unknown format");
   }
@@ -471,9 +465,9 @@ bool eq_e2sm_ccc_ctrl_out(e2sm_ccc_ctrl_out_t const* m0, e2sm_ccc_ctrl_out_t con
     return false;
 
   if(m0->format == FORMAT_1_E2SM_CCC_CTRL_OUT){
-    // TODO
+    eq_e2sm_ccc_ctrl_out_frmt_1(&m0->frmt_1, &m1->frmt_1);
   } else if(m0->format == FORMAT_2_E2SM_CCC_CTRL_OUT){
-    // TODO
+    eq_e2sm_ccc_ctrl_out_frmt_2(&m0->frmt_2, &m1->frmt_2);
   } else {
     assert(0!=0 && "Unknown format");
   }
