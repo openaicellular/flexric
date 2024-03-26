@@ -17,7 +17,7 @@ typedef struct{
   // [0 - 66535]
   size_t sz_attribute;
   attribute_t* attribute;
-} ran_conf_t;
+} ev_trg_cell_conf_t;
 
 typedef struct{
   // Cell global ID
@@ -27,17 +27,17 @@ typedef struct{
 
   // List of Cell-level RAN Configuration Structures
   // [1 - 1024]
-  size_t sz_ran_conf;
-  ran_conf_t* ran_conf;
+  size_t sz_ev_trg_cell_conf;
+  ev_trg_cell_conf_t* ev_trg_cell_conf;
 
-} ev_trg_cell_conf_t;
+} ev_trg_cell_t;
 
 // 9.2.1.1.2
 typedef struct {
-  // List of Node-level Configuration Structures
+  // List of Cell-level Configuration Structures
   // [1 - 1024]
-  size_t sz_ev_trg_cell_conf;
-  ev_trg_cell_conf_t ev_trg_cell_conf;
+  size_t sz_ev_trg_cell;
+  ev_trg_cell_t* ev_trg_cell;
 } e2sm_ccc_ev_trg_frmt_2_t;
 
 void free_e2sm_ccc_ev_trg_frmt_2(e2sm_ccc_ev_trg_frmt_2_t const* src);

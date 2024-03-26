@@ -24,7 +24,7 @@ typedef struct{
   // List of Node-level Configuration Structures
   // [1 - 256]
   size_t sz_ev_trg_node_conf;
-  ev_trg_node_conf_t ev_trg_node_conf;
+  ev_trg_node_conf_t* ev_trg_node_conf;
 } e2sm_ccc_ev_trg_frmt_1_t;
 
 void free_e2sm_ccc_ev_trg_frmt_1(e2sm_ccc_ev_trg_frmt_1_t* src);
