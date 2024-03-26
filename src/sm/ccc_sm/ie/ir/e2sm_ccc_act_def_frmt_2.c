@@ -18,8 +18,6 @@ void free_cell_conf(cell_conf_t* src)
     }
     free(src->attribute);
   }
-
-  free(src);
 }
 
 static
@@ -136,9 +134,6 @@ void free_e2sm_ccc_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t* src)
   for(size_t i = 0; i < src->sz_act_def_cell_report; ++i){
     free_act_def_cell_report(&src->act_def_cell_report[i]);
   }
-
-  assert(src->act_def_cell_report!= NULL);
-  free(src->act_def_cell_report);
 }
 
 bool eq_e2sm_ccc_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t const* m0, e2sm_ccc_act_def_frmt_2_t const* m1)

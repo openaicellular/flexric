@@ -8,13 +8,10 @@ void free_ctrl_msg_conf(ctrl_msg_conf_t * src)
 {
   assert(src != NULL);
 
-  assert(src->ran_conf_name.buf != NULL);
   free_byte_array(src->ran_conf_name);
 
-  assert(src->old_atr_val.buf != NULL);
   free_byte_array(src->old_atr_val);
 
-  assert(src->new_atr_val.buf != NULL);
   free_byte_array(src->new_atr_val);
 }
 
@@ -27,18 +24,12 @@ bool eq_ctrl_msg_conf(ctrl_msg_conf_t const* m0, ctrl_msg_conf_t const* m1)
   if(m0 == NULL || m1 == NULL)
     return false;
 
-  assert(m0->ran_conf_name.buf != NULL);
-  assert(m1->ran_conf_name.buf != NULL);
   if(!eq_byte_array(&m0->ran_conf_name, &m1->ran_conf_name))
     return false;
 
-  assert(m0->old_atr_val.buf != NULL);
-  assert(m1->old_atr_val.buf != NULL);
   if(!eq_byte_array(&m0->old_atr_val, &m1->old_atr_val))
     return false;
 
-  assert(m0->new_atr_val.buf != NULL);
-  assert(m1->new_atr_val.buf != NULL);
   if(!eq_byte_array(&m0->new_atr_val, &m1->new_atr_val))
     return false;
 

@@ -33,7 +33,11 @@ bool eq_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_t const* m0, e2sm_ccc_
   if(m0 == NULL || m1 == NULL)
     return false;
 
-  if(m0->sz_ctrl_out_conf_accepted!= m1->sz_ctrl_out_conf_accepted)
+  if(m0->rev_timestamp.buf != NULL && m1->rev_timestamp.buf != NULL)
+    if(eq_byte_array(&m0->rev_timestamp, &m1->rev_timestamp) == false)
+      return false;
+
+  if(m0->sz_ctrl_out_conf_accepted != m1->sz_ctrl_out_conf_accepted)
     return false;
 
   assert(m0->sz_ctrl_out_conf_accepted < 65535);

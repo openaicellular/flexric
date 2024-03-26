@@ -19,8 +19,6 @@ void free_act_def_node_conf(act_def_node_conf_t* src)
     }
     free(src->attribute);
   }
-
-  free(src);
 }
 
 static
@@ -78,9 +76,6 @@ void free_e2sm_ccc_act_def_frmt_1(e2sm_ccc_act_def_frmt_1_t* src)
   for(size_t i = 0; i < src->sz_act_def_node_conf; ++i){
     free_act_def_node_conf(&src->act_def_node_conf[i]);
   }
-
-  assert(src->act_def_node_conf != NULL);
-  free(src->act_def_node_conf);
 }
 
 

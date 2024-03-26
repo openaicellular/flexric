@@ -14,41 +14,31 @@ void free_ctrl_out_conf_failed(ctrl_out_conf_failed_t * src)
          src->cause == CAUSE_UNSPECIFIED
   );
 
-  assert(src->ran_conf_name.buf != NULL);
   free_byte_array(src->ran_conf_name);
 
-  assert(src->old_atr_val.buf != NULL);
   free_byte_array(src->old_atr_val);
 
-  assert(src->req_atr_val.buf != NULL);
   free_byte_array(src->req_atr_val);
 }
 
 bool eq_ctrl_out_conf_failed(ctrl_out_conf_failed_t const* m0, ctrl_out_conf_failed_t const* m1)
 {
-  // TODO Assert cause
   if(m0 == m1)
     return true;
 
   if(m0 == NULL || m1 == NULL)
     return false;
 
-  assert(m0->ran_conf_name.buf != NULL);
-  assert(m1->ran_conf_name.buf != NULL);
+  if(m0->cause != m1->cause)
+    return false;
+
   if(!eq_byte_array(&m0->ran_conf_name, &m1->ran_conf_name))
     return false;
 
-  assert(m0->old_atr_val.buf != NULL);
-  assert(m1->old_atr_val.buf != NULL);
   if(!eq_byte_array(&m0->old_atr_val, &m1->old_atr_val))
     return false;
 
-  assert(m0->req_atr_val.buf != NULL);
-  assert(m1->req_atr_val.buf != NULL);
   if(!eq_byte_array(&m0->req_atr_val, &m1->req_atr_val))
-    return false;
-
-  if (m0->cause != m1->cause)
     return false;
 
   return true;
@@ -65,18 +55,13 @@ ctrl_out_conf_failed_t cp_ctrl_out_conf_failed(ctrl_out_conf_failed_t const* src
          src->cause == CAUSE_UNSPECIFIED
   );
 
-  ctrl_out_conf_failed_t dst = {0};
+  ctrl_out_conf_failed_t dst = {.cause = src->cause};
 
-  assert(src->ran_conf_name.buf != NULL);
   dst.ran_conf_name = copy_byte_array(src->ran_conf_name);
 
-  assert(src->old_atr_val.buf != NULL);
   dst.old_atr_val= copy_byte_array(src->old_atr_val);
 
-  assert(src->req_atr_val.buf != NULL);
   dst.req_atr_val = copy_byte_array(src->req_atr_val);
-
-  dst.cause = src->cause;
 
   return dst;
 }

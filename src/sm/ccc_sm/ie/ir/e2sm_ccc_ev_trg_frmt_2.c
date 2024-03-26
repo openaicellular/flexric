@@ -82,7 +82,11 @@ bool eq_ev_trg_cell(ev_trg_cell_t const* m0, ev_trg_cell_t const* m1)
   if(m0 == NULL || m1 == NULL)
     return false;
 
-  // TODO: Compare cell global id
+  if ((m0->cell_global_id.type == NR_CGI_RAT_TYPE || m0->cell_global_id.type == EUTRA_CGI_RAT_TYPE) &&
+  (m1->cell_global_id.type == NR_CGI_RAT_TYPE || m1->cell_global_id.type == EUTRA_CGI_RAT_TYPE)){
+    if(eq_cell_global_id(&m0->cell_global_id, &m1->cell_global_id) == false)
+      return false;
+  }
 
   if(m0->sz_ev_trg_cell_conf != m1->sz_ev_trg_cell_conf)
     return false;
