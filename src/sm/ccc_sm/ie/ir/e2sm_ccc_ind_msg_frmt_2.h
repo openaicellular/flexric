@@ -33,19 +33,19 @@ typedef struct {
   // 9.3.6
   cell_global_id_t cell_global_id;
 
-  // List of Cell-level RAN Configuration Structures
-  // [1 - 1024]
+  // List of Configuration Structures Reported
+  // [1 - 65535]
   size_t sz_ind_msg_cell_conf;
   ind_msg_cell_conf_t* ind_msg_cell_conf;
 
-} cell_report_t;
+} ind_msg_cell_report_t;
 
 //9.2.1.4.2
 typedef struct{
-  //Sequence of UE Identifier
-  //[1-65535]
-  size_t sz_cell_report;
-  cell_report_t* cell_report;
+  // List of Cells Reported
+  // [1 - 65535]
+  size_t sz_ind_msg_cell_report;
+  ind_msg_cell_report_t* ind_msg_cell_report;
 
 } e2sm_ccc_ind_msg_frmt_2_t;
 

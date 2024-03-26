@@ -25,14 +25,14 @@ typedef struct{
   // Optional
   byte_array_t old_val_attribute;
 
-} ind_msg_ran_conf_t;
+} ind_msg_node_conf_t;
 
 //9.2.1.4.1
 typedef struct{
   //  List of Configuration Structures Reported
   //  [1 - 65535]
-  size_t sz_ind_msg_ran_conf;
-  ind_msg_ran_conf_t* ind_msg_ran_conf;
+  size_t sz_ind_msg_node_conf;
+  ind_msg_node_conf_t* ind_msg_node_conf;
 
 } e2sm_ccc_ind_msg_frmt_1_t;
 
