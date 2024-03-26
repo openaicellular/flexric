@@ -18,7 +18,7 @@ typedef enum {
 typedef struct{
   // Indication reason
   // Mandatory
-  indication_reason_e* ind_reason;
+  indication_reason_e ind_reason;
 
   // Event time
   // 9.3.10
