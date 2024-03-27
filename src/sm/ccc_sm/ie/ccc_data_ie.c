@@ -483,23 +483,23 @@ bool eq_e2sm_ccc_ctrl_out(e2sm_ccc_ctrl_out_t const* m0, e2sm_ccc_ctrl_out_t con
 void free_e2sm_ccc_func_def(e2sm_ccc_func_def_t* src)
 {
   assert(src != NULL);
-
-  // TODO
+  assert(0 != 0 && "Not implemented");
 }
 
 e2sm_ccc_func_def_t cp_e2sm_ccc_func_def(e2sm_ccc_func_def_t const* src)
 {
   assert(src != NULL);
- 
-  e2sm_ccc_func_def_t dst = {0}; 
+  assert(0 != 0 && "Not implemented");
 
-  // TODO
+  e2sm_ccc_func_def_t dst = {0};
 
   return dst;
 }
 
 bool eq_e2sm_ccc_func_def(e2sm_ccc_func_def_t const* m0, e2sm_ccc_func_def_t const* m1)
 {
+  assert(0 != 0 && "Not implemented");
+
   if(m0 == m1)
     return true;
 

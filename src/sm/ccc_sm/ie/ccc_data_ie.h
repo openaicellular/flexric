@@ -311,13 +311,11 @@ typedef struct {
   //  Mandatory
   //  9.2.2.1.
   //  [0..1024]
-  //  TODO
 
   //  List of Cells
   //  Mandatory
   //  9.2.2.1.
   //  [0..1024]
-  //  TODO
 
 } e2sm_ccc_func_def_t;
 
