@@ -24,6 +24,7 @@
 #define CCC_ENCODE_GENERIC_H
 
 #include "ccc_enc_plain.h"
+#include "ccc_enc_json.h"
 
 /////////////////////////////////////////////////////////////////////
 // 9 Information Elements that are interpreted by the SM according
@@ -33,38 +34,47 @@
 
 #define ccc_enc_event_trigger(T,U) _Generic ((T), \
                            ccc_enc_plain_t*: ccc_enc_event_trigger_plain, \
+                           ccc_enc_json_t*: ccc_enc_event_trigger_json, \
                            default: ccc_enc_event_trigger_plain) (U)
 
 #define ccc_enc_action_def(T,U) _Generic ((T), \
                            ccc_enc_plain_t*: ccc_enc_action_def_plain, \
+                           ccc_enc_json_t*: ccc_enc_action_def_json, \
                            default:  ccc_enc_action_def_plain) (U)
 
 #define ccc_enc_ind_hdr(T,U) _Generic ((T), \
                            ccc_enc_plain_t*: ccc_enc_ind_hdr_plain , \
+                           ccc_enc_json_t*: ccc_enc_ind_hdr_json , \
                            default:  ccc_enc_ind_hdr_plain) (U)
 
 #define ccc_enc_ind_msg(T,U) _Generic ((T), \
                            ccc_enc_plain_t*: ccc_enc_ind_msg_plain , \
+                           ccc_enc_json_t*: ccc_enc_ind_msg_json , \
                            default:  ccc_enc_ind_msg_plain) (U)
 
 #define ccc_enc_call_proc_id(T,U) _Generic ((T), \
                            ccc_enc_plain_t*: ccc_enc_call_proc_id_plain , \
+                           ccc_enc_json_t*: ccc_enc_call_proc_id_json , \
                            default:  ccc_enc_call_proc_id_plain) (U)
 
 #define ccc_enc_ctrl_hdr(T,U) _Generic ((T), \
                            ccc_enc_plain_t*: ccc_enc_ctrl_hdr_plain , \
+                           ccc_enc_json_t*: ccc_enc_ctrl_hdr_json , \
                            default:  ccc_enc_ctrl_hdr_plain) (U)
 
 #define ccc_enc_ctrl_msg(T,U) _Generic ((T), \
                            ccc_enc_plain_t*: ccc_enc_ctrl_msg_plain , \
+                           ccc_enc_json_t*: ccc_enc_ctrl_msg_json , \
                            default: ccc_enc_ctrl_msg_plain) (U)
 
 #define ccc_enc_ctrl_out(T,U) _Generic ((T), \
                            ccc_enc_plain_t*: ccc_enc_ctrl_out_plain , \
+                           ccc_enc_json_t*: ccc_enc_ctrl_out_json , \
                            default: ccc_enc_ctrl_out_plain) (U)
 
 #define ccc_enc_func_def(T,U) _Generic ((T), \
                            ccc_enc_plain_t*: ccc_enc_func_def_plain, \
+                           ccc_enc_json_t*: ccc_enc_func_def_json, \
                            default:  ccc_enc_func_def_plain) (U)
 
 #endif

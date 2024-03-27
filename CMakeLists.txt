@@ -249,8 +249,8 @@ set_property(CACHE SM_ENCODING_RC PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
 message(STATUS "Selected RC SM_ENCODING: ${SM_ENCODING_RC}")
 
 # CCC service Model encoding definitions
-set(SM_ENCODING_CCC "PLAIN" CACHE STRING "The CCC SM encoding to use")
-set_property(CACHE SM_ENCODING_CCC PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
+set(SM_ENCODING_CCC "JSON" CACHE STRING "The CCC SM encoding to use")
+set_property(CACHE SM_ENCODING_CCC PROPERTY STRINGS "PLAIN" "JSON" "FLATBUFFERS")
 message(STATUS "Selected CCC SM_ENCODING: ${SM_ENCODING_CCC}")
 
 # MAC Service Model
@@ -320,6 +320,7 @@ message(STATUS "Build and install proxy-agent to support websocket interface of 
 if (PROXY_AGENT)
   set(SM_KPM ON)
   set(SM_RC ON)
+  set(SM_CCC ON)
   set(SM_MAC ON)
   set(SM_RLC OFF)
   set(SM_PDCP OFF)
@@ -389,6 +390,12 @@ option(SM_RC "Install RC SM" ON)
 message(STATUS "Install RC SM: ${SM_RC}")
 if (SM_RC)
   install(TARGETS rc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_CCC "Install CCC SM" ON)
+message(STATUS "Install CCC SM: ${SM_CCC}")
+if (SM_CCC)
+  install(TARGETS ccc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
 endif()
 
 ###

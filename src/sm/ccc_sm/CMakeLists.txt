@@ -38,43 +38,32 @@ if(SM_ENCODING_CCC STREQUAL "PLAIN")
   # Static
   add_library(ccc_sm_static STATIC ${SM_ENCODING_CCC_SRC_PLAIN})
 
-elseif(SM_ENCODING_CCC STREQUAL "ASN" )
-  message(FATAL_ERROR "CCC SM ASN not implemented")
-  add_subdirectory(ie/asn)
+elseif(SM_ENCODING_CCC STREQUAL "JSON" )
+#  add_subdirectory(ie/json)
   add_subdirectory(ie/ir)
 
-  set(SM_ENCODING_CCC_SRC_ASN
-    ${SM_ENCODING_CCC_SRC}
-    enc/ccc_enc_asn.c 
-    dec/ccc_dec_asn.c 
-    # This dependency sucks!
-    $<TARGET_OBJECTS:e2ap_ran_func_obj>
-    $<TARGET_OBJECTS:e2sm_ccc_asn1_obj>
-    $<TARGET_OBJECTS:e2sm_ccc_ir_obj>
-    $<TARGET_OBJECTS:e2_conv_obj>
-
-    $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-    $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj_CCC>
-    $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj_CCC>
-    $<TARGET_OBJECTS:sm_common_ie_obj>
-    $<TARGET_OBJECTS:sm_common_dec_asn_obj_CCC>
-    $<TARGET_OBJECTS:sm_common_enc_asn_obj_CCC>
+  set(SM_ENCODING_CCC_SRC_JSON
+          ${SM_ENCODING_CCC_SRC}
+          enc/ccc_enc_json.c
+          dec/ccc_dec_json.c
+          cJSON.c
+          parse_cjson.c
     )
 
 
   # Shared 
-  add_library(ccc_sm SHARED ${SM_ENCODING_CCC_SRC_ASN})
+  add_library(ccc_sm SHARED ${SM_ENCODING_CCC_SRC_JSON})
 
-  target_include_directories(ccc_sm PRIVATE "ie/asn")
-  target_compile_options(ccc_sm PRIVATE "-DASN_DISABLE_OER_SUPPORT" "-DASN_DISABLE_JER_SUPPORT" )
+#  target_include_directories(ccc_sm PRIVATE "ie/json")
+#  target_compile_options(ccc_sm PRIVATE "-DASN_DISABLE_OER_SUPPORT" "-DASN_DISABLE_JER_SUPPORT" )
   target_compile_options(ccc_sm PRIVATE -fPIC -Wno-missing-field-initializers -Wno-unused-parameter -fvisibility=hidden)
   target_link_libraries(ccc_sm PRIVATE -lm)  
 
 
   # Static
-  add_library(ccc_sm_static STATIC ${SM_ENCODING_CCC_SRC_ASN})
-  target_include_directories(ccc_sm_static PRIVATE "ie/asn")
-  target_compile_options(ccc_sm_static PRIVATE "-DASN_DISABLE_JER_SUPPORT" "-DASN_DISABLE_OER_SUPPORT")
+  add_library(ccc_sm_static STATIC ${SM_ENCODING_CCC_SRC_JSON})
+#  target_include_directories(ccc_sm_static PRIVATE "ie/json")
+#  target_compile_options(ccc_sm_static PRIVATE "-DASN_DISABLE_JER_SUPPORT" "-DASN_DISABLE_OER_SUPPORT")
   target_compile_options(ccc_sm_static PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fvisibility=hidden )
   target_link_libraries(ccc_sm_static PRIVATE -lm)  
 
@@ -82,8 +71,8 @@ elseif(SM_ENCODING_CCC STREQUAL "FLATBUFFERS" )
   message(FATAL_ERROR "CCC SM FB not implemented")
   add_library(ccc_sm SHARED
                      ${SM_ENCODING_CCC_SRC}
-                      enc/ccc_enc_fb.c 
-                      dec/ccc_dec_fb.c 
+                      enc/ccc_enc_fb.c
+                      dec/ccc_dec_fb.c
                       )
 else()
   message(FATAL_ERROR "Unknown SM encoding type ")

@@ -34,7 +34,13 @@ typedef struct{
 
   sm_agent_t base;
 
+#ifdef JSON
+  ccc_enc_json_t enc;
+#elif PLAIN
   ccc_enc_plain_t enc;
+#else
+  static_assert(false, "No encryption type selected");
+#endif
 
 } sm_ccc_agent_t;
 
