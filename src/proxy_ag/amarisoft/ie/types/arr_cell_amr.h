@@ -1,0 +1,17 @@
+#ifndef ARRAY_CELL_AMARISOFT_MSG_STAT_MIR_H
+#define ARRAY_CELL_AMARISOFT_MSG_STAT_MIR_H 
+
+#include "cell_amr.h"
+#include <stdlib.h>
+
+typedef struct{
+  cell_amr_t* cells;
+  size_t sz;
+  // I do not like this solution...
+  char** names;
+} arr_cell_amr_t;
+
+arr_cell_amr_t parse_arr_cell_amr(void* it);
+
+
+#endif
