@@ -96,9 +96,9 @@ elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     message(FATAL_ERROR "Due to bug in gcc 11.3.0 when implementing C11 _Generics, it does not compile FlexRIC.
     Alternatively use gcc-10, gcc-12 or gcc-13 e.g., sudo update-alternatives --config gcc ")
   elseif(${SANITIZER} STREQUAL "ADDRESS")
-    if(NOT CMAKE_C_COMPILER_VERSION MATCHES "^10.*")
-      message(FATAL_ERROR "ASan not supported by newer versions of gcc when using nested functions needed e.g., defer.
-      Change the compiler to gcc-10 using e.g., sudo update-alternatives --config gcc")
+    if(CMAKE_C_COMPILER_VERSION MATCHES "^11.*")
+      message(FATAL_ERROR "ASan not supported by gcc-11 when using nested functions needed e.g., defer.
+      Change the compiler to gcc-10 or gcc-12 or gcc-13 using e.g., sudo update-alternatives --config gcc")
     endif()
   endif()
 
