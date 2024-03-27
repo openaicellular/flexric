@@ -40,8 +40,8 @@ bool eq_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_t const* m0, e2sm_ccc_
   if(m0->sz_ctrl_out_conf_accepted != m1->sz_ctrl_out_conf_accepted)
     return false;
 
-  assert(m0->sz_ctrl_out_conf_accepted < 65535);
-  assert(m1->sz_ctrl_out_conf_accepted < 65535);
+  assert(m0->sz_ctrl_out_conf_accepted < 65536);
+  assert(m1->sz_ctrl_out_conf_accepted < 65536);
   for(size_t i = 0; i < m0->sz_ctrl_out_conf_accepted; ++i){
     if(eq_ctrl_out_conf_accepted(&m0->ctrl_out_conf_accepted[i], &m1->ctrl_out_conf_accepted[i]) == false){
       return false;
@@ -51,8 +51,8 @@ bool eq_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_t const* m0, e2sm_ccc_
   if(m0->sz_ctrl_out_conf_failed!= m1->sz_ctrl_out_conf_failed)
     return false;
 
-  assert(m0->sz_ctrl_out_conf_failed < 65535);
-  assert(m1->sz_ctrl_out_conf_failed < 65535);
+  assert(m0->sz_ctrl_out_conf_failed < 65536);
+  assert(m1->sz_ctrl_out_conf_failed < 65536);
   for(size_t i = 0; i < m0->sz_ctrl_out_conf_failed; ++i){
     if(eq_ctrl_out_conf_failed(&m0->ctrl_out_conf_failed[i], &m1->ctrl_out_conf_failed[i]) == false){
       return false;
@@ -72,7 +72,7 @@ e2sm_ccc_ctrl_out_frmt_1_t cp_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_
 
   // RAN Configuration Structures Accepted List
   // [0-65535]
-  assert(src->sz_ctrl_out_conf_accepted< 65535);
+  assert(src->sz_ctrl_out_conf_accepted< 65536);
   dst.sz_ctrl_out_conf_accepted = src->sz_ctrl_out_conf_accepted;
 
   dst.ctrl_out_conf_accepted = calloc(dst.sz_ctrl_out_conf_accepted, sizeof(ctrl_out_conf_accepted_t));
@@ -84,7 +84,7 @@ e2sm_ccc_ctrl_out_frmt_1_t cp_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_
 
   // RAN Configuration Structures Failed List
   // [0-65535]
-  assert(src->sz_ctrl_out_conf_failed< 65535);
+  assert(src->sz_ctrl_out_conf_failed< 65536);
   dst.sz_ctrl_out_conf_failed = src->sz_ctrl_out_conf_failed;
 
   dst.ctrl_out_conf_failed = calloc(dst.sz_ctrl_out_conf_failed, sizeof(ctrl_out_conf_failed_t));

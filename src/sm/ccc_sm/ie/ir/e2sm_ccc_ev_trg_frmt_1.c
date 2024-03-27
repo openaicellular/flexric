@@ -8,7 +8,7 @@ void free_ev_trg_node_conf(ev_trg_node_conf_t* src)
 {
   assert(src != NULL);
   // [0 - 66535]
-  assert(src->sz_attribute < 66535);
+  assert(src->sz_attribute < 66536);
 
   free_byte_array(src->ran_conf_name);
 
@@ -65,7 +65,7 @@ void free_e2sm_ccc_ev_trg_frmt_1(e2sm_ccc_ev_trg_frmt_1_t* src)
 
   // List of Node-level Configuration Structures
   // [1-256]
-  assert(src->sz_ev_trg_node_conf > 0 && src->sz_ev_trg_node_conf < 256);
+  assert(src->sz_ev_trg_node_conf > 0 && src->sz_ev_trg_node_conf < 257);
   for(size_t i = 0; i < src->sz_ev_trg_node_conf; ++i){
     free_ev_trg_node_conf(&src->ev_trg_node_conf[i]);
   }
@@ -82,8 +82,8 @@ bool eq_e2sm_ccc_ev_trg_frmt_1(e2sm_ccc_ev_trg_frmt_1_t const* m0, e2sm_ccc_ev_t
   if(m0->sz_ev_trg_node_conf != m1->sz_ev_trg_node_conf)
     return false;
 
-  assert(m0->sz_ev_trg_node_conf > 0 && m0->sz_ev_trg_node_conf < 256);
-  assert(m1->sz_ev_trg_node_conf > 0 && m1->sz_ev_trg_node_conf < 256);
+  assert(m0->sz_ev_trg_node_conf > 0 && m0->sz_ev_trg_node_conf < 257);
+  assert(m1->sz_ev_trg_node_conf > 0 && m1->sz_ev_trg_node_conf < 257);
   for(size_t i = 0; i < m0->sz_ev_trg_node_conf; ++i){
     if(eq_ev_trg_node_conf(&m0->ev_trg_node_conf[i], &m1->ev_trg_node_conf[i]) == false){
       return false;
@@ -100,7 +100,7 @@ e2sm_ccc_ev_trg_frmt_1_t cp_e2sm_ccc_ev_trg_frmt_1(e2sm_ccc_ev_trg_frmt_1_t cons
 
   // List of Node-level Configuration Structures
   // [1 - 256]
-  assert(src->sz_ev_trg_node_conf > 0 && src->sz_ev_trg_node_conf < 256);
+  assert(src->sz_ev_trg_node_conf > 0 && src->sz_ev_trg_node_conf < 257);
   dst.sz_ev_trg_node_conf = src->sz_ev_trg_node_conf;
 
   dst.ev_trg_node_conf = calloc(dst.sz_ev_trg_node_conf, sizeof(ev_trg_node_conf_t));

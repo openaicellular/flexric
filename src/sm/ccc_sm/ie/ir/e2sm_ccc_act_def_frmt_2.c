@@ -8,7 +8,7 @@ void free_cell_conf(cell_conf_t* src)
 {
   assert(src != NULL);
   // [0 - 66535]
-  assert(src->sz_attribute < 66535);
+  assert(src->sz_attribute < 66536);
 
   free_byte_array(src->ran_conf_name);
 
@@ -73,7 +73,7 @@ void free_act_def_cell_report(act_def_cell_report_t *src)
 
   // List of Cell-level RAN Configuration Structures
   // [1-1024]
-  assert(src->sz_cell_conf > 0 && src->sz_cell_conf < 1024);
+  assert(src->sz_cell_conf > 0 && src->sz_cell_conf < 1025);
   for (size_t i = 0; i < src->sz_cell_conf; i++){
     free_cell_conf(src->cell_conf);
   }
@@ -110,7 +110,7 @@ act_def_cell_report_t cp_act_def_cell_report(act_def_cell_report_t const* src)
 
   // List of Cell-level RAN Configuration Structures
   // [1 - 1024]
-  assert(src->sz_cell_conf > 0 && src->sz_cell_conf < 1024);
+  assert(src->sz_cell_conf > 0 && src->sz_cell_conf < 1025);
   dst.sz_cell_conf = src->sz_cell_conf;
 
   dst.cell_conf = calloc(dst.sz_cell_conf, sizeof(cell_conf_t));
@@ -129,7 +129,7 @@ void free_e2sm_ccc_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t* src)
 
   // Parameters to be Reported List
   // [1-1024]
-  assert(src->sz_act_def_cell_report > 0 && src->sz_act_def_cell_report < 1024);
+  assert(src->sz_act_def_cell_report > 0 && src->sz_act_def_cell_report < 1025);
 
   for(size_t i = 0; i < src->sz_act_def_cell_report; ++i){
     free_act_def_cell_report(&src->act_def_cell_report[i]);
@@ -164,7 +164,7 @@ e2sm_ccc_act_def_frmt_2_t cp_e2sm_ccc_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t c
 
   // Parameters to be Reported List
   // [1-1024]
-  assert(src->sz_act_def_cell_report > 0 && src->sz_act_def_cell_report < 1024);
+  assert(src->sz_act_def_cell_report > 0 && src->sz_act_def_cell_report < 1025);
   dst.sz_act_def_cell_report = src->sz_act_def_cell_report;
 
   dst.act_def_cell_report = calloc(dst.sz_act_def_cell_report, sizeof(act_def_cell_report_t));

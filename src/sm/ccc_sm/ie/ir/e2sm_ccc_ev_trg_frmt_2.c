@@ -8,7 +8,7 @@ void free_ev_trg_cell_conf(ev_trg_cell_conf_t* src)
 {
   assert(src != NULL);
   // [0 - 66535]
-  assert(src->sz_attribute < 66535);
+  assert(src->sz_attribute < 66536);
 
   free_byte_array(src->ran_conf_name);
 
@@ -59,6 +59,7 @@ ev_trg_cell_conf_t cp_ev_trg_cell_conf(ev_trg_cell_conf_t const* src)
   return dst;
 }
 
+static
 void free_ev_trg_cell(ev_trg_cell_t* src)
 {
   assert(src != NULL);
@@ -68,12 +69,13 @@ void free_ev_trg_cell(ev_trg_cell_t* src)
 
   // List of Cell-level RAN Configuration Structures
   // [1 - 1024]
-  assert(src->sz_ev_trg_cell_conf > 0 && src->sz_ev_trg_cell_conf < 1024);
+  assert(src->sz_ev_trg_cell_conf > 0 && src->sz_ev_trg_cell_conf < 1025);
   for(size_t i = 0; i < src->sz_ev_trg_cell_conf; ++i){
     free_ev_trg_cell_conf(&src->ev_trg_cell_conf[i]);
   }
 }
 
+static
 bool eq_ev_trg_cell(ev_trg_cell_t const* m0, ev_trg_cell_t const* m1)
 {
   if(m0 == m1)
@@ -91,8 +93,8 @@ bool eq_ev_trg_cell(ev_trg_cell_t const* m0, ev_trg_cell_t const* m1)
   if(m0->sz_ev_trg_cell_conf != m1->sz_ev_trg_cell_conf)
     return false;
 
-  assert(m0->sz_ev_trg_cell_conf > 0 && m0->sz_ev_trg_cell_conf < 1024);
-  assert(m1->sz_ev_trg_cell_conf > 0 && m1->sz_ev_trg_cell_conf < 1024);
+  assert(m0->sz_ev_trg_cell_conf > 0 && m0->sz_ev_trg_cell_conf < 1025);
+  assert(m1->sz_ev_trg_cell_conf > 0 && m1->sz_ev_trg_cell_conf < 1025);
   for(size_t i = 0; i < m0->sz_ev_trg_cell_conf; ++i){
     if(eq_ev_trg_cell_conf(&m0->ev_trg_cell_conf[i], &m1->ev_trg_cell_conf[i]) == false){
       return false;
@@ -112,7 +114,7 @@ ev_trg_cell_t cp_ev_trg_cell(ev_trg_cell_t const* src)
 
   // List of Cell-level RAN Configuration Structures
   // [1 - 1024]
-  assert(src->sz_ev_trg_cell_conf > 0 && src->sz_ev_trg_cell_conf < 1024);
+  assert(src->sz_ev_trg_cell_conf > 0 && src->sz_ev_trg_cell_conf < 1025);
   dst.sz_ev_trg_cell_conf = src->sz_ev_trg_cell_conf;
 
   dst.ev_trg_cell_conf = calloc(dst.sz_ev_trg_cell_conf, sizeof(ev_trg_cell_conf_t));
@@ -131,7 +133,7 @@ void free_e2sm_ccc_ev_trg_frmt_2(e2sm_ccc_ev_trg_frmt_2_t const* src)
 
   // List of Cell-level Configuration Structures
   // [1 - 1024]
-  assert(src->sz_ev_trg_cell > 0 && src->sz_ev_trg_cell < 256);
+  assert(src->sz_ev_trg_cell > 0 && src->sz_ev_trg_cell < 1025);
   for(size_t i = 0; i < src->sz_ev_trg_cell; ++i){
     free_ev_trg_cell(&src->ev_trg_cell[i]);
   }
@@ -148,8 +150,8 @@ bool eq_e2sm_ccc_ev_trg_frmt_2(e2sm_ccc_ev_trg_frmt_2_t const* m0, e2sm_ccc_ev_t
   if(m0->sz_ev_trg_cell != m1->sz_ev_trg_cell)
     return false;
 
-  assert(m0->sz_ev_trg_cell > 0 && m0->sz_ev_trg_cell < 256);
-  assert(m1->sz_ev_trg_cell> 0 && m1->sz_ev_trg_cell < 256);
+  assert(m0->sz_ev_trg_cell > 0 && m0->sz_ev_trg_cell < 257);
+  assert(m1->sz_ev_trg_cell> 0 && m1->sz_ev_trg_cell < 257);
   for(size_t i = 0; i < m0->sz_ev_trg_cell; ++i){
     if(eq_ev_trg_cell(&m0->ev_trg_cell[i], &m1->ev_trg_cell[i]) == false){
       return false;
@@ -168,7 +170,7 @@ e2sm_ccc_ev_trg_frmt_2_t cp_e2sm_ccc_ev_trg_frmt_2(e2sm_ccc_ev_trg_frmt_2_t cons
 
   // List of Cell-level Configuration Structures
   // [1 - 1024]
-  assert(src->sz_ev_trg_cell > 0 && src->sz_ev_trg_cell < 1024);
+  assert(src->sz_ev_trg_cell > 0 && src->sz_ev_trg_cell < 1025);
   dst.sz_ev_trg_cell = src->sz_ev_trg_cell;
 
   dst.ev_trg_cell = calloc(dst.sz_ev_trg_cell, sizeof(ev_trg_cell_t));

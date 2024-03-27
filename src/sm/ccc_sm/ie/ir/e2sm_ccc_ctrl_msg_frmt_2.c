@@ -61,7 +61,7 @@ void free_ctrl_msg_cell(ctrl_msg_cell_t* src)
 
   // List of Configuration Structures
   // [1-65535]
-  assert(src->sz_ctrl_msg_cell_conf> 0 && src->sz_ctrl_msg_cell_conf < 65535);
+  assert(src->sz_ctrl_msg_cell_conf> 0 && src->sz_ctrl_msg_cell_conf < 65536);
   for(size_t i = 0; i < src->sz_ctrl_msg_cell_conf; ++i){
     free_ctrl_msg_cell_conf(&src->ctrl_msg_cell_conf[i]);
   }
@@ -79,8 +79,8 @@ bool eq_ctrl_msg_cell(ctrl_msg_cell_t const* m0, ctrl_msg_cell_t const* m1)
   if(m0->sz_ctrl_msg_cell_conf != m1->sz_ctrl_msg_cell_conf)
     return false;
 
-  assert(m0->sz_ctrl_msg_cell_conf > 0 && m0->sz_ctrl_msg_cell_conf < 65535);
-  assert(m1->sz_ctrl_msg_cell_conf > 0 && m1->sz_ctrl_msg_cell_conf < 65535);
+  assert(m0->sz_ctrl_msg_cell_conf > 0 && m0->sz_ctrl_msg_cell_conf < 65536);
+  assert(m1->sz_ctrl_msg_cell_conf > 0 && m1->sz_ctrl_msg_cell_conf < 65536);
   for(size_t i = 0; i < m0->sz_ctrl_msg_cell_conf; ++i){
     if(eq_ctrl_msg_cell_conf(&m0->ctrl_msg_cell_conf[i], &m1->ctrl_msg_cell_conf[i]) == false){
       return false;
@@ -98,7 +98,7 @@ ctrl_msg_cell_t cp_ctrl_msg_cell(ctrl_msg_cell_t const* src)
 
   // List of Configuration Structures
   // [1-65535]
-  assert(src->sz_ctrl_msg_cell_conf > 0 && src->sz_ctrl_msg_cell_conf < 65535);
+  assert(src->sz_ctrl_msg_cell_conf > 0 && src->sz_ctrl_msg_cell_conf < 65536);
   dst.sz_ctrl_msg_cell_conf = src->sz_ctrl_msg_cell_conf;
 
   dst.ctrl_msg_cell_conf = calloc(dst.sz_ctrl_msg_cell_conf, sizeof(ctrl_msg_cell_conf_t));
@@ -117,7 +117,7 @@ void free_e2sm_ccc_ctrl_msg_frmt_2( e2sm_ccc_ctrl_msg_frmt_2_t* src)
 
   // List of Cells
   // [1-65535]
-  assert(src->sz_ctrl_msg_cell > 0 && src->sz_ctrl_msg_cell < 65535);
+  assert(src->sz_ctrl_msg_cell > 0 && src->sz_ctrl_msg_cell < 65536);
   for(size_t i = 0; i < src->sz_ctrl_msg_cell ; ++i){
     free_ctrl_msg_cell(&src->ctrl_msg_cell[i]);
   }
@@ -134,8 +134,8 @@ bool eq_e2sm_ccc_ctrl_msg_frmt_2( e2sm_ccc_ctrl_msg_frmt_2_t const* m0,  e2sm_cc
   if(m0->sz_ctrl_msg_cell!= m1->sz_ctrl_msg_cell)
     return false;
 
-  assert(m0->sz_ctrl_msg_cell > 0 && m0->sz_ctrl_msg_cell < 65535);
-  assert(m1->sz_ctrl_msg_cell > 0 && m1->sz_ctrl_msg_cell < 65535);
+  assert(m0->sz_ctrl_msg_cell > 0 && m0->sz_ctrl_msg_cell < 65536);
+  assert(m1->sz_ctrl_msg_cell > 0 && m1->sz_ctrl_msg_cell < 65536);
   for(size_t i = 0; i < m0->sz_ctrl_msg_cell; ++i){
     if(eq_ctrl_msg_cell(&m0->ctrl_msg_cell[i], &m1->ctrl_msg_cell[i]) == false){
       return false;
@@ -152,7 +152,7 @@ e2sm_ccc_ctrl_msg_frmt_2_t cp_e2sm_ccc_ctrl_msg_frmt_2(e2sm_ccc_ctrl_msg_frmt_2_
 
   // List of Cells
   // [1-65535]
-  assert(src->sz_ctrl_msg_cell > 0 && src->sz_ctrl_msg_cell < 65535);
+  assert(src->sz_ctrl_msg_cell > 0 && src->sz_ctrl_msg_cell < 65536);
   dst.sz_ctrl_msg_cell = src->sz_ctrl_msg_cell;
 
   dst.ctrl_msg_cell = calloc(dst.sz_ctrl_msg_cell, sizeof(ctrl_msg_cell_t));

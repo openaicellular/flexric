@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+static
 void free_ctrl_out_cell(ctrl_out_cell_t * src)
 {
   assert(src != NULL);
@@ -11,19 +12,20 @@ void free_ctrl_out_cell(ctrl_out_cell_t * src)
 
   // RAN Configuration Structures Accepted List
   // [0-65535]
-  assert(src->sz_ctrl_out_conf_accepted < 65535);
+  assert(src->sz_ctrl_out_conf_accepted < 65536);
   for(size_t i = 0; i < src->sz_ctrl_out_conf_accepted; ++i){
     free_ctrl_out_conf_accepted(&src->ctrl_out_conf_accepted[i]);
   }
 
   // RAN Configuration Structures Failed List
   // [0-65535]
-  assert(src->sz_ctrl_out_conf_failed < 65535);
+  assert(src->sz_ctrl_out_conf_failed < 65536);
   for(size_t i = 0; i < src->sz_ctrl_out_conf_failed; ++i){
     free_ctrl_out_conf_failed(&src->ctrl_out_conf_failed[i]);
   }
 }
 
+static
 bool eq_ctrl_out_cell(ctrl_out_cell_t const* m0, ctrl_out_cell_t const* m1)
 {
   if(m0 == m1)
@@ -38,8 +40,8 @@ bool eq_ctrl_out_cell(ctrl_out_cell_t const* m0, ctrl_out_cell_t const* m1)
   if(m0->sz_ctrl_out_conf_accepted!= m1->sz_ctrl_out_conf_accepted)
     return false;
 
-  assert(m0->sz_ctrl_out_conf_accepted < 65535);
-  assert(m1->sz_ctrl_out_conf_accepted < 65535);
+  assert(m0->sz_ctrl_out_conf_accepted < 65536);
+  assert(m1->sz_ctrl_out_conf_accepted < 65536);
   for(size_t i = 0; i < m0->sz_ctrl_out_conf_accepted; ++i){
     if(eq_ctrl_out_conf_accepted(&m0->ctrl_out_conf_accepted[i], &m1->ctrl_out_conf_accepted[i]) == false){
       return false;
@@ -49,8 +51,8 @@ bool eq_ctrl_out_cell(ctrl_out_cell_t const* m0, ctrl_out_cell_t const* m1)
   if(m0->sz_ctrl_out_conf_failed!= m1->sz_ctrl_out_conf_failed)
     return false;
 
-  assert(m0->sz_ctrl_out_conf_failed < 65535);
-  assert(m1->sz_ctrl_out_conf_failed < 65535);
+  assert(m0->sz_ctrl_out_conf_failed < 65536);
+  assert(m1->sz_ctrl_out_conf_failed < 65536);
   for(size_t i = 0; i < m0->sz_ctrl_out_conf_failed; ++i){
     if(eq_ctrl_out_conf_failed(&m0->ctrl_out_conf_failed[i], &m1->ctrl_out_conf_failed[i]) == false){
       return false;
@@ -60,6 +62,7 @@ bool eq_ctrl_out_cell(ctrl_out_cell_t const* m0, ctrl_out_cell_t const* m1)
   return true;
 }
 
+static
 ctrl_out_cell_t cp_ctrl_out_cell(ctrl_out_cell_t const* src)
 {
   assert(src != NULL);
@@ -69,10 +72,9 @@ ctrl_out_cell_t cp_ctrl_out_cell(ctrl_out_cell_t const* src)
 
   // RAN Configuration Structures Accepted List
   // [0-65535]
-  assert(src->sz_ctrl_out_conf_accepted < 65535);
+  assert(src->sz_ctrl_out_conf_accepted < 65536);
   dst.sz_ctrl_out_conf_accepted = src->sz_ctrl_out_conf_accepted;
 
-  // TODO Mem leak
   dst.ctrl_out_conf_accepted = calloc(dst.sz_ctrl_out_conf_accepted, sizeof(ctrl_out_conf_accepted_t));
   assert(dst.ctrl_out_conf_accepted != NULL && "Memory exhausted");
 
@@ -82,7 +84,7 @@ ctrl_out_cell_t cp_ctrl_out_cell(ctrl_out_cell_t const* src)
 
   // RAN Configuration Structures Failed List
   // [0-65535]
-  assert(src->sz_ctrl_out_conf_failed < 65535);
+  assert(src->sz_ctrl_out_conf_failed < 65536);
   dst.sz_ctrl_out_conf_failed = src->sz_ctrl_out_conf_failed;
 
   dst.ctrl_out_conf_failed = calloc(dst.sz_ctrl_out_conf_failed, sizeof(ctrl_out_conf_failed_t));
@@ -104,7 +106,7 @@ void free_e2sm_ccc_ctrl_out_frmt_2(e2sm_ccc_ctrl_out_frmt_2_t* src)
 
   // List of cells
   // [1-65535]
-  assert(src->sz_ctrl_out_cell > 0 && src->sz_ctrl_out_cell < 65535);
+  assert(src->sz_ctrl_out_cell > 0 && src->sz_ctrl_out_cell < 65536);
   for(size_t i = 0; i < src->sz_ctrl_out_cell; ++i){
     free_ctrl_out_cell(&src->ctrl_out_cell[i]);
   }
@@ -125,8 +127,8 @@ bool eq_e2sm_ccc_ctrl_out_frmt_2(e2sm_ccc_ctrl_out_frmt_2_t const* m0, e2sm_ccc_
   if(m0->sz_ctrl_out_cell != m1->sz_ctrl_out_cell)
     return false;
 
-  assert(m0->sz_ctrl_out_cell > 0 && m0->sz_ctrl_out_cell < 65535);
-  assert(m1->sz_ctrl_out_cell > 0 && m1->sz_ctrl_out_cell < 65535);
+  assert(m0->sz_ctrl_out_cell > 0 && m0->sz_ctrl_out_cell < 65536);
+  assert(m1->sz_ctrl_out_cell > 0 && m1->sz_ctrl_out_cell < 65536);
   for(size_t i = 0; i < m0->sz_ctrl_out_cell; ++i){
     if(eq_ctrl_out_cell(&m0->ctrl_out_cell[i], &m1->ctrl_out_cell[i]) == false){
       return false;
@@ -146,7 +148,7 @@ e2sm_ccc_ctrl_out_frmt_2_t cp_e2sm_ccc_ctrl_out_frmt_2(e2sm_ccc_ctrl_out_frmt_2_
 
   // List of cells
   // [1-65535]
-  assert(src->sz_ctrl_out_cell > 0 && src->sz_ctrl_out_cell < 65535);
+  assert(src->sz_ctrl_out_cell > 0 && src->sz_ctrl_out_cell < 65536);
   dst.sz_ctrl_out_cell = src->sz_ctrl_out_cell;
 
   dst.ctrl_out_cell = calloc(dst.sz_ctrl_out_cell, sizeof(ctrl_out_cell_t));

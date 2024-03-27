@@ -74,7 +74,7 @@ void free_e2sm_ccc_ind_msg_frmt_1(e2sm_ccc_ind_msg_frmt_1_t const* src)
 
   // List of Configuration Structures Reported
   // [1 - 65535]
-  assert(src->sz_ind_msg_node_conf > 0 && src->sz_ind_msg_node_conf < 65535);
+  assert(src->sz_ind_msg_node_conf > 0 && src->sz_ind_msg_node_conf < 65536);
 
   for(size_t i = 0; i < src->sz_ind_msg_node_conf; ++i){
     free_ind_msg_node_conf(&src->ind_msg_node_conf[i]);
@@ -114,7 +114,7 @@ e2sm_ccc_ind_msg_frmt_1_t cp_e2sm_ccc_ind_msg_frmt_1(e2sm_ccc_ind_msg_frmt_1_t c
 
   // List of Configuration Structures Reported
   // [1 - 65535]
-  assert(src->sz_ind_msg_node_conf > 0 && src->sz_ind_msg_node_conf < 65535);
+  assert(src->sz_ind_msg_node_conf > 0 && src->sz_ind_msg_node_conf < 65536);
   dst.sz_ind_msg_node_conf = src->sz_ind_msg_node_conf;
 
   dst.ind_msg_node_conf = calloc(dst.sz_ind_msg_node_conf, sizeof(ind_msg_node_conf_t));

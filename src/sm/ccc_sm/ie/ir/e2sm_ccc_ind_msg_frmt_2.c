@@ -77,7 +77,7 @@ void free_ind_msg_cell_report(ind_msg_cell_report_t* src)
 
   // List of Configuration Structures Reported
   // [1 - 65535]
-  assert(src->sz_ind_msg_cell_conf > 0 && src->sz_ind_msg_cell_conf < 65535);
+  assert(src->sz_ind_msg_cell_conf > 0 && src->sz_ind_msg_cell_conf < 65536);
 
   for(size_t i = 0; i < src->sz_ind_msg_cell_conf; ++i){
     free_ind_msg_cell_conf(&src->ind_msg_cell_conf[i]);
@@ -119,7 +119,7 @@ ind_msg_cell_report_t cp_ind_msg_cell_report(ind_msg_cell_report_t const* src)
 
   // List of Cells Reported
   // [1 - 65535]
-  assert(src->sz_ind_msg_cell_conf > 0 && src->sz_ind_msg_cell_conf < 65535);
+  assert(src->sz_ind_msg_cell_conf > 0 && src->sz_ind_msg_cell_conf < 65536);
   dst.sz_ind_msg_cell_conf = src->sz_ind_msg_cell_conf;
 
   dst.ind_msg_cell_conf = calloc(dst.sz_ind_msg_cell_conf, sizeof(ind_msg_cell_conf_t));
@@ -138,7 +138,7 @@ void free_e2sm_ccc_ind_msg_frmt_2(e2sm_ccc_ind_msg_frmt_2_t const* src)
 
   // List of Cells Reported
   // [1 - 65535]
-  assert(src->sz_ind_msg_cell_report > 0 && src->sz_ind_msg_cell_report < 65535);
+  assert(src->sz_ind_msg_cell_report > 0 && src->sz_ind_msg_cell_report < 65536);
 
   for(size_t i = 0; i < src->sz_ind_msg_cell_report; ++i){
     free_ind_msg_cell_report(&src->ind_msg_cell_report[i]);
@@ -173,7 +173,7 @@ e2sm_ccc_ind_msg_frmt_2_t cp_e2sm_ccc_ind_msg_frmt_2(e2sm_ccc_ind_msg_frmt_2_t c
 
   // List of Cells Reported
   // [1 - 65535]
-  assert(src->sz_ind_msg_cell_report > 0 && src->sz_ind_msg_cell_report < 65535);
+  assert(src->sz_ind_msg_cell_report > 0 && src->sz_ind_msg_cell_report < 65536);
   dst.sz_ind_msg_cell_report = src->sz_ind_msg_cell_report;
 
   dst.ind_msg_cell_report = calloc(dst.sz_ind_msg_cell_report, sizeof(ind_msg_cell_report_t));

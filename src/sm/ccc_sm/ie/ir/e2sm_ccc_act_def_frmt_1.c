@@ -9,7 +9,7 @@ void free_act_def_node_conf(act_def_node_conf_t* src)
 {
   assert(src != NULL);
   // [0 - 66535]
-  assert(src->sz_attribute < 66535);
+  assert(src->sz_attribute < 66536);
 
   free_byte_array(src->ran_conf_name);
 
@@ -71,7 +71,7 @@ void free_e2sm_ccc_act_def_frmt_1(e2sm_ccc_act_def_frmt_1_t* src)
 
   // Parameters to be Reported List
   // [1-256]
-  assert(src->sz_act_def_node_conf > 0 && src->sz_act_def_node_conf < 256);
+  assert(src->sz_act_def_node_conf > 0 && src->sz_act_def_node_conf < 257);
 
   for(size_t i = 0; i < src->sz_act_def_node_conf; ++i){
     free_act_def_node_conf(&src->act_def_node_conf[i]);
@@ -106,7 +106,7 @@ e2sm_ccc_act_def_frmt_1_t cp_e2sm_ccc_act_def_frmt_1(e2sm_ccc_act_def_frmt_1_t c
 
   // Parameters to be Reported List
   // [1-256]
-  assert(src->sz_act_def_node_conf > 0 && src->sz_act_def_node_conf < 256);
+  assert(src->sz_act_def_node_conf > 0 && src->sz_act_def_node_conf < 257);
   dst.sz_act_def_node_conf = src->sz_act_def_node_conf;
 
   dst.act_def_node_conf = calloc(dst.sz_act_def_node_conf, sizeof(act_def_node_conf_t));
