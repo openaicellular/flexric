@@ -74,6 +74,7 @@ void read_setup_rc(void* read)
 
   rc_e2_setup_t* rc = (rc_e2_setup_t*) read;
   rc->ran_func_def = fill_rc_ran_func_def();
+  defer({ free_ran_function_name(&rc->ran_func_def.name); });
   cp_e2_setup.ran_func_def = cp_e2sm_rc_func_def(&rc->ran_func_def);
   assert(eq_e2sm_rc_func_def(&cp_e2_setup.ran_func_def, &rc->ran_func_def) == true);
 }
@@ -277,10 +278,10 @@ int main()
   sm_io_ag_ran_t io_ag = {0}; //.read = read_RAN, .write = write_RAN};  
   // Read 
   io_ag.read_ind_tbl[RAN_CTRL_STATS_V1_03] = read_ind_rc; 
-  io_ag.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_setup_rc; 
+  io_ag.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_setup_rc;
 
   // Write
-  io_ag.write_ctrl_tbl[RAN_CONTROL_CTRL_V1_03] =  write_ctrl_rc;
+  io_ag.write_ctrl_tbl[RAN_CONTROL_CTRL_V1_03] = write_ctrl_rc;
   io_ag.write_subs_tbl[RAN_CTRL_SUBS_V1_03] =  write_subs_rc;
 
   sm_agent_t* sm_ag = make_rc_sm_agent(io_ag);
