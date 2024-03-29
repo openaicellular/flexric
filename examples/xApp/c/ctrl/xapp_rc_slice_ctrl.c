@@ -87,7 +87,9 @@ static
 void gen_rrm_policy_ratio_group(lst_ran_param_t* RRM_Policy_Ratio_Group,
                                 const char* sst_str,
                                 const char* sd_str,
-                                int min_ratio_prb)
+                                int min_ratio_prb,
+                                int dedicated_ratio_prb,
+                                int max_ratio_prb)
 {
   // RRM Policy Ratio Group, STRUCTURE (RRM Policy Ratio List -> RRM Policy Ratio Group)
   // lst_ran_param_t* RRM_Policy_Ratio_Group = &RRM_Policy_Ratio_List->ran_param_val.lst->lst_ran_param[0];
@@ -167,7 +169,7 @@ void gen_rrm_policy_ratio_group(lst_ran_param_t* RRM_Policy_Ratio_Group,
   Min_PRB_Policy_Ratio->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(Min_PRB_Policy_Ratio->ran_param_val.flag_false != NULL && "Memory exhausted");
   Min_PRB_Policy_Ratio->ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  // int min_prb = 5; //TODO
+  // TODO: not handle this value in OAI
   Min_PRB_Policy_Ratio->ran_param_val.flag_false->int_ran = min_ratio_prb;
   // Max PRB Policy Ratio, ELEMENT (RRM Policy Ratio Group -> Max PRB Policy Ratio)
   seq_ran_param_t* Max_PRB_Policy_Ratio = &RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct[2];
@@ -176,8 +178,8 @@ void gen_rrm_policy_ratio_group(lst_ran_param_t* RRM_Policy_Ratio_Group,
   Max_PRB_Policy_Ratio->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(Max_PRB_Policy_Ratio->ran_param_val.flag_false != NULL && "Memory exhausted");
   Max_PRB_Policy_Ratio->ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  int max_prb = 51; //TODO
-  Max_PRB_Policy_Ratio->ran_param_val.flag_false->int_ran = max_prb;
+  // TODO: not handle this value in OAI
+  Max_PRB_Policy_Ratio->ran_param_val.flag_false->int_ran = max_ratio_prb;
   // Dedicated PRB Policy Ratio, ELEMENT (RRM Policy Ratio Group -> Dedicated PRB Policy Ratio)
   seq_ran_param_t* Dedicated_PRB_Policy_Ratio = &RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct[3];
   Dedicated_PRB_Policy_Ratio->ran_param_id = Dedicated_PRB_Policy_Ratio_8_4_3_6;
@@ -185,8 +187,7 @@ void gen_rrm_policy_ratio_group(lst_ran_param_t* RRM_Policy_Ratio_Group,
   Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false != NULL && "Memory exhausted");
   Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE;
-  int dedicated_prb = 70; //TODO
-  Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false->int_ran = dedicated_prb;
+  Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false->int_ran = dedicated_ratio_prb;
 
   return;
 }
@@ -206,12 +207,12 @@ void gen_rrm_policy_ratio_list(seq_ran_param_t* RRM_Policy_Ratio_List)
 
   const char* sst_str[] = {"1", "1"};
   const char* sd_str[] = {"1", "5"};
-  int min_ratio_prb[] = {70, 30};
+  int dedicated_ratio_prb[] = {70, 30};
   for (int i = 0; i < num_slice; i++) {
     gen_rrm_policy_ratio_group(&RRM_Policy_Ratio_List->ran_param_val.lst->lst_ran_param[i],
                                sst_str[i],
                                sd_str[i],
-                               min_ratio_prb[i]);
+                               0, dedicated_ratio_prb[i], 0);
   }
 
   return;
