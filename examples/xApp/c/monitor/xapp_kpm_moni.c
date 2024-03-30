@@ -417,7 +417,7 @@ int main(int argc, char* argv[])
   // END KPM
   ////////////
 
-  sleep(10);
+  sleep(1000);
 
   for (int i = 0; i < nodes.len; ++i) {
     // Remove the handle previously returned
