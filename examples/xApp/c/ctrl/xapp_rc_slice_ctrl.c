@@ -128,7 +128,7 @@ void gen_rrm_policy_ratio_group(lst_ran_param_t* RRM_Policy_Ratio_Group,
   PLMN_Identity->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
   assert(PLMN_Identity->ran_param_val.flag_false != NULL && "Memory exhausted");
   PLMN_Identity->ran_param_val.flag_false->type = OCTET_STRING_RAN_PARAMETER_VALUE;
-  char plmnid_str[] = "50501";
+  char plmnid_str[] = "00101";
   byte_array_t plmn_id = cp_str_to_ba(plmnid_str); // TODO
   PLMN_Identity->ran_param_val.flag_false->octet_str_ran.len = plmn_id.len;
   PLMN_Identity->ran_param_val.flag_false->octet_str_ran.buf = plmn_id.buf;
