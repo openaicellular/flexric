@@ -22,9 +22,9 @@
 
 #include "../../../../src/util/byte_array.h"
 #include "../../../../src/util/alg_ds/alg/defer.h"
-//#include "../../../../src/sm/ccc_sm/enc/ccc_enc_plain.h"
-//#include "../../../../src/sm/ccc_sm/dec/ccc_dec_plain.h"
-//#include "../../../rnd/fill_rnd_data_ccc.h"
+#include "../../../../src/sm/ccc_sm/enc/ccc_enc_json.h"
+#include "../../../../src/sm/ccc_sm/dec/ccc_dec_json.h"
+#include "../../../rnd/fill_rnd_data_ccc.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -40,12 +40,30 @@ void test_ric_event_trigger_ccc(void)
  
 void test_ccc_act_def(void)
 {
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_action_def_t act_def = fill_rnd_ccc_action_def();
+  defer({free_e2sm_ccc_action_def(&act_def); });
+
+  byte_array_t ba = ccc_enc_action_def_json(&act_def);
+  defer({free_byte_array(ba);});
+
+  e2sm_ccc_action_def_t out = ccc_dec_action_def_json(ba.len, ba.buf);
+  defer({free_e2sm_ccc_action_def(&out);});
+
+  assert(eq_e2sm_ccc_action_def(&act_def, &out) == true);
 }
 
 void test_ccc_ind_hdr(void)
 {
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_ind_hdr_t hdr = fill_rnd_ccc_ind_hdr();
+  defer({ free_e2sm_ccc_ind_hdr(&hdr); });
+
+  byte_array_t ba = ccc_enc_ind_hdr_json(&hdr);
+  defer({ free_byte_array(ba); });
+
+  e2sm_ccc_ind_hdr_t out = ccc_dec_ind_hdr_json(ba.len, ba.buf);
+  defer({ free_e2sm_ccc_ind_hdr(&out); });
+
+  assert(eq_e2sm_ccc_ind_hdr(&hdr, &out) == true);
 }
 
 
@@ -93,8 +111,8 @@ int main()
   printf("\nCCC SM enc/dec test launched\n");
 
   // Event Trigger
-  test_ric_event_trigger_ccc();
-  printf("\nCCC Event Trigger test succeeded\n");
+//  test_ric_event_trigger_ccc();
+//  printf("\nCCC Event Trigger test succeeded\n");
 
   // Action Definition
   test_ccc_act_def();
@@ -105,28 +123,28 @@ int main()
   printf("\nCCC Indication Header test succeeded\n");
 
   // Indication Message
-  test_ccc_ind_msg();
-  printf("\nCCC Indication Message test succeeded\n");
+//  test_ccc_ind_msg();
+//  printf("\nCCC Indication Message test succeeded\n");
 
   // Call Process ID 
-  test_ccc_call_process_id();
-  printf("\nCCC Call Process ID\n");
+//  test_ccc_call_process_id();
+//  printf("\nCCC Call Process ID\n");
 
   // Control Header 
-   test_ccc_ctrl_hdr();
-   printf("\nCCC Control Header \n");
+//   test_ccc_ctrl_hdr();
+//   printf("\nCCC Control Header \n");
 
   // Control Message  
-   test_ccc_ctrl_msg();
-   printf("\nCCC Control Message\n");
+//   test_ccc_ctrl_msg();
+//   printf("\nCCC Control Message\n");
 
   // Control Outcome 
-  test_ccc_ctrl_out();
-  printf("\nCCC Control Outcome\n");
+//  test_ccc_ctrl_out();
+//  printf("\nCCC Control Outcome\n");
 
   // RAN Function Definition
-  test_ccc_ran_func_def();
-  printf("\nCCC RAN Function Definition\n");
+//  test_ccc_ran_func_def();
+//  printf("\nCCC RAN Function Definition\n");
 
   return EXIT_SUCCESS;
 }

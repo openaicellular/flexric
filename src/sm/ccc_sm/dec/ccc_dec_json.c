@@ -20,6 +20,9 @@
  */
 
 #include "ccc_dec_json.h"
+#include "../ie/json/ric_indication_header.h"
+#include "../ie/json/ric_action_definition.h"
+#include "../../../util/alg_ds/alg/defer.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -36,22 +39,165 @@ e2sm_ccc_event_trigger_t ccc_dec_event_trigger_json(size_t len, uint8_t const bu
   return dst;
 }
 
+static
+attribute_t* get_lst_attribute(list_t* const src){
+  assert(src != NULL);
+  attribute_t* res = calloc(src->count, sizeof(attribute_t));
+  assert(res != NULL && "Memory exhausted");
+
+  size_t index = 0;
+  struct list_of_attribute_element* attribute = list_get_head(src);
+  while (attribute != NULL){
+    res[index].attribute_name = cp_str_to_ba(attribute->attribute_name);
+    attribute = list_get_next(src);
+    index++;
+  }
+
+  return res;
+}
+
+static
+report_type_e get_report_type(enum report_type const report_type){
+  switch (report_type) {
+    case REPORT_TYPE_all:
+      return REPORT_TYPE_ALL;
+    case REPORT_TYPE_change:
+      return REPORT_TYPE_CHANGE;
+    default:
+      assert(0 != 0 && "No report type");
+  }
+}
+
+static
+act_def_ran_conf_t* get_act_def_ran_conf(list_t* const src){
+  assert(src != NULL);
+  act_def_ran_conf_t* res = calloc(src->count, sizeof(act_def_ran_conf_t));
+  assert(res != NULL && "Memory exhausted");
+
+  size_t index = 0;
+  struct list_of_node_level_ran_configuration_structures_for_adf_element* ran_conf = list_get_head(src);
+  while (ran_conf!= NULL){
+    res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
+    res[index].report_type = get_report_type(ran_conf->report_type);
+    res[index].sz_attribute = ran_conf->list_of_attributes->count;
+    if (ran_conf->list_of_attributes->count > 0)
+      res[index].attribute = get_lst_attribute(ran_conf->list_of_attributes);
+    ran_conf = list_get_next(src);
+    index++;
+  }
+
+  return res;
+}
+
+static
+e2sm_ccc_act_def_frmt_1_t get_act_def_frmt1(list_t* const src){
+  assert(src != NULL);
+  e2sm_ccc_act_def_frmt_1_t res = {};
+
+  res.sz_act_def_ran_conf = src->count;
+  res.act_def_ran_conf = get_act_def_ran_conf(src);
+
+  return res;
+}
+
+static
+cell_global_id_t get_cell_global_id(struct cell_global_id const* src){
+  cell_global_id_t res = {0};
+  res.type = NR_CGI_RAT_TYPE;
+  res.nr_cgi.nr_cell_id = atoi(src->n_r_cell_identity);
+  res.nr_cgi.plmn_id.mnc = atoi(src->plmn_identity->mnc);
+  res.nr_cgi.plmn_id.mcc = atoi(src->plmn_identity->mcc);
+  return res;
+}
+
+static
+e2sm_ccc_act_def_frmt_2_t get_act_def_frmt2(list_t* const src){
+  assert(src != NULL);
+  e2sm_ccc_act_def_frmt_2_t res = {};
+  size_t index = 0;
+
+  res.sz_act_def_cell_report = src->count;
+  res.act_def_cell_report = calloc(src->count, sizeof(act_def_ran_conf_t));
+  assert(res.act_def_cell_report != NULL && "Memory exhausted");
+  struct list_of_cell_configurations_to_be_reported_for_adf_element* node = list_get_head(src);
+  while(node != NULL){
+    res.act_def_cell_report[index].cell_global_id = get_cell_global_id(node->cell_global_id);
+    res.act_def_cell_report[index].sz_act_def_ran_conf = node->list_of_cell_level_ran_configuration_structures_for_adf->count;
+    res.act_def_cell_report[index].act_def_ran_conf = get_act_def_ran_conf(node->list_of_cell_level_ran_configuration_structures_for_adf);
+    index++;
+  }
+
+  return res;
+}
+
 e2sm_ccc_action_def_t ccc_dec_action_def_json(size_t len, uint8_t const action_def[len])
 {
   assert(action_def != NULL);
   assert(len != 0);
-  assert(0 != 0 && "Not implemented");
+
+  // TODO: Make this better
+  byte_array_t ba = {0};
+  defer({free_byte_array(ba);});
+  ba.len = len;
+  ba.buf = calloc(len, sizeof(uint8_t));
+  assert(ba.buf != NULL && "Memory exhausted");
+  memcpy(ba.buf, action_def, len);
+  char* in = copy_ba_to_str(&ba);
+  defer({free(in);});
+
+  struct ric_action_definition* ric_act_def= cJSON_Parseric_action_definition(in);
+  defer({cJSON_Deleteric_action_definition(ric_act_def); });
+
   e2sm_ccc_action_def_t dst = {0};
+  dst.ric_style_type = ric_act_def->ric_style_type;
+  if(list_get_count(ric_act_def->action_definition_format->list_of_node_level_ran_configuration_structures_for_adf) > 0){
+    // Format 1
+    dst.format = FORMAT_1_E2SM_CCC_ACT_DEF;
+    dst.frmt_1 = get_act_def_frmt1(ric_act_def->action_definition_format->list_of_node_level_ran_configuration_structures_for_adf);
+  } else if (list_get_count(ric_act_def->action_definition_format->list_of_cell_configurations_to_be_reported_for_adf) > 0){
+    // Format 2
+    dst.format = FORMAT_2_E2SM_CCC_ACT_DEF;
+    dst.frmt_2 = get_act_def_frmt2(ric_act_def->action_definition_format->list_of_cell_configurations_to_be_reported_for_adf);
+  }
 
   return dst;
+}
+
+static
+indication_reason_e cp_indication_reason(enum indication_reason const ind_res){
+  switch (ind_res) {
+    case INDICATION_REASON_upon_change:
+      return IND_REASON_UPON_CHANGE;
+    case INDICATION_REASON_periodic:
+      return IND_REASON_PERIODIC;
+    case INDICATION_REASON_upon_subscription:
+      return IND_REASON_UPON_SUB;
+    default:
+      assert(0 != 0 && "No indication header reason");
+  }
 }
 
 e2sm_ccc_ind_hdr_t ccc_dec_ind_hdr_json(size_t len, uint8_t const ind_hdr[len])
 {
   assert(ind_hdr != NULL);
   assert(len != 0);
-  assert(0 != 0 && "Not implemented");
-  e2sm_ccc_ind_hdr_t dst = {0};
+
+  // TODO: Make this better
+  byte_array_t ba = {0};
+  defer({free_byte_array(ba);});
+  ba.len = len;
+  ba.buf = calloc(len, sizeof(uint8_t));
+  assert(ba.buf != NULL && "Memory exhausted");
+  memcpy(ba.buf, ind_hdr, len);
+  char* in = copy_ba_to_str(&ba);
+  defer({free(in);});
+
+  struct ric_indication_header* ric_ind_hdr = cJSON_Parseric_indication_header(in);
+  defer({cJSON_Deleteric_indication_header(ric_ind_hdr); });
+
+  e2sm_ccc_ind_hdr_t dst = {.format = FORMAT_1_E2SM_CCC_IND_HDR};
+  dst.frmt_1.event_time = cp_str_to_ba(ric_ind_hdr->indication_header_format->event_time);
+  dst.frmt_1.ind_reason = cp_indication_reason(ric_ind_hdr->indication_header_format->indication_reason);
 
   return dst;
 }

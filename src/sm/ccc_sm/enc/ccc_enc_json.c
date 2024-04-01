@@ -19,7 +19,13 @@
  *      contact@openairinterface.org
  */
 
+#include <stdio.h>
+
 #include "ccc_enc_json.h"
+#include "../ie/json/ric_indication_header.h"
+#include "../ie/json/ric_action_definition.h"
+
+#include "../../../util/alg_ds/alg/defer.h"
 
 #include <assert.h>
 
@@ -31,20 +37,164 @@ byte_array_t ccc_enc_event_trigger_json(e2sm_ccc_event_trigger_t const* src)
   return ba;
 }
 
+static
+enum report_type cp_report_type(report_type_e const src){
+  switch (src) {
+    case REPORT_TYPE_CHANGE:
+      return REPORT_TYPE_change;
+    case REPORT_TYPE_ALL:
+      return REPORT_TYPE_all;
+    default:
+      assert(0 != 0 && "Unknown report type");
+  }
+}
+
+static
+struct list_of_node_level_ran_configuration_structures_for_adf_element* create_act_def_ran_element(act_def_ran_conf_t const src){
+  struct list_of_node_level_ran_configuration_structures_for_adf_element* res = calloc(1, sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element));
+  res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
+  res->report_type = cp_report_type(src.report_type);
+  res->list_of_attributes = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_attribute; ++i){
+    list_add_tail(res->list_of_attributes, copy_ba_to_str(&src.attribute[i].attribute_name), sizeof(char *));
+  }
+
+  return res;
+}
+
+static
+struct action_definition_format* cp_act_def_frmt_1(e2sm_ccc_act_def_frmt_1_t const src){
+  struct action_definition_format* act_def_frm = calloc(1, sizeof(struct action_definition_format));
+  assert(act_def_frm != NULL && "Memory exhausted");
+  act_def_frm->list_of_node_level_ran_configuration_structures_for_adf = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_act_def_ran_conf; ++i){
+    list_add_tail(
+        act_def_frm->list_of_node_level_ran_configuration_structures_for_adf,
+        create_act_def_ran_element(src.act_def_ran_conf[i]),
+        sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element *)
+        );
+  }
+
+  return act_def_frm;
+}
+
+// TODO: Make this better
+static
+struct cell_global_id* create_cell_global_id(cell_global_id_t const src){
+  assert(src.type == NR_CGI_RAT_TYPE && "Not 5g cell");
+
+  struct cell_global_id* cell_id = calloc(1, sizeof(struct cell_global_id));
+  assert(cell_id != NULL && "Memory exhausted");
+
+  int length = snprintf(NULL, 0, "%lu", (uint64_t)src.nr_cgi.nr_cell_id);
+  cell_id->n_r_cell_identity = (char *)malloc((length + 1) * sizeof(char));
+  assert(cell_id->n_r_cell_identity != NULL && "Memory exhausted");
+  snprintf(cell_id->n_r_cell_identity, length + 1, "%lu", (uint64_t)src.nr_cgi.nr_cell_id);
+
+  cell_id->plmn_identity = calloc(1, sizeof(struct plmn_identity));
+  assert(cell_id->plmn_identity != NULL && "Memory exhausted");
+
+  length = snprintf(NULL, 0, "%hu", src.nr_cgi.plmn_id.mcc);
+  cell_id->plmn_identity->mcc = (char *)malloc((length + 1) * sizeof(char));
+  assert(cell_id->plmn_identity->mcc != NULL && "Memory exhausted");
+  snprintf(cell_id->plmn_identity->mcc, length + 1, "%hu", src.nr_cgi.plmn_id.mcc);
+
+  length = snprintf(NULL, 0, "%hu", src.nr_cgi.plmn_id.mnc);
+  cell_id->plmn_identity->mnc = (char *)malloc((length + 1) * sizeof(char));
+  assert(cell_id->plmn_identity->mnc != NULL && "Memory exhausted");
+  snprintf(cell_id->plmn_identity->mnc, length + 1, "%hu", src.nr_cgi.plmn_id.mnc);
+
+  return cell_id;
+}
+
+static
+list_t* create_act_def_cell_report(act_def_cell_report_t const src){
+  list_t* res = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_act_def_ran_conf; ++i){
+    struct list_of_cell_configurations_to_be_reported_for_adf_element* cell = calloc(1, sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element*));
+    cell->cell_global_id = create_cell_global_id(src.cell_global_id);
+    cell->list_of_cell_level_ran_configuration_structures_for_adf = list_create(false, NULL);
+    list_add_tail(
+        cell->list_of_cell_level_ran_configuration_structures_for_adf,
+        create_act_def_ran_element(src.act_def_ran_conf[i]),
+        sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element*)
+        );
+
+  }
+
+  return res;
+}
+
+static
+struct action_definition_format* cp_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t const src){
+  struct action_definition_format* act_def_frm = calloc(1, sizeof(struct action_definition_format));
+  assert(act_def_frm != NULL && "Memory exhausted");
+  act_def_frm->list_of_cell_configurations_to_be_reported_for_adf = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_act_def_cell_report; ++i){
+    list_add_tail(
+        act_def_frm->list_of_cell_configurations_to_be_reported_for_adf,
+        create_act_def_cell_report(src.act_def_cell_report[i]),
+        sizeof(struct list_of_cell_configurations_to_be_reported_for_adf_element*)
+    );
+  }
+
+  return act_def_frm;
+}
+
 byte_array_t ccc_enc_action_def_json(e2sm_ccc_action_def_t const* src)
 {
-  assert(0 != 0 && "Not implemented");
-  byte_array_t ba = {0};
+  struct ric_action_definition* ric_act_def = calloc(1, sizeof(struct ric_action_definition));
+  assert(ric_act_def != NULL && "Memory exhausted");
+  defer({cJSON_Deleteric_action_definition(ric_act_def); });
 
-  return ba;
+  ric_act_def->ric_style_type = src->ric_style_type;
+  if (src->format == FORMAT_1_E2SM_CCC_ACT_DEF) {
+    ric_act_def->action_definition_format = cp_act_def_frmt_1(src->frmt_1);
+  } else if (src->format == FORMAT_2_E2SM_CCC_ACT_DEF){
+    ric_act_def->action_definition_format = cp_act_def_frmt_2(src->frmt_2);
+  } else {
+    assert(0 != 0 && "unknown format type");
+  }
+
+  char * res = cJSON_Printric_action_definition(ric_act_def);
+  defer({free(res);});
+
+  return cp_str_to_ba(res);
+}
+
+static
+enum indication_reason cp_ind_hdr_reason(indication_reason_e const ind_reason){
+  switch (ind_reason) {
+    case IND_REASON_UPON_SUB:
+      return INDICATION_REASON_upon_subscription;
+    case IND_REASON_PERIODIC:
+      return INDICATION_REASON_periodic;
+    case IND_REASON_UPON_CHANGE:
+      return INDICATION_REASON_upon_change;
+    default:
+      assert(0 != 0 && "unknown indication header reason");
+  }
 }
 
 byte_array_t ccc_enc_ind_hdr_json(e2sm_ccc_ind_hdr_t const* src)
 {
-  assert(0 != 0 && "Not implemented");
-  byte_array_t ba = {0};
+  struct ric_indication_header* ric_ind_hdr = calloc(1, sizeof(struct ric_indication_header));
+  assert(ric_ind_hdr != NULL && "Memory exhausted");
+  defer({cJSON_Deleteric_indication_header(ric_ind_hdr); });
 
-  return ba;
+  if (src->format == FORMAT_1_E2SM_CCC_IND_HDR){
+    ric_ind_hdr->indication_header_format = calloc(1, sizeof(struct indication_header_format));
+    assert(ric_ind_hdr->indication_header_format != NULL && "Memory exhausted");
+    ric_ind_hdr->indication_header_format->indication_reason = cp_ind_hdr_reason(src->frmt_1.ind_reason);
+    ric_ind_hdr->indication_header_format->event_time = copy_ba_to_str(&src->frmt_1.event_time);
+  } else {
+    assert(0 != 0 && "unknown format type");
+  };
+
+  char * res = cJSON_Printric_indication_header(ric_ind_hdr);
+  defer({free(res);});
+
+  return cp_str_to_ba(res);
 }
 
 byte_array_t ccc_enc_ind_msg_json(e2sm_ccc_ind_msg_t const* src)
