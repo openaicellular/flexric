@@ -159,7 +159,6 @@ bool eq_e2sm_ccc_action_def(e2sm_ccc_action_def_t* m0,  e2sm_ccc_action_def_t* m
     assert( 0!= 0 && "Unknown format type");
   }
 
-  assert( 0!= 0 && "Impossible path");
   return true;
 }
 
@@ -207,13 +206,11 @@ bool eq_e2sm_ccc_ind_hdr(e2sm_ccc_ind_hdr_t const* m0, e2sm_ccc_ind_hdr_t const*
   if(m0->format != m1->format)
     return false;
 
-  if(m0->format == FORMAT_1_E2SM_CCC_IND_HDR  ){
+  if(m0->format == FORMAT_1_E2SM_CCC_IND_HDR ){
     eq_e2sm_ccc_ind_hdr_frmt_1(&m0->frmt_1, &m1->frmt_1);
   } else {
     assert(0!=0 && "Unknown format");
   }
-
-  assert(0!=0 && "Not implemented");
 
   return true;
 }

@@ -6,26 +6,7 @@
 
 #include "../../../../lib/sm/ie/cell_global_id.h"
 #include "../../../../util/byte_array.h"
-#include "report_type.h"
-#include "attribute.h"
-
-typedef struct{
-  // Report Type
-  // Mandatory
-  // 9.3.9
-  report_type_e report_type;
-
-  // RAN Configuration Structure Name
-  // Mandatory
-  // 9.3.7
-  byte_array_t ran_conf_name;
-
-  // List attributes
-  // [0 - 66535]
-  size_t sz_attribute;
-  attribute_t* attribute;
-
-} cell_conf_t;
+#include "act_def_ran_conf.h"
 
 typedef struct{
   // Cell global ID
@@ -35,8 +16,8 @@ typedef struct{
 
   // List of Cell-level RAN Configuration Structures
   // [1 - 1024]
-  size_t sz_cell_conf;
-  cell_conf_t* cell_conf;
+  size_t sz_act_def_ran_conf;
+  act_def_ran_conf_t* act_def_ran_conf;
 
 } act_def_cell_report_t;
 

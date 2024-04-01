@@ -1,5 +1,6 @@
 set (IR_CCC_SRC
         attribute.c
+        act_def_ran_conf.c
         ctrl_out_conf_accepted.c
         ctrl_out_conf_failed.c
         e2sm_ccc_act_def_frmt_1.c
