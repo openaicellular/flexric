@@ -6,12 +6,11 @@
 #include "rf_ports_ms_amr.h"
 
 typedef struct{
-
   rf_ports_ms_amr_t* rf_ports_ms_amr;
   size_t sz;
   char** name;
-
-
 } arr_rf_ports_ms_amr_t;
+
+arr_rf_ports_ms_amr_t parse_arr_rf_ports_ms_amr(void* it);
 
 #endif

@@ -3,6 +3,6 @@
 
 #include "../msg_stats.h"
 
-void dec_config_get_amr(const char* in, msg_stats_amr_t* out);
+void dec_msg_stats_amr(const char* in, msg_stats_amr_t* out);
 
 #endif

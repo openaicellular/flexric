@@ -8,7 +8,7 @@ typedef struct {
 // Global events:
 //Message events: 
 
-//int s1_handover_required 
+int s1_handover_required; 
 //int s1_handover_command 
 //int s1_handover_preparation_failure 
 //int s1_handover_request 
@@ -827,5 +827,8 @@ typedef struct {
 //int nr_rrc_paging
 
 } cnt_msgs_amr_t;
+
+
+cnt_msgs_amr_t parse_cnt_msgs_amr(void* it); 
 
 #endif

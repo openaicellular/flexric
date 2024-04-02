@@ -2,8 +2,8 @@
 "message_id":126,
 "instance_id":"66042fa9",
 "cpu":{"global":44},
-"gtp_rx_bitrate":0,
-"gtp_tx_bitrate":0,
+"gtp_rx_bitrate":12.234,
+"gtp_tx_bitrate":0.8956,
 "cells":
 {"1":{
     "dl_bitrate":0,

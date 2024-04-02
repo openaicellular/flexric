@@ -61,5 +61,7 @@ typedef struct{
 } cell_amr_t ;
 
 
+cell_amr_t parse_cell_amr(void* it); 
+
 #endif
 

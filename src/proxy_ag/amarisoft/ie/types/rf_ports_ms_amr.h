@@ -8,4 +8,7 @@ typedef struct{
   float sd;
 } rf_ports_ms_amr_t;
 
+rf_ports_ms_amr_t parse_rf_ports_ms_amr(void* it);
+
+
 #endif

@@ -140,7 +140,7 @@ typedef struct e2ap_msg_s {
     e42_ric_control_request_t e42_ric_ctrl_req;
     e42_update_e2_node_t e42_updt_e2_node;
   } u_msgs;
-  int64_t tstamp; // for debugginf purposes;
+  int64_t tstamp; // for debugging purposes;
 } e2ap_msg_t;
 
 #endif // E2AP_TYPE_DEFS_H 

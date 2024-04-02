@@ -11,7 +11,7 @@ typedef struct{
   int msg_id;
 
   // Constant over process lifetime.
-  int instance_id;
+  char* instance_id;
 
   // Each member name defines a type and its value cpu load in % of one core.
   cpu_amr_t cpu;
@@ -29,7 +29,7 @@ typedef struct{
   float* gtp_rx_bitrate;
 
   // Each member name is the RF port ID and each value is an object representing the TX-RX latency statistics 
-  arr_rf_ports_ms_amr_t rf_port; 
+  arr_rf_ports_ms_amr_t arr_rf_port; 
 
   // Set if samples has been set to true in request
   // samples

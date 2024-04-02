@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../cJSON/cJSON.h"
 #include "../dec/parse_cjson.h"
 
@@ -24,8 +25,12 @@ arr_rf_ports_amr_t parse_arr_rf_ports_amr(void* it)
   dst.rf_ports_amr = calloc(dst.sz, sizeof(rf_ports_amr_t));
   assert(dst.rf_ports_amr != NULL && "Memory exhausted");
 
+  //dst.name = calloc(dst.sz, sizeof(char*));
+  //assert(dst.name != NULL && "Memory exhausted");
+
   for(size_t i = 0; i < dst.sz; ++i){
     cJSON* tmp = cJSON_GetArrayItem(ans.it, i);
+    //dst.name[i] = strdup(tmp->string);
     dst.rf_ports_amr[i] = parse_rf_ports_amr(tmp);
   }
 

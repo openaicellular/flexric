@@ -1,3 +1,5 @@
+add_subdirectory(proxy_ag)
+
 if (EMU_AGENT)
     add_subdirectory(agent)
     if (PROXY_AGENT)
