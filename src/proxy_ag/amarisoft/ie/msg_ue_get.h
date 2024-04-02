@@ -10,6 +10,8 @@ typedef struct{
   float time;
 } msg_ue_get_t;
 
+void free_msg_ue_get(msg_ue_get_t* src);
+
 msg_ue_get_t parse_msg_ue_get(void* it);
 
 #endif

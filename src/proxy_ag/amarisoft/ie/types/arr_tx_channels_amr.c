@@ -5,6 +5,16 @@
 #include "../cJSON/cJSON.h"
 #include "../dec/parse_cjson.h"
 
+void free_arr_tx_channels_amr(arr_tx_channels_amr_t* src )
+{
+  assert(src != NULL);
+
+  for(size_t i = 0; i < src->sz; ++i){
+    free_tx_channels_amr(&src->tx_channels_amr[i]); 
+  }
+  free(src->tx_channels_amr); 
+}
+
 arr_tx_channels_amr_t parse_arr_tx_channels_amr(void* it)
 {
   assert(it != NULL);

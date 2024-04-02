@@ -11,6 +11,8 @@ typedef struct{
   char** name;
 } arr_rf_ports_ms_amr_t;
 
+void free_arr_rf_ports_ms_amr( arr_rf_ports_ms_amr_t* src);
+
 arr_rf_ports_ms_amr_t parse_arr_rf_ports_ms_amr(void* it);
 
 #endif

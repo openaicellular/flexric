@@ -26,6 +26,8 @@ typedef struct{
 
 } plmn_list_amr_t;
 
+void free_plmn_list_amr( plmn_list_amr_t* src);
+
 plmn_list_amr_t parse_plmn_list_amr(void* it);
 
 #endif

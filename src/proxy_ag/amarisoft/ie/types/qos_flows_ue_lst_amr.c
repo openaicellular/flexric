@@ -6,6 +6,20 @@
 #include "../cJSON/cJSON.h"
 #include "../dec/parse_cjson.h"
 
+void free_qos_flows_ue_lst_amr(qos_flows_ue_lst_amr_t* src)
+{
+  assert(src != NULL);
+
+//  int pdu_session_id;
+//  int dl_total_bytes;
+//  int ul_total_bytes;
+//  int sst; 
+//  int sd;
+//
+
+}
+
+
 qos_flows_ue_lst_amr_t parse_qos_flows_ue_lst_amr(void* it)
 {
   assert(it != NULL);

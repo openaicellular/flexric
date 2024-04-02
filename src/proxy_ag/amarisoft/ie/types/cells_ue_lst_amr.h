@@ -28,8 +28,8 @@ typedef struct{
   int initial_ta;
 } cells_ue_lst_amr_t ;
 
+void free_cells_ue_lst_amr(cells_ue_lst_amr_t* src);
+
 cells_ue_lst_amr_t parse_cells_ue_lst_amr(void* it);
-
-
 
 #endif

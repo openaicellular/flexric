@@ -21,6 +21,8 @@ typedef struct{
 
 } path_amr_t;
 
+void free_path_amr(path_amr_t* src);
+
 path_amr_t parse_path_amr(void* it);
 
 #endif

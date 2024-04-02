@@ -25,6 +25,7 @@ int main()
   msg_stats_amr_t out = {0};
   dec_msg_stats_amr(str, &out);
 
+  free_msg_stats_amr(&out);
   free(str);
   return EXIT_SUCCESS;
 }

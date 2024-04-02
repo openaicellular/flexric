@@ -25,6 +25,7 @@ int main()
   config_get_amr_t out = {0};
   dec_config_get_amr(str, &out);
 
+  free_config_get_amr(&out);
   free(str);
   return EXIT_SUCCESS;
 }

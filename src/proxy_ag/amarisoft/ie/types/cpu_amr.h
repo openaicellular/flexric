@@ -8,6 +8,8 @@ typedef struct{
 
 } cpu_amr_t;
 
+void free_cpu_amr(cpu_amr_t* src);
+
 cpu_amr_t parse_cpu_amr(void* it);
 
 #endif

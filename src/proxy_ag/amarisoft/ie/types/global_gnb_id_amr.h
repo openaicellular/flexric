@@ -2,6 +2,7 @@
 #define GLOBAL_GNB_ID_AMR_MIR_H 
 
 typedef struct{
+
   // Mandatory. PLMN
   char* plmn;
 
@@ -15,6 +16,8 @@ typedef struct{
   char* gnb_name;
 
 } global_gnb_id_amr_t;
+
+void free_global_gnb_id_amr(global_gnb_id_amr_t* src);
 
 global_gnb_id_amr_t parse_global_gnb_id_amr(void* it);
 

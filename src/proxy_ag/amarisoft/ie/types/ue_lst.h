@@ -30,6 +30,8 @@ typedef struct{
 
 } ue_lst_t;
 
+void free_ue_lst(ue_lst_t* src);
+
 ue_lst_t parse_ue_lst(void* it);
 
 #endif

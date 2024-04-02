@@ -828,6 +828,7 @@ int s1_handover_required;
 
 } cnt_msgs_amr_t;
 
+void free_cnt_msgs_amr(cnt_msgs_amr_t* src);
 
 cnt_msgs_amr_t parse_cnt_msgs_amr(void* it); 
 

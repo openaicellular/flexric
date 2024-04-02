@@ -60,6 +60,7 @@ typedef struct{
 
 } cell_amr_t ;
 
+void free_cell_amr(cell_amr_t* src);
 
 cell_amr_t parse_cell_amr(void* it); 
 

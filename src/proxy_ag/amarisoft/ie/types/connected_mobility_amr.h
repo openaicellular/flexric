@@ -28,6 +28,8 @@ typedef struct{
 
 } connected_mobility_amr_t;
 
+void free_connected_mobility_amr(connected_mobility_amr_t* src);
+
 connected_mobility_amr_t parse_connected_mobility_amr(void* it);
 
 #endif

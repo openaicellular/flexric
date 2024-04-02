@@ -5,6 +5,17 @@
 
 #include "../dec/parse_cjson.h"
 
+void free_ncgi_amr( ncgi_amr_t* src)
+{
+  assert(src != NULL);
+
+  // NR Cell Identity PLMN.
+  free(src->plmn);
+  
+  // NR Cell Identity (36 bits)
+  //int nci;
+}
+
 ncgi_amr_t parse_ncgi_amr(void* it_void)
 {
   assert(it_void != NULL);

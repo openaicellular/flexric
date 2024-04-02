@@ -4,6 +4,14 @@
 #include <stdlib.h>
 #include "../dec/parse_cjson.h"
 
+void free_rf_ports_ms_amr(rf_ports_ms_amr_t* src)
+{
+  assert(src != NULL);
+  //float min;
+  //float max;
+  //float sd;
+}
+
 rf_ports_ms_amr_t parse_rf_ports_ms_amr(void* it)
 {
   assert(it != NULL);

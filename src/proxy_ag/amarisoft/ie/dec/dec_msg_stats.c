@@ -60,9 +60,5 @@ void dec_msg_stats_amr(const char* in, msg_stats_amr_t* out)
 
   // Mandatory. Time elapsed in seconds since the last call to the stats API
   out->duration = parse_float(json, "duration"); 
-
-
-  assert(0 != 0 && "Debugging point");
-
 }
 

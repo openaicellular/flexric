@@ -6,6 +6,19 @@
 #include "../cJSON/cJSON.h"
 #include "../dec/parse_cjson.h"
 
+void free_arr_rf_ports_ms_amr(arr_rf_ports_ms_amr_t* src)
+{
+  assert(src != NULL);
+
+  for(size_t i = 0; i < src->sz; ++i){
+    free_rf_ports_ms_amr(&src->rf_ports_ms_amr[i]);
+    free(src->name[i]);
+  }
+
+  free(src->name);
+  free(src->rf_ports_ms_amr);
+}
+
 arr_rf_ports_ms_amr_t parse_arr_rf_ports_ms_amr(void* it)
 {
   assert(it != NULL);
@@ -30,8 +43,5 @@ arr_rf_ports_ms_amr_t parse_arr_rf_ports_ms_amr(void* it)
   }
 
   return dst;
-
 }
-
-
 

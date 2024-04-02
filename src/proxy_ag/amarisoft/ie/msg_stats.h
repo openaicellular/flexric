@@ -39,6 +39,6 @@ typedef struct{
 
 } msg_stats_amr_t;
 
-
+void free_msg_stats_amr(msg_stats_amr_t* src);
 
 #endif

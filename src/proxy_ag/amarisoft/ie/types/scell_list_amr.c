@@ -5,6 +5,17 @@
 #include "../cJSON/cJSON.h"
 #include "../dec/parse_cjson.h"
 
+void free_scell_list_amr(scell_list_amr_t* src)
+{
+  assert(src != NULL);
+
+  // Mandatory. Cell identifier 
+  // int cell_id;
+
+  // Mandatory. Indicates if PUSCH transmission is allowed
+  // bool ul_allowed;
+}
+
 scell_list_amr_t parse_scell_list_amr(void* it)
 {
   assert(it != NULL);

@@ -42,6 +42,9 @@ typedef struct{
 
 } ncell_list_amr_t;
 
+void free_ncell_list_amr( ncell_list_amr_t* src);
+
+
 ncell_list_amr_t parse_ncell_list_amr(void* it );
 
 #endif

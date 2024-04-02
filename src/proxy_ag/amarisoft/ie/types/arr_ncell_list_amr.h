@@ -9,6 +9,8 @@ typedef struct{
   ncell_list_amr_t* ncell_lst;
 } arr_ncell_list_amr_t;
 
+void free_arr_ncell_list_amr(arr_ncell_list_amr_t* src);
+
 arr_ncell_list_amr_t parse_arr_ncell_list_amr(void* it);
 
 #endif

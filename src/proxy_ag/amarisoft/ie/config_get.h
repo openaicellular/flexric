@@ -47,8 +47,7 @@ typedef struct{
   arr_tx_channels_amr_t arr_tx_channels;
   // Mandatory
   arr_rf_ports_amr_t arr_rf_ports;
-
-
+  
   // Mandatory to all messages?
   float utc;
 } config_get_amr_t;

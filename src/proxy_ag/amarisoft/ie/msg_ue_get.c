@@ -1,9 +1,15 @@
 #include "msg_ue_get.h"
 
+#include <assert.h>
 
-msg_ue_get_t parse_msg_ue_get(void* it)
+void free_msg_ue_get(msg_ue_get_t* src)
 {
-  assert(it != NULL);
+  assert(src != NULL);
 
+  for(size_t i = 0; i < src->sz; ++i){
+    free_ue_lst(&src->ue_lst[i]);
+  }
 
+  free(src->ue_lst);
 }
+

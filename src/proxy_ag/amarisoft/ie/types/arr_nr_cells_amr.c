@@ -6,6 +6,20 @@
 #include "../cJSON/cJSON.h"
 #include "../dec/parse_cjson.h"
 
+
+void free_arr_nr_cells_amr(arr_nr_cells_amr_t* src)
+{
+  assert(src != NULL);
+
+  for(size_t i = 0; i < src->sz; ++i){
+    free_nr_cells_amr(&src->nr_cells[i]);
+    free(src->names[i]);
+  }
+
+  free(src->nr_cells);
+  free(src->names);
+}
+
 arr_nr_cells_amr_t parse_arr_nr_cells_amr(void* it)
 {
   assert(it != NULL);
@@ -14,7 +28,6 @@ arr_nr_cells_amr_t parse_arr_nr_cells_amr(void* it)
 
   dst.sz = cJSON_GetArraySize(it);
   assert(dst.sz > 0);
-
 
   dst.names = calloc(dst.sz , sizeof(char*));
   assert(dst.names != NULL && "Memory exhausted");

@@ -25,6 +25,7 @@ int main()
   msg_ue_get_t out = {0};
   dec_msg_ue_get_amr(str, &out);
 
+  free_msg_ue_get(&out);
   free(str);
   return EXIT_SUCCESS;
 }

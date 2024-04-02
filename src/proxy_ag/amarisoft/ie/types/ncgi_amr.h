@@ -11,6 +11,8 @@ typedef struct {
 
 } ncgi_amr_t;
 
+void free_ncgi_amr( ncgi_amr_t* src);
+
 ncgi_amr_t parse_ncgi_amr(void* it);
 
 #endif

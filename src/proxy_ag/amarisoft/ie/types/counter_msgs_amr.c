@@ -5,6 +5,12 @@
 #include "../cJSON/cJSON.h"
 #include "../dec/parse_cjson.h"
 
+void free_cnt_msgs_amr(cnt_msgs_amr_t* src)
+{
+  assert(src != NULL);
+
+}
+
 cnt_msgs_amr_t parse_cnt_msgs_amr(void* it)
 {
   assert(it != NULL);

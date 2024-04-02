@@ -12,6 +12,8 @@ typedef struct{
 
 } nssai_amr_t;
 
+void free_nssai_amr(nssai_amr_t* src);
+
 nssai_amr_t parse_nssai_amr(void* it);
 
 #endif

@@ -10,4 +10,7 @@ typedef struct{
 
 } ecgi_amr_t;
 
+void free_ecgi_amr(ecgi_amr_t* src);
+
+
 #endif

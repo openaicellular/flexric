@@ -27,6 +27,8 @@ typedef struct{
 
 } layers_amr_t;
 
+void free_layers_amr(layers_amr_t* src);
+
 layers_amr_t parse_layers_amr(void* it);
 
 #endif

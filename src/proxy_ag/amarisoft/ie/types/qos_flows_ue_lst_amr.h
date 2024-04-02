@@ -9,6 +9,8 @@ typedef struct{
   int sd;
 } qos_flows_ue_lst_amr_t;
 
+void free_qos_flows_ue_lst_amr(qos_flows_ue_lst_amr_t* src);
+
 qos_flows_ue_lst_amr_t parse_qos_flows_ue_lst_amr(void* it);
 
 #endif

@@ -11,6 +11,8 @@ typedef struct{
   char** names;
 } arr_cell_amr_t;
 
+void free_arr_cell_amr(arr_cell_amr_t* src);
+
 arr_cell_amr_t parse_arr_cell_amr(void* it);
 
 

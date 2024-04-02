@@ -5,6 +5,12 @@
 #include "../cJSON/cJSON.h"
 #include "../dec/parse_cjson.h"
 
+void free_cpu_amr(cpu_amr_t* src)
+{
+  assert(src != NULL);
+  // cpu load % in one core
+  // int global;
+}
 
 cpu_amr_t parse_cpu_amr(void* it)
 {

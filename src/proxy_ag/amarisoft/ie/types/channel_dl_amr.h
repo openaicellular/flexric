@@ -20,6 +20,8 @@ typedef struct{
 
 } channel_dl_amr_t;
 
+void free_channel_dl_amr(channel_dl_amr_t* src);
+
 channel_dl_amr_t parse_channel_dl_amr(void* it);
 
 #endif

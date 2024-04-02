@@ -8,7 +8,14 @@
 void free_tx_channels_amr(tx_channels_amr_t* src )
 {
   assert(src != NULL);
+  // Mandatory RF transmission gain, in dB.
+  //float gain; 
 
+  // Mandatory RF transmission frequency, in MHz. 
+  //float freq;
+
+  // Mandatory. RF port index.
+  //int port;
 }
 
 tx_channels_amr_t parse_tx_channels_amr(void* it)
