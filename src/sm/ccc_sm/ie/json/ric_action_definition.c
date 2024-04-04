@@ -19,6 +19,7 @@ extern "C" {
 #include <stdbool.h>
 #include <string.h>
 #include "ric_action_definition.h"
+#include "assert.h"
 
 #ifndef cJSON_Bool
 #define cJSON_Bool (cJSON_True | cJSON_False)
@@ -32,20 +33,22 @@ extern "C" {
 
 
 
-enum report_type cJSON_Getreport_typeValue(const cJSON * j) {
-  enum report_type x = 0;
+report_type_e cJSON_Getreport_typeValue(const cJSON * j) {
+  report_type_e x = 0;
   if (NULL != j) {
-    if (!strcmp(cJSON_GetStringValue(j), "all")) x = REPORT_TYPE_all;
-    else if (!strcmp(cJSON_GetStringValue(j), "change")) x = REPORT_TYPE_change;
+    if (!strcmp(cJSON_GetStringValue(j), "all")) x = REPORT_TYPE_ALL;
+    else if (!strcmp(cJSON_GetStringValue(j), "change")) x = REPORT_TYPE_CHANGE;
   }
   return x;
 }
 
-cJSON * cJSON_Createreport_type(const enum report_type x) {
+cJSON * cJSON_Createreport_type(const report_type_e x) {
   cJSON * j = NULL;
   switch (x) {
-    case REPORT_TYPE_all: j = cJSON_CreateString("all"); break;
-    case REPORT_TYPE_change: j = cJSON_CreateString("change"); break;
+    case REPORT_TYPE_ALL: j = cJSON_CreateString("all"); break;
+    case REPORT_TYPE_CHANGE: j = cJSON_CreateString("change"); break;
+    default:
+      assert(0 != 0 && "No ccc report type");
   }
   return j;
 }
@@ -98,7 +101,7 @@ char * cJSON_Printplmn_identity(const struct plmn_identity * x) {
   if (NULL != x) {
     cJSON * j = cJSON_Createplmn_identity(x);
     if (NULL != j) {
-      s = cJSON_Print(j);
+      s = cJSON_PrintUnformatted(j);
       cJSON_Delete(j);
     }
   }
@@ -171,7 +174,7 @@ char * cJSON_Printcell_global_id(const struct cell_global_id * x) {
   if (NULL != x) {
     cJSON * j = cJSON_Createcell_global_id(x);
     if (NULL != j) {
-      s = cJSON_Print(j);
+      s = cJSON_PrintUnformatted(j);
       cJSON_Delete(j);
     }
   }
@@ -190,8 +193,8 @@ void cJSON_Deletecell_global_id(struct cell_global_id * x) {
   }
 }
 
-struct list_of_attribute_element * cJSON_Parselist_of_attribute_element(const char * s) {
-  struct list_of_attribute_element * x = NULL;
+list_of_attribute_element_t * cJSON_Parselist_of_attribute_element(const char * s) {
+  list_of_attribute_element_t * x = NULL;
   if (NULL != s) {
     cJSON * j = cJSON_Parse(s);
     if (NULL != j) {
@@ -202,11 +205,11 @@ struct list_of_attribute_element * cJSON_Parselist_of_attribute_element(const ch
   return x;
 }
 
-struct list_of_attribute_element * cJSON_Getlist_of_attribute_elementValue(const cJSON * j) {
-  struct list_of_attribute_element * x = NULL;
+list_of_attribute_element_t * cJSON_Getlist_of_attribute_elementValue(const cJSON * j) {
+  list_of_attribute_element_t * x = NULL;
   if (NULL != j) {
-    if (NULL != (x = cJSON_malloc(sizeof(struct list_of_attribute_element)))) {
-      memset(x, 0, sizeof(struct list_of_attribute_element));
+    if (NULL != (x = cJSON_malloc(sizeof(list_of_attribute_element_t)))) {
+      memset(x, 0, sizeof(list_of_attribute_element_t));
       if (cJSON_HasObjectItem(j, "attributeName")) {
         x->attribute_name = strdup(cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(j, "attributeName")));
       }
@@ -220,7 +223,7 @@ struct list_of_attribute_element * cJSON_Getlist_of_attribute_elementValue(const
   return x;
 }
 
-cJSON * cJSON_Createlist_of_attribute_element(const struct list_of_attribute_element * x) {
+cJSON * cJSON_Createlist_of_attribute_element(const list_of_attribute_element_t * x) {
   cJSON * j = NULL;
   if (NULL != x) {
     if (NULL != (j = cJSON_CreateObject())) {
@@ -235,19 +238,19 @@ cJSON * cJSON_Createlist_of_attribute_element(const struct list_of_attribute_ele
   return j;
 }
 
-char * cJSON_Printlist_of_attribute_element(const struct list_of_attribute_element * x) {
+char * cJSON_Printlist_of_attribute_element(const list_of_attribute_element_t * x) {
   char * s = NULL;
   if (NULL != x) {
     cJSON * j = cJSON_Createlist_of_attribute_element(x);
     if (NULL != j) {
-      s = cJSON_Print(j);
+      s = cJSON_PrintUnformatted(j);
       cJSON_Delete(j);
     }
   }
   return s;
 }
 
-void cJSON_Deletelist_of_attribute_element(struct list_of_attribute_element * x) {
+void cJSON_Deletelist_of_attribute_element(list_of_attribute_element_t * x) {
   if (NULL != x) {
     if (NULL != x->attribute_name) {
       cJSON_free(x->attribute_name);
@@ -256,30 +259,30 @@ void cJSON_Deletelist_of_attribute_element(struct list_of_attribute_element * x)
   }
 }
 
-struct list_of_node_level_ran_configuration_structures_for_adf_element * cJSON_Parselist_of_node_level_ran_configuration_structures_for_adf_element(const char * s) {
-  struct list_of_node_level_ran_configuration_structures_for_adf_element * x = NULL;
+lst_act_def_ran_conf_element_t * cJSON_Parselst_act_def_node_ran_conf_element(const char * s) {
+  lst_act_def_ran_conf_element_t * x = NULL;
   if (NULL != s) {
     cJSON * j = cJSON_Parse(s);
     if (NULL != j) {
-      x = cJSON_Getlist_of_node_level_ran_configuration_structures_for_adf_elementValue(j);
+      x = cJSON_Getlst_act_def_node_ran_conf_elementValue(j);
       cJSON_Delete(j);
     }
   }
   return x;
 }
 
-struct list_of_node_level_ran_configuration_structures_for_adf_element * cJSON_Getlist_of_node_level_ran_configuration_structures_for_adf_elementValue(const cJSON * j) {
-  struct list_of_node_level_ran_configuration_structures_for_adf_element * x = NULL;
+lst_act_def_ran_conf_element_t * cJSON_Getlst_act_def_node_ran_conf_elementValue(const cJSON * j) {
+  lst_act_def_ran_conf_element_t * x = NULL;
   if (NULL != j) {
-    if (NULL != (x = cJSON_malloc(sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element)))) {
-      memset(x, 0, sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element));
+    if (NULL != (x = cJSON_malloc(sizeof(lst_act_def_ran_conf_element_t)))) {
+      memset(x, 0, sizeof(lst_act_def_ran_conf_element_t));
       if (cJSON_HasObjectItem(j, "listOfAttributes")) {
         list_t * x1 = list_create(false, NULL);
         if (NULL != x1) {
           cJSON * e1 = NULL;
           cJSON * j1 = cJSON_GetObjectItemCaseSensitive(j, "listOfAttributes");
           cJSON_ArrayForEach(e1, j1) {
-            list_add_tail(x1, cJSON_Getlist_of_attribute_elementValue(e1), sizeof(struct list_of_attribute_element *));
+            list_add_tail(x1, cJSON_Getlist_of_attribute_elementValue(e1), sizeof(list_of_attribute_element_t *));
           }
           x->list_of_attributes = x1;
         }
@@ -300,14 +303,14 @@ struct list_of_node_level_ran_configuration_structures_for_adf_element * cJSON_G
   return x;
 }
 
-cJSON * cJSON_Createlist_of_node_level_ran_configuration_structures_for_adf_element(const struct list_of_node_level_ran_configuration_structures_for_adf_element * x) {
+cJSON * cJSON_Createlst_act_def_node_ran_conf_element(const lst_act_def_ran_conf_element_t * x) {
   cJSON * j = NULL;
   if (NULL != x) {
     if (NULL != (j = cJSON_CreateObject())) {
       if (NULL != x->list_of_attributes) {
         cJSON * j1 = cJSON_AddArrayToObject(j, "listOfAttributes");
         if (NULL != j1) {
-          struct list_of_attribute_element * x1 = list_get_head(x->list_of_attributes);
+          list_of_attribute_element_t * x1 = list_get_head(x->list_of_attributes);
           while (NULL != x1) {
             cJSON_AddItemToArray(j1, cJSON_Createlist_of_attribute_element(x1));
             x1 = list_get_next(x->list_of_attributes);
@@ -326,22 +329,22 @@ cJSON * cJSON_Createlist_of_node_level_ran_configuration_structures_for_adf_elem
   return j;
 }
 
-char * cJSON_Printlist_of_node_level_ran_configuration_structures_for_adf_element(const struct list_of_node_level_ran_configuration_structures_for_adf_element * x) {
+char * cJSON_Printlst_act_def_node_ran_conf_element(const lst_act_def_ran_conf_element_t * x) {
   char * s = NULL;
   if (NULL != x) {
-    cJSON * j = cJSON_Createlist_of_node_level_ran_configuration_structures_for_adf_element(x);
+    cJSON * j = cJSON_Createlst_act_def_node_ran_conf_element(x);
     if (NULL != j) {
-      s = cJSON_Print(j);
+      s = cJSON_PrintUnformatted(j);
       cJSON_Delete(j);
     }
   }
   return s;
 }
 
-void cJSON_Deletelist_of_node_level_ran_configuration_structures_for_adf_element(struct list_of_node_level_ran_configuration_structures_for_adf_element * x) {
+void cJSON_Deletelst_act_def_node_ran_conf_element(lst_act_def_ran_conf_element_t * x) {
   if (NULL != x) {
     if (NULL != x->list_of_attributes) {
-      struct list_of_attribute_element * x1 = list_get_head(x->list_of_attributes);
+      list_of_attribute_element_t * x1 = list_get_head(x->list_of_attributes);
       while (NULL != x1) {
         cJSON_Deletelist_of_attribute_element(x1);
         x1 = list_get_next(x->list_of_attributes);
@@ -355,23 +358,23 @@ void cJSON_Deletelist_of_node_level_ran_configuration_structures_for_adf_element
   }
 }
 
-struct list_of_cell_configurations_to_be_reported_for_adf_element * cJSON_Parselist_of_cell_configurations_to_be_reported_for_adf_element(const char * s) {
-  struct list_of_cell_configurations_to_be_reported_for_adf_element * x = NULL;
+lst_act_def_cell_ran_conf_element_t * cJSON_Parselst_act_def_cell_ran_conf_element(const char * s) {
+  lst_act_def_cell_ran_conf_element_t * x = NULL;
   if (NULL != s) {
     cJSON * j = cJSON_Parse(s);
     if (NULL != j) {
-      x = cJSON_Getlist_of_cell_configurations_to_be_reported_for_adf_elementValue(j);
+      x = cJSON_Getlst_act_def_cell_ran_conf_elementValue(j);
       cJSON_Delete(j);
     }
   }
   return x;
 }
 
-struct list_of_cell_configurations_to_be_reported_for_adf_element * cJSON_Getlist_of_cell_configurations_to_be_reported_for_adf_elementValue(const cJSON * j) {
-  struct list_of_cell_configurations_to_be_reported_for_adf_element * x = NULL;
+lst_act_def_cell_ran_conf_element_t * cJSON_Getlst_act_def_cell_ran_conf_elementValue(const cJSON * j) {
+  lst_act_def_cell_ran_conf_element_t * x = NULL;
   if (NULL != j) {
-    if (NULL != (x = cJSON_malloc(sizeof(struct list_of_cell_configurations_to_be_reported_for_adf_element)))) {
-      memset(x, 0, sizeof(struct list_of_cell_configurations_to_be_reported_for_adf_element));
+    if (NULL != (x = cJSON_malloc(sizeof(lst_act_def_cell_ran_conf_element_t)))) {
+      memset(x, 0, sizeof(lst_act_def_cell_ran_conf_element_t));
       if (cJSON_HasObjectItem(j, "cellGlobalId")) {
         x->cell_global_id = cJSON_Getcell_global_idValue(cJSON_GetObjectItemCaseSensitive(j, "cellGlobalId"));
       }
@@ -381,7 +384,7 @@ struct list_of_cell_configurations_to_be_reported_for_adf_element * cJSON_Getlis
           cJSON * e1 = NULL;
           cJSON * j1 = cJSON_GetObjectItemCaseSensitive(j, "listOfCellLevelRANConfigurationStructuresForADF");
           cJSON_ArrayForEach(e1, j1) {
-            list_add_tail(x1, cJSON_Getlist_of_node_level_ran_configuration_structures_for_adf_elementValue(e1), sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element *));
+            list_add_tail(x1, cJSON_Getlst_act_def_node_ran_conf_elementValue(e1), sizeof(lst_act_def_ran_conf_element_t *));
           }
           x->list_of_cell_level_ran_configuration_structures_for_adf = x1;
         }
@@ -391,7 +394,7 @@ struct list_of_cell_configurations_to_be_reported_for_adf_element * cJSON_Getlis
   return x;
 }
 
-cJSON * cJSON_Createlist_of_cell_configurations_to_be_reported_for_adf_element(const struct list_of_cell_configurations_to_be_reported_for_adf_element * x) {
+cJSON * cJSON_Createlst_act_def_cell_ran_conf_element(const lst_act_def_cell_ran_conf_element_t * x) {
   cJSON * j = NULL;
   if (NULL != x) {
     if (NULL != (j = cJSON_CreateObject())) {
@@ -401,9 +404,9 @@ cJSON * cJSON_Createlist_of_cell_configurations_to_be_reported_for_adf_element(c
       if (NULL != x->list_of_cell_level_ran_configuration_structures_for_adf) {
         cJSON * j1 = cJSON_AddArrayToObject(j, "listOfCellLevelRANConfigurationStructuresForADF");
         if (NULL != j1) {
-          struct list_of_node_level_ran_configuration_structures_for_adf_element * x1 = list_get_head(x->list_of_cell_level_ran_configuration_structures_for_adf);
+          lst_act_def_ran_conf_element_t * x1 = list_get_head(x->list_of_cell_level_ran_configuration_structures_for_adf);
           while (NULL != x1) {
-            cJSON_AddItemToArray(j1, cJSON_Createlist_of_node_level_ran_configuration_structures_for_adf_element(x1));
+            cJSON_AddItemToArray(j1, cJSON_Createlst_act_def_node_ran_conf_element(x1));
             x1 = list_get_next(x->list_of_cell_level_ran_configuration_structures_for_adf);
           }
         }
@@ -413,27 +416,27 @@ cJSON * cJSON_Createlist_of_cell_configurations_to_be_reported_for_adf_element(c
   return j;
 }
 
-char * cJSON_Printlist_of_cell_configurations_to_be_reported_for_adf_element(const struct list_of_cell_configurations_to_be_reported_for_adf_element * x) {
+char * cJSON_Printlst_act_def_cell_ran_conf_element(const lst_act_def_cell_ran_conf_element_t * x) {
   char * s = NULL;
   if (NULL != x) {
-    cJSON * j = cJSON_Createlist_of_cell_configurations_to_be_reported_for_adf_element(x);
+    cJSON * j = cJSON_Createlst_act_def_cell_ran_conf_element(x);
     if (NULL != j) {
-      s = cJSON_Print(j);
+      s = cJSON_PrintUnformatted(j);
       cJSON_Delete(j);
     }
   }
   return s;
 }
 
-void cJSON_Deletelist_of_cell_configurations_to_be_reported_for_adf_element(struct list_of_cell_configurations_to_be_reported_for_adf_element * x) {
+void cJSON_Deletelst_act_def_cell_ran_conf_element(lst_act_def_cell_ran_conf_element_t * x) {
   if (NULL != x) {
     if (NULL != x->cell_global_id) {
       cJSON_Deletecell_global_id(x->cell_global_id);
     }
     if (NULL != x->list_of_cell_level_ran_configuration_structures_for_adf) {
-      struct list_of_node_level_ran_configuration_structures_for_adf_element * x1 = list_get_head(x->list_of_cell_level_ran_configuration_structures_for_adf);
+      lst_act_def_ran_conf_element_t * x1 = list_get_head(x->list_of_cell_level_ran_configuration_structures_for_adf);
       while (NULL != x1) {
-        cJSON_Deletelist_of_node_level_ran_configuration_structures_for_adf_element(x1);
+        cJSON_Deletelst_act_def_node_ran_conf_element(x1);
         x1 = list_get_next(x->list_of_cell_level_ran_configuration_structures_for_adf);
       }
       list_release(x->list_of_cell_level_ran_configuration_structures_for_adf);
@@ -442,8 +445,8 @@ void cJSON_Deletelist_of_cell_configurations_to_be_reported_for_adf_element(stru
   }
 }
 
-struct action_definition_format * cJSON_Parseaction_definition_format(const char * s) {
-  struct action_definition_format * x = NULL;
+action_definition_format_t * cJSON_Parseaction_definition_format(const char * s) {
+  action_definition_format_t * x = NULL;
   if (NULL != s) {
     cJSON * j = cJSON_Parse(s);
     if (NULL != j) {
@@ -454,20 +457,20 @@ struct action_definition_format * cJSON_Parseaction_definition_format(const char
   return x;
 }
 
-struct action_definition_format * cJSON_Getaction_definition_formatValue(const cJSON * j) {
-  struct action_definition_format * x = NULL;
+action_definition_format_t * cJSON_Getaction_definition_formatValue(const cJSON * j) {
+  action_definition_format_t * x = NULL;
   if (NULL != j) {
-    if (NULL != (x = cJSON_malloc(sizeof(struct action_definition_format)))) {
-      memset(x, 0, sizeof(struct action_definition_format));
+    if (NULL != (x = cJSON_malloc(sizeof(action_definition_format_t)))) {
+      memset(x, 0, sizeof(action_definition_format_t));
       if (cJSON_HasObjectItem(j, "listOfNodeLevelRANConfigurationStructuresForADF")) {
         list_t * x1 = list_create(false, NULL);
         if (NULL != x1) {
           cJSON * e1 = NULL;
           cJSON * j1 = cJSON_GetObjectItemCaseSensitive(j, "listOfNodeLevelRANConfigurationStructuresForADF");
           cJSON_ArrayForEach(e1, j1) {
-            list_add_tail(x1, cJSON_Getlist_of_node_level_ran_configuration_structures_for_adf_elementValue(e1), sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element *));
+            list_add_tail(x1, cJSON_Getlst_act_def_node_ran_conf_elementValue(e1), sizeof(lst_act_def_ran_conf_element_t *));
           }
-          x->list_of_node_level_ran_configuration_structures_for_adf = x1;
+          x->lst_act_def_node_ran_conf = x1;
         }
       }
       if (cJSON_HasObjectItem(j, "listOfCellConfigurationsToBeReportedForADF")) {
@@ -476,9 +479,9 @@ struct action_definition_format * cJSON_Getaction_definition_formatValue(const c
           cJSON * e1 = NULL;
           cJSON * j1 = cJSON_GetObjectItemCaseSensitive(j, "listOfCellConfigurationsToBeReportedForADF");
           cJSON_ArrayForEach(e1, j1) {
-            list_add_tail(x1, cJSON_Getlist_of_cell_configurations_to_be_reported_for_adf_elementValue(e1), sizeof(struct list_of_cell_configurations_to_be_reported_for_adf_element *));
+            list_add_tail(x1, cJSON_Getlst_act_def_cell_ran_conf_elementValue(e1), sizeof(lst_act_def_cell_ran_conf_element_t *));
           }
-          x->list_of_cell_configurations_to_be_reported_for_adf = x1;
+          x->lst_act_def_cell_ran_conf = x1;
         }
       }
     }
@@ -486,27 +489,27 @@ struct action_definition_format * cJSON_Getaction_definition_formatValue(const c
   return x;
 }
 
-cJSON * cJSON_Createaction_definition_format(const struct action_definition_format * x) {
+cJSON * cJSON_Createaction_definition_format(const action_definition_format_t * x) {
   cJSON * j = NULL;
   if (NULL != x) {
     if (NULL != (j = cJSON_CreateObject())) {
-      if (NULL != x->list_of_node_level_ran_configuration_structures_for_adf) {
+      if (NULL != x->lst_act_def_node_ran_conf) {
         cJSON * j1 = cJSON_AddArrayToObject(j, "listOfNodeLevelRANConfigurationStructuresForADF");
         if (NULL != j1) {
-          struct list_of_node_level_ran_configuration_structures_for_adf_element * x1 = list_get_head(x->list_of_node_level_ran_configuration_structures_for_adf);
+          lst_act_def_ran_conf_element_t * x1 = list_get_head(x->lst_act_def_node_ran_conf);
           while (NULL != x1) {
-            cJSON_AddItemToArray(j1, cJSON_Createlist_of_node_level_ran_configuration_structures_for_adf_element(x1));
-            x1 = list_get_next(x->list_of_node_level_ran_configuration_structures_for_adf);
+            cJSON_AddItemToArray(j1, cJSON_Createlst_act_def_node_ran_conf_element(x1));
+            x1 = list_get_next(x->lst_act_def_node_ran_conf);
           }
         }
       }
-      if (NULL != x->list_of_cell_configurations_to_be_reported_for_adf) {
+      if (NULL != x->lst_act_def_cell_ran_conf) {
         cJSON * j1 = cJSON_AddArrayToObject(j, "listOfCellConfigurationsToBeReportedForADF");
         if (NULL != j1) {
-          struct list_of_cell_configurations_to_be_reported_for_adf_element * x1 = list_get_head(x->list_of_cell_configurations_to_be_reported_for_adf);
+          lst_act_def_cell_ran_conf_element_t * x1 = list_get_head(x->lst_act_def_cell_ran_conf);
           while (NULL != x1) {
-            cJSON_AddItemToArray(j1, cJSON_Createlist_of_cell_configurations_to_be_reported_for_adf_element(x1));
-            x1 = list_get_next(x->list_of_cell_configurations_to_be_reported_for_adf);
+            cJSON_AddItemToArray(j1, cJSON_Createlst_act_def_cell_ran_conf_element(x1));
+            x1 = list_get_next(x->lst_act_def_cell_ran_conf);
           }
         }
       }
@@ -515,42 +518,42 @@ cJSON * cJSON_Createaction_definition_format(const struct action_definition_form
   return j;
 }
 
-char * cJSON_Printaction_definition_format(const struct action_definition_format * x) {
+char * cJSON_Printaction_definition_format(const action_definition_format_t * x) {
   char * s = NULL;
   if (NULL != x) {
     cJSON * j = cJSON_Createaction_definition_format(x);
     if (NULL != j) {
-      s = cJSON_Print(j);
+      s = cJSON_PrintUnformatted(j);
       cJSON_Delete(j);
     }
   }
   return s;
 }
 
-void cJSON_Deleteaction_definition_format(struct action_definition_format * x) {
+void cJSON_Deleteaction_definition_format(action_definition_format_t * x) {
   if (NULL != x) {
-    if (NULL != x->list_of_node_level_ran_configuration_structures_for_adf) {
-      struct list_of_node_level_ran_configuration_structures_for_adf_element * x1 = list_get_head(x->list_of_node_level_ran_configuration_structures_for_adf);
+    if (NULL != x->lst_act_def_node_ran_conf) {
+      lst_act_def_ran_conf_element_t * x1 = list_get_head(x->lst_act_def_node_ran_conf);
       while (NULL != x1) {
-        cJSON_Deletelist_of_node_level_ran_configuration_structures_for_adf_element(x1);
-        x1 = list_get_next(x->list_of_node_level_ran_configuration_structures_for_adf);
+        cJSON_Deletelst_act_def_node_ran_conf_element(x1);
+        x1 = list_get_next(x->lst_act_def_node_ran_conf);
       }
-      list_release(x->list_of_node_level_ran_configuration_structures_for_adf);
+      list_release(x->lst_act_def_node_ran_conf);
     }
-    if (NULL != x->list_of_cell_configurations_to_be_reported_for_adf) {
-      struct list_of_cell_configurations_to_be_reported_for_adf_element * x1 = list_get_head(x->list_of_cell_configurations_to_be_reported_for_adf);
+    if (NULL != x->lst_act_def_cell_ran_conf) {
+      lst_act_def_cell_ran_conf_element_t * x1 = list_get_head(x->lst_act_def_cell_ran_conf);
       while (NULL != x1) {
-        cJSON_Deletelist_of_cell_configurations_to_be_reported_for_adf_element(x1);
-        x1 = list_get_next(x->list_of_cell_configurations_to_be_reported_for_adf);
+        cJSON_Deletelst_act_def_cell_ran_conf_element(x1);
+        x1 = list_get_next(x->lst_act_def_cell_ran_conf);
       }
-      list_release(x->list_of_cell_configurations_to_be_reported_for_adf);
+      list_release(x->lst_act_def_cell_ran_conf);
     }
     cJSON_free(x);
   }
 }
 
-struct ric_action_definition * cJSON_Parseric_action_definition(const char * s) {
-  struct ric_action_definition * x = NULL;
+ric_action_definition_t * cJSON_Parseric_action_definition(const char * s) {
+  ric_action_definition_t * x = NULL;
   if (NULL != s) {
     cJSON * j = cJSON_Parse(s);
     if (NULL != j) {
@@ -561,11 +564,11 @@ struct ric_action_definition * cJSON_Parseric_action_definition(const char * s) 
   return x;
 }
 
-struct ric_action_definition * cJSON_Getric_action_definitionValue(const cJSON * j) {
-  struct ric_action_definition * x = NULL;
+ric_action_definition_t * cJSON_Getric_action_definitionValue(const cJSON * j) {
+  ric_action_definition_t * x = NULL;
   if (NULL != j) {
-    if (NULL != (x = cJSON_malloc(sizeof(struct ric_action_definition)))) {
-      memset(x, 0, sizeof(struct ric_action_definition));
+    if (NULL != (x = cJSON_malloc(sizeof(ric_action_definition_t)))) {
+      memset(x, 0, sizeof(ric_action_definition_t));
       if (cJSON_HasObjectItem(j, "actionDefinitionFormat")) {
         x->action_definition_format = cJSON_Getaction_definition_formatValue(cJSON_GetObjectItemCaseSensitive(j, "actionDefinitionFormat"));
       }
@@ -577,7 +580,7 @@ struct ric_action_definition * cJSON_Getric_action_definitionValue(const cJSON *
   return x;
 }
 
-cJSON * cJSON_Createric_action_definition(const struct ric_action_definition * x) {
+cJSON * cJSON_Createric_action_definition(const ric_action_definition_t * x) {
   cJSON * j = NULL;
   if (NULL != x) {
     if (NULL != (j = cJSON_CreateObject())) {
@@ -588,19 +591,19 @@ cJSON * cJSON_Createric_action_definition(const struct ric_action_definition * x
   return j;
 }
 
-char * cJSON_Printric_action_definition(const struct ric_action_definition * x) {
+char * cJSON_Printric_action_definition(const ric_action_definition_t * x) {
   char * s = NULL;
   if (NULL != x) {
     cJSON * j = cJSON_Createric_action_definition(x);
     if (NULL != j) {
-      s = cJSON_Print(j);
+      s = cJSON_PrintUnformatted(j);
       cJSON_Delete(j);
     }
   }
   return s;
 }
 
-void cJSON_Deleteric_action_definition(struct ric_action_definition * x) {
+void cJSON_Deleteric_action_definition(ric_action_definition_t * x) {
   if (NULL != x) {
     if (NULL != x->action_definition_format) {
       cJSON_Deleteaction_definition_format(x->action_definition_format);

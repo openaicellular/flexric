@@ -4,6 +4,7 @@
 #include <cJSON.h>
 #include <stdint.h>
 #include <list.h>
+#include "../ir/report_type.h"
 
 struct plmn_identity {
   char * mcc;
@@ -15,38 +16,33 @@ struct cell_global_id {
   struct plmn_identity * plmn_identity;
 };
 
-struct list_of_attribute_element {
+typedef struct {
   char * attribute_name;
-};
+} list_of_attribute_element_t;
 
-enum report_type {
-  REPORT_TYPE_all,
-  REPORT_TYPE_change,
-};
-
-struct list_of_node_level_ran_configuration_structures_for_adf_element {
+typedef struct {
   list_t * list_of_attributes;
   char * ran_configuration_structure_name;
-  enum report_type report_type;
-};
+  report_type_e report_type;
+} lst_act_def_ran_conf_element_t;
 
-struct list_of_cell_configurations_to_be_reported_for_adf_element {
+typedef struct {
   struct cell_global_id * cell_global_id;
   list_t * list_of_cell_level_ran_configuration_structures_for_adf;
-};
+} lst_act_def_cell_ran_conf_element_t;
 
-struct action_definition_format {
-  list_t * list_of_node_level_ran_configuration_structures_for_adf;
-  list_t * list_of_cell_configurations_to_be_reported_for_adf;
-};
+typedef struct {
+  list_t * lst_act_def_node_ran_conf;
+  list_t * lst_act_def_cell_ran_conf;
+} action_definition_format_t;
 
-struct ric_action_definition {
-  struct action_definition_format * action_definition_format;
+typedef struct{
+  action_definition_format_t * action_definition_format;
   uint32_t ric_style_type;
-};
+} ric_action_definition_t;
 
-enum report_type cJSON_Getreport_typeValue(const cJSON * j);
-cJSON * cJSON_Createreport_type(const enum report_type x);
+report_type_e cJSON_Getreport_typeValue(const cJSON * j);
+cJSON * cJSON_Createreport_type(const report_type_e x);
 
 struct plmn_identity * cJSON_Parseplmn_identity(const char * s);
 struct plmn_identity * cJSON_Getplmn_identityValue(const cJSON * j);
@@ -60,35 +56,35 @@ cJSON * cJSON_Createcell_global_id(const struct cell_global_id * x);
 char * cJSON_Printcell_global_id(const struct cell_global_id * x);
 void cJSON_Deletecell_global_id(struct cell_global_id * x);
 
-struct list_of_attribute_element * cJSON_Parselist_of_attribute_element(const char * s);
-struct list_of_attribute_element * cJSON_Getlist_of_attribute_elementValue(const cJSON * j);
-cJSON * cJSON_Createlist_of_attribute_element(const struct list_of_attribute_element * x);
-char * cJSON_Printlist_of_attribute_element(const struct list_of_attribute_element * x);
-void cJSON_Deletelist_of_attribute_element(struct list_of_attribute_element * x);
+list_of_attribute_element_t * cJSON_Parselist_of_attribute_element(const char * s);
+list_of_attribute_element_t * cJSON_Getlist_of_attribute_elementValue(const cJSON * j);
+cJSON * cJSON_Createlist_of_attribute_element(const list_of_attribute_element_t * x);
+char * cJSON_Printlist_of_attribute_element(const list_of_attribute_element_t * x);
+void cJSON_Deletelist_of_attribute_element(list_of_attribute_element_t * x);
 
-struct list_of_node_level_ran_configuration_structures_for_adf_element * cJSON_Parselist_of_node_level_ran_configuration_structures_for_adf_element(const char * s);
-struct list_of_node_level_ran_configuration_structures_for_adf_element * cJSON_Getlist_of_node_level_ran_configuration_structures_for_adf_elementValue(const cJSON * j);
-cJSON * cJSON_Createlist_of_node_level_ran_configuration_structures_for_adf_element(const struct list_of_node_level_ran_configuration_structures_for_adf_element * x);
-char * cJSON_Printlist_of_node_level_ran_configuration_structures_for_adf_element(const struct list_of_node_level_ran_configuration_structures_for_adf_element * x);
-void cJSON_Deletelist_of_node_level_ran_configuration_structures_for_adf_element(struct list_of_node_level_ran_configuration_structures_for_adf_element * x);
+lst_act_def_ran_conf_element_t * cJSON_Parselst_act_def_node_ran_conf_element(const char * s);
+lst_act_def_ran_conf_element_t * cJSON_Getlst_act_def_node_ran_conf_elementValue(const cJSON * j);
+cJSON * cJSON_Createlst_act_def_node_ran_conf_element(const lst_act_def_ran_conf_element_t * x);
+char * cJSON_Printlst_act_def_node_ran_conf_element(const lst_act_def_ran_conf_element_t * x);
+void cJSON_Deletelst_act_def_node_ran_conf_element(lst_act_def_ran_conf_element_t * x);
 
-struct list_of_cell_configurations_to_be_reported_for_adf_element * cJSON_Parselist_of_cell_configurations_to_be_reported_for_adf_element(const char * s);
-struct list_of_cell_configurations_to_be_reported_for_adf_element * cJSON_Getlist_of_cell_configurations_to_be_reported_for_adf_elementValue(const cJSON * j);
-cJSON * cJSON_Createlist_of_cell_configurations_to_be_reported_for_adf_element(const struct list_of_cell_configurations_to_be_reported_for_adf_element * x);
-char * cJSON_Printlist_of_cell_configurations_to_be_reported_for_adf_element(const struct list_of_cell_configurations_to_be_reported_for_adf_element * x);
-void cJSON_Deletelist_of_cell_configurations_to_be_reported_for_adf_element(struct list_of_cell_configurations_to_be_reported_for_adf_element * x);
+lst_act_def_cell_ran_conf_element_t * cJSON_Parselst_act_def_cell_ran_conf_element(const char * s);
+lst_act_def_cell_ran_conf_element_t * cJSON_Getlst_act_def_cell_ran_conf_elementValue(const cJSON * j);
+cJSON * cJSON_Createlst_act_def_cell_ran_conf_element(const lst_act_def_cell_ran_conf_element_t * x);
+char * cJSON_Printlst_act_def_cell_ran_conf_element(const lst_act_def_cell_ran_conf_element_t * x);
+void cJSON_Deletelst_act_def_cell_ran_conf_element(lst_act_def_cell_ran_conf_element_t * x);
 
-struct action_definition_format * cJSON_Parseaction_definition_format(const char * s);
-struct action_definition_format * cJSON_Getaction_definition_formatValue(const cJSON * j);
-cJSON * cJSON_Createaction_definition_format(const struct action_definition_format * x);
-char * cJSON_Printaction_definition_format(const struct action_definition_format * x);
-void cJSON_Deleteaction_definition_format(struct action_definition_format * x);
+action_definition_format_t * cJSON_Parseaction_definition_format(const char * s);
+action_definition_format_t * cJSON_Getaction_definition_formatValue(const cJSON * j);
+cJSON * cJSON_Createaction_definition_format(const action_definition_format_t * x);
+char * cJSON_Printaction_definition_format(const action_definition_format_t * x);
+void cJSON_Deleteaction_definition_format(action_definition_format_t * x);
 
-struct ric_action_definition * cJSON_Parseric_action_definition(const char * s);
-struct ric_action_definition * cJSON_Getric_action_definitionValue(const cJSON * j);
-cJSON * cJSON_Createric_action_definition(const struct ric_action_definition * x);
-char * cJSON_Printric_action_definition(const struct ric_action_definition * x);
-void cJSON_Deleteric_action_definition(struct ric_action_definition * x);
+ric_action_definition_t * cJSON_Parseric_action_definition(const char * s);
+ric_action_definition_t * cJSON_Getric_action_definitionValue(const cJSON * j);
+cJSON * cJSON_Createric_action_definition(const ric_action_definition_t * x);
+char * cJSON_Printric_action_definition(const ric_action_definition_t * x);
+void cJSON_Deleteric_action_definition(ric_action_definition_t * x);
 
 
 #endif

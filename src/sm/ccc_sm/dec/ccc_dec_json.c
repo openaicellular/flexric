@@ -46,7 +46,7 @@ attribute_t* get_lst_attribute(list_t* const src){
   assert(res != NULL && "Memory exhausted");
 
   size_t index = 0;
-  struct list_of_attribute_element* attribute = list_get_head(src);
+  list_of_attribute_element_t* attribute = list_get_head(src);
   while (attribute != NULL){
     res[index].attribute_name = cp_str_to_ba(attribute->attribute_name);
     attribute = list_get_next(src);
@@ -57,30 +57,18 @@ attribute_t* get_lst_attribute(list_t* const src){
 }
 
 static
-report_type_e get_report_type(enum report_type const report_type){
-  switch (report_type) {
-    case REPORT_TYPE_all:
-      return REPORT_TYPE_ALL;
-    case REPORT_TYPE_change:
-      return REPORT_TYPE_CHANGE;
-    default:
-      assert(0 != 0 && "No report type");
-  }
-}
-
-static
 act_def_ran_conf_t* get_act_def_ran_conf(list_t* const src){
   assert(src != NULL);
   act_def_ran_conf_t* res = calloc(src->count, sizeof(act_def_ran_conf_t));
   assert(res != NULL && "Memory exhausted");
 
   size_t index = 0;
-  struct list_of_node_level_ran_configuration_structures_for_adf_element* ran_conf = list_get_head(src);
+  lst_act_def_ran_conf_element_t* ran_conf = list_get_head(src);
   while (ran_conf!= NULL){
     res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
-    res[index].report_type = get_report_type(ran_conf->report_type);
+    res[index].report_type = ran_conf->report_type;
     res[index].sz_attribute = ran_conf->list_of_attributes->count;
-    if (ran_conf->list_of_attributes->count > 0)
+    if (ran_conf->list_of_attributes != 0 && ran_conf->list_of_attributes->count > 0)
       res[index].attribute = get_lst_attribute(ran_conf->list_of_attributes);
     ran_conf = list_get_next(src);
     index++;
@@ -102,11 +90,13 @@ e2sm_ccc_act_def_frmt_1_t get_act_def_frmt1(list_t* const src){
 
 static
 cell_global_id_t get_cell_global_id(struct cell_global_id const* src){
+  assert(src != NULL);
   cell_global_id_t res = {0};
   res.type = NR_CGI_RAT_TYPE;
   res.nr_cgi.nr_cell_id = atoi(src->n_r_cell_identity);
   res.nr_cgi.plmn_id.mnc = atoi(src->plmn_identity->mnc);
   res.nr_cgi.plmn_id.mcc = atoi(src->plmn_identity->mcc);
+  res.nr_cgi.plmn_id.mnc_digit_len = strlen(src->plmn_identity->mnc);
   return res;
 }
 
@@ -117,13 +107,14 @@ e2sm_ccc_act_def_frmt_2_t get_act_def_frmt2(list_t* const src){
   size_t index = 0;
 
   res.sz_act_def_cell_report = src->count;
-  res.act_def_cell_report = calloc(src->count, sizeof(act_def_ran_conf_t));
+  res.act_def_cell_report = calloc(src->count, sizeof(act_def_cell_report_t));
   assert(res.act_def_cell_report != NULL && "Memory exhausted");
-  struct list_of_cell_configurations_to_be_reported_for_adf_element* node = list_get_head(src);
+  lst_act_def_cell_ran_conf_element_t* node = list_get_head(src);
   while(node != NULL){
     res.act_def_cell_report[index].cell_global_id = get_cell_global_id(node->cell_global_id);
     res.act_def_cell_report[index].sz_act_def_ran_conf = node->list_of_cell_level_ran_configuration_structures_for_adf->count;
     res.act_def_cell_report[index].act_def_ran_conf = get_act_def_ran_conf(node->list_of_cell_level_ran_configuration_structures_for_adf);
+    node = list_get_next(src);
     index++;
   }
 
@@ -134,30 +125,21 @@ e2sm_ccc_action_def_t ccc_dec_action_def_json(size_t len, uint8_t const action_d
 {
   assert(action_def != NULL);
   assert(len != 0);
+  assert(action_def[len-1] == '\0' && "Need zero terminated string for this interface");
 
-  // TODO: Make this better
-  byte_array_t ba = {0};
-  defer({free_byte_array(ba);});
-  ba.len = len;
-  ba.buf = calloc(len, sizeof(uint8_t));
-  assert(ba.buf != NULL && "Memory exhausted");
-  memcpy(ba.buf, action_def, len);
-  char* in = copy_ba_to_str(&ba);
-  defer({free(in);});
-
-  struct ric_action_definition* ric_act_def= cJSON_Parseric_action_definition(in);
+  ric_action_definition_t* ric_act_def= cJSON_Parseric_action_definition((char *)action_def);
   defer({cJSON_Deleteric_action_definition(ric_act_def); });
 
   e2sm_ccc_action_def_t dst = {0};
   dst.ric_style_type = ric_act_def->ric_style_type;
-  if(list_get_count(ric_act_def->action_definition_format->list_of_node_level_ran_configuration_structures_for_adf) > 0){
+  if(ric_act_def->action_definition_format->lst_act_def_node_ran_conf != NULL){
     // Format 1
     dst.format = FORMAT_1_E2SM_CCC_ACT_DEF;
-    dst.frmt_1 = get_act_def_frmt1(ric_act_def->action_definition_format->list_of_node_level_ran_configuration_structures_for_adf);
-  } else if (list_get_count(ric_act_def->action_definition_format->list_of_cell_configurations_to_be_reported_for_adf) > 0){
+    dst.frmt_1 = get_act_def_frmt1(ric_act_def->action_definition_format->lst_act_def_node_ran_conf);
+  } else if (ric_act_def->action_definition_format->lst_act_def_cell_ran_conf != NULL){
     // Format 2
     dst.format = FORMAT_2_E2SM_CCC_ACT_DEF;
-    dst.frmt_2 = get_act_def_frmt2(ric_act_def->action_definition_format->list_of_cell_configurations_to_be_reported_for_adf);
+    dst.frmt_2 = get_act_def_frmt2(ric_act_def->action_definition_format->lst_act_def_cell_ran_conf);
   }
 
   return dst;

@@ -38,22 +38,10 @@ byte_array_t ccc_enc_event_trigger_json(e2sm_ccc_event_trigger_t const* src)
 }
 
 static
-enum report_type cp_report_type(report_type_e const src){
-  switch (src) {
-    case REPORT_TYPE_CHANGE:
-      return REPORT_TYPE_change;
-    case REPORT_TYPE_ALL:
-      return REPORT_TYPE_all;
-    default:
-      assert(0 != 0 && "Unknown report type");
-  }
-}
-
-static
-struct list_of_node_level_ran_configuration_structures_for_adf_element* create_act_def_ran_element(act_def_ran_conf_t const src){
-  struct list_of_node_level_ran_configuration_structures_for_adf_element* res = calloc(1, sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element));
+lst_act_def_ran_conf_element_t* create_act_def_ran_element(act_def_ran_conf_t const src){
+  lst_act_def_ran_conf_element_t* res = calloc(1, sizeof(lst_act_def_ran_conf_element_t));
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
-  res->report_type = cp_report_type(src.report_type);
+  res->report_type = src.report_type;
   res->list_of_attributes = list_create(false, NULL);
   for (size_t i = 0; i < src.sz_attribute; ++i){
     list_add_tail(res->list_of_attributes, copy_ba_to_str(&src.attribute[i].attribute_name), sizeof(char *));
@@ -63,22 +51,21 @@ struct list_of_node_level_ran_configuration_structures_for_adf_element* create_a
 }
 
 static
-struct action_definition_format* cp_act_def_frmt_1(e2sm_ccc_act_def_frmt_1_t const src){
-  struct action_definition_format* act_def_frm = calloc(1, sizeof(struct action_definition_format));
+action_definition_format_t* create_act_def_frmt_1(e2sm_ccc_act_def_frmt_1_t const src){
+  action_definition_format_t* act_def_frm = calloc(1, sizeof(action_definition_format_t));
   assert(act_def_frm != NULL && "Memory exhausted");
-  act_def_frm->list_of_node_level_ran_configuration_structures_for_adf = list_create(false, NULL);
+  act_def_frm->lst_act_def_node_ran_conf = list_create(false, NULL);
   for (size_t i = 0; i < src.sz_act_def_ran_conf; ++i){
     list_add_tail(
-        act_def_frm->list_of_node_level_ran_configuration_structures_for_adf,
+        act_def_frm->lst_act_def_node_ran_conf,
         create_act_def_ran_element(src.act_def_ran_conf[i]),
-        sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element *)
+        sizeof(lst_act_def_ran_conf_element_t *)
         );
   }
 
   return act_def_frm;
 }
 
-// TODO: Make this better
 static
 struct cell_global_id* create_cell_global_id(cell_global_id_t const src){
   assert(src.type == NR_CGI_RAT_TYPE && "Not 5g cell");
@@ -108,33 +95,30 @@ struct cell_global_id* create_cell_global_id(cell_global_id_t const src){
 }
 
 static
-list_t* create_act_def_cell_report(act_def_cell_report_t const src){
-  list_t* res = list_create(false, NULL);
+lst_act_def_cell_ran_conf_element_t* create_act_def_cell_report(act_def_cell_report_t const src){
+  lst_act_def_cell_ran_conf_element_t* res = calloc(1, sizeof(*res));
+  res->cell_global_id = create_cell_global_id(src.cell_global_id);
+  res->list_of_cell_level_ran_configuration_structures_for_adf = list_create(false, NULL);
   for (size_t i = 0; i < src.sz_act_def_ran_conf; ++i){
-    struct list_of_cell_configurations_to_be_reported_for_adf_element* cell = calloc(1, sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element*));
-    cell->cell_global_id = create_cell_global_id(src.cell_global_id);
-    cell->list_of_cell_level_ran_configuration_structures_for_adf = list_create(false, NULL);
     list_add_tail(
-        cell->list_of_cell_level_ran_configuration_structures_for_adf,
+        res->list_of_cell_level_ran_configuration_structures_for_adf,
         create_act_def_ran_element(src.act_def_ran_conf[i]),
-        sizeof(struct list_of_node_level_ran_configuration_structures_for_adf_element*)
+        sizeof(lst_act_def_ran_conf_element_t*)
         );
-
   }
-
   return res;
 }
 
 static
-struct action_definition_format* cp_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t const src){
-  struct action_definition_format* act_def_frm = calloc(1, sizeof(struct action_definition_format));
+action_definition_format_t* create_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t const src){
+  action_definition_format_t* act_def_frm = calloc(1, sizeof(action_definition_format_t));
   assert(act_def_frm != NULL && "Memory exhausted");
-  act_def_frm->list_of_cell_configurations_to_be_reported_for_adf = list_create(false, NULL);
+  act_def_frm->lst_act_def_cell_ran_conf = list_create(false, NULL);
   for (size_t i = 0; i < src.sz_act_def_cell_report; ++i){
     list_add_tail(
-        act_def_frm->list_of_cell_configurations_to_be_reported_for_adf,
+        act_def_frm->lst_act_def_cell_ran_conf,
         create_act_def_cell_report(src.act_def_cell_report[i]),
-        sizeof(struct list_of_cell_configurations_to_be_reported_for_adf_element*)
+        sizeof(lst_act_def_cell_ran_conf_element_t*)
     );
   }
 
@@ -143,23 +127,22 @@ struct action_definition_format* cp_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t con
 
 byte_array_t ccc_enc_action_def_json(e2sm_ccc_action_def_t const* src)
 {
-  struct ric_action_definition* ric_act_def = calloc(1, sizeof(struct ric_action_definition));
+  ric_action_definition_t* ric_act_def = calloc(1, sizeof(ric_action_definition_t));
   assert(ric_act_def != NULL && "Memory exhausted");
   defer({cJSON_Deleteric_action_definition(ric_act_def); });
 
   ric_act_def->ric_style_type = src->ric_style_type;
   if (src->format == FORMAT_1_E2SM_CCC_ACT_DEF) {
-    ric_act_def->action_definition_format = cp_act_def_frmt_1(src->frmt_1);
+    ric_act_def->action_definition_format = create_act_def_frmt_1(src->frmt_1);
   } else if (src->format == FORMAT_2_E2SM_CCC_ACT_DEF){
-    ric_act_def->action_definition_format = cp_act_def_frmt_2(src->frmt_2);
+    ric_act_def->action_definition_format = create_act_def_frmt_2(src->frmt_2);
   } else {
     assert(0 != 0 && "unknown format type");
   }
 
   char * res = cJSON_Printric_action_definition(ric_act_def);
-  defer({free(res);});
-
-  return cp_str_to_ba(res);
+  byte_array_t ba = {.len = strlen(res) + 1, .buf = (uint8_t *)res};
+  return ba;
 }
 
 byte_array_t ccc_enc_ind_hdr_json(e2sm_ccc_ind_hdr_t const* src)
