@@ -33,7 +33,11 @@ cell_global_id_t fill_rnd_cell_global_id()
   // CHOICE RAT type
   // Mandatory
   dst.type = NR_CGI_RAT_TYPE;
-  dst.nr_cgi.plmn_id = (e2sm_plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
+  dst.nr_cgi.plmn_id = (e2sm_plmn_t) {
+    .mcc = (rand()%900) + 100,
+    .mnc = (rand()%90) + 10,
+    .mnc_digit_len = 2
+  };
   dst.nr_cgi.nr_cell_id = rand()% (1UL << 36);
 
   return dst;
