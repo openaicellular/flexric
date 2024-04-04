@@ -56,14 +56,20 @@ endif()
 
 #PYTHON compilation
 if(XAPP_PYTHON_SWIG)
-  find_package(Python COMPONENTS Interpreter Development)
   if(XAPP_PYTHON_ML)
     find_package(Python 3.11 EXACT REQUIRED COMPONENTS Interpreter Development)
   else()
     find_package(Python 3.8 REQUIRED COMPONENTS Interpreter Development)
   endif()
-  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS})
-  message(STATUS "PYTHON_INCLUDE_PATH ${PYTHON_INCLUDE_DIRS}")
+  if(Python_FOUND)
+#    message(STATUS "Python executable: ${Python_EXECUTABLE}")
+#    message(STATUS "Python version: ${Python_VERSION}")
+    message(STATUS "Python include directories: ${Python_INCLUDE_DIRS}")
+    INCLUDE_DIRECTORIES(${Python_INCLUDE_DIRS})
+  else()
+    message(FATAL_ERROR "Python not found. Please make sure Python is installed.")
+  endif()
+
   SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE python SOURCES
       swig_wrapper.i
       swig_wrapper.cpp
