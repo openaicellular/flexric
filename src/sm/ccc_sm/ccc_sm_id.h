@@ -35,7 +35,7 @@ const uint16_t SM_CCC_ID = 4;
 
 
 static
-const uint16_t SM_CCC_REV = 1; // This is not correct. Fix this
+const uint16_t SM_CCC_REV = 1;
 
 #define SM_CCC_SHORT_NAME "ORAN-E2SM-CCC"
 //iso(1) identified-organization(3)
