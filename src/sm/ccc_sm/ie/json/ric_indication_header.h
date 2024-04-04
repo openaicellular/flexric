@@ -2,35 +2,30 @@
 #define JSON_CCC_RIC_INDICATION_HEADER_H
 
 #include "cJSON.h"
+#include "../ir/e2sm_ccc_ind_hdr_frmt_1.h"
 
-enum indication_reason {
-  INDICATION_REASON_periodic,
-  INDICATION_REASON_upon_change,
-  INDICATION_REASON_upon_subscription,
-};
-
-struct indication_header_format {
+typedef struct {
   char * event_time;
-  enum indication_reason indication_reason;
-};
+  indication_reason_e indication_reason;
+} indication_header_format_t;
 
-struct ric_indication_header {
-  struct indication_header_format * indication_header_format;
-};
+typedef struct {
+  indication_header_format_t * indication_header_format;
+} ric_indication_header_t;
 
-enum indication_reason cJSON_Getindication_reasonValue(const cJSON * j);
-cJSON * cJSON_Createindication_reason(const enum indication_reason x);
+indication_reason_e cJSON_Getindication_reasonValue(const cJSON * j);
+cJSON * cJSON_Createindication_reason(const indication_reason_e x);
 
-struct indication_header_format * cJSON_Parseindication_header_format(const char * s);
-struct indication_header_format * cJSON_Getindication_header_formatValue(const cJSON * j);
-cJSON * cJSON_Createindication_header_format(const struct indication_header_format * x);
-char * cJSON_Printindication_header_format(const struct indication_header_format * x);
-void cJSON_Deleteindication_header_format(struct indication_header_format * x);
+indication_header_format_t * cJSON_Parseindication_header_format(const char * s);
+indication_header_format_t * cJSON_Getindication_header_formatValue(const cJSON * j);
+cJSON * cJSON_Createindication_header_format(const indication_header_format_t * x);
+char * cJSON_Printindication_header_format(const indication_header_format_t * x);
+void cJSON_Deleteindication_header_format(indication_header_format_t * x);
 
-struct ric_indication_header * cJSON_Parseric_indication_header(const char * s);
-struct ric_indication_header * cJSON_Getric_indication_headerValue(const cJSON * j);
-cJSON * cJSON_Createric_indication_header(const struct ric_indication_header * x);
-char * cJSON_Printric_indication_header(const struct ric_indication_header * x);
-void cJSON_Deleteric_indication_header(struct ric_indication_header * x);
+ric_indication_header_t * cJSON_Parseric_indication_header(const char * s);
+ric_indication_header_t * cJSON_Getric_indication_headerValue(const cJSON * j);
+cJSON * cJSON_Createric_indication_header(const ric_indication_header_t * x);
+char * cJSON_Printric_indication_header(const ric_indication_header_t * x);
+void cJSON_Deleteric_indication_header(ric_indication_header_t * x);
 
 #endif

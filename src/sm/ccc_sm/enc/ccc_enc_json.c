@@ -162,39 +162,24 @@ byte_array_t ccc_enc_action_def_json(e2sm_ccc_action_def_t const* src)
   return cp_str_to_ba(res);
 }
 
-static
-enum indication_reason cp_ind_hdr_reason(indication_reason_e const ind_reason){
-  switch (ind_reason) {
-    case IND_REASON_UPON_SUB:
-      return INDICATION_REASON_upon_subscription;
-    case IND_REASON_PERIODIC:
-      return INDICATION_REASON_periodic;
-    case IND_REASON_UPON_CHANGE:
-      return INDICATION_REASON_upon_change;
-    default:
-      assert(0 != 0 && "unknown indication header reason");
-  }
-}
-
 byte_array_t ccc_enc_ind_hdr_json(e2sm_ccc_ind_hdr_t const* src)
 {
-  struct ric_indication_header* ric_ind_hdr = calloc(1, sizeof(struct ric_indication_header));
-  assert(ric_ind_hdr != NULL && "Memory exhausted");
-  defer({cJSON_Deleteric_indication_header(ric_ind_hdr); });
+  static_assert(sizeof(indication_header_format_t) == sizeof(e2sm_ccc_ind_hdr_frmt_1_t), "Size not compatible");
+  cJSON * cjson_out = cJSON_CreateObject();
+  defer({cJSON_Delete(cjson_out); });
 
   if (src->format == FORMAT_1_E2SM_CCC_IND_HDR){
-    ric_ind_hdr->indication_header_format = calloc(1, sizeof(struct indication_header_format));
-    assert(ric_ind_hdr->indication_header_format != NULL && "Memory exhausted");
-    ric_ind_hdr->indication_header_format->indication_reason = cp_ind_hdr_reason(src->frmt_1.ind_reason);
-    ric_ind_hdr->indication_header_format->event_time = copy_ba_to_str(&src->frmt_1.event_time);
+    cJSON_AddItemToObject(cjson_out,
+                          "indicationHeaderFormat",
+                          cJSON_Createindication_header_format((indication_header_format_t *)&src->frmt_1)
+                          );
   } else {
     assert(0 != 0 && "unknown format type");
   };
 
-  char * res = cJSON_Printric_indication_header(ric_ind_hdr);
-  defer({free(res);});
-
-  return cp_str_to_ba(res);
+  char * res = cJSON_PrintUnformatted(cjson_out);
+  byte_array_t ba = {.len = strlen(res) + 1, .buf = (uint8_t *)res};
+  return ba;
 }
 
 byte_array_t ccc_enc_ind_msg_json(e2sm_ccc_ind_msg_t const* src)

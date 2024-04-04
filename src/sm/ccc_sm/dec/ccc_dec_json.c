@@ -163,41 +163,17 @@ e2sm_ccc_action_def_t ccc_dec_action_def_json(size_t len, uint8_t const action_d
   return dst;
 }
 
-static
-indication_reason_e cp_indication_reason(enum indication_reason const ind_res){
-  switch (ind_res) {
-    case INDICATION_REASON_upon_change:
-      return IND_REASON_UPON_CHANGE;
-    case INDICATION_REASON_periodic:
-      return IND_REASON_PERIODIC;
-    case INDICATION_REASON_upon_subscription:
-      return IND_REASON_UPON_SUB;
-    default:
-      assert(0 != 0 && "No indication header reason");
-  }
-}
-
 e2sm_ccc_ind_hdr_t ccc_dec_ind_hdr_json(size_t len, uint8_t const ind_hdr[len])
 {
   assert(ind_hdr != NULL);
   assert(len != 0);
+  assert(ind_hdr[len-1] == '\0' && "Need zero terminated string for this interface");
 
-  // TODO: Make this better
-  byte_array_t ba = {0};
-  defer({free_byte_array(ba);});
-  ba.len = len;
-  ba.buf = calloc(len, sizeof(uint8_t));
-  assert(ba.buf != NULL && "Memory exhausted");
-  memcpy(ba.buf, ind_hdr, len);
-  char* in = copy_ba_to_str(&ba);
-  defer({free(in);});
-
-  struct ric_indication_header* ric_ind_hdr = cJSON_Parseric_indication_header(in);
-  defer({cJSON_Deleteric_indication_header(ric_ind_hdr); });
+  ric_indication_header_t * ric_ind_hdr = cJSON_Parseric_indication_header((char *)ind_hdr);
+  defer({cJSON_Deleteric_indication_header(ric_ind_hdr);});
 
   e2sm_ccc_ind_hdr_t dst = {.format = FORMAT_1_E2SM_CCC_IND_HDR};
-  dst.frmt_1.event_time = cp_str_to_ba(ric_ind_hdr->indication_header_format->event_time);
-  dst.frmt_1.ind_reason = cp_indication_reason(ric_ind_hdr->indication_header_format->indication_reason);
+  dst.frmt_1 = cp_e2sm_ccc_ind_hdr_frmt_1((e2sm_ccc_ind_hdr_frmt_1_t *)ric_ind_hdr->indication_header_format);
 
   return dst;
 }

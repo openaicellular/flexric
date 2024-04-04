@@ -17,6 +17,7 @@ extern "C" {
 #endif
 
 #include <string.h>
+#include <assert.h>
 
 #include "ric_indication_header.h"
 
@@ -30,28 +31,30 @@ extern "C" {
 #define cJSON_Enum (1 << 17)
 #endif
 
-enum indication_reason cJSON_Getindication_reasonValue(const cJSON * j) {
-  enum indication_reason x = 0;
+indication_reason_e cJSON_Getindication_reasonValue(const cJSON * j) {
+  indication_reason_e x = 0;
   if (NULL != j) {
-    if (!strcmp(cJSON_GetStringValue(j), "periodic")) x = INDICATION_REASON_periodic;
-    else if (!strcmp(cJSON_GetStringValue(j), "uponChange")) x = INDICATION_REASON_upon_change;
-    else if (!strcmp(cJSON_GetStringValue(j), "uponSubscription")) x = INDICATION_REASON_upon_subscription;
+    if (!strcmp(cJSON_GetStringValue(j), "periodic")) x = IND_REASON_PERIODIC;
+    else if (!strcmp(cJSON_GetStringValue(j), "uponChange")) x = IND_REASON_UPON_CHANGE;
+    else if (!strcmp(cJSON_GetStringValue(j), "uponSubscription")) x = IND_REASON_UPON_SUB;
   }
   return x;
 }
 
-cJSON * cJSON_Createindication_reason(const enum indication_reason x) {
+cJSON * cJSON_Createindication_reason(const indication_reason_e x) {
   cJSON * j = NULL;
   switch (x) {
-    case INDICATION_REASON_periodic: j = cJSON_CreateString("periodic"); break;
-    case INDICATION_REASON_upon_change: j = cJSON_CreateString("uponChange"); break;
-    case INDICATION_REASON_upon_subscription: j = cJSON_CreateString("uponSubscription"); break;
+    case IND_REASON_PERIODIC: j = cJSON_CreateString("periodic"); break;
+    case IND_REASON_UPON_CHANGE: j = cJSON_CreateString("uponChange"); break;
+    case IND_REASON_UPON_SUB: j = cJSON_CreateString("uponSubscription"); break;
+    default:
+      assert(0 != 0 && "Unknown indication reason");
   }
   return j;
 }
 
-struct indication_header_format * cJSON_Parseindication_header_format(const char * s) {
-  struct indication_header_format * x = NULL;
+indication_header_format_t * cJSON_Parseindication_header_format(const char * s) {
+  indication_header_format_t * x = NULL;
   if (NULL != s) {
     cJSON * j = cJSON_Parse(s);
     if (NULL != j) {
@@ -62,11 +65,11 @@ struct indication_header_format * cJSON_Parseindication_header_format(const char
   return x;
 }
 
-struct indication_header_format * cJSON_Getindication_header_formatValue(const cJSON * j) {
-  struct indication_header_format * x = NULL;
+indication_header_format_t * cJSON_Getindication_header_formatValue(const cJSON * j) {
+  indication_header_format_t * x = NULL;
   if (NULL != j) {
-    if (NULL != (x = cJSON_malloc(sizeof(struct indication_header_format)))) {
-      memset(x, 0, sizeof(struct indication_header_format));
+    if (NULL != (x = cJSON_malloc(sizeof(indication_header_format_t)))) {
+      memset(x, 0, sizeof(indication_header_format_t));
       if (cJSON_HasObjectItem(j, "eventTime")) {
         x->event_time = strdup(cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(j, "eventTime")));
       }
@@ -83,7 +86,7 @@ struct indication_header_format * cJSON_Getindication_header_formatValue(const c
   return x;
 }
 
-cJSON * cJSON_Createindication_header_format(const struct indication_header_format * x) {
+cJSON * cJSON_Createindication_header_format(const indication_header_format_t * x) {
   cJSON * j = NULL;
   if (NULL != x) {
     if (NULL != (j = cJSON_CreateObject())) {
@@ -99,7 +102,7 @@ cJSON * cJSON_Createindication_header_format(const struct indication_header_form
   return j;
 }
 
-char * cJSON_Printindication_header_format(const struct indication_header_format * x) {
+char * cJSON_Printindication_header_format(const indication_header_format_t * x) {
   char * s = NULL;
   if (NULL != x) {
     cJSON * j = cJSON_Createindication_header_format(x);
@@ -111,7 +114,7 @@ char * cJSON_Printindication_header_format(const struct indication_header_format
   return s;
 }
 
-void cJSON_Deleteindication_header_format(struct indication_header_format * x) {
+void cJSON_Deleteindication_header_format(indication_header_format_t * x) {
   if (NULL != x) {
     if (NULL != x->event_time) {
       cJSON_free(x->event_time);
@@ -120,8 +123,8 @@ void cJSON_Deleteindication_header_format(struct indication_header_format * x) {
   }
 }
 
-struct ric_indication_header * cJSON_Parseric_indication_header(const char * s) {
-  struct ric_indication_header * x = NULL;
+ric_indication_header_t * cJSON_Parseric_indication_header(const char * s) {
+  ric_indication_header_t * x = NULL;
   if (NULL != s) {
     cJSON * j = cJSON_Parse(s);
     if (NULL != j) {
@@ -132,11 +135,11 @@ struct ric_indication_header * cJSON_Parseric_indication_header(const char * s) 
   return x;
 }
 
-struct ric_indication_header * cJSON_Getric_indication_headerValue(const cJSON * j) {
-  struct ric_indication_header * x = NULL;
+ric_indication_header_t * cJSON_Getric_indication_headerValue(const cJSON * j) {
+  ric_indication_header_t * x = NULL;
   if (NULL != j) {
-    if (NULL != (x = cJSON_malloc(sizeof(struct ric_indication_header)))) {
-      memset(x, 0, sizeof(struct ric_indication_header));
+    if (NULL != (x = cJSON_malloc(sizeof(ric_indication_header_t)))) {
+      memset(x, 0, sizeof(ric_indication_header_t));
       if (cJSON_HasObjectItem(j, "indicationHeaderFormat")) {
         x->indication_header_format = cJSON_Getindication_header_formatValue(cJSON_GetObjectItemCaseSensitive(j, "indicationHeaderFormat"));
       }
@@ -145,7 +148,7 @@ struct ric_indication_header * cJSON_Getric_indication_headerValue(const cJSON *
   return x;
 }
 
-cJSON * cJSON_Createric_indication_header(const struct ric_indication_header * x) {
+cJSON * cJSON_Createric_indication_header(const ric_indication_header_t * x) {
   cJSON * j = NULL;
   if (NULL != x) {
     if (NULL != (j = cJSON_CreateObject())) {
@@ -157,7 +160,7 @@ cJSON * cJSON_Createric_indication_header(const struct ric_indication_header * x
   return j;
 }
 
-char * cJSON_Printric_indication_header(const struct ric_indication_header * x) {
+char * cJSON_Printric_indication_header(const ric_indication_header_t * x) {
   char * s = NULL;
   if (NULL != x) {
     cJSON * j = cJSON_Createric_indication_header(x);
@@ -169,7 +172,7 @@ char * cJSON_Printric_indication_header(const struct ric_indication_header * x) 
   return s;
 }
 
-void cJSON_Deleteric_indication_header(struct ric_indication_header * x) {
+void cJSON_Deleteric_indication_header(ric_indication_header_t * x) {
   if (NULL != x) {
     if (NULL != x->indication_header_format) {
       cJSON_Deleteindication_header_format(x->indication_header_format);
