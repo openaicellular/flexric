@@ -124,7 +124,11 @@ e2sm_ccc_ind_hdr_frmt_1_t fill_rnd_ccc_ctrl_hdr_frmt_1(){
   e2sm_ccc_ind_hdr_frmt_1_t dst = {0};
 
   dst.ind_reason = rand()%END_IND_REASON;
-  dst.event_time = cp_str_to_ba("Test");
+
+  const size_t sz = strlen("test");
+  dst.event_time = calloc(sz + 1, sizeof(char)); // Including null terminal
+  assert(dst.event_time != NULL && "Memory exhausted");
+  strcpy(dst.event_time, "test");
 
   return dst;
 }

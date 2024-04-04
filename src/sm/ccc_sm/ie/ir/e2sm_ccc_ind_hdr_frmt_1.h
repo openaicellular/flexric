@@ -16,16 +16,16 @@ typedef enum {
 
 // 9.2.1.3.1
 typedef struct{
+  // Event time
+  // 9.3.10
+  // Mandatory
+  char* event_time;
+
   // Indication reason
   // Mandatory
   indication_reason_e ind_reason;
 
-  // Event time
-  // 9.3.10
-  // Mandatory
-  byte_array_t event_time;
-
-} e2sm_ccc_ind_hdr_frmt_1_t; 
+} e2sm_ccc_ind_hdr_frmt_1_t;
 
 
 e2sm_ccc_ind_hdr_frmt_1_t cp_e2sm_ccc_ind_hdr_frmt_1(e2sm_ccc_ind_hdr_frmt_1_t const* src);
