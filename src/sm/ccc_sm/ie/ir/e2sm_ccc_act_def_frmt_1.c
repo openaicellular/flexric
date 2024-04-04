@@ -16,7 +16,6 @@ void free_e2sm_ccc_act_def_frmt_1(e2sm_ccc_act_def_frmt_1_t* src)
     free_act_def_ran_conf(&src->act_def_ran_conf[i]);
   }
 
-  assert(src->act_def_ran_conf != NULL);
   free(src->act_def_ran_conf);
 }
 

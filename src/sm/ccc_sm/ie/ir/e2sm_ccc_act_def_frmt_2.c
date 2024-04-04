@@ -14,7 +14,7 @@ void free_act_def_cell_report(act_def_cell_report_t *src)
   // [1-1024]
   assert(src->sz_act_def_ran_conf > 0 && src->sz_act_def_ran_conf < 1025);
   for (size_t i = 0; i < src->sz_act_def_ran_conf; i++){
-    free_act_def_ran_conf(src->act_def_ran_conf);
+    free_act_def_ran_conf(&src->act_def_ran_conf[i]);
   }
 
   assert(src->act_def_ran_conf != NULL);
@@ -34,7 +34,7 @@ bool eq_act_def_cell_report(act_def_cell_report_t const* m0, act_def_cell_report
     return false;
 
   for (size_t i = 0; i < m0->sz_act_def_ran_conf; i++){
-    if (!eq_act_def_ran_conf(m0->act_def_ran_conf, m1->act_def_ran_conf))
+    if (!eq_act_def_ran_conf(&m0->act_def_ran_conf[i], &m1->act_def_ran_conf[i]))
       return false;
   }
 
@@ -76,6 +76,8 @@ void free_e2sm_ccc_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t* src)
   for(size_t i = 0; i < src->sz_act_def_cell_report; ++i){
     free_act_def_cell_report(&src->act_def_cell_report[i]);
   }
+
+  free(src->act_def_cell_report);
 }
 
 bool eq_e2sm_ccc_act_def_frmt_2(e2sm_ccc_act_def_frmt_2_t const* m0, e2sm_ccc_act_def_frmt_2_t const* m1)
