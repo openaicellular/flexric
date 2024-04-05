@@ -2,8 +2,10 @@ set(JSON_CCC_SRC
         cJSON.c
         list.c
         parse_cjson.c
-        ric_indication_header.c
-        ric_action_definition.c
+        plmn_identity_json.c
+        cell_global_id_json.c
+        ric_indication_header_json.c
+        ric_action_definition_json.c
 )
 
 add_library(e2sm_ccc_json_obj OBJECT ${JSON_CCC_SRC})

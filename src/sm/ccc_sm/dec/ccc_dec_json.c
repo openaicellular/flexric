@@ -20,8 +20,8 @@
  */
 
 #include "ccc_dec_json.h"
-#include "../ie/json/ric_indication_header.h"
-#include "../ie/json/ric_action_definition.h"
+#include "../ie/json/ric_indication_header_json.h"
+#include "../ie/json/ric_action_definition_json.h"
 #include "../../../util/alg_ds/alg/defer.h"
 
 #include <string.h>
@@ -46,7 +46,7 @@ attribute_t* get_lst_attribute(list_t* const src){
   assert(res != NULL && "Memory exhausted");
 
   size_t index = 0;
-  list_of_attribute_element_t* attribute = list_get_head(src);
+  lst_attribute_element_json_t* attribute = list_get_head(src);
   while (attribute != NULL){
     res[index].attribute_name = cp_str_to_ba(attribute->attribute_name);
     attribute = list_get_next(src);
@@ -63,7 +63,7 @@ act_def_ran_conf_t* get_act_def_ran_conf(list_t* const src){
   assert(res != NULL && "Memory exhausted");
 
   size_t index = 0;
-  lst_act_def_ran_conf_element_t* ran_conf = list_get_head(src);
+  lst_act_def_ran_conf_element_json_t* ran_conf = list_get_head(src);
   while (ran_conf!= NULL){
     res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
     res[index].report_type = ran_conf->report_type;
@@ -89,7 +89,7 @@ e2sm_ccc_act_def_frmt_1_t get_act_def_frmt1(list_t* const src){
 }
 
 static
-cell_global_id_t get_cell_global_id(struct cell_global_id const* src){
+cell_global_id_t get_cell_global_id(cell_global_id_json_t const* src){
   assert(src != NULL);
   cell_global_id_t res = {0};
   res.type = NR_CGI_RAT_TYPE;
@@ -109,7 +109,7 @@ e2sm_ccc_act_def_frmt_2_t get_act_def_frmt2(list_t* const src){
   res.sz_act_def_cell_report = src->count;
   res.act_def_cell_report = calloc(src->count, sizeof(act_def_cell_report_t));
   assert(res.act_def_cell_report != NULL && "Memory exhausted");
-  lst_act_def_cell_ran_conf_element_t* node = list_get_head(src);
+  lst_act_def_cell_ran_conf_element_json_t* node = list_get_head(src);
   while(node != NULL){
     res.act_def_cell_report[index].cell_global_id = get_cell_global_id(node->cell_global_id);
     res.act_def_cell_report[index].sz_act_def_ran_conf = node->list_of_cell_level_ran_configuration_structures_for_adf->count;
@@ -127,7 +127,7 @@ e2sm_ccc_action_def_t ccc_dec_action_def_json(size_t len, uint8_t const action_d
   assert(len != 0);
   assert(action_def[len-1] == '\0' && "Need zero terminated string for this interface");
 
-  ric_action_definition_t* ric_act_def= cJSON_Parseric_action_definition((char *)action_def);
+  ric_action_definition_json_t* ric_act_def= cJSON_Parseric_action_definition((char *)action_def);
   defer({cJSON_Deleteric_action_definition(ric_act_def); });
 
   e2sm_ccc_action_def_t dst = {0};
@@ -151,7 +151,7 @@ e2sm_ccc_ind_hdr_t ccc_dec_ind_hdr_json(size_t len, uint8_t const ind_hdr[len])
   assert(len != 0);
   assert(ind_hdr[len-1] == '\0' && "Need zero terminated string for this interface");
 
-  ric_indication_header_t * ric_ind_hdr = cJSON_Parseric_indication_header((char *)ind_hdr);
+  ric_indication_header_json_t * ric_ind_hdr = cJSON_Parseric_indication_header((char *)ind_hdr);
   defer({cJSON_Deleteric_indication_header(ric_ind_hdr);});
 
   e2sm_ccc_ind_hdr_t dst = {.format = FORMAT_1_E2SM_CCC_IND_HDR};
