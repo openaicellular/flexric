@@ -231,8 +231,19 @@ ran_function_name_t fill_ccc_ran_func_name(void){
   assert(0 != 0 && "Not implemented");
 }
 
+/////////////////////////////
+/////////////////////////////
+////////// End of RAN Function Definition
+/////////////////////////////
+/////////////////////////////
+
 ccc_ind_data_t fill_rnd_ccc_ind_data(void){
-  assert(0 != 0 && "Not implemented");
+  ccc_ind_data_t dst = {0};
+
+  dst.hdr = fill_rnd_ccc_ind_hdr();
+  dst.msg = fill_rnd_ccc_ind_msg();
+
+  return dst;
 }
 
 ccc_sub_data_t fill_rnd_ccc_subscription(void){

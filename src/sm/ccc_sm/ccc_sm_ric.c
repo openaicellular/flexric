@@ -1,25 +1,3 @@
-/*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
-
-
 #include "ccc_sm_ric.h"
 #include "ccc_sm_id.h"
 
@@ -74,7 +52,7 @@ sm_ag_if_rd_ind_t on_indication_ccc_sm_ric(sm_ric_t const* sm_ric, sm_ind_data_t
   assert(src != NULL); 
   sm_ccc_ric_t* sm = (sm_ccc_ric_t*)sm_ric;  
 
-  sm_ag_if_rd_ind_t dst = {.type = RAN_CTRL_STATS_V1_03}; 
+  sm_ag_if_rd_ind_t dst = {.type = CCC_STATS_V3_0};
 
   dst.ccc.ind.hdr = ccc_dec_ind_hdr(&sm->enc, src->len_hdr, src->ind_hdr);
   dst.ccc.ind.msg = ccc_dec_ind_msg(&sm->enc, src->len_msg, src->ind_msg);
@@ -113,7 +91,7 @@ sm_ag_if_ans_ctrl_t ric_on_control_out_ccc_sm_ric(sm_ric_t const* sm_ric, const 
   assert(src != NULL);
   sm_ccc_ric_t* sm = (sm_ccc_ric_t*)sm_ric;  
 
-  sm_ag_if_ans_ctrl_t dst = {.type = RAN_CTRL_V1_3_AGENT_IF_CTRL_ANS_V0}; 
+  sm_ag_if_ans_ctrl_t dst = {.type = CCC_V3_0_AGENT_IF_CTRL_ANS_V0};
   dst.ccc = ccc_dec_ctrl_out(&sm->enc, src->len_out, src->ctrl_out);
 
   return dst;
@@ -126,7 +104,7 @@ sm_ag_if_rd_e2setup_t ric_on_e2_setup_ccc_sm_ric(sm_ric_t const* sm_ric, sm_e2_s
   assert(src != NULL); 
   sm_ccc_ric_t* sm = (sm_ccc_ric_t*)sm_ric;  
 
-  sm_ag_if_rd_e2setup_t dst = {.type = RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0};  
+  sm_ag_if_rd_e2setup_t dst = {.type = CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0};
 
   dst.ccc.ran_func_def = ccc_dec_func_def(&sm->enc, src->len_rfd, src->ran_fun_def);
 
@@ -171,7 +149,7 @@ void free_ind_data_ccc_sm_ric(void* msg)
   assert(msg != NULL);
   
   sm_ag_if_rd_ind_t* rd_ind = (sm_ag_if_rd_ind_t*)msg;
-  assert(rd_ind->type == RAN_CTRL_STATS_V1_03);
+  assert(rd_ind->type == CCC_STATS_V3_0);
 
   ccc_ind_data_t* ind = &rd_ind->ccc.ind;
   free_e2sm_ccc_ind_hdr(&ind->hdr);

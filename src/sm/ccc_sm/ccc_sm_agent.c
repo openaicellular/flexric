@@ -61,11 +61,31 @@ sm_ag_if_ans_subs_t on_subscription_ccc_sm_ag(sm_agent_t const* sm_agent, const 
 static
 exp_ind_data_t on_indication_ccc_sm_ag(sm_agent_t const* sm_agent, void* ind_data)
 {
-//  printf("on_indication RC called \n");
+//  printf("on_indication CCC called \n");
   assert(sm_agent != NULL);
   assert(ind_data != NULL && "Indication data needed for this SM");
-  assert(0!=0 && "Not implemented");
+  
+  sm_ccc_agent_t* sm = (sm_ccc_agent_t*)sm_agent;
 
+  exp_ind_data_t ret = {.has_value = true};
+
+  // Liberate the memory if previously allocated by the RAN. It sucks
+  ccc_ind_data_t* ind = (ccc_ind_data_t*)ind_data;
+  defer({ free_ccc_ind_data(ind);  free(ind); });
+
+  // Fill Indication Header
+  byte_array_t ba_hdr = ccc_enc_ind_hdr(&sm->enc, &ind->hdr);
+  assert(ba_hdr.len < 1024 && "Are you really encoding so much info?" );
+  ret.data.ind_hdr = ba_hdr.buf;
+  ret.data.len_hdr = ba_hdr.len;
+
+  // Fill Indication Message
+  byte_array_t ba_msg = ccc_enc_ind_msg(&sm->enc, &ind->msg);
+  assert(ba_msg.len < 10*1024 && "Are you really encoding so much info?" );
+  ret.data.ind_msg = ba_msg.buf;
+  ret.data.len_msg = ba_msg.len;
+
+  return ret;
 }
 
 static
@@ -146,12 +166,12 @@ sm_agent_t* make_ccc_sm_agent(sm_io_ag_ran_t io)
   //*(uint16_t*)(&sm->base.ran_func_id) = SM_ccc_ID; 
 
   // Read
-  sm->base.io.read_ind = io.read_ind_tbl[RAN_CTRL_STATS_V1_03];
-  sm->base.io.read_setup = io.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0];
+  sm->base.io.read_ind = io.read_ind_tbl[CCC_STATS_V3_0];
+  sm->base.io.read_setup = io.read_setup_tbl[CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0];
  
   //Write
-  sm->base.io.write_ctrl = io.write_ctrl_tbl[RAN_CONTROL_CTRL_V1_03];
-  sm->base.io.write_subs = io.write_subs_tbl[RAN_CTRL_SUBS_V1_03];
+  sm->base.io.write_ctrl = io.write_ctrl_tbl[CCC_CTRL_REQ_V3_0];
+  sm->base.io.write_subs = io.write_subs_tbl[CCC_SUBS_V3_0];
 
   sm->base.free_sm = free_ccc_sm_ag;
   sm->base.free_act_def = NULL; //free_act_def_ccc_sm_ag;
