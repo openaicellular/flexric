@@ -208,9 +208,9 @@ bool eq_e2sm_ccc_ind_msg(e2sm_ccc_ind_msg_t const* m0, e2sm_ccc_ind_msg_t const*
 // RIC Call Process ID 
 /////////////////////////////////////
 
+// 7.6.2.4	CONTROL Service RIC Call Process ID IE contents
 typedef struct {
-  // RIC Call Process ID
-
+  // Empty
 } e2sm_ccc_cpid_t;
 
 void free_e2sm_ccc_cpid(e2sm_ccc_cpid_t* src);
