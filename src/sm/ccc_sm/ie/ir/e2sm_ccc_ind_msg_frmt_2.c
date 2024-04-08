@@ -4,71 +4,6 @@
 #include <stdlib.h>
 
 static
-void free_ind_msg_cell_conf(ind_msg_cell_conf_t* src)
-{
-  assert(src != NULL);
-  assert(src->change_type == CHANGE_TYPE_ADDITION ||
-         src->change_type == CHANGE_TYPE_DELETION ||
-         src->change_type == CHANGE_TYPE_MODIFICATION ||
-         src->change_type == CHANGE_TYPE_NONE);
-
-  free_byte_array(src->ran_conf_name);
-
-  free_byte_array(src->val_attribute);
-
-  // Optional
-  if (src->old_val_attribute.buf != NULL)
-    free_byte_array(src->old_val_attribute);
-}
-
-static
-bool eq_ind_msg_cell_conf(ind_msg_cell_conf_t const* m0, ind_msg_cell_conf_t  const* m1)
-{
-  if(m0 == m1)
-    return true;
-
-  if(m0 == NULL || m1 == NULL)
-    return false;
-
-  if(m0->change_type != m1->change_type)
-    return false;
-
-  if(eq_byte_array(&m0->ran_conf_name, &m1->ran_conf_name) == false)
-    return false;
-
-  if(eq_byte_array(&m0->val_attribute, &m1->val_attribute) == false)
-    return false;
-
-  // Optional
-  if(m0->old_val_attribute.buf != NULL && m1->old_val_attribute.buf != NULL)
-    if(eq_byte_array(&m0->old_val_attribute, &m1->old_val_attribute) == false)
-      return false;
-
-  return true;
-}
-
-static
-ind_msg_cell_conf_t cp_ind_msg_cell_conf(ind_msg_cell_conf_t const* src)
-{
-  assert(src != NULL);
-  assert(src->change_type == CHANGE_TYPE_ADDITION ||
-         src->change_type == CHANGE_TYPE_DELETION ||
-         src->change_type == CHANGE_TYPE_MODIFICATION ||
-         src->change_type == CHANGE_TYPE_NONE);
-
-  ind_msg_cell_conf_t dst = {.change_type = src->change_type};
-
-  dst.ran_conf_name = copy_byte_array(src->ran_conf_name);
-
-  dst.val_attribute = copy_byte_array(src->val_attribute);
-
-  if (src->old_val_attribute.buf != NULL)
-    dst.old_val_attribute = copy_byte_array(src->old_val_attribute);
-
-  return dst;
-}
-
-static
 void free_ind_msg_cell_report(ind_msg_cell_report_t* src)
 {
   assert(src != NULL);
@@ -77,10 +12,10 @@ void free_ind_msg_cell_report(ind_msg_cell_report_t* src)
 
   // List of Configuration Structures Reported
   // [1 - 65535]
-  assert(src->sz_ind_msg_cell_conf > 0 && src->sz_ind_msg_cell_conf < 65536);
+  assert(src->sz_ind_msg_ran_conf > 0 && src->sz_ind_msg_ran_conf < 65536);
 
-  for(size_t i = 0; i < src->sz_ind_msg_cell_conf; ++i){
-    free_ind_msg_cell_conf(&src->ind_msg_cell_conf[i]);
+  for(size_t i = 0; i < src->sz_ind_msg_ran_conf; ++i){
+    free_ind_msg_ran_conf(&src->ind_msg_ran_conf[i]);
   }
 }
 
@@ -96,11 +31,11 @@ bool eq_ind_msg_cell_report(ind_msg_cell_report_t const* m0,  ind_msg_cell_repor
   if(eq_cell_global_id(&m0->cell_global_id, &m1->cell_global_id) == false)
     return false;
 
-  if(m0->sz_ind_msg_cell_conf != m1->sz_ind_msg_cell_conf)
+  if(m0->sz_ind_msg_ran_conf != m1->sz_ind_msg_ran_conf)
     return false;
 
-  for(size_t i = 0; i < m0->sz_ind_msg_cell_conf; ++i){
-    if(eq_ind_msg_cell_conf(&m0->ind_msg_cell_conf[i], &m1->ind_msg_cell_conf[i]) == false){
+  for(size_t i = 0; i < m0->sz_ind_msg_ran_conf; ++i){
+    if(eq_ind_msg_ran_conf(&m0->ind_msg_ran_conf[i], &m1->ind_msg_ran_conf[i]) == false){
       return false;
     }
   }
@@ -119,14 +54,14 @@ ind_msg_cell_report_t cp_ind_msg_cell_report(ind_msg_cell_report_t const* src)
 
   // List of Cells Reported
   // [1 - 65535]
-  assert(src->sz_ind_msg_cell_conf > 0 && src->sz_ind_msg_cell_conf < 65536);
-  dst.sz_ind_msg_cell_conf = src->sz_ind_msg_cell_conf;
+  assert(src->sz_ind_msg_ran_conf > 0 && src->sz_ind_msg_ran_conf < 65536);
+  dst.sz_ind_msg_ran_conf = src->sz_ind_msg_ran_conf;
 
-  dst.ind_msg_cell_conf = calloc(dst.sz_ind_msg_cell_conf, sizeof(ind_msg_cell_conf_t));
-  assert(dst.ind_msg_cell_conf!= NULL && "Memory exhausted");
+  dst.ind_msg_ran_conf = calloc(dst.sz_ind_msg_ran_conf, sizeof(ind_msg_ran_conf_t));
+  assert(dst.ind_msg_ran_conf!= NULL && "Memory exhausted");
 
-  for(size_t i = 0; i < src->sz_ind_msg_cell_conf; ++i){
-    dst.ind_msg_cell_conf[i] = cp_ind_msg_cell_conf(&src->ind_msg_cell_conf[i]);
+  for(size_t i = 0; i < src->sz_ind_msg_ran_conf; ++i){
+    dst.ind_msg_ran_conf[i] = cp_ind_msg_ran_conf(&src->ind_msg_ran_conf[i]);
   }
 
   return dst;

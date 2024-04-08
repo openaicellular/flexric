@@ -6,26 +6,7 @@
 #include "../../../../lib/sm/ie/cell_global_id.h"
 #include "../../../../util/byte_array.h"
 #include "change_type.h"
-
-typedef struct{
-  // Change Type
-  // Mandatory
-  change_type_e change_type;
-
-  // RAN Configuration Structure Name
-  // Mandatory
-  // 9.3.7
-  byte_array_t ran_conf_name;
-
-  // Values of Attributes
-  // Mandatory
-  byte_array_t val_attribute;
-
-  // Old Values of Attributes
-  // Optional
-  byte_array_t old_val_attribute;
-
-} ind_msg_cell_conf_t;
+#include "ind_msg_ran_conf.h"
 
 typedef struct {
   // Cell global id
@@ -35,8 +16,8 @@ typedef struct {
 
   // List of Configuration Structures Reported
   // [1 - 65535]
-  size_t sz_ind_msg_cell_conf;
-  ind_msg_cell_conf_t* ind_msg_cell_conf;
+  size_t sz_ind_msg_ran_conf;
+  ind_msg_ran_conf_t* ind_msg_ran_conf;
 
 } ind_msg_cell_report_t;
 
