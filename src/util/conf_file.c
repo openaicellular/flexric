@@ -576,3 +576,12 @@ void free_fr_args(fr_args_t* args)
 
   free_db_params(&args->db_params);
 }
+
+void free_args_proxy_ag(args_proxy_ag_t* src)
+{
+  assert(src != NULL);
+  free_fr_args(&src->fr_args);
+ 
+  free(src->ip);
+}
+

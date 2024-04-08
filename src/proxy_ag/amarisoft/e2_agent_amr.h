@@ -2,6 +2,7 @@
 #define E2_AGENT_AMARISOFT_PROXY_MIR_H 
 #include "../../util/conf_file.h"
 #include "asio_agent_amr.h"
+#include "../../sm/sm_io.h"
 #include "ep_amr.h"
 
 #include <stdatomic.h>
@@ -9,11 +10,13 @@
 typedef struct{
   args_proxy_ag_t args;
   // asio
-  asio_agent_amr_t io; 
+  asio_agent_amr_t asio; 
   // endpoint
   ep_amr_t ep;
+  // sm io 
+  sm_io_ag_ran_t sm_io;
 
-
+  atomic_int msg_id;
   atomic_bool stopped;
   atomic_bool stop_token;
 } e2_agent_amr_t;

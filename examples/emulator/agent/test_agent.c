@@ -124,7 +124,6 @@ sm_io_ag_ran_t init_io_ag(void)
 
   init_sm();
 
-
   return io;
 }
 

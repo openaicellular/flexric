@@ -9,4 +9,6 @@ typedef struct{
   size_t sz;
 } ws_msg_t;
 
+//void free_ws_msg(ws_msg_t const* src);
+
 #endif

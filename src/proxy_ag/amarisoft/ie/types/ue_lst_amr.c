@@ -1,10 +1,10 @@
-#include "ue_lst.h"
+#include "ue_lst_amr.h"
 #include <assert.h>
 #include <stdlib.h>
 #include "../cJSON/cJSON.h"
 #include "../dec/parse_cjson.h"
 
-void free_ue_lst(ue_lst_t* src)
+void free_ue_lst_amr(ue_lst_amr_t* src)
 {
   assert(src != NULL);
 
@@ -30,11 +30,11 @@ void free_ue_lst(ue_lst_t* src)
   free_arr_qos_flows_ue_lst(&src->qos_flows);
 }
 
-ue_lst_t parse_ue_lst(void* it)
+ue_lst_amr_t parse_ue_lst_amr(void* it)
 {
   assert(it != NULL);
 
-  ue_lst_t dst = {0}; 
+  ue_lst_amr_t dst = {0}; 
 
   // Mandatory for 5G. RAN UE id. Present for NR UEs.
   dst.ran_ue_id = parse_int(it,"ran_ue_id");

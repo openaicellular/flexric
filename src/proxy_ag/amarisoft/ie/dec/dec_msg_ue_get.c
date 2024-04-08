@@ -22,12 +22,12 @@ void dec_msg_ue_get_amr(const char* in, msg_ue_get_t* out)
   ans_cjson_t ans = find_object(json, "ue_list");
 
   out->sz = cJSON_GetArraySize(ans.it);
-  out->ue_lst = calloc(out->sz, sizeof(ue_lst_t));
+  out->ue_lst = calloc(out->sz, sizeof(ue_lst_amr_t));
   assert(out->ue_lst != NULL && "Memory exhausted");
 
   for(size_t i = 0; i < out->sz; ++i){
     cJSON* tmp = cJSON_GetArrayItem(ans.it, i);
-    out->ue_lst[i] = parse_ue_lst(tmp);
+    out->ue_lst[i] = parse_ue_lst_amr(tmp);
   }
 
   out->time = parse_float(json, "time" );

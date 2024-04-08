@@ -30,7 +30,7 @@ int init_epoll(void)
   return efd;
 }
 
-void init_asio_agent(asio_agent_amr_t* io)
+void init_asio_agent_amr(asio_agent_amr_t* io)
 {
   assert(io != NULL);
 

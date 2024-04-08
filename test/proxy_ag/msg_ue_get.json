@@ -1,5 +1,6 @@
 {
     "message": "ue_get",
+    "message_id":255,
     "ue_list": [
         {
             "ran_ue_id": 2,

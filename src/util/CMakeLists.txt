@@ -10,15 +10,16 @@ else()
 endif()
 
 add_library(e2ap_ds_obj OBJECT
-                        byte_array.c 
+                        alg_ds/ds/assoc_container/assoc_rb_tree.c
+                        alg_ds/ds/assoc_container/assoc_ht_open_address.c
+                        alg_ds/ds/assoc_container/assoc_reg.c
+                        alg_ds/ds/assoc_container/bimap.c
                         alg_ds/ds/seq_container/seq_arr.c
                         alg_ds/ds/seq_container/seq_ring.c
-                        alg_ds/ds/assoc_container/assoc_rb_tree.c
-                        alg_ds/ds/assoc_container/bimap.c
-                        alg_ds/ds/assoc_container/assoc_reg.c
-                        alg_ds/ds/tsn_queue/tsn_queue.c
-                        alg_ds/ds/tsq/tsq.c
                         alg_ds/ds/task_man/task_manager.c
+                        alg_ds/ds/tsq/tsq.c
+                        alg_ds/ds/tsn_queue/tsn_queue.c
+                        byte_array.c 
                         )
 
 add_library(e2ap_alg_obj OBJECT 

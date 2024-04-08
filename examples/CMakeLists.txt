@@ -1,3 +1,5 @@
+add_subdirectory(proxy_agent)
+
 if (EMU_AGENT)
     add_subdirectory(emulator)
 endif()

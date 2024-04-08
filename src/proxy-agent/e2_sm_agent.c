@@ -98,7 +98,7 @@ void init_sm(void)
 
 }
 
-sm_io_ag_ran_t init_io_proxy_ag()
+sm_io_ag_ran_t init_io_ag()
 {
   sm_io_ag_ran_t io = {0};
   init_read_ind_tbl(&io.read_ind_tbl);

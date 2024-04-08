@@ -28,11 +28,11 @@ typedef struct{
   // Array of objects
   arr_qos_flows_ue_lst_t qos_flows;
 
-} ue_lst_t;
+} ue_lst_amr_t;
 
-void free_ue_lst(ue_lst_t* src);
+void free_ue_lst_amr(ue_lst_amr_t* src);
 
-ue_lst_t parse_ue_lst(void* it);
+ue_lst_amr_t parse_ue_lst_amr(void* it);
 
 #endif
 

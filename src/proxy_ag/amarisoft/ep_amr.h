@@ -8,13 +8,13 @@
 typedef struct{
   noPollCtx* ctx;
   noPollConn* conn; 
-  const char addr[16]; // only ipv4 supported
-  const int port;
-  const int fd;
+  char addr[16]; // only ipv4 supported
+  int port;
+  int fd;
   pthread_mutex_t mtx;
 } ep_amr_t;
 
-ep_amr_t init_ep_amr(void);
+ep_amr_t init_ep_amr(const char* ip, int32_t port);
 
 void stop_ep_amr(ep_amr_t* ep);
 

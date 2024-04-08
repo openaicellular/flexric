@@ -43,11 +43,6 @@ typedef struct {
     int32_t timer;
 } proxy_ran_args_t;
 
-typedef struct{
-    char* ip;
-    int32_t port;
-} args_proxy_ag_t;
-
 typedef struct {
   char conf_file[FR_CONF_FILE_LEN];
   char* libs_dir;
@@ -70,6 +65,14 @@ typedef struct {
 fr_args_t init_fr_args(int argc, char* argv[]);
 
 void free_fr_args(fr_args_t* args);
+
+typedef struct{
+    fr_args_t fr_args;
+    char* ip;
+    int32_t port;
+} args_proxy_ag_t;
+
+void free_args_proxy_ag(args_proxy_ag_t* src);
 
 #endif
 
