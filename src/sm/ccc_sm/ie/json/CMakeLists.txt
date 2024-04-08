@@ -2,7 +2,7 @@ set(JSON_CCC_SRC
         cJSON.c
         list.c
         parse_cjson.c
-        plmn_identity_json.c
+        plmn_id_json.c
         cell_global_id_json.c
         ric_indication_header_json.c
         ric_action_definition_json.c

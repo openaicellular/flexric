@@ -27,7 +27,7 @@ cell_global_id_json_t * cJSON_Getcell_global_idValue(const cJSON * j) {
         }
       }
       if (cJSON_HasObjectItem(j, "plmnIdentity")) {
-        x->plmn_identity = cJSON_Getplmn_identityValue(cJSON_GetObjectItemCaseSensitive(j, "plmnIdentity"));
+        x->plmn_identity = cJSON_Getplmn_idValue(cJSON_GetObjectItemCaseSensitive(j, "plmnIdentity"));
       }
     }
   }
@@ -44,7 +44,7 @@ cJSON * cJSON_Createcell_global_id(const cell_global_id_json_t * x) {
       else {
         cJSON_AddStringToObject(j, "nRCellIdentity", "");
       }
-      cJSON_AddItemToObject(j, "plmnIdentity", cJSON_Createplmn_identity(x->plmn_identity));
+      cJSON_AddItemToObject(j, "plmnIdentity", cJSON_Createplmn_id(x->plmn_identity));
     }
   }
   return j;
@@ -68,7 +68,7 @@ void cJSON_Deletecell_global_id(cell_global_id_json_t * x) {
       cJSON_free(x->n_r_cell_identity);
     }
     if (NULL != x->plmn_identity) {
-      cJSON_Deleteplmn_identity(x->plmn_identity);
+      cJSON_Deleteplmn_id(x->plmn_identity);
     }
     cJSON_free(x);
   }

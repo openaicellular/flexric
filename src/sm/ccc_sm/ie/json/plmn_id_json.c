@@ -1,4 +1,4 @@
-#include "plmn_identity_json.h"
+#include "plmn_id_json.h"
 #include <string.h>
 #include <regex.h>
 #include <assert.h>
@@ -29,23 +29,23 @@ bool isMNCValid(const char* in){
   return true;
 }
 
-plmn_identity_json_t * cJSON_Parseplmn_identity(const char * s) {
-  plmn_identity_json_t * x = NULL;
+plmn_id_json_t * cJSON_Parseplmn_id(const char * s) {
+  plmn_id_json_t * x = NULL;
   if (NULL != s) {
     cJSON * j = cJSON_Parse(s);
     if (NULL != j) {
-      x = cJSON_Getplmn_identityValue(j);
+      x = cJSON_Getplmn_idValue(j);
       cJSON_Delete(j);
     }
   }
   return x;
 }
 
-plmn_identity_json_t * cJSON_Getplmn_identityValue(const cJSON * j) {
-  plmn_identity_json_t * x = NULL;
+plmn_id_json_t * cJSON_Getplmn_idValue(const cJSON * j) {
+  plmn_id_json_t * x = NULL;
   if (NULL != j) {
-    if (NULL != (x = cJSON_malloc(sizeof(plmn_identity_json_t)))) {
-      memset(x, 0, sizeof(plmn_identity_json_t));
+    if (NULL != (x = cJSON_malloc(sizeof(plmn_id_json_t)))) {
+      memset(x, 0, sizeof(plmn_id_json_t));
       if (cJSON_HasObjectItem(j, "mcc")) {
         char * mcc = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(j, "mcc"));
         assert(isMCCValid(mcc) && "mcc is not 3 digits string");
@@ -61,7 +61,7 @@ plmn_identity_json_t * cJSON_Getplmn_identityValue(const cJSON * j) {
   return x;
 }
 
-cJSON * cJSON_Createplmn_identity(const plmn_identity_json_t * x) {
+cJSON * cJSON_Createplmn_id(const plmn_id_json_t * x) {
   cJSON * j = NULL;
   if (NULL != x) {
     if (NULL != (j = cJSON_CreateObject())) {
@@ -76,10 +76,10 @@ cJSON * cJSON_Createplmn_identity(const plmn_identity_json_t * x) {
   return j;
 }
 
-char * cJSON_Printplmn_identity(const plmn_identity_json_t * x) {
+char * cJSON_Printplmn_id(const plmn_id_json_t * x) {
   char * s = NULL;
   if (NULL != x) {
-    cJSON * j = cJSON_Createplmn_identity(x);
+    cJSON * j = cJSON_Createplmn_id(x);
     if (NULL != j) {
       s = cJSON_PrintUnformatted(j);
       cJSON_Delete(j);
@@ -88,7 +88,7 @@ char * cJSON_Printplmn_identity(const plmn_identity_json_t * x) {
   return s;
 }
 
-void cJSON_Deleteplmn_identity(plmn_identity_json_t * x) {
+void cJSON_Deleteplmn_id(plmn_id_json_t * x) {
   if (NULL != x) {
     if (NULL != x->mcc) {
       cJSON_free(x->mcc);

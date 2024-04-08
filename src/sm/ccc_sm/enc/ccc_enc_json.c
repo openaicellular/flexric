@@ -68,8 +68,6 @@ action_definition_format_json_t* create_act_def_frmt_1(e2sm_ccc_act_def_frmt_1_t
 
 static
 cell_global_id_json_t* create_cell_global_id(cell_global_id_t const src){
-  assert(src.type == NR_CGI_RAT_TYPE && "Not 5g cell");
-
   cell_global_id_json_t* cell_id = calloc(1, sizeof(cell_global_id_json_t));
   assert(cell_id != NULL && "Memory exhausted");
 
@@ -78,7 +76,7 @@ cell_global_id_json_t* create_cell_global_id(cell_global_id_t const src){
   assert(cell_id->n_r_cell_identity != NULL && "Memory exhausted");
   snprintf(cell_id->n_r_cell_identity, length + 1, "%lu", (uint64_t)src.nr_cgi.nr_cell_id);
 
-  cell_id->plmn_identity = calloc(1, sizeof(plmn_identity_json_t));
+  cell_id->plmn_identity = calloc(1, sizeof(plmn_id_json_t));
   assert(cell_id->plmn_identity != NULL && "Memory exhausted");
 
   length = snprintf(NULL, 0, "%hu", src.nr_cgi.plmn_id.mcc);
