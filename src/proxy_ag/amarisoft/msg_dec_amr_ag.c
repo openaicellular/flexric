@@ -2,6 +2,8 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "ie/dec/dec_config_get.h" 
 #include "ie/dec/dec_msg_stats.h" 
@@ -17,7 +19,8 @@ typedef struct{
 } needle_msg_type_t ;
 
 static
-const needle_msg_type_t arr_msgs[3] = {
+const needle_msg_type_t arr_msgs[4] = {
+  {.type = MSG_READY_AMR_E , .buf = "\"ready\"" , .len = 7},
   {.type = MSG_CONFIG_GET_AMR_E , .buf = "\"config_get\"" , .len = 12},
   {.type = MSG_STATS_AMR_E, .buf = "\"stats\"", .len = 7},
   {.type = MSG_UE_GET_E, .buf = "\"ue_get\"", .len = 8},
@@ -36,6 +39,8 @@ msg_amr_e find_msg_type(const char* src)
        return arr_msgs[i].type;
   }
 
+  printf("%s \n", src);
+  fflush(stdout);
   assert(0 != 0 && "Unknown message type");
   
   return END_MSG_AMR_E;
@@ -49,7 +54,8 @@ msg_amr_t msg_dec_amr_ag(ws_msg_t const* src)
 
   dst.type = find_msg_type((const char*)src->buf);
 
-  if(dst.type == MSG_CONFIG_GET_AMR_E){
+  if(dst.type == MSG_READY_AMR_E){
+  } else if(dst.type == MSG_CONFIG_GET_AMR_E){
     dec_config_get_amr((char*)src->buf, &dst.config);
   } else if(dst.type == MSG_STATS_AMR_E){
     dec_msg_stats_amr((char*)src->buf, &dst.stats);

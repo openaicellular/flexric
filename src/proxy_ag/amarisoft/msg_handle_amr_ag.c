@@ -50,7 +50,11 @@ void msg_handle_amr_ag(e2_agent_amr_t const* ag, msg_amr_t const* msg)
   assert(ag != NULL);
   assert(msg != NULL);
 
-  assert(0 != 0 && "Not implemented");
+  if(msg->type == MSG_READY_AMR_E){
+    int const msg_id = ((e2_agent_amr_t*)ag)->msg_id++; 
+    send_config_get(&ag->ep, msg_id); 
+  } else
+  	assert(0 != 0 && "Not implemented");
 }
 
 void send_config_get(ep_amr_t const* ep, int msg_id)
@@ -62,6 +66,7 @@ void send_config_get(ep_amr_t const* ep, int msg_id)
   size_t sz = snprintf(msg, 64, "{\"message\": \"config_get\", \"message_id\": %d }", msg_id );
   assert(sz < 64);
 
+  printf("Sending message \n");
   send_ep_amr(ep, (uint8_t*)msg, sz);
 }
 

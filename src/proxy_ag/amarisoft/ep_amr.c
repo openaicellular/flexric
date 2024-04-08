@@ -45,23 +45,33 @@ ep_amr_t init_ep_amr(const char* ip, int32_t port)
   const char* proto = NULL;
   const char* origin = NULL;
 
-  for(;;){
-    // Part of the websocket handshake message is sent when calling nopoll_conn_new, 
-    // thus it needs to be in loop. Sucks.
-    dst.conn = nopoll_conn_new(dst.ctx, ip , port_str, name, get_url, proto, origin);
-    assert(dst.conn != NULL && "Connection error");
-    bool conn_ready = wait_conn_ready_or_timeout(dst.conn);
 
-    if(conn_ready == true) 
-      break;
+  // Part of the websocket handshake message is sent when calling nopoll_conn_new, 
+  // thus it needs to be in loop. Sucks.
+  dst.conn = nopoll_conn_new(dst.ctx, ip , port_str, name, get_url, proto, origin);
+ 
+  assert( nopoll_conn_is_ok (dst.conn));
 
-    printf("[PROXY]: Websocket connection with %s %s was NOT successfull.\n Trying again.\n", ip, port_str);
-    // Free the conn handler and try again
-    int status = -1;
-    const char reason[] = "Timeout waiting connection";
-    nopoll_conn_close_ext(dst.conn, status, reason, strlen(reason));
-  }
+  rc = nopoll_conn_wait_until_connection_ready(dst.conn, 5);
+  assert(rc != -1 && "Timeout while connecting");
 
+//  for(;;){
+//    // Part of the websocket handshake message is sent when calling nopoll_conn_new, 
+//    // thus it needs to be in loop. Sucks.
+//    dst.conn = nopoll_conn_new(dst.ctx, ip , port_str, name, get_url, proto, origin);
+//    assert(dst.conn != NULL && "Connection error");
+//    bool conn_ready = wait_conn_ready_or_timeout(dst.conn);
+//
+//    if(conn_ready == true) 
+//      break;
+//
+//    printf("[PROXY]: Websocket connection with %s %s was NOT successfull.\n Trying again.\n", ip, port_str);
+//    // Free the conn handler and try again
+//    int status = -1;
+//    const char reason[] = "Timeout waiting connection";
+//    nopoll_conn_close_ext(dst.conn, status, reason, strlen(reason));
+//  }
+//
   dst.fd = nopoll_conn_socket(dst.conn);
   assert(dst.fd != -1 && "Error while getting the nopoll socket descriptor");
 

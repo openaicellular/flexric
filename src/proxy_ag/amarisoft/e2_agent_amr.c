@@ -89,7 +89,8 @@ e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
 
   // asio
   init_asio_agent_amr(&dst.asio);
- 
+  add_fd_asio_agent_amr(&dst.asio, dst.ep.fd);
+
   // SM io
   init_io_proxy_ag(&dst.sm_io);
 
@@ -99,8 +100,8 @@ e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
   dst.stopped = false;
 
   // Send config_get message to Amarisoft RAN 
-  int const msg_id = dst.msg_id++; 
-  send_config_get(&dst.ep, msg_id);
+//  int const msg_id = dst.msg_id++; 
+//  send_config_get(&dst.ep, msg_id);
 
   return dst;
 }

@@ -6,6 +6,7 @@
 #include "ie/msg_ue_get.h"
 
 typedef enum{
+  MSG_READY_AMR_E,
   MSG_CONFIG_GET_AMR_E,
   MSG_STATS_AMR_E,
   MSG_UE_GET_E,
