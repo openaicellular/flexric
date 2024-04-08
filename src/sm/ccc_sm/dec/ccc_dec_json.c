@@ -22,6 +22,7 @@
 #include "ccc_dec_json.h"
 #include "../ie/json/ric_indication_header_json.h"
 #include "../ie/json/ric_action_definition_json.h"
+#include "../ie/json/ric_indication_message_json.h"
 #include "../../../util/alg_ds/alg/defer.h"
 
 #include <string.h>
@@ -78,6 +79,37 @@ act_def_ran_conf_t* get_act_def_ran_conf(list_t* const src){
 }
 
 static
+ind_msg_ran_conf_t* get_ind_msg_ran_conf(list_t* const src){
+  assert(src != NULL);
+  ind_msg_ran_conf_t* res = calloc(src->count, sizeof(ind_msg_ran_conf_t));
+  assert(res != NULL && "Memory exhausted");
+
+  size_t index = 0;
+  list_of_configuration_structures_reported_element_t* ran_conf = list_get_head(src);
+  while (ran_conf!= NULL){
+    res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
+    res[index].change_type = ran_conf->change_type;
+    res[index].vals_attributes = cp_str_to_ba(ran_conf->values_of_attributes);
+    res[index].old_vals_attributes = cp_str_to_ba(ran_conf->old_values_of_attributes);
+    ran_conf = list_get_next(src);
+    index++;
+  }
+
+  return res;
+}
+
+static
+e2sm_ccc_ind_msg_frmt_1_t get_ind_msg_frmt1(list_t* const src){
+  assert(src != NULL);
+  e2sm_ccc_ind_msg_frmt_1_t res = {};
+
+  res.sz_ind_msg_node_conf = src->count;
+  res.ind_msg_ran_conf = get_ind_msg_ran_conf(src);
+
+  return res;
+}
+
+static
 e2sm_ccc_act_def_frmt_1_t get_act_def_frmt1(list_t* const src){
   assert(src != NULL);
   e2sm_ccc_act_def_frmt_1_t res = {};
@@ -97,6 +129,27 @@ cell_global_id_t get_cell_global_id(cell_global_id_json_t const* src){
   res.nr_cgi.plmn_id.mnc = atoi(src->plmn_identity->mnc);
   res.nr_cgi.plmn_id.mcc = atoi(src->plmn_identity->mcc);
   res.nr_cgi.plmn_id.mnc_digit_len = strlen(src->plmn_identity->mnc);
+  return res;
+}
+
+static
+e2sm_ccc_ind_msg_frmt_2_t get_ind_msg_frmt2(list_t* const src){
+  assert(src != NULL);
+  e2sm_ccc_ind_msg_frmt_2_t res = {};
+  size_t index = 0;
+
+  res.sz_ind_msg_cell_report = src->count;
+  res.ind_msg_cell_report = calloc(src->count, sizeof(ind_msg_ran_conf_t));
+  assert(res.ind_msg_cell_report != NULL && "Memory exhausted");
+  list_of_cells_reported_element_t* node = list_get_head(src);
+  while(node != NULL){
+    res.ind_msg_cell_report[index].cell_global_id = get_cell_global_id(node->cell_global_id);
+    res.ind_msg_cell_report[index].sz_ind_msg_ran_conf = node->list_of_configuration_structures_reported->count;
+    res.ind_msg_cell_report[index].ind_msg_ran_conf = get_ind_msg_ran_conf(node->list_of_configuration_structures_reported);
+    node = list_get_next(src);
+    index++;
+  }
+
   return res;
 }
 
@@ -162,10 +215,23 @@ e2sm_ccc_ind_hdr_t ccc_dec_ind_hdr_json(size_t len, uint8_t const ind_hdr[len])
 
 e2sm_ccc_ind_msg_t ccc_dec_ind_msg_json(size_t len, uint8_t const ind_msg[len])
 {
-  assert(ind_msg != NULL);
+  assert(ind_msg!= NULL);
   assert(len != 0);
-  assert(0 != 0 && "Not implemented");
+  assert(ind_msg[len-1] == '\0' && "Need zero terminated string for this interface");
+
+  ric_indication_message_json_t * ric_ind_msg = cJSON_Parseric_indication_message((char *)ind_msg);
+  defer({cJSON_Deleteric_indication_message(ric_ind_msg);});
+
   e2sm_ccc_ind_msg_t dst = {0};
+  if(ric_ind_msg->indication_message_format->list_of_configuration_structures_reported != NULL){
+    // Format 1
+    dst.format = FORMAT_1_E2SM_CCC_IND_MSG;
+    dst.frmt_1 = get_ind_msg_frmt1(ric_ind_msg->indication_message_format->list_of_configuration_structures_reported);
+  } else if (ric_ind_msg->indication_message_format->list_of_cells_reported != NULL){
+    // Format 2
+    dst.format = FORMAT_2_E2SM_CCC_IND_MSG;
+    dst.frmt_2 = get_ind_msg_frmt2(ric_ind_msg->indication_message_format->list_of_cells_reported);
+  }
 
   return dst;
 }

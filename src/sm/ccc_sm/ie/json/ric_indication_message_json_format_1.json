@@ -1,0 +1,18 @@
+{
+  "indicationMessageFormat": {
+    "listOfConfigurationStructuresReported": [
+      {
+        "changeType": "modification",
+        "oldValuesOfAttributes": "old_vals_attributes",
+        "ranConfigurationStructureName": "ran_conf_name",
+        "valuesOfAttributes": "vals_attributes"
+      },
+      {
+        "changeType": "none",
+        "oldValuesOfAttributes": "old_vals_attributes",
+        "ranConfigurationStructureName": "ran_conf_name",
+        "valuesOfAttributes": "vals_attributes"
+      }
+    ]
+  }
+}

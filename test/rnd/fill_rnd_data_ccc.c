@@ -124,7 +124,7 @@ e2sm_ccc_action_def_t fill_rnd_ccc_action_def(void){
 }
 
 static
-e2sm_ccc_ind_hdr_frmt_1_t fill_rnd_ccc_ctrl_hdr_frmt_1(){
+e2sm_ccc_ind_hdr_frmt_1_t fill_rnd_ccc_ind_hdr_frmt(){
   e2sm_ccc_ind_hdr_frmt_1_t dst = {0};
 
   dst.ind_reason = rand()%END_IND_REASON;
@@ -143,7 +143,7 @@ e2sm_ccc_ind_hdr_t fill_rnd_ccc_ind_hdr(void){
   dst.format = rand()%END_E2SM_CCC_IND_HDR;
 
   if(dst.format == FORMAT_1_E2SM_CCC_IND_HDR){
-    dst.frmt_1 = fill_rnd_ccc_ctrl_hdr_frmt_1();
+    dst.frmt_1 = fill_rnd_ccc_ind_hdr_frmt();
   } else {
     assert(0!=0 && "Not implemented");
   }
@@ -151,8 +151,60 @@ e2sm_ccc_ind_hdr_t fill_rnd_ccc_ind_hdr(void){
   return dst;
 }
 
+static
+e2sm_ccc_ind_msg_frmt_1_t fill_rnd_ccc_ind_msg_frmt_1(){
+  e2sm_ccc_ind_msg_frmt_1_t dst = {0};
+
+  dst.sz_ind_msg_node_conf = rand()%3 + 1;
+  dst.ind_msg_ran_conf = calloc(dst.sz_ind_msg_node_conf, sizeof(ind_msg_ran_conf_t));
+  assert(dst.ind_msg_ran_conf != NULL && "Memory exhausted");
+  for (size_t i = 0; i < dst.sz_ind_msg_node_conf; i++){
+    dst.ind_msg_ran_conf[i].ran_conf_name = cp_str_to_ba("ran_conf_name");
+    dst.ind_msg_ran_conf[i].change_type = rand()%END_CHANGE_TYPE;
+    dst.ind_msg_ran_conf[i].vals_attributes = cp_str_to_ba("vals_attributes");
+    dst.ind_msg_ran_conf[i].old_vals_attributes= cp_str_to_ba("old_vals_attributes");
+  }
+
+  return dst;
+}
+
+static
+e2sm_ccc_ind_msg_frmt_2_t fill_rnd_ccc_ind_msg_frmt_2(){
+  e2sm_ccc_ind_msg_frmt_2_t dst = {0};
+
+  dst.sz_ind_msg_cell_report= rand()%3 + 1;
+  dst.ind_msg_cell_report = calloc(dst.sz_ind_msg_cell_report, sizeof(ind_msg_cell_report_t));
+  assert(dst.ind_msg_cell_report != NULL && "Memory exhausted");
+  for (size_t i = 0; i < dst.sz_ind_msg_cell_report; i++) {
+    dst.ind_msg_cell_report[i].cell_global_id = fill_rnd_cell_global_id();
+    dst.ind_msg_cell_report[i].sz_ind_msg_ran_conf = rand()%3 + 1;
+    dst.ind_msg_cell_report[i].ind_msg_ran_conf = calloc(dst.ind_msg_cell_report[i].sz_ind_msg_ran_conf, sizeof(ind_msg_ran_conf_t));
+    assert(dst.ind_msg_cell_report[i].ind_msg_ran_conf != NULL && "Memory exhausted");
+    for (size_t z = 0; z < dst.ind_msg_cell_report[i].sz_ind_msg_ran_conf; z++) {
+      dst.ind_msg_cell_report[i].ind_msg_ran_conf[z].change_type = rand()%END_CHANGE_TYPE;
+      dst.ind_msg_cell_report[i].ind_msg_ran_conf[z].ran_conf_name = cp_str_to_ba("ran_conf_name");
+      dst.ind_msg_cell_report[i].ind_msg_ran_conf[z].vals_attributes = cp_str_to_ba("vals_attributes");
+      dst.ind_msg_cell_report[i].ind_msg_ran_conf[z].old_vals_attributes = cp_str_to_ba("old_vals_attributes");
+    }
+  }
+
+  return dst;
+}
+
 e2sm_ccc_ind_msg_t fill_rnd_ccc_ind_msg(void){
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_ind_msg_t dst = {0};
+
+  dst.format = rand()%END_E2SM_CCC_IND_MSG;
+
+  if(dst.format == FORMAT_1_E2SM_CCC_IND_MSG){
+    dst.frmt_1 = fill_rnd_ccc_ind_msg_frmt_1();
+  } else if (dst.format == FORMAT_2_E2SM_CCC_IND_MSG){
+    dst.frmt_2 = fill_rnd_ccc_ind_msg_frmt_2();
+  } else {
+    assert(0!=0 && "Not implemented");
+  }
+
+  return dst;
 }
 
 e2sm_ccc_cpid_t fill_rnd_ccc_cpid(void){

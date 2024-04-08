@@ -69,7 +69,17 @@ void test_ccc_ind_hdr(void)
 
 void test_ccc_ind_msg(void)
 {
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_ind_msg_t msg = fill_rnd_ccc_ind_msg();
+  defer({ free_e2sm_ccc_ind_msg(&msg); });
+
+  byte_array_t ba = ccc_enc_ind_msg_json(&msg);
+  defer({ free_byte_array(ba); });
+  printf("%s\n", ba.buf);
+
+  e2sm_ccc_ind_msg_t out = ccc_dec_ind_msg_json(ba.len, ba.buf);
+  defer({ free_e2sm_ccc_ind_msg(&out); });
+
+  assert(eq_e2sm_ccc_ind_msg(&msg, &out) == true);
 }
 
 void test_ccc_call_process_id()
@@ -123,8 +133,8 @@ int main()
   printf("\nCCC Indication Header test succeeded\n");
 
   // Indication Message
-//  test_ccc_ind_msg();
-//  printf("\nCCC Indication Message test succeeded\n");
+  test_ccc_ind_msg();
+  printf("\nCCC Indication Message test succeeded\n");
 
   // Call Process ID 
 //  test_ccc_call_process_id();

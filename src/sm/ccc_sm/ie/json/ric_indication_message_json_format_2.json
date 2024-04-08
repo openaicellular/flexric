@@ -1,0 +1,81 @@
+{
+  "indicationMessageFormat": {
+    "listOfCellsReported": [
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "367221172",
+          "plmnIdentity": {
+            "mcc": "663",
+            "mnc": "67"
+          }
+        },
+        "listOfConfigurationStructuresReported": [
+          {
+            "changeType": "addition",
+            "oldValuesOfAttributes": "old_vals_attributes",
+            "ranConfigurationStructureName": "ran_conf_name",
+            "valuesOfAttributes": "vals_attributes"
+          },
+          {
+            "changeType": "modification",
+            "oldValuesOfAttributes": "old_vals_attributes",
+            "ranConfigurationStructureName": "ran_conf_name",
+            "valuesOfAttributes": "vals_attributes"
+          },
+          {
+            "changeType": "none",
+            "oldValuesOfAttributes": "old_vals_attributes",
+            "ranConfigurationStructureName": "ran_conf_name",
+            "valuesOfAttributes": "vals_attributes"
+          }
+        ]
+      },
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "336496897",
+          "plmnIdentity": {
+            "mcc": "820",
+            "mnc": "65"
+          }
+        },
+        "listOfConfigurationStructuresReported": [
+          {
+            "changeType": "modification",
+            "oldValuesOfAttributes": "old_vals_attributes",
+            "ranConfigurationStructureName": "ran_conf_name",
+            "valuesOfAttributes": "vals_attributes"
+          },
+          {
+            "changeType": "modification",
+            "oldValuesOfAttributes": "old_vals_attributes",
+            "ranConfigurationStructureName": "ran_conf_name",
+            "valuesOfAttributes": "vals_attributes"
+          },
+          {
+            "changeType": "none",
+            "oldValuesOfAttributes": "old_vals_attributes",
+            "ranConfigurationStructureName": "ran_conf_name",
+            "valuesOfAttributes": "vals_attributes"
+          }
+        ]
+      },
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "721356639",
+          "plmnIdentity": {
+            "mcc": "813",
+            "mnc": "91"
+          }
+        },
+        "listOfConfigurationStructuresReported": [
+          {
+            "changeType": "addition",
+            "oldValuesOfAttributes": "old_vals_attributes",
+            "ranConfigurationStructureName": "ran_conf_name",
+            "valuesOfAttributes": "vals_attributes"
+          }
+        ]
+      }
+    ]
+  }
+}
