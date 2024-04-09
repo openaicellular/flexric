@@ -477,31 +477,165 @@ bool eq_e2sm_ccc_ctrl_out(e2sm_ccc_ctrl_out_t const* m0, e2sm_ccc_ctrl_out_t con
 // RAN Function Definition 
 /////////////////////////////////////
 
+static
+void free_func_def_cells(func_def_cells_t* src)
+{
+  assert(src != NULL);
+
+  // Cell global id
+  // Mandatory
+  free_cell_global_id(&src->cell_global_id);
+
+  // List of Supported Cell-level RAN Configuration Structures
+  // [0..1024]
+  assert(src->sz_func_def_ran_conf < 1025);
+  for (size_t i = 0; i < src->sz_func_def_ran_conf; ++i){
+    free_func_def_ran_conf(&src->func_def_ran_conf[i]);
+  }
+
+  if (src->func_def_ran_conf != NULL)
+    free(src->func_def_ran_conf);
+}
+
+//static
+//func_def_cells_t cp_func_def_cells(func_def_cells_t const* src)
+//{
+//  assert(src != NULL);
+//
+//  func_def_cells_t dst = {0};
+//
+//  // Cell global id
+//  // Mandatory
+//  dst.cell_global_id = cp_cell_global_id(&src->cell_global_id);
+//
+//  // List of Supported Cell-level RAN Configuration Structures
+//  // [0..1024]
+//  assert(src->sz_func_def_ran_conf < 1025);
+//  if (src->func_def_ran_conf != NULL){
+//    dst.func_def_ran_conf = calloc(src->sz_func_def_ran_conf, sizeof(func_def_ran_conf_t));
+//    assert(dst.func_def_ran_conf!= NULL && "Memory exhausted");
+//    memcpy(dst.func_def_ran_conf, src->func_def_ran_conf, sizeof(func_def_ran_conf_t) * src->sz_func_def_ran_conf);
+//  }
+//
+//  return dst;
+//}
+
+static
+bool eq_func_def_cells(func_def_cells_t const* m0, func_def_cells_t const* m1)
+{
+  if(m0 == m1)
+    return true;
+
+  if(m0 == NULL || m1 == NULL)
+    return false;
+
+  // Cell global id
+  // Mandatory
+  if(!eq_cell_global_id(&m0->cell_global_id, &m1->cell_global_id))
+    return false;
+
+  // List of Supported Cell-level RAN Configuration Structures
+  // [0..1024]
+  assert(m0->sz_func_def_ran_conf< 1025);
+  assert(m1->sz_func_def_ran_conf< 1025);
+  for (size_t i = 0; i < m0->sz_func_def_ran_conf; i++){
+    if(!eq_func_def_ran_conf(&m0->func_def_ran_conf[i], &m1->func_def_ran_conf[i]))
+      return false;
+  }
+
+  return true;
+}
+
 void free_e2sm_ccc_func_def(e2sm_ccc_func_def_t* src)
 {
   assert(src != NULL);
-  assert(0 != 0 && "Not implemented");
+
+  //  RAN Function Name
+  //  Mandatory
+  free_ran_function_name(&src->name);
+
+  // List of supported Node-level RAN configuration Structures
+  // [0..1024]
+  assert(src->sz_func_def_ran_conf < 1025);
+  for (size_t i = 0; i < src->sz_func_def_ran_conf; ++i){
+    free_func_def_ran_conf(&src->func_def_ran_conf[i]);
+  }
+
+  if (src->func_def_ran_conf != NULL)
+    free(src->func_def_ran_conf);
+
+  // List of cells
+  // [0..1024]
+  assert(src->sz_func_def_cells < 1025);
+  for (size_t i = 0; i < src->sz_func_def_cells ; ++i){
+    free_func_def_cells(&src->func_def_cells[i]);
+  }
+
+  if (src->func_def_cells!= NULL)
+    free(src->func_def_cells);
 }
 
 e2sm_ccc_func_def_t cp_e2sm_ccc_func_def(e2sm_ccc_func_def_t const* src)
 {
   assert(src != NULL);
-  assert(0 != 0 && "Not implemented");
 
   e2sm_ccc_func_def_t dst = {0};
+
+  //  RAN Function Name
+  //  Mandatory
+  dst.name = cp_ran_function_name(&src->name);
+
+  // List of Supported Cell-level RAN Configuration Structures
+  // [0..1024]
+  assert(src->sz_func_def_ran_conf < 1025);
+  if (src->func_def_ran_conf != NULL){
+    dst.func_def_ran_conf = calloc(src->sz_func_def_ran_conf, sizeof(func_def_ran_conf_t));
+    assert(dst.func_def_ran_conf!= NULL && "Memory exhausted");
+    memcpy(dst.func_def_ran_conf, src->func_def_ran_conf, sizeof(func_def_ran_conf_t) * src->sz_func_def_ran_conf);
+  }
+
+  // List of cells
+  // [0..1024]
+  assert(src->sz_func_def_cells < 1025);
+  if (src->func_def_cells!= NULL){
+    dst.func_def_cells = calloc(src->sz_func_def_cells, sizeof(func_def_cells_t));
+    assert(dst.func_def_cells!= NULL && "Memory exhausted");
+    memcpy(dst.func_def_cells, src->func_def_cells, sizeof(func_def_cells_t) * src->sz_func_def_cells);
+  }
 
   return dst;
 }
 
 bool eq_e2sm_ccc_func_def(e2sm_ccc_func_def_t const* m0, e2sm_ccc_func_def_t const* m1)
 {
-  assert(0 != 0 && "Not implemented");
-
   if(m0 == m1)
     return true;
 
   if(m0 == NULL || m1 == NULL)
     return false;
+
+  //  RAN Function Name
+  //  Mandatory
+  if(!eq_ran_function_name(&m0->name, &m1->name))
+    return false;
+
+  // List of Supported Cell-level RAN Configuration Structures
+  // [0..1024]
+  assert(m0->sz_func_def_ran_conf< 1025);
+  assert(m1->sz_func_def_ran_conf< 1025);
+  for (size_t i = 0; i < m0->sz_func_def_ran_conf; i++){
+    if(!eq_func_def_ran_conf(&m0->func_def_ran_conf[i], &m1->func_def_ran_conf[i]))
+      return false;
+  }
+
+  // List of Supported Cell-level RAN Configuration Structures
+  // [0..1024]
+  assert(m0->sz_func_def_cells < 1025);
+  assert(m1->sz_func_def_cells < 1025);
+  for (size_t i = 0; i < m0->sz_func_def_cells; i++){
+    if(!eq_func_def_cells(&m0->func_def_cells[i], &m1->func_def_cells[i]))
+      return false;
+  }
 
   return true;
 }

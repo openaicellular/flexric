@@ -87,6 +87,7 @@ extern "C" {
 /////////////////////////////////////
 
 #include "../../../lib/sm/ie/ran_function_name.h"
+#include "ir/func_def_ran_conf.h"
 
 //////////////////////////////////////
 // RIC Event Trigger Definition
@@ -301,6 +302,19 @@ bool eq_e2sm_ccc_ctrl_out(e2sm_ccc_ctrl_out_t const* m0, e2sm_ccc_ctrl_out_t con
 /////////////////////////////////////
 
 typedef struct {
+  // Cell global id
+  // Mandatory
+  // 9.3.6
+  cell_global_id_t cell_global_id;
+
+  // List of Supported Cell-level RAN Configuration Structures
+  // [0..1024]
+  size_t sz_func_def_ran_conf;
+  func_def_ran_conf_t* func_def_ran_conf;
+
+} func_def_cells_t;
+
+typedef struct {
   //  RAN Function Name
   //  Mandatory
   //  9.3.2
@@ -308,14 +322,14 @@ typedef struct {
   ran_function_name_t name;
 
   //  List of supported Node-level RAN configuration Structures
-  //  Mandatory
-  //  9.2.2.1.
   //  [0..1024]
+  size_t sz_func_def_ran_conf;
+  func_def_ran_conf_t* func_def_ran_conf;
 
-  //  List of Cells
-  //  Mandatory
-  //  9.2.2.1.
-  //  [0..1024]
+  // List of cells
+  // [0..1024]
+  size_t sz_func_def_cells;
+  func_def_cells_t* func_def_cells;
 
 } e2sm_ccc_func_def_t;
 
