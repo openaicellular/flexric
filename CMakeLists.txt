@@ -392,7 +392,7 @@ if (SM_RC)
   install(TARGETS rc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
 endif()
 
-option(SM_CCC "Install CCC SM" OFF)
+option(SM_CCC "Install CCC SM" ON)
 message(STATUS "Install CCC SM: ${SM_CCC}")
 if (SM_CCC)
   install(TARGETS ccc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)

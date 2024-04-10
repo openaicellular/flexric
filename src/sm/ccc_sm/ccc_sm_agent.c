@@ -101,8 +101,38 @@ static
 sm_e2_setup_data_t on_e2_setup_ccc_sm_ag(sm_agent_t const* sm_agent)
 {
   assert(sm_agent != NULL);
-  assert(0!=0 && "Not implemented");
+  
+  //printf("on_e2_setup called \n");
+  sm_ccc_agent_t* sm = (sm_ccc_agent_t*)sm_agent;
 
+  // Call the RAN and fill the data
+//  sm_ag_if_rd_t rd = {.type = E2_SETUP_AGENT_IF_ANS_V0};
+//  rd.e2ap.type = RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0;
+
+  ccc_e2_setup_t ccc = {0};
+  // Will call the function read_ccc_setup_sm
+  sm->base.io.read_setup(&ccc);
+
+  e2sm_ccc_func_def_t* ran_func = &ccc.ran_func_def;
+  defer({ free_e2sm_ccc_func_def(ran_func); });
+
+  byte_array_t ba = ccc_enc_func_def(&sm->enc, ran_func);
+
+  sm_e2_setup_data_t setup = {0};
+  setup.len_rfd = ba.len;
+  setup.ran_fun_def = ba.buf;
+/*
+  // RAN Function
+  setup.rf.definition = cp_str_to_ba(SM_RAN_CTRL_SHORT_NAME);
+  setup.rf.id = SM_ccc_ID;
+  setup.rf.rev = SM_ccc_REV;
+
+  setup.rf.oid = calloc(1, sizeof(byte_array_t) );
+  assert(setup.rf.oid != NULL && "Memory exhausted");
+
+  *setup.rf.oid = cp_str_to_ba(SM_RAN_CTRL_OID);
+*/
+  return setup;
 }
 
 static

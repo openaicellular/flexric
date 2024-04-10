@@ -678,7 +678,7 @@ cJSON * cJSON_Createsupported_services(const supported_services_json_t * x) {
           size_t count1 = hashtable_get_keys(x->insert_service, &keys1);
           if (NULL != keys1) {
             for (size_t index1 = 0; index1 < count1; index1++) {
-              void *x1 = hashtable_lookup(x->insert_service, keys1[index1]);
+//              void *x1 = hashtable_lookup(x->insert_service, keys1[index1]);
             }
             cJSON_free(keys1);
           }
@@ -692,7 +692,7 @@ cJSON * cJSON_Createsupported_services(const supported_services_json_t * x) {
           size_t count1 = hashtable_get_keys(x->policy_service, &keys1);
           if (NULL != keys1) {
             for (size_t index1 = 0; index1 < count1; index1++) {
-              void *x1 = hashtable_lookup(x->policy_service, keys1[index1]);
+//              void *x1 = hashtable_lookup(x->policy_service, keys1[index1]);
             }
             cJSON_free(keys1);
           }
