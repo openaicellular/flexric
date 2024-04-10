@@ -20,6 +20,7 @@
  */
 
 #include "fill_rnd_data_ccc.h"
+#include "../../src/sm/ccc_sm/ccc_sm_id.h"
 
 #include <assert.h>
 #include <math.h>
@@ -223,12 +224,51 @@ e2sm_ccc_ctrl_out_t fill_rnd_ccc_ctrl_out(void){
   assert(0 != 0 && "Not implemented");
 }
 
-e2sm_ccc_func_def_t fill_rnd_ccc_ran_func_def(void){
-  assert(0 != 0 && "Not implemented");
-}
-
 ran_function_name_t fill_ccc_ran_func_name(void){
-  assert(0 != 0 && "Not implemented");
+  ran_function_name_t dst = {0};
+
+  // RAN Function Short Name
+  // Mandatory
+  // PrintableString [1-150]
+  dst.name.buf = calloc(strlen(SM_CCC_SHORT_NAME) + 1, sizeof(uint8_t));
+  memcpy(dst.name.buf, SM_CCC_SHORT_NAME, strlen(SM_CCC_SHORT_NAME));
+  dst.name.len = strlen(SM_CCC_SHORT_NAME);
+
+  // RAN Function Service Model OID
+  // Mandatory
+  // PrintableString [1-1000]
+
+  //iso(1) identified-organization(3)
+  //dod(6) internet(1) private(4)
+  //enterprise(1) 53148 e2(1)
+  // version1 (1) e2sm(2) e2sm-RC-
+  // IEs (3)
+  dst.oid.buf = calloc(strlen(SM_CCC_OID) + 1, sizeof(uint8_t));
+  memcpy(dst.oid.buf, SM_CCC_OID, strlen(SM_CCC_OID));
+  dst.oid.len = strlen(SM_CCC_OID);
+
+  // RAN Function Description
+  // Mandatory
+  // PrintableString [1- 150]
+  //RAN function RC “RAN Control” performs the following
+  //functionalities:
+  //- Exposure of RAN control and UE context related
+  //information.
+  //- Modification and initiation of RAN control related call
+  //processes and messages
+  //- Execution of policies that may result in change of
+  //RAN control behavior
+
+  dst.description.buf = calloc(strlen(SM_CCC_DESCRIPTION) + 1, sizeof(uint8_t));
+  memcpy(dst.description.buf, SM_CCC_DESCRIPTION, strlen(SM_CCC_DESCRIPTION));
+  dst.description.len = strlen(SM_CCC_DESCRIPTION);
+
+  // RAN Function Instance
+  // Optional
+  // INTEGER
+//    long* instance;	/* OPTIONAL: it is suggested to be used when E2 Node declares
+//                                multiple RAN Function ID supporting the same  E2SM specification   ask Mikel */
+  return dst;
 }
 
 /////////////////////////////
@@ -259,5 +299,9 @@ ccc_ctrl_req_data_t fill_ccc_ctrl(void){
 }
 
 e2sm_ccc_func_def_t fill_ccc_ran_func_def(void){
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_func_def_t dst = {0};
+
+  dst.name = fill_ccc_ran_func_name();
+
+  return dst;
 }

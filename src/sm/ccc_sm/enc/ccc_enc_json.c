@@ -25,6 +25,7 @@
 #include "../ie/json/ric_indication_header_json.h"
 #include "../ie/json/ric_action_definition_json.h"
 #include "../ie/json/ric_indication_message_json.h"
+#include "../ie/json/ric_function_definition_json.h"
 
 #include "../../../util/alg_ds/alg/defer.h"
 
@@ -280,10 +281,105 @@ byte_array_t ccc_enc_ctrl_out_json(e2sm_ccc_ctrl_out_t const* src)
   return ba;
 }
 
+
+//static
+//list_of_supported_control_style_element_t* create_sp_control_style(lst_control_service_ccc_t const src){
+//  list_of_supported_control_style_element_t* dst = calloc(1, sizeof(dst*));
+//  dst->attribute_name = src.
+//  return dst;
+//}
+//
+//static
+//control_service_json_t* create_control_service_json(control_service_ccc_t const src)
+//{
+//  control_service_json_t* dst = calloc(1, sizeof(dst*));
+//  assert(dst != NULL && "Memory exhausted");
+//  dst->list_of_supported_control_styles = list_create(false, NULL);
+//  for (size_t i = 0; i < src.sz_lst_control_service_ccc; i++){
+//    list_add_tail(
+//        dst->list_of_supported_control_styles,
+//        create_sp_control_style(src.lst_control_service_ccc[i]),
+//        sizeof(list_of_supported_control_style_element_t *)
+//        );
+//  }
+//
+//  return dst;
+//}
+//
+//static
+//list_of_supported_attribute_element_t* create_sp_attribute_element(lst_sp_attributes_t const src){
+//  list_of_supported_attribute_element_t* dst = calloc(1, sizeof(dst*));
+//  assert(dst != NULL && "Memory exhausted");
+//  dst->attribute_name = copy_ba_to_str(src.attribute_name);
+//  dst->supported_services = calloc(1, sizeof(supported_services_json_t));
+//  assert(dst->supported_services != NULL && "Memory exhausted");
+//
+//  if (src.supported_services.control_service_ccc != NULL)
+//    dst->supported_services->control_service = create_control_service_json(src.supported_services.control_service_ccc);
+//
+//  if (src.supported_services.insert_service_ccc != NULL)
+//    assert(0 != 0 && "Not implemented");
+//
+//  if (src.supported_services.report_service_ccc!= NULL)
+//    dst->supported_services->report_service = create_ind_msg_ran_element();
+//
+//  if (src.supported_services.ev_trigger_ccc!= NULL)
+//    dst->supported_services->event_trigger = create_ind_msg_ran_element();
+//
+//  if (src.supported_services.policy_service_ccc!= NULL)
+//    assert(0 != 0 && "Not implemented");
+//}
+//
+//static
+//list_of_supported_node_level_configuration_structure_element_t* create_func_def_ran_conf_element(func_def_ran_conf_t const src){
+//  list_of_supported_node_level_configuration_structure_element_t* dst = calloc(1, sizeof(dst*));
+//  assert(dst != NULL && "Memory exhausted");
+//  dst->ran_configuration_structure_name = copy_ba_to_str(src.ran_conf_str_name);
+//  if (src.sz_lst_sp_attributes > 0){
+//    dst->list_of_supported_attributes = list_create(false, NULL);
+//    for (size_t i = 0; i < src.sz_lst_sp_attributes; i++){
+//      list_add_tail(
+//          dst->list_of_supported_attributes,
+//          create_sp_attribute_element(src.lst_sp_attributes[i]),
+//          sizeof(list_of_supported_attribute_element_t *)
+//          )
+//    }
+//  }
+//  return dst;
+//}
+
+static
+ran_function_name_json_t create_ran_function_name_json(ran_function_name_t const* src){
+  assert(src != NULL);
+  ran_function_name_json_t dst = {0};
+  dst.ran_function_service_model_oid = copy_ba_to_str(&src->oid);
+  dst.ran_function_description = copy_ba_to_str(&src->description);
+  dst.ran_function_short_name = copy_ba_to_str(&src->name);
+  if (src->instance != NULL)
+    memcpy(dst.ran_function_instance, src->instance, sizeof(uint64_t));
+
+  return dst;
+}
+
 byte_array_t ccc_enc_func_def_json(e2sm_ccc_func_def_t const* src)
 {
-  assert(0 != 0 && "Not implemented");
-  byte_array_t ba = {0};
+  assert(src != NULL);
+  ric_function_definition_json_t* ric_func_def = calloc(1, sizeof(ric_function_definition_json_t));
+  assert(ric_func_def != NULL && "Memory exhausted");
+  defer({cJSON_Deleteric_function_definition(ric_func_def); });
+
+  ric_func_def->ran_function_name = calloc(1, sizeof(ran_function_name_json_t));
+  assert(ric_func_def->ran_function_name != NULL && "Memory exhausted");
+  *ric_func_def->ran_function_name = create_ran_function_name_json(&src->name);
+
+  if(src->sz_func_def_ran_conf > 0)
+    assert(0 != 0 && "Not implemented");
+
+  if(src->sz_func_def_cells > 0)
+    assert(0 != 0 && "Not implemented");
+
+  char * res = cJSON_Printric_function_definition(ric_func_def);
+  byte_array_t ba = {.len = strlen(res) + 1, .buf = (uint8_t *)res};
 
   return ba;
 }

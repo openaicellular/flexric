@@ -74,7 +74,6 @@ void test_ccc_ind_msg(void)
 
   byte_array_t ba = ccc_enc_ind_msg_json(&msg);
   defer({ free_byte_array(ba); });
-  printf("%s\n", ba.buf);
 
   e2sm_ccc_ind_msg_t out = ccc_dec_ind_msg_json(ba.len, ba.buf);
   defer({ free_e2sm_ccc_ind_msg(&out); });
@@ -105,12 +104,17 @@ void test_ccc_ctrl_out(void)
 
 void test_ccc_ran_func_def(void)
 {
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_func_def_t msg = fill_ccc_ran_func_def();
+  defer({ free_e2sm_ccc_func_def(&msg); });
+
+  byte_array_t ba = ccc_enc_func_def_json(&msg);
+  defer({ free_byte_array(ba); });
+
+  e2sm_ccc_func_def_t out = ccc_dec_func_def_json(ba.len, ba.buf);
+  defer({ free_e2sm_ccc_func_def(&out); });
+
+  assert(eq_e2sm_ccc_func_def(&msg, &out) == true);
 }
-
-
-
-
 
 int main()
 {
@@ -153,8 +157,8 @@ int main()
 //  printf("\nCCC Control Outcome\n");
 
   // RAN Function Definition
-//  test_ccc_ran_func_def();
-//  printf("\nCCC RAN Function Definition\n");
+  test_ccc_ran_func_def();
+  printf("\nCCC RAN Function Definition\n");
 
   return EXIT_SUCCESS;
 }

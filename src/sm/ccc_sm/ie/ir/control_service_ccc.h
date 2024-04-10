@@ -33,7 +33,7 @@ typedef struct {
   // Optional
   // 9.3.5
   // Defined in common 6.2.2.4
-  uint32_t ric_call_process_id_fmr_type;
+  uint32_t* ric_call_process_id_fmr_type;
 
   // Control Service Control Outcome Format Type
   // Mandatory

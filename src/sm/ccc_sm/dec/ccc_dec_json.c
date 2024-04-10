@@ -23,6 +23,7 @@
 #include "../ie/json/ric_indication_header_json.h"
 #include "../ie/json/ric_action_definition_json.h"
 #include "../ie/json/ric_indication_message_json.h"
+#include "../ie/json/ric_function_definition_json.h"
 #include "../../../util/alg_ds/alg/defer.h"
 
 #include <string.h>
@@ -274,12 +275,36 @@ e2sm_ccc_ctrl_out_t ccc_dec_ctrl_out_json(size_t len, uint8_t const ctrl_out[len
   return dst;
 }
 
+static
+ran_function_name_t create_ran_function_name(ran_function_name_json_t const* src){
+  assert(src != NULL);
+  ran_function_name_t dst = {0};
+  dst.name = cp_str_to_ba(src->ran_function_short_name);
+  dst.description = cp_str_to_ba(src->ran_function_description);
+  dst.oid = cp_str_to_ba(src->ran_function_service_model_oid);
+  if(src->ran_function_instance)
+    memcpy(dst.instance, src->ran_function_instance, sizeof(long));
+
+  return dst;
+}
+
 e2sm_ccc_func_def_t ccc_dec_func_def_json(size_t len, uint8_t const func_def[len])
 {
   assert(func_def != NULL);
   assert(len > 0);
-  assert(0 != 0 && "Not implemented");
+  assert(func_def[len-1] == '\0' && "Need zero terminated string for this interface");
+
+  ric_function_definition_json_t* ric_ind_msg = cJSON_Parseric_function_definition((char *)func_def);
+  defer({cJSON_Deleteric_function_definition(ric_ind_msg);});
+
   e2sm_ccc_func_def_t dst = {0};
+  dst.name = create_ran_function_name(ric_ind_msg->ran_function_name);
+
+  if (ric_ind_msg->list_of_supported_node_level_configuration_structures != NULL)
+    assert(0 != 0 && "Not implemented");
+
+  if (ric_ind_msg->list_of_cells_for_ran_function_definition != NULL)
+    assert(0 != 0 && "Not implemented");
 
   return dst;
 }

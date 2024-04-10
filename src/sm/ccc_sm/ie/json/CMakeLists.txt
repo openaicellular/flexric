@@ -1,12 +1,14 @@
 set(JSON_CCC_SRC
         cJSON.c
         list.c
+        hashtable.c
         parse_cjson.c
         plmn_id_json.c
         cell_global_id_json.c
         ric_indication_header_json.c
         ric_action_definition_json.c
         ric_indication_message_json.c
+        ric_function_definition_json.c
 )
 
 add_library(e2sm_ccc_json_obj OBJECT ${JSON_CCC_SRC})
