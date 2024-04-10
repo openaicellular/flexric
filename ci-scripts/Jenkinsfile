@@ -237,6 +237,45 @@ pipeline {
       }
     }
 
+    stage ('Full Stack Testing') {
+      parallel {
+        stage ('Flexric-OAI-RAN-5G') {
+          steps {
+            script {
+              gitlabCommitStatus(name: "Flexric-OAI-RAN-5G-Integration") {
+                if ("MERGE".equals(env.gitlabActionType)) {
+                  MR_NUMBER = 'flexric-' + env.gitlabMergeRequestIid
+                } else {
+                  MR_NUMBER = 'flexric-dev'
+                }
+                localStatus = build job: 'OAI-FLEXRIC-RAN-Integration-Test',
+                  parameters: [
+                    string(name: 'Flexric_Tag', value: String.valueOf(flexric_tag)),
+                    string(name: 'eNB_MR', value: String.valueOf(MR_NUMBER))
+                  ], propagate: false
+                localResult = localStatus.getResult()
+
+                if (localStatus.resultIsBetterOrEqualTo('SUCCESS')) {
+                  echo "OAI-FLEXRIC-RAN-Integration-Test is OK"
+                } else {
+                  error "OAI-FLEXRIC-RAN-Integration-Test is KO"
+                }
+              }
+            }
+          }
+          post {
+            always {
+              script {
+                copyArtifacts(projectName: 'OAI-FLEXRIC-RAN-Integration-Test',
+                              filter: 'test_results-OAI-FLEXRIC-RAN-Integration-Test.html',
+                              selector: lastCompleted())
+              }
+            }
+          }
+        }
+      }
+    }
+
     // We are only publishing the Ubuntu image to Docker-Hub
     // For Post-Merge events.
     // Temporary Images from Merge-Request Runs are kept in local private registry
