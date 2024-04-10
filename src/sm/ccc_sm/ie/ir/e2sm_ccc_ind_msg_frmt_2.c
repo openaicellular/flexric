@@ -17,6 +17,8 @@ void free_ind_msg_cell_report(ind_msg_cell_report_t* src)
   for(size_t i = 0; i < src->sz_ind_msg_ran_conf; ++i){
     free_ind_msg_ran_conf(&src->ind_msg_ran_conf[i]);
   }
+
+  free(src->ind_msg_ran_conf);
 }
 
 static
@@ -78,6 +80,8 @@ void free_e2sm_ccc_ind_msg_frmt_2(e2sm_ccc_ind_msg_frmt_2_t const* src)
   for(size_t i = 0; i < src->sz_ind_msg_cell_report; ++i){
     free_ind_msg_cell_report(&src->ind_msg_cell_report[i]);
   }
+
+  free(src->ind_msg_cell_report);
 }
 
 bool eq_e2sm_ccc_ind_msg_frmt_2( e2sm_ccc_ind_msg_frmt_2_t const* m0,  e2sm_ccc_ind_msg_frmt_2_t const* m1)
