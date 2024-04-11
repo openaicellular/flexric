@@ -14,6 +14,7 @@ add_library(e2ap_ds_obj OBJECT
                         alg_ds/ds/assoc_container/assoc_ht_open_address.c
                         alg_ds/ds/assoc_container/assoc_reg.c
                         alg_ds/ds/assoc_container/bimap.c
+                        alg_ds/ds/latch_cv/latch_cv.c
                         alg_ds/ds/seq_container/seq_arr.c
                         alg_ds/ds/seq_container/seq_ring.c
                         alg_ds/ds/task_man/task_manager.c

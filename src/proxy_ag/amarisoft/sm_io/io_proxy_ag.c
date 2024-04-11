@@ -1,6 +1,8 @@
 #include "io_proxy_ag.h"
-#include "../msg_handle_amr_ag.h"
+#include "kpm_sm_amr.h"
+#include "rc_sm_amr.h"
 #include "../../../lib/e2ap/e2ap_node_component_config_add_wrapper.h"
+
 
 
 static
@@ -69,7 +71,7 @@ void init_read_setup_tbl_proxy(read_e2_setup_fp (*read_setup_tbl)[SM_AGENT_IF_E2
 }
 
 static
-void init_write_ctrl_proxy( write_ctrl_fp (*write_ctrl_tbl)[SM_AGENT_IF_WRITE_CTRL_V0_END])
+void init_write_ctrl_proxy(write_ctrl_fp (*write_ctrl_tbl)[SM_AGENT_IF_WRITE_CTRL_V0_END])
 {
   (*write_ctrl_tbl)[MAC_CTRL_REQ_V0] = NULL;
   (*write_ctrl_tbl)[RLC_CTRL_REQ_V0] = NULL;

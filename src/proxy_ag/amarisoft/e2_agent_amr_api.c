@@ -46,6 +46,13 @@ void stop_agent_amr_api(void)
   assert(rc == 0);
 }
 
+void fill_msg_kpm_sm_api(msg_stats_amr_t *stats, msg_ue_get_t *ues)
+{
+  assert(&ag != NULL);
+  assert(stats != NULL);
+  assert(ues != NULL);
 
+  fill_msg_kpm_sm(&ag, stats, ues);
+}
 
 

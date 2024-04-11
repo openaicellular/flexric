@@ -1,3 +1,4 @@
+const { performance } = require('perf_hooks');
 const fs = require('fs');
 const WebSocket = require('ws');
 const server = new WebSocket.Server({
@@ -5,20 +6,44 @@ const server = new WebSocket.Server({
 });
 
 let sockets = [];
+
+const json_msg_conf = fs.readFileSync('config_get.json', 'utf8');
+
+var obj_json_conf = JSON.parse(json_msg_conf);
+
+const json_msg_stats = fs.readFileSync('msg_stats.json', 'utf8');
+var obj_json_stats = JSON.parse(json_msg_stats);
+
+const json_msg_ue = fs.readFileSync('msg_ue_get.json', 'utf8');
+var obj_json_ue = JSON.parse(json_msg_ue);
+
 server.on('connection', function(socket) {
   sockets.push(socket);
-  socket.send('{ "message": ready, "type": ENB, "name": com_name }');
+  socket.send('{ "message": "ready", "type": "ENB", "name": "com_name" }');
   console.log('Connection received');
   // When you receive a message, send that message to every socket.
   socket.on('message', function(msg) {
+    const t0 = performance.now()
     const obj = JSON.parse(msg);
     if(obj["message"] == "config_get"){
-      const json_msg = fs.readFileSync('config_get.json', 'utf8');
-      console.log('Sending msg: %s', json_msg);
-      sockets.forEach(s => s.send(json_msg));
+      obj_json_conf["message_id"] = obj["message_id"]
+     // console.log('Sending msg: %s', json_msg);
+      sockets.forEach(s => s.send(JSON.stringify(obj_json_conf)));
+
+    } else if (obj["message"] == "stats"){
+      obj_json_stats["message_id"] = obj["message_id"]
+     // console.log('Sending msg: %s', json_msg);
+      sockets.forEach(s => s.send(JSON.stringify(obj_json_stats)));
+      
+    } else if (obj["message"] == "ue_get"){
+      obj_json_ue["message_id"] = obj["message_id"]
+    //  console.log('Sending msg: %s', json_msg);
+      sockets.forEach(s => s.send(JSON.stringify(obj_json_ue)));
     }
     
-    console.log('Message received: %s', msg);
+    const t1 = performance.now()
+    console.log(`Call to doSomething took ${t1 - t0} milliseconds`)
+    //console.log('Message received: %s', msg);
   });
 
   socket.on('ping', function(msg) {

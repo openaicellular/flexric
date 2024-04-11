@@ -1,244 +1,170 @@
 #include "msg_handle_amr_ag.h"
 #include "msg_dec_amr_ag.h"
 #include "ep_amr.h"
-#include "../../util/alg_ds/ds/assoc_container/assoc_generic.h"
-#include "../../util/alg_ds/alg/murmur_hash_32.c"
+#include "kpm_pend.h"
+#include "../../util/alg_ds/alg/find.h"
 #include "../../util/e.h"
+#include "../../util/time_now_us.h"
+#include "../../util/compare.h"
 
+#include "../../util/alg_ds/alg/defer.h"
+#include "../../util/alg_ds/ds/lock_guard/lock_guard.h"
+
+#include "e2_agent_amr_api.h"
+#include "send_msg_amr.h"
+#include "../../agent/e2_agent_api.h"
 
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
 
 
-sm_ag_if_ans_t write_ctrl_rc_sm_amr(void const* data)
-{
-  assert(data != NULL);
-  sm_ag_if_ans_t ans = {0};
+typedef struct{
+  int mcc;
+  int mnc;
+}mcc_mnc_t;  
 
-  return ans;
+static
+mcc_mnc_t convert_plm_mcc_mnc(char const* plmn)
+{
+  assert(plmn != NULL);
+  mcc_mnc_t dst = {0}; 
+
+  char tmp[5] = {0};
+
+  memcpy(tmp, plmn+3, 2);
+  dst.mnc = atoi(tmp);
+
+  memcpy(tmp, plmn, 3);
+  dst.mcc = atoi(tmp);
+  
+  return dst;
 }
 
-void init_rc_sm_amr(void)
-{
-
-}
-
-void free_rc_sm_amr(void)
-{
-
-}
-
-void read_rc_setup_sm_amr(void* data)
-{
-  assert(data != NULL);
-
-}
-
-sm_ag_if_ans_t write_subs_rc_sm_amr(void const* data)
-{
-  assert(data != NULL);
-  sm_ag_if_ans_t ans = {0};
-
-  return ans;
-}
-
-
-
-void msg_handle_amr_ag(e2_agent_amr_t const* ag, msg_amr_t const* msg)
+void msg_handle_ready(e2_agent_amr_t* ag, msg_amr_t const* msg)
 {
   assert(ag != NULL);
   assert(msg != NULL);
 
-  if(msg->type == MSG_READY_AMR_E){
-    int const msg_id = ((e2_agent_amr_t*)ag)->msg_id++; 
-    send_config_get(&ag->ep, msg_id); 
-  } else
-  	assert(0 != 0 && "Not implemented");
-}
+  assert(ag->msg_id == 0 && "Ready message only interchanged at the beginning of connection");
+  int const msg_id = ag->msg_id++; 
 
-void send_config_get(ep_amr_t const* ep, int msg_id)
-{
-  assert(ep != NULL);
-  assert(msg_id > -1);
-
-  char msg[64] = {0}; 
-  size_t sz = snprintf(msg, 64, "{\"message\": \"config_get\", \"message_id\": %d }", msg_id );
-  assert(sz < 64);
-
-  printf("Sending message \n");
-  send_ep_amr(ep, (uint8_t*)msg, sz);
-}
-
-void send_msg_stats(ep_amr_t const* ep, int msg_id)
-{
-  assert(ep != NULL);
-  assert(msg_id > -1);
-
-  uint8_t msg[64] = {0}; 
-  size_t sz = snprintf((char*)msg, 64, "{\"message\": \"stats\", \"message_id\": %d }", msg_id );
-  assert(sz < 64);
-
-  send_ep_amr(ep, msg, sz);
-}
-
-void send_msg_ue_get(ep_amr_t const* ep, int msg_id)
-{
-  assert(ep != NULL);
-  assert(msg_id > -1);
-
-  char msg[64] = {0}; 
-  size_t sz = snprintf(msg, 64, "{\"message\": \"ue_get\", \"message_id\": %d }", msg_id );
-  assert(sz < 64);
-
-  send_ep_amr(ep, (uint8_t*)msg, sz);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-static
-meas_record_lst_t fill_DRB_PdcpSduVolumeDL(ue_id_e2sm_t const* ue)
-{
-  assert(ue != NULL);
-  meas_record_lst_t dst = {.value = INTEGER_MEAS_VALUE}; 
-  dst.int_val = 1021;
-  return dst;
+  // Add pending event
+  add_pend_ev_prox(&ag->pend, msg_id, CONFIG_GET_PROXY_PENDING_EVENT);
+  // Send msg
+  send_config_get(&ag->ep, msg_id); 
 }
 
 static
-meas_record_lst_t fill_DRB_PdcpSduVolumeUL(ue_id_e2sm_t const* ue)
+void init_e2_agent_emulator(e2_agent_amr_t* ag, config_get_amr_t const* cfg)
 {
-  assert(ue != NULL);
-  meas_record_lst_t dst = {.value = INTEGER_MEAS_VALUE}; 
-  dst.int_val = 1021;
-  return dst;
+  assert(ag != NULL);
+  assert(cfg != NULL);
+  mcc_mnc_t const tmp = convert_plm_mcc_mnc(cfg->global_gnb_id.plmn);
+  int mcc = tmp.mcc;
+  int mnc = tmp.mnc;
+  int mnc_digit_len = 2;
+  int nb_id = cfg->global_gnb_id.gnb_id;
+  int cu_du_id = 0;
+  e2ap_ngran_node_t ran_type = e2ap_ngran_gNB;
+  sm_io_ag_ran_t io = ag->sm_io;
+  fr_args_t const* args = &ag->args.fr_args;
 
+  init_agent_api(mcc, 
+      mnc, 
+      mnc_digit_len,
+      nb_id,
+      cu_du_id,
+      ran_type,
+      io,
+      args);
 }
 
-static
-meas_record_lst_t fill_DRB_RlcSduDelayDl(ue_id_e2sm_t const* ue)
+void msg_handle_config_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
 {
-  assert(ue != NULL);
-  meas_record_lst_t dst = {.value = INTEGER_MEAS_VALUE}; 
-  dst.int_val = 1021;
-  return dst;
+  assert(ag != NULL);
+  assert(msg != NULL);
+
+
+  config_get_amr_t const* cfg = &msg->config;
+  defer({ rm_pend_ev_prox(&ag->pend, cfg->msg_id); });
+
+  int const first_msg_id = 0; 
+  if(cfg->msg_id == first_msg_id){
+    defer({ free_msg_amr((msg_amr_t*)msg); });
+    return init_e2_agent_emulator(ag, cfg); 
+  } 
+
+  assert(0 != 0 && "Not implemented");
 }
 
-static
-assoc_ht_open_t ht;
-
-typedef meas_record_lst_t (*kpm_fp)(ue_id_e2sm_t const* ue);
-
-typedef struct{
-  const char* key;
-  kpm_fp value;
-} kv_measure_t;
-
-static
-const kv_measure_t lst_measure[] = {
-  (kv_measure_t){.key = "DRB.PdcpSduVolumeDL", .value = fill_DRB_PdcpSduVolumeDL },
-  (kv_measure_t){.key = "DRB.PdcpSduVolumeUL", .value = fill_DRB_PdcpSduVolumeUL },
-  (kv_measure_t){.key = "DRB.RlcSduDelayDl", .value =  fill_DRB_RlcSduDelayDl },
-//  (kv_measure_t){.key = "DRB.UEThpDl", .value =  fill_DRB_UEThpDl },
-//  (kv_measure_t){.key = "DRB.UEThpUl", .value =  fill_DRB_UEThpUl },
-//  (kv_measure_t){.key = "RRU.PrbTotDl", .value =  fill_RRU_PrbTotDl },
-//  (kv_measure_t){.key = "RRU.PrbTotUl", .value =  fill_RRU_PrbTotUl },
-//  (kv_measure_t){.key = "CARR.WBCQIDist.BinX.BinY.BinZ", .value = fill_WBCQIDist_BinXYZ },
-//  (kv_measure_t){.key = "CARR.PDSCHMCSDist.BinX.BinY.BinZ", .value = fill_PDSCHMCSDist_BinXYZ },
-//  (kv_measure_t){.key = "CARR.PUSCHMCSDist.BinX.BinY.BinZ", .value = fill_PUSCHMCSDist_BinXYZ },
-//  (kv_measure_t){.key = "CARR.MeanTxPwr", .value = fill_MeanTxPwr },
-  };
-  // 3GPP TS 28.552
-
-static
-uint32_t hash_func(const void* key_v)
+void msg_handle_stats(e2_agent_amr_t* ag, msg_amr_t const* msg)
 {
-  char* key = *(char**)(key_v);
-  static const uint32_t seed = 42;
-  return murmur3_32((uint8_t*)key, strlen(key), seed);
-}
+  int64_t t0 = time_now_us();
+  assert(ag != NULL);
+  assert(msg != NULL);
 
-static
-bool cmp_str(const void* a, const void* b)
-{
-  char* a_str = *(char**)(a);
-  char* b_str = *(char**)(b);
-
-  int const ret = strcmp(a_str, b_str);
-  return ret == 0;
-}
-
-static
-void free_str(void* key, void* value)
-{
-  free(*(char**)key);
-  free(value);
-}
-
-static
-void free_lst_measurements(void)
-{
-  assoc_free(&ht);
-}
-
-static
-void init_lst_measurements(void)
-{
-  assoc_ht_open_init(&ht, sizeof(char*), cmp_str, free_str, hash_func);
-
-  const size_t nelem = sizeof(lst_measure) / sizeof(lst_measure[0]);
-  for(size_t i = 0; i < nelem; ++i){
-    const size_t sz = strlen(lst_measure[i].key);
-    char* key = calloc(sz + 1, sizeof(char));
-    memcpy(key, lst_measure[i].key, sz);
-
-    kpm_fp* value = calloc(1, sizeof(kpm_fp));
-    assert(value != NULL && "Memory exhausted");
-    *value = lst_measure[i].value;
-    assoc_insert(&ht, &key, sizeof(char*), value);
+  msg_stats_amr_t const* s = &msg->stats; 
+  // if msg is from KPM
+  kpm_pend_t* k = NULL; 
+  { 
+    lock_guard(&ag->mtx_kpm_pend);
+    void* f = assoc_rb_tree_front(&ag->kpm_pend);
+    void* e = assoc_rb_tree_end(&ag->kpm_pend);
+    void* it = find_if_rb_tree(&ag->kpm_pend, f, e, &s->msg_id, eq_int);
+    assert(it != e);
+    k = assoc_rb_tree_value(&ag->kpm_pend, it);
   }
-  assert(assoc_size(&ht) == nelem);
+
+  // Move memory ownership
+  *k->stats = *s;
+  notify_part_filled_kp(k);
+
+  int64_t t1 = time_now_us();
+  printf("Elapsed time  msg_handle_stats %ld \n", t1 -t0);
 }
 
-
-
-
-
-
-
-
-// KPM SM
-void init_kpm_sm_amr(void)
+void msg_handle_ue_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
 {
-  init_lst_measurements();
+  int64_t t0 = time_now_us();
+  assert(ag != NULL);
+  assert(msg != NULL);
+
+  msg_ue_get_t const* ue = &msg->ue; 
+  // if msg is from KPM
+  kpm_pend_t* k = NULL; 
+  { 
+    lock_guard(&ag->mtx_kpm_pend);
+    void* f = assoc_rb_tree_front(&ag->kpm_pend);
+    void* e = assoc_rb_tree_end(&ag->kpm_pend);
+    void* it = find_if_rb_tree(&ag->kpm_pend, f, e, &ue->msg_id, eq_int);
+    assert(it != e);
+    k = assoc_rb_tree_value(&ag->kpm_pend, it);
+  }
+
+  // Move memory ownership
+  *k->ues = *ue;
+  notify_part_filled_kp(k);
+ 
+  int64_t t1 = time_now_us();
+  printf("Elapsed time msg_handle_ue_get %ld \n", t1 -t0);
 }
 
-void free_kpm_sm_amr(void)
+void msg_handle_amr_ag(e2_agent_amr_t* ag, msg_amr_t const* msg)
 {
-  free_lst_measurements();
+  assert(ag != NULL);
+  assert(msg != NULL);
+  
+  ag->msg_hndl[msg->type](ag, msg);
 }
 
 
-bool read_kpm_sm_amr(void* data)
-{
-  assert(0 != 0 && "Debug point");
-  assert(data != NULL);
-}
+
+
+
+
+
+
 
 
 
@@ -246,67 +172,5 @@ bool read_rc_sm_amr(void* data)
 {
   assert(0 != 0 && "Debug point");
   assert(data != NULL);
-}
-
-
-
-
-
-static
-ric_report_style_item_t fill_ric_report_style_item(void)
-{
-  ric_report_style_item_t dst = {0};
-
-  // 8.3.3
-  dst.report_style_type = STYLE_4_RIC_SERVICE_REPORT;
-
-  // 8.3.4
-  const char style_name[] = "BubbleRAN style name";
-  dst.report_style_name = cp_str_to_ba(style_name);
-
-  // 8.3.5
-  dst.act_def_format_type = FORMAT_4_ACTION_DEFINITION;
-
-  const size_t sz = sizeof(lst_measure) / sizeof(lst_measure[0]);
-  
-  // [1, 65535]
-  dst.meas_info_for_action_lst_len = sz;
-  dst.meas_info_for_action_lst = ecalloc(sz, sizeof(meas_info_for_action_lst_t));
-
-  for(size_t i = 0; i < sz; ++i){
-    dst.meas_info_for_action_lst[i].name = cp_str_to_ba(lst_measure[i].key);
-  }
-
-  // 8.3.5
-  dst.ind_hdr_format_type = FORMAT_1_INDICATION_HEADER;
-  dst.ind_msg_format_type = FORMAT_3_INDICATION_MESSAGE;
-
-  return dst;
-}
-
-static
-kpm_ran_function_def_t fill_kpm_ran_func_def(void)
-{
-  kpm_ran_function_def_t dst = {0};
-
-  // RAN Function name is already filled by the kpm_sm_agent.c
-  dst.sz_ric_event_trigger_style_list = 0;
-  dst.ric_event_trigger_style_list = 0;
-
-  dst.sz_ric_report_style_list = 1;
-  dst.ric_report_style_list = ecalloc(dst.sz_ric_report_style_list, sizeof(ric_report_style_item_t ));
-
-  dst.ric_report_style_list[0] = fill_ric_report_style_item();
-
-  return dst;
-}
-
-void read_kpm_setup_sm_amr(void* e2ap)
-{
-  assert(e2ap != NULL);
-
-  kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(e2ap);
-  // Let's fill the RAN Function Definition with currently supported measurements
-  kpm->ran_func_def = fill_kpm_ran_func_def();
 }
 

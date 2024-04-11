@@ -3,25 +3,25 @@
 #include <stdbool.h>
 #include "../../util/alg_ds/alg/defer.h"
 
-static
-bool wait_conn_ready_or_timeout(noPollConn* conn)
-{
-
-  // Not working. Why?
-  //const int timeout_sec = 5;
-  //rc = nopoll_conn_wait_until_connection_ready(dst.conn, timeout_sec); 
-  //assert(rc == 1 && "Connection ready timeout error");
-
-  for (int i = 0; i < 128; ++i) {
-    bool conn_ready = nopoll_conn_is_ready(conn);
-    if(conn_ready == true) 
-      return true; 
-    int const ten_ms = 10000;  
-    usleep(ten_ms);
-  }
-  // Time out
-  return false;
-}
+//static
+//bool wait_conn_ready_or_timeout(noPollConn* conn)
+//{
+//
+//  // Not working. Why?
+//  //const int timeout_sec = 5;
+//  //rc = nopoll_conn_wait_until_connection_ready(dst.conn, timeout_sec); 
+//  //assert(rc == 1 && "Connection ready timeout error");
+//
+//  for (int i = 0; i < 128; ++i) {
+//    bool conn_ready = nopoll_conn_is_ready(conn);
+//    if(conn_ready == true) 
+//      return true; 
+//    int const ten_ms = 10000;  
+//    usleep(ten_ms);
+//  }
+//  // Time out
+//  return false;
+//}
 
 ep_amr_t init_ep_amr(const char* ip, int32_t port)
 {

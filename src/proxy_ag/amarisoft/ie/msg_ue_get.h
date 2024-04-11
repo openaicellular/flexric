@@ -5,6 +5,7 @@
 #include "types/ue_lst_amr.h"
 
 typedef struct{
+  int msg_id;
   size_t sz;
   ue_lst_amr_t* ue_lst;
   float time;

@@ -19,6 +19,9 @@ void dec_msg_ue_get_amr(const char* in, msg_ue_get_t* out)
   }
   assert(json != NULL && "Error parsing the input json");
 
+  // Message ID. Mandatory 
+  out->msg_id = parse_int(json, "message_id"); 
+
   ans_cjson_t ans = find_object(json, "ue_list");
 
   out->sz = cJSON_GetArraySize(ans.it);

@@ -66,8 +66,39 @@ int cmp_fd(void const* fd_v1, void const* fd_v2)
   return -1;
 }
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
+// Equality file descriptors
+static inline
+bool eq_int(const void* key1, const void* key2 )
+{
+  assert(key1 != NULL);
+  assert(key2 != NULL);
 
+  int* m0 = (int*)key1;
+  int* m1 = (int*)key2;
+
+  return *m0 == *m1;
+}
+
+// Comparation file descriptors
+static inline 
+int cmp_int(void const* key1, void const* key2)
+{
+  assert(key1 != NULL);
+  assert(key2 != NULL);
+  int* m0 = (int*)key1;
+  int* m1 = (int*)key2;
+
+  assert(*m0 > -1 && "File descriptors must be larger than zero");
+  assert(*m1 > -1 && "File descriptors must be larger than zero");
+
+  if(*m0 < *m1) return 1;
+  if(*m0 == *m1) return 0;
+  return -1;
+}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////

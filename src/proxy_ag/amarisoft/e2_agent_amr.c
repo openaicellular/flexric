@@ -4,10 +4,15 @@
 #include "msg_amr.h"
 
 #include "../../util/alg_ds/alg/defer.h"
+#include "../../util/alg_ds/ds/lock_guard/lock_guard.h"
+#include "../../util/compare.h"
+#include "../../util/time_now_us.h"
 #include "../../lib/async_event.h"
 #include "sm_io/io_proxy_ag.h"
 #include "msg_dec_amr_ag.h"
 #include "msg_handle_amr_ag.h"
+#include "kpm_pend.h"
+#include "send_msg_amr.h"
 
 static inline
 bool net_pkt(const e2_agent_amr_t* ag, int fd)
@@ -27,15 +32,10 @@ async_event_t next_async_event_agent_amr(e2_agent_amr_t* ag)
   async_event_t e = {.type = UNKNOWN_EVENT,
                      .fd = fd};
 
-  printf(" next_async_event_agent_amr happened \n");
-  fflush(stdout);
-  
   if(fd == -1){ // no event happened. Just for checking the stop_token condition
-    printf(" CHECK_STOP_TOKEN_EVENT \n ");
     e.type = CHECK_STOP_TOKEN_EVENT;
   } else if (net_pkt(ag, fd) == true){
-
-    printf(" WS_MSG_ARRIVED_EVENT  \n ");
+    printf("WS_MSG_ARRIVED_EVENT  \n ");
     e.ws_msg = recv_ep_amr(&ag->ep);
     e.type = WS_MSG_ARRIVED_EVENT;
   } else {
@@ -57,10 +57,11 @@ void e2_event_loop_agent_amr(e2_agent_amr_t* ag)
       case WS_MSG_ARRIVED_EVENT:
         {
           //defer({ free(&e.ws_msg.buf); });
-           
+          int64_t t0 = time_now_us(); 
           msg_amr_t msg = msg_dec_amr_ag(&e.ws_msg);
-          defer({ free_msg_amr(&msg); });
-
+          int64_t t1 = time_now_us(); 
+          printf("Elapsed decoding %ld \n", t1 -t0);
+          // Memory ownership of msg is passed to the handle function
           msg_handle_amr_ag(ag, &msg);
 
           break;
@@ -80,6 +81,15 @@ void e2_event_loop_agent_amr(e2_agent_amr_t* ag)
   ag->stopped = true;
 }
 
+static
+void free_func_kpm_sm_pend(void* key, void* value)
+{
+  assert(key != NULL);
+  assert(value != NULL);
+  (void)key;
+  (void)value;
+}
+
 e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
 {
   assert(args != NULL);
@@ -96,12 +106,26 @@ e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
 
   // Message ID
   dst.msg_id = 0;
+ 
+  // Pending events
+  init_pend_ev_prox(&dst.pend);
+
+  // Copy Args ???
+  dst.args = *args;
+
+  // Pending events SMs
+  assoc_init(&dst.kpm_pend, sizeof(int), cmp_int, free_func_kpm_sm_pend);
+  int rc = pthread_mutex_init(&dst.mtx_kpm_pend, NULL);
+  assert(rc == 0);
+
+  // Message handler
+  dst.msg_hndl[MSG_READY_AMR_E] = msg_handle_ready; 
+  dst.msg_hndl[MSG_CONFIG_GET_AMR_E] = msg_handle_config_get; 
+  dst.msg_hndl[MSG_STATS_AMR_E] = msg_handle_stats; 
+  dst.msg_hndl[MSG_UE_GET_E] = msg_handle_ue_get; 
+
   dst.stop_token = false;
   dst.stopped = false;
-
-  // Send config_get message to Amarisoft RAN 
-//  int const msg_id = dst.msg_id++; 
-//  send_config_get(&dst.ep, msg_id);
 
   return dst;
 }
@@ -124,5 +148,47 @@ void free_e2_agent_amr(e2_agent_amr_t* ag)
   stop_ep_amr(&ag->ep);
 
   free_io_proxy_ag(&ag->sm_io);
+
+  free_pend_ev_prox(&ag->pend);
+
+  // Pending events SMs
+  assoc_free(&ag->kpm_pend);
+  int rc = pthread_mutex_destroy(&ag->mtx_kpm_pend);
+  assert(rc == 0);
+
+}
+
+void fill_msg_kpm_sm(e2_agent_amr_t* ag, msg_stats_amr_t *stats, msg_ue_get_t *ues)
+{
+  assert(ag != NULL);
+  assert(stats != NULL);
+  assert(ues != NULL);
+
+  int64_t t1 = time_now_us();
+
+  kpm_pend_t kpm = init_kpm_pend(stats, ues);
+  defer({ free_kpm_pend(&kpm); } );
+ 
+  // Insert the message in the tree.
+  int const msg_id0 = ag->msg_id++;
+  {
+    lock_guard(&ag->mtx_kpm_pend);
+    assoc_insert(&ag->kpm_pend, &msg_id0, sizeof(msg_id0), &kpm);
+  }
+
+  int64_t t2 = time_now_us();
+
+  send_msg_stats(&ag->ep, msg_id0);
+  send_msg_ue_get(&ag->ep, msg_id0);
+
+  int64_t t3 = time_now_us();
+
+  // Other thread will notify it, once
+  // the kpm stats and ues are filled
+  wait_untill_filled_kp(&kpm);
+
+  int64_t t4 = time_now_us();
+
+  printf("Elapsed %ld %ld %ld \n",  t2 -t1, t3 - t2, t4 - t3);
 }
 

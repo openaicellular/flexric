@@ -57,6 +57,5 @@ int* rm_pending_event_ev(pending_event_xapp_ds_t* ds, pending_event_xapp_t* ev )
 
 void rm_pending_event_fd(pending_event_xapp_ds_t* ds, int fd);
 
-
 #endif
 

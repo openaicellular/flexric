@@ -604,6 +604,7 @@ int main(int argc, char *argv[])
   e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
   defer({ free_e2_node_arr_xapp(&nodes); });
   for (size_t i = 0; i < nodes.len; i++) {
+    printf("Sending subscription \n");
     send_subscription_req(&nodes.n[i], i, handle, args);
   }
 
