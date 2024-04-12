@@ -59,7 +59,8 @@ ev_trg_ran_conf_t cp_ev_trg_ran_conf(ev_trg_ran_conf_t const* src)
   if (src->attribute != NULL){
     dst.attribute = calloc(src->sz_attribute, sizeof(attribute_t));
     assert(dst.attribute != NULL && "Memory exhausted");
-    memcpy(dst.attribute, src->attribute, sizeof(attribute_t) * src->sz_attribute);
+    for(size_t i = 0; i < src->sz_attribute; ++i)
+      dst.attribute[i] = cp_attribute(&src->attribute[i]);
   }
 
   return dst;
