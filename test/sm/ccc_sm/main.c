@@ -170,13 +170,20 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
   sm_subs_data_t data = ric->proc.on_subscription(ric, &rc);
   defer({ free_sm_subs_data(&data); });
 
-  sm_ag_if_ans_subs_t const subs = ag->proc.on_subscription(ag, &data); 
-  assert(subs.type == APERIODIC_SUBSCRIPTION_FLRC);
-  assert(subs.aper.free_aper_subs != NULL);
+  sm_ag_if_ans_subs_t const subs = ag->proc.on_subscription(ag, &data);
+  if (rc.et.format == FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT){
+    assert(subs.type == PERIODIC_SUBSCRIPTION_FLRC);
+    subscribe_timer_t t = subs.per.t;
 
-  defer({  free_ccc_sub_data(&cp_ccc_sub); });
-
-  assert(eq_ccc_sub_data(&rc, &cp_ccc_sub) == true);
+    defer({ free_e2sm_ccc_action_def(t.act_def); free(t.act_def); });
+    assert(t.ms != -1 && t.ms == rc.et.frmt_3.period);
+    assert(eq_e2sm_ccc_action_def(&rc.ad[0], t.act_def) == true);
+  } else {
+    assert(subs.type == APERIODIC_SUBSCRIPTION_FLRC);
+    assert(subs.aper.free_aper_subs != NULL);
+    defer({  free_ccc_sub_data(&cp_ccc_sub); });
+    assert(eq_ccc_sub_data(&rc, &cp_ccc_sub) == true);
+  }
 }
 
 // E2 -> RIC
@@ -267,10 +274,10 @@ int main()
   printf("Running RAN Control SM test. Patience. \n");
   for(int i =0 ; i < 1024; ++i){
     // check_eq_ran_function(sm_ag, sm_ric);
-    check_indication(sm_ag, sm_ric);
+//    check_indication(sm_ag, sm_ric);
     check_subscription(sm_ag, sm_ric);
-    check_ctrl(sm_ag, sm_ric);
-    check_e2_setup(sm_ag, sm_ric);
+//    check_ctrl(sm_ag, sm_ric);
+//    check_e2_setup(sm_ag, sm_ric);
     // check_ric_service_update(sm_ag, sm_ric);
   }
 

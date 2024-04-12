@@ -53,9 +53,50 @@ static
 sm_ag_if_ans_subs_t on_subscription_ccc_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 {
   assert(sm_agent != NULL);
+  sm_ccc_agent_t* sm = (sm_ccc_agent_t*)sm_agent;
   assert(data != NULL);
-  assert(0!=0 && "Not implemented");
 
+  sm_ag_if_ans_subs_t ans = {0};
+
+  e2sm_ccc_event_trigger_t event_trigger = ccc_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
+  defer({free_e2sm_ccc_event_trigger(&event_trigger);});
+
+  if (event_trigger.format == FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT){
+    // Periodic
+    assert(event_trigger.frmt_3.period > 0);
+    subscribe_timer_t timer = {
+        .type = CCC_V3_0_SUB_DATA_ENUM,
+        .ms = event_trigger.frmt_3.period
+    };
+    // Only 1 supported
+    e2sm_ccc_action_def_t* tmp = calloc(1, sizeof(e2sm_ccc_action_def_t));
+    assert(tmp != NULL && "Memory exhausted");
+    *tmp = ccc_dec_action_def(&sm->enc, data->len_ad, data->action_def);
+
+    timer.act_def = tmp;
+
+    ans.type = PERIODIC_SUBSCRIPTION_FLRC;
+    ans.per.t = timer;
+  } else {
+    // Aperiodic
+    wr_ccc_sub_data_t wr_ccc = {0};
+    wr_ccc.ric_req_id = data->ric_req_id;
+    wr_ccc.ccc.et = event_trigger;
+
+    // Only 1 supported
+    wr_ccc.ccc.sz_ad = 1;
+    wr_ccc.ccc.ad = calloc(1, sizeof(e2sm_ccc_action_def_t));
+    assert(wr_ccc.ccc.ad != NULL && "Memory exhausted");
+    defer({ free_e2sm_ccc_action_def(wr_ccc.ccc.ad); free(wr_ccc.ccc.ad); });
+    wr_ccc.ccc.ad[0] = ccc_dec_action_def(&sm->enc, data->len_ad, data->action_def);
+
+    sm_ag_if_ans_t subs = sm->base.io.write_subs(&wr_ccc);
+    assert(subs.type == SUBS_OUTCOME_SM_AG_IF_ANS_V0);
+    assert(subs.subs_out.type == APERIODIC_SUBSCRIPTION_FLRC);
+    ans = subs.subs_out;
+  }
+
+  return ans;
 }
 
 static

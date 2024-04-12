@@ -351,7 +351,19 @@ ccc_ind_data_t fill_rnd_ccc_ind_data(void){
 }
 
 ccc_sub_data_t fill_rnd_ccc_subscription(void){
-  assert(0 != 0 && "Not implemented");
+  ccc_sub_data_t dst = {0};
+
+  dst.et = fill_rnd_ccc_event_trigger();
+
+  // Action Definition
+  dst.sz_ad = 1;
+  dst.ad = calloc( dst.sz_ad, sizeof(e2sm_ccc_action_def_t));
+  assert(dst.ad != NULL && "Memory exhausted");
+  for(size_t i = 0; i < dst.sz_ad; i++){
+    dst.ad[i] = fill_rnd_ccc_action_def();
+  }
+
+  return dst;
 }
 
 e2sm_ccc_ctrl_out_t fill_ccc_ctrl_out(void){
