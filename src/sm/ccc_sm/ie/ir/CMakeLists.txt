@@ -5,6 +5,7 @@ set (IR_CCC_SRC
         control_service_ccc.c
         report_service_ccc.c
         ev_trigger_ccc.c
+        ev_trg_ran_conf.c
         supported_services.c
         func_def_ran_conf.c
         ctrl_out_conf_accepted.c
