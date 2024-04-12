@@ -24,21 +24,24 @@
 #include "../ie/json/ric_action_definition_json.h"
 #include "../ie/json/ric_indication_message_json.h"
 #include "../ie/json/ric_function_definition_json.h"
+#include "../ie/json/ric_event_trigger_definition_json.h"
 #include "../../../util/alg_ds/alg/defer.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 
-e2sm_ccc_event_trigger_t ccc_dec_event_trigger_json(size_t len, uint8_t const buf[len])
-{
-  assert(buf != NULL);
-  assert(len != 0);
-  assert(0 != 0 && "Not implemented");
+static
+cell_global_id_t get_cell_global_id(cell_global_id_json_t const* src){
+  assert(src != NULL);
 
-  e2sm_ccc_event_trigger_t dst = {0};
-
-  return dst;
+  cell_global_id_t res = {0};
+  res.type = NR_CGI_RAT_TYPE;
+  res.nr_cgi.nr_cell_id = atoi(src->n_r_cell_identity);
+  res.nr_cgi.plmn_id.mnc = atoi(src->plmn_identity->mnc);
+  res.nr_cgi.plmn_id.mcc = atoi(src->plmn_identity->mcc);
+  res.nr_cgi.plmn_id.mnc_digit_len = strlen(src->plmn_identity->mnc);
+  return res;
 }
 
 static
@@ -48,14 +51,99 @@ attribute_t* get_lst_attribute(list_t* const src){
   assert(res != NULL && "Memory exhausted");
 
   size_t index = 0;
-  lst_attribute_element_json_t* attribute = list_get_head(src);
-  while (attribute != NULL){
-    res[index].attribute_name = cp_str_to_ba(attribute->attribute_name);
-    attribute = list_get_next(src);
+  char* attribute_name = list_get_head(src);
+  while (attribute_name != NULL){
+    res[index].attribute_name = cp_str_to_ba(attribute_name);
+    attribute_name = list_get_next(src);
     index++;
   }
 
   return res;
+}
+
+static
+ev_trg_ran_conf_t* get_ev_trg_ran_conf(list_t* const src){
+  size_t index = 0;
+
+  ev_trg_ran_conf_t* res = calloc(src->count, sizeof(ev_trg_ran_conf_t));
+  assert(res != NULL && "Memory exhausted");
+  list_of_node_level_configuration_structures_for_event_trigger_element_t* node = list_get_head(src);
+  while(node != NULL){
+    res[index].ran_conf_name = cp_str_to_ba(node->ran_configuration_structure_name);
+
+    if (node->list_of_attributes != NULL && node->list_of_attributes->count > 0){
+      res[index].sz_attribute = node->list_of_attributes->count;
+      res[index].attribute = get_lst_attribute(node->list_of_attributes);
+    } else {
+      res[index].sz_attribute = 0;
+    }
+    node = list_get_next(src);
+    index++;
+  }
+  return res;
+}
+
+static
+e2sm_ccc_ev_trg_frmt_1_t get_ev_trg_1(list_t* const src){
+  assert(src != NULL);
+  e2sm_ccc_ev_trg_frmt_1_t res = {};
+
+  res.sz_ev_trg_ran_conf = src->count;
+  res.ev_trg_ran_conf = get_ev_trg_ran_conf(src);
+
+  return res;
+}
+
+static
+e2sm_ccc_ev_trg_frmt_2_t get_ev_trg_2(list_t* const src){
+  assert(src != NULL);
+  e2sm_ccc_ev_trg_frmt_2_t res = {};
+  size_t index = 0;
+
+  res.sz_ev_trg_cell= src->count;
+  res.ev_trg_cell = calloc(src->count, sizeof(ev_trg_cell_t));
+  assert(res.ev_trg_cell != NULL && "Memory exhausted");
+  list_of_cell_level_configuration_structures_for_event_trigger_element_t* node = list_get_head(src);
+  while(node != NULL){
+    res.ev_trg_cell[index].cell_global_id = get_cell_global_id(node->cell_global_id);
+
+    res.ev_trg_cell[index].sz_ev_trg_ran_conf = node->list_of_ran_configuration_structures_for_event_trigger->count;
+    res.ev_trg_cell[index].ev_trg_ran_conf = get_ev_trg_ran_conf(node->list_of_ran_configuration_structures_for_event_trigger);
+
+    node = list_get_next(src);
+    index++;
+  }
+
+  return res;
+}
+
+e2sm_ccc_event_trigger_t ccc_dec_event_trigger_json(size_t len, uint8_t const buf[len])
+{
+  assert(buf != NULL);
+  assert(len > 0);
+  assert(buf[len-1] == '\0' && "Need zero terminated string for this interface");
+
+  ric_event_trigger_definition_json_t * ric_ev_trg = cJSON_Parseric_event_trigger_definition((char *)buf);
+  defer({cJSON_Deleteric_event_trigger_definition(ric_ev_trg);});
+
+  e2sm_ccc_event_trigger_t dst = {0};
+
+  if(ric_ev_trg->event_trigger_definition_format->list_of_node_level_configuration_structures_for_event_trigger != NULL){
+    dst.format = FORMAT_1_E2SM_CCC_EV_TRIGGER_FORMAT;
+    dst.frmt_1 = get_ev_trg_1(ric_ev_trg->event_trigger_definition_format->list_of_node_level_configuration_structures_for_event_trigger);
+  }
+
+  if (ric_ev_trg->event_trigger_definition_format->list_of_cell_level_configuration_structures_for_event_trigger != NULL){
+    dst.format = FORMAT_2_E2SM_CCC_EV_TRIGGER_FORMAT;
+    dst.frmt_2 = get_ev_trg_2(ric_ev_trg->event_trigger_definition_format->list_of_cell_level_configuration_structures_for_event_trigger);
+  }
+
+  if (ric_ev_trg->event_trigger_definition_format->period){
+    dst.format = FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT;
+    dst.frmt_3.period = *ric_ev_trg->event_trigger_definition_format->period;
+  }
+
+  return dst;
 }
 
 static
@@ -69,9 +157,13 @@ act_def_ran_conf_t* get_act_def_ran_conf(list_t* const src){
   while (ran_conf!= NULL){
     res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
     res[index].report_type = ran_conf->report_type;
-    res[index].sz_attribute = ran_conf->list_of_attributes->count;
-    if (ran_conf->list_of_attributes != 0 && ran_conf->list_of_attributes->count > 0)
+    if (ran_conf->list_of_attributes != NULL && ran_conf->list_of_attributes->count > 0){
+      res[index].sz_attribute = ran_conf->list_of_attributes->count;
       res[index].attribute = get_lst_attribute(ran_conf->list_of_attributes);
+    } else {
+      res[index].sz_attribute = 0;
+    }
+
     ran_conf = list_get_next(src);
     index++;
   }
@@ -118,18 +210,6 @@ e2sm_ccc_act_def_frmt_1_t get_act_def_frmt1(list_t* const src){
   res.sz_act_def_ran_conf = src->count;
   res.act_def_ran_conf = get_act_def_ran_conf(src);
 
-  return res;
-}
-
-static
-cell_global_id_t get_cell_global_id(cell_global_id_json_t const* src){
-  assert(src != NULL);
-  cell_global_id_t res = {0};
-  res.type = NR_CGI_RAT_TYPE;
-  res.nr_cgi.nr_cell_id = atoi(src->n_r_cell_identity);
-  res.nr_cgi.plmn_id.mnc = atoi(src->plmn_identity->mnc);
-  res.nr_cgi.plmn_id.mcc = atoi(src->plmn_identity->mcc);
-  res.nr_cgi.plmn_id.mnc_digit_len = strlen(src->plmn_identity->mnc);
   return res;
 }
 

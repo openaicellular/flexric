@@ -44,8 +44,72 @@ cell_global_id_t fill_rnd_cell_global_id()
   return dst;
 }
 
+static
+ev_trg_ran_conf_t fill_ev_trg_ran_conf(){
+  ev_trg_ran_conf_t res = {0};
+
+  res.sz_attribute = rand()%3;
+  if (res.sz_attribute > 0){
+    res.attribute = calloc(res.sz_attribute, sizeof(attribute_t));
+    assert(res.attribute != NULL && "Memory exhausted");
+    for (size_t i = 0; i < res.sz_attribute; ++i){
+      res.attribute[i].attribute_name = cp_str_to_ba("attribute_name");
+    }
+  }
+
+  res.ran_conf_name = cp_str_to_ba("test");
+
+  return res;
+}
+
+static
+e2sm_ccc_ev_trg_frmt_1_t fill_rnd_ccc_ev_trg_frmt_1(){
+  e2sm_ccc_ev_trg_frmt_1_t res = {0};
+
+  res.sz_ev_trg_ran_conf = (rand()%7) + 1;
+  res.ev_trg_ran_conf = calloc(res.sz_ev_trg_ran_conf, sizeof(ev_trg_ran_conf_t));
+  assert(res.ev_trg_ran_conf != NULL && "Memory exhausted");
+  for (size_t i = 0; i < res.sz_ev_trg_ran_conf; ++i){
+    res.ev_trg_ran_conf[i] = fill_ev_trg_ran_conf();
+  }
+
+  return res;
+};
+
+static
+e2sm_ccc_ev_trg_frmt_2_t fill_rnd_ccc_ev_trg_frmt_2(){
+  e2sm_ccc_ev_trg_frmt_2_t res = {0};
+
+  res.sz_ev_trg_cell = rand()%3 + 1;
+  res.ev_trg_cell = calloc(res.sz_ev_trg_cell, sizeof(ev_trg_cell_t));
+  assert(res.ev_trg_cell!= NULL && "Memory exhausted");
+  for (size_t i = 0; i < res.sz_ev_trg_cell; ++i){
+    res.ev_trg_cell[i].cell_global_id = fill_rnd_cell_global_id();
+    res.ev_trg_cell[i].sz_ev_trg_ran_conf = (rand()%8) + 1;
+    res.ev_trg_cell[i].ev_trg_ran_conf = calloc(res.ev_trg_cell[i].sz_ev_trg_ran_conf, sizeof(ev_trg_ran_conf_t));
+    for (size_t z = 0; z < res.ev_trg_cell[i].sz_ev_trg_ran_conf; ++z){
+      res.ev_trg_cell[i].ev_trg_ran_conf[z] = fill_ev_trg_ran_conf();
+    }
+  }
+
+  return res;
+};
+
 e2sm_ccc_event_trigger_t fill_rnd_ccc_event_trigger(void){
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_event_trigger_t res = {0};
+
+  res.format = rand()%END_E2SM_CCC_EV_TRIGGER_FORMAT;
+  if (res.format == FORMAT_1_E2SM_CCC_EV_TRIGGER_FORMAT){
+    res.frmt_1 = fill_rnd_ccc_ev_trg_frmt_1();
+  } else if (res.format == FORMAT_2_E2SM_CCC_EV_TRIGGER_FORMAT){
+    res.frmt_2 = fill_rnd_ccc_ev_trg_frmt_2();
+  } else if (res.format == FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT){
+    res.frmt_3.period = (rand()%1024) + 1;
+  } else {
+    assert(0!=0 && "Not implemented");
+  }
+
+  return res;
 }
 
 static

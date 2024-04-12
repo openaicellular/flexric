@@ -34,7 +34,16 @@
 
 void test_ric_event_trigger_ccc(void)
 {
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_event_trigger_t act_def = fill_rnd_ccc_event_trigger();
+  defer({free_e2sm_ccc_event_trigger(&act_def); });
+
+  byte_array_t ba = ccc_enc_event_trigger_json(&act_def);
+  defer({free_byte_array(ba);});
+
+  e2sm_ccc_event_trigger_t out = ccc_dec_event_trigger_json(ba.len, ba.buf);
+  defer({free_e2sm_ccc_event_trigger(&out);});
+
+  assert(eq_e2sm_ccc_event_trigger(&act_def, &out) == true);
 }
 
  
@@ -125,8 +134,8 @@ int main()
   printf("\nCCC SM enc/dec test launched\n");
 
   // Event Trigger
-//  test_ric_event_trigger_ccc();
-//  printf("\nCCC Event Trigger test succeeded\n");
+  test_ric_event_trigger_ccc();
+  printf("\nCCC Event Trigger test succeeded\n");
 
   // Action Definition
   test_ccc_act_def();
@@ -158,7 +167,7 @@ int main()
 
   // RAN Function Definition
   test_ccc_ran_func_def();
-  printf("\nCCC RAN Function Definition\n");
+  printf("\nCCC RAN Function Definition test succeeded\n");
 
   return EXIT_SUCCESS;
 }
