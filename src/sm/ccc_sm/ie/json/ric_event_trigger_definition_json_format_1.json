@@ -1,0 +1,18 @@
+{
+  "eventTriggerDefinitionFormat":	{
+    "listOfNodeLevelConfigurationStructuresForEventTrigger":	[{
+      "listOfAttributes":	["attribute_name", "attribute_name"],
+      "ranConfigurationStructureName":	"test"
+    }, {
+      "listOfAttributes":	["attribute_name"],
+      "ranConfigurationStructureName":	"test"
+    }, {
+      "ranConfigurationStructureName":	"test"
+    }, {
+      "listOfAttributes":	["attribute_name", "attribute_name"],
+      "ranConfigurationStructureName":	"test"
+    }, {
+      "ranConfigurationStructureName":	"test"
+    }]
+  }
+}

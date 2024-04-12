@@ -1,0 +1,58 @@
+#ifndef FLEXRIC_RIC_EVENT_TRIGGER_DEFINITION_JSON_H
+#define FLEXRIC_RIC_EVENT_TRIGGER_DEFINITION_JSON_H
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include <cJSON.h>
+#include <hashtable.h>
+#include <list.h>
+
+#include "cell_global_id_json.h"
+
+typedef struct {
+  list_t * list_of_attributes; // item type is char*
+  char * ran_configuration_structure_name;
+} list_of_node_level_configuration_structures_for_event_trigger_element_t;
+
+typedef struct {
+  cell_global_id_json_t * cell_global_id;
+  list_t * list_of_ran_configuration_structures_for_event_trigger;
+} list_of_cell_level_configuration_structures_for_event_trigger_element_t;
+
+typedef struct{
+  list_t * list_of_node_level_configuration_structures_for_event_trigger;
+  list_t * list_of_cell_level_configuration_structures_for_event_trigger;
+  int64_t * period;
+} event_trigger_definition_format_json_t;
+
+typedef struct{
+  event_trigger_definition_format_json_t * event_trigger_definition_format;
+} ric_event_trigger_definition_json_t ;
+
+list_of_node_level_configuration_structures_for_event_trigger_element_t * cJSON_Parselist_of_node_level_configuration_structures_for_event_trigger_element(const char * s);
+list_of_node_level_configuration_structures_for_event_trigger_element_t * cJSON_Getlist_of_node_level_configuration_structures_for_event_trigger_elementValue(const cJSON * j);
+cJSON * cJSON_Createlist_of_node_level_configuration_structures_for_event_trigger_element(const list_of_node_level_configuration_structures_for_event_trigger_element_t * x);
+char * cJSON_Printlist_of_node_level_configuration_structures_for_event_trigger_element(const list_of_node_level_configuration_structures_for_event_trigger_element_t * x);
+void cJSON_Deletelist_of_node_level_configuration_structures_for_event_trigger_element(list_of_node_level_configuration_structures_for_event_trigger_element_t * x);
+
+list_of_cell_level_configuration_structures_for_event_trigger_element_t * cJSON_Parselist_of_cell_level_configuration_structures_for_event_trigger_element(const char * s);
+list_of_cell_level_configuration_structures_for_event_trigger_element_t * cJSON_Getlist_of_cell_level_configuration_structures_for_event_trigger_elementValue(const cJSON * j);
+cJSON * cJSON_Createlist_of_cell_level_configuration_structures_for_event_trigger_element(const list_of_cell_level_configuration_structures_for_event_trigger_element_t * x);
+char * cJSON_Printlist_of_cell_level_configuration_structures_for_event_trigger_element(const list_of_cell_level_configuration_structures_for_event_trigger_element_t * x);
+void cJSON_Deletelist_of_cell_level_configuration_structures_for_event_trigger_element(list_of_cell_level_configuration_structures_for_event_trigger_element_t * x);
+
+event_trigger_definition_format_json_t * cJSON_Parseevent_trigger_definition_format(const char * s);
+event_trigger_definition_format_json_t * cJSON_Getevent_trigger_definition_formatValue(const cJSON * j);
+cJSON * cJSON_Createevent_trigger_definition_format(const event_trigger_definition_format_json_t * x);
+char * cJSON_Printevent_trigger_definition_format(const event_trigger_definition_format_json_t * x);
+void cJSON_Deleteevent_trigger_definition_format(event_trigger_definition_format_json_t * x);
+
+ric_event_trigger_definition_json_t * cJSON_Parseric_event_trigger_definition(const char * s);
+ric_event_trigger_definition_json_t * cJSON_Getric_event_trigger_definitionValue(const cJSON * j);
+cJSON * cJSON_Createric_event_trigger_definition(const ric_event_trigger_definition_json_t * x);
+char * cJSON_Printric_event_trigger_definition(const ric_event_trigger_definition_json_t * x);
+void cJSON_Deleteric_event_trigger_definition(ric_event_trigger_definition_json_t * x);
+
+#endif
