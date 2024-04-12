@@ -360,6 +360,7 @@ async_event_arr_t next_asio_event_ric(near_ric_t* ric)
   // Early return
   if(fd_read.len == -1){
     arr.ev[0].type = CHECK_STOP_TOKEN_EVENT; 
+    arr.ev[0].fd = 0;
     arr.len = 1;
     return arr;
   } 
@@ -367,6 +368,7 @@ async_event_arr_t next_asio_event_ric(near_ric_t* ric)
   arr.len = fd_read.len;
   for(int i = 0; i < arr.len; ++i){
     async_event_t* dst = &arr.ev[i]; 
+    dst->fd = fd_read.fd[i];
     if (net_pkt(&ric->ep.base, fd_read.fd[i]) == true){
       dst->msg = e2ap_recv_msg_ric(&ric->ep);
       if(dst->msg.type == SCTP_MSG_NOTIFICATION ){
