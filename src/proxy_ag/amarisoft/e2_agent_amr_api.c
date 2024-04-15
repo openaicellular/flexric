@@ -20,22 +20,11 @@ void* start_e2_agent_amr_api(void* arg)
 void init_agent_amr_api(args_proxy_ag_t const* args)
 {
   // Create Amarisoft interface
-  ag = init_e2_agent_amr(args);
+  e2_agent_amr_t tmp = init_e2_agent_amr(args);
+  memcpy(&ag, &tmp, sizeof(e2_agent_amr_t));
 
   int const rc = pthread_create(&thrd, NULL, start_e2_agent_amr_api, NULL);
   assert(rc == 0);
-
-  // Note that the E2 Agent will not be created untill 
-  // configuration data from Amarisoft is read
-  // i.e., 
-  // void init_agent_api(int mcc, 
-  //                  int mnc, 
-  //                  int mnc_digit_len,
-  //                  int nb_id,
-  //                  int cu_du_id,
-  //                  e2ap_ngran_node_t ran_type,
-  //                  sm_io_ag_ran_t io,
-  //                  fr_args_t const* args);
 }
 
 void stop_agent_amr_api(void)
@@ -46,13 +35,19 @@ void stop_agent_amr_api(void)
   assert(rc == 0);
 }
 
-void fill_msg_kpm_sm_api(msg_stats_amr_t *stats, msg_ue_get_t *ues)
+e2sm_plmn_t plmn_agent_amr_api()
 {
   assert(&ag != NULL);
-  assert(stats != NULL);
-  assert(ues != NULL);
+ 
+  return ag.plmn;
+}
 
-  fill_msg_kpm_sm(&ag, stats, ues);
+void fill_msg_kpm_sm_api(kpm_msgs_amr_t* msg)
+{
+  assert(&ag != NULL);
+  assert(msg != NULL);
+
+  fill_msg_kpm_sm(&ag, msg);
 }
 
 

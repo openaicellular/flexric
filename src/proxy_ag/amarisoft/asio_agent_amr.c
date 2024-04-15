@@ -43,9 +43,11 @@ void add_fd_asio_agent_amr(asio_agent_amr_t* io, int fd)
   assert(io != NULL);
   const int op = EPOLL_CTL_ADD;
   const epoll_data_t e_data = {.fd = fd};
-  const int e_events = EPOLLIN | EPOLLET; // open for reading and edge triggered instead of level triggered
+  const int e_events = EPOLLIN; // | EPOLLET; // open for reading and edge triggered instead of level triggered
   struct epoll_event event = {.events = e_events, .data = e_data};
   int rc = epoll_ctl(io->efd, op, fd, &event);
+  if(rc != 0)
+    printf("Errno %d \n", errno);
   assert(rc != -1);
 }
 

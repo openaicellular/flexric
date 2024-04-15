@@ -37,6 +37,7 @@ typedef enum
   APERIODIC_INDICATION_EVENT,
   PENDING_EVENT,
   WS_MSG_ARRIVED_EVENT,
+  WS_MSG_TIME_OUT_PENDING,
   //WS_ANS_MSG_ARRIVED_EVENT, // answer to a previous request arrived
   //WS_APER_MSG_ARRIVED_EVENT, // aperiodic message arrived
   

@@ -8,7 +8,7 @@
             "qos_flow_list": [
                 {
                     "pdu_session_id": 1,
-                    "dl_total_bytes": 0,
+                    "dl_total_bytes": 343443,
                     "ul_total_bytes": 52264,
                     "sst": 1,
                     "sd": 0
@@ -50,7 +50,7 @@
             "qos_flow_list": [
                 {
                     "pdu_session_id": 1,
-                    "dl_total_bytes": 0,
+                    "dl_total_bytes": 10101010,
                     "ul_total_bytes": 54705,
                     "sst": 1,
                     "sd": 0

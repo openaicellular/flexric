@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdlib.h>
 
 //////////////////////////////////////////////////////////////////////
@@ -135,7 +136,15 @@ int cmp_ran_func_id(const void* a_v, const void* b_v)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+static inline
+bool cmp_str(const void* a, const void* b)
+{
+  char* a_str = *(char**)(a);
+  char* b_str = *(char**)(b);
 
+  int const ret = strcmp(a_str, b_str);
+  return ret == 0;
+}
 
 #endif
 

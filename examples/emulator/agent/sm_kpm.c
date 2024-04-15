@@ -264,7 +264,6 @@ gnb_e2sm_t fill_rnd_gnb_data(void)
     gnb.gnb_cu_ue_f1ap_lst[0] = rand();
   }
 
-
   return gnb;
 }
 
@@ -291,8 +290,6 @@ ue_id_e2sm_t fill_rnd_ue_id_data(void)
   {
     assert(false && "NG-RAN Type not yet implemented");
   }
-
-
 
   return ue_id_data;
 }

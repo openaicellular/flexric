@@ -9,6 +9,8 @@
 #include "ie/msg_stats.h"
 #include "ie/msg_ue_get.h"
 #include "msg_amr.h"
+#include "kpm_msgs_amr.h"
+#include "kpm_pend_ds.h"
 
 #include <stdatomic.h>
 
@@ -28,13 +30,14 @@ typedef struct e2_agent_amr_s{
   // Pending events. Websocket
   pend_ev_prox_t pend;
   // Pending events. SMs 
-  // key: msg_id, val: kpm_sm_pend_t*
-  assoc_rb_tree_t kpm_pend;  
-  pthread_mutex_t mtx_kpm_pend;
+  kpm_pend_ds_t kpm_pend_ds;
 
   // Message handler
   fp_msg_hndlr msg_hndl[END_MSG_AMR_E]; 
 
+  // PLMN
+  e2sm_plmn_t plmn; 
+  
   atomic_int msg_id;
   atomic_bool stopped;
   atomic_bool stop_token;
@@ -48,6 +51,6 @@ void start_e2_agent_amr(e2_agent_amr_t* ag);
 void free_e2_agent_amr(e2_agent_amr_t* ag);
 
 // SM calls. Blocking
-void fill_msg_kpm_sm(e2_agent_amr_t* ag, msg_stats_amr_t *stats, msg_ue_get_t *ues);
+void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg);
 
 #endif

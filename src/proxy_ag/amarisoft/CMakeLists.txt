@@ -8,6 +8,7 @@ add_library(e2_ag_amr STATIC
   e2_agent_amr.c
   ep_amr.c
   kpm_pend.c
+  kpm_pend_ds.c
   msg_amr.c
   msg_dec_amr_ag.c
   msg_handle_amr_ag.c

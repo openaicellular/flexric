@@ -13,6 +13,7 @@
 #include "msg_handle_amr_ag.h"
 #include "kpm_pend.h"
 #include "send_msg_amr.h"
+#include "kpm_msgs_amr.h"
 
 static inline
 bool net_pkt(const e2_agent_amr_t* ag, int fd)
@@ -20,6 +21,16 @@ bool net_pkt(const e2_agent_amr_t* ag, int fd)
   assert(ag != NULL);
   assert(fd > 0);
   return fd == ag->ep.fd;
+}
+
+static
+bool time_out_pkt(e2_agent_amr_t* ag, int fd)
+{
+  assert(ag != NULL);
+  assert(fd > 0);
+
+  exp_msg_id_t dst = find_pend_ev_prox(&ag->pend, fd);
+  return dst.found;
 }
 
 static
@@ -35,9 +46,10 @@ async_event_t next_async_event_agent_amr(e2_agent_amr_t* ag)
   if(fd == -1){ // no event happened. Just for checking the stop_token condition
     e.type = CHECK_STOP_TOKEN_EVENT;
   } else if (net_pkt(ag, fd) == true){
-    printf("WS_MSG_ARRIVED_EVENT  \n ");
     e.ws_msg = recv_ep_amr(&ag->ep);
     e.type = WS_MSG_ARRIVED_EVENT;
+  } else if (time_out_pkt(ag, fd) == true){
+    e.type = WS_MSG_TIME_OUT_PENDING;
   } else {
     assert(0!=0 && "Unknown event happened!");
   }
@@ -70,6 +82,12 @@ void e2_event_loop_agent_amr(e2_agent_amr_t* ag)
         {
           break;
         }
+      case WS_MSG_TIME_OUT_PENDING:
+        {
+          assert(0 != 0 && "Time out for pending event");
+          break;
+        }
+
       default:
         {
           assert(0!=0 && "Unknown event happened");
@@ -79,15 +97,6 @@ void e2_event_loop_agent_amr(e2_agent_amr_t* ag)
   }
   printf("[PROXY E2 AGENT]: ag->agent_stopped = true \n");
   ag->stopped = true;
-}
-
-static
-void free_func_kpm_sm_pend(void* key, void* value)
-{
-  assert(key != NULL);
-  assert(value != NULL);
-  (void)key;
-  (void)value;
 }
 
 e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
@@ -114,11 +123,9 @@ e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
   dst.args = *args;
 
   // Pending events SMs
-  assoc_init(&dst.kpm_pend, sizeof(int), cmp_int, free_func_kpm_sm_pend);
-  int rc = pthread_mutex_init(&dst.mtx_kpm_pend, NULL);
-  assert(rc == 0);
+  init_kpm_pend_ds(&dst.kpm_pend_ds);
 
-  // Message handler
+   // Message handler
   dst.msg_hndl[MSG_READY_AMR_E] = msg_handle_ready; 
   dst.msg_hndl[MSG_CONFIG_GET_AMR_E] = msg_handle_config_get; 
   dst.msg_hndl[MSG_STATS_AMR_E] = msg_handle_stats; 
@@ -152,43 +159,41 @@ void free_e2_agent_amr(e2_agent_amr_t* ag)
   free_pend_ev_prox(&ag->pend);
 
   // Pending events SMs
-  assoc_free(&ag->kpm_pend);
-  int rc = pthread_mutex_destroy(&ag->mtx_kpm_pend);
-  assert(rc == 0);
+  free_kpm_pend_ds(&ag->kpm_pend_ds);
+  
 
 }
 
-void fill_msg_kpm_sm(e2_agent_amr_t* ag, msg_stats_amr_t *stats, msg_ue_get_t *ues)
+void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg)
 {
   assert(ag != NULL);
-  assert(stats != NULL);
-  assert(ues != NULL);
+  assert(msg != NULL);
 
   int64_t t1 = time_now_us();
 
-  kpm_pend_t kpm = init_kpm_pend(stats, ues);
-  defer({ free_kpm_pend(&kpm); } );
+  kpm_pend_msg_t kpm = init_kpm_pend_msg(msg);
+  defer({ free_kpm_pend_msg(&kpm); } );
  
-  // Insert the message in the tree.
   int const msg_id0 = ag->msg_id++;
-  {
-    lock_guard(&ag->mtx_kpm_pend);
-    assoc_insert(&ag->kpm_pend, &msg_id0, sizeof(msg_id0), &kpm);
-  }
+  send_msg_stats_kpm(ag, msg_id0, &kpm);
+
+  int const msg_id1 = ag->msg_id++;
+  send_msg_ue_get_kpm(ag, msg_id1, &kpm);
 
   int64_t t2 = time_now_us();
 
-  send_msg_stats(&ag->ep, msg_id0);
-  send_msg_ue_get(&ag->ep, msg_id0);
+  int const msg_id2 = ag->msg_id++;
+  send_config_get_kpm(ag, msg_id2, &kpm);
 
   int64_t t3 = time_now_us();
 
   // Other thread will notify it, once
-  // the kpm stats and ues are filled
+  // the kpm_msgs_amr_t answer is completely filled 
   wait_untill_filled_kp(&kpm);
 
   int64_t t4 = time_now_us();
 
-  printf("Elapsed %ld %ld %ld \n",  t2 -t1, t3 - t2, t4 - t3);
+  printf("Elapsed %ld %ld %ld \n", t2 - t1, t3 - t2, t4 - t3);
 }
+
 

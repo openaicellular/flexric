@@ -15,6 +15,14 @@ void msg_handle_stats(e2_agent_amr_t* ag, msg_amr_t const* msg);
 
 void msg_handle_ue_get(e2_agent_amr_t* ag, msg_amr_t const* msg);
 
+// Send KPM
+void send_msg_stats_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm);
+
+void send_msg_ue_get_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm);
+
+void send_config_get_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm);
+
+
 
 
 

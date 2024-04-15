@@ -30,15 +30,19 @@ server.on('connection', function(socket) {
      // console.log('Sending msg: %s', json_msg);
       sockets.forEach(s => s.send(JSON.stringify(obj_json_conf)));
 
+      console.log(`Send config_get`)
     } else if (obj["message"] == "stats"){
       obj_json_stats["message_id"] = obj["message_id"]
      // console.log('Sending msg: %s', json_msg);
       sockets.forEach(s => s.send(JSON.stringify(obj_json_stats)));
       
+      console.log(`Send stats`)
     } else if (obj["message"] == "ue_get"){
       obj_json_ue["message_id"] = obj["message_id"]
     //  console.log('Sending msg: %s', json_msg);
       sockets.forEach(s => s.send(JSON.stringify(obj_json_ue)));
+
+      console.log(`Send ue_get`)
     }
     
     const t1 = performance.now()
