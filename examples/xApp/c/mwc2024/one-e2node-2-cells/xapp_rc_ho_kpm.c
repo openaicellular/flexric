@@ -651,7 +651,7 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const sub_oran_sm_t action, uint32_t p
   }
 
   dst.cell_global_id = malloc(sizeof(cell_global_id_t));
-  dst.cell_global_id->type = NR_CGI_RAT_TYPE;
+  dst.cell_global_id->type = NR_RAT_TYPE;
   dst.cell_global_id->nr_cgi.nr_cell_id = LST_NR_CELL_ID[cell_id];
   // Spec Bug, in RC ind cannot fill PLMN info
   dst.cell_global_id->nr_cgi.plmn_id.mcc = 1;

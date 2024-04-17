@@ -240,7 +240,7 @@ static ran_errcodes_t io_ran_ws_send_notif()
 {
   assert(pthread_mutex_lock(&io_ran_instance->priv_data->wsi_mtx) == 0);
   
-  struct lws_vhost            *host = lws_get_vhost(io_ran_instance->priv_data->ws_instance);
+  struct lws_vhost *host = lws_get_vhost(io_ran_instance->priv_data->ws_instance);
   const struct lws_protocols  *p_p  = &p[0];
   const int timeout_us              = 100;
   int ret = lws_timed_callback_vh_protocol_us(host, 

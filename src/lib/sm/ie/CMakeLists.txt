@@ -1,7 +1,12 @@
 set(SM_COMMON_IE_SRCS
-    ue_id.c
-    cell_global_id.c
-    ran_function_name.c)
+  cell_arfcn.c
+  cell_global_id.c
+  cell_pci.c
+  nr_freq_info.c
+  nr_frq_bnd_it.c
+  ran_function_name.c
+  ue_id.c
+  )
 
 add_library(sm_common_ie_obj OBJECT ${SM_COMMON_IE_SRCS})
 

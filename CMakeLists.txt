@@ -175,7 +175,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(BUILDING_LIBRARY STREQUAL "STATIC")
   if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-Warray-bounds;-Wempty-body;-fstack-protector-strong;-fstack-clash-protection;-D_FORTIFY_SOURCE=3;-D_GLIBCXX_ASSERTIONS") #-fopt-info -fhardened
+    add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-Warray-bounds;-Wempty-body;-fstack-protector-strong;-fstack-clash-protection;-D_FORTIFY_SOURCE=3;-D_GLIBCXX_ASSERTIONS;") # -fanalyzer -fopt-info -fhardened
   elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
     add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-Warray-bounds;-Wempty-body;-fstack-protector-strong;-fstack-protector;-D_FORTIFY_SOURCE=3;-D_GLIBCXX_ASSERTIONS") #-fopt-info -fhardened
   endif()

@@ -12,7 +12,6 @@ OCTET_STRING_t copy_ba_to_ostring(byte_array_t ba)
   return os;
 }
 
-
 RANfunction_Name_t enc_ran_func_name(ran_function_name_t const* src)
 {
   assert(src != NULL);

@@ -25,7 +25,7 @@ add_library(test_agent_obj OBJECT
   sm_tc.c
   )
 
-target_compile_definitions(test_agent_obj PRIVATE ${E2AP_VERSION}  ${KPM_VERSION}  )
+target_compile_definitions(test_agent_obj PRIVATE ${E2AP_VERSION}  ${KPM_VERSION})
 
 #############################
 # E2 Agent gNB

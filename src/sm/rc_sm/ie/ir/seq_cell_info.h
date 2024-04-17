@@ -3,8 +3,7 @@
 
 #include "../../../../lib/sm/ie/cell_global_id.h"
 #include "../../../../util/byte_array.h"
-
-#include "neighbour_relation_tbl.h"
+#include "nr_nghbr_cell.h"
 
 // From 9.2.1.4.3
 typedef struct{
@@ -28,7 +27,7 @@ typedef struct{
   // Neighbour Relation Table
   // Optional
   // 9.3.38
-  neighbour_rela_tbl_t* neighbour_rela_tbl;
+  nr_nghbr_cell_t* neighbour_rela_tbl;
 
 } seq_cell_info_t;
 

@@ -1672,7 +1672,8 @@ seq_cell_info_2_t fill_rnd_seq_cell_info_2(void)
   // Neighbour Relation Table
   // Optional
   // 9.3.38
-  dst.neighbour_rela_tbl = NULL;
+  assert(0 != 0); 
+  dst.neighbour_rela_tbl = fill_rnd_neighbour_rela_tbl();
 
   return dst;
 }
@@ -1697,7 +1698,8 @@ e2sm_rc_ind_msg_frmt_4_t fill_rnd_ind_msg_frmt_4(void)
 
   // Sequence of Cell Information
   // [0-65535]
-  dst.sz_seq_cell_info_2 = rand()%8; 
+  assert(0 != 0);
+  dst.sz_seq_cell_info_2 = 4; //rand()%8; 
 
   if(dst.sz_seq_cell_info_2 > 0){
     dst.seq_cell_info_2 = calloc(dst.sz_seq_cell_info_2, sizeof( seq_cell_info_2_t ) );
@@ -1828,8 +1830,9 @@ e2sm_rc_ind_msg_frmt_6_t fill_rnd_ind_msg_frmt_6(void)
 e2sm_rc_ind_msg_t fill_rnd_rc_ind_msg(void)
 {
   e2sm_rc_ind_msg_t dst = {0};
-  
-  dst.format = rand()% END_E2SM_RC_IND_MSG;
+  assert(0!= 0 && "Here we are"); 
+
+  dst.format = FORMAT_4_E2SM_RC_IND_MSG; // rand()% END_E2SM_RC_IND_MSG;
 
   if( dst.format == FORMAT_1_E2SM_RC_IND_MSG){
     dst.frmt_1 = fill_rnd_ind_msg_frmt_1();

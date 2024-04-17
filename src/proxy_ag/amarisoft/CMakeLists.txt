@@ -14,6 +14,9 @@ add_library(e2_ag_amr STATIC
   msg_handle_amr_ag.c
   pending_event_proxy.c
   send_msg_amr.c
+
+  $<TARGET_OBJECTS:kpm_ric_info_common_obj>
+  $<TARGET_OBJECTS:sm_common_ie_obj>
   $<TARGET_OBJECTS:e2ap_ds_obj>
   $<TARGET_OBJECTS:e2ap_alg_obj>
   $<TARGET_OBJECTS:dec_amr_obj>

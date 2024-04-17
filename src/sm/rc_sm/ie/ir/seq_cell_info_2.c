@@ -20,8 +20,10 @@ void free_seq_cell_info_2(seq_cell_info_2_t* src)
   // Neighbour Relation Table
   // Optional
   // 9.3.38
-  assert(src->neighbour_rela_tbl == NULL && "not impemented");
+  if(src->neighbour_rela_tbl != NULL)
+    free_nghbr_rel_info(src->neighbour_rela_tbl);
 
+  free(src->neighbour_rela_tbl);
 }
 
 bool eq_seq_cell_info_2(seq_cell_info_2_t const* m0, seq_cell_info_2_t const* m1)
@@ -48,12 +50,11 @@ bool eq_seq_cell_info_2(seq_cell_info_2_t const* m0, seq_cell_info_2_t const* m1
   // Neighbour Relation Table
   // Optional
   // 9.3.38
-  assert(m0->neighbour_rela_tbl == NULL && "not implemented"); 
-  assert(m1->neighbour_rela_tbl == NULL && "not implemented"); 
+  if(eq_nghbr_rel_info(m0->neighbour_rela_tbl, m1->neighbour_rela_tbl) == false)
+    return false;
 
   return true;
 }
-
 
 seq_cell_info_2_t cp_seq_cell_info_2(seq_cell_info_2_t const* src)
 {
@@ -74,8 +75,11 @@ seq_cell_info_2_t cp_seq_cell_info_2(seq_cell_info_2_t const* src)
   // Neighbour Relation Table
   // Optional
   // 9.3.38
-  assert(src->neighbour_rela_tbl == NULL && "Not implemented");
-
+  if(src->neighbour_rela_tbl != NULL) {
+    dst.neighbour_rela_tbl = calloc(1, sizeof(nghbr_rel_info_t)); 
+    assert(dst.neighbour_rela_tbl != NULL && "Memory exhasuted"); 
+    *dst.neighbour_rela_tbl = cp_nghbr_rel_info(src->neighbour_rela_tbl);
+  }
   return dst;
 }
 
