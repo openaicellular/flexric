@@ -1,4 +1,4 @@
-#include "kpm_pend.h"
+#include "kpm_pend_msg.h"
 
 #include <assert.h>
 

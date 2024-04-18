@@ -30,7 +30,17 @@ int main(int argc, char *argv[])
   // Signal handler
   signal(SIGINT, sig_handler);
 
-  args_proxy_ag_t args = {.ip = "127.0.0.1", .port = 9001}; 
+
+  // Remove this after testing
+  ///////////////////
+  uint32_t port = 9001;
+
+  if(argc > 1)
+    port = atoi(argv[1]);
+  ///////////////////
+
+
+  args_proxy_ag_t args = {.ip = "127.0.0.1", .port = port}; 
   args.fr_args = init_fr_args(argc, argv);
 
   init_agent_amr_api(&args);

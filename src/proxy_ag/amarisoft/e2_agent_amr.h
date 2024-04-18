@@ -1,8 +1,9 @@
 #ifndef E2_AGENT_AMARISOFT_PROXY_MIR_H
 #define E2_AGENT_AMARISOFT_PROXY_MIR_H 
+
+#include "../../sm/sm_io.h"
 #include "../../util/conf_file.h"
 #include "asio_agent_amr.h"
-#include "../../sm/sm_io.h"
 #include "ep_amr.h"
 #include "pending_event_proxy.h"
 #include "ie/config_get.h"
@@ -11,6 +12,8 @@
 #include "msg_amr.h"
 #include "kpm_msgs_amr.h"
 #include "kpm_pend_ds.h"
+#include "rc_msgs_amr.h"
+#include "rc_pend_ds.h"
 
 #include <stdatomic.h>
 
@@ -29,8 +32,12 @@ typedef struct e2_agent_amr_s{
   sm_io_ag_ran_t sm_io;
   // Pending events. Websocket
   pend_ev_prox_t pend;
-  // Pending events. SMs 
+  // KPM Pending events. SMs 
   kpm_pend_ds_t kpm_pend_ds;
+  // RC Pending events. SMs 
+  rc_pend_ds_t rc_pend_ds;
+
+
 
   // Message handler
   fp_msg_hndlr msg_hndl[END_MSG_AMR_E]; 
@@ -52,5 +59,7 @@ void free_e2_agent_amr(e2_agent_amr_t* ag);
 
 // SM calls. Blocking
 void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg);
+
+void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg);
 
 #endif

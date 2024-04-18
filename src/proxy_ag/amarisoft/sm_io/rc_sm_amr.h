@@ -12,6 +12,9 @@ void read_rc_setup_sm_amr(void* data);
 
 sm_ag_if_ans_t write_ctrl_rc_sm_amr(void const* data);
 
+bool read_rc_sm_amr(void* data);
+
+// Aperiodic events
 sm_ag_if_ans_t write_subs_rc_sm_amr(void const* src);
 
 #endif

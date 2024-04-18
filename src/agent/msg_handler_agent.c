@@ -20,13 +20,17 @@
  *
 */
 
-#include "msg_handler_agent.h"
+#include "gen_msg_agent.h"
+#include "lib/e2ap/e2ap_msg_free_wrapper.h"
 #include "lib/ind_event.h"
 #include "lib/pending_events.h"
+#include "msg_handler_agent.h"
 #include "sm/sm_agent.h"
 #include "util/alg_ds/alg/alg.h"
 #include "util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "util/compare.h"
+
+
 #ifdef PROXY_AGENT
 #include "proxy-agent/notif_e2_ran.h"
 #include "lib/correlation_events.h"
@@ -244,6 +248,15 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
     int fd = 0;
     lock_guard(&ag->mtx_ind_event);
     bi_map_insert(&ag->ind_event, &fd, sizeof(int), &ev, sizeof(ev));
+  } else if(ev.type == ON_DEMAND_REPORT_RC_SM_FLRC){
+    assert(subs.rc_ind.has_value == true); 
+    ric_indication_t ind = generate_indication(ag, &subs.rc_ind.data, &ev);
+    defer({ e2ap_free_indication(&ind); } );
+
+    byte_array_t ba = e2ap_enc_indication_ag(&ag->ap, &ind); 
+    defer({ free_byte_array(ba); });
+
+    e2ap_send_bytes_agent(&ag->ep, ba);
   } else {
     assert(0!=0 && "Unknown subscritpion timer value");
   }

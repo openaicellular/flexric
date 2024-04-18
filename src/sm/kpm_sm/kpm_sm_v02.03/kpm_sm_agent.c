@@ -105,10 +105,12 @@ exp_ind_data_t on_indication_kpm_sm_ag(sm_agent_t const* sm_agent, void* act_def
     return ( exp_ind_data_t ){.has_value = false};
   }
 
+  // Fill Indication Header
   byte_array_t ba_hdr = kpm_enc_ind_hdr(&sm->enc, &kpm.ind.hdr);
   ret.data.ind_hdr = ba_hdr.buf;
   ret.data.len_hdr = ba_hdr.len;
 
+  // Fill Indication Message
   byte_array_t ba = kpm_enc_ind_msg(&sm->enc, &kpm.ind.msg);
   ret.data.ind_msg = ba.buf;
   ret.data.len_msg = ba.len;

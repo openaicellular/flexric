@@ -129,7 +129,53 @@ e2_setup_request_t gen_setup_request_v3(e2_agent_t* ag)
 static_assert(0!=0, "Unknown E2AP version");
 #endif
 
+ric_indication_t generate_aindication(e2_agent_t const* ag, sm_ind_data_t const* data, aind_event_t const* ai_ev)
+{
+  assert(ag != NULL);
+  assert(data != NULL);
+  assert(ai_ev != NULL);
 
+  ric_indication_t ind = {
+    .ric_id = ai_ev->ric_id,
+    .action_id = ai_ev->action_id,
+    .sn = NULL,
+    .type = RIC_IND_REPORT };
 
+  ind.hdr.len = data->len_hdr;
+  ind.hdr.buf = data->ind_hdr;
+  ind.msg.len = data->len_msg;
+  ind.msg.buf = data->ind_msg;
+  if(data->call_process_id != NULL){
+    ind.call_process_id = malloc(sizeof(data->len_cpid) );
+    assert(ind.call_process_id != NULL && "Memory exhausted" );
+    ind.call_process_id->buf = data->call_process_id;
+    ind.call_process_id->len = data->len_cpid;
+  }
+  return ind;
+}
 
+ric_indication_t generate_indication(e2_agent_t const* ag, sm_ind_data_t const* data, ind_event_t const* i_ev)
+{
+  assert(ag != NULL);
+  assert(data != NULL);
+  assert(i_ev != NULL);
+
+  ric_indication_t ind = {
+    .ric_id = i_ev->ric_id, 
+    .action_id = i_ev->action_id, 
+    .sn = NULL, 
+    .type = RIC_IND_REPORT };
+
+  ind.hdr.len = data->len_hdr;
+  ind.hdr.buf = data->ind_hdr;
+  ind.msg.len = data->len_msg;
+  ind.msg.buf = data->ind_msg;
+  if(data->call_process_id != NULL){
+    ind.call_process_id = malloc(sizeof(data->len_cpid) );
+    assert(ind.call_process_id != NULL && "Memory exhausted" );
+    ind.call_process_id->buf = data->call_process_id;
+    ind.call_process_id->len = data->len_cpid;
+  }
+  return ind;
+}
 

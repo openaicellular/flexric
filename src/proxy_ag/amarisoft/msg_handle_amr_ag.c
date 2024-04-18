@@ -1,7 +1,8 @@
 #include "msg_handle_amr_ag.h"
 #include "msg_dec_amr_ag.h"
 #include "ep_amr.h"
-#include "kpm_pend.h"
+#include "kpm_pend_msg.h"
+#include "rc_pend_msg.h"
 #include "../../util/alg_ds/alg/find.h"
 #include "../../util/e.h"
 #include "../../util/time_now_us.h"
@@ -54,6 +55,11 @@ kpm_pend_msg_t* extract_kpm_pend_msg(e2_agent_amr_t* ag, int msg_id)
   return dst;
 }
 
+
+/////
+// KPM SM
+/////
+
 void send_msg_stats_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm)
 {
   // Add kpm answer
@@ -88,6 +94,46 @@ void send_config_get_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm)
 
   // Send message 
   send_config_get(&ag->ep,msg_id);
+}
+
+
+/////
+// RC SM
+/////
+void send_msg_stats_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc)
+{
+  // Add rc answer
+  add_rc_pend_ds(&ag->rc_pend_ds, msg_id, rc);
+
+  // Add pending timeout
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_MSG_STATS_PENDING_EVENT);
+
+  // Send message 
+  send_msg_stats(&ag->ep,msg_id);
+}
+
+void send_msg_ue_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc)
+{
+  // Add rc answer
+  add_rc_pend_ds(&ag->rc_pend_ds, msg_id, rc);
+
+  // Add pending timeout
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, UE_GET_PENDING_EVENT);
+
+  // Send message 
+  send_msg_ue_get(&ag->ep,msg_id);
+}
+
+void send_config_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc)
+{
+  // Add rc answer place holder
+  add_rc_pend_ds(&ag->rc_pend_ds, msg_id, rc);
+
+  // Add pending timeout
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_GET_PROXY_PENDING_EVENT);
+
+  // Send message 
+  send_config_get(&ag->ep, msg_id);
 }
 
 void msg_handle_ready(e2_agent_amr_t* ag, msg_amr_t const* msg)

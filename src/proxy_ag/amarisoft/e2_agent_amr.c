@@ -11,9 +11,11 @@
 #include "sm_io/io_proxy_ag.h"
 #include "msg_dec_amr_ag.h"
 #include "msg_handle_amr_ag.h"
-#include "kpm_pend.h"
+#include "kpm_pend_msg.h"
+#include "rc_pend_msg.h"
 #include "send_msg_amr.h"
 #include "kpm_msgs_amr.h"
+#include "rc_msgs_amr.h"
 
 static inline
 bool net_pkt(const e2_agent_amr_t* ag, int fd)
@@ -122,10 +124,13 @@ e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
   // Copy Args ???
   dst.args = *args;
 
-  // Pending events SMs
+  // Pending events KPM SMs
   init_kpm_pend_ds(&dst.kpm_pend_ds);
 
-   // Message handler
+  // Pending events RC SMs
+  init_rc_pend_ds(&dst.rc_pend_ds);
+   
+  // Message handler
   dst.msg_hndl[MSG_READY_AMR_E] = msg_handle_ready; 
   dst.msg_hndl[MSG_CONFIG_GET_AMR_E] = msg_handle_config_get; 
   dst.msg_hndl[MSG_STATS_AMR_E] = msg_handle_stats; 
@@ -158,10 +163,11 @@ void free_e2_agent_amr(e2_agent_amr_t* ag)
 
   free_pend_ev_prox(&ag->pend);
 
-  // Pending events SMs
+  // Pending events KPM SMs
   free_kpm_pend_ds(&ag->kpm_pend_ds);
-  
-
+ 
+  // Pending events RC SMs
+  free_rc_pend_ds(&ag->rc_pend_ds);
 }
 
 void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg)
@@ -196,4 +202,35 @@ void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg)
   printf("Elapsed %ld %ld %ld \n", t2 - t1, t3 - t2, t4 - t3);
 }
 
+void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg)
+{
+  assert(ag != NULL);
+  assert(msg != NULL);
+
+  int64_t t1 = time_now_us();
+
+  rc_pend_msg_t rc = init_rc_pend_msg(msg);
+  defer({ free_rc_pend_msg(&rc); } );
+ 
+  int const msg_id0 = ag->msg_id++;
+  send_msg_stats_rc(ag, msg_id0, &rc);
+
+  int const msg_id1 = ag->msg_id++;
+  send_msg_ue_get_rc(ag, msg_id1, &rc);
+
+  int64_t t2 = time_now_us();
+
+  int const msg_id2 = ag->msg_id++;
+  send_config_get_rc(ag, msg_id2, &rc);
+
+  int64_t t3 = time_now_us();
+
+  // Other thread will notify it, once
+  // the kpm_msgs_amr_t answer is completely filled 
+  wait_untill_filled_rp(&rc);
+
+  int64_t t4 = time_now_us();
+
+  printf("Elapsed RAN Control get %ld %ld %ld \n", t2 - t1, t3 - t2, t4 - t3);
+}
 

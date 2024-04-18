@@ -32,6 +32,7 @@
 
 #include "../write/subscription_aperiod.h"
 #include "../write/subscription_period.h"
+#include "../../sm_proc_data.h"
 
 typedef enum {
   CTRL_OUTCOME_SM_AG_IF_ANS_V0,
@@ -75,6 +76,10 @@ typedef struct{
 typedef enum{
   PERIODIC_SUBSCRIPTION_FLRC,
   APERIODIC_SUBSCRIPTION_FLRC,
+  // 7.4.6
+  // REPORT Service Style 5: On Demand Report
+  // Snapshot of one indicaiton message
+  ON_DEMAND_REPORT_RC_SM_FLRC,
 
   END_SUBSCRIPTION__FLRC
 } subscription_ans_e;
@@ -88,6 +93,7 @@ typedef struct{
   union {
     susbcription_period_t per;
     susbcription_aperiod_t aper;
+    exp_ind_data_t rc_ind;
   };
 
 } sm_ag_if_ans_subs_t;

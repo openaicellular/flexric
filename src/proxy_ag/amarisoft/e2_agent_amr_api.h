@@ -5,6 +5,7 @@
 #include "../../util/conf_file.h"
 
 #include "kpm_msgs_amr.h"
+#include "rc_msgs_amr.h"
 
 void init_agent_amr_api(args_proxy_ag_t const* args);
 
@@ -14,6 +15,6 @@ e2sm_plmn_t plmn_agent_amr_api(void);
 
 void fill_msg_kpm_sm_api(kpm_msgs_amr_t* msg);
 
-void fill_msg_rc_sm_api();
+void fill_msg_rc_sm_api(rc_msgs_amr_t* msg);
 
 #endif

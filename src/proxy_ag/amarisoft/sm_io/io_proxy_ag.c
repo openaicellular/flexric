@@ -54,7 +54,7 @@ void init_read_ind_tbl_proxy(read_ind_fp (*read_ind_tbl)[SM_AGENT_IF_READ_V0_END
   (*read_ind_tbl)[TC_STATS_V0] = NULL;
   (*read_ind_tbl)[GTP_STATS_V0] = NULL;
   (*read_ind_tbl)[KPM_STATS_V3_0] = read_kpm_sm_amr;
-  (*read_ind_tbl)[RAN_CTRL_STATS_V1_03] = NULL;
+  (*read_ind_tbl)[RAN_CTRL_STATS_V1_03] = read_rc_sm_amr;
 }
 
 static

@@ -2,7 +2,7 @@
 #define KPM_PENDING_DATA_STRUCTURE_H 
 
 #include "../../util/alg_ds/ds/assoc_container/assoc_generic.h"
-#include "kpm_pend.h"
+#include "kpm_pend_msg.h"
 #include <pthread.h>
 
 typedef struct{

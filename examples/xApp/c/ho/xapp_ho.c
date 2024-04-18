@@ -35,19 +35,11 @@ e2sm_rc_act_def_frmt_1_t gen_rc_frmt_1(void)
 {
   e2sm_rc_act_def_frmt_1_t dst = {0}; 
   
-  // 8.2.5
-  // RAN Parameters for Report Service Style 5
-  // RAN Param ID  |||  RAN Param Name 
-  // ----------------------------------------
-  //     1         |||  UE Context Information
-  //     2         |||  Cell Context Information
-  //     3         |||  Neighbour Relation Table
-
-  dst.sz_param_report_def = 2;
+    dst.sz_param_report_def = 2;
   dst.param_report_def = calloc(dst.sz_param_report_def, sizeof(param_report_def_t));
   assert(dst.param_report_def != NULL && "Memory exhausted");
-  dst.param_report_def[0].ran_param_id = 1;
-  dst.param_report_def[1].ran_param_id = 3;
+  dst.param_report_def[0].ran_param_id = UE_CTX_INFO_8_2_5;
+  dst.param_report_def[1].ran_param_id = NEIGHBOUR_RELATION_TABLE_8_2_5;
 
   return dst;
 }

@@ -2,18 +2,25 @@ add_subdirectory(ie)
 add_subdirectory(sm_io)
 
 add_library(e2_ag_amr STATIC  
-  sm_io/io_proxy_ag.c
+
   asio_agent_amr.c
   e2_agent_amr_api.c
   e2_agent_amr.c
   ep_amr.c
-  kpm_pend.c
   kpm_pend_ds.c
+  kpm_pend_msg.c
+  kpm_msgs_amr.c
   msg_amr.c
   msg_dec_amr_ag.c
   msg_handle_amr_ag.c
   pending_event_proxy.c
+  rc_pend_ds.c
+  rc_pend_msg.c
+  rc_msgs_amr.c
   send_msg_amr.c
+  sm_io/io_proxy_ag.c
+  sm_io/kpm_sm_amr.c
+  sm_io/rc_sm_amr.c
 
   $<TARGET_OBJECTS:kpm_ric_info_common_obj>
   $<TARGET_OBJECTS:sm_common_ie_obj>
@@ -26,7 +33,7 @@ add_library(e2_ag_amr STATIC
   $<TARGET_OBJECTS:e2_conf_obj>
   $<TARGET_OBJECTS:sm_io_amr_obj>
 
-   ../../util/time_now_us.c
+  ../../util/time_now_us.c
   )
 
 target_include_directories(e2_ag_amr PUBLIC "/usr/local/include/nopoll/")

@@ -50,4 +50,11 @@ void fill_msg_kpm_sm_api(kpm_msgs_amr_t* msg)
   fill_msg_kpm_sm(&ag, msg);
 }
 
+void fill_msg_rc_sm_api(rc_msgs_amr_t* msg)
+{
+  assert(&ag != NULL);
+  assert(msg != NULL);
+
+  fill_msg_rc_sm(&ag, msg);
+}
 

@@ -22,8 +22,12 @@ void send_msg_ue_get_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm);
 
 void send_config_get_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm);
 
+// Send RC
+void send_msg_stats_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc);
 
+void send_msg_ue_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc);
 
+void send_config_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc);
 
 
 #endif

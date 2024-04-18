@@ -69,6 +69,20 @@ typedef enum{
     E_ULTRA_CGI_8_4_4_1 = 6,
 } handover_control_param_id_e;
 
+// 8.2.5
+  // RAN Parameters for Report Service Style 5
+  // RAN Param ID  |||  RAN Param Name 
+  // ----------------------------------------
+  //     1         |||  UE Context Information
+  //     2         |||  Cell Context Information
+  //     3         |||  Neighbour Relation Table
+
+typedef enum{
+  UE_CTX_INFO_8_2_5 = 1,
+  CELL_CTX_INFO_8_2_5 = 2,
+  NEIGHBOUR_RELATION_TABLE_8_2_5 = 3,
+} ran_param_report_style_5_e;
+
 static
 const uint16_t SM_RC_ID = 3; 
 

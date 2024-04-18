@@ -24,6 +24,8 @@
 
 #include "e2_agent.h"
 #include "lib/e2ap/e2_setup_request_wrapper.h"
+#include "lib/aind_event.h"
+#include "lib/ind_event.h"
 
 e2_setup_request_t gen_setup_request_v1(e2_agent_t* ag);
 
@@ -36,5 +38,9 @@ e2_setup_request_t gen_setup_request_v3(e2_agent_t* ag);
                                               e2ap_v2_t*: gen_setup_request_v2, \
                                              e2ap_v3_t*: gen_setup_request_v3, \
                                              default: gen_setup_request_v1) (U)
+
+ric_indication_t generate_aindication(e2_agent_t const* ag, sm_ind_data_t const* data, aind_event_t const* ai_ev);
+
+ric_indication_t generate_indication(e2_agent_t const* ag, sm_ind_data_t const* data, ind_event_t const* i_ev);
 
 #endif

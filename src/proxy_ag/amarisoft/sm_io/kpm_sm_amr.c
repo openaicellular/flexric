@@ -720,11 +720,9 @@ bool read_kpm_sm_amr(void* data)
   assert(kpm->act_def!= NULL && "Cannot be NULL");
 
   kpm_msgs_amr_t kpm_msg = {0};
-  defer({ free_msg_stats_amr(&kpm_msg.stats); });
-  defer({ free_msg_ue_get(&kpm_msg.ues); });
-  defer({ free_config_get_amr(&kpm_msg.cfg); });
+  defer({ free_kpm_msgs_amr(&kpm_msg); });
 
-  fill_msg_kpm_sm_api(&kpm_msg);
+   fill_msg_kpm_sm_api(&kpm_msg);
 
   if(kpm->act_def->type == FORMAT_4_ACTION_DEFINITION){
     kpm_act_def_format_4_t const* frm_4 = &kpm->act_def->frm_4 ;  // 8.2.1.2.4

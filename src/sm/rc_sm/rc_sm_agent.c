@@ -121,11 +121,60 @@ e2sm_rc_func_def_t fill_rc_ran_func_def(sm_rc_agent_t const* sm)
 }
 */
 
+// 7.4.6
+// REPORT Service Style 5: On Demand Report
+static
+bool on_demand_service_style(e2sm_rc_event_trigger_t et)
+{
+  return et.format == FORMAT_5_E2SM_RC_EV_TRIGGER_FORMAT ;
+}
+
+
 // Function pointers provided by the RAN for the 
 // 5 procedures, 
 // subscription, indication, control, 
 // E2 Setup and RIC Service Update. 
 //
+static
+exp_ind_data_t on_indication_rc_sm_ag(sm_agent_t const* sm_agent, void* act_def_v)
+{
+//  printf("on_indication RC called \n");
+  assert(sm_agent != NULL);
+  assert(act_def_v != NULL && "Action Definition data needed for this SM");
+
+  sm_rc_agent_t* sm = (sm_rc_agent_t*)sm_agent;
+
+  e2sm_rc_action_def_t* act_def = act_def_v;
+
+  // Fill Indication Message and Header
+  rc_rd_ind_data_t rc = {.act_def = act_def}; 
+  // Free memory allocated by the RAN at read_ind. Sucks
+  defer({ free_rc_ind_data(&rc.ind); });
+
+  bool const success = sm->base.io.read_ind(&rc); 
+  if(success == false){
+    return ( exp_ind_data_t ){.has_value = false};
+  }
+
+  exp_ind_data_t ret = {.has_value = true};
+  // Fill Indication Header
+  byte_array_t ba_hdr = rc_enc_ind_hdr(&sm->enc, &rc.ind.hdr);
+  assert(ba_hdr.len < 1024 && "Are you really encoding so much info?" );
+  ret.data.ind_hdr = ba_hdr.buf;
+  ret.data.len_hdr = ba_hdr.len;
+
+  // Fill Indication Message
+  byte_array_t ba_msg = rc_enc_ind_msg(&sm->enc, &rc.ind.msg);
+  assert(ba_msg.len < 10*1024 && "Are you really encoding so much info?" );
+  ret.data.ind_msg = ba_msg.buf;
+  ret.data.len_msg = ba_msg.len;
+
+  // Fill Call Process ID
+  assert(rc.ind.proc_id == NULL && "Not implemented" );
+
+  return ret;
+}
+
 static
 sm_ag_if_ans_subs_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 {
@@ -143,7 +192,7 @@ sm_ag_if_ans_subs_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const s
   wr_rc.rc.et = rc_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
   defer({ free_e2sm_rc_event_trigger(&wr_rc.rc.et); });
 
-  // Only 1 supported
+  // Only 1 action definition supported
   wr_rc.rc.sz_ad = 1;
   wr_rc.rc.ad = calloc(wr_rc.rc.sz_ad, sizeof(e2sm_rc_action_def_t));
   assert(wr_rc.rc.ad != NULL && "Memory exhausted");
@@ -151,42 +200,16 @@ sm_ag_if_ans_subs_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const s
 
   wr_rc.rc.ad[0] = rc_dec_action_def(&sm->enc, data->len_ad, data->action_def);
 
- sm_ag_if_ans_t subs = sm->base.io.write_subs(&wr_rc);
- assert(subs.type == SUBS_OUTCOME_SM_AG_IF_ANS_V0);
- assert(subs.subs_out.type == APERIODIC_SUBSCRIPTION_FLRC);
- return subs.subs_out;
-}
+  if(on_demand_service_style(wr_rc.rc.et)){
+    sm_ag_if_ans_subs_t ans = {.type = ON_DEMAND_REPORT_RC_SM_FLRC};   
+    ans.rc_ind = on_indication_rc_sm_ag(sm_agent, wr_rc.rc.ad);
+    return ans;
+  }
 
-static
-exp_ind_data_t on_indication_rc_sm_ag(sm_agent_t const* sm_agent, void* ind_data)
-{
-//  printf("on_indication RC called \n");
-  assert(sm_agent != NULL);
-  assert(ind_data != NULL && "Indication data needed for this SM");
-  sm_rc_agent_t* sm = (sm_rc_agent_t*)sm_agent;
-
-  exp_ind_data_t ret = {.has_value = true};
-
-  // Liberate the memory if previously allocated by the RAN. It sucks
-  rc_ind_data_t* ind = (rc_ind_data_t*)ind_data; 
-  defer({ free_rc_ind_data(ind);  free(ind); });
-
-  // Fill Indication Header
-  byte_array_t ba_hdr = rc_enc_ind_hdr(&sm->enc, &ind->hdr);
-  assert(ba_hdr.len < 1024 && "Are you really encoding so much info?" );
-  ret.data.ind_hdr = ba_hdr.buf;
-  ret.data.len_hdr = ba_hdr.len;
-
-  // Fill Indication Message
-  byte_array_t ba_msg = rc_enc_ind_msg(&sm->enc, &ind->msg);
-  assert(ba_msg.len < 10*1024 && "Are you really encoding so much info?" );
-  ret.data.ind_msg = ba_msg.buf;
-  ret.data.len_msg = ba_msg.len;
-
-  // Fill Call Process ID
-  assert(ind->proc_id == NULL && "Not implemented" );
-
-  return ret;
+  sm_ag_if_ans_t subs = sm->base.io.write_subs(&wr_rc);
+  assert(subs.type == SUBS_OUTCOME_SM_AG_IF_ANS_V0);
+  assert(subs.subs_out.type == APERIODIC_SUBSCRIPTION_FLRC && "Only aperiodic events supported for RC currently");
+  return subs.subs_out;
 }
 
 static
