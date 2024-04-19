@@ -266,22 +266,83 @@ byte_array_t ccc_enc_ind_hdr_json(e2sm_ccc_ind_hdr_t const* src)
   return ba;
 }
 
+ran_configuration_structure_json_t* create_du_function_node(e2sm_ccc_o_gnb_du_function_t const src){
+  ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
+  assert(dst != NULL);
+
+  dst->gnb_id = calloc(1, sizeof(uint32_t));
+  assert(dst->gnb_id != NULL);
+  *dst->gnb_id = src.gnb_id;
+
+  if (src.gnb_du_name != NULL)
+    dst->gnb_du_name = strdup(src.gnb_du_name);
+
+  dst->gnb_du_id = calloc(1, sizeof(uint64_t));
+  assert(dst->gnb_du_id != NULL);
+  *dst->gnb_du_id = src.gnb_du_id;
+
+  dst->gnb_id_length = calloc(1, sizeof(uint8_t));
+  assert(dst->gnb_id_length!= NULL);
+  *dst->gnb_id_length = src.gnb_id_len;
+
+  return dst;
+}
+
+static
+values_of_attributes_json_t* create_values_of_attributes(values_of_attributes_t const* src){
+  assert(src != NULL);
+  values_of_attributes_json_t* res = calloc(1, sizeof(values_of_attributes_json_t));
+
+  switch (src->values_of_attributes_type) {
+    case VALUES_OF_ATTRIBUTES_O_GNBDUFunction_NODE_LEVEL:
+      res->ran_configuration_structure = create_du_function_node(src->e2sm_ccc_o_gnb_du_function);
+      break;
+    case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_NODE_LEVEL:
+      assert("No support VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_NODE_LEVEL");
+      break;
+    case VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction_NODE_LEVEL:
+      assert("No support VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction_NODE_LEVEL");
+      break;
+    case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction_NODE_LEVEL:
+      assert("No support VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction_NODE_LEVEL");
+      break;
+    case VALUES_OF_ATTRIBUTES_O_CESManagementFunction_CELL_LEVEL:
+      assert("No support VALUES_OF_ATTRIBUTES_O_CESManagementFunction_CELL_LEVEL");
+      break;
+    case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_CELL_LEVEL:
+      assert("No support VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_CELL_LEVEL");
+      break;
+    case VALUES_OF_ATTRIBUTES_O_BWP_CELL_LEVEL:
+      assert("No support VALUES_OF_ATTRIBUTES_O_BWP_CELL_LEVEL");
+      break;
+    case VALUES_OF_ATTRIBUTES_O_NRCellDU_CELL_LEVEL:
+      assert("No support VALUES_OF_ATTRIBUTES_O_NRCellDU_CELL_LEVEL");
+      break;
+    case VALUES_OF_ATTRIBUTES_O_NRCellCU_CELL_LEVEL:
+      assert("No support VALUES_OF_ATTRIBUTES_O_NRCellCU_CELL_LEVEL");
+      break;
+    default:
+      assert("No support for current configuration structure name - node level");
+  }
+  return res;
+}
+
 static
 list_of_configuration_structures_reported_element_t* create_ind_msg_ran_element(ind_msg_ran_conf_t const src){
   list_of_configuration_structures_reported_element_t* res = calloc(1, sizeof(list_of_configuration_structures_reported_element_t));
   assert(res != NULL && "Memory exhausted");
   res->change_type = src.change_type;
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
-  res->old_values_of_attributes = copy_ba_to_str(&src.old_vals_attributes);
-  res->values_of_attributes = copy_ba_to_str(&src.vals_attributes);
+  res->values_of_attributes = create_values_of_attributes(&src.vals_attributes);
+  if (src.old_vals_attributes)
+    res->old_values_of_attributes = create_values_of_attributes(src.old_vals_attributes);
   return res;
 }
 
-
 static
-indication_message_format_t* create_ind_msg_frmt_1(e2sm_ccc_ind_msg_frmt_1_t const src)
+indication_message_format_json_t* create_ind_msg_frmt_1(e2sm_ccc_ind_msg_frmt_1_t const src)
 {
-  indication_message_format_t* dst = calloc(1, sizeof(indication_message_format_t));
+  indication_message_format_json_t* dst = calloc(1, sizeof(indication_message_format_json_t));
   assert(dst != NULL && "Memory exhausted");
   dst->list_of_configuration_structures_reported = list_create(false, NULL);
   for (size_t i = 0; i < src.sz_ind_msg_node_conf; ++i){
@@ -312,9 +373,9 @@ list_of_cells_reported_element_t* create_ind_msg_cell_report(ind_msg_cell_report
 }
 
 static
-indication_message_format_t* create_ind_msg_frmt_2(e2sm_ccc_ind_msg_frmt_2_t const src)
+indication_message_format_json_t* create_ind_msg_frmt_2(e2sm_ccc_ind_msg_frmt_2_t const src)
 {
-  indication_message_format_t* dst = calloc(1, sizeof(indication_message_format_t));
+  indication_message_format_json_t* dst = calloc(1, sizeof(indication_message_format_json_t));
   assert(dst != NULL && "Memory exhausted");
   dst->list_of_cells_reported = list_create(false, NULL);
   for (size_t i = 0; i < src.sz_ind_msg_cell_report; ++i){

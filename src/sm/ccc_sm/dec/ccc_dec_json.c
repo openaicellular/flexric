@@ -32,15 +32,39 @@
 #include <assert.h>
 
 static
+e2sm_plmn_t get_plmn_id_json(plmn_id_json_t const* src){
+  e2sm_plmn_t dst = {0};
+
+  dst.mnc = atoi(src->mnc);
+  dst.mcc = atoi(src->mcc);
+  dst.mnc_digit_len = strlen(src->mnc);
+
+  return dst;
+}
+
+static
+s_nssai_e2sm_t get_s_nssai_e2sm(snssai_json_t const* src){
+  s_nssai_e2sm_t dst = {0};
+
+  if (src->sd){
+    dst.sD = calloc(1, sizeof(uint32_t));
+    *dst.sD = *(uint32_t *)src->sd;
+  }
+
+  if (src->sst)
+    dst.sST = *src->sst;
+
+  return dst;
+}
+
+static
 cell_global_id_t get_cell_global_id(cell_global_id_json_t const* src){
   assert(src != NULL);
 
   cell_global_id_t res = {0};
   res.type = NR_CGI_RAT_TYPE;
   res.nr_cgi.nr_cell_id = atoi(src->n_r_cell_identity);
-  res.nr_cgi.plmn_id.mnc = atoi(src->plmn_identity->mnc);
-  res.nr_cgi.plmn_id.mcc = atoi(src->plmn_identity->mcc);
-  res.nr_cgi.plmn_id.mnc_digit_len = strlen(src->plmn_identity->mnc);
+  res.nr_cgi.plmn_id = get_plmn_id_json(src->plmn_identity);
   return res;
 }
 
@@ -172,6 +196,212 @@ act_def_ran_conf_t* get_act_def_ran_conf(list_t* const src){
 }
 
 static
+values_of_attributes_t get_o_gnb_du_func_node(ran_configuration_structure_json_t const* src){
+  assert(src != NULL);
+
+  e2sm_ccc_o_gnb_du_function_t du_function = {0};
+
+  if(src->gnb_du_id)
+    du_function.gnb_du_id = *src->gnb_du_id;
+
+  if (src->gnb_du_name)
+    du_function.gnb_du_name = strdup(src->gnb_du_name);
+
+  if (src->gnb_id)
+    du_function.gnb_id = *src->gnb_id;
+
+  if (src->gnb_id_length)
+    du_function.gnb_id_len = *src->gnb_id_length;
+
+  values_of_attributes_t dst = {0};
+  dst.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBDUFunction_NODE_LEVEL;
+  dst.e2sm_ccc_o_gnb_du_function = du_function;
+
+  return dst;
+}
+
+static
+values_of_attributes_t get_o_gnb_cu_cp_func_node(ran_configuration_structure_json_t const* src){
+  assert(src != NULL);
+  e2sm_ccc_o_gnb_cu_cp_function_t cu_cp_function = {0};
+
+  if (src->gnb_id)
+    cu_cp_function.gnb_id = *src->gnb_id;
+
+  if (src->gnb_id_length)
+    cu_cp_function.gnb_id_len = *src->gnb_id_length;
+
+  if (src->gnb_cu_name)
+    cu_cp_function.gnb_cu_name = strdup(src->gnb_du_name);
+
+  if (src->plmn_id)
+    cu_cp_function.plmn_id = get_plmn_id_json(src->plmn_id);
+
+  if (src->x2_block_list)
+    // Conflict type with json schema
+    assert(0 != 0 && "Not implemented");
+
+  if (src->x2_allow_list)
+    assert(0 != 0 && "Not implemented");
+
+  if (src->xn_block_list)
+    assert(0 != 0 && "Not implemented");
+
+  if (src->xn_allow_list)
+    assert(0 != 0 && "Not implemented");
+
+  if (src->x2_ho_block_list)
+    assert(0 != 0 && "Not implemented");
+
+  if (src->xn_ho_block_list)
+    assert(0 != 0 && "Not implemented");
+
+  values_of_attributes_t res = {0};
+  res.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction_NODE_LEVEL;
+  res.e2sm_ccc_o_gnb_cu_cp_function = cu_cp_function;
+
+  return res;
+}
+
+static
+values_of_attributes_t get_o_gnb_cu_up_func_node(ran_configuration_structure_json_t const* src){
+  assert(src != NULL);
+  e2sm_ccc_o_gnb_cu_up_function_t cu_up_function = {0};
+
+  if(src->gnb_id)
+    cu_up_function.gnb_id = *src->gnb_id;
+
+  if(src->gnb_id_length)
+    cu_up_function.gnb_id_len = *src->gnb_id_length;
+
+  if(src->gnb_cu_up_id)
+    cu_up_function.gnb_cu_up_id = *src->gnb_cu_up_id;
+
+  if(src->plmn_info_list){
+    int index = 0;
+    cu_up_function.sz_plmn_info_lst = src->plmn_info_list->count;
+    cu_up_function.plmn_info_lst = calloc(src->plmn_info_list->count, sizeof(e2sm_ccc_plmn_info_t));
+    assert(cu_up_function.plmn_info_lst != NULL && "Memory exhausted");
+    plmn_info_list_element_t* node = list_get_head(src->plmn_info_list);
+    while(node != NULL){
+      cu_up_function.plmn_info_lst[index].plmn_id = get_plmn_id_json(node->plmn_id);
+      cu_up_function.plmn_info_lst[index].s_nssai = calloc(1, sizeof(s_nssai_e2sm_t));
+      assert(cu_up_function.plmn_info_lst[index].s_nssai != NULL);
+      *cu_up_function.plmn_info_lst[index].s_nssai = get_s_nssai_e2sm(node->snssai);
+      node = list_get_next(src->plmn_info_list);
+      index++;
+    }
+  }
+
+  values_of_attributes_t dst = {0};
+  dst.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction_NODE_LEVEL;
+  dst.e2sm_ccc_o_gnb_cu_up_function = cu_up_function;
+
+
+  return dst;
+}
+
+static
+values_of_attributes_t  get_o_rrm_policy_ratio(ran_configuration_structure_json_t const* src){
+  assert(src != NULL);
+  e2sm_ccc_o_rrm_policy_ratio_t rrm_policy_ratio = {0};
+
+  rrm_policy_ratio.resource_type = *src->resource_type;
+
+  if (src->r_rm_policy_dedicated_ratio)
+    rrm_policy_ratio.rrm_policy_dedicated_ratio = *src->r_rm_policy_dedicated_ratio;
+
+  if (src->r_rm_policy_max_ratio)
+    rrm_policy_ratio.rrm_policy_max_ratio = *src->r_rm_policy_max_ratio;
+
+  if (src->r_rm_policy_min_ratio)
+    rrm_policy_ratio.rrm_policy_min_ratio = *src->r_rm_policy_min_ratio;
+
+  if(src->r_rm_policy_member_list){
+    int index = 0;
+    rrm_policy_ratio.sz_rrm_policy_member_lst= src->r_rm_policy_member_list->count;
+    rrm_policy_ratio.rrm_policy_member_lst= calloc(src->r_rm_policy_member_list->count, sizeof(e2sm_ccc_rrm_policy_member_t));
+    assert(rrm_policy_ratio.rrm_policy_member_lst!= NULL && "Memory exhausted");
+    r_rm_policy_member_list_element_t* node = list_get_head(src->r_rm_policy_member_list);
+    while(node != NULL){
+      rrm_policy_ratio.rrm_policy_member_lst[index].plmn_id = get_plmn_id_json(node->plmn_id);
+      rrm_policy_ratio.rrm_policy_member_lst[index].s_nssai = calloc(1, sizeof(s_nssai_e2sm_t));
+      assert(rrm_policy_ratio.rrm_policy_member_lst[index].s_nssai != NULL);
+      *rrm_policy_ratio.rrm_policy_member_lst[index].s_nssai = get_s_nssai_e2sm(node->snssai);
+      node = list_get_next(src->r_rm_policy_member_list);
+      index++;
+    }
+  }
+
+  values_of_attributes_t dst = {0};
+  dst.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_NODE_LEVEL;
+  dst.e2sm_ccc_o_rrm_policy_ratio = rrm_policy_ratio;
+
+  return dst;
+}
+
+static
+values_of_attributes_t  get_o_nr_cell_cu_cell(ran_configuration_structure_json_t const* src){
+  assert(src != NULL);
+  assert(0 != 0 && "Not implemented");
+}
+
+static
+values_of_attributes_t get_o_nr_cell_du_cell(ran_configuration_structure_json_t const* src){
+  assert(src != NULL);
+  assert(0 != 0 && "Not implemented");
+}
+
+static
+values_of_attributes_t get_o_bwp_cell(ran_configuration_structure_json_t const* src){
+  assert(src != NULL);
+  assert(0 != 0 && "Not implemented");
+}
+
+static
+values_of_attributes_t get_o_ces_man_func_cell(ran_configuration_structure_json_t const* src){
+  assert(src != NULL);
+  assert(0 != 0 && "Not implemented");
+}
+
+static
+values_of_attributes_t get_values_of_attributes(const char* ran_conf_name, ran_configuration_structure_json_t const* ran_conf_str_json){
+  assert(ran_conf_name != NULL);
+  assert(ran_conf_str_json != NULL);
+
+  values_of_attributes_t res = {0};
+
+  if (strcmp(ran_conf_name, "O-GNBDUFunction") == 0)
+    res = get_o_gnb_du_func_node(ran_conf_str_json);
+
+  if (strcmp(ran_conf_name, "O-GNBCUCPFunction") == 0)
+    res = get_o_gnb_cu_cp_func_node(ran_conf_str_json);
+
+  if (strcmp(ran_conf_name, "O-GNBCUUPFunction") == 0)
+    res = get_o_gnb_cu_up_func_node(ran_conf_str_json);
+
+  if (strcmp(ran_conf_name, "O-RRMPolicyRatio") == 0)
+    res = get_o_rrm_policy_ratio(ran_conf_str_json);
+
+  if (strcmp(ran_conf_name, "O-NRCellCU") == 0)
+    res = get_o_nr_cell_cu_cell(ran_conf_str_json);
+
+  if (strcmp(ran_conf_name, "O-NRCellDU") == 0)
+    res = get_o_nr_cell_du_cell(ran_conf_str_json);
+
+  if (strcmp(ran_conf_name, "O-BWP") == 0)
+    res = get_o_bwp_cell(ran_conf_str_json);
+
+  if (strcmp(ran_conf_name, "O-RRMPolicyRatio") == 0)
+    res = get_o_rrm_policy_ratio(ran_conf_str_json);
+
+  if (strcmp(ran_conf_name, "O-CESManagementFunction") == 0)
+    res = get_o_ces_man_func_cell(ran_conf_str_json);
+
+  return res;
+}
+
+static
 ind_msg_ran_conf_t* get_ind_msg_ran_conf(list_t* const src){
   assert(src != NULL);
   ind_msg_ran_conf_t* res = calloc(src->count, sizeof(ind_msg_ran_conf_t));
@@ -182,8 +412,12 @@ ind_msg_ran_conf_t* get_ind_msg_ran_conf(list_t* const src){
   while (ran_conf!= NULL){
     res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
     res[index].change_type = ran_conf->change_type;
-    res[index].vals_attributes = cp_str_to_ba(ran_conf->values_of_attributes);
-    res[index].old_vals_attributes = cp_str_to_ba(ran_conf->old_values_of_attributes);
+    res[index].vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->values_of_attributes->ran_configuration_structure);
+    if (ran_conf->old_values_of_attributes){
+      res[index].old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+      assert(res[index].old_vals_attributes != NULL);
+      *res[index].old_vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
+    }
     ran_conf = list_get_next(src);
     index++;
   }
