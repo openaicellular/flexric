@@ -8,6 +8,7 @@
 #include "cell_global_id_json.h"
 #include "plmn_id_json.h"
 #include "../ir/change_type.h"
+#include "../ir/e2sm_ccc_o_rrm_policy_ratio.h"
 
 typedef enum {
   ADMINISTRATIVE_STATE_locked,
@@ -66,13 +67,13 @@ typedef enum{
 
 typedef struct {
   char * sd;
-  int64_t * sst;
-} snssai_t;
+  uint8_t * sst;
+} snssai_json_t;
 
 typedef struct {
   list_t * the_5_qi_list;
   plmn_id_json_t * plmn_id;
-  snssai_t * snssai;
+  snssai_json_t * snssai;
 } partition_flow_list_element_t;
 
 typedef struct {
@@ -83,25 +84,18 @@ typedef struct {
 
 typedef struct {
   plmn_id_json_t * plmn_id;
-  snssai_t * snssai;
+  snssai_json_t * snssai;
 } plmn_info_list_element_t;
 
 typedef struct {
   plmn_id_json_t * plmn_id;
-  snssai_t * snssai;
+  snssai_json_t * snssai;
 } r_rm_policy_member_list_element_t;
-
-typedef enum {
-  RESOURCE_TYPE_drb,
-  RESOURCE_TYPE_prb_dl,
-  RESOURCE_TYPE_prb_ul,
-  RESOURCE_TYPE_rrc,
-} resource_type_e;
 
 typedef struct {
   char * gnb_cu_name;
-  int64_t * gnb_id;
-  int64_t * gnb_id_length;
+  uint32_t* gnb_id;
+  uint8_t* gnb_id_length;
   plmn_id_json_t * plmn_id;
   list_t * x2_allow_list;
   list_t * x2_block_list;
@@ -109,9 +103,9 @@ typedef struct {
   list_t * xn_allow_list;
   list_t * xn_block_list;
   list_t * xn_ho_block_list;
-  double * gnb_cu_up_id;
+  uint64_t * gnb_cu_up_id;
   list_t * plmn_info_list;
-  double * gnb_du_id;
+  uint64_t * gnb_du_id;
   char * gnb_du_name;
   int64_t * cell_local_id;
   administrative_state_e * administrative_state;
@@ -133,10 +127,10 @@ typedef struct {
   int64_t * ssb_periodicity;
   int64_t * ssb_sub_carrier_spacing;
   resource_type_e * resource_type;
-  int64_t * r_rm_policy_dedicated_ratio;
-  int64_t * r_rm_policy_max_ratio;
+  uint8_t * r_rm_policy_dedicated_ratio;
+  uint8_t * r_rm_policy_max_ratio;
   list_t * r_rm_policy_member_list;
-  int64_t * r_rm_policy_min_ratio;
+  uint8_t * r_rm_policy_min_ratio;
   bwp_context_e * bwp_context;
   cyclic_prefix_e * cyclic_prefix;
   is_initial_bwp_e * is_initial_bwp;
@@ -146,21 +140,17 @@ typedef struct {
   bool * ces_switch;
   energy_saving_control_e * energy_saving_control;
   energy_saving_state_e * energy_saving_state;
-} ran_configuration_structure_t;
+} ran_configuration_structure_json_t;
 
 typedef struct {
-  ran_configuration_structure_t * ran_configuration_structure;
-}old_values_of_attributes_t;
+  ran_configuration_structure_json_t * ran_configuration_structure;
+}values_of_attributes_json_t;
 
 typedef struct {
   change_type_e change_type;
   char * ran_configuration_structure_name;
-//  old_values_of_attributes_t * values_of_attributes;
-  // TODO: Conflicting O-RAN json schema
-  char * values_of_attributes;
-//  old_values_of_attributes_t * old_values_of_attributes;
-  // TODO: Conflicting O-RAN json schema
-  char * old_values_of_attributes;
+  values_of_attributes_json_t * values_of_attributes;
+  values_of_attributes_json_t * old_values_of_attributes;
 }list_of_configuration_structures_reported_element_t ;
 
 typedef struct{
@@ -171,10 +161,10 @@ typedef struct{
 typedef struct{
   list_t * list_of_configuration_structures_reported;
   list_t * list_of_cells_reported;
-} indication_message_format_t;
+} indication_message_format_json_t;
 
 typedef struct {
-  indication_message_format_t * indication_message_format;
+  indication_message_format_json_t * indication_message_format;
 } ric_indication_message_json_t ;
 
 change_type_e cJSON_Getchange_typeValue(const cJSON * j);
@@ -219,11 +209,11 @@ cJSON * cJSON_Createbwp_list_element(const bwp_list_element_t * x);
 char * cJSON_Printbwp_list_element(const bwp_list_element_t * x);
 void cJSON_Deletebwp_list_element(bwp_list_element_t * x);
 
-snssai_t * cJSON_Parsesnssai(const char * s);
-snssai_t * cJSON_GetsnssaiValue(const cJSON * j);
-cJSON * cJSON_Createsnssai(const snssai_t * x);
-char * cJSON_Printsnssai(const snssai_t * x);
-void cJSON_Deletesnssai(snssai_t * x);
+snssai_json_t * cJSON_Parsesnssai(const char * s);
+snssai_json_t * cJSON_GetsnssaiValue(const cJSON * j);
+cJSON * cJSON_Createsnssai(const snssai_json_t * x);
+char * cJSON_Printsnssai(const snssai_json_t * x);
+void cJSON_Deletesnssai(snssai_json_t * x);
 
 partition_flow_list_element_t * cJSON_Parsepartition_flow_list_element(const char * s);
 partition_flow_list_element_t * cJSON_Getpartition_flow_list_elementValue(const cJSON * j);
@@ -249,17 +239,17 @@ cJSON * cJSON_Creater_rm_policy_member_list_element(const r_rm_policy_member_lis
 char * cJSON_Printr_rm_policy_member_list_element(const r_rm_policy_member_list_element_t * x);
 void cJSON_Deleter_rm_policy_member_list_element(r_rm_policy_member_list_element_t * x);
 
-ran_configuration_structure_t * cJSON_Parseran_configuration_structure(const char * s);
-ran_configuration_structure_t * cJSON_Getran_configuration_structureValue(const cJSON * j);
-cJSON * cJSON_Createran_configuration_structure(const ran_configuration_structure_t * x);
-char * cJSON_Printran_configuration_structure(const ran_configuration_structure_t * x);
-void cJSON_Deleteran_configuration_structure(ran_configuration_structure_t * x);
+ran_configuration_structure_json_t * cJSON_Parseran_configuration_structure(const char * s);
+ran_configuration_structure_json_t * cJSON_Getran_configuration_structureValue(const cJSON * j);
+cJSON * cJSON_Createran_configuration_structure(const ran_configuration_structure_json_t * x);
+char * cJSON_Printran_configuration_structure(const ran_configuration_structure_json_t * x);
+void cJSON_Deleteran_configuration_structure(ran_configuration_structure_json_t * x);
 
-old_values_of_attributes_t * cJSON_Parseold_values_of_attributes(const char * s);
-old_values_of_attributes_t * cJSON_Getold_values_of_attributesValue(const cJSON * j);
-cJSON * cJSON_Createold_values_of_attributes(const old_values_of_attributes_t * x);
-char * cJSON_Printold_values_of_attributes(const old_values_of_attributes_t * x);
-void cJSON_Deleteold_values_of_attributes(old_values_of_attributes_t * x);
+values_of_attributes_json_t * cJSON_Parseold_values_of_attributes(const char * s);
+values_of_attributes_json_t * cJSON_Getold_values_of_attributesValue(const cJSON * j);
+cJSON * cJSON_Createold_values_of_attributes(const values_of_attributes_json_t * x);
+char * cJSON_Printold_values_of_attributes(const values_of_attributes_json_t * x);
+void cJSON_Deleteold_values_of_attributes(values_of_attributes_json_t * x);
 
 list_of_configuration_structures_reported_element_t * cJSON_Parselist_of_configuration_structures_reported_element(const char * s);
 list_of_configuration_structures_reported_element_t * cJSON_Getlist_of_configuration_structures_reported_elementValue(const cJSON * j);
@@ -273,11 +263,11 @@ cJSON * cJSON_Createlist_of_cells_reported_element(const list_of_cells_reported_
 char * cJSON_Printlist_of_cells_reported_element(const list_of_cells_reported_element_t * x);
 void cJSON_Deletelist_of_cells_reported_element(list_of_cells_reported_element_t * x);
 
-indication_message_format_t * cJSON_Parseindication_message_format(const char * s);
-indication_message_format_t * cJSON_Getindication_message_formatValue(const cJSON * j);
-cJSON * cJSON_Createindication_message_format(const indication_message_format_t * x);
-char * cJSON_Printindication_message_format(const indication_message_format_t * x);
-void cJSON_Deleteindication_message_format(indication_message_format_t * x);
+indication_message_format_json_t * cJSON_Parseindication_message_format(const char * s);
+indication_message_format_json_t * cJSON_Getindication_message_formatValue(const cJSON * j);
+cJSON * cJSON_Createindication_message_format(const indication_message_format_json_t * x);
+char * cJSON_Printindication_message_format(const indication_message_format_json_t * x);
+void cJSON_Deleteindication_message_format(indication_message_format_json_t * x);
 
 ric_indication_message_json_t * cJSON_Parseric_indication_message(const char * s);
 ric_indication_message_json_t * cJSON_Getric_indication_messageValue(const cJSON * j);
