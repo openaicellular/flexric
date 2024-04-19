@@ -11,12 +11,12 @@ typedef struct{
   // Mandatory
   // 9.3.12
   // E2SM 6.2.3.1
-  e2sm_plmn_t* plmn_id;
+  e2sm_plmn_t plmn_id;
 
   // Optional
   // 9.3.13
   // E2SM 6.2.3.12
-  s_nssai_e2sm_t s_nssai;
+  s_nssai_e2sm_t* s_nssai;
 } e2sm_ccc_plmn_info_t;
 
 void free_e2sm_ccc_plmn_info(e2sm_ccc_plmn_info_t* src);

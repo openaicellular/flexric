@@ -24,6 +24,9 @@ typedef struct{
   e2sm_plmn_t plmn_id;
 
   // String
+  // Conflict with O-RAN structure
+  // Following the json schema
+  // TODO: Change to array type
   char* x2_block_list;
 
   // String

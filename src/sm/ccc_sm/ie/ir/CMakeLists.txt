@@ -10,6 +10,13 @@ set (IR_CCC_SRC
         func_def_ran_conf.c
         ctrl_out_conf_accepted.c
         ctrl_out_conf_failed.c
+        e2sm_ccc_plmn_info.c
+        e2sm_ccc_rrm_policy_member.c
+        e2sm_ccc_o_gnb_du_function.c
+        e2sm_ccc_o_gnb_cu_cp_function.c
+        e2sm_ccc_o_gnb_cu_up_function.c
+        e2sm_ccc_o_rrm_policy_ratio.c
+        values_of_attributes.c
         e2sm_ccc_act_def_frmt_1.c
         e2sm_ccc_act_def_frmt_2.c
         e2sm_ccc_ctrl_hdr_frmt_1.c

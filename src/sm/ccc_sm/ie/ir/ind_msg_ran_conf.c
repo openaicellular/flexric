@@ -12,11 +12,13 @@ void free_ind_msg_ran_conf(ind_msg_ran_conf_t* src)
 
   free_byte_array(src->ran_conf_name);
 
-  free_byte_array(src->vals_attributes);
+  free_values_of_attributes(&src->vals_attributes);
 
   // Optional
-  if (src->old_vals_attributes.buf != NULL)
-    free_byte_array(src->old_vals_attributes);
+  if (src->old_vals_attributes != NULL){
+    free_values_of_attributes(src->old_vals_attributes);
+    free(src->old_vals_attributes);
+  }
 }
 
 bool eq_ind_msg_ran_conf(ind_msg_ran_conf_t const* m0, ind_msg_ran_conf_t  const* m1)
@@ -33,13 +35,12 @@ bool eq_ind_msg_ran_conf(ind_msg_ran_conf_t const* m0, ind_msg_ran_conf_t  const
   if(eq_byte_array(&m0->ran_conf_name, &m1->ran_conf_name) == false)
     return false;
 
-  if(eq_byte_array(&m0->vals_attributes, &m1->vals_attributes) == false)
+  if(eq_values_of_attributes(&m0->vals_attributes, &m1->vals_attributes) == false)
     return false;
 
   // Optional
-  if(m0->old_vals_attributes.buf != NULL && m1->old_vals_attributes.buf != NULL)
-    if(eq_byte_array(&m0->old_vals_attributes, &m1->old_vals_attributes) == false)
-      return false;
+  if(eq_values_of_attributes(m0->old_vals_attributes, m1->old_vals_attributes) == false)
+    return false;
 
   return true;
 }
@@ -56,10 +57,13 @@ ind_msg_ran_conf_t cp_ind_msg_ran_conf(ind_msg_ran_conf_t const* src)
 
   dst.ran_conf_name = copy_byte_array(src->ran_conf_name);
 
-  dst.vals_attributes = copy_byte_array(src->vals_attributes);
+  dst.vals_attributes = cp_values_of_attributes(&src->vals_attributes);
 
-  if (src->old_vals_attributes.buf != NULL)
-    dst.old_vals_attributes = copy_byte_array(src->old_vals_attributes);
+  if (src->old_vals_attributes != NULL){
+    dst.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+    assert(dst.old_vals_attributes != NULL);
+    *dst.old_vals_attributes = cp_values_of_attributes(src->old_vals_attributes);
+  }
 
   return dst;
 }

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "../../../../util/byte_array.h"
+#include "values_of_attributes.h"
 #include "change_type.h"
 
 typedef struct{
@@ -18,11 +19,11 @@ typedef struct{
 
   // Values of Attributes
   // Mandatory
-  byte_array_t vals_attributes;
+  values_of_attributes_t vals_attributes;
 
   // Old Values of Attributes
   // Optional
-  byte_array_t old_vals_attributes;
+  values_of_attributes_t* old_vals_attributes;
 
 } ind_msg_ran_conf_t;
 
