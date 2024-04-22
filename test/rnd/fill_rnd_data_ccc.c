@@ -27,6 +27,28 @@
 #include <limits.h>
 
 static
+e2sm_plmn_t fill_rnd_plmn_id(){
+  e2sm_plmn_t dst = (e2sm_plmn_t) {
+      .mcc = (rand()%900) + 100,
+      .mnc = (rand()%90) + 10,
+      .mnc_digit_len = 2
+  };
+
+  return dst;
+}
+
+static
+s_nssai_e2sm_t fill_rnd_s_nssai_e2sm(){
+  s_nssai_e2sm_t dst = {0};
+
+  dst.sST = (rand() % (1 << 8)) + 1;
+  dst.sD = calloc(1, sizeof(uint32_t));
+  *dst.sD = 786432; //  (rand() % 2^24) + 0;
+
+  return dst;
+}
+
+static
 cell_global_id_t fill_rnd_cell_global_id()
 {
   cell_global_id_t dst = {0};
@@ -34,11 +56,7 @@ cell_global_id_t fill_rnd_cell_global_id()
   // CHOICE RAT type
   // Mandatory
   dst.type = NR_CGI_RAT_TYPE;
-  dst.nr_cgi.plmn_id = (e2sm_plmn_t) {
-    .mcc = (rand()%900) + 100,
-    .mnc = (rand()%90) + 10,
-    .mnc_digit_len = 2
-  };
+  dst.nr_cgi.plmn_id = fill_rnd_plmn_id();
   dst.nr_cgi.nr_cell_id = rand()% (1UL << 36);
 
   return dst;
@@ -229,18 +247,77 @@ e2sm_ccc_o_gnb_du_function_t fill_rnd_du_function_node(){
 }
 
 static
+e2sm_ccc_o_gnb_cu_cp_function_t fill_rnd_cu_cp_function_node(){
+  e2sm_ccc_o_gnb_cu_cp_function_t dst = {0};
+
+  dst.gnb_id_len = rand()%(1 << 8);
+  dst.gnb_id = rand()%4294967295;
+  dst.gnb_cu_name = strdup("gnb_cu_name");
+  dst.plmn_id = fill_rnd_plmn_id();
+  // TODO: Fill x2_block_list
+
+  return dst;
+}
+
+static
+e2sm_ccc_o_gnb_cu_up_function_t fill_rnd_cu_up_function_node(){
+  e2sm_ccc_o_gnb_cu_up_function_t dst = {0};
+
+  dst.gnb_id_len = rand()%(1 << 8);
+  dst.gnb_id = rand()%4294967295;
+  dst.gnb_cu_up_id = rand()%(1UL << 36);
+
+  dst.sz_plmn_info_lst = (rand()%3) + 1;
+  dst.plmn_info_lst = calloc(dst.sz_plmn_info_lst, sizeof(e2sm_ccc_plmn_info_t));
+  assert(dst.plmn_info_lst != NULL);
+  for (size_t i = 0; i < dst.sz_plmn_info_lst; i++){
+    dst.plmn_info_lst[i].plmn_id = fill_rnd_plmn_id();
+    if (rand()%2 == 1){
+      dst.plmn_info_lst[i].s_nssai = calloc(1, sizeof(s_nssai_e2sm_t));
+      assert(dst.plmn_info_lst[i].s_nssai != NULL);
+      *dst.plmn_info_lst[i].s_nssai = fill_rnd_s_nssai_e2sm();
+    }
+  }
+  return dst;
+}
+
+static
+e2sm_ccc_o_rrm_policy_ratio_t fill_rnd_o_rrm_policy_ratio(){
+  e2sm_ccc_o_rrm_policy_ratio_t dst = {0};
+
+  dst.rrm_policy_min_ratio = rand()%(1 << 8);
+  dst.rrm_policy_max_ratio = rand()%(1 << 8);
+  dst.rrm_policy_dedicated_ratio = rand()%(1 << 8);
+  dst.resource_type = rand()%END_RESOURCE_TYPE;
+
+  dst.sz_rrm_policy_member_lst = (rand()%3) + 1;
+  dst.rrm_policy_member_lst = calloc(dst.sz_rrm_policy_member_lst, sizeof(e2sm_ccc_rrm_policy_member_t));
+  assert(dst.rrm_policy_member_lst != NULL);
+  for (size_t i = 0; i < dst.sz_rrm_policy_member_lst; i++){
+    dst.rrm_policy_member_lst[i].plmn_id = fill_rnd_plmn_id();
+    if (rand()%2 == 1){
+      dst.rrm_policy_member_lst[i].s_nssai = calloc(1, sizeof(s_nssai_e2sm_t));
+      assert(dst.rrm_policy_member_lst[i].s_nssai != NULL);
+      *dst.rrm_policy_member_lst[i].s_nssai = fill_rnd_s_nssai_e2sm();
+    }
+  }
+
+  return dst;
+}
+
+static
 ind_msg_ran_conf_t get_o_gnb_du_func_node(){
   ind_msg_ran_conf_t res = {0};
 
   res.ran_conf_name = cp_str_to_ba("O-GNBDUFunction");
   res.change_type = rand()%END_CHANGE_TYPE;
-  res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBDUFunction_NODE_LEVEL;
+  res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBDUFunction;
   res.vals_attributes.e2sm_ccc_o_gnb_du_function = fill_rnd_du_function_node();
 
   if(rand()%2 == 1){
     res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
     assert(res.old_vals_attributes != NULL);
-    res.old_vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBDUFunction_NODE_LEVEL;
+    res.old_vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBDUFunction;
     res.old_vals_attributes->e2sm_ccc_o_gnb_du_function = fill_rnd_du_function_node();
   }
 
@@ -249,12 +326,40 @@ ind_msg_ran_conf_t get_o_gnb_du_func_node(){
 
 static
 ind_msg_ran_conf_t get_o_gnb_cu_cp_func_node(){
-  assert(0 != 0 && "Not implemented fill rnd o_gnb_cu_cp_func_node");
+  ind_msg_ran_conf_t res = {0};
+
+  res.ran_conf_name = cp_str_to_ba("O-GNBCUCPFunction");
+  res.change_type = rand()%END_CHANGE_TYPE;
+  res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction;
+  res.vals_attributes.e2sm_ccc_o_gnb_cu_cp_function= fill_rnd_cu_cp_function_node();
+
+  if(rand()%2 == 1){
+    res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+    assert(res.old_vals_attributes != NULL);
+    res.old_vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction;
+    res.old_vals_attributes->e2sm_ccc_o_gnb_cu_cp_function= fill_rnd_cu_cp_function_node();
+  }
+
+  return res;
 }
 
 static
 ind_msg_ran_conf_t get_o_gnb_cu_up_func_node(){
-  assert(0 != 0 && "Not implemented fill rnd o_gnb_cu_up_func_node");
+  ind_msg_ran_conf_t res = {0};
+
+  res.ran_conf_name = cp_str_to_ba("O-GNBCUUPFunction");
+  res.change_type = rand()%END_CHANGE_TYPE;
+  res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction;
+  res.vals_attributes.e2sm_ccc_o_gnb_cu_up_function= fill_rnd_cu_up_function_node();
+
+  if(rand()%2 == 1){
+    res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+    assert(res.old_vals_attributes != NULL);
+    res.old_vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction;
+    res.old_vals_attributes->e2sm_ccc_o_gnb_cu_up_function = fill_rnd_cu_up_function_node();
+  }
+
+  return res;
 }
 
 static
@@ -274,7 +379,21 @@ ind_msg_ran_conf_t get_o_bwp_cell(){
 
 static
 ind_msg_ran_conf_t get_o_rrm_policy_ratio(){
-  assert(0 != 0 && "Not implemented fill rnd o_rrm_policy_ratio");
+  ind_msg_ran_conf_t res = {0};
+
+  res.ran_conf_name = cp_str_to_ba("O-RRMPolicyRatio");
+  res.change_type = rand()%END_CHANGE_TYPE;
+  res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio;
+  res.vals_attributes.e2sm_ccc_o_rrm_policy_ratio = fill_rnd_o_rrm_policy_ratio();
+
+  if(rand()%2 == 1){
+    res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+    assert(res.old_vals_attributes != NULL);
+    res.old_vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio;
+    res.old_vals_attributes->e2sm_ccc_o_rrm_policy_ratio = fill_rnd_o_rrm_policy_ratio();
+  }
+
+  return res;
 }
 
 static
@@ -287,31 +406,28 @@ ind_msg_ran_conf_t fill_rnd_ind_msg_ran_conf(){
  values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
 
   switch (values_of_attributes_type) {
-    case VALUES_OF_ATTRIBUTES_O_GNBDUFunction_NODE_LEVEL:
+    case VALUES_OF_ATTRIBUTES_O_GNBDUFunction:
       res = get_o_gnb_du_func_node();
       break;
-    case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction_NODE_LEVEL:
+    case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction:
       res = get_o_gnb_cu_cp_func_node();
       break;
-    case VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction_NODE_LEVEL:
+    case VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction:
       res = get_o_gnb_cu_up_func_node();
       break;
-    case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_NODE_LEVEL:
+    case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio:
       res = get_o_rrm_policy_ratio();
       break;
-    case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_CELL_LEVEL:
-      res = get_o_rrm_policy_ratio();
-      break;
-    case VALUES_OF_ATTRIBUTES_O_CESManagementFunction_CELL_LEVEL:
+    case VALUES_OF_ATTRIBUTES_O_CESManagementFunction:
       res = get_o_ces_man_func_cell();
       break;
-    case VALUES_OF_ATTRIBUTES_O_BWP_CELL_LEVEL:
+    case VALUES_OF_ATTRIBUTES_O_BWP:
       res = get_o_bwp_cell();
       break;
-    case VALUES_OF_ATTRIBUTES_O_NRCellDU_CELL_LEVEL:
+    case VALUES_OF_ATTRIBUTES_O_NRCellDU:
       res = get_o_nr_cell_du_cell();
       break;
-    case VALUES_OF_ATTRIBUTES_O_NRCellCU_CELL_LEVEL:
+    case VALUES_OF_ATTRIBUTES_O_NRCellCU:
       res = get_o_nr_cell_cu_cell();
       break;
     default:

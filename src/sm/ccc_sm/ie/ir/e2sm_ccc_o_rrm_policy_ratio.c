@@ -17,8 +17,7 @@ void free_e2sm_ccc_o_rrm_policy_ratio(e2sm_ccc_o_rrm_policy_ratio_t* src)
     free_e2sm_ccc_rrm_policy_member(&src->rrm_policy_member_lst[i]);
   }
 
-  if (src->rrm_policy_member_lst != NULL)
-    free(src->rrm_policy_member_lst);
+  free(src->rrm_policy_member_lst);
 }
 
 bool eq_e2sm_ccc_o_rrm_policy_ratio(e2sm_ccc_o_rrm_policy_ratio_t const* m0, e2sm_ccc_o_rrm_policy_ratio_t const* m1)

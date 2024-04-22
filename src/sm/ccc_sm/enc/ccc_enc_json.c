@@ -32,6 +32,42 @@
 
 #include <assert.h>
 
+static
+plmn_id_json_t* create_plmn_id_json(e2sm_plmn_t const src){
+  plmn_id_json_t* dst = calloc(1, sizeof(plmn_id_json_t));
+  assert(dst != NULL && "Memory exhausted");
+
+  int length = snprintf(NULL, 0, "%hu", src.mcc);
+  dst->mcc = (char *)malloc((length + 1) * sizeof(char));
+  assert(dst->mcc != NULL && "Memory exhausted");
+  snprintf(dst->mcc, length + 1, "%hu", src.mcc);
+
+  length = snprintf(NULL, 0, "%hu", src.mnc);
+  dst->mnc = (char *)malloc((length + 1) * sizeof(char));
+  assert(dst->mnc != NULL && "Memory exhausted");
+  snprintf(dst->mnc, length + 1, "%hu", src.mnc);
+
+  return dst;
+}
+
+static
+snssai_json_t* create_snssai_json(s_nssai_e2sm_t const src){
+  snssai_json_t * dst = calloc(1, sizeof(snssai_json_t));
+  assert(dst != NULL && "Memory exhausted");
+
+  dst->sst = calloc(1, sizeof(uint8_t));
+  assert(dst->sst != NULL);
+  *dst->sst = src.sST;
+
+  if (src.sD){
+    int length = snprintf(NULL, 0, "%d", *src.sD);
+    dst->sd = (char *)malloc((length + 1) * sizeof(char));
+    assert(dst->sd!= NULL && "Memory exhausted");
+    snprintf(dst->sd, length + 1, "%d", *src.sD);
+  }
+
+  return dst;
+}
 
 static
 cell_global_id_json_t* create_cell_global_id(cell_global_id_t const src){
@@ -43,18 +79,7 @@ cell_global_id_json_t* create_cell_global_id(cell_global_id_t const src){
   assert(cell_id->n_r_cell_identity != NULL && "Memory exhausted");
   snprintf(cell_id->n_r_cell_identity, length + 1, "%lu", (uint64_t)src.nr_cgi.nr_cell_id);
 
-  cell_id->plmn_identity = calloc(1, sizeof(plmn_id_json_t));
-  assert(cell_id->plmn_identity != NULL && "Memory exhausted");
-
-  length = snprintf(NULL, 0, "%hu", src.nr_cgi.plmn_id.mcc);
-  cell_id->plmn_identity->mcc = (char *)malloc((length + 1) * sizeof(char));
-  assert(cell_id->plmn_identity->mcc != NULL && "Memory exhausted");
-  snprintf(cell_id->plmn_identity->mcc, length + 1, "%hu", src.nr_cgi.plmn_id.mcc);
-
-  length = snprintf(NULL, 0, "%hu", src.nr_cgi.plmn_id.mnc);
-  cell_id->plmn_identity->mnc = (char *)malloc((length + 1) * sizeof(char));
-  assert(cell_id->plmn_identity->mnc != NULL && "Memory exhausted");
-  snprintf(cell_id->plmn_identity->mnc, length + 1, "%hu", src.nr_cgi.plmn_id.mnc);
+  cell_id->plmn_identity = create_plmn_id_json(src.nr_cgi.plmn_id);
 
   return cell_id;
 }
@@ -266,6 +291,7 @@ byte_array_t ccc_enc_ind_hdr_json(e2sm_ccc_ind_hdr_t const* src)
   return ba;
 }
 
+static
 ran_configuration_structure_json_t* create_du_function_node(e2sm_ccc_o_gnb_du_function_t const src){
   ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
   assert(dst != NULL);
@@ -289,37 +315,87 @@ ran_configuration_structure_json_t* create_du_function_node(e2sm_ccc_o_gnb_du_fu
 }
 
 static
+r_rm_policy_member_list_element_t* create_rrm_policy_member_list_member(e2sm_ccc_rrm_policy_member_t const src){
+  r_rm_policy_member_list_element_t* dst = calloc(1, sizeof(r_rm_policy_member_list_element_t));
+  assert(dst != NULL);
+
+  dst->plmn_id = create_plmn_id_json(src.plmn_id);
+
+  if (src.s_nssai!= NULL){
+    dst->snssai = create_snssai_json(*src.s_nssai);
+  }
+
+  return dst;
+}
+
+static
+ran_configuration_structure_json_t* create_rrm_policy_ratio(e2sm_ccc_o_rrm_policy_ratio_t const src){
+  ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
+  assert(dst != NULL);
+
+  //  src.rrm_policy_min_ratio
+  dst->r_rm_policy_min_ratio = calloc(1, sizeof(uint8_t));
+  assert(dst->r_rm_policy_min_ratio!= NULL);
+  *dst->r_rm_policy_min_ratio = src.rrm_policy_min_ratio;
+
+  //  src.rrm_policy_max_ratio
+  dst->r_rm_policy_max_ratio = calloc(1, sizeof(uint8_t));
+  assert(dst->r_rm_policy_max_ratio!= NULL);
+  *dst->r_rm_policy_max_ratio = src.rrm_policy_max_ratio;
+
+  //  src.rrm_policy_dedicated_ratio
+  dst->r_rm_policy_dedicated_ratio = calloc(1, sizeof(uint8_t));
+  assert(dst->r_rm_policy_dedicated_ratio != NULL);
+  *dst->r_rm_policy_dedicated_ratio = src.rrm_policy_dedicated_ratio;
+
+  //  src.resource_type
+  dst->resource_type = calloc(1, sizeof(resource_type_e));
+  assert(dst->resource_type != NULL);
+  *dst->resource_type = src.resource_type;
+
+  //  src.rrm_policy_member_lst
+  //  src.sz_rrm_policy_member_lst
+  dst->r_rm_policy_member_list = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_rrm_policy_member_lst ; ++i){
+    list_add_tail(
+        dst->r_rm_policy_member_list,
+        create_rrm_policy_member_list_member(src.rrm_policy_member_lst[i]),
+        sizeof(r_rm_policy_member_list_element_t*)
+    );
+  }
+
+  return dst;
+}
+
+static
 values_of_attributes_json_t* create_values_of_attributes(values_of_attributes_t const* src){
   assert(src != NULL);
   values_of_attributes_json_t* res = calloc(1, sizeof(values_of_attributes_json_t));
 
   switch (src->values_of_attributes_type) {
-    case VALUES_OF_ATTRIBUTES_O_GNBDUFunction_NODE_LEVEL:
+    case VALUES_OF_ATTRIBUTES_O_GNBDUFunction:
       res->ran_configuration_structure = create_du_function_node(src->e2sm_ccc_o_gnb_du_function);
       break;
-    case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_NODE_LEVEL:
-      assert("No support VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_NODE_LEVEL");
+    case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio:
+      res->ran_configuration_structure = create_rrm_policy_ratio(src->e2sm_ccc_o_rrm_policy_ratio);
       break;
-    case VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction_NODE_LEVEL:
-      assert("No support VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction_NODE_LEVEL");
+    case VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction:
+      assert("No support VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction");
       break;
-    case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction_NODE_LEVEL:
-      assert("No support VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction_NODE_LEVEL");
+    case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction:
+      assert("No support VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction");
       break;
-    case VALUES_OF_ATTRIBUTES_O_CESManagementFunction_CELL_LEVEL:
-      assert("No support VALUES_OF_ATTRIBUTES_O_CESManagementFunction_CELL_LEVEL");
+    case VALUES_OF_ATTRIBUTES_O_CESManagementFunction:
+      assert("No support VALUES_OF_ATTRIBUTES_O_CESManagementFunction");
       break;
-    case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_CELL_LEVEL:
-      assert("No support VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio_CELL_LEVEL");
+    case VALUES_OF_ATTRIBUTES_O_BWP:
+      assert("No support VALUES_OF_ATTRIBUTES_O_BWP");
       break;
-    case VALUES_OF_ATTRIBUTES_O_BWP_CELL_LEVEL:
-      assert("No support VALUES_OF_ATTRIBUTES_O_BWP_CELL_LEVEL");
+    case VALUES_OF_ATTRIBUTES_O_NRCellDU:
+      assert("No support VALUES_OF_ATTRIBUTES_O_NRCellDU");
       break;
-    case VALUES_OF_ATTRIBUTES_O_NRCellDU_CELL_LEVEL:
-      assert("No support VALUES_OF_ATTRIBUTES_O_NRCellDU_CELL_LEVEL");
-      break;
-    case VALUES_OF_ATTRIBUTES_O_NRCellCU_CELL_LEVEL:
-      assert("No support VALUES_OF_ATTRIBUTES_O_NRCellCU_CELL_LEVEL");
+    case VALUES_OF_ATTRIBUTES_O_NRCellCU:
+      assert("No support VALUES_OF_ATTRIBUTES_O_NRCellCU");
       break;
     default:
       assert("No support for current configuration structure name - node level");

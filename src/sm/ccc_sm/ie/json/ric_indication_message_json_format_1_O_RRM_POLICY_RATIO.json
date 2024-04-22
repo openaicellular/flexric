@@ -1,0 +1,136 @@
+{
+  "indicationMessageFormat": {
+    "listOfConfigurationStructuresReported": [
+      {
+        "changeType": "deletion",
+        "ranConfigurationStructureName": "O-RRMPolicyRatio",
+        "valuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "resourceType": "PRB_DL",
+            "rRMPolicyDedicatedRatio": 104,
+            "rRMPolicyMaxRatio": 181,
+            "rRMPolicyMemberList": [
+              {
+                "plmnId": {
+                  "mcc": "100",
+                  "mnc": "19"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 117
+                }
+              }
+            ],
+            "rRMPolicyMinRatio": 175
+          }
+        }
+      },
+      {
+        "changeType": "none",
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "resourceType": "PRB_UL",
+            "rRMPolicyDedicatedRatio": 196,
+            "rRMPolicyMaxRatio": 14,
+            "rRMPolicyMemberList": [
+              {
+                "plmnId": {
+                  "mcc": "924",
+                  "mnc": "29"
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "581",
+                  "mnc": "64"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 175
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "249",
+                  "mnc": "94"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 214
+                }
+              }
+            ],
+            "rRMPolicyMinRatio": 142
+          }
+        },
+        "ranConfigurationStructureName": "O-RRMPolicyRatio",
+        "valuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "resourceType": "PRB_UL",
+            "rRMPolicyDedicatedRatio": 51,
+            "rRMPolicyMaxRatio": 63,
+            "rRMPolicyMemberList": [
+              {
+                "plmnId": {
+                  "mcc": "682",
+                  "mnc": "62"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 92
+                }
+              }
+            ],
+            "rRMPolicyMinRatio": 87
+          }
+        }
+      },
+      {
+        "changeType": "addition",
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "resourceType": "PRB_DL",
+            "rRMPolicyDedicatedRatio": 243,
+            "rRMPolicyMaxRatio": 186,
+            "rRMPolicyMemberList": [
+              {
+                "plmnId": {
+                  "mcc": "479",
+                  "mnc": "67"
+                }
+              }
+            ],
+            "rRMPolicyMinRatio": 169
+          }
+        },
+        "ranConfigurationStructureName": "O-RRMPolicyRatio",
+        "valuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "resourceType": "PRB_DL",
+            "rRMPolicyDedicatedRatio": 34,
+            "rRMPolicyMaxRatio": 73,
+            "rRMPolicyMemberList": [
+              {
+                "plmnId": {
+                  "mcc": "217",
+                  "mnc": "64"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 140
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "878",
+                  "mnc": "81"
+                }
+              }
+            ],
+            "rRMPolicyMinRatio": 236
+          }
+        }
+      }
+    ]
+  }
+}
