@@ -70,7 +70,7 @@ void e2_event_loop_agent_amr(e2_agent_amr_t* ag)
     switch(e.type){
       case WS_MSG_ARRIVED_EVENT:
         {
-          //defer({ free(&e.ws_msg.buf); });
+          defer({ free(e.ws_msg.buf); });
           int64_t t0 = time_now_us(); 
           msg_amr_t msg = msg_dec_amr_ag(&e.ws_msg);
           int64_t t1 = time_now_us(); 
@@ -89,7 +89,6 @@ void e2_event_loop_agent_amr(e2_agent_amr_t* ag)
           assert(0 != 0 && "Time out for pending event");
           break;
         }
-
       default:
         {
           assert(0!=0 && "Unknown event happened");
@@ -135,6 +134,7 @@ e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
   dst.msg_hndl[MSG_CONFIG_GET_AMR_E] = msg_handle_config_get; 
   dst.msg_hndl[MSG_STATS_AMR_E] = msg_handle_stats; 
   dst.msg_hndl[MSG_UE_GET_E] = msg_handle_ue_get; 
+  dst.msg_hndl[MSG_HANDOVER_E] = msg_handle_ho; 
 
   dst.stop_token = false;
   dst.stopped = false;
@@ -212,9 +212,6 @@ void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg)
   rc_pend_msg_t rc = init_rc_pend_msg(msg);
   defer({ free_rc_pend_msg(&rc); } );
  
-  int const msg_id0 = ag->msg_id++;
-  send_msg_stats_rc(ag, msg_id0, &rc);
-
   int const msg_id1 = ag->msg_id++;
   send_msg_ue_get_rc(ag, msg_id1, &rc);
 
@@ -226,11 +223,27 @@ void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg)
   int64_t t3 = time_now_us();
 
   // Other thread will notify it, once
-  // the kpm_msgs_amr_t answer is completely filled 
+  // the rc_msgs_amr_t answer is completely filled 
   wait_untill_filled_rp(&rc);
 
   int64_t t4 = time_now_us();
 
   printf("Elapsed RAN Control get %ld %ld %ld \n", t2 - t1, t3 - t2, t4 - t3);
+}
+
+void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, rc_msgs_amr_t* msg)
+{
+  assert(ag != NULL);
+
+  rc_pend_msg_t rc = {.ho = &msg->ho};
+  defer({ free_rc_pend_msg(&rc); } );
+
+  rc.latch = init_latch_cv(1);
+  defer({ free_latch_cv(&rc.latch); });
+
+  int const msg_id = ag->msg_id++;
+  send_ho_rc(ag, msg_id, &rc, pci, ran_ue_id);
+
+  wait_untill_filled_rp(&rc);
 }
 

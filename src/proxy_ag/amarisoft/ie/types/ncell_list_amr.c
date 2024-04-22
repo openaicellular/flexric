@@ -20,6 +20,7 @@ void free_ncell_list_amr(ncell_list_amr_t* src)
   // Optional
   if(src->ecgi != NULL){
     free_ecgi_amr(src->ecgi);
+    free(src->ecgi);
   }
 
   // Optional 
@@ -29,8 +30,10 @@ void free_ncell_list_amr(ncell_list_amr_t* src)
   free(src->n_id_nrcell);
 
   // Optional
-  if(src->ncgi != NULL) 
+  if(src->ncgi != NULL){ 
     free_ncgi_amr(src->ncgi);
+    free(src->ncgi);
+  }
 
   // Mandatory
   //bool handover_target;
@@ -44,15 +47,7 @@ void free_ncell_list_amr(ncell_list_amr_t* src)
   // Optional. Only applicable to E-UTRA cells.
   free(src->emergency_fallback_target);
 
-
-
-
-
 }
-
-
-
-
 
 ncell_list_amr_t parse_ncell_list_amr(void* it )
 {
@@ -75,11 +70,20 @@ ncell_list_amr_t parse_ncell_list_amr(void* it )
   //int* ssb_nr_arfcn;
 
   // Optional
-  //int* n_id_nrcell;
+  ans_cjson_t tmp = find_object(it, "n_id_nrcell");
+  if(tmp.it != NULL){
+    dst.n_id_nrcell = calloc(1, sizeof(int)); 
+    *dst.n_id_nrcell = tmp.it->valueint;
+  }
 
   // Optional
-  //ncgi_amr_t* ncgi;
-
+  exp_ncgi_amr_t e = parse_opt_ncgi_amr(it);
+  if(e.value == true){
+    dst.ncgi = calloc(1, sizeof(ncgi_amr_t));
+    assert(dst.ncgi != NULL && "Memory exhausted");
+    *dst.ncgi = e.ncgi_amr; 
+  }
+  
   // Mandatory
   dst.handover_target = parse_bool(it, "handover_target");
 

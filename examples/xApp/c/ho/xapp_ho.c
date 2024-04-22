@@ -4,16 +4,20 @@
 #include "../../../../src/sm/rc_sm/ie/ir/ran_param_struct.h"
 #include "../../../../src/util/alg_ds/ds/latch_cv/latch_cv.h"
 #include "../../../../src/util/alg_ds/alg/defer.h"
+#include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "../../../../src/sm/rc_sm/rc_sm_id.h"
 
 static
-ue_id_e2sm_t ue_id;
+ue_id_e2sm_t* ue_id = NULL;
 
 static
-nr_cgi_t target_cell; 
+nr_cgi_t* target_cell = NULL; 
 
 static
-global_e2_node_id_t src_e2_node;
+global_e2_node_id_t* src_e2_node = NULL;
+
+static
+pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 
 static
 latch_cv_t latch;
@@ -108,10 +112,21 @@ void cb(sm_ag_if_rd_t const *rd, global_e2_node_id_t const *n)
   // a data race as only one RAN is supposed to 
   // have UEs
   if(frmt_4->sz_seq_ue_info > 0){
-    ue_id = cp_ue_id_e2sm(&frmt_4->seq_ue_info[0].ue_id);   
-    src_e2_node = cp_global_e2_node_id(n);
-    target_cell = cp_nr_cgi(&frmt_4->seq_cell_info_2[0].neighbour_rela_tbl->nghbr_cell[0].cgi);
-  } 
+    lock_guard(&mtx);
+    if(ue_id == NULL){
+      ue_id = calloc(1, sizeof(ue_id_e2sm_t));
+      assert(ue_id != NULL && "Memory exhausted");
+      *ue_id = cp_ue_id_e2sm(&frmt_4->seq_ue_info[0].ue_id);   
+
+      src_e2_node = calloc(1, sizeof(global_e2_node_id_t)); 
+      assert(src_e2_node != NULL && "Memory exhausted");
+      *src_e2_node = cp_global_e2_node_id(n);
+
+      target_cell = calloc(1, sizeof(nr_cgi_t) ); 
+      assert(target_cell != NULL && "Memory exhausted");
+      *target_cell = cp_nr_cgi(&frmt_4->seq_cell_info_2[0].neighbour_rela_tbl->nghbr_cell[0].cgi);
+    } 
+  }
 
   // Syncronize. Notify that one message arrived
   count_down_latch_cv(&latch);
@@ -223,6 +238,7 @@ int main(int argc, char *argv[])
  
   assert(arr.len == 2 && "2 nodes needed to perform a hand over");
   sm_ans_xapp_t* hndl = calloc(arr.len, sizeof(sm_ans_xapp_t)); 
+  defer({ free(hndl); });
 
   // Init latch to syncronize threads
   latch = init_latch_cv(arr.len);
@@ -230,6 +246,7 @@ int main(int argc, char *argv[])
 
   // Generate RAN CONTROL Subscription
   rc_sub_data_t rc_sub = on_demand_rc_sub();
+  defer({ free_rc_sub_data(&rc_sub); });
 
   // Retrieve information about the E2 Nodes in the callback func (cb)
   for(size_t i = 0; i < arr.len; ++i){
@@ -241,20 +258,20 @@ int main(int argc, char *argv[])
   wait_latch_cv(&latch);
 
   // Generate RAN CONTROL Control msg 
-  rc_ctrl_req_data_t ho = hand_over_rc_ctrl_msg(&ue_id, &target_cell); 
+  rc_ctrl_req_data_t ho = hand_over_rc_ctrl_msg(ue_id, target_cell); 
   defer( { free_rc_ctrl_req_data(&ho); });
 
   // Send the Handover cmd 
-  sm_ans_xapp_t ans = control_sm_xapp_api(&src_e2_node, SM_RC_ID, &ho);
+  sm_ans_xapp_t ans = control_sm_xapp_api(src_e2_node, SM_RC_ID, &ho);
   assert(ans.success == true);
 
   // stop the xApp
   while(try_stop_xapp_api() == false)
     poll(NULL, 0, 1000);
 
-  free_ue_id_e2sm(&ue_id);
-  free_nr_cgi(&target_cell); 
-  free_global_e2_node_id(&src_e2_node);
+  free_ue_id_e2sm(ue_id);
+  free_nr_cgi(target_cell); 
+  free_global_e2_node_id(src_e2_node);
 
   return 0;
 }

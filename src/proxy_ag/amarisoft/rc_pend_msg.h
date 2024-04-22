@@ -10,11 +10,11 @@
 // All ptrs are non-owning
 typedef struct{
   // Non-owning ptr
-  msg_stats_amr_t *stats;
-  // Non-owning ptr
   msg_ue_get_t *ues;
   // Non-owning ptr
   config_get_amr_t* cfg;
+  // Non-owning ptr
+  msg_ho_ans_amr_t* ho; 
 
   // Data needed to notify
   // that msgs are ready 

@@ -7,15 +7,15 @@ const server = new WebSocket.Server({
 
 let sockets = [];
 
-const json_msg_conf = fs.readFileSync('config_get.json', 'utf8');
+const json_msg_conf = fs.readFileSync('roland_config_get.json', 'utf8');
+const json_msg_stats = fs.readFileSync('msg_stats.json', 'utf8');
+const json_msg_ue = fs.readFileSync('msg_ue_get.json', 'utf8');
+const json_msg_ho = fs.readFileSync('msg_ho_failure.json', 'utf8');
 
 var obj_json_conf = JSON.parse(json_msg_conf);
-
-const json_msg_stats = fs.readFileSync('msg_stats.json', 'utf8');
 var obj_json_stats = JSON.parse(json_msg_stats);
-
-const json_msg_ue = fs.readFileSync('msg_ue_get.json', 'utf8');
 var obj_json_ue = JSON.parse(json_msg_ue);
+var obj_json_ho = JSON.parse(json_msg_ho);
 
 server.on('connection', function(socket) {
   sockets.push(socket);
@@ -43,6 +43,11 @@ server.on('connection', function(socket) {
       sockets.forEach(s => s.send(JSON.stringify(obj_json_ue)));
 
       console.log(`Send ue_get`)
+    } else if (obj["message"] == "handover"){
+      obj_json_ho["message_id"] = obj["message_id"]
+      sockets.forEach(s => s.send(JSON.stringify(obj_json_ho)));
+    } else {
+      console.log(`Unknown Message type received`)
     }
     
     const t1 = performance.now()

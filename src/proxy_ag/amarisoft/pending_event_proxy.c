@@ -1,13 +1,14 @@
 #include "pending_event_proxy.h"
 #include <assert.h>
+#include "ws_orig_msg.h"
 #include "../../util/compare.h"
 #include "../../util/alg_ds/alg/find.h"
-
 #include "../../util/alg_ds/ds/lock_guard/lock_guard.h"
 
 typedef struct{
   int fd;
   int msg_id;
+  ws_orig_msg_e orig_msg; 
   pending_event_t p;
 } fd_pending_event_t;
 
@@ -19,6 +20,32 @@ void free_fd_pending_event(void* key, void* val)
   
   free(val);
 }
+
+static
+bool eq_fd_pending_event(fd_pending_event_t const* m0, fd_pending_event_t const* m1)
+{
+  if(m0 == m1)
+    return true;
+
+  if(m0 == NULL || m1 == NULL)
+    return false;
+
+  if(m0->fd != m1->fd)
+    return false;
+
+  if(m0->msg_id != m1->msg_id)
+    return false;
+
+  if(m0->orig_msg != m1->orig_msg)
+    return false;
+
+  if(m0->p != m1->p)
+    return false;
+
+  return true;
+}
+
+
 
 void init_pend_ev_prox(pend_ev_prox_t *p)
 {
@@ -52,7 +79,7 @@ void free_pend_ev_prox(pend_ev_prox_t* p)
   assert(rc == 0);
 }
 
-void add_pend_ev_prox(pend_ev_prox_t *p, asio_agent_amr_t *io, int msg_id, pending_event_t ev) 
+void add_pend_ev_prox(pend_ev_prox_t *p, asio_agent_amr_t *io, int msg_id, pending_event_t ev, ws_orig_msg_e orig_msg) 
 {
   assert(p != NULL);
 
@@ -65,6 +92,7 @@ void add_pend_ev_prox(pend_ev_prox_t *p, asio_agent_amr_t *io, int msg_id, pendi
   val0->fd = fd;
   val0->msg_id = msg_id;
   val0->p = ev;
+  val0->orig_msg = orig_msg;
 
   fd_pending_event_t* val1 = calloc(1, sizeof(fd_pending_event_t)); 
   assert(val1 != NULL && "Memory exhausted");
@@ -72,6 +100,7 @@ void add_pend_ev_prox(pend_ev_prox_t *p, asio_agent_amr_t *io, int msg_id, pendi
   val1->fd = fd;
   val1->msg_id = msg_id;
   val1->p = ev;
+  val1->orig_msg = orig_msg;
 
   {
   lock_guard(&p->mtx_fd);
@@ -83,8 +112,7 @@ void add_pend_ev_prox(pend_ev_prox_t *p, asio_agent_amr_t *io, int msg_id, pendi
   }
 }
 
-
-void rm_pend_ev_prox(pend_ev_prox_t* p, asio_agent_amr_t* io, int msg_id)
+ws_orig_msg_e rm_pend_ev_prox(pend_ev_prox_t* p, asio_agent_amr_t* io, int msg_id)
 {
   assert(p != NULL);
   fd_pending_event_t* fp = NULL; 
@@ -98,12 +126,17 @@ void rm_pend_ev_prox(pend_ev_prox_t* p, asio_agent_amr_t* io, int msg_id)
     lock_guard(&p->mtx_fd);
     fp2 = assoc_rb_tree_extract(&p->tree_fd, &fp->fd); 
   } 
+  assert(eq_fd_pending_event(fp, fp2) == true);
 
   // Clean the asio
   rm_fd_asio_agent_amr(io, fp->fd);
 
+  ws_orig_msg_e const dst = fp->orig_msg; 
+
   free(fp);
   free(fp2);
+
+  return dst;
 }
 
 exp_msg_id_t find_pend_ev_prox(pend_ev_prox_t* p, int fd)

@@ -17,16 +17,29 @@ char* read_file(char const* filename)
   return buffer;
 }
 
-
 int main()
 {
-  char* str = read_file("config_get.json");
+  char* str = read_file("ayo_config_get.json");
+  char* str2 = read_file("roland_config_get.json");
+  char* str3 = read_file("config_get.json");
 
   config_get_amr_t out = {0};
+  
   dec_config_get_amr(str, &out);
-
   free_config_get_amr(&out);
+
+  dec_config_get_amr(str2, &out);
+  free_config_get_amr(&out);
+
+  dec_config_get_amr(str3, &out);
+  free_config_get_amr(&out);
+
   free(str);
+  free(str2);
+  free(str3);
+
+  printf("Success running the config get decoding test.\n");
+
   return EXIT_SUCCESS;
 }
 

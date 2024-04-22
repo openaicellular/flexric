@@ -4,12 +4,14 @@
 #include "ie/config_get.h"
 #include "ie/msg_stats.h"
 #include "ie/msg_ue_get.h"
+#include "ie/msg_ho_ans_amr.h"
 
 typedef enum{
   MSG_READY_AMR_E,
   MSG_CONFIG_GET_AMR_E,
   MSG_STATS_AMR_E,
   MSG_UE_GET_E,
+  MSG_HANDOVER_E,
 
   END_MSG_AMR_E
 } msg_amr_e;
@@ -20,6 +22,7 @@ typedef struct{
      config_get_amr_t config;
      msg_stats_amr_t stats;
      msg_ue_get_t ue;
+     msg_ho_ans_amr_t ho;
    };
 } msg_amr_t;
 

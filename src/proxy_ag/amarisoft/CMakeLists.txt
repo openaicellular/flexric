@@ -39,7 +39,6 @@ add_library(e2_ag_amr STATIC
 target_include_directories(e2_ag_amr PUBLIC "/usr/local/include/nopoll/")
 target_compile_definitions(e2_ag_amr PUBLIC ${E2AP_VERSION} ${KPM_VERSION})
 
-
 target_link_libraries(e2_ag_amr
                 PUBLIC
                 e2_agent 
@@ -47,5 +46,4 @@ target_link_libraries(e2_ag_amr
                 -lsctp
                 -ldl
 )
-
 

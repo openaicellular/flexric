@@ -5,7 +5,7 @@
 
 #include "../dec/parse_cjson.h"
 
-void free_ncgi_amr( ncgi_amr_t* src)
+void free_ncgi_amr(ncgi_amr_t* src)
 {
   assert(src != NULL);
 
@@ -23,6 +23,7 @@ ncgi_amr_t parse_ncgi_amr(void* it_void)
   ncgi_amr_t dst = {0};
 
   ans_cjson_t ans_ncgi = find_object(it_void, "ncgi");
+  assert(ans_ncgi.it != NULL);
   cJSON const* it = ans_ncgi.it;
 
   // NR Cell Identity PLMN.
@@ -33,4 +34,30 @@ ncgi_amr_t parse_ncgi_amr(void* it_void)
 
   return dst;
 }
+
+exp_ncgi_amr_t parse_opt_ncgi_amr(void* it_void)
+{
+  assert(it_void != NULL);
+
+  exp_ncgi_amr_t dst = {.value = false};
+
+  ans_cjson_t ans_ncgi = find_object(it_void, "ncgi");
+  if(ans_ncgi.it == NULL)
+    return dst;
+
+  dst.value = true;
+
+  assert(ans_ncgi.it != NULL);
+  cJSON const* it = ans_ncgi.it;
+
+  // NR Cell Identity PLMN.
+  dst.ncgi_amr.plmn= parse_string(it, "plmn");
+
+  // NR Cell Identity (36 bits)
+  dst.ncgi_amr.nci = parse_int(it, "nci");
+
+  return dst;
+}
+
+
 

@@ -1,5 +1,6 @@
 {
     "message": "config_get",
+    "message_id": 507,
     "version": "2023-12-15",
     "type": "ENB",
     "name": "ENB",

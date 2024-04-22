@@ -57,7 +57,7 @@ endif()
 
 #https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110157
 
-set(SANITIZER "NONE" CACHE STRING "Sanitizers")
+set(SANITIZER "THREAD" CACHE STRING "Sanitizers")
 set_property(CACHE SANITIZER PROPERTY STRINGS "NONE" "ADDRESS" "THREAD")
 message(STATUS "Selected SANITIZER TYPE: ${SANITIZER}")
 
@@ -482,23 +482,23 @@ if(XAPP_PYTHON_ML)
           DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON)
 endif()
 
-if (XAPP_GO_SWIG)
+#if (XAPP_GO_SWIG)
 
-  install(FILES
-          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}) # no need to put libxapp_sdk.go
+#  install(FILES
+#          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
+#          DESTINATION ${CMAKE_INSTALL_LIBDIR}) # no need to put libxapp_sdk.go
 
-  install(PROGRAMS ${GO_BINARIES}
-          DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/go)
+#  install(PROGRAMS ${GO_BINARIES}
+#          DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/go)
 
   # Find all *.conf files recursively in the source directory
-  file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/examples/xApp/go/*.conf")
+  #  file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/examples/xApp/go/*.conf")
 
   # Add these to the install command
-  install(FILES ${CONF_FILES}
-          DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
+  #  install(FILES ${CONF_FILES}
+  #          DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
 
-endif()
+  #endif()
 
 
 # make uninstall

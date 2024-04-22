@@ -3,6 +3,7 @@
 
 #include "../../sm/sm_io.h"
 #include "../../util/conf_file.h"
+#include "../../util/alg_ds/ds/assoc_container/assoc_ht_open_address.h"
 #include "asio_agent_amr.h"
 #include "ep_amr.h"
 #include "pending_event_proxy.h"
@@ -16,6 +17,7 @@
 #include "rc_pend_ds.h"
 
 #include <stdatomic.h>
+
 
 // Forward declaration
 typedef struct e2_agent_amr_s e2_agent_amr_t;
@@ -36,6 +38,7 @@ typedef struct e2_agent_amr_s{
   kpm_pend_ds_t kpm_pend_ds;
   // RC Pending events. SMs 
   rc_pend_ds_t rc_pend_ds;
+  // 
 
 
 
@@ -61,5 +64,7 @@ void free_e2_agent_amr(e2_agent_amr_t* ag);
 void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg);
 
 void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg);
+
+void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, rc_msgs_amr_t* msg);
 
 #endif

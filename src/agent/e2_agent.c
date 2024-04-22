@@ -38,6 +38,9 @@
 #include <assert.h>
 #include <stdio.h>
 
+#define barrier() __asm__ __volatile__("": : :"memory")
+
+
 static inline
 void free_fd(void* key, void* value)
 {
@@ -453,6 +456,8 @@ void e2_event_loop_agent(e2_agent_t* ag)
 
 
   printf("ag->agent_stopped = true \n");
+
+  barrier();
   ag->agent_stopped = true;
 }
 

@@ -8,6 +8,7 @@
 #include "ie/dec/dec_config_get.h" 
 #include "ie/dec/dec_msg_stats.h" 
 #include "ie/dec/dec_msg_ue_get.h"
+#include "ie/dec/dec_msg_ho_ans_amr.h"
 
 #include "../../util/byte_array.h"
 #include "../../util/alg_ds/alg/string/search_naive.h"
@@ -19,11 +20,12 @@ typedef struct{
 } needle_msg_type_t ;
 
 static
-const needle_msg_type_t arr_msgs[4] = {
+const needle_msg_type_t arr_msgs[5] = {
   {.type = MSG_READY_AMR_E , .buf = "\"ready\"" , .len = 7},
   {.type = MSG_CONFIG_GET_AMR_E , .buf = "\"config_get\"" , .len = 12},
   {.type = MSG_STATS_AMR_E, .buf = "\"stats\"", .len = 7},
   {.type = MSG_UE_GET_E, .buf = "\"ue_get\"", .len = 8},
+  {.type = MSG_HANDOVER_E, .buf = "\"handover\"", .len = 10},
 };
 
 static
@@ -61,6 +63,8 @@ msg_amr_t msg_dec_amr_ag(ws_msg_t const* src)
     dec_msg_stats_amr((char*)src->buf, &dst.stats);
   } else if(dst.type == MSG_UE_GET_E){
     dec_msg_ue_get_amr((char*)src->buf, &dst.ue);
+  } else if(dst.type == MSG_HANDOVER_E){
+    dec_msg_ho_ans_amr((char*)src->buf, &dst.ho);
   } else {
     assert(0 !=0 && "Unknown message type");
   }

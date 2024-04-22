@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include "../../lib/pending_events.h"
 #include "asio_agent_amr.h"
+#include "ws_orig_msg.h"
 
 typedef struct{
   //seq_ring_t arr; //  fd_pending_event_t
@@ -22,10 +23,10 @@ void init_pend_ev_prox(pend_ev_prox_t *src);
 
 void free_pend_ev_prox(pend_ev_prox_t* src);
 
-void add_pend_ev_prox(pend_ev_prox_t *p, asio_agent_amr_t *io, int msg_id,
-                      pending_event_t ev);
 
-void rm_pend_ev_prox(pend_ev_prox_t* p, asio_agent_amr_t* io, int msg_id);
+void add_pend_ev_prox(pend_ev_prox_t *p, asio_agent_amr_t *io, int msg_id, pending_event_t ev, ws_orig_msg_e orig_msg); 
+
+ws_orig_msg_e rm_pend_ev_prox(pend_ev_prox_t* p, asio_agent_amr_t* io, int msg_id);
 
 // Expected message id or not found 
 typedef struct{

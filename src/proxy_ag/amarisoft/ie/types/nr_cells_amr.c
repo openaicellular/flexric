@@ -210,12 +210,12 @@ nr_cells_amr_t parse_nr_cells_amr(void* it_void)
   dst.prach_sequence_index = parse_int(it, "prach_sequence_index");
 
   // Optional. connected_mobility
-  ans_cjson_t const cm = find_object(it, "connected_mobility" ); 
-  if(cm.it != NULL){
-    dst.conn_mob = calloc(1, sizeof(connected_mobility_amr_t));
-    assert(dst.conn_mob != NULL && "Memory exhausted");
-    *dst.conn_mob = parse_connected_mobility_amr((void*)cm.it);
-  } 
+ // ans_cjson_t const cm = find_object(it, "connected_mobility" ); 
+ // if(cm.it != NULL){
+ //   dst.conn_mob = calloc(1, sizeof(connected_mobility_amr_t));
+ //   assert(dst.conn_mob != NULL && "Memory exhausted");
+ //   *dst.conn_mob = parse_connected_mobility_amr((void*)cm.it);
+ // } 
 
   // Optional. NR secondary cells 
   ans_cjson_t const scl = find_object(it, "scell_list" ); 

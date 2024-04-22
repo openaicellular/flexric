@@ -5,8 +5,11 @@
 #include "../../../sm/agent_if/write/sm_ag_if_wr.h"
 #include "../../../sm/rc_sm/rc_sm_id.h"
 #include "../../../util/alg_ds/alg/defer.h"
+#include "../../../util/time_now_us.h"
 #include "../rc_msgs_amr.h"
 #include "../e2_agent_amr_api.h"
+#include "../../../sm/rc_sm/ie/ir/ran_param_struct.h"
+
 
 #include <stdio.h>
 
@@ -239,13 +242,45 @@ nr_cgi_t fill_cgi_2( ncgi_amr_t const* src)
   nr_cgi_t dst = {0}; 
 
   dst.plmn_id = convert_plm_mcc_mnc(src->plmn);  // 6.2.3.1
-  // Not using nr_cell_id:36 since bit fields are nto addressable, 
-  // and thus, memcpy does not work   
- 
   dst.nr_cell_id = src->nci; // bit string of 36 bits
 
   return dst;
 }
+
+static
+nr_freq_info_t fill_nr_freq_info(rc_msgs_amr_t const* rc_msg, ncell_list_amr_t const* ncell_lst)
+{
+  assert(rc_msg != NULL);
+  assert(ncell_lst != NULL);
+
+  nr_freq_info_t dst = {0}; 
+
+  //NR ARFCN
+  //Mandatory
+  //6.2.3.30
+  if(ncell_lst->dl_earfcn != NULL){
+    dst.arfcn = *ncell_lst->dl_earfcn;
+  }  
+
+  // [1,32]
+  dst.sz_frq_bnd_it = 1; 
+  dst.frq_bnd_it = calloc(1, sizeof(nr_frq_bnd_it_t));
+  assert(dst.frq_bnd_it != NULL && "Memory exhausted");
+  // At a first glance I did not find
+  // the band of the neightbour cells in Amarisoft
+  // but it must be somewhere
+  // I write an stupid number instead of a real value
+  // not to confuse anyone
+  dst.frq_bnd_it->bnd = 1; 
+
+  // NRFrequency Shift
+  // 7p5khz
+  // Optional
+  dst.freq_shift_7p5khz = NULL;
+
+  return dst;
+}
+
 
 static
 nr_nghbr_cell_t fill_nghbr_cell(rc_msgs_amr_t const* rc_msg, ncell_list_amr_t const* ncell_lst)
@@ -267,6 +302,8 @@ nr_nghbr_cell_t fill_nghbr_cell(rc_msgs_amr_t const* rc_msg, ncell_list_amr_t co
   // 9.3.42
   // NR PCI
   // Mandatory
+  assert(ncell_lst->n_id_nrcell != NULL); 
+  assert(*ncell_lst->n_id_nrcell < 1008);
   dst.pci = *ncell_lst->n_id_nrcell; //[0,1007]
 
   // 9.3.43
@@ -275,11 +312,20 @@ nr_nghbr_cell_t fill_nghbr_cell(rc_msgs_amr_t const* rc_msg, ncell_list_amr_t co
   // Defined in TS 38.473
   // 9.3.1.29
   // Mandatory
-  // uint8_t tac[3];
+  // Using one from Apple
+  // https://en.wikipedia.org/wiki/Type_Allocation_Code
+  // 01124500	Apple
+  // How it can fit in 3 bytes?
+  memcpy(dst.tac, "01124500", 3);  
 
   // NR Mode Info
   // Mandatory
-  // mode_nr_nghbr_cell_e mode_info;
+  if(memcmp(rc_msg->cfg.arr_nr_cells.nr_cells->mode, "TDD", 3) == 0)
+    dst.mode_info = TDD_MODE_NR_NGHBR_CELL_E; 
+  else if(memcmp(rc_msg->cfg.arr_nr_cells.nr_cells->mode, "FDD", 3))
+    dst.mode_info = FDD_MODE_NR_NGHBR_CELL_E; 
+  else
+    assert(0 !=0 && "Unknown mode");
 
   // 9.3.44
   // NR Frequency Info
@@ -289,11 +335,11 @@ nr_nghbr_cell_t fill_nghbr_cell(rc_msgs_amr_t const* rc_msg, ncell_list_amr_t co
   // for O-RAN.WG3.E2SM-R003-v05.00
   // NR Frequency Info 
   // Mandatory
-  // nr_freq_info_t nr_freq_info;
+  dst.nr_freq_info = fill_nr_freq_info(rc_msg, ncell_lst);
 
   // Xn X2 Established
   // Mandatory
-  // dst.xn_x2_established = ncell_lst-> ;
+  dst.xn_x2_established = false;
 
   // HO Validated
   // Mandatory
@@ -438,6 +484,7 @@ bool frmt_1_read_rc_sm_amr(rc_rd_ind_data_t* data)
   rc_msgs_amr_t rc_msg = {0};
   defer({ free_rc_msgs_amr(&rc_msg); });
 
+  // Fill the data from the RAN
   fill_msg_rc_sm_api(&rc_msg);
 
   rc_ind_data_t* ind = &data->ind;;
@@ -479,12 +526,274 @@ fp_sm_rc arr[4] = {
  frmt_4_read_rc_sm_amr,
 };
 
+
+
+// 7.6.2
+static
+sm_ag_if_ans_t radio_bearer_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+
+  assert(0 != 0 && "Not implemented");
+
+  sm_ag_if_ans_t ans = {0}; 
+  return ans;
+}
+
+// 7.6.3
+static
+sm_ag_if_ans_t radio_resource_alloc_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+
+  assert(0 != 0 && "Not implemented");
+
+  sm_ag_if_ans_t ans = {0}; 
+  return ans;
+}
+
+static
+nr_cgi_t target_cell_ho_ctrl(e2sm_rc_ctrl_msg_t const* msg)
+{
+  assert(msg != NULL);
+
+  nr_cgi_t dst = {0}; 
+  assert(msg->format == FORMAT_1_E2SM_RC_CTRL_MSG);
+  e2sm_rc_ctrl_msg_frmt_1_t const* frmt_1 = &msg->frmt_1; 
+  assert(frmt_1->sz_ran_param == 1);
+
+  // Target_primary_cell_id_8_4_4_1
+  seq_ran_param_t const* rp = frmt_1->ran_param;
+  assert(rp->ran_param_id == Target_primary_cell_id_8_4_4_1);
+  assert(rp->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE);
+  assert(rp->ran_param_val.strct->ran_param_struct != NULL);
+  // CHOICE_target_cell_8_4_4_1
+  seq_ran_param_t const* rp2 = rp->ran_param_val.strct->ran_param_struct;
+  assert(rp2->ran_param_id == CHOICE_target_cell_8_4_4_1);
+  assert(rp2->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE);
+  assert(rp2->ran_param_val.strct->ran_param_struct != NULL);
+  // NR_cell_8_4_4_1 
+  seq_ran_param_t const* rp3 = rp2->ran_param_val.strct->ran_param_struct;
+  assert(rp3->ran_param_id == NR_cell_8_4_4_1);
+  assert(rp3->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE);
+  assert(rp3->ran_param_val.strct->ran_param_struct != NULL);
+  // NR_CGI_8_4_4_1
+  seq_ran_param_t const* rp4 = rp3->ran_param_val.strct->ran_param_struct;
+  assert(rp4->ran_param_id == NR_CGI_8_4_4_1);
+  assert(rp4->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE);
+  assert(rp4->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE);
+
+  memcpy(&dst.nr_cell_id, rp4->ran_param_val.flag_false->bit_str_ran.buf ,8);
+
+  return dst;
+}
+
+static
+sm_ag_if_ans_t ho_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+  
+  assert(rc_ctrl->hdr.format == FORMAT_1_E2SM_RC_CTRL_HDR);
+  uint32_t const conn_mode_mobility_style = 3;
+  assert(rc_ctrl->hdr.frmt_1.ric_style_type == conn_mode_mobility_style);
+  assert(rc_ctrl->msg.format == FORMAT_1_E2SM_RC_CTRL_MSG);
+  uint32_t const ho_ctrl_act_id = 1;
+  assert(rc_ctrl->hdr.frmt_1.ctrl_act_id == ho_ctrl_act_id);
+
+  ue_id_e2sm_t const* ue = &rc_ctrl->hdr.frmt_1.ue_id;
+  nr_cgi_t const target_cell = target_cell_ho_ctrl(&rc_ctrl->msg);
+  defer({ free_nr_cgi((nr_cgi_t*)&target_cell); }); 
+
+  // Call Hand Over
+  assert(ue->gnb.ran_ue_id != NULL); 
+  uint64_t const ran_ue_id = *ue->gnb.ran_ue_id; 
+
+  // Wait for the answer
+  rc_msgs_amr_t msg = {0};
+  defer({free_rc_msgs_amr(&msg); });
+  ho_rc_sm_api(target_cell.nr_cell_id, ran_ue_id, &msg);
+
+  // Create the answer. BS from the standard. Just return the
+  // time. We print error so that at least we know that an error occurred
+  if(msg.ho.error != NULL)
+    printf("[PROXY-AGENT]: Hand Over error: %s\n", msg.ho.error);
+
+  sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0}; 
+  ans.ctrl_out.type = RAN_CTRL_V1_3_AGENT_IF_CTRL_ANS_V0;
+  ans.ctrl_out.rc.format = FORMAT_1_E2SM_RC_CTRL_OUT;
+
+  e2sm_rc_ctrl_out_frmt_1_t* frmt_1 = &ans.ctrl_out.rc.frmt_1; // 9.2.1.8.1
+
+  frmt_1->sz_seq_ran_param_2 = 1;
+  frmt_1->ran_param = calloc(1, sizeof(seq_ran_param_2_t));
+  assert(frmt_1->ran_param != NULL && "Memory exhausted");
+
+  frmt_1->ran_param->ran_param_id = 1;
+  ran_parameter_value_t* rpv = &frmt_1->ran_param->ran_param_value;
+  
+  rpv->type = OCTET_STRING_RAN_PARAMETER_VALUE;
+  byte_array_t* ba = &rpv->octet_str_ran;
+
+  ba->len = 8;
+  ba->buf = calloc(ba->len, sizeof(uint8_t));
+  assert(ba->buf != NULL && "Memory exhausted");
+ 
+  int64_t const t0 = time_now_us();
+  memcpy(ba->buf, &t0, sizeof(int64_t));
+
+  return ans;
+}
+
+static
+sm_ag_if_ans_t cond_ho_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+  assert(0 != 0 && "Not implemented");
+
+  sm_ag_if_ans_t ans = {0}; 
+  return ans;
+}
+
+static
+sm_ag_if_ans_t daps_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+  assert(0 != 0 && "Not implemented");
+
+  sm_ag_if_ans_t ans = {0}; 
+  return ans;
+}
+
+
+
+typedef sm_ag_if_ans_t (*fp_conn_mob)(rc_ctrl_req_data_t* const rc_ctrl);
+
+fp_conn_mob arr_conn_mob[] = {
+  ho_ctrl,
+  cond_ho_ctrl,
+  daps_ctrl,
+};
+
+// 7.6.4
+static
+sm_ag_if_ans_t conn_mode_mobility(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+  assert(rc_ctrl->hdr.format == FORMAT_1_E2SM_RC_CTRL_HDR);
+  uint32_t const conn_mode_mobility_style = 3;
+  assert(rc_ctrl->hdr.frmt_1.ric_style_type == conn_mode_mobility_style);
+  assert(rc_ctrl->msg.format == FORMAT_1_E2SM_RC_CTRL_MSG);
+
+  return arr_conn_mob[rc_ctrl->hdr.frmt_1.ctrl_act_id -1](rc_ctrl); 
+}
+
+// 7.6.4
+static
+sm_ag_if_ans_t radio_access_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+
+  assert(0 != 0 && "Not implemented");
+
+  sm_ag_if_ans_t ans = {0}; 
+  return ans;
+}
+
+// 7.6.5
+static
+sm_ag_if_ans_t dc_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+
+  assert(0 != 0 && "Not implemented");
+
+  sm_ag_if_ans_t ans = {0}; 
+  return ans;
+}
+
+// 7.6.6
+static
+sm_ag_if_ans_t ca_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+
+  assert(0 != 0 && "Not implemented");
+
+  sm_ag_if_ans_t ans = {0}; 
+  return ans;
+
+}
+
+// 7.6.7
+static
+sm_ag_if_ans_t idle_mobility_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+
+  assert(0 != 0 && "Not implemented");
+
+  sm_ag_if_ans_t ans = {0}; 
+  return ans;
+
+}
+
+// 7.6.8
+static
+sm_ag_if_ans_t ue_info_assigment(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+
+  assert(0 != 0 && "Not implemented");
+
+  sm_ag_if_ans_t ans = {0}; 
+  return ans;
+
+}
+
+// 7.6.9
+static
+sm_ag_if_ans_t meas_report_config(rc_ctrl_req_data_t* const rc_ctrl)
+{
+  assert(rc_ctrl != NULL);
+
+  assert(0 != 0 && "Not implemented");
+
+  sm_ag_if_ans_t ans = {0}; 
+  return ans;
+}
+
+// sm_ag_if_ans_t mult_actions_ctrl(rc_ctrl_req_data_t* const rc_ctrl);
+
+
+
+typedef sm_ag_if_ans_t (*fp_wc_rc)(rc_ctrl_req_data_t* const rc_ctrl);
+
+fp_wc_rc arr_write_ctrl[] =
+{
+  radio_bearer_ctrl,
+  radio_resource_alloc_ctrl,
+  conn_mode_mobility,
+  radio_access_ctrl,
+  dc_ctrl,
+  ca_ctrl,
+  idle_mobility_ctrl, 
+  ue_info_assigment, 
+  meas_report_config,
+};
+
+
 sm_ag_if_ans_t write_ctrl_rc_sm_amr(void const* data)
 {
   assert(data != NULL);
-  sm_ag_if_ans_t ans = {0};
+
+  rc_ctrl_req_data_t* const rc_ctrl = (rc_ctrl_req_data_t* const)data;
+
+  assert(rc_ctrl->hdr.format == FORMAT_1_E2SM_RC_CTRL_HDR);
+  return arr_write_ctrl[rc_ctrl->hdr.frmt_1.ric_style_type -1](rc_ctrl);
 
   assert(0 != 0 && "Debug point");
+
+  sm_ag_if_ans_t ans = {0};
 
   return ans;
 }

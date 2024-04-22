@@ -51,6 +51,8 @@ typedef enum pending_event_e
   CONFIG_GET_PROXY_PENDING_EVENT, 
   UE_GET_PENDING_EVENT, 
   CONFIG_MSG_STATS_PENDING_EVENT, 
+  HAND_OVER_PENDING_EVENT,
+
 
 } pending_event_t;
 

@@ -15,6 +15,8 @@ void msg_handle_stats(e2_agent_amr_t* ag, msg_amr_t const* msg);
 
 void msg_handle_ue_get(e2_agent_amr_t* ag, msg_amr_t const* msg);
 
+void msg_handle_ho(e2_agent_amr_t* ag, msg_amr_t const* msg);
+
 // Send KPM
 void send_msg_stats_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm);
 
@@ -23,11 +25,10 @@ void send_msg_ue_get_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm);
 void send_config_get_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm);
 
 // Send RC
-void send_msg_stats_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc);
-
 void send_msg_ue_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc);
 
 void send_config_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc);
 
+void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci, uint64_t ue_id);
 
 #endif

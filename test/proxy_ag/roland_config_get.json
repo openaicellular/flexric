@@ -141,15 +141,15 @@
         "ntn": false,
         "count": 8192
     },
-    "tai": 158.299,
+    "tai": 87.21,
     "global_gnb_id": {
         "plmn": "00101",
         "gnb_id_bits": 28,
-        "gnb_id": 3591,
-        "gnb_name": "gnb0000e07"
+        "gnb_id": 3590,
+        "gnb_name": "gnb0000e06"
     },
     "nr_cells": {
-        "2": {
+        "1": {
             "n_antenna_dl": 1,
             "n_antenna_ul": 1,
             "n_layer_dl": 1,
@@ -161,26 +161,26 @@
             "ul_qam": 256,
             "ncgi": {
                 "plmn": "00101",
-                "nci": 919298
+                "nci": 919041
             },
             "cell_barred": false,
-            "n_id_nrcell": 700,
+            "n_id_nrcell": 500,
             "band": 78,
-            "dl_nr_arfcn": 632628,
-            "ul_nr_arfcn": 632628,
-            "dl_freq": 3489420000,
-            "ul_freq": 3489420000,
+            "dl_nr_arfcn": 632778,
+            "ul_nr_arfcn": 632778,
+            "dl_freq": 3491670000,
+            "ul_freq": 3491670000,
             "n_rb_dl": 51,
             "n_rb_ul": 51,
-            "ssb_nr_arfcn": 632544,
+            "ssb_nr_arfcn": 632736,
             "dl_mu": 1,
             "ul_mu": 1,
             "ssb_mu": 1,
             "mode": "TDD",
-            "prach_sequence_index": 20,
+            "prach_sequence_index": 10,
             "gbr": {
-                "dl_limit": 9400320,
-                "ul_limit": 2741760
+                "dl_limit": 7637760,
+                "ul_limit": 4112640
             },
             "connected_mobility": {
                 "scell_config_a4_a2": false,
@@ -198,10 +198,10 @@
                 {
                     "rat": "nr",
                     "ssb_nr_arfcn": 632544,
-                    "n_id_nrcell": 500,
+                    "n_id_nrcell": 700,
                     "ncgi": {
                         "plmn": "00101",
-                        "nci": 919041
+                        "nci": 919298
                     },
                     "handover_target": true,
                     "cell_redirect_target": true
@@ -230,14 +230,14 @@
     "rx_channels": [
         {
             "gain": 60,
-            "freq": 3489.42,
+            "freq": 3491.67,
             "port": 0
         }
     ],
     "tx_channels": [
         {
-            "gain": 75,
-            "freq": 3489.42,
+            "gain": 89.75,
+            "freq": 3491.67,
             "port": 0
         }
     ],
@@ -247,6 +247,6 @@
             "ul_freq_shift": 0
         }
     ],
-    "time": 158.294,
-    "utc": 1708341330.303
+    "time": 87.205,
+    "utc": 1708342243.816
 }

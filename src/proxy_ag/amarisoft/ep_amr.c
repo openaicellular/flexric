@@ -100,7 +100,7 @@ ws_msg_t recv_ep_amr(ep_amr_t const* ep)
   size_t const sz_payload = strlen((char*)payload);
 
   ws_msg_t dst = {.sz = sz_payload};
-  dst.buf = calloc(dst.sz, sizeof(uint8_t));
+  dst.buf = calloc(dst.sz + 1, sizeof(uint8_t));
   assert(dst.buf != NULL && "Memory exhausted");
   memcpy(dst.buf, payload, sz_payload);
   return dst;

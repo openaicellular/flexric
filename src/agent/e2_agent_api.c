@@ -30,12 +30,17 @@
 #include "lib/e2ap/e2ap_plmn_wrapper.h"            // for plmn_t
 #include "util/e2ap_ngran_types.h"                              // for ngran_gNB
 #include "util/conf_file.h"
+#include "util/alg_ds/ds/lock_guard/lock_guard.h"
+
 #ifdef PROXY_AGENT
 #include "proxy-agent/proxy_agent.h"
 #endif
 
 static
 e2_agent_t* agent = NULL;
+
+static
+pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 
 static
 pthread_t thrd_agent;
@@ -105,7 +110,10 @@ void init_agent_api(int mcc,
   assert(it < 128);
   printf("%s" ,str);
 
+  {
+  lock_guard(&mtx); 
   agent = e2_init_agent(args->ip, args->e2_port, ge2ni, io, args->libs_dir);
+  }
 
   // Spawn a new thread for the agent
   const int rc = pthread_create(&thrd_agent, NULL, static_start_agent, NULL);
@@ -114,6 +122,8 @@ void init_agent_api(int mcc,
 
 void stop_agent_api(void)
 {
+  lock_guard(&mtx); 
+ 
   assert(agent != NULL);
   e2_free_agent(agent);
   int const rc = pthread_join(thrd_agent,NULL);

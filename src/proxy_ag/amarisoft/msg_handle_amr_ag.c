@@ -42,20 +42,6 @@ mcc_mnc_t convert_plm_mcc_mnc(char const* plmn)
   return dst;
 }
 
-static
-kpm_pend_msg_t* extract_kpm_pend_msg(e2_agent_amr_t* ag, int msg_id)
-{
-  // Remove pending timeout
-  rm_pend_ev_prox(&ag->pend, &ag->asio, msg_id);
-
-  // Get kpm answer. This is OK, as the pointer points to the stack
-  // The other msgs still have a valid pointer to the kpm_pend_msg_t
-  kpm_pend_msg_t* dst = extract_kpm_pend_ds(&ag->kpm_pend_ds, msg_id);
-
-  return dst;
-}
-
-
 /////
 // KPM SM
 /////
@@ -66,7 +52,7 @@ void send_msg_stats_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm)
   add_kpm_pend_ds(&ag->kpm_pend_ds, msg_id, kpm);
 
   // Add pending timeout
-  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_MSG_STATS_PENDING_EVENT);
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_MSG_STATS_PENDING_EVENT, KPM_ORIGINATED_MSG_E);
 
   // Send message 
   send_msg_stats(&ag->ep,msg_id);
@@ -78,7 +64,7 @@ void send_msg_ue_get_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm)
   add_kpm_pend_ds(&ag->kpm_pend_ds, msg_id, kpm);
 
   // Add pending timeout
-  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, UE_GET_PENDING_EVENT);
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, UE_GET_PENDING_EVENT, KPM_ORIGINATED_MSG_E);
 
   // Send message 
   send_msg_ue_get(&ag->ep,msg_id);
@@ -90,7 +76,7 @@ void send_config_get_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm)
   add_kpm_pend_ds(&ag->kpm_pend_ds, msg_id, kpm);
 
   // Add pending timeout
-  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_GET_PROXY_PENDING_EVENT);
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_GET_PROXY_PENDING_EVENT, KPM_ORIGINATED_MSG_E);
 
   // Send message 
   send_config_get(&ag->ep,msg_id);
@@ -100,25 +86,13 @@ void send_config_get_kpm(e2_agent_amr_t* ag, int msg_id, kpm_pend_msg_t* kpm)
 /////
 // RC SM
 /////
-void send_msg_stats_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc)
-{
-  // Add rc answer
-  add_rc_pend_ds(&ag->rc_pend_ds, msg_id, rc);
-
-  // Add pending timeout
-  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_MSG_STATS_PENDING_EVENT);
-
-  // Send message 
-  send_msg_stats(&ag->ep,msg_id);
-}
-
 void send_msg_ue_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc)
 {
   // Add rc answer
   add_rc_pend_ds(&ag->rc_pend_ds, msg_id, rc);
 
   // Add pending timeout
-  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, UE_GET_PENDING_EVENT);
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, UE_GET_PENDING_EVENT, RC_ORIGINATED_MSG_E);
 
   // Send message 
   send_msg_ue_get(&ag->ep,msg_id);
@@ -130,10 +104,25 @@ void send_config_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc)
   add_rc_pend_ds(&ag->rc_pend_ds, msg_id, rc);
 
   // Add pending timeout
-  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_GET_PROXY_PENDING_EVENT);
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_GET_PROXY_PENDING_EVENT, RC_ORIGINATED_MSG_E);
 
   // Send message 
   send_config_get(&ag->ep, msg_id);
+}
+
+void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci, uint64_t ue_id)
+{
+  assert(ag != NULL);
+  assert(msg_id > 0);
+
+  // Add rc answer place holder. In this case only the latch will be used
+  add_rc_pend_ds(&ag->rc_pend_ds, msg_id, rc);
+
+  // Add pending timeout
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, HAND_OVER_PENDING_EVENT, RC_ORIGINATED_MSG_E);
+
+  // Send message 
+  send_ho(&ag->ep, msg_id, pci, ue_id);
 }
 
 void msg_handle_ready(e2_agent_amr_t* ag, msg_amr_t const* msg)
@@ -147,7 +136,7 @@ void msg_handle_ready(e2_agent_amr_t* ag, msg_amr_t const* msg)
   // Send configuration as data needed to init the E2 Agent 
 
   // Add pending event
-  add_pend_ev_prox(&ag->pend, &ag->asio ,msg_id, CONFIG_GET_PROXY_PENDING_EVENT);
+  add_pend_ev_prox(&ag->pend, &ag->asio ,msg_id, CONFIG_GET_PROXY_PENDING_EVENT, READY_MSG_ORIGINATED_MSG_E);
   // Send msg
   send_config_get(&ag->ep, msg_id); 
 }
@@ -196,14 +185,25 @@ void msg_handle_config_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
     return; 
   } 
 
-  kpm_pend_msg_t* k = extract_kpm_pend_msg(ag, cfg->msg_id);
-
-  // Move memory ownership
-  *k->cfg = *cfg;
-  notify_part_filled_kp(k);
+  ws_orig_msg_e const orig = rm_pend_ev_prox(&ag->pend, &ag->asio, cfg->msg_id);
+  assert(orig == KPM_ORIGINATED_MSG_E || orig == RC_ORIGINATED_MSG_E);
+  
+  if(orig == KPM_ORIGINATED_MSG_E){
+    // Get kpm answer. This is OK, as the pointer points to the stack
+    // The other msgs still have a valid pointer to the kpm_pend_msg_t
+    kpm_pend_msg_t* k = extract_kpm_pend_ds(&ag->kpm_pend_ds, cfg->msg_id);
+    // Move memory ownership
+    *k->cfg = *cfg;
+    notify_part_filled_kp(k);
+  } else { // orig == RC_ORIGINATED_MSG_E)
+    rc_pend_msg_t* r = extract_rc_pend_ds(&ag->rc_pend_ds, cfg->msg_id);
+    // Move memory ownership
+    *r->cfg = *cfg;
+    notify_part_filled_rp(r);
+  }
 
   int64_t t1 = time_now_us();
-  printf("Elapsed time  msg_handle_config_get %ld \n", t1 -t0);
+  printf("Elapsed time  msg_handle_config_get %ld \n", t1 - t0);
 }
 
 void msg_handle_stats(e2_agent_amr_t* ag, msg_amr_t const* msg)
@@ -213,8 +213,12 @@ void msg_handle_stats(e2_agent_amr_t* ag, msg_amr_t const* msg)
   assert(msg != NULL);
 
   msg_stats_amr_t const* s = &msg->stats; 
-  // if msg is from KPM
-  kpm_pend_msg_t* k = extract_kpm_pend_msg(ag, s->msg_id);
+  ws_orig_msg_e const orig = rm_pend_ev_prox(&ag->pend, &ag->asio, s->msg_id);
+  assert(orig == KPM_ORIGINATED_MSG_E);
+
+  // Get kpm answer. This is OK, as the pointer points to the stack
+  // The other msgs still have a valid pointer to the kpm_pend_msg_t
+  kpm_pend_msg_t* k = extract_kpm_pend_ds(&ag->kpm_pend_ds, s->msg_id);
 
   // Move memory ownership
   *k->stats = *s;
@@ -231,11 +235,39 @@ void msg_handle_ue_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
   assert(msg != NULL);
 
   msg_ue_get_t const* ue = &msg->ue; 
-  
-  kpm_pend_msg_t* k = extract_kpm_pend_msg(ag, ue->msg_id);
+  ws_orig_msg_e const orig = rm_pend_ev_prox(&ag->pend, &ag->asio, ue->msg_id);
+  assert(orig == KPM_ORIGINATED_MSG_E || orig == RC_ORIGINATED_MSG_E);
+
+  if(orig == KPM_ORIGINATED_MSG_E){
+    kpm_pend_msg_t* k = extract_kpm_pend_ds(&ag->kpm_pend_ds, ue->msg_id);
+    // Move memory ownership
+    *k->ues = *ue;
+    notify_part_filled_kp(k);
+  } else { // orig == RC_ORIGINATED_MSG_E)
+    rc_pend_msg_t* r = extract_rc_pend_ds(&ag->rc_pend_ds, ue->msg_id);
+    // Move memory ownership
+    *r->ues = *ue;
+    notify_part_filled_rp(r);
+  }
+ 
+  int64_t t1 = time_now_us();
+  printf("Elapsed time msg_handle_ue_get %ld \n", t1 -t0);
+}
+
+void msg_handle_ho(e2_agent_amr_t* ag, msg_amr_t const* msg)
+{
+  int64_t t0 = time_now_us();
+  assert(ag != NULL);
+  assert(msg != NULL);
+ 
+  msg_ho_ans_amr_t const* ho = &msg->ho; 
+  ws_orig_msg_e const orig = rm_pend_ev_prox(&ag->pend, &ag->asio, ho->msg_id);
+  assert(orig == RC_ORIGINATED_MSG_E);
+
+  rc_pend_msg_t* r = extract_rc_pend_ds(&ag->rc_pend_ds, ho->msg_id);
   // Move memory ownership
-  *k->ues = *ue;
-  notify_part_filled_kp(k);
+  *r->ho = *ho;
+  notify_part_filled_rp(r);
  
   int64_t t1 = time_now_us();
   printf("Elapsed time msg_handle_ue_get %ld \n", t1 -t0);
