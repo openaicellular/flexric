@@ -246,6 +246,21 @@ e2sm_ccc_o_gnb_du_function_t fill_rnd_du_function_node(){
   return dst;
 }
 
+g_enb_id_lst_t fill_rnd_g_enb_id_lst(){
+  g_enb_id_lst_t dst = {0};
+
+  dst.sz_g_enb_id_lst = rand()%3;
+  if (dst.sz_g_enb_id_lst > 0){
+    dst.g_enb_id_lst = calloc(dst.sz_g_enb_id_lst, sizeof(g_enb_id_lst_t));
+    assert(dst.g_enb_id_lst != NULL);
+    for (size_t i = 0; i < dst.sz_g_enb_id_lst; i++){
+      dst.g_enb_id_lst[i] = strdup("g_enb_id_lst");
+    }
+  }
+
+  return dst;
+}
+
 static
 e2sm_ccc_o_gnb_cu_cp_function_t fill_rnd_cu_cp_function_node(){
   e2sm_ccc_o_gnb_cu_cp_function_t dst = {0};
@@ -254,7 +269,12 @@ e2sm_ccc_o_gnb_cu_cp_function_t fill_rnd_cu_cp_function_node(){
   dst.gnb_id = rand()%4294967295;
   dst.gnb_cu_name = strdup("gnb_cu_name");
   dst.plmn_id = fill_rnd_plmn_id();
-  // TODO: Fill x2_block_list
+  dst.xn_block_list = fill_rnd_g_enb_id_lst();
+  dst.x2_block_list = fill_rnd_g_enb_id_lst();
+  dst.x2_allow_list = fill_rnd_g_enb_id_lst();
+  dst.x2_ho_block_list = fill_rnd_g_enb_id_lst();
+  dst.xn_allow_list = fill_rnd_g_enb_id_lst();
+  dst.xn_ho_block_list = fill_rnd_g_enb_id_lst();
 
   return dst;
 }

@@ -2,8 +2,10 @@
 #define E2SM_CCC_O_GNB_CU_CP_FUNCTION_H
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include "../../../../lib/3gpp/ie/plmn_identity.h"
+#include "g_enb_id_lst.h"
 
 // 8.8.1.2
 typedef struct{
@@ -23,26 +25,19 @@ typedef struct{
   // E2SM 6.2.3.1
   e2sm_plmn_t plmn_id;
 
-  // String
-  // Conflict with O-RAN structure
-  // Following the json schema
-  // TODO: Change to array type
-  char* x2_block_list;
+  // Conflict type between json schema and ie
+  // Following CCC json schema type
+  g_enb_id_lst_t x2_block_list;
 
-  // String
-  char* x2_allow_list;
+  g_enb_id_lst_t x2_allow_list;
 
-  // String
-  char* xn_block_list;
+  g_enb_id_lst_t xn_block_list;
 
-  // String
-  char* xn_allow_list;
+  g_enb_id_lst_t xn_allow_list;
 
-  // String
-  char* x2_ho_block_list;
+  g_enb_id_lst_t x2_ho_block_list;
 
-  // String
-  char* xn_ho_block_list;
+  g_enb_id_lst_t xn_ho_block_list;
 
 } e2sm_ccc_o_gnb_cu_cp_function_t;
 

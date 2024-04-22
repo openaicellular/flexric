@@ -1,5 +1,6 @@
 set (IR_CCC_SRC
         attribute.c
+        g_enb_id_lst.c
         act_def_ran_conf.c
         ind_msg_ran_conf.c
         control_service_ccc.c
