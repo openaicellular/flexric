@@ -1,10 +1,15 @@
 /* File : example.i */
 %module(directors="4") xapp_sdk
+/* warning 312: Nested union not currently supported (ignored).*/
+#pragma SWIG nowarn=312
+
+
 %include "std_string.i"
 %include "std_vector.i"
 %include "carrays.i"
 %include <typemaps.i>
 %include <std_map.i>
+
 
 %{
   #include "swig_wrapper.h"

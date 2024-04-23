@@ -128,8 +128,9 @@ endif()
 #PYTHON compilation
 if(XAPP_PYTHON_SWIG)
 
+  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION} ${KPM_VERSION} -w312)
   TARGET_COMPILE_DEFINITIONS(xapp_sdk PRIVATE XAPP_LANG_PYTHON ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
-  SET_PROPERTY(TARGET xapp_sdk PROPERTY SWIG_COMPILE_DEFINITIONS ${E2AP_VERSION} ${KPM_VERSION})
+
   SWIG_LINK_LIBRARIES(xapp_sdk ${PYTHON_LIBRARIES})
   SWIG_LINK_LIBRARIES(xapp_sdk ${LibConfig_LIBRARY})
 
@@ -172,8 +173,7 @@ if(XAPP_PYTHON_SWIG)
   endif()
 
   # I do not like this solution at all but it is not my code ...
-  # e.g., warning 312: Nested union not currently supported (ignored).
-  target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -w312)
+  target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
 
   #Comment this line to build it from the directory
   ADD_DEPENDENCIES(xapp_sdk e42_xapp_shared)
