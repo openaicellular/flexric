@@ -501,12 +501,8 @@ int main(int argc, char *argv[])
   }
 
   // free sm handel
-  if(n_kpm_handle > 0) {
-    free(kpm_handle);
-  }
-  if(n_rc_handle > 0) {
-    free(rc_handle);
-  }
+  free(kpm_handle);
+  free(rc_handle);
 
 
   //Stop the xApp

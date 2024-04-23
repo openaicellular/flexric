@@ -1,5 +1,7 @@
 # For using it: i.e., TSAN_OPTIONS="suppressions=blck_lst.txt" ./build/examples/ric/nearRT-RIC 
 # For using it: i.e., TSAN_OPTIONS="suppressions=blck_lst.txt" ./build/examples/emulator/agent/emu_agent_gnb  
+# ERRORS: FATAL: ThreadSanitizer: unexpected memory mapping 0x601c3b67c000-0x601c3b6ec000
+# SOLUTION: sudo echo 0 > /proc/sys/kernel/randomize_va_space  
 
 # Ignore exactly this function, as it is used to terminate the program and needs to free the memory (the names are mangled)
 #signal:stop_and_exit 

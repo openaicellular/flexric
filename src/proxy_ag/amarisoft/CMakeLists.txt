@@ -1,5 +1,6 @@
 add_subdirectory(ie)
 add_subdirectory(sm_io)
+add_subdirectory(websocket_lib)
 
 add_library(e2_ag_amr STATIC  
 
@@ -32,11 +33,13 @@ add_library(e2_ag_amr STATIC
   $<TARGET_OBJECTS:ie_amr_obj>
   $<TARGET_OBJECTS:e2_conf_obj>
   $<TARGET_OBJECTS:sm_io_amr_obj>
-
+  $<TARGET_OBJECTS:no_poll_obj>
   ../../util/time_now_us.c
   )
 
-target_include_directories(e2_ag_amr PUBLIC "/usr/local/include/nopoll/")
+#target_include_directories(e2_ag_amr PUBLIC "/usr/local/include/nopoll/")
+target_include_directories(e2_ag_amr PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/websocket_lib/nopoll-0.4.8.b429/src/")
+
 target_compile_definitions(e2_ag_amr PUBLIC ${E2AP_VERSION} ${KPM_VERSION})
 
 target_link_libraries(e2_ag_amr

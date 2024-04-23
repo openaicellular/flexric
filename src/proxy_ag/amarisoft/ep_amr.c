@@ -50,7 +50,7 @@ ep_amr_t init_ep_amr(const char* ip, int32_t port)
   // thus it needs to be in loop. Sucks.
   dst.conn = nopoll_conn_new(dst.ctx, ip , port_str, name, get_url, proto, origin);
  
-  assert( nopoll_conn_is_ok (dst.conn));
+  assert(nopoll_conn_is_ok(dst.conn) && "Connection to the RAN server failed. Check ip and port number");
 
   rc = nopoll_conn_wait_until_connection_ready(dst.conn, 5);
   assert(rc != -1 && "Timeout while connecting");

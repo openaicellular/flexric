@@ -1,7 +1,7 @@
 #ifndef ENDPOINT_AMARISOFT_MIR_H
 #define ENDPOINT_AMARISOFT_MIR_H 
 
-#include <nopoll/nopoll.h>
+#include "websocket_lib/nopoll-0.4.8.b429/src/nopoll.h"
 
 #include "../../lib/ep/ws_msg.h"
 

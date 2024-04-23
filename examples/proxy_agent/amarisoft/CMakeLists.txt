@@ -26,8 +26,12 @@ target_link_libraries(proxy_agent
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LibConfig REQUIRED libconfig)
 
+find_package(OpenSSL REQUIRED)
+target_link_libraries(proxy_agent PRIVATE OpenSSL::SSL)
+
+
 target_include_directories(proxy_agent PRIVATE ${LibConfig_INCLUDE_DIR})
 target_link_libraries(proxy_agent PRIVATE ${LibConfig_LIBRARY})
 
 
-target_link_libraries(proxy_agent PUBLIC "/usr/local/lib/libnopoll.so" )
+#target_link_libraries(proxy_agent PUBLIC "/usr/local/lib/libnopoll.so" )

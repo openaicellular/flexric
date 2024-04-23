@@ -27,10 +27,10 @@ typedef struct{
 } idx_ue_id_e2sm_t;
 
 static
-void free_ue_id_e2sm_wrapper(void* it)
+void free_idx_ue_id_e2sm_wrapper(void* it)
 {
   assert(it != NULL);
-  free_ue_id_e2sm((ue_id_e2sm_t*)it);
+  free_ue_id_e2sm(&((idx_ue_id_e2sm_t*)it)->ue_id);
 }
 
 static
@@ -729,7 +729,7 @@ bool read_kpm_sm_amr(void* data)
     
     // Matching UEs
     seq_arr_t match_ues = matching_ues_amr(frm_4->matching_cond_lst, frm_4->matching_cond_lst_len, &kpm_msg);
-    defer({ seq_arr_free(&match_ues, free_ue_id_e2sm_wrapper); });
+    defer({ seq_arr_free(&match_ues, free_idx_ue_id_e2sm_wrapper); });
 
     // If no UEs match the condition, do not send data to the nearRT-RIC
     if(seq_size(&match_ues) == 0){
