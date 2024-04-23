@@ -329,6 +329,20 @@ r_rm_policy_member_list_element_t* create_rrm_policy_member_list_member(e2sm_ccc
 }
 
 static
+plmn_info_list_element_t* create_info_list_element(e2sm_ccc_plmn_info_t const src){
+  plmn_info_list_element_t* dst = calloc(1, sizeof(plmn_info_list_element_t));
+  assert(dst != NULL);
+
+  dst->plmn_id = create_plmn_id_json(src.plmn_id);
+
+  if (src.s_nssai!= NULL){
+    dst->snssai = create_snssai_json(*src.s_nssai);
+  }
+
+  return dst;
+}
+
+static
 ran_configuration_structure_json_t* create_rrm_policy_ratio(e2sm_ccc_o_rrm_policy_ratio_t const src){
   ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
   assert(dst != NULL);
@@ -363,6 +377,40 @@ ran_configuration_structure_json_t* create_rrm_policy_ratio(e2sm_ccc_o_rrm_polic
         sizeof(r_rm_policy_member_list_element_t*)
     );
   }
+  return dst;
+}
+
+static
+ran_configuration_structure_json_t* create_o_gnb_cu_up_function(e2sm_ccc_o_gnb_cu_up_function_t const src){
+  ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
+  assert(dst != NULL);
+
+  //  src.gnb_id
+  dst->gnb_id = calloc(1, sizeof(uint32_t));
+  assert(dst->gnb_id != NULL);
+  *dst->gnb_id = src.gnb_id;
+
+  //  src.gnb_id_len
+  dst->gnb_id_length = calloc(1, sizeof(uint8_t));
+  assert(dst->gnb_id_length!= NULL);
+  *dst->gnb_id_length = src.gnb_id_len;
+
+  //  src.gnb_cu_up_id
+  dst->gnb_cu_up_id = calloc(1, sizeof(uint64_t));
+  assert(dst->gnb_cu_up_id != NULL);
+  *dst->gnb_cu_up_id = src.gnb_cu_up_id;
+
+  //  src.plmn_info_lst
+  //  src.sz_plmn_info_lst
+  dst->plmn_info_list = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_plmn_info_lst; ++i){
+    list_add_tail(
+        dst->plmn_info_list,
+        create_info_list_element(src.plmn_info_lst[i]),
+        sizeof(plmn_info_list_element_t *)
+    );
+  }
+
   return dst;
 }
 
@@ -455,7 +503,7 @@ values_of_attributes_json_t* create_values_of_attributes(values_of_attributes_t 
       res->ran_configuration_structure = create_rrm_policy_ratio(src->e2sm_ccc_o_rrm_policy_ratio);
       break;
     case VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction:
-      assert("No support VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction");
+      res->ran_configuration_structure = create_o_gnb_cu_up_function(src->e2sm_ccc_o_gnb_cu_up_function);
       break;
     case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction:
       assert("No support VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction");
