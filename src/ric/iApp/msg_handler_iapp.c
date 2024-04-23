@@ -544,6 +544,7 @@ void generate_update_e2_node(e42_iapp_t* iapp, size_t num_xapp)
 
   for (size_t i = init_xapp_id; i < init_xapp_id+num_xapp; i++) {
     e2ap_msg_t ans = {.type = E42_UPDATE_E2_NODE};
+    defer({ e2ap_msg_free_iapp(&iapp->ap, &ans); });
     ans.u_msgs.e42_updt_e2_node.xapp_id = i;
     ans.u_msgs.e42_updt_e2_node.len_e2_nodes_conn = new_e2_arr.len;
     ans.u_msgs.e42_updt_e2_node.nodes = new_e2_arr.n;
