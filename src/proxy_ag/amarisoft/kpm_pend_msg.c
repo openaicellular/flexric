@@ -6,7 +6,7 @@ kpm_pend_msg_t init_kpm_pend_msg(kpm_msgs_amr_t* msg)
 {
   assert(msg != NULL);
 
-  kpm_pend_msg_t dst = {.stats = &msg->stats, .ues = &msg->ues, .cfg = &msg->cfg };
+  kpm_pend_msg_t dst = {.msg = msg};
 
   size_t const num_msgs = 3;
   dst.latch = init_latch_cv(num_msgs);

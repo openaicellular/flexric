@@ -5,19 +5,19 @@
 #include "../../util/conf_file.h"
 #include "../../util/alg_ds/ds/assoc_container/assoc_ht_open_address.h"
 #include "asio_agent_amr.h"
-#include "ep_amr.h"
-#include "pending_event_proxy.h"
-#include "ie/config_get.h"
-#include "ie/msg_stats.h"
-#include "ie/msg_ue_get.h"
-#include "msg_amr.h"
-#include "kpm_msgs_amr.h"
+#include "io_ran/ep_amr.h"
+#include "io_ran/msg_amr.h"
+#include "io_ran/kpm_msgs_amr.h"
+#include "io_ran/rc_msgs_amr.h"
+
+#include "lib/ie/msg_config_get.h"
+#include "lib/ie/msg_stats.h"
+#include "lib/ie/msg_ue_get.h"
 #include "kpm_pend_ds.h"
-#include "rc_msgs_amr.h"
+#include "pending_event_proxy.h"
 #include "rc_pend_ds.h"
 
 #include <stdatomic.h>
-
 
 // Forward declaration
 typedef struct e2_agent_amr_s e2_agent_amr_t;

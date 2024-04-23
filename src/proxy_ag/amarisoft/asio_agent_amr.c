@@ -9,9 +9,7 @@
 #include <sys/types.h>                     // for time_t
 #include <time.h>                          // for timespec,  itimerspec
 #include <unistd.h>                        // for close
-
 #include "asio_agent_amr.h"
-
 
 static
 void set_fd_non_blocking(int sfd)

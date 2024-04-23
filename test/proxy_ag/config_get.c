@@ -1,4 +1,4 @@
-#include "../../src/proxy_ag/amarisoft/ie/dec/dec_config_get.h"
+#include "../../src/proxy_ag/amarisoft/lib/dec/dec_msg_amr_json.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,16 +23,16 @@ int main()
   char* str2 = read_file("roland_config_get.json");
   char* str3 = read_file("config_get.json");
 
-  config_get_amr_t out = {0};
+  msg_config_get_amr_t out = {0};
   
   dec_config_get_amr(str, &out);
-  free_config_get_amr(&out);
+  free_msg_config_get_amr(&out);
 
   dec_config_get_amr(str2, &out);
-  free_config_get_amr(&out);
+  free_msg_config_get_amr(&out);
 
   dec_config_get_amr(str3, &out);
-  free_config_get_amr(&out);
+  free_msg_config_get_amr(&out);
 
   free(str);
   free(str2);

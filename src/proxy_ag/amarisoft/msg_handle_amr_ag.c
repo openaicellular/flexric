@@ -1,19 +1,20 @@
 #include "msg_handle_amr_ag.h"
-#include "msg_dec_amr_ag.h"
-#include "ep_amr.h"
-#include "kpm_pend_msg.h"
-#include "rc_pend_msg.h"
+#include "lib/dec/dec_msg_amr_json.h"
+
+#include "../../agent/e2_agent_api.h"
+#include "../../util/alg_ds/alg/defer.h"
 #include "../../util/alg_ds/alg/find.h"
+#include "../../util/alg_ds/ds/lock_guard/lock_guard.h"
+#include "../../util/compare.h"
 #include "../../util/e.h"
 #include "../../util/time_now_us.h"
-#include "../../util/compare.h"
 
-#include "../../util/alg_ds/alg/defer.h"
-#include "../../util/alg_ds/ds/lock_guard/lock_guard.h"
+#include "io_ran/send_msg_amr.h"
+#include "io_ran/ep_amr.h"
 
 #include "e2_agent_amr_api.h"
-#include "send_msg_amr.h"
-#include "../../agent/e2_agent_api.h"
+#include "kpm_pend_msg.h"
+#include "rc_pend_msg.h"
 
 #include <assert.h>
 #include <string.h>
@@ -142,7 +143,7 @@ void msg_handle_ready(e2_agent_amr_t* ag, msg_amr_t const* msg)
 }
 
 static
-void init_e2_agent_emulator(e2_agent_amr_t* ag, config_get_amr_t const* cfg)
+void init_e2_agent_emulator(e2_agent_amr_t* ag, msg_config_get_amr_t const* cfg)
 {
   assert(ag != NULL);
   assert(cfg != NULL);
@@ -174,7 +175,7 @@ void msg_handle_config_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
 
   int64_t t0 = time_now_us();
 
-  config_get_amr_t const* cfg = &msg->config;
+  msg_config_get_amr_t const* cfg = &msg->config;
 
   int const first_msg_id = 0; 
   if(cfg->msg_id == first_msg_id){
@@ -193,12 +194,12 @@ void msg_handle_config_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
     // The other msgs still have a valid pointer to the kpm_pend_msg_t
     kpm_pend_msg_t* k = extract_kpm_pend_ds(&ag->kpm_pend_ds, cfg->msg_id);
     // Move memory ownership
-    *k->cfg = *cfg;
+    k->msg->cfg = *cfg;
     notify_part_filled_kp(k);
   } else { // orig == RC_ORIGINATED_MSG_E)
     rc_pend_msg_t* r = extract_rc_pend_ds(&ag->rc_pend_ds, cfg->msg_id);
     // Move memory ownership
-    *r->cfg = *cfg;
+    r->msg->cfg = *cfg;
     notify_part_filled_rp(r);
   }
 
@@ -221,7 +222,7 @@ void msg_handle_stats(e2_agent_amr_t* ag, msg_amr_t const* msg)
   kpm_pend_msg_t* k = extract_kpm_pend_ds(&ag->kpm_pend_ds, s->msg_id);
 
   // Move memory ownership
-  *k->stats = *s;
+  k->msg->stats = *s;
   notify_part_filled_kp(k);
 
   int64_t t1 = time_now_us();
@@ -241,12 +242,12 @@ void msg_handle_ue_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
   if(orig == KPM_ORIGINATED_MSG_E){
     kpm_pend_msg_t* k = extract_kpm_pend_ds(&ag->kpm_pend_ds, ue->msg_id);
     // Move memory ownership
-    *k->ues = *ue;
+    k->msg->ues = *ue;
     notify_part_filled_kp(k);
   } else { // orig == RC_ORIGINATED_MSG_E)
     rc_pend_msg_t* r = extract_rc_pend_ds(&ag->rc_pend_ds, ue->msg_id);
     // Move memory ownership
-    *r->ues = *ue;
+    r->msg->ues = *ue;
     notify_part_filled_rp(r);
   }
  
@@ -266,7 +267,7 @@ void msg_handle_ho(e2_agent_amr_t* ag, msg_amr_t const* msg)
 
   rc_pend_msg_t* r = extract_rc_pend_ds(&ag->rc_pend_ds, ho->msg_id);
   // Move memory ownership
-  *r->ho = *ho;
+  r->msg->ho = *ho;
   notify_part_filled_rp(r);
  
   int64_t t1 = time_now_us();

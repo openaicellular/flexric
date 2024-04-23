@@ -5,7 +5,7 @@ rc_pend_msg_t init_rc_pend_msg(rc_msgs_amr_t* msg)
 {
   assert(msg != NULL);
 
-  rc_pend_msg_t dst = {.ues = &msg->ues, .cfg = &msg->cfg };
+  rc_pend_msg_t dst = {.msg = msg};
 
   size_t const num_msgs = 2;
   dst.latch = init_latch_cv(num_msgs);

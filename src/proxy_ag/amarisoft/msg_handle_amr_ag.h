@@ -2,8 +2,7 @@
 #define MSG_HANDLE_AMR_AG_MIR_H 
 
 #include "e2_agent_amr.h"
-#include "msg_amr.h"
-
+#include "io_ran/msg_amr.h"
 
 void msg_handle_amr_ag(e2_agent_amr_t* ag, msg_amr_t const* msg);
 

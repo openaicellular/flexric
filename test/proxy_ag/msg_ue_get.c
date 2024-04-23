@@ -1,4 +1,4 @@
-#include "../../src/proxy_ag/amarisoft/ie/dec/dec_msg_ue_get.h" 
+#include "../../src/proxy_ag/amarisoft/lib/dec/dec_msg_amr_json.h"
 
 #include <stdio.h>
 #include <stdlib.h>

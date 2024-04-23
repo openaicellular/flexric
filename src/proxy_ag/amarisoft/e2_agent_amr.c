@@ -1,21 +1,24 @@
 #include "e2_agent_amr.h"
 #include <assert.h>
 #include <stdlib.h>
-#include "msg_amr.h"
+#include "io_ran/msg_amr.h"
 
 #include "../../util/alg_ds/alg/defer.h"
 #include "../../util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "../../util/compare.h"
 #include "../../util/time_now_us.h"
 #include "../../lib/async_event.h"
-#include "sm_io/io_proxy_ag.h"
-#include "msg_dec_amr_ag.h"
+
 #include "msg_handle_amr_ag.h"
 #include "kpm_pend_msg.h"
 #include "rc_pend_msg.h"
-#include "send_msg_amr.h"
-#include "kpm_msgs_amr.h"
-#include "rc_msgs_amr.h"
+
+#include "lib/dec/dec_msg_amr_json.h"
+
+#include "io_ran/send_msg_amr.h"
+#include "io_ran/kpm_msgs_amr.h"
+#include "io_ran/rc_msgs_amr.h"
+#include "io_sm/init_sm_amr.h"
 
 static inline
 bool net_pkt(const e2_agent_amr_t* ag, int fd)
@@ -112,7 +115,7 @@ e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
   add_fd_asio_agent_amr(&dst.asio, dst.ep.fd);
 
   // SM io
-  init_io_proxy_ag(&dst.sm_io);
+   init_sm_amr(&dst.sm_io);
 
   // Message ID
   dst.msg_id = 0;
@@ -159,7 +162,7 @@ void free_e2_agent_amr(e2_agent_amr_t* ag)
 
   stop_ep_amr(&ag->ep);
 
-  free_io_proxy_ag(&ag->sm_io);
+  free_sm_amr(&ag->sm_io);
 
   free_pend_ev_prox(&ag->pend);
 
@@ -235,7 +238,7 @@ void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, rc_msgs_amr_
 {
   assert(ag != NULL);
 
-  rc_pend_msg_t rc = {.ho = &msg->ho};
+  rc_pend_msg_t rc = {.msg = msg};
   defer({ free_rc_pend_msg(&rc); } );
 
   rc.latch = init_latch_cv(1);
