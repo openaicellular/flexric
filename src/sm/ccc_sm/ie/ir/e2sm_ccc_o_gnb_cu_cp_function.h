@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include "../../../../lib/3gpp/ie/plmn_identity.h"
 #include "g_enb_id_lst.h"
+#include "g_gnb_id_lst.h"
 
 // 8.8.1.2
 typedef struct{
@@ -31,13 +32,13 @@ typedef struct{
 
   g_enb_id_lst_t x2_allow_list;
 
-  g_enb_id_lst_t xn_block_list;
+  g_gnb_id_lst_t xn_block_list;
 
-  g_enb_id_lst_t xn_allow_list;
+  g_gnb_id_lst_t xn_allow_list;
 
   g_enb_id_lst_t x2_ho_block_list;
 
-  g_enb_id_lst_t xn_ho_block_list;
+  g_gnb_id_lst_t xn_ho_block_list;
 
 } e2sm_ccc_o_gnb_cu_cp_function_t;
 
