@@ -363,6 +363,81 @@ ran_configuration_structure_json_t* create_rrm_policy_ratio(e2sm_ccc_o_rrm_polic
         sizeof(r_rm_policy_member_list_element_t*)
     );
   }
+  return dst;
+}
+
+static
+list_t* create_g_enb_id_list_json(g_enb_id_lst_t const src){
+  list_t* dst = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_g_enb_id_lst; ++i){
+    list_add_tail(
+        dst,
+        strdup(src.g_enb_id_lst[i]),
+        sizeof(char*)
+    );
+  }
+
+  return dst;
+}
+
+static
+list_t* create_g_gnb_id_list_json(g_gnb_id_lst_t const src){
+  list_t* dst = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_g_gnb_id_lst; ++i){
+    list_add_tail(
+        dst,
+        strdup(src.g_gnb_id_lst[i]),
+        sizeof(char*)
+    );
+  }
+
+  return dst;
+}
+static
+ran_configuration_structure_json_t* create_o_gnb_cu_cp_function(e2sm_ccc_o_gnb_cu_cp_function_t const src){
+  ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
+  assert(dst != NULL);
+
+//  src.gnb_id
+  dst->gnb_id = calloc(1, sizeof(uint32_t));
+  assert(dst->gnb_id != NULL);
+  *dst->gnb_id = src.gnb_id;
+
+//  src.gnb_cu_name
+  if (src.gnb_cu_name != NULL)
+    dst->gnb_cu_name = strdup(src.gnb_cu_name);
+
+//  src.gnb_id_len
+  dst->gnb_id_length = calloc(1, sizeof(uint8_t));
+  assert(dst->gnb_id_length!= NULL);
+  *dst->gnb_id_length = src.gnb_id_len;
+
+//  src.plmn_id
+  dst->plmn_id = create_plmn_id_json(src.plmn_id);
+
+//  src.xn_ho_block_list
+  if (src.xn_ho_block_list.sz_g_gnb_id_lst > 0)
+    dst->xn_ho_block_list = create_g_gnb_id_list_json(src.xn_ho_block_list);
+
+//  src.xn_allow_list
+  if (src.xn_allow_list.sz_g_gnb_id_lst > 0)
+    dst->xn_allow_list = create_g_gnb_id_list_json(src.xn_allow_list);
+
+//  src.x2_ho_block_list
+  if (src.x2_ho_block_list.sz_g_enb_id_lst > 0)
+    dst->x2_ho_block_list = create_g_enb_id_list_json(src.x2_ho_block_list);
+
+//  src.x2_allow_list
+  if (src.x2_allow_list.sz_g_enb_id_lst > 0)
+    dst->x2_allow_list = create_g_enb_id_list_json(src.x2_allow_list);
+
+//  src.x2_block_list
+  if (src.x2_block_list.sz_g_enb_id_lst > 0)
+    dst->x2_block_list = create_g_enb_id_list_json(src.x2_block_list);
+
+//  src.xn_block_list
+  if (src.xn_block_list.sz_g_gnb_id_lst > 0)
+    dst->xn_block_list = create_g_gnb_id_list_json(src.xn_block_list);
 
   return dst;
 }
@@ -384,6 +459,7 @@ values_of_attributes_json_t* create_values_of_attributes(values_of_attributes_t 
       break;
     case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction:
       assert("No support VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction");
+      res->ran_configuration_structure = create_o_gnb_cu_cp_function(src->e2sm_ccc_o_gnb_cu_cp_function);
       break;
     case VALUES_OF_ATTRIBUTES_O_CESManagementFunction:
       assert("No support VALUES_OF_ATTRIBUTES_O_CESManagementFunction");

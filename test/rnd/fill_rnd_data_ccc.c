@@ -341,7 +341,7 @@ e2sm_ccc_o_rrm_policy_ratio_t fill_rnd_o_rrm_policy_ratio(){
 }
 
 static
-ind_msg_ran_conf_t get_o_gnb_du_func_node(){
+ind_msg_ran_conf_t fill_o_gnb_du_func_node(){
   ind_msg_ran_conf_t res = {0};
 
   res.ran_conf_name = cp_str_to_ba("O-GNBDUFunction");
@@ -360,7 +360,7 @@ ind_msg_ran_conf_t get_o_gnb_du_func_node(){
 }
 
 static
-ind_msg_ran_conf_t get_o_gnb_cu_cp_func_node(){
+ind_msg_ran_conf_t fill_o_gnb_cu_cp_func_node(){
   ind_msg_ran_conf_t res = {0};
 
   res.ran_conf_name = cp_str_to_ba("O-GNBCUCPFunction");
@@ -379,7 +379,7 @@ ind_msg_ran_conf_t get_o_gnb_cu_cp_func_node(){
 }
 
 static
-ind_msg_ran_conf_t get_o_gnb_cu_up_func_node(){
+ind_msg_ran_conf_t fill_o_gnb_cu_up_func_node(){
   ind_msg_ran_conf_t res = {0};
 
   res.ran_conf_name = cp_str_to_ba("O-GNBCUUPFunction");
@@ -398,22 +398,22 @@ ind_msg_ran_conf_t get_o_gnb_cu_up_func_node(){
 }
 
 static
-ind_msg_ran_conf_t  get_o_nr_cell_cu_cell(){
+ind_msg_ran_conf_t  fill_o_nr_cell_cu_cell(){
   assert(0 != 0 && "Not implemented fill rnd o_nr_cell_cu_cell");
 }
 
 static
-ind_msg_ran_conf_t get_o_nr_cell_du_cell(){
+ind_msg_ran_conf_t fill_o_nr_cell_du_cell(){
   assert(0 != 0 && "Not implemented fill rnd o_nr_cell_du_cell");
 }
 
 static
-ind_msg_ran_conf_t get_o_bwp_cell(){
+ind_msg_ran_conf_t fill_o_bwp_cell(){
   assert(0 != 0 && "Not implemented fill rnd o_bwp_cell");
 }
 
 static
-ind_msg_ran_conf_t get_o_rrm_policy_ratio(){
+ind_msg_ran_conf_t fill_o_rrm_policy_ratio(){
   ind_msg_ran_conf_t res = {0};
 
   res.ran_conf_name = cp_str_to_ba("O-RRMPolicyRatio");
@@ -432,7 +432,7 @@ ind_msg_ran_conf_t get_o_rrm_policy_ratio(){
 }
 
 static
-ind_msg_ran_conf_t get_o_ces_man_func_cell(){
+ind_msg_ran_conf_t fill_o_ces_man_func_cell(){
   assert(0 != 0 && "Not implemented fill rnd o_ces_man_func_cell ");
 }
 
@@ -442,28 +442,28 @@ ind_msg_ran_conf_t fill_rnd_ind_msg_ran_conf(){
 
   switch (values_of_attributes_type) {
     case VALUES_OF_ATTRIBUTES_O_GNBDUFunction:
-      res = get_o_gnb_du_func_node();
+      res = fill_o_gnb_du_func_node();
       break;
     case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction:
-      res = get_o_gnb_cu_cp_func_node();
+      res = fill_o_gnb_cu_cp_func_node();
       break;
     case VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction:
-      res = get_o_gnb_cu_up_func_node();
+      res = fill_o_gnb_cu_up_func_node();
       break;
     case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio:
-      res = get_o_rrm_policy_ratio();
+      res = fill_o_rrm_policy_ratio();
       break;
     case VALUES_OF_ATTRIBUTES_O_CESManagementFunction:
-      res = get_o_ces_man_func_cell();
+      res = fill_o_ces_man_func_cell();
       break;
     case VALUES_OF_ATTRIBUTES_O_BWP:
-      res = get_o_bwp_cell();
+      res = fill_o_bwp_cell();
       break;
     case VALUES_OF_ATTRIBUTES_O_NRCellDU:
-      res = get_o_nr_cell_du_cell();
+      res = fill_o_nr_cell_du_cell();
       break;
     case VALUES_OF_ATTRIBUTES_O_NRCellCU:
-      res = get_o_nr_cell_cu_cell();
+      res = fill_o_nr_cell_cu_cell();
       break;
     default:
       break;

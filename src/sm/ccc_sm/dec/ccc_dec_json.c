@@ -223,6 +223,38 @@ values_of_attributes_t get_o_gnb_du_func_node(ran_configuration_structure_json_t
 }
 
 static
+g_gnb_id_lst_t get_g_gnb_id_lst(list_t* const src){
+  assert(src != NULL);
+  size_t index = 0;
+  g_gnb_id_lst_t res = {0};
+  res.sz_g_gnb_id_lst = src->count;
+  res.g_gnb_id_lst = calloc(res.sz_g_gnb_id_lst, sizeof(char*));
+  char* node = list_get_head(src);
+  while (node!= NULL){
+    res.g_gnb_id_lst[index] = strdup(node);
+    node = list_get_next(src);
+    index++;
+  }
+  return res;
+}
+
+static
+g_enb_id_lst_t get_g_enb_id_lst(list_t* const src){
+  assert(src != NULL);
+  size_t index = 0;
+  g_enb_id_lst_t res = {0};
+  res.sz_g_enb_id_lst = src->count;
+  res.g_enb_id_lst = calloc(res.sz_g_enb_id_lst, sizeof(char*));
+  char* node = list_get_head(src);
+  while (node!= NULL){
+    res.g_enb_id_lst[index] = strdup(node);
+    node = list_get_next(src);
+    index++;
+  }
+  return res;
+}
+
+static
 values_of_attributes_t get_o_gnb_cu_cp_func_node(ran_configuration_structure_json_t const* src){
   assert(src != NULL);
   e2sm_ccc_o_gnb_cu_cp_function_t cu_cp_function = {0};
@@ -234,29 +266,28 @@ values_of_attributes_t get_o_gnb_cu_cp_func_node(ran_configuration_structure_jso
     cu_cp_function.gnb_id_len = *src->gnb_id_length;
 
   if (src->gnb_cu_name)
-    cu_cp_function.gnb_cu_name = strdup(src->gnb_du_name);
+    cu_cp_function.gnb_cu_name = strdup(src->gnb_cu_name);
 
   if (src->plmn_id)
     cu_cp_function.plmn_id = get_plmn_id_json(src->plmn_id);
 
   if (src->x2_block_list)
-    // Conflict type with json schema
-    assert(0 != 0 && "Not implemented");
+    cu_cp_function.x2_block_list = get_g_enb_id_lst(src->x2_block_list);
 
   if (src->x2_allow_list)
-    assert(0 != 0 && "Not implemented");
+    cu_cp_function.x2_allow_list = get_g_enb_id_lst(src->x2_allow_list);
 
   if (src->xn_block_list)
-    assert(0 != 0 && "Not implemented");
+    cu_cp_function.xn_block_list = get_g_gnb_id_lst(src->xn_block_list);
 
   if (src->xn_allow_list)
-    assert(0 != 0 && "Not implemented");
+    cu_cp_function.xn_allow_list = get_g_gnb_id_lst(src->xn_allow_list);
 
   if (src->x2_ho_block_list)
-    assert(0 != 0 && "Not implemented");
+    cu_cp_function.x2_ho_block_list = get_g_enb_id_lst(src->x2_ho_block_list);
 
   if (src->xn_ho_block_list)
-    assert(0 != 0 && "Not implemented");
+    cu_cp_function.xn_ho_block_list = get_g_gnb_id_lst(src->xn_ho_block_list);
 
   values_of_attributes_t res = {0};
   res.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction;
