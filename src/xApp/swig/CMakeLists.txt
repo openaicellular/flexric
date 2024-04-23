@@ -172,7 +172,8 @@ if(XAPP_PYTHON_SWIG)
   endif()
 
   # I do not like this solution at all but it is not my code ...
-  target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter )
+  # e.g., warning 312: Nested union not currently supported (ignored).
+  target_compile_options(xapp_sdk PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -w312)
 
   #Comment this line to build it from the directory
   ADD_DEPENDENCIES(xapp_sdk e42_xapp_shared)
