@@ -152,6 +152,10 @@ void dec_msg_ho_ans_amr(const char* in, msg_ho_ans_amr_t* out)
   assert(in != NULL);
   assert(out != NULL);
 
+
+  printf("Receiving HO answer %s \n", in);
+
+
   cJSON *json = cJSON_Parse(in);
   defer({ cJSON_Delete(json); });
   if (json == NULL) {
@@ -534,30 +538,30 @@ cells_ue_lst_amr_t dec_cells_ue_lst_amr(void *it)
   cells_ue_lst_amr_t dst = {0};
 
   dst.cell_id = dec_int(it, "cell_id");
-  dst.cqi = dec_int(it, "cqi");
-  dst.ri = dec_int(it, "ri");
-  dst.dl_bitrate = dec_int(it, "dl_bitrate");
-  dst.ul_bitrate = dec_int(it, "ul_bitrate");
-  dst.ul_rank = dec_int(it, "ul_rank");
-  dst.dl_tx = dec_int(it, "dl_tx");
-  dst.ul_tx = dec_int(it, "ul_tx");
-  dst.dl_err = dec_int(it, "dl_err");
-  dst.ul_err = dec_int(it, "ul_err");
-  dst.dl_retx = dec_int(it, "dl_retx");
-  dst.ul_retx = dec_int(it, "ul_retx");
-  dst.dl_mcs = dec_int(it, "dl_mcs");
-  dst.ul_mcs = dec_int(it, "ul_mcs");
-  dst.ul_n_layer = dec_int(it, "ul_n_layer");
-  dst.turbo_decoder_min = dec_int(it, "turbo_decoder_min");
-  dst.turbo_decoder_avg = dec_int(it, "turbo_decoder_avg");
-  dst.turbo_decoder_max = dec_int(it, "turbo_decoder_max");
-  dst.pusch_snr = dec_int(it, "pusch_snr");
-  dst.epre = dec_int(it, "epre");
-  dst.ul_phr = dec_int(it, "ul_phr");
-  dst.ul_path_loss = dec_int(it, "ul_path_loss");
-  dst.p_ue = dec_int(it, "p_ue");
-  dst.initial_ta = dec_int(it, "initial_ta");
-
+//  dst.cqi = dec_int(it, "cqi");
+//  dst.ri = dec_int(it, "ri");
+//  dst.dl_bitrate = dec_int(it, "dl_bitrate");
+//  dst.ul_bitrate = dec_int(it, "ul_bitrate");
+//  dst.ul_rank = dec_int(it, "ul_rank");
+//  dst.dl_tx = dec_int(it, "dl_tx");
+//  dst.ul_tx = dec_int(it, "ul_tx");
+//  dst.dl_err = dec_int(it, "dl_err");
+//  dst.ul_err = dec_int(it, "ul_err");
+//  dst.dl_retx = dec_int(it, "dl_retx");
+//  dst.ul_retx = dec_int(it, "ul_retx");
+//  dst.dl_mcs = dec_int(it, "dl_mcs");
+//  dst.ul_mcs = dec_int(it, "ul_mcs");
+//  dst.ul_n_layer = dec_int(it, "ul_n_layer");
+//  dst.turbo_decoder_min = dec_int(it, "turbo_decoder_min");
+//  dst.turbo_decoder_avg = dec_int(it, "turbo_decoder_avg");
+//  dst.turbo_decoder_max = dec_int(it, "turbo_decoder_max");
+//  dst.pusch_snr = dec_int(it, "pusch_snr");
+//  dst.epre = dec_int(it, "epre");
+//  dst.ul_phr = dec_int(it, "ul_phr");
+//  dst.ul_path_loss = dec_int(it, "ul_path_loss");
+//  dst.p_ue = dec_int(it, "p_ue");
+//  dst.initial_ta = dec_int(it, "initial_ta");
+//
   return dst;
 }
 
@@ -2008,7 +2012,7 @@ ue_lst_amr_t dec_ue_lst_amr(void* it)
 
   // Optional integer. AMF UE id. It is present when the UE-
   // associated logical NG-connection is setup.
-  dst.amf_ue_id = dec_int(it,"amf_ue_id");
+  // dst.amf_ue_id = dec_int(it,"amf_ue_id");
 
   // Mandatory
   dst.rnti = dec_int(it,"rnti"); 
@@ -2020,8 +2024,8 @@ ue_lst_amr_t dec_ue_lst_amr(void* it)
 
   // Mandatory. 
   // Array of objects
-  ans = find_object(it, "qos_flow_list");
-  dst.qos_flows = dec_arr_qos_flows_ue_lst((void*)ans.it);
+  //ans = find_object(it, "qos_flow_list");
+  //dst.qos_flows = dec_arr_qos_flows_ue_lst((void*)ans.it);
 
   return dst;
 }

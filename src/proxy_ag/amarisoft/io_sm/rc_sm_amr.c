@@ -553,11 +553,10 @@ sm_ag_if_ans_t radio_resource_alloc_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
 }
 
 static
-nr_cgi_t target_cell_ho_ctrl(e2sm_rc_ctrl_msg_t const* msg)
+uint16_t target_cell_ho_ctrl(e2sm_rc_ctrl_msg_t const* msg)
 {
   assert(msg != NULL);
 
-  nr_cgi_t dst = {0}; 
   assert(msg->format == FORMAT_1_E2SM_RC_CTRL_MSG);
   e2sm_rc_ctrl_msg_frmt_1_t const* frmt_1 = &msg->frmt_1; 
   assert(frmt_1->sz_ran_param == 2);
@@ -577,15 +576,13 @@ nr_cgi_t target_cell_ho_ctrl(e2sm_rc_ctrl_msg_t const* msg)
   assert(rp3->ran_param_id == NR_cell_8_4_4_1);
   assert(rp3->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE);
   assert(rp3->ran_param_val.strct->ran_param_struct != NULL);
-  // NR_CGI_8_4_4_1
+  // Physical Cell ID
   seq_ran_param_t const* rp4 = rp3->ran_param_val.strct->ran_param_struct;
   assert(rp4->ran_param_id == NR_CGI_8_4_4_1);
   assert(rp4->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE);
-  assert(rp4->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE);
-
-  memcpy(&dst.nr_cell_id, rp4->ran_param_val.flag_false->bit_str_ran.buf ,8);
-
-  return dst;
+  assert(rp4->ran_param_val.flag_false->type == INTEGER_RAN_PARAMETER_VALUE);
+  // 
+  return rp4->ran_param_val.flag_false->int_ran;
 }
 
 static
@@ -618,9 +615,8 @@ sm_ag_if_ans_t ho_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
   assert(rc_ctrl->hdr.frmt_1.ctrl_act_id == ho_ctrl_act_id);
 
   ue_id_e2sm_t const* ue = &rc_ctrl->hdr.frmt_1.ue_id;
-  nr_cgi_t const target_cell = target_cell_ho_ctrl(&rc_ctrl->msg);
+  uint16_t const target_cell = target_cell_ho_ctrl(&rc_ctrl->msg);
   uint32_t const ssb_nr_arfcn = target_cell_arfcn_ho_ctrl(&rc_ctrl->msg);
-  defer({ free_nr_cgi((nr_cgi_t*)&target_cell); }); 
 
   // Call Hand Over
   assert(ue->gnb.ran_ue_id != NULL); 
@@ -629,7 +625,7 @@ sm_ag_if_ans_t ho_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
   // Wait for the answer
   rc_msgs_amr_t msg = {0};
   defer({free_rc_msgs_amr(&msg); });
-  ho_rc_sm_api(target_cell.nr_cell_id, ran_ue_id, ssb_nr_arfcn, &msg);
+  ho_rc_sm_api(target_cell, ran_ue_id, ssb_nr_arfcn, &msg);
 
   // Create the answer. BS from the standard. Just return the
   // time. We print error so that at least we know that an error occurred

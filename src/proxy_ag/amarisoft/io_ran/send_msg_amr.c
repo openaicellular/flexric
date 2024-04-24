@@ -59,6 +59,8 @@ void send_ho(ep_amr_t const* ep, int msg_id, uint64_t pci, uint64_t ran_ue_id, s
   size_t sz = snprintf(msg, 256, "{\"message\": \"handover\", \"message_id\": %d, \"ran_ue_id\":%ld, \"pci\":%ld, \"ssb_nr_arfcn\": %ld }", msg_id, ran_ue_id, pci, ssb_nr_arfcn);
   assert(sz < 256);
 
+  printf("Sending HO %s \n", msg);
+
   send_ep_amr(ep, (uint8_t*)msg, sz);
 }
 

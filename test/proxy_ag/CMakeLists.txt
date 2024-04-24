@@ -8,6 +8,11 @@ add_executable(config_get
   config_get.c
   )
 
+target_link_libraries(config_get  
+            PUBLIC                                                                                       
+            -pthread                                                                                     
+            ) 
+
 add_executable(msg_stats 
   ../../src/proxy_ag/amarisoft/lib/ie/msg_stats.c
   $<TARGET_OBJECTS:dec_amr_obj>
@@ -18,6 +23,12 @@ add_executable(msg_stats
   msg_stats.c
   )
 
+target_link_libraries(msg_stats  
+            PUBLIC                                                                                       
+            -pthread                                                                                     
+            ) 
+
+
 add_executable(msg_ue_get 
   ../../src/proxy_ag/amarisoft/lib/ie/msg_ue_get.c
   $<TARGET_OBJECTS:dec_amr_obj>
@@ -27,6 +38,11 @@ add_executable(msg_ue_get
   $<TARGET_OBJECTS:e2ap_ds_obj>
   msg_ue_get.c
   )
+
+target_link_libraries(msg_ue_get  
+            PUBLIC                                                                                       
+            -pthread                                                                                     
+            ) 
 
 
 
