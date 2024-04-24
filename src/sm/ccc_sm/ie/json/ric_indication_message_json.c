@@ -290,7 +290,7 @@ bwp_list_element_t * cJSON_Getbwp_list_elementValue(const cJSON * j) {
         }
       }
       if (cJSON_HasObjectItem(j, "startRB")) {
-        if (NULL != (x->start_rb = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->start_rb = cJSON_malloc(sizeof(uint32_t)))) {
           *x->start_rb = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "startRB"));
         }
       }
@@ -565,7 +565,7 @@ partition_list_element_t * cJSON_Getpartition_list_elementValue(const cJSON * j)
         }
       }
       if (cJSON_HasObjectItem(j, "pNumberOfRBs")) {
-        if (NULL != (x->p_number_of_r_bs = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->p_number_of_r_bs = cJSON_malloc(sizeof(uint32_t)))) {
           *x->p_number_of_r_bs = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "pNumberOfRBs"));
         }
       }
@@ -894,7 +894,7 @@ ran_configuration_structure_json_t * cJSON_Getran_configuration_structureValue(c
         x->gnb_du_name = strdup(cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(j, "gnbDuName")));
       }
       if (cJSON_HasObjectItem(j, "cellLocalId")) {
-        if (NULL != (x->cell_local_id = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->cell_local_id = cJSON_malloc(sizeof(uint32_t)))) {
           *x->cell_local_id = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "cellLocalId"));
         }
       }
@@ -1057,7 +1057,7 @@ ran_configuration_structure_json_t * cJSON_Getran_configuration_structureValue(c
         }
       }
       if (cJSON_HasObjectItem(j, "subCarrierSpacing")) {
-        if (NULL != (x->sub_carrier_spacing = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->sub_carrier_spacing = cJSON_malloc(sizeof(uint32_t)))) {
           *x->sub_carrier_spacing = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "subCarrierSpacing"));
         }
       }

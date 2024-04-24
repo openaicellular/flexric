@@ -85,6 +85,20 @@ cell_global_id_json_t* create_cell_global_id(cell_global_id_t const src){
 }
 
 static
+plmn_info_list_element_t* create_info_list_element(e2sm_ccc_plmn_info_t const src){
+  plmn_info_list_element_t* dst = calloc(1, sizeof(plmn_info_list_element_t));
+  assert(dst != NULL);
+
+  dst->plmn_id = create_plmn_id_json(src.plmn_id);
+
+  if (src.s_nssai!= NULL){
+    dst->snssai = create_snssai_json(*src.s_nssai);
+  }
+
+  return dst;
+}
+
+static
 list_of_node_level_configuration_structures_for_event_trigger_element_t* create_ev_trg_ran_conf_element(ev_trg_ran_conf_t const src){
   list_of_node_level_configuration_structures_for_event_trigger_element_t* dst = calloc(1, sizeof(list_of_node_level_configuration_structures_for_event_trigger_element_t));
   assert(dst != NULL && "Memory exhausted");
@@ -217,8 +231,6 @@ action_definition_format_json_t* create_act_def_frmt_1(e2sm_ccc_act_def_frmt_1_t
   return act_def_frm;
 }
 
-
-
 static
 lst_act_def_cell_ran_conf_element_json_t* create_act_def_cell_report(act_def_cell_report_t const src){
   lst_act_def_cell_ran_conf_element_json_t* res = calloc(1, sizeof(*res));
@@ -315,22 +327,108 @@ ran_configuration_structure_json_t* create_du_function_node(e2sm_ccc_o_gnb_du_fu
 }
 
 static
-r_rm_policy_member_list_element_t* create_rrm_policy_member_list_member(e2sm_ccc_rrm_policy_member_t const src){
-  r_rm_policy_member_list_element_t* dst = calloc(1, sizeof(r_rm_policy_member_list_element_t));
+ran_configuration_structure_json_t* create_e2sm_ccc_o_ces(e2sm_ccc_o_ces_management_function_t const src){
+  ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
   assert(dst != NULL);
 
-  dst->plmn_id = create_plmn_id_json(src.plmn_id);
+  //  src.energy_saving_control
+  dst->energy_saving_control = calloc(1, sizeof(energy_saving_control_e));
+  assert(dst->energy_saving_control != NULL);
+  *dst->energy_saving_control = src.energy_saving_control;
 
-  if (src.s_nssai!= NULL){
-    dst->snssai = create_snssai_json(*src.s_nssai);
+  //  src.energy_saving_state
+  dst->energy_saving_state = calloc(1, sizeof(energy_saving_state_e));
+  assert(dst->energy_saving_state != NULL);
+  *dst->energy_saving_state = src.energy_saving_state;
+
+  //  src.ces_switch
+  dst->ces_switch = calloc(1, sizeof(ces_switch_e));
+  assert(dst->ces_switch != NULL);
+  *dst->ces_switch = src.ces_switch;
+
+  return dst;
+}
+
+static
+ran_configuration_structure_json_t* create_e2sm_ccc_nr_cell_cu(e2sm_ccc_o_nr_cell_cu_t const src){
+  ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
+  assert(dst != NULL);
+
+//  src.cell_local_id
+  dst->cell_local_id = calloc(1, sizeof(uint32_t));
+  assert(dst->cell_local_id != NULL);
+  *dst->cell_local_id = src.cell_local_id;
+
+  //  src.plmn_info_lst
+  //  src.sz_plmn_info_lst
+  dst->plmn_info_list = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_plmn_info_lst; ++i){
+    list_add_tail(
+        dst->plmn_info_list,
+        create_info_list_element(src.plmn_info_lst[i]),
+        sizeof(plmn_info_list_element_t *)
+    );
   }
 
   return dst;
 }
 
 static
-plmn_info_list_element_t* create_info_list_element(e2sm_ccc_plmn_info_t const src){
-  plmn_info_list_element_t* dst = calloc(1, sizeof(plmn_info_list_element_t));
+ran_configuration_structure_json_t* create_e2sm_ccc_o_bwp(e2sm_ccc_o_bwp_t const src){
+  ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
+  assert(dst != NULL);
+
+  //  src.start_rb
+  dst->start_rb = calloc(1, sizeof(uint32_t));
+  assert(dst->start_rb!= NULL);
+  *dst->start_rb = src.start_rb;
+
+  //  src.number_of_rbs
+  dst->number_of_r_bs = calloc(1, sizeof(uint32_t));
+  assert(dst->number_of_r_bs != NULL);
+  *dst->number_of_r_bs = src.number_of_rbs;
+
+  //  src.is_initial_bwp
+  dst->is_initial_bwp = calloc(1, sizeof(is_initial_bwp_e));
+  assert(dst->is_initial_bwp != NULL);
+  *dst->is_initial_bwp = src.is_initial_bwp;
+
+  //  src.cyclic_prefix
+  dst->cyclic_prefix = calloc(1, sizeof(cyclic_prefix_e));
+  assert(dst->cyclic_prefix != NULL);
+  *dst->cyclic_prefix = src.cyclic_prefix;
+
+  //  src.bwp_context
+  dst->bwp_context = calloc(1, sizeof(bwp_context_e));
+  assert(dst->bwp_context != NULL);
+  *dst->bwp_context = src.bwp_context;
+
+  //  src.sub_carrier_spacing
+  dst->sub_carrier_spacing = calloc(1, sizeof(uint32_t));
+  assert(dst->sub_carrier_spacing != NULL);
+  switch (src.sub_carrier_spacing) {
+    case SUB_CARRIER_SPACING_15:
+      *dst->sub_carrier_spacing = 15;
+      break;
+    case SUB_CARRIER_SPACING_30:
+      *dst->sub_carrier_spacing = 30;
+      break;
+    case SUB_CARRIER_SPACING_60:
+      *dst->sub_carrier_spacing = 60;
+      break;
+    case SUB_CARRIER_SPACING_120:
+      *dst->sub_carrier_spacing = 120;
+      break;
+    default:
+      break;
+  }
+
+  return dst;
+}
+
+static
+r_rm_policy_member_list_element_t* create_rrm_policy_member_list_member(e2sm_ccc_rrm_policy_member_t const src){
+  r_rm_policy_member_list_element_t* dst = calloc(1, sizeof(r_rm_policy_member_list_element_t));
   assert(dst != NULL);
 
   dst->plmn_id = create_plmn_id_json(src.plmn_id);
@@ -506,23 +604,23 @@ values_of_attributes_json_t* create_values_of_attributes(values_of_attributes_t 
       res->ran_configuration_structure = create_o_gnb_cu_up_function(src->e2sm_ccc_o_gnb_cu_up_function);
       break;
     case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction:
-      assert("No support VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction");
       res->ran_configuration_structure = create_o_gnb_cu_cp_function(src->e2sm_ccc_o_gnb_cu_cp_function);
       break;
     case VALUES_OF_ATTRIBUTES_O_CESManagementFunction:
-      assert("No support VALUES_OF_ATTRIBUTES_O_CESManagementFunction");
+      res->ran_configuration_structure = create_e2sm_ccc_o_ces(src->e2sm_ccc_o_ces_management_function);
       break;
     case VALUES_OF_ATTRIBUTES_O_BWP:
-      assert("No support VALUES_OF_ATTRIBUTES_O_BWP");
+      res->ran_configuration_structure = create_e2sm_ccc_o_bwp(src->e2sm_ccc_o_bwp);
       break;
     case VALUES_OF_ATTRIBUTES_O_NRCellDU:
-      assert("No support VALUES_OF_ATTRIBUTES_O_NRCellDU");
+      assert(0 != 0 && "No support VALUES_OF_ATTRIBUTES_O_NRCellDU");
       break;
     case VALUES_OF_ATTRIBUTES_O_NRCellCU:
-      assert("No support VALUES_OF_ATTRIBUTES_O_NRCellCU");
+      res->ran_configuration_structure = create_e2sm_ccc_nr_cell_cu(src->e2sm_ccc_o_nr_cell_cu);
       break;
     default:
-      assert("No support for current configuration structure name - node level");
+      assert(0 != 0 && "No support for current configuration structure name - node level");
+      break;
   }
   return res;
 }

@@ -64,7 +64,7 @@ typedef struct {
   list_t * plmn_info_list;
   uint64_t * gnb_du_id;
   char * gnb_du_name;
-  int64_t * cell_local_id;
+  uint32_t * cell_local_id;
   administrative_state_e * administrative_state;
   int64_t * arfcn_dl;
   int64_t * arfcn_sul;
@@ -91,9 +91,9 @@ typedef struct {
   bwp_context_e * bwp_context;
   cyclic_prefix_e * cyclic_prefix;
   is_initial_bwp_e * is_initial_bwp;
-  int64_t * number_of_r_bs;
-  int64_t * start_rb;
-  int64_t * sub_carrier_spacing;
+  uint32_t* number_of_r_bs;
+  uint32_t* start_rb;
+  uint32_t* sub_carrier_spacing;
   bool * ces_switch;
   energy_saving_control_e * energy_saving_control;
   energy_saving_state_e * energy_saving_state;
