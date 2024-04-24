@@ -28,6 +28,6 @@ void send_msg_ue_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc);
 
 void send_config_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc);
 
-void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci, uint64_t ue_id);
+void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci, uint64_t ue_id, size_t ssb_nr_arfcn);
 
 #endif

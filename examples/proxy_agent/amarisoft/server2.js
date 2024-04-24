@@ -41,6 +41,7 @@ server.on('connection', function(socket) {
       console.log(`Send ue_get`)
     } else if (obj["message"] == "handover"){
       obj_json_ho["message_id"] = obj["message_id"]
+      console.log(JSON.stringify(obj));
       sockets.forEach(s => s.send(JSON.stringify(obj_json_ho)));
     } else {
       console.log(`Unknown Message type received`)

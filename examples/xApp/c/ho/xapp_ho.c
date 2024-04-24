@@ -17,6 +17,9 @@ static
 global_e2_node_id_t* src_e2_node = NULL;
 
 static
+size_t* ssb_nr_arfcn = NULL;
+
+static
 pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 
 static
@@ -122,9 +125,16 @@ void cb(sm_ag_if_rd_t const *rd, global_e2_node_id_t const *n)
       assert(src_e2_node != NULL && "Memory exhausted");
       *src_e2_node = cp_global_e2_node_id(n);
 
-      target_cell = calloc(1, sizeof(nr_cgi_t) ); 
+      nr_nghbr_cell_t const* nghbr_cell = &frmt_4->seq_cell_info_2[0].neighbour_rela_tbl->nghbr_cell[0];
+
+      target_cell = calloc(1, sizeof(nr_cgi_t)); 
       assert(target_cell != NULL && "Memory exhausted");
-      *target_cell = cp_nr_cgi(&frmt_4->seq_cell_info_2[0].neighbour_rela_tbl->nghbr_cell[0].cgi);
+      *target_cell = cp_nr_cgi(&nghbr_cell->cgi);
+      
+      ssb_nr_arfcn = calloc(1, sizeof(size_t));
+      assert(ssb_nr_arfcn != NULL && "Memory exhausted");
+      assert(nghbr_cell->nr_freq_info.arfcn != 0);
+      *ssb_nr_arfcn = nghbr_cell->nr_freq_info.arfcn; 
     } 
   }
 
@@ -177,17 +187,39 @@ void add_elm_tail(seq_ran_param_t* tail, uint32_t ran_param_id, nr_cgi_t const* 
   assert(tail->ran_param_val.flag_false != NULL && "Memory exhausted");
 
   // NR CGI IE in TS 38.423 [15] Clause 9.2.2.7
-  // Bug: PLMN should also be considered
+  // ToDo. Bug: PLMN should also be considered
   tail->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE; 
   tail->ran_param_val.flag_false->bit_str_ran.buf = calloc(8, sizeof(uint8_t));
   tail->ran_param_val.flag_false->bit_str_ran.len = 8;
   memcpy(tail->ran_param_val.flag_false->bit_str_ran.buf, &target->nr_cell_id ,8);
 }
 
+static
+seq_ran_param_t fill_ssb_nr_afcn(uint32_t ssb_nr_arfcn)
+{
+  seq_ran_param_t dst = {0};
+
+  // Important!!! This is an abuse of the standard
+  // Since it does not provide a mean to send the arfcn info
+  // which is needed for amarisoft we send it in the 
+  // RAN ID 99, which is not defined by the standard
+  dst.ran_param_id = 99;
+
+  dst.ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  dst.ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  assert(dst.ran_param_val.flag_false != NULL && "Memory exhausted");
+
+  dst.ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE; 
+  dst.ran_param_val.flag_false->int_ran = ssb_nr_arfcn;
+
+  return dst;
+}
+
+
 // 8.4.4.1
 // Handover Control
 static
-e2sm_rc_ctrl_msg_t ho_msg(nr_cgi_t const* target)
+e2sm_rc_ctrl_msg_t ho_msg(nr_cgi_t const* target, uint32_t ssb_nr_arfcn)
 {
   assert(target != NULL);
 
@@ -195,15 +227,21 @@ e2sm_rc_ctrl_msg_t ho_msg(nr_cgi_t const* target)
 
   dst.format = FORMAT_1_E2SM_RC_CTRL_MSG;
 
-  dst.frmt_1.sz_ran_param = 1;
-  dst.frmt_1.ran_param = calloc(1, sizeof(seq_ran_param_t));
+  dst.frmt_1.sz_ran_param = 2;
+  dst.frmt_1.ran_param = calloc(2, sizeof(seq_ran_param_t));
 
-  seq_ran_param_t* tail = dst.frmt_1.ran_param;
+  seq_ran_param_t* tail = &dst.frmt_1.ran_param[0];
   // Target primary cell
   tail = add_struct_tail(tail, Target_primary_cell_id_8_4_4_1); 
   tail = add_struct_tail(tail, CHOICE_target_cell_8_4_4_1); 
   tail = add_struct_tail(tail, NR_cell_8_4_4_1); 
   add_elm_tail(tail, NR_CGI_8_4_4_1, target);
+
+  // Important!!! This is an abuse of the standard
+  // Since it does not provide a mean to send the arfcn info
+  // which is needed for amarisoft we send it in the 
+  // RAN ID 99, which is not defined by the standard
+  dst.frmt_1.ran_param[1] = fill_ssb_nr_afcn(ssb_nr_arfcn);
 
   return dst;
 }
@@ -211,7 +249,7 @@ e2sm_rc_ctrl_msg_t ho_msg(nr_cgi_t const* target)
 // 7.6.4
 // CONTROL Service Style 3: Connected Mode Mobility
 static
-rc_ctrl_req_data_t hand_over_rc_ctrl_msg(ue_id_e2sm_t const* ue, nr_cgi_t const* target)
+rc_ctrl_req_data_t hand_over_rc_ctrl_msg(ue_id_e2sm_t const* ue, nr_cgi_t const* target, uint32_t ssb_nr_arfcn)
 {
   assert(ue != NULL);
   assert(target != NULL);
@@ -219,7 +257,7 @@ rc_ctrl_req_data_t hand_over_rc_ctrl_msg(ue_id_e2sm_t const* ue, nr_cgi_t const*
   rc_ctrl_req_data_t dst = {0}; 
   
   dst.hdr = ho_hdr(ue);
-  dst.msg = ho_msg(target);
+  dst.msg = ho_msg(target, ssb_nr_arfcn);
 
   return dst;
 }
@@ -258,7 +296,7 @@ int main(int argc, char *argv[])
   wait_latch_cv(&latch);
 
   // Generate RAN CONTROL Control msg 
-  rc_ctrl_req_data_t ho = hand_over_rc_ctrl_msg(ue_id, target_cell); 
+  rc_ctrl_req_data_t ho = hand_over_rc_ctrl_msg(ue_id, target_cell, *ssb_nr_arfcn); 
   defer( { free_rc_ctrl_req_data(&ho); });
 
   // Send the Handover cmd 

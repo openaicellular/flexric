@@ -1591,9 +1591,16 @@ ncell_list_amr_t dec_ncell_list_amr(void* it )
 
   // Optional 
   //int* ssb_nr_arfcn;
+  ans_cjson_t tmp = find_object(it, "ssb_nr_arfcn");
+  if(tmp.it != NULL){
+    dst.ssb_nr_arfcn = calloc(1, sizeof(int)); 
+    *dst.ssb_nr_arfcn = ((cJSON*)tmp.it)->valueint;
+  }
+
+  printf("dst.ssb_nr_arfcn %u \n", *dst.ssb_nr_arfcn  );
 
   // Optional
-  ans_cjson_t tmp = find_object(it, "n_id_nrcell");
+  tmp = find_object(it, "n_id_nrcell");
   if(tmp.it != NULL){
     dst.n_id_nrcell = calloc(1, sizeof(int)); 
     *dst.n_id_nrcell = ((cJSON*)tmp.it)->valueint;

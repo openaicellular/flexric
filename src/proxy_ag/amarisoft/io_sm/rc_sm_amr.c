@@ -257,8 +257,8 @@ nr_freq_info_t fill_nr_freq_info(rc_msgs_amr_t const* rc_msg, ncell_list_amr_t c
   //NR ARFCN
   //Mandatory
   //6.2.3.30
-  if(ncell_lst->dl_earfcn != NULL){
-    dst.arfcn = *ncell_lst->dl_earfcn;
+  if(ncell_lst->ssb_nr_arfcn != NULL){
+    dst.arfcn = *ncell_lst->ssb_nr_arfcn;
   }  
 
   // [1,32]
@@ -485,6 +485,7 @@ bool frmt_1_read_rc_sm_amr(rc_rd_ind_data_t* data)
 
   // Fill the data from the RAN
   fill_msg_rc_sm_api(&rc_msg);
+  assert(*rc_msg.cfg.arr_nr_cells.nr_cells[0].arr_ncell_lst[0].ncell_lst[0].ssb_nr_arfcn != 0);
 
   rc_ind_data_t* ind = &data->ind;;
   // Header
@@ -559,7 +560,7 @@ nr_cgi_t target_cell_ho_ctrl(e2sm_rc_ctrl_msg_t const* msg)
   nr_cgi_t dst = {0}; 
   assert(msg->format == FORMAT_1_E2SM_RC_CTRL_MSG);
   e2sm_rc_ctrl_msg_frmt_1_t const* frmt_1 = &msg->frmt_1; 
-  assert(frmt_1->sz_ran_param == 1);
+  assert(frmt_1->sz_ran_param == 2);
 
   // Target_primary_cell_id_8_4_4_1
   seq_ran_param_t const* rp = frmt_1->ran_param;
@@ -588,6 +589,23 @@ nr_cgi_t target_cell_ho_ctrl(e2sm_rc_ctrl_msg_t const* msg)
 }
 
 static
+uint32_t target_cell_arfcn_ho_ctrl(e2sm_rc_ctrl_msg_t const* msg)
+{  
+  assert(msg != NULL);
+
+  assert(msg->format == FORMAT_1_E2SM_RC_CTRL_MSG);
+  e2sm_rc_ctrl_msg_frmt_1_t const* frmt_1 = &msg->frmt_1; 
+  assert(frmt_1->sz_ran_param == 2);
+  seq_ran_param_t const* rp = &frmt_1->ran_param[1];
+  assert(rp->ran_param_id == 99);
+  assert(rp->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE);
+  assert(rp->ran_param_val.flag_false->type == INTEGER_RAN_PARAMETER_VALUE);
+
+  assert(rp->ran_param_val.flag_false->int_ran > -1);
+  return rp->ran_param_val.flag_false->int_ran;
+}
+
+static
 sm_ag_if_ans_t ho_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
 {
   assert(rc_ctrl != NULL);
@@ -601,6 +619,7 @@ sm_ag_if_ans_t ho_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
 
   ue_id_e2sm_t const* ue = &rc_ctrl->hdr.frmt_1.ue_id;
   nr_cgi_t const target_cell = target_cell_ho_ctrl(&rc_ctrl->msg);
+  uint32_t const ssb_nr_arfcn = target_cell_arfcn_ho_ctrl(&rc_ctrl->msg);
   defer({ free_nr_cgi((nr_cgi_t*)&target_cell); }); 
 
   // Call Hand Over
@@ -610,7 +629,7 @@ sm_ag_if_ans_t ho_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
   // Wait for the answer
   rc_msgs_amr_t msg = {0};
   defer({free_rc_msgs_amr(&msg); });
-  ho_rc_sm_api(target_cell.nr_cell_id, ran_ue_id, &msg);
+  ho_rc_sm_api(target_cell.nr_cell_id, ran_ue_id, ssb_nr_arfcn, &msg);
 
   // Create the answer. BS from the standard. Just return the
   // time. We print error so that at least we know that an error occurred
@@ -789,12 +808,6 @@ sm_ag_if_ans_t write_ctrl_rc_sm_amr(void const* data)
 
   assert(rc_ctrl->hdr.format == FORMAT_1_E2SM_RC_CTRL_HDR);
   return arr_write_ctrl[rc_ctrl->hdr.frmt_1.ric_style_type -1](rc_ctrl);
-
-  assert(0 != 0 && "Debug point");
-
-  sm_ag_if_ans_t ans = {0};
-
-  return ans;
 }
 
 void init_rc_sm_amr(void)

@@ -111,7 +111,7 @@ void send_config_get_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc)
   send_config_get(&ag->ep, msg_id);
 }
 
-void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci, uint64_t ue_id)
+void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci, uint64_t ue_id, size_t ssb_nr_arfcn)
 {
   assert(ag != NULL);
   assert(msg_id > 0);
@@ -123,7 +123,7 @@ void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci,
   add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, HAND_OVER_PENDING_EVENT, RC_ORIGINATED_MSG_E);
 
   // Send message 
-  send_ho(&ag->ep, msg_id, pci, ue_id);
+  send_ho(&ag->ep, msg_id, pci, ue_id, ssb_nr_arfcn);
 }
 
 void msg_handle_ready(e2_agent_amr_t* ag, msg_amr_t const* msg)
@@ -200,6 +200,7 @@ void msg_handle_config_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
     rc_pend_msg_t* r = extract_rc_pend_ds(&ag->rc_pend_ds, cfg->msg_id);
     // Move memory ownership
     r->msg->cfg = *cfg;
+    printf("RC config %u\n", *r->msg->cfg.arr_nr_cells.nr_cells->arr_ncell_lst->ncell_lst->ssb_nr_arfcn);
     notify_part_filled_rp(r);
   }
 

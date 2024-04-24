@@ -50,16 +50,14 @@ void send_msg_stats_ue_get(ep_amr_t const* ep, int msg_id)
   send_ep_amr(ep, (uint8_t*)msg, sz);
 }
 
-void send_ho(ep_amr_t const* ep, int msg_id, uint64_t pci, uint64_t ran_ue_id)
+void send_ho(ep_amr_t const* ep, int msg_id, uint64_t pci, uint64_t ran_ue_id, size_t ssb_nr_arfcn)
 {
   assert(ep != NULL);
   assert(msg_id > -1);
 
   char msg[256] = {0}; 
-  size_t sz = snprintf(msg, 256, "{\"message\": \"handover\", \"message_id\": %d, \"ran_ue_id\":%ld, \"pci\":%ld }", msg_id, ran_ue_id, pci);
+  size_t sz = snprintf(msg, 256, "{\"message\": \"handover\", \"message_id\": %d, \"ran_ue_id\":%ld, \"pci\":%ld, \"ssb_nr_arfcn\": %ld }", msg_id, ran_ue_id, pci, ssb_nr_arfcn);
   assert(sz < 256);
-
-  // , \"ssb_nr_arfcn\":%d
 
   send_ep_amr(ep, (uint8_t*)msg, sz);
 }

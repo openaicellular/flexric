@@ -234,7 +234,7 @@ void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg)
   printf("Elapsed RAN Control get %ld %ld %ld \n", t2 - t1, t3 - t2, t4 - t3);
 }
 
-void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, rc_msgs_amr_t* msg)
+void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, size_t ssb_nr_arfcn, rc_msgs_amr_t* msg)
 {
   assert(ag != NULL);
 
@@ -245,7 +245,7 @@ void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, rc_msgs_amr_
   defer({ free_latch_cv(&rc.latch); });
 
   int const msg_id = ag->msg_id++;
-  send_ho_rc(ag, msg_id, &rc, pci, ran_ue_id);
+  send_ho_rc(ag, msg_id, &rc, pci, ran_ue_id, ssb_nr_arfcn);
 
   wait_untill_filled_rp(&rc);
 }

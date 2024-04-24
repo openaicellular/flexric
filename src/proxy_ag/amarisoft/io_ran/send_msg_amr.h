@@ -11,7 +11,7 @@ void send_msg_ue_get(ep_amr_t const* ep, int msg_id);
 
 void send_msg_stats_ue_get(ep_amr_t const* ep, int msg_id);
 
-void send_ho(ep_amr_t const* ep, int msg_id, uint64_t pci, uint64_t ran_ue_id);
+void send_ho(ep_amr_t const* ep, int msg_id, uint64_t pci, uint64_t ran_ue_id, size_t ssb_nr_arfcn);
 
 #endif
 

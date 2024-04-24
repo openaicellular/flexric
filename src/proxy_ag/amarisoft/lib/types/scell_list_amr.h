@@ -4,7 +4,6 @@
 #include <stdbool.h>
 
 typedef struct{
-
   // Mandatory. Cell identifier 
   int cell_id;
 

@@ -65,6 +65,6 @@ void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg);
 
 void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg);
 
-void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, rc_msgs_amr_t* msg);
+void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, size_t ssb_nr_arfcn, rc_msgs_amr_t* msg);
 
 #endif
