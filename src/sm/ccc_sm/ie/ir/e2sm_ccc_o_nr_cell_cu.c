@@ -1,15 +1,14 @@
-#include "e2sm_ccc_o_gnb_cu_up_function.h"
+#include "e2sm_ccc_o_nr_cell_cu.h"
 
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 
-void free_e2sm_ccc_o_gnb_cu_up_function(e2sm_ccc_o_gnb_cu_up_function_t* src)
+void free_e2sm_ccc_o_nr_cell_cu(e2sm_ccc_o_nr_cell_cu_t* src)
 {
   assert(src != NULL);
 
-//  src->gnb_id;
-//  src->gnb_id_len;
-//  src->gnb_cu_up_id;
+//  src->cell_local_id;
 
   // [1..65536]
   assert(src->sz_plmn_info_lst > 0 && src->sz_plmn_info_lst < 65537);
@@ -20,7 +19,7 @@ void free_e2sm_ccc_o_gnb_cu_up_function(e2sm_ccc_o_gnb_cu_up_function_t* src)
   free(src->plmn_info_lst);
 }
 
-bool eq_e2sm_ccc_o_gnb_cu_up_function(e2sm_ccc_o_gnb_cu_up_function_t const* m0, e2sm_ccc_o_gnb_cu_up_function_t const* m1)
+bool eq_e2sm_ccc_o_nr_cell_cu(e2sm_ccc_o_nr_cell_cu_t const* m0, e2sm_ccc_o_nr_cell_cu_t const* m1)
 {
   if(m0 == m1)
     return true;
@@ -28,16 +27,7 @@ bool eq_e2sm_ccc_o_gnb_cu_up_function(e2sm_ccc_o_gnb_cu_up_function_t const* m0,
   if(m0 == NULL || m1 == NULL)
     return false;
 
-  if(m0->gnb_id != m1->gnb_id)
-    return false;
-
-  if(m0->gnb_id_len != m1->gnb_id_len)
-    return false;
-
-  if(m0->gnb_cu_up_id != m1->gnb_cu_up_id)
-    return false;
-
-  if(m0->sz_plmn_info_lst != m1->sz_plmn_info_lst)
+  if(m0->cell_local_id != m1->cell_local_id)
     return false;
 
   // [1..65536]
@@ -53,15 +43,13 @@ bool eq_e2sm_ccc_o_gnb_cu_up_function(e2sm_ccc_o_gnb_cu_up_function_t const* m0,
 }
 
 
-e2sm_ccc_o_gnb_cu_up_function_t cp_e2sm_ccc_o_gnb_cu_up_function(e2sm_ccc_o_gnb_cu_up_function_t const* src)
+e2sm_ccc_o_nr_cell_cu_t cp_e2sm_ccc_o_nr_cell_cu(e2sm_ccc_o_nr_cell_cu_t const* src)
 {
   assert(src != NULL);
 
-  e2sm_ccc_o_gnb_cu_up_function_t dst = {0};
+  e2sm_ccc_o_nr_cell_cu_t dst = {0};
 
-  dst.gnb_id = src->gnb_id;
-  dst.gnb_id_len = src->gnb_id_len;
-  dst.gnb_cu_up_id = src->gnb_cu_up_id;
+  dst.cell_local_id = src->cell_local_id;
 
   // [1..65536]
   assert(src->sz_plmn_info_lst > 0 && src->sz_plmn_info_lst < 65537);

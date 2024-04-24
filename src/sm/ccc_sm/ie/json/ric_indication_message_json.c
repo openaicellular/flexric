@@ -59,9 +59,9 @@ cJSON * cJSON_Createchange_type(const change_type_e x) {
 administrative_state_e cJSON_Getadministrative_stateValue(const cJSON * j) {
   administrative_state_e x = 0;
   if (NULL != j) {
-    if (!strcmp(cJSON_GetStringValue(j), "LOCKED")) x = ADMINISTRATIVE_STATE_locked;
-    else if (!strcmp(cJSON_GetStringValue(j), "SHUTTINGDOWN")) x = ADMINISTRATIVE_STATE_shuttingdown;
-    else if (!strcmp(cJSON_GetStringValue(j), "UNLOCKED")) x = ADMINISTRATIVE_STATE_unlocked;
+    if (!strcmp(cJSON_GetStringValue(j), "LOCKED")) x = LOCKED_ADMINISTRATIVE_STATE;
+    else if (!strcmp(cJSON_GetStringValue(j), "SHUTTINGDOWN")) x = SHUTTING_ADMINISTRATIVE_STATE;
+    else if (!strcmp(cJSON_GetStringValue(j), "UNLOCKED")) x = UNLOCKED_ADMINISTRATIVE_STATE;
   }
   return x;
 }
@@ -69,9 +69,11 @@ administrative_state_e cJSON_Getadministrative_stateValue(const cJSON * j) {
 cJSON * cJSON_Createadministrative_state(const administrative_state_e x) {
   cJSON * j = NULL;
   switch (x) {
-    case ADMINISTRATIVE_STATE_locked: j = cJSON_CreateString("LOCKED"); break;
-    case ADMINISTRATIVE_STATE_shuttingdown: j = cJSON_CreateString("SHUTTINGDOWN"); break;
-    case ADMINISTRATIVE_STATE_unlocked: j = cJSON_CreateString("UNLOCKED"); break;
+    case LOCKED_ADMINISTRATIVE_STATE: j = cJSON_CreateString("LOCKED"); break;
+    case SHUTTING_ADMINISTRATIVE_STATE: j = cJSON_CreateString("SHUTTINGDOWN"); break;
+    case UNLOCKED_ADMINISTRATIVE_STATE: j = cJSON_CreateString("UNLOCKED"); break;
+    default:
+      break;
   }
   return j;
 }
@@ -79,9 +81,9 @@ cJSON * cJSON_Createadministrative_state(const administrative_state_e x) {
 bwp_context_e cJSON_Getbwp_contextValue(const cJSON * j) {
   bwp_context_e x = 0;
   if (NULL != j) {
-    if (!strcmp(cJSON_GetStringValue(j), "DL")) x = BWP_CONTEXT_dl;
-    else if (!strcmp(cJSON_GetStringValue(j), "SUL")) x = BWP_CONTEXT_sul;
-    else if (!strcmp(cJSON_GetStringValue(j), "UL")) x = BWP_CONTEXT_ul;
+    if (!strcmp(cJSON_GetStringValue(j), "DL")) x = DL_BWP_CONTEXT;
+    else if (!strcmp(cJSON_GetStringValue(j), "SUL")) x = SUL_BWP_CONTEXT;
+    else if (!strcmp(cJSON_GetStringValue(j), "UL")) x = UL_BWP_CONTEXT;
   }
   return x;
 }
@@ -89,9 +91,11 @@ bwp_context_e cJSON_Getbwp_contextValue(const cJSON * j) {
 cJSON * cJSON_Createbwp_context(const bwp_context_e x) {
   cJSON * j = NULL;
   switch (x) {
-    case BWP_CONTEXT_dl: j = cJSON_CreateString("DL"); break;
-    case BWP_CONTEXT_sul: j = cJSON_CreateString("SUL"); break;
-    case BWP_CONTEXT_ul: j = cJSON_CreateString("UL"); break;
+    case DL_BWP_CONTEXT: j = cJSON_CreateString("DL"); break;
+    case SUL_BWP_CONTEXT: j = cJSON_CreateString("SUL"); break;
+    case UL_BWP_CONTEXT: j = cJSON_CreateString("UL"); break;
+    default:
+      break;
   }
   return j;
 }
@@ -99,10 +103,10 @@ cJSON * cJSON_Createbwp_context(const bwp_context_e x) {
 cyclic_prefix_e cJSON_Getcyclic_prefixValue(const cJSON * j) {
   cyclic_prefix_e x = 0;
   if (NULL != j) {
-    if (!strcmp(cJSON_GetStringValue(j), "120")) x = CYCLIC_PREFIX_the_120;
-    else if (!strcmp(cJSON_GetStringValue(j), "15")) x = CYCLIC_PREFIX_the_15;
-    else if (!strcmp(cJSON_GetStringValue(j), "30")) x = CYCLIC_PREFIX_the_30;
-    else if (!strcmp(cJSON_GetStringValue(j), "60")) x = CYCLIC_PREFIX_the_60;
+    if (!strcmp(cJSON_GetStringValue(j), "120")) x = CYCLIC_PREFIX_120;
+    else if (!strcmp(cJSON_GetStringValue(j), "15")) x = CYCLIC_PREFIX_15;
+    else if (!strcmp(cJSON_GetStringValue(j), "30")) x = CYCLIC_PREFIX_30;
+    else if (!strcmp(cJSON_GetStringValue(j), "60")) x = CYCLIC_PREFIX_60;
   }
   return x;
 }
@@ -110,10 +114,12 @@ cyclic_prefix_e cJSON_Getcyclic_prefixValue(const cJSON * j) {
 cJSON * cJSON_Createcyclic_prefix(const cyclic_prefix_e x) {
   cJSON * j = NULL;
   switch (x) {
-    case CYCLIC_PREFIX_the_120: j = cJSON_CreateString("120"); break;
-    case CYCLIC_PREFIX_the_15: j = cJSON_CreateString("15"); break;
-    case CYCLIC_PREFIX_the_30: j = cJSON_CreateString("30"); break;
-    case CYCLIC_PREFIX_the_60: j = cJSON_CreateString("60"); break;
+    case CYCLIC_PREFIX_120: j = cJSON_CreateString("120"); break;
+    case CYCLIC_PREFIX_15: j = cJSON_CreateString("15"); break;
+    case CYCLIC_PREFIX_30: j = cJSON_CreateString("30"); break;
+    case CYCLIC_PREFIX_60: j = cJSON_CreateString("60"); break;
+    default:
+      break;
   }
   return j;
 }
@@ -121,9 +127,9 @@ cJSON * cJSON_Createcyclic_prefix(const cyclic_prefix_e x) {
 is_initial_bwp_e cJSON_Getis_initial_bwpValue(const cJSON * j) {
   is_initial_bwp_e x = 0;
   if (NULL != j) {
-    if (!strcmp(cJSON_GetStringValue(j), "INITIAL")) x = IS_INITIAL_BWP_initial;
-    else if (!strcmp(cJSON_GetStringValue(j), "OTHER")) x = IS_INITIAL_BWP_other;
-    else if (!strcmp(cJSON_GetStringValue(j), "SUL")) x = IS_INITIAL_BWP_sul;
+    if (!strcmp(cJSON_GetStringValue(j), "INITIAL")) x = INITIAL_IS_INITIAL_BWP;
+    else if (!strcmp(cJSON_GetStringValue(j), "OTHER")) x = OTHER_IS_INITIAL_BWP;
+    else if (!strcmp(cJSON_GetStringValue(j), "SUL")) x = SUL_IS_INITIAL_BWP;
   }
   return x;
 }
@@ -131,9 +137,11 @@ is_initial_bwp_e cJSON_Getis_initial_bwpValue(const cJSON * j) {
 cJSON * cJSON_Createis_initial_bwp(const is_initial_bwp_e x) {
   cJSON * j = NULL;
   switch (x) {
-    case IS_INITIAL_BWP_initial: j = cJSON_CreateString("INITIAL"); break;
-    case IS_INITIAL_BWP_other: j = cJSON_CreateString("OTHER"); break;
-    case IS_INITIAL_BWP_sul: j = cJSON_CreateString("SUL"); break;
+    case INITIAL_IS_INITIAL_BWP: j = cJSON_CreateString("INITIAL"); break;
+    case OTHER_IS_INITIAL_BWP: j = cJSON_CreateString("OTHER"); break;
+    case SUL_IS_INITIAL_BWP: j = cJSON_CreateString("SUL"); break;
+    default:
+      break;
   }
   return j;
 }
@@ -141,9 +149,9 @@ cJSON * cJSON_Createis_initial_bwp(const is_initial_bwp_e x) {
 cell_state_e cJSON_Getcell_stateValue(const cJSON * j) {
   cell_state_e x = 0;
   if (NULL != j) {
-    if (!strcmp(cJSON_GetStringValue(j), "ACTIVE")) x = CELL_STATE_active;
-    else if (!strcmp(cJSON_GetStringValue(j), "IDLE")) x = CELL_STATE_idle;
-    else if (!strcmp(cJSON_GetStringValue(j), "INACTIVE")) x = CELL_STATE_inactive;
+    if (!strcmp(cJSON_GetStringValue(j), "ACTIVE")) x = ACTIVE_CELL_STATE;
+    else if (!strcmp(cJSON_GetStringValue(j), "IDLE")) x = IDLE_CELL_STATE;
+    else if (!strcmp(cJSON_GetStringValue(j), "INACTIVE")) x = INACTIVE_CELL_STATE;
   }
   return x;
 }
@@ -151,9 +159,11 @@ cell_state_e cJSON_Getcell_stateValue(const cJSON * j) {
 cJSON * cJSON_Createcell_state(const cell_state_e x) {
   cJSON * j = NULL;
   switch (x) {
-    case CELL_STATE_active: j = cJSON_CreateString("ACTIVE"); break;
-    case CELL_STATE_idle: j = cJSON_CreateString("IDLE"); break;
-    case CELL_STATE_inactive: j = cJSON_CreateString("INACTIVE"); break;
+    case ACTIVE_CELL_STATE: j = cJSON_CreateString("ACTIVE"); break;
+    case IDLE_CELL_STATE: j = cJSON_CreateString("IDLE"); break;
+    case INACTIVE_CELL_STATE: j = cJSON_CreateString("INACTIVE"); break;
+    default:
+      break;
   }
   return j;
 }
@@ -161,8 +171,8 @@ cJSON * cJSON_Createcell_state(const cell_state_e x) {
 energy_saving_control_e cJSON_Getenergy_saving_controlValue(const cJSON * j) {
   energy_saving_control_e x = 0;
   if (NULL != j) {
-    if (!strcmp(cJSON_GetStringValue(j), "toBeEnergySaving")) x = ENERGY_SAVING_CONTROL_to_be_energy_saving;
-    else if (!strcmp(cJSON_GetStringValue(j), "toBeNotEnergySaving")) x = ENERGY_SAVING_CONTROL_to_be_not_energy_saving;
+    if (!strcmp(cJSON_GetStringValue(j), "toBeEnergySaving")) x = TO_BE_ENERGY_SAVING_CONTROL;
+    else if (!strcmp(cJSON_GetStringValue(j), "toBeNotEnergySaving")) x = TO_BE_NOT_ENERGY_SAVING_CONTROL;
   }
   return x;
 }
@@ -170,8 +180,10 @@ energy_saving_control_e cJSON_Getenergy_saving_controlValue(const cJSON * j) {
 cJSON * cJSON_Createenergy_saving_control(const energy_saving_control_e x) {
   cJSON * j = NULL;
   switch (x) {
-    case ENERGY_SAVING_CONTROL_to_be_energy_saving: j = cJSON_CreateString("toBeEnergySaving"); break;
-    case ENERGY_SAVING_CONTROL_to_be_not_energy_saving: j = cJSON_CreateString("toBeNotEnergySaving"); break;
+    case TO_BE_ENERGY_SAVING_CONTROL: j = cJSON_CreateString("toBeEnergySaving"); break;
+    case TO_BE_NOT_ENERGY_SAVING_CONTROL: j = cJSON_CreateString("toBeNotEnergySaving"); break;
+    default:
+      break;
   }
   return j;
 }
@@ -179,8 +191,8 @@ cJSON * cJSON_Createenergy_saving_control(const energy_saving_control_e x) {
 energy_saving_state_e cJSON_Getenergy_saving_stateValue(const cJSON * j) {
   energy_saving_state_e x = 0;
   if (NULL != j) {
-    if (!strcmp(cJSON_GetStringValue(j), "isEnergySaving")) x = ENERGY_SAVING_STATE_is_energy_saving;
-    else if (!strcmp(cJSON_GetStringValue(j), "isNotEnergySaving")) x = ENERGY_SAVING_STATE_is_not_energy_saving;
+    if (!strcmp(cJSON_GetStringValue(j), "isEnergySaving")) x = IS_ENERGY_SAVING_STATE;
+    else if (!strcmp(cJSON_GetStringValue(j), "isNotEnergySaving")) x = IS_NOT_ENERGY_SAVING_STATE;
   }
   return x;
 }
@@ -188,8 +200,10 @@ energy_saving_state_e cJSON_Getenergy_saving_stateValue(const cJSON * j) {
 cJSON * cJSON_Createenergy_saving_state(const energy_saving_state_e x) {
   cJSON * j = NULL;
   switch (x) {
-    case ENERGY_SAVING_STATE_is_energy_saving: j = cJSON_CreateString("isEnergySaving"); break;
-    case ENERGY_SAVING_STATE_is_not_energy_saving: j = cJSON_CreateString("isNotEnergySaving"); break;
+    case IS_ENERGY_SAVING_STATE: j = cJSON_CreateString("isEnergySaving"); break;
+    case IS_NOT_ENERGY_SAVING_STATE: j = cJSON_CreateString("isNotEnergySaving"); break;
+    default:
+      break;
   }
   return j;
 }
@@ -197,8 +211,8 @@ cJSON * cJSON_Createenergy_saving_state(const energy_saving_state_e x) {
 operational_state_e cJSON_Getoperational_stateValue(const cJSON * j) {
   operational_state_e x = 0;
   if (NULL != j) {
-    if (!strcmp(cJSON_GetStringValue(j), "DISABLED")) x = OPERATIONAL_STATE_disabled;
-    else if (!strcmp(cJSON_GetStringValue(j), "ENABLED")) x = OPERATIONAL_STATE_enabled;
+    if (!strcmp(cJSON_GetStringValue(j), "DISABLED")) x = DISABLED_OPERATIONAL_STATE;
+    else if (!strcmp(cJSON_GetStringValue(j), "ENABLED")) x = ENABLED_OPERATIONAL_STATE;
   }
   return x;
 }
@@ -206,8 +220,10 @@ operational_state_e cJSON_Getoperational_stateValue(const cJSON * j) {
 cJSON * cJSON_Createoperational_state(const operational_state_e x) {
   cJSON * j = NULL;
   switch (x) {
-    case OPERATIONAL_STATE_disabled: j = cJSON_CreateString("DISABLED"); break;
-    case OPERATIONAL_STATE_enabled: j = cJSON_CreateString("ENABLED"); break;
+    case DISABLED_OPERATIONAL_STATE: j = cJSON_CreateString("DISABLED"); break;
+    case ENABLED_OPERATIONAL_STATE: j = cJSON_CreateString("ENABLED"); break;
+    default:
+      break;
   }
   return j;
 }

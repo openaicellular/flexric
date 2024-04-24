@@ -5,6 +5,11 @@
 #include "e2sm_ccc_o_gnb_cu_cp_function.h"
 #include "e2sm_ccc_o_gnb_cu_up_function.h"
 #include "e2sm_ccc_o_rrm_policy_ratio.h"
+#include "e2sm_ccc_o_nr_cell_cu.h"
+#include "e2sm_ccc_o_nr_cell_du.h"
+#include "e2sm_ccc_o_nr_cell_cu.h"
+#include "e2sm_ccc_o_bwp.h"
+#include "e2sm_ccc_o_ces_management_function.h"
 
 typedef enum{
   VALUES_OF_ATTRIBUTES_O_GNBDUFunction,
@@ -27,6 +32,10 @@ typedef struct{
     e2sm_ccc_o_gnb_cu_cp_function_t e2sm_ccc_o_gnb_cu_cp_function;
     e2sm_ccc_o_gnb_cu_up_function_t e2sm_ccc_o_gnb_cu_up_function;
     e2sm_ccc_o_rrm_policy_ratio_t e2sm_ccc_o_rrm_policy_ratio;
+    e2sm_ccc_o_nr_cell_cu_t e2sm_ccc_o_nr_cell_cu;
+    e2sm_ccc_o_nr_cell_du_t e2sm_ccc_o_nr_cell_du;
+    e2sm_ccc_o_bwp_t e2sm_ccc_o_bwp;
+    e2sm_ccc_o_ces_management_function_t e2sm_ccc_o_ces_management_function;
   };
 
 } values_of_attributes_t;

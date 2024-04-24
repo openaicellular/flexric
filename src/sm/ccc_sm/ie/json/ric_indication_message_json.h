@@ -9,31 +9,9 @@
 #include "plmn_id_json.h"
 #include "../ir/change_type.h"
 #include "../ir/e2sm_ccc_o_rrm_policy_ratio.h"
-
-typedef enum {
-  ADMINISTRATIVE_STATE_locked,
-  ADMINISTRATIVE_STATE_shuttingdown,
-  ADMINISTRATIVE_STATE_unlocked,
-} administrative_state_e;
-
-typedef enum {
-  BWP_CONTEXT_dl,
-  BWP_CONTEXT_sul,
-  BWP_CONTEXT_ul,
-} bwp_context_e;
-
-typedef enum {
-  CYCLIC_PREFIX_the_120,
-  CYCLIC_PREFIX_the_15,
-  CYCLIC_PREFIX_the_30,
-  CYCLIC_PREFIX_the_60,
-} cyclic_prefix_e;
-
-typedef enum {
-  IS_INITIAL_BWP_initial,
-  IS_INITIAL_BWP_other,
-  IS_INITIAL_BWP_sul,
-} is_initial_bwp_e;
+#include "../ir/e2sm_ccc_o_nr_cell_du.h"
+#include "../ir/e2sm_ccc_o_ces_management_function.h"
+#include "../ir/e2sm_ccc_o_bwp.h"
 
 typedef struct {
   bwp_context_e * bwp_context;
@@ -43,27 +21,6 @@ typedef struct {
   int64_t * start_rb;
   int64_t * sub_carrier_spacing;
 } bwp_list_element_t;
-
-typedef enum {
-  CELL_STATE_active,
-  CELL_STATE_idle,
-  CELL_STATE_inactive,
-} cell_state_e;
-
-typedef enum {
-  ENERGY_SAVING_CONTROL_to_be_energy_saving,
-  ENERGY_SAVING_CONTROL_to_be_not_energy_saving,
-} energy_saving_control_e;
-
-typedef enum {
-  ENERGY_SAVING_STATE_is_energy_saving,
-  ENERGY_SAVING_STATE_is_not_energy_saving,
-} energy_saving_state_e;
-
-typedef enum{
-  OPERATIONAL_STATE_disabled,
-  OPERATIONAL_STATE_enabled,
-} operational_state_e;
 
 typedef struct {
   char * sd;

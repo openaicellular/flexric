@@ -48,6 +48,50 @@ s_nssai_e2sm_t fill_rnd_s_nssai_e2sm(){
   return dst;
 }
 
+
+static
+e2sm_ccc_plmn_info_t fill_rnd_e2sm_ccc_plmn_info(){
+  e2sm_ccc_plmn_info_t dst = {0};
+  dst.plmn_id = fill_rnd_plmn_id();
+  if (rand()%2 == 1){
+    dst.s_nssai = calloc(1, sizeof(s_nssai_e2sm_t));
+    assert(dst.s_nssai != NULL);
+    *dst.s_nssai = fill_rnd_s_nssai_e2sm();
+  }
+
+  return dst;
+}
+
+e2sm_ccc_5qi_lst_t fill_rnd_e2sm_ccc_5qi_lst(){
+  e2sm_ccc_5qi_lst_t dst = {0};
+  // [1..128]
+  dst.sz_lst_5qi = (rand()%3) + 1;
+  dst.lst_5qi = calloc(dst.sz_lst_5qi, sizeof(uint32_t));
+  assert(dst.lst_5qi != NULL);
+  for (size_t i = 0; i < dst.sz_lst_5qi; i++) {
+    dst.lst_5qi[i] = rand()%1024;
+  }
+
+  return dst;
+}
+
+e2sm_ccc_partition_flow_lst_t fill_rnd_e2sm_ccc_partition_flow_lst(){
+  e2sm_ccc_partition_flow_lst_t dst = {0};
+  dst.sz_partition_flow_lst_item = (rand()%3) + 1;
+  dst.partition_flow_lst_item = calloc(dst.sz_partition_flow_lst_item, sizeof(e2sm_ccc_partition_flow_lst_item_t));
+  for (size_t i = 0; i < dst.sz_partition_flow_lst_item; i++){
+    dst.partition_flow_lst_item[i].plmn_id = fill_rnd_plmn_id();
+    dst.partition_flow_lst_item[i].s_nssai = fill_rnd_s_nssai_e2sm();
+    // Optional
+    if (rand()%2 == 1){
+      dst.partition_flow_lst_item[i].lst_5qi = calloc(1, sizeof(e2sm_ccc_5qi_lst_t));
+      assert(dst.partition_flow_lst_item[i].lst_5qi != NULL);
+      *dst.partition_flow_lst_item[i].lst_5qi = fill_rnd_e2sm_ccc_5qi_lst();
+    }
+  }
+  return dst;
+}
+
 static
 cell_global_id_t fill_rnd_cell_global_id()
 {
@@ -341,99 +385,110 @@ e2sm_ccc_o_rrm_policy_ratio_t fill_rnd_o_rrm_policy_ratio(){
 }
 
 static
-ind_msg_ran_conf_t fill_o_gnb_du_func_node(){
-  ind_msg_ran_conf_t res = {0};
+e2sm_ccc_o_bwp_t fill_rnd_e2sm_ccc_o_bwp() {
+  e2sm_ccc_o_bwp_t dst;
 
-  res.ran_conf_name = cp_str_to_ba("O-GNBDUFunction");
-  res.change_type = rand()%END_CHANGE_TYPE;
-  res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBDUFunction;
-  res.vals_attributes.e2sm_ccc_o_gnb_du_function = fill_rnd_du_function_node();
+  // Enum fields (assuming appropriate range functions exist)
+  dst.bwp_context = rand()%END_BWP_CONTEXT;
+  dst.is_initial_bwp = rand()%END_IS_INITIAL_BWP;
+  dst.sub_carrier_spacing = rand()%SUB_CARRIER_SPACING_END;
+  dst.cyclic_prefix = rand()%CYCLIC_PREFIX_END;
 
-  if(rand()%2 == 1){
-    res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-    assert(res.old_vals_attributes != NULL);
-    res.old_vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBDUFunction;
-    res.old_vals_attributes->e2sm_ccc_o_gnb_du_function = fill_rnd_du_function_node();
+  // Integer fields
+  dst.start_rb = rand() % 1024;
+  dst.number_of_rbs = rand() % 1024;
+
+  return dst;
+}
+
+static
+e2sm_ccc_partition_lst_t fill_rnd_e2sm_ccc_partition_lst(){
+  e2sm_ccc_partition_lst_t dst = {0};
+
+  // [1..128]
+  dst.sz_partition_lst_item = (rand()%3) + 1;
+  dst.partition_lst_item = calloc(dst.sz_partition_lst_item, sizeof(e2sm_ccc_partition_lst_item_t));
+  for (size_t i = 0; i < dst.sz_partition_lst_item; i++) {
+    dst.partition_lst_item[i].p_offset_to_point_A = rand()%1024;
+    dst.partition_lst_item[i].p_number_of_rbs = rand()%1024;
+    dst.partition_lst_item[i].partition_flow_lst = fill_rnd_e2sm_ccc_partition_flow_lst() ;
   }
 
-  return res;
+  return dst;
 }
 
 static
-ind_msg_ran_conf_t fill_o_gnb_cu_cp_func_node(){
-  ind_msg_ran_conf_t res = {0};
+e2sm_ccc_o_nr_cell_du_t fill_rnd_e2sm_ccc_o_nr_cell_du() {
+  e2sm_ccc_o_nr_cell_du_t dst;
 
-  res.ran_conf_name = cp_str_to_ba("O-GNBCUCPFunction");
-  res.change_type = rand()%END_CHANGE_TYPE;
-  res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction;
-  res.vals_attributes.e2sm_ccc_o_gnb_cu_cp_function= fill_rnd_cu_cp_function_node();
+  // Integer fields
+  dst.cell_local_id = rand() % 1024;
+  dst.n_rpci = rand() % 504;  // 0 to 503
+  dst.n_rtac = rand() % 0x1000000;  // 0 to 16777215
+  dst.arfcn_dl = rand() % 1024;
+  dst.arfcn_ul = rand() % 1024;
+  dst.arfcn_sul = rand() % 1024;
+  dst.ssb_frequency = rand() % 0x3279166;  // 0 to 3279165
+  dst.bS_Channel_BwDL = rand() % 1024;
+  dst.bS_Channel_BwUL = rand() % 1024;
+  dst.bS_Channel_BwSUL = rand() % 1024;
 
-  if(rand()%2 == 1){
-    res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-    assert(res.old_vals_attributes != NULL);
-    res.old_vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction;
-    res.old_vals_attributes->e2sm_ccc_o_gnb_cu_cp_function= fill_rnd_cu_cp_function_node();
+  // Enum fields
+  dst.operational_state = END_OPERATIONAL_STATE;
+  dst.administrative_state = END_ADMINISTRATIVE_STATE;
+  dst.cell_state = END_CELL_STATE;
+  dst.ssb_periodicity = SSB_PERIODICITY_END;
+  dst.ssb_sub_carrier_spacing = SSB_SUB_CARRIER_SPACING_END;
+  dst.ssb_duration = SSB_DURATION_END;
+
+  // Byte field
+  dst.ssb_off_set = rand() % 160;  // 0 to 159
+  // [1..65536]
+  dst.sz_plmn_info_lst = (rand()%3) + 1;
+  dst.plmn_info_lst = calloc(dst.sz_plmn_info_lst, sizeof(e2sm_ccc_plmn_info_t));
+  assert(dst.plmn_info_lst != NULL);
+  for (size_t i = 0; i < dst.sz_plmn_info_lst; i++) {
+    dst.plmn_info_lst[i] = fill_rnd_e2sm_ccc_plmn_info();
+  }
+  // [1..256]
+  dst.sz_bwp_lst = (rand()%3) + 1;
+  dst.bwp_lst = calloc(dst.sz_bwp_lst, sizeof(e2sm_ccc_o_bwp_t));
+  assert(dst.bwp_lst != NULL);
+  for (size_t i = 0; i < dst.sz_bwp_lst; i++) {
+    dst.bwp_lst[i] = fill_rnd_e2sm_ccc_o_bwp();
   }
 
-  return res;
+  dst.partition_lst = fill_rnd_e2sm_ccc_partition_lst();
+
+  return dst;
 }
 
 static
-ind_msg_ran_conf_t fill_o_gnb_cu_up_func_node(){
-  ind_msg_ran_conf_t res = {0};
+e2sm_ccc_o_nr_cell_cu_t fill_rnd_e2sm_ccc_o_nr_cell_cu() {
+  e2sm_ccc_o_nr_cell_cu_t dst;
 
-  res.ran_conf_name = cp_str_to_ba("O-GNBCUUPFunction");
-  res.change_type = rand()%END_CHANGE_TYPE;
-  res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction;
-  res.vals_attributes.e2sm_ccc_o_gnb_cu_up_function= fill_rnd_cu_up_function_node();
+  // Integer fields
+  dst.cell_local_id = rand() % 1024;
 
-  if(rand()%2 == 1){
-    res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-    assert(res.old_vals_attributes != NULL);
-    res.old_vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction;
-    res.old_vals_attributes->e2sm_ccc_o_gnb_cu_up_function = fill_rnd_cu_up_function_node();
+  // [1..65536]
+  dst.sz_plmn_info_lst = (rand()%3) + 1;
+  dst.plmn_info_lst = calloc(dst.sz_plmn_info_lst, sizeof(e2sm_ccc_plmn_info_t));
+  assert(dst.plmn_info_lst != NULL);
+  for (size_t i = 0; i < dst.sz_plmn_info_lst; i++) {
+    dst.plmn_info_lst[i] = fill_rnd_e2sm_ccc_plmn_info();
   }
 
-  return res;
+  return dst;
 }
 
 static
-ind_msg_ran_conf_t  fill_o_nr_cell_cu_cell(){
-  assert(0 != 0 && "Not implemented fill rnd o_nr_cell_cu_cell");
-}
+e2sm_ccc_o_ces_management_function_t fill_rnd_o_ces_man_func_cell(){
+  e2sm_ccc_o_ces_management_function_t dst = {0};
+  dst.ces_switch = rand()%END_CES_SWITCH;
+  dst.energy_saving_state = rand()%END_ENERGY_SAVING_STATE;
+  dst.energy_saving_control = rand()%END_ENERGY_SAVING_CONTROL;
 
-static
-ind_msg_ran_conf_t fill_o_nr_cell_du_cell(){
-  assert(0 != 0 && "Not implemented fill rnd o_nr_cell_du_cell");
-}
-
-static
-ind_msg_ran_conf_t fill_o_bwp_cell(){
-  assert(0 != 0 && "Not implemented fill rnd o_bwp_cell");
-}
-
-static
-ind_msg_ran_conf_t fill_o_rrm_policy_ratio(){
-  ind_msg_ran_conf_t res = {0};
-
-  res.ran_conf_name = cp_str_to_ba("O-RRMPolicyRatio");
-  res.change_type = rand()%END_CHANGE_TYPE;
-  res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio;
-  res.vals_attributes.e2sm_ccc_o_rrm_policy_ratio = fill_rnd_o_rrm_policy_ratio();
-
-  if(rand()%2 == 1){
-    res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-    assert(res.old_vals_attributes != NULL);
-    res.old_vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio;
-    res.old_vals_attributes->e2sm_ccc_o_rrm_policy_ratio = fill_rnd_o_rrm_policy_ratio();
-  }
-
-  return res;
-}
-
-static
-ind_msg_ran_conf_t fill_o_ces_man_func_cell(){
-  assert(0 != 0 && "Not implemented fill rnd o_ces_man_func_cell ");
+  return dst;
 }
 
 ind_msg_ran_conf_t fill_rnd_ind_msg_ran_conf(){
@@ -442,32 +497,99 @@ ind_msg_ran_conf_t fill_rnd_ind_msg_ran_conf(){
 
   switch (values_of_attributes_type) {
     case VALUES_OF_ATTRIBUTES_O_GNBDUFunction:
-      res = fill_o_gnb_du_func_node();
+      res.ran_conf_name = cp_str_to_ba("O-GNBDUFunction");
+      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBDUFunction;
+      res.vals_attributes.e2sm_ccc_o_gnb_du_function = fill_rnd_du_function_node();
+      if(rand()%2 == 1){
+        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+        assert(res.old_vals_attributes != NULL);
+        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
+        res.old_vals_attributes->e2sm_ccc_o_gnb_du_function = fill_rnd_du_function_node();
+      }
       break;
     case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction:
-      res = fill_o_gnb_cu_cp_func_node();
+      res.ran_conf_name = cp_str_to_ba("O-GNBCUCPFunction");
+      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction;
+      res.vals_attributes.e2sm_ccc_o_gnb_cu_cp_function= fill_rnd_cu_cp_function_node();
+      if(rand()%2 == 1){
+        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+        assert(res.old_vals_attributes != NULL);
+        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
+        res.old_vals_attributes->e2sm_ccc_o_gnb_cu_cp_function= fill_rnd_cu_cp_function_node();
+      }
       break;
     case VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction:
-      res = fill_o_gnb_cu_up_func_node();
+      res.ran_conf_name = cp_str_to_ba("O-GNBCUUPFunction");
+      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction;
+      res.vals_attributes.e2sm_ccc_o_gnb_cu_up_function= fill_rnd_cu_up_function_node();
+      if(rand()%2 == 1){
+        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+        assert(res.old_vals_attributes != NULL);
+        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
+        res.old_vals_attributes->e2sm_ccc_o_gnb_cu_up_function = fill_rnd_cu_up_function_node();
+      }
       break;
     case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio:
-      res = fill_o_rrm_policy_ratio();
+      res.ran_conf_name = cp_str_to_ba("O-RRMPolicyRatio");
+      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio;
+      res.vals_attributes.e2sm_ccc_o_rrm_policy_ratio = fill_rnd_o_rrm_policy_ratio();
+      if(rand()%2 == 1){
+        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+        assert(res.old_vals_attributes != NULL);
+        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
+        res.old_vals_attributes->e2sm_ccc_o_rrm_policy_ratio = fill_rnd_o_rrm_policy_ratio();
+      }
       break;
     case VALUES_OF_ATTRIBUTES_O_CESManagementFunction:
-      res = fill_o_ces_man_func_cell();
+      res.ran_conf_name = cp_str_to_ba("O-CESManagementFunction");
+      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_CESManagementFunction;
+      res.vals_attributes.e2sm_ccc_o_ces_management_function = fill_rnd_o_ces_man_func_cell();
+      if(rand()%2 == 1){
+        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+        assert(res.old_vals_attributes != NULL);
+        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
+        res.old_vals_attributes->e2sm_ccc_o_ces_management_function = fill_rnd_o_ces_man_func_cell();
+      }
       break;
     case VALUES_OF_ATTRIBUTES_O_BWP:
-      res = fill_o_bwp_cell();
+      res.ran_conf_name = cp_str_to_ba("O-BWP");
+      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_BWP;
+      res.vals_attributes.e2sm_ccc_o_bwp = fill_rnd_e2sm_ccc_o_bwp();
+      if(rand()%2 == 1){
+        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+        assert(res.old_vals_attributes != NULL);
+        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
+        res.old_vals_attributes->e2sm_ccc_o_bwp = fill_rnd_e2sm_ccc_o_bwp();
+      }
       break;
     case VALUES_OF_ATTRIBUTES_O_NRCellDU:
-      res = fill_o_nr_cell_du_cell();
+      res.ran_conf_name = cp_str_to_ba("O-NRCellDU");
+      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_NRCellDU;
+      res.vals_attributes.e2sm_ccc_o_nr_cell_du = fill_rnd_e2sm_ccc_o_nr_cell_du();
+      if(rand()%2 == 1){
+        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+        assert(res.old_vals_attributes != NULL);
+        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
+        res.old_vals_attributes->e2sm_ccc_o_nr_cell_du = fill_rnd_e2sm_ccc_o_nr_cell_du();
+      }
       break;
     case VALUES_OF_ATTRIBUTES_O_NRCellCU:
-      res = fill_o_nr_cell_cu_cell();
+      res.ran_conf_name = cp_str_to_ba("O-NRCellCU");
+      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_NRCellCU;
+      res.vals_attributes.e2sm_ccc_o_nr_cell_cu = fill_rnd_e2sm_ccc_o_nr_cell_cu();
+      if(rand()%2 == 1){
+        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+        assert(res.old_vals_attributes != NULL);
+        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
+        res.old_vals_attributes->e2sm_ccc_o_nr_cell_cu = fill_rnd_e2sm_ccc_o_nr_cell_cu();
+      }
       break;
     default:
       break;
   }
+
+  res.change_type = rand()%END_CHANGE_TYPE;
+
 
  return res;
 }

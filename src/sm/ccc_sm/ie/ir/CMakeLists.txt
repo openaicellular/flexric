@@ -12,6 +12,13 @@ set (IR_CCC_SRC
         func_def_ran_conf.c
         ctrl_out_conf_accepted.c
         ctrl_out_conf_failed.c
+        e2sm_ccc_5qi_lst.c
+        e2sm_ccc_o_bwp.c
+        e2sm_ccc_o_ces_management_function.c
+        e2sm_ccc_o_nr_cell_du.c
+        e2sm_ccc_o_nr_cell_cu.c
+        e2sm_ccc_partition_flow_lst.c
+        e2sm_ccc_partition_lst.c
         e2sm_ccc_plmn_info.c
         e2sm_ccc_rrm_policy_member.c
         e2sm_ccc_o_gnb_du_function.c
