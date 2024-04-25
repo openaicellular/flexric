@@ -11,7 +11,7 @@ static
 ue_id_e2sm_t* ue_id = NULL;
 
 static
-nr_cgi_t* target_cell = NULL; 
+uint16_t target_cell = 0; 
 
 static
 global_e2_node_id_t* src_e2_node = NULL;
@@ -126,10 +126,7 @@ void cb(sm_ag_if_rd_t const *rd, global_e2_node_id_t const *n)
       *src_e2_node = cp_global_e2_node_id(n);
 
       nr_nghbr_cell_t const* nghbr_cell = &frmt_4->seq_cell_info_2[0].neighbour_rela_tbl->nghbr_cell[0];
-
-      target_cell = calloc(1, sizeof(nr_cgi_t)); 
-      assert(target_cell != NULL && "Memory exhausted");
-      *target_cell = cp_nr_cgi(&nghbr_cell->cgi);
+      target_cell = nghbr_cell->pci;
       
       ssb_nr_arfcn = calloc(1, sizeof(size_t));
       assert(ssb_nr_arfcn != NULL && "Memory exhausted");
@@ -176,10 +173,9 @@ seq_ran_param_t* add_struct_tail(seq_ran_param_t* tail, uint32_t ran_param_id)
 }
 
 static
-void add_elm_tail(seq_ran_param_t* tail, uint32_t ran_param_id, nr_cgi_t const* target)
+void add_elm_tail(seq_ran_param_t* tail, uint32_t ran_param_id, uint16_t target)
 {
   assert(tail != NULL);
-  assert(target != NULL);
 
   tail->ran_param_id = ran_param_id;
   tail->ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
@@ -188,10 +184,8 @@ void add_elm_tail(seq_ran_param_t* tail, uint32_t ran_param_id, nr_cgi_t const* 
 
   // NR CGI IE in TS 38.423 [15] Clause 9.2.2.7
   // ToDo. Bug: PLMN should also be considered
-  tail->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE; 
-  tail->ran_param_val.flag_false->bit_str_ran.buf = calloc(8, sizeof(uint8_t));
-  tail->ran_param_val.flag_false->bit_str_ran.len = 8;
-  memcpy(tail->ran_param_val.flag_false->bit_str_ran.buf, &target->nr_cell_id ,8);
+  tail->ran_param_val.flag_false->type = INTEGER_RAN_PARAMETER_VALUE; 
+  tail->ran_param_val.flag_false->int_ran = target; 
 }
 
 static
@@ -219,10 +213,8 @@ seq_ran_param_t fill_ssb_nr_afcn(uint32_t ssb_nr_arfcn)
 // 8.4.4.1
 // Handover Control
 static
-e2sm_rc_ctrl_msg_t ho_msg(nr_cgi_t const* target, uint32_t ssb_nr_arfcn)
+e2sm_rc_ctrl_msg_t ho_msg(uint16_t target, uint32_t ssb_nr_arfcn)
 {
-  assert(target != NULL);
-
   e2sm_rc_ctrl_msg_t dst = {0};
 
   dst.format = FORMAT_1_E2SM_RC_CTRL_MSG;
@@ -249,10 +241,9 @@ e2sm_rc_ctrl_msg_t ho_msg(nr_cgi_t const* target, uint32_t ssb_nr_arfcn)
 // 7.6.4
 // CONTROL Service Style 3: Connected Mode Mobility
 static
-rc_ctrl_req_data_t hand_over_rc_ctrl_msg(ue_id_e2sm_t const* ue, nr_cgi_t const* target, uint32_t ssb_nr_arfcn)
+rc_ctrl_req_data_t hand_over_rc_ctrl_msg(ue_id_e2sm_t const* ue, uint16_t target, uint32_t ssb_nr_arfcn)
 {
   assert(ue != NULL);
-  assert(target != NULL);
 
   rc_ctrl_req_data_t dst = {0}; 
   
@@ -308,7 +299,6 @@ int main(int argc, char *argv[])
     poll(NULL, 0, 1000);
 
   free_ue_id_e2sm(ue_id);
-  free_nr_cgi(target_cell); 
   free_global_e2_node_id(src_e2_node);
 
   return 0;
