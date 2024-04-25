@@ -92,19 +92,19 @@ void dec_config_get_amr(const char* in, msg_config_get_amr_t* out)
   out->msg_id = dec_int(json, "message_id"); 
 
   // Version. Mandatory
-  out->version = dec_string(json, "version"); 
+  out->version = dec_string_opt(json, "version"); 
 
   // Type. Mandatory
-  out->type = dec_string(json, "type"); 
+  out->type = dec_string_opt(json, "type"); 
 
   // Name. Mandatory
-  out->name = dec_string(json, "name"); 
+  out->name = dec_string_opt(json, "name"); 
 
   // License ID. Mandatory
-  out->license_id = dec_string(json, "license_id"); 
+  out->license_id = dec_string_opt(json, "license_id"); 
 
   // License User. Mandatory
-  out->license_user = dec_string(json, "license_user"); 
+  out->license_user = dec_string_opt(json, "license_user"); 
 
   // Log. Mandatory
   out->logs = dec_logs_amr(json); 
@@ -113,7 +113,7 @@ void dec_config_get_amr(const char* in, msg_config_get_amr_t* out)
   // bool* locked;
  
   // TAI. Mandatory
-  out->tai = dec_float(json, "tai");  
+  out->tai = dec_float_opt(json, "tai");  
 
   // 4G Optional
   // global_enb_id_amr_t* global_enb_id; 
@@ -143,8 +143,7 @@ void dec_config_get_amr(const char* in, msg_config_get_amr_t* out)
   out->arr_rf_ports = dec_arr_rf_ports_amr(json);  
 
   // Mandatory to all messages?
-  
-  out->utc = dec_float(json, "utc");  
+  out->utc = dec_float_opt(json, "utc");  
 }
 
 void dec_msg_ho_ans_amr(const char* in, msg_ho_ans_amr_t* out)
@@ -179,7 +178,7 @@ void dec_msg_ho_ans_amr(const char* in, msg_ho_ans_amr_t* out)
   }
 
   // Time
-  out->time = dec_float(json, "time");  
+  out->time = dec_float_opt(json, "time");  
 }
 
 void dec_msg_stats_amr(const char* in, msg_stats_amr_t* out)
@@ -200,7 +199,7 @@ void dec_msg_stats_amr(const char* in, msg_stats_amr_t* out)
   out->msg_id = dec_int(json, "message_id"); 
 
   // Mandatory. Constant over process lifetime.
-  out->instance_id = dec_string(json, "instance_id"); 
+  out->instance_id = dec_string_opt(json, "instance_id"); 
 
   // Each member name defines a type and its value cpu load in % of one core.
   out->cpu = dec_cpu_amr(json); 
@@ -235,7 +234,7 @@ void dec_msg_stats_amr(const char* in, msg_stats_amr_t* out)
   // samples
 
   // Mandatory. Time elapsed in seconds since the last call to the stats API
-  out->duration = dec_float(json, "duration"); 
+  out->duration = dec_float_opt(json, "duration"); 
 }
 
 void dec_msg_ue_get_amr(const char* in, msg_ue_get_t* out)
@@ -266,7 +265,7 @@ void dec_msg_ue_get_amr(const char* in, msg_ue_get_t* out)
     out->ue_lst[i] = dec_ue_lst_amr(tmp);
   }
 
-  out->time = dec_float(json, "time" );
+  out->time = dec_float_opt(json, "time" );
 }
 
 arr_cell_amr_t dec_arr_cell_amr(void* it)
@@ -477,49 +476,49 @@ cell_amr_t dec_cell_amr(void* it)
   assert(it != NULL);
   cell_amr_t dst = {0};
 
-  dst.dl_bitrate = dec_float(it, "dl_bitrate");
-  dst.ul_bitrate = dec_float(it, "ul_bitrate");
+  dst.dl_bitrate = dec_float_opt(it, "dl_bitrate");
+  dst.ul_bitrate = dec_float_opt(it, "ul_bitrate");
   // dst.mbms_bitrate = dec_float(it, "mbms_bitrate");
-  dst.dl_tx = dec_int(it, "dl_tx");
-  dst.ul_tx = dec_int(it, "ul_tx");
-  dst.dl_err = dec_int(it, "dl_err");
-  dst.ul_err = dec_int(it, "ul_err");
-  dst.dl_retx = dec_int(it, "dl_retx");
-  dst.ul_retx = dec_int(it, "ul_retx");
+  dst.dl_tx = dec_int_opt(it, "dl_tx");
+  dst.ul_tx = dec_int_opt(it, "ul_tx");
+  dst.dl_err = dec_int_opt(it, "dl_err");
+  dst.ul_err = dec_int_opt(it, "ul_err");
+  dst.dl_retx = dec_int_opt(it, "dl_retx");
+  dst.ul_retx = dec_int_opt(it, "ul_retx");
 
-  dst.dl_sched_users_min = dec_float(it, "dl_sched_users_min");
-  dst.dl_sched_users_avg = dec_float(it, "dl_sched_users_avg");
-  dst.dl_sched_users_max = dec_float(it, "dl_sched_users_max");
-  dst.ul_sched_users_min = dec_float(it, "ul_sched_users_min");
-  dst.ul_sched_users_avg = dec_float(it, "ul_sched_users_avg");
-  dst.ul_sched_users_max = dec_float(it, "ul_sched_users_max");
+  dst.dl_sched_users_min = dec_float_opt(it, "dl_sched_users_min");
+  dst.dl_sched_users_avg = dec_float_opt(it, "dl_sched_users_avg");
+  dst.dl_sched_users_max = dec_float_opt(it, "dl_sched_users_max");
+  dst.ul_sched_users_min = dec_float_opt(it, "ul_sched_users_min");
+  dst.ul_sched_users_avg = dec_float_opt(it, "ul_sched_users_avg");
+  dst.ul_sched_users_max = dec_float_opt(it, "ul_sched_users_max");
 
-  dst.dl_use_min = dec_float(it, "dl_use_min");
-  dst.dl_use_max = dec_float(it, "dl_use_max");
-  dst.dl_use_avg = dec_float(it, "dl_use_avg");
-  dst.ul_use_min = dec_float(it, "ul_use_min");
-  dst.ul_use_max = dec_float(it, "ul_use_max");
-  dst.ul_use_avg = dec_float(it, "ul_use_avg");
+  dst.dl_use_min = dec_float_opt(it, "dl_use_min");
+  dst.dl_use_max = dec_float_opt(it, "dl_use_max");
+  dst.dl_use_avg = dec_float_opt(it, "dl_use_avg");
+  dst.ul_use_min = dec_float_opt(it, "ul_use_min");
+  dst.ul_use_max = dec_float_opt(it, "ul_use_max");
+  dst.ul_use_avg = dec_float_opt(it, "ul_use_avg");
 
   //dst.ctrl_use_min = dec_float(it, "ctrl_use_min");
   //dst.ctrl_use_avg = dec_float(it, "ctrl_use_avg");
   //dst.ctrl_use_max = dec_float(it, "ctrl_use_max");
 
-  dst.ue_count_min = dec_int(it, "ue_count_min");
-  dst.ue_count_max = dec_int(it, "ue_count_max");
-  dst.ue_count_avg = dec_int(it, "ue_count_avg");
-  dst.ue_active_count_min = dec_int(it, "ue_active_count_min");
-  dst.ue_active_count_max = dec_int(it, "ue_active_count_max");
-  dst.ue_active_count_avg = dec_int(it, "ue_active_count_avg");
-  dst.ue_inactive_count_min = dec_int(it, "ue_inactive_count_min");
-  dst.ue_inactive_count_max = dec_int(it, "ue_inactive_count_max");
-  dst.ue_inactive_count_avg = dec_int(it, "ue_inactive_count_avg");
+  dst.ue_count_min = dec_int_opt(it, "ue_count_min");
+  dst.ue_count_max = dec_int_opt(it, "ue_count_max");
+  dst.ue_count_avg = dec_int_opt(it, "ue_count_avg");
+  dst.ue_active_count_min = dec_int_opt(it, "ue_active_count_min");
+  dst.ue_active_count_max = dec_int_opt(it, "ue_active_count_max");
+  dst.ue_active_count_avg = dec_int_opt(it, "ue_active_count_avg");
+  dst.ue_inactive_count_min = dec_int_opt(it, "ue_inactive_count_min");
+  dst.ue_inactive_count_max = dec_int_opt(it, "ue_inactive_count_max");
+  dst.ue_inactive_count_avg = dec_int_opt(it, "ue_inactive_count_avg");
 
   // LTE erab values ignored!!
 
-  dst.drb_count_min = dec_int(it, "drb_count_min");
-  dst.drb_count_max = dec_int(it, "drb_count_max");
-  dst.drb_count_avg = dec_int(it, "drb_count_avg");
+  dst.drb_count_min = dec_int_opt(it, "drb_count_min");
+  dst.drb_count_max = dec_int_opt(it, "drb_count_max");
+  dst.drb_count_avg = dec_int_opt(it, "drb_count_avg");
  // dst.dl_gbr_use_min = dec_int(it, "dl_gbr_use_min");
  // dst.dl_gbr_use_max = dec_int(it, "dl_gbr_use_max");
  // dst.dl_gbr_use_avg = dec_int(it, "dl_gbr_use_avg");
@@ -538,30 +537,31 @@ cells_ue_lst_amr_t dec_cells_ue_lst_amr(void *it)
   cells_ue_lst_amr_t dst = {0};
 
   dst.cell_id = dec_int(it, "cell_id");
-//  dst.cqi = dec_int(it, "cqi");
-//  dst.ri = dec_int(it, "ri");
-//  dst.dl_bitrate = dec_int(it, "dl_bitrate");
-//  dst.ul_bitrate = dec_int(it, "ul_bitrate");
-//  dst.ul_rank = dec_int(it, "ul_rank");
-//  dst.dl_tx = dec_int(it, "dl_tx");
-//  dst.ul_tx = dec_int(it, "ul_tx");
-//  dst.dl_err = dec_int(it, "dl_err");
-//  dst.ul_err = dec_int(it, "ul_err");
-//  dst.dl_retx = dec_int(it, "dl_retx");
-//  dst.ul_retx = dec_int(it, "ul_retx");
-//  dst.dl_mcs = dec_int(it, "dl_mcs");
-//  dst.ul_mcs = dec_int(it, "ul_mcs");
-//  dst.ul_n_layer = dec_int(it, "ul_n_layer");
-//  dst.turbo_decoder_min = dec_int(it, "turbo_decoder_min");
-//  dst.turbo_decoder_avg = dec_int(it, "turbo_decoder_avg");
-//  dst.turbo_decoder_max = dec_int(it, "turbo_decoder_max");
-//  dst.pusch_snr = dec_int(it, "pusch_snr");
-//  dst.epre = dec_int(it, "epre");
-//  dst.ul_phr = dec_int(it, "ul_phr");
-//  dst.ul_path_loss = dec_int(it, "ul_path_loss");
-//  dst.p_ue = dec_int(it, "p_ue");
-//  dst.initial_ta = dec_int(it, "initial_ta");
-//
+
+  dst.cqi = dec_int_opt(it, "cqi");
+  dst.ri = dec_int_opt(it, "ri");
+  dst.dl_bitrate = dec_int_opt(it, "dl_bitrate");
+  dst.ul_bitrate = dec_int_opt(it, "ul_bitrate");
+  dst.ul_rank = dec_int_opt(it, "ul_rank");
+  dst.dl_tx = dec_int_opt(it, "dl_tx");
+  dst.ul_tx = dec_int_opt(it, "ul_tx");
+  dst.dl_err = dec_int_opt(it, "dl_err");
+  dst.ul_err = dec_int_opt(it, "ul_err");
+  dst.dl_retx = dec_int_opt(it, "dl_retx");
+  dst.ul_retx = dec_int_opt(it, "ul_retx");
+  dst.dl_mcs = dec_int_opt(it, "dl_mcs");
+  dst.ul_mcs = dec_int_opt(it, "ul_mcs");
+  dst.ul_n_layer = dec_int_opt(it, "ul_n_layer");
+  dst.turbo_decoder_min = dec_int_opt(it, "turbo_decoder_min");
+  dst.turbo_decoder_avg = dec_int_opt(it, "turbo_decoder_avg");
+  dst.turbo_decoder_max = dec_int_opt(it, "turbo_decoder_max");
+  dst.pusch_snr = dec_int_opt(it, "pusch_snr");
+  dst.epre = dec_int_opt(it, "epre");
+  dst.ul_phr = dec_int_opt(it, "ul_phr");
+  dst.ul_path_loss = dec_int_opt(it, "ul_path_loss");
+  dst.p_ue = dec_int_opt(it, "p_ue");
+  dst.initial_ta = dec_int_opt(it, "initial_ta");
+
   return dst;
 }
 
@@ -585,7 +585,7 @@ channel_dl_amr_t dec_channel_dl_amr(void* it)
   }
 
   // Mandatory. Global frequency shift in Hz
-  dst.freq_shift = dec_float(it, "freq_shift"); 
+  dst.freq_shift = dec_float_opt(it, "freq_shift"); 
 
   // Mandatory. Array Each object contains the
   // parameters of a path
@@ -611,25 +611,25 @@ connected_mobility_amr_t dec_connected_mobility_amr(void* it)
   connected_mobility_amr_t dst = {0}; 
 
   //Mandatory. 
-  dst.scell_config = dec_int(it, "scell_config");
+  dst.scell_config = dec_int_opt(it, "scell_config");
 
   //Mandatory. 
-  dst.nr_handover = dec_int(it, "nr_handover");
+  dst.nr_handover = dec_int_opt(it, "nr_handover");
 
   //Mandatory.
-  dst.nr_cell_redirect = dec_int(it, "nr_cell_redirect");
+  dst.nr_cell_redirect = dec_int_opt(it, "nr_cell_redirect");
 
   //Mandatory.
-  dst.eutra_handover = dec_int(it, "eutra_handover");
+  dst.eutra_handover = dec_int_opt(it, "eutra_handover");
 
   //Mandatory.
-  dst.eutra_cell_redirect = dec_int(it, "eutra_cell_redirect");
+  dst.eutra_cell_redirect = dec_int_opt(it, "eutra_cell_redirect");
 
   //Mandatory.
-  dst.nr_dc_setup = dec_int(it, "nr_dc_setup");
+  dst.nr_dc_setup = dec_int_opt(it, "nr_dc_setup");
 
   //Mandatory.
-  dst.mr_dc_release = dec_int(it, "mr_dc_release");
+  dst.mr_dc_release = dec_int_opt(it, "mr_dc_release");
 
   return dst;
 }
@@ -1472,7 +1472,7 @@ cpu_amr_t dec_cpu_amr(void* it)
   // Mandatory. Array of float. Noise level table, in dB
   ans_cjson_t ans = find_object(it, "cpu");
 
-  dst.global = dec_int(ans.it, "global");
+  dst.global = dec_int_opt(ans.it, "global");
 
   return dst;
 }
@@ -1486,16 +1486,16 @@ global_gnb_id_amr_t dec_global_gnb_id_amr(void* it_void)
   cJSON const* it = it_void;
 
   // Mandatory. PLMN
-  dst.plmn = dec_string(it, "plmn");
+  dst.plmn = dec_string_opt(it, "plmn");
 
   // Mandatory. gnb_id_bits
-  dst.gnb_id_bits = dec_int(it, "gnb_id_bits");
+  dst.gnb_id_bits = dec_int_opt(it, "gnb_id_bits");
 
   // Mandatory. gnb_id
-  dst.gnb_id = dec_int(it, "gnb_id");
+  dst.gnb_id = dec_int_opt(it, "gnb_id");
 
   // Mandatory. gnb_name
-  dst.gnb_name = dec_string(it, "gnb_name");
+  dst.gnb_name = dec_string_opt(it, "gnb_name");
 
   return dst;
 }
@@ -1510,19 +1510,19 @@ layers_amr_t dec_layers_amr(void* it_void)
   dst.layer_name = strdup(it->string);
 
   // Mandatory. Level
-  dst.level = dec_string(it, "level");
+  dst.level = dec_string_opt(it, "level");
 
   // Mandatory. Max_size 
-  dst.max_size = dec_int(it, "max_size");
+  dst.max_size = dec_int_opt(it, "max_size");
 
   // Mandatory. key
-  dst.key = dec_bool(it, "key");
+  dst.key = dec_bool_opt(it, "key");
   
   // Mandatory. crypto
-  dst.crypto = dec_bool(it, "crypto");
+  dst.crypto = dec_bool_opt(it, "crypto");
  
   // Mandatory. Payload
-  dst.payload = dec_bool(it, "payload");
+  dst.payload = dec_bool_opt(it, "payload");
 
   // There may be more fields... 
 
@@ -1556,7 +1556,7 @@ logs_amr_t dec_logs_amr(void* it_void)
   }
 
   // Mandatory. Count
-  dst.count = dec_int(ans_logs.it, "count");
+  dst.count = dec_int_opt(ans_logs.it, "count");
 
   // Optional. Rotate
   // int* rotate;
@@ -1567,11 +1567,11 @@ logs_amr_t dec_logs_amr(void* it_void)
   // Mandatory bcch
   // True if BCCH dump is enabled (eNB only)
   // BCCH 
-  dst.bcch = dec_bool(ans_logs.it,"bcch");
+  dst.bcch = dec_bool_opt(ans_logs.it,"bcch");
 
   // Mandatory mib
   // True if MIB dump is enabled (eNB only).
-  dst.mib = dec_bool(ans_logs.it,"mib");
+  dst.mib = dec_bool_opt(ans_logs.it,"mib");
 
   return dst;
 }
@@ -1582,7 +1582,7 @@ ncell_list_amr_t dec_ncell_list_amr(void* it )
   ncell_list_amr_t dst = {0};
 
   // Mandatory. "nr" or "eutra"
-  dst.rat = dec_string(it, "rat");
+  dst.rat = dec_string_opt(it, "rat");
 
   // Optional. 
   //int* dl_earfcn;
@@ -1619,10 +1619,10 @@ ncell_list_amr_t dec_ncell_list_amr(void* it )
   }
   
   // Mandatory
-  dst.handover_target = dec_bool(it, "handover_target");
+  dst.handover_target = dec_bool_opt(it, "handover_target");
 
   // Mandatory
-  dst.cell_redirect_target = dec_bool(it, "cell_redirect_target");
+  dst.cell_redirect_target = dec_bool_opt(it, "cell_redirect_target");
 
   // Optional. Only applicable to E-UTRA cells.
   // bool* eps_fallback_target;
@@ -1644,10 +1644,10 @@ ncgi_amr_t dec_ncgi_amr(void* it_void)
   cJSON const* it = ans_ncgi.it;
 
   // NR Cell Identity PLMN.
-  dst.plmn= dec_string(it, "plmn");
+  dst.plmn= dec_string_opt(it, "plmn");
 
   // NR Cell Identity (36 bits)
-  dst.nci = dec_int(it, "nci");
+  dst.nci = dec_int_opt(it, "nci");
 
   return dst;
 }
@@ -1668,10 +1668,10 @@ exp_ncgi_amr_t dec_opt_ncgi_amr(void* it_void)
   cJSON const* it = ans_ncgi.it;
 
   // NR Cell Identity PLMN.
-  dst.ncgi_amr.plmn= dec_string(it, "plmn");
+  dst.ncgi_amr.plmn= dec_string_opt(it, "plmn");
 
   // NR Cell Identity (36 bits)
-  dst.ncgi_amr.nci = dec_int(it, "nci");
+  dst.ncgi_amr.nci = dec_int_opt(it, "nci");
 
   return dst;
 }
@@ -1684,44 +1684,44 @@ nr_cells_amr_t dec_nr_cells_amr(void* it_void)
   cJSON const* it = (cJSON const*)it_void;
 
   // Mandatory. Downlink antenna count
-  dst.n_antenna_dl = dec_int(it, "n_antenna_dl");
+  dst.n_antenna_dl = dec_int_opt(it, "n_antenna_dl");
 
   // Mandatory. Uplink antenna count 
-  dst.n_antenna_ul = dec_int(it, "n_antenna_ul"); 
+  dst.n_antenna_ul = dec_int_opt(it, "n_antenna_ul"); 
 
   // Mandatory. Downlink layer count
-  dst.n_layer_dl = dec_int(it, "n_layer_dl");
+  dst.n_layer_dl = dec_int_opt(it, "n_layer_dl");
 
   // Mandatory. Uplink layer count
-  dst.n_layer_ul = dec_int(it, "n_layer_ul");
+  dst.n_layer_ul = dec_int_opt(it, "n_layer_ul");
 
   // Mandatory. Cell gain in dB.
-  dst.gain = dec_float(it, "gain");
+  dst.gain = dec_float_opt(it, "gain");
 
   // Mandatory. UL state
-  dst.ul_disabled = dec_bool(it, "ul_disabled");
+  dst.ul_disabled = dec_bool_opt(it, "ul_disabled");
 
   // Mandatory. RF port number index.
-  dst.rf_port = dec_int(it, "rf_port");
+  dst.rf_port = dec_int_opt(it, "rf_port");
 
   // Optional. Label set in configuration file.
   // char* label;
 
   // Mandatory. Maximum QAM size used in downlink.
   // 64 or 256
-  dst.dl_qam = dec_int(it, "dl_qam");
+  dst.dl_qam = dec_int_opt(it, "dl_qam");
   assert(dst.dl_qam == 64 || dst.dl_qam == 256); 
 
   // Mandatory. Maximum QAM size used in uplink
   // 64 or 256
-  dst.ul_qam = dec_int(it, "ul_qam");
+  dst.ul_qam = dec_int_opt(it, "ul_qam");
   assert(dst.ul_qam == 64 || dst.ul_qam == 256); 
 
   // Mandatory. NR Cell Identity + plmn
   dst.ncgi = dec_ncgi_amr((void*)it);
 
   // Mandatory. Cell barred status.
-  dst.cell_barred = dec_bool(it, "cell_barred");
+  dst.cell_barred = dec_bool_opt(it, "cell_barred");
 
   // Optional.
   //bool* cell_barred_redcap_1rx; 
@@ -1733,40 +1733,40 @@ nr_cells_amr_t dec_nr_cells_amr(void* it_void)
   //bool* cell_barred_ntn; 
 
   // Mandatory. Physical cell ID 
-  dst.n_id_nrcell = dec_int(it, "n_id_nrcell");
+  dst.n_id_nrcell = dec_int_opt(it, "n_id_nrcell");
 
   // Mandatory. NR frequency band indicator
-  dst.band = dec_int(it, "band");
+  dst.band = dec_int_opt(it, "band");
 
   // Mandatory. Integer. Downlink ARFCN
-  dst.dl_nr_arfcn = dec_int(it, "dl_nr_arfcn");
+  dst.dl_nr_arfcn = dec_int_opt(it, "dl_nr_arfcn");
 
   // Mandatory. Uplink ARFCN.
-  dst.ul_nr_arfcn= dec_int(it, "ul_nr_arfcn"); 
+  dst.ul_nr_arfcn= dec_int_opt(it, "ul_nr_arfcn"); 
 
   // Mandatory. Number of downlink resource blocks
-  dst.n_rb_dl = dec_int(it, "n_rb_dl");
+  dst.n_rb_dl = dec_int_opt(it, "n_rb_dl");
 
   // Mandatory. Number of uplink resource blocks.
-  dst.n_rb_ul = dec_int(it, "n_rb_ul");
+  dst.n_rb_ul = dec_int_opt(it, "n_rb_ul");
 
   // Mandatory. SSB ARFCN.
-  dst.ssb_nr_arfcn = dec_int(it, "ssb_nr_arfcn");
+  dst.ssb_nr_arfcn = dec_int_opt(it, "ssb_nr_arfcn");
 
   // Mandatory. Downlink sub carrier spacing (15 * 2 ^ mu in KHz)
-  dst.dl_mu = dec_int(it, "dl_mu");
+  dst.dl_mu = dec_int_opt(it, "dl_mu");
 
   // Mandatory. Uplink sub carrier spacing (15 * 2 ^ mu in KHz)
-  dst.ul_mu = dec_int(it, "ul_mu");
+  dst.ul_mu = dec_int_opt(it, "ul_mu");
 
   // Mandatory. SSB sub carrier spacing (15 * 2 ^ mu in KHz).
-  dst.ssb_mu = dec_int(it, "ssb_mu");
+  dst.ssb_mu = dec_int_opt(it, "ssb_mu");
 
   // Mandatory. Enumeration: FDD, TDD. Operation mode 
-  dst.mode = dec_string(it, "mode");
+  dst.mode = dec_string_opt(it, "mode");
 
   // Mandatory. Cell PRACH sequence index.
-  dst.prach_sequence_index = dec_int(it, "prach_sequence_index");
+  dst.prach_sequence_index = dec_int_opt(it, "prach_sequence_index");
 
   // Optional. connected_mobility
  // ans_cjson_t const cm = find_object(it, "connected_mobility" ); 
@@ -1822,7 +1822,7 @@ nssai_amr_t dec_nssai_amr(void* it)
   nssai_amr_t dst = {0};
 
   // Mandatory. Slice Srvice Type [1-255] 
-  dst.sst = dec_int(it, "sst"); 
+  dst.sst = dec_int_opt(it, "sst"); 
   assert(dst.sst != 0); 
 
   // Optional. Slice Differentiator [0-0xFFFFFE]
@@ -1844,19 +1844,19 @@ path_amr_t dec_path_amr(void* it)
   path_amr_t dst = {0};
 
   // Mandatory
-  dst.type = dec_string(it, "type");
+  dst.type = dec_string_opt(it, "type");
 
   // Mandatory. Path delay in ns
-  dst.delay = dec_float(it, "delay");
+  dst.delay = dec_float_opt(it, "delay");
 
   // Mandatory. Path gain in dB
-  dst.gain = dec_float(it, "gain");
+  dst.gain = dec_float_opt(it, "gain");
 
   // Mandatory. Frequency shift in Hz
-  dst.freq_shift = dec_float(it, "freq_shift");
+  dst.freq_shift = dec_float_opt(it, "freq_shift");
 
   // Mandatory. Doppler frequency in Hz
-  dst.freq_doppler = dec_float(it, "freq_doppler");
+  dst.freq_doppler = dec_float_opt(it, "freq_doppler");
 
   return dst;
 }
@@ -1883,10 +1883,10 @@ plmn_list_amr_t dec_plmn_list_amr(void* it)
   }
 
   // Mandatory. Reserved flag.
-  dst.reserved = dec_bool(it, "reserved"); 
+  dst.reserved = dec_bool_opt(it, "reserved"); 
 
   // Mandatory. Tracking Area Code
-  dst.tac = dec_int(it, "tac");
+  dst.tac = dec_int_opt(it, "tac");
 
   // Optional. RAN Area Code.
   // int* ranac;
@@ -1913,11 +1913,11 @@ qos_flows_ue_lst_amr_t dec_qos_flows_ue_lst_amr(void* it)
 
   qos_flows_ue_lst_amr_t dst = {0};
 
-  dst.pdu_session_id = dec_int(it, "pdu_session_id") ;
-  dst.dl_total_bytes = dec_int(it, "dl_total_bytes") ;
-  dst.ul_total_bytes = dec_int(it, "ul_total_bytes") ;
-  dst.sst = dec_int(it, "sst"); 
-  dst.sd = dec_int(it, "sd") ;
+  dst.pdu_session_id = dec_int_opt(it, "pdu_session_id") ;
+  dst.dl_total_bytes = dec_int_opt(it, "dl_total_bytes") ;
+  dst.ul_total_bytes = dec_int_opt(it, "ul_total_bytes") ;
+  dst.sst = dec_int_opt(it, "sst"); 
+  dst.sd = dec_int_opt(it, "sd") ;
 
   return dst;
 }
@@ -1932,10 +1932,10 @@ rf_ports_amr_t dec_rf_ports_amr(void* it)
     dst.channel_dl = dec_channel_dl_amr((void*)ans.it); 
 
   // Mandatory. Uplink frequency shift in Hz
-  dst.ul_freq_shift = dec_float(it, "ul_freq_shift");
+  dst.ul_freq_shift = dec_float_opt(it, "ul_freq_shift");
 
   // Mandatory. Sample rate in Hz
-  dst.sample_rate = dec_float(it, "sample_rate");
+  dst.sample_rate = dec_float_opt(it, "sample_rate");
 
   return dst;
 }
@@ -1946,9 +1946,9 @@ rf_ports_ms_amr_t dec_rf_ports_ms_amr(void* it)
 
   rf_ports_ms_amr_t dst = {0}; 
 
-  dst.min= dec_float(it, "min");
-  dst.max= dec_float(it, "max");
-  dst.sd= dec_float(it, "sd");
+  dst.min= dec_float_opt(it, "min");
+  dst.max= dec_float_opt(it, "max");
+  dst.sd= dec_float_opt(it, "sd");
 
   return dst;
 }
@@ -1959,10 +1959,10 @@ rx_channels_amr_t dec_rx_channels_amr(void* it)
   rx_channels_amr_t dst = {0}; 
 
   // Mandatory. RF reception gain, in dB
-  dst.gain = dec_float(it, "gain");
+  dst.gain = dec_float_opt(it, "gain");
 
   // Mandatory. RF reception frequency, in MHz 
-  dst.freq = dec_float(it, "freq");
+  dst.freq = dec_float_opt(it, "freq");
 
   // Mandatory? Optional? Bug? 2023-12-15
   // int port;
@@ -1976,10 +1976,10 @@ scell_list_amr_t dec_scell_list_amr(void* it)
   scell_list_amr_t dst = {0}; 
 
   // Mandatory. Cell identifier 
-  dst.cell_id = dec_int(it, "cell_id");
+  dst.cell_id = dec_int_opt(it, "cell_id");
 
   // Mandatory. Indicates if PUSCH transmission is allowed
-  dst.ul_allowed = dec_int(it, "ul_allowed");
+  dst.ul_allowed = dec_int_opt(it, "ul_allowed");
 
   return dst;
 }
@@ -1990,13 +1990,13 @@ tx_channels_amr_t dec_tx_channels_amr(void* it)
   tx_channels_amr_t dst = {0};
 
   // Mandatory RF transmission gain, in dB.
-  dst.gain = dec_float(it, "gain"); 
+  dst.gain = dec_float_opt(it, "gain"); 
 
   // Mandatory RF transmission frequency, in MHz.
-  dst.freq = dec_float(it, "freq");
+  dst.freq = dec_float_opt(it, "freq");
 
   // Mandatory. RF port index.
-  dst.port = dec_int(it, "port");
+  dst.port = dec_int_opt(it, "port");
 
   return dst;
 }
@@ -2008,14 +2008,14 @@ ue_lst_amr_t dec_ue_lst_amr(void* it)
   ue_lst_amr_t dst = {0}; 
 
   // Mandatory for 5G. RAN UE id. Present for NR UEs.
-  dst.ran_ue_id = dec_int(it,"ran_ue_id");
+  dst.ran_ue_id = dec_int_opt(it,"ran_ue_id");
 
   // Optional integer. AMF UE id. It is present when the UE-
   // associated logical NG-connection is setup.
   // dst.amf_ue_id = dec_int(it,"amf_ue_id");
 
   // Mandatory
-  dst.rnti = dec_int(it,"rnti"); 
+  dst.rnti = dec_int_opt(it,"rnti"); 
 
   // Mandatory
   // Array of Objects

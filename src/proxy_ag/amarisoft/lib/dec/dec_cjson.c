@@ -16,6 +16,20 @@ int dec_int(const void* it_v, char* const needle)
   return new_it->valueint;
 }
 
+int dec_int_opt(void const* it_v, char* const needle)
+{
+  cJSON* it = (cJSON*)(it_v); 
+  assert(it != NULL);
+  assert(needle != NULL);
+
+  cJSON const* new_it = cJSON_GetObjectItemCaseSensitive(it, needle);
+  
+  if(!cJSON_IsNumber(new_it)) 
+    return 0;
+
+  return new_it->valueint;
+}
+
 ans_cjson_t dec_int_it(void const* it_v, char* const needle)
 {
   cJSON* it = (cJSON*)(it_v); 
@@ -43,6 +57,20 @@ char* dec_string(void const* it_v, char* const needle)
   return dst; 
 }
 
+char* dec_string_opt(void const* it_v, char* const needle)
+{
+
+  cJSON* it = (cJSON*)(it_v); 
+  assert(it != NULL);
+  assert(needle != NULL);
+
+  cJSON const* new_it = cJSON_GetObjectItem(it, needle);
+
+  if(!cJSON_IsString(new_it))
+    return NULL;
+
+  return strndup(new_it->valuestring, 256);
+}
 
 ans_cjson_t dec_string_it(void const* it_v, char* const needle)
 {
@@ -71,6 +99,19 @@ bool dec_bool(void const* it_v, char* const needle)
   return new_it->valueint;
 }
 
+bool dec_bool_opt(void const* it_v, char* const needle)
+{
+  cJSON* it = (cJSON*)(it_v); 
+  assert(it != NULL);
+  assert(needle != NULL);
+
+  cJSON const* new_it = cJSON_GetObjectItem(it, needle);
+  if(!cJSON_IsBool(new_it))
+    return 0 ;
+
+  return new_it->valueint;
+}
+
 ans_cjson_t dec_bool_it(void const* it_v, char* const needle)
 {
   cJSON* it = (cJSON*)(it_v); 
@@ -92,6 +133,20 @@ float dec_float(void const* it_v, char* const needle)
   assert(needle != NULL);
 
   cJSON const* new_it = cJSON_GetObjectItem(it, needle);
+  return new_it->valuedouble;
+}
+
+float dec_float_opt(void const* it_v, char* const needle)
+{
+  cJSON* it = (cJSON*)(it_v); 
+  assert(it != NULL);
+  assert(needle != NULL);
+
+  cJSON const* new_it = cJSON_GetObjectItem(it, needle);
+
+  if(!cJSON_IsNumber(new_it))
+    return 0.0;
+
   return new_it->valuedouble;
 }
 

@@ -576,7 +576,7 @@ uint16_t target_cell_ho_ctrl(e2sm_rc_ctrl_msg_t const* msg)
   assert(rp3->ran_param_id == NR_cell_8_4_4_1);
   assert(rp3->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE);
   assert(rp3->ran_param_val.strct->ran_param_struct != NULL);
-  // Physical Cell ID
+  // Physical Cell ID. Needed for amarisoft
   seq_ran_param_t const* rp4 = rp3->ran_param_val.strct->ran_param_struct;
   assert(rp4->ran_param_id == NR_CGI_8_4_4_1);
   assert(rp4->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE);
@@ -616,6 +616,8 @@ sm_ag_if_ans_t ho_ctrl(rc_ctrl_req_data_t* const rc_ctrl)
 
   ue_id_e2sm_t const* ue = &rc_ctrl->hdr.frmt_1.ue_id;
   uint16_t const target_cell = target_cell_ho_ctrl(&rc_ctrl->msg);
+  // [0,1007]
+  assert(target_cell < 1008);
   uint32_t const ssb_nr_arfcn = target_cell_arfcn_ho_ctrl(&rc_ctrl->msg);
 
   // Call Hand Over
