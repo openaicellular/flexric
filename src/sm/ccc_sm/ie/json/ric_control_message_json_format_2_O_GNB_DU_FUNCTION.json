@@ -1,0 +1,94 @@
+{
+  "controlMessageFormat": {
+    "listOfCellsControlled": [
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "69521687",
+          "plmnIdentity": {
+            "mcc": "885",
+            "mnc": "50"
+          }
+        },
+        "listOfConfigurationStructures": [
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbId": 951136863,
+                "gnbIdLength": 8,
+                "gnbDuId": 630164287,
+                "gnbDuName": "gnb_du_name"
+              }
+            },
+            "ranConfigurationStructureName": "O-GNBDUFunction"
+          }
+        ]
+      },
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "153943041",
+          "plmnIdentity": {
+            "mcc": "136",
+            "mnc": "38"
+          }
+        },
+        "listOfConfigurationStructures": [
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbId": 2115238486,
+                "gnbIdLength": 4,
+                "gnbDuId": 1164869047,
+                "gnbDuName": "gnb_du_name"
+              }
+            },
+            "ranConfigurationStructureName": "O-GNBDUFunction"
+          },
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbId": 1890683822,
+                "gnbIdLength": 54,
+                "gnbDuId": 606810479,
+                "gnbDuName": "gnb_du_name"
+              }
+            },
+            "ranConfigurationStructureName": "O-GNBDUFunction"
+          }
+        ]
+      },
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "848335428",
+          "plmnIdentity": {
+            "mcc": "377",
+            "mnc": "17"
+          }
+        },
+        "listOfConfigurationStructures": [
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbId": 1776815400,
+                "gnbIdLength": 95,
+                "gnbDuId": 1257610849,
+                "gnbDuName": "gnb_du_name"
+              }
+            },
+            "ranConfigurationStructureName": "O-GNBDUFunction"
+          },
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbId": 50199580,
+                "gnbIdLength": 35,
+                "gnbDuId": 232451351,
+                "gnbDuName": "gnb_du_name"
+              }
+            },
+            "ranConfigurationStructureName": "O-GNBDUFunction"
+          }
+        ]
+      }
+    ]
+  }
+}

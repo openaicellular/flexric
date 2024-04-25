@@ -22,6 +22,7 @@
 #include <stdio.h>
 
 #include "ccc_enc_json.h"
+#include "../ie/json/ric_control_message_json.h"
 #include "../ie/json/ric_indication_header_json.h"
 #include "../ie/json/ric_action_definition_json.h"
 #include "../ie/json/ric_indication_message_json.h"
@@ -592,6 +593,7 @@ static
 values_of_attributes_json_t* create_values_of_attributes(values_of_attributes_t const* src){
   assert(src != NULL);
   values_of_attributes_json_t* res = calloc(1, sizeof(values_of_attributes_json_t));
+  assert(res != NULL);
 
   switch (src->values_of_attributes_type) {
     case VALUES_OF_ATTRIBUTES_O_GNBDUFunction:
@@ -614,13 +616,11 @@ values_of_attributes_json_t* create_values_of_attributes(values_of_attributes_t 
       break;
     case VALUES_OF_ATTRIBUTES_O_NRCellDU:
       assert(0 != 0 && "No support VALUES_OF_ATTRIBUTES_O_NRCellDU");
-      break;
     case VALUES_OF_ATTRIBUTES_O_NRCellCU:
       res->ran_configuration_structure = create_e2sm_ccc_nr_cell_cu(src->e2sm_ccc_o_nr_cell_cu);
       break;
     default:
       assert(0 != 0 && "No support for current configuration structure name - node level");
-      break;
   }
   return res;
 }
@@ -655,6 +655,34 @@ indication_message_format_json_t* create_ind_msg_frmt_1(e2sm_ccc_ind_msg_frmt_1_
 }
 
 static
+list_of_configuration_structure_control_element_t* create_ctrl_msg_ran_element(ctrl_msg_ran_conf_t const src){
+  list_of_configuration_structure_control_element_t* res = calloc(1, sizeof(list_of_configuration_structure_control_element_t));
+  assert(res != NULL && "Memory exhausted");
+  res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
+  res->new_values_of_attributes = create_values_of_attributes(&src.vals_attributes);
+  if (src.old_vals_attributes)
+    res->old_values_of_attributes = create_values_of_attributes(src.old_vals_attributes);
+  return res;
+}
+
+static
+control_message_format_json_t* create_ctrl_msg_frmt_1(e2sm_ccc_ctrl_msg_frmt_1_t const src)
+{
+  control_message_format_json_t* dst = calloc(1, sizeof(control_message_format_json_t));
+  assert(dst != NULL && "Memory exhausted");
+  dst->list_of_configuration_structures = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_ctrl_msg_ran_conf; ++i){
+    list_add_tail(
+        dst->list_of_configuration_structures,
+        create_ctrl_msg_ran_element(src.ctrl_msg_ran_conf[i]),
+        sizeof(list_of_configuration_structure_control_element_t*)
+    );
+  }
+
+  return dst;
+}
+
+static
 list_of_cells_reported_element_t* create_ind_msg_cell_report(ind_msg_cell_report_t const src){
   list_of_cells_reported_element_t* res = calloc(1, sizeof(list_of_cells_reported_element_t));
   assert(res != NULL && "Memory exhausted");
@@ -671,6 +699,22 @@ list_of_cells_reported_element_t* create_ind_msg_cell_report(ind_msg_cell_report
 }
 
 static
+list_of_cells_controlled_element_t* create_ctrl_msg_cell(ctrl_msg_cell_t const src){
+  list_of_cells_controlled_element_t* res = calloc(1, sizeof(list_of_cells_controlled_element_t));
+  assert(res != NULL && "Memory exhausted");
+  res->cell_global_id = create_cell_global_id(src.cell_global_id);
+  res->list_of_configuration_structures = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_ctrl_msg_ran_conf; ++i){
+    list_add_tail(
+        res->list_of_configuration_structures,
+        create_ctrl_msg_ran_element(src.ctrl_msg_ran_conf[i]),
+        sizeof(list_of_configuration_structure_control_element_t *)
+    );
+  }
+  return res;
+}
+
+static
 indication_message_format_json_t* create_ind_msg_frmt_2(e2sm_ccc_ind_msg_frmt_2_t const src)
 {
   indication_message_format_json_t* dst = calloc(1, sizeof(indication_message_format_json_t));
@@ -681,6 +725,23 @@ indication_message_format_json_t* create_ind_msg_frmt_2(e2sm_ccc_ind_msg_frmt_2_
         dst->list_of_cells_reported,
         create_ind_msg_cell_report(src.ind_msg_cell_report[i]),
         sizeof(list_of_cells_reported_element_t*)
+    );
+  }
+
+  return dst;
+}
+
+static
+control_message_format_json_t* create_ctrl_msg_frmt_2(e2sm_ccc_ctrl_msg_frmt_2_t const src)
+{
+  control_message_format_json_t * dst = calloc(1, sizeof(control_message_format_json_t));
+  assert(dst != NULL && "Memory exhausted");
+  dst->list_of_cells_controlled= list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_ctrl_msg_cell; ++i){
+    list_add_tail(
+        dst->list_of_cells_controlled,
+        create_ctrl_msg_cell(src.ctrl_msg_cell[i]),
+        sizeof(list_of_cells_controlled_element_t*)
     );
   }
 
@@ -725,9 +786,20 @@ byte_array_t ccc_enc_ctrl_hdr_json(e2sm_ccc_ctrl_hdr_t const* src)
 
 byte_array_t ccc_enc_ctrl_msg_json(e2sm_ccc_ctrl_msg_t const* src)
 {
-  assert(0 != 0 && "Not implemented");
-  byte_array_t ba = {0};
+  ric_control_message_json_t* ric_ctrl_msg = calloc(1, sizeof(ric_control_message_json_t));
+  assert(ric_ctrl_msg != NULL && "Memory exhausted");
+  defer({cJSON_Deleteric_control_message(ric_ctrl_msg); });
 
+  if (src->format == FORMAT_1_E2SM_CCC_CTRL_MSG) {
+    ric_ctrl_msg->control_message_format = create_ctrl_msg_frmt_1(src->frmt_1);
+  } else if (src->format == FORMAT_2_E2SM_CCC_CTRL_MSG){
+    ric_ctrl_msg->control_message_format = create_ctrl_msg_frmt_2(src->frmt_2);
+  } else {
+    assert(0 != 0 && "unknown format type");
+  }
+
+  char * res = cJSON_Printric_control_message(ric_ctrl_msg);
+  byte_array_t ba = {.len = strlen(res) + 1, .buf = (uint8_t *)res};
   return ba;
 }
 

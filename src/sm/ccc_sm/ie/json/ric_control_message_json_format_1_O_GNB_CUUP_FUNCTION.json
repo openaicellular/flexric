@@ -1,0 +1,98 @@
+{
+  "controlMessageFormat": {
+    "listOfConfigurationStructures": [
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbId": 966152555,
+            "gnbIdLength": 182,
+            "gnbCuUpId": 2011338380,
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "742",
+                  "mnc": "28"
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "841",
+                  "mnc": "24"
+                }
+              }
+            ]
+          }
+        },
+        "ranConfigurationStructureName": "O-GNBCUUPFunction"
+      },
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbId": 386472037,
+            "gnbIdLength": 169,
+            "gnbCuUpId": 1996103505,
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "176",
+                  "mnc": "33"
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "643",
+                  "mnc": "51"
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "726",
+                  "mnc": "65"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 233
+                }
+              }
+            ]
+          }
+        },
+        "ranConfigurationStructureName": "O-GNBCUUPFunction"
+      },
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbId": 1740582415,
+            "gnbIdLength": 62,
+            "gnbCuUpId": 267754854,
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "460",
+                  "mnc": "33"
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "893",
+                  "mnc": "61"
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "513",
+                  "mnc": "27"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 16
+                }
+              }
+            ]
+          }
+        },
+        "ranConfigurationStructureName": "O-GNBCUUPFunction"
+      }
+    ]
+  }
+}

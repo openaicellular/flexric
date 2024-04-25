@@ -1,0 +1,55 @@
+{
+  "controlMessageFormat": {
+    "listOfConfigurationStructures": [
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "bwpContext": "DL",
+            "cyclicPrefix": "120",
+            "isInitialBwp": "SUL",
+            "numberOfRBs": 878,
+            "startRB": 975,
+            "subCarrierSpacing": 120
+          }
+        },
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "bwpContext": "DL",
+            "cyclicPrefix": "30",
+            "isInitialBwp": "SUL",
+            "numberOfRBs": 892,
+            "startRB": 161,
+            "subCarrierSpacing": 120
+          }
+        },
+        "ranConfigurationStructureName": "O-BWP"
+      },
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "bwpContext": "DL",
+            "cyclicPrefix": "120",
+            "isInitialBwp": "OTHER",
+            "numberOfRBs": 564,
+            "startRB": 85,
+            "subCarrierSpacing": 30
+          }
+        },
+        "ranConfigurationStructureName": "O-BWP"
+      },
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "bwpContext": "DL",
+            "cyclicPrefix": "120",
+            "isInitialBwp": "INITIAL",
+            "numberOfRBs": 716,
+            "startRB": 383,
+            "subCarrierSpacing": 30
+          }
+        },
+        "ranConfigurationStructureName": "O-BWP"
+      }
+    ]
+  }
+}

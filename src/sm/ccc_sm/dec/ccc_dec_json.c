@@ -23,6 +23,7 @@
 #include "../ie/json/ric_indication_header_json.h"
 #include "../ie/json/ric_action_definition_json.h"
 #include "../ie/json/ric_indication_message_json.h"
+#include "../ie/json/ric_control_message_json.h"
 #include "../ie/json/ric_function_definition_json.h"
 #include "../ie/json/ric_event_trigger_definition_json.h"
 #include "../../../util/alg_ds/alg/defer.h"
@@ -560,6 +561,29 @@ ind_msg_ran_conf_t* get_ind_msg_ran_conf(list_t* const src){
 }
 
 static
+ctrl_msg_ran_conf_t* get_ctrl_msg_ran_conf(list_t* const src){
+  assert(src != NULL);
+  ctrl_msg_ran_conf_t* res = calloc(src->count, sizeof(ctrl_msg_ran_conf_t));
+  assert(res != NULL && "Memory exhausted");
+
+  size_t index = 0;
+  list_of_configuration_structure_control_element_t* ran_conf = list_get_head(src);
+  while (ran_conf!= NULL){
+    res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
+    res[index].vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->new_values_of_attributes->ran_configuration_structure);
+    if (ran_conf->old_values_of_attributes){
+      res[index].old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+      assert(res[index].old_vals_attributes != NULL);
+      *res[index].old_vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
+    }
+    ran_conf = list_get_next(src);
+    index++;
+  }
+
+  return res;
+}
+
+static
 e2sm_ccc_ind_msg_frmt_1_t get_ind_msg_frmt1(list_t* const src){
   assert(src != NULL);
   e2sm_ccc_ind_msg_frmt_1_t res = {};
@@ -571,12 +595,44 @@ e2sm_ccc_ind_msg_frmt_1_t get_ind_msg_frmt1(list_t* const src){
 }
 
 static
+e2sm_ccc_ctrl_msg_frmt_1_t get_ctrl_msg_frmt1(list_t* const src){
+  assert(src != NULL);
+  e2sm_ccc_ctrl_msg_frmt_1_t res = {};
+
+  res.sz_ctrl_msg_ran_conf = src->count;
+  res.ctrl_msg_ran_conf = get_ctrl_msg_ran_conf(src);
+
+  return res;
+}
+
+static
 e2sm_ccc_act_def_frmt_1_t get_act_def_frmt1(list_t* const src){
   assert(src != NULL);
   e2sm_ccc_act_def_frmt_1_t res = {};
 
   res.sz_act_def_ran_conf = src->count;
   res.act_def_ran_conf = get_act_def_ran_conf(src);
+
+  return res;
+}
+
+static
+e2sm_ccc_ctrl_msg_frmt_2_t get_ctrl_msg_frmt2(list_t* const src){
+  assert(src != NULL);
+  e2sm_ccc_ctrl_msg_frmt_2_t res = {};
+  size_t index = 0;
+
+  res.sz_ctrl_msg_cell = src->count;
+  res.ctrl_msg_cell = calloc(src->count, sizeof(ctrl_msg_cell_t));
+  assert(res.ctrl_msg_cell != NULL && "Memory exhausted");
+  list_of_cells_controlled_element_t* node = list_get_head(src);
+  while(node != NULL){
+    res.ctrl_msg_cell[index].cell_global_id = get_cell_global_id(node->cell_global_id);
+    res.ctrl_msg_cell[index].sz_ctrl_msg_ran_conf = node->list_of_configuration_structures->count;
+    res.ctrl_msg_cell[index].ctrl_msg_ran_conf = get_ctrl_msg_ran_conf(node->list_of_configuration_structures);
+    node = list_get_next(src);
+    index++;
+  }
 
   return res;
 }
@@ -707,8 +763,22 @@ e2sm_ccc_ctrl_msg_t ccc_dec_ctrl_msg_json(size_t len, uint8_t const ctrl_msg[len
 {
   assert(ctrl_msg != NULL);
   assert(len > 0);
-  assert(0 != 0 && "Not implemented");
+  assert(ctrl_msg[len-1] == '\0' && "Need zero terminated string for this interface");
+
+  ric_control_message_json_t* ric_ctrl_msg = cJSON_Parseric_control_message((char *)ctrl_msg);
+  defer({cJSON_Deleteric_control_message(ric_ctrl_msg);});
+
   e2sm_ccc_ctrl_msg_t dst = {0};
+  if(ric_ctrl_msg->control_message_format->list_of_configuration_structures != NULL){
+    // Format 1
+    dst.format = FORMAT_1_E2SM_CCC_CTRL_MSG;
+    dst.frmt_1 = get_ctrl_msg_frmt1(ric_ctrl_msg->control_message_format->list_of_configuration_structures);
+  } else if (ric_ctrl_msg->control_message_format->list_of_cells_controlled != NULL){
+    // Format 2
+    dst.format = FORMAT_2_E2SM_CCC_CTRL_MSG;
+    dst.frmt_2 = get_ctrl_msg_frmt2(ric_ctrl_msg->control_message_format->list_of_cells_controlled);
+  }
+
 
   return dst;
 }

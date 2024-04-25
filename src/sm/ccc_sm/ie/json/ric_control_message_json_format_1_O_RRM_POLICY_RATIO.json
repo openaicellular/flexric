@@ -1,0 +1,51 @@
+{
+  "controlMessageFormat": {
+    "listOfConfigurationStructures": [
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "resourceType": "PRB_UL",
+            "rRMPolicyDedicatedRatio": 246,
+            "rRMPolicyMaxRatio": 228,
+            "rRMPolicyMemberList": [
+              {
+                "plmnId": {
+                  "mcc": "225",
+                  "mnc": "76"
+                }
+              }
+            ],
+            "rRMPolicyMinRatio": 82
+          }
+        },
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "resourceType": "PRB_UL",
+            "rRMPolicyDedicatedRatio": 246,
+            "rRMPolicyMaxRatio": 106,
+            "rRMPolicyMemberList": [
+              {
+                "plmnId": {
+                  "mcc": "382",
+                  "mnc": "92"
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "881",
+                  "mnc": "38"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 95
+                }
+              }
+            ],
+            "rRMPolicyMinRatio": 144
+          }
+        },
+        "ranConfigurationStructureName": "O-RRMPolicyRatio"
+      }
+    ]
+  }
+}

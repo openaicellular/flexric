@@ -1,0 +1,118 @@
+{
+  "controlMessageFormat": {
+    "listOfConfigurationStructures": [
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "574",
+                  "mnc": "85"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 142
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "620",
+                  "mnc": "58"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 203
+                }
+              }
+            ],
+            "cellLocalId": 91
+          }
+        },
+        "ranConfigurationStructureName": "O-NRCellCU"
+      },
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "639",
+                  "mnc": "66"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 8
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "233",
+                  "mnc": "58"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 123
+                }
+              }
+            ],
+            "cellLocalId": 351
+          }
+        },
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "472",
+                  "mnc": "63"
+                }
+              }
+            ],
+            "cellLocalId": 524
+          }
+        },
+        "ranConfigurationStructureName": "O-NRCellCU"
+      },
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "353",
+                  "mnc": "16"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 191
+                }
+              }
+            ],
+            "cellLocalId": 220
+          }
+        },
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "350",
+                  "mnc": "37"
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "243",
+                  "mnc": "65"
+                }
+              }
+            ],
+            "cellLocalId": 143
+          }
+        },
+        "ranConfigurationStructureName": "O-NRCellCU"
+      }
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "controlMessageFormat": {
+    "listOfConfigurationStructures": [
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "cesSwitch": false,
+            "energySavingControl": "toBeNotEnergySaving",
+            "energySavingState": "isNotEnergySaving"
+          }
+        },
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "cesSwitch": true,
+            "energySavingControl": "toBeNotEnergySaving",
+            "energySavingState": "isNotEnergySaving"
+          }
+        },
+        "ranConfigurationStructureName": "O-CESManagementFunction"
+      },
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "cesSwitch": true,
+            "energySavingControl": "toBeEnergySaving",
+            "energySavingState": "isEnergySaving"
+          }
+        },
+        "ranConfigurationStructureName": "O-CESManagementFunction"
+      }
+    ]
+  }
+}

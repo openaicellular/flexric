@@ -1,0 +1,54 @@
+{
+  "controlMessageFormat": {
+    "listOfCellsControlled": [
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "17060279",
+          "plmnIdentity": {
+            "mcc": "449",
+            "mnc": "44"
+          }
+        },
+        "listOfConfigurationStructures": [
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "cesSwitch": true,
+                "energySavingControl": "toBeEnergySaving",
+                "energySavingState": "isEnergySaving"
+              }
+            },
+            "ranConfigurationStructureName": "O-CESManagementFunction"
+          },
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "cesSwitch": false,
+                "energySavingControl": "toBeEnergySaving",
+                "energySavingState": "isEnergySaving"
+              }
+            },
+            "oldValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "cesSwitch": false,
+                "energySavingControl": "toBeEnergySaving",
+                "energySavingState": "isEnergySaving"
+              }
+            },
+            "ranConfigurationStructureName": "O-CESManagementFunction"
+          },
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "cesSwitch": false,
+                "energySavingControl": "toBeNotEnergySaving",
+                "energySavingState": "isEnergySaving"
+              }
+            },
+            "ranConfigurationStructureName": "O-CESManagementFunction"
+          }
+        ]
+      }
+    ]
+  }
+}

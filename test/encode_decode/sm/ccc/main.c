@@ -103,7 +103,16 @@ void test_ccc_ctrl_hdr(void)
 
 void test_ccc_ctrl_msg(void)
 {
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_ctrl_msg_t msg = fill_rnd_ccc_ctrl_msg();
+  defer({ free_e2sm_ccc_ctrl_msg(&msg); });
+
+  byte_array_t ba = ccc_enc_ctrl_msg_json(&msg);
+  defer({ free_byte_array(ba); });
+
+  e2sm_ccc_ctrl_msg_t out = ccc_dec_ctrl_msg_json(ba.len, ba.buf);
+  defer({ free_e2sm_ccc_ctrl_msg(&out); });
+
+  assert(eq_e2sm_ccc_ctrl_msg(&msg, &out) == true);
 }
 
 void test_ccc_ctrl_out(void)
@@ -158,8 +167,8 @@ int main()
 //   printf("\nCCC Control Header \n");
 
   // Control Message  
-//   test_ccc_ctrl_msg();
-//   printf("\nCCC Control Message\n");
+   test_ccc_ctrl_msg();
+   printf("\nCCC Control Message test succeeded\n");
 
   // Control Outcome 
 //  test_ccc_ctrl_out();

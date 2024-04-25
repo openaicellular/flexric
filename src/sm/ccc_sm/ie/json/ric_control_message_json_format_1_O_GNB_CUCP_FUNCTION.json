@@ -1,0 +1,29 @@
+{
+  "controlMessageFormat": {
+    "listOfConfigurationStructures": [
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbCuName": "gnb_cu_name",
+            "gnbId": 1848199125,
+            "gnbIdLength": 228,
+            "plmnId": {
+              "mcc": "294",
+              "mnc": "29"
+            },
+            "x2AllowList": [
+              "g_enb_id_lst"
+            ],
+            "x2BlockList": [
+              "g_enb_id_lst"
+            ],
+            "x2HOBlockList": [
+              "g_enb_id_lst"
+            ]
+          }
+        },
+        "ranConfigurationStructureName": "O-GNBCUCPFunction"
+      }
+    ]
+  }
+}
