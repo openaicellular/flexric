@@ -242,6 +242,9 @@ void dec_msg_ue_get_amr(const char* in, msg_ue_get_t* out)
   assert(in != NULL);
   assert(out != NULL);
 
+  printf(" %s \n", in);
+
+
   cJSON *json = cJSON_Parse(in);
   defer({ cJSON_Delete(json); });
   if (json == NULL) {
@@ -364,7 +367,8 @@ arr_qos_flows_ue_lst_t dec_arr_qos_flows_ue_lst(void* it)
   arr_qos_flows_ue_lst_t dst = {0}; 
 
   dst.sz = cJSON_GetArraySize(it);
-  assert(dst.sz > 0);
+  if(dst.sz == 0)
+    return dst;
 
   dst.qos_flows = calloc(dst.sz, sizeof(qos_flows_ue_lst_amr_t));
   assert(dst.qos_flows != NULL && "Memory exhausted");
@@ -2024,8 +2028,8 @@ ue_lst_amr_t dec_ue_lst_amr(void* it)
 
   // Mandatory. 
   // Array of objects
-  //ans = find_object(it, "qos_flow_list");
-  //dst.qos_flows = dec_arr_qos_flows_ue_lst((void*)ans.it);
+  ans = find_object(it, "qos_flow_list");
+  dst.qos_flows = dec_arr_qos_flows_ue_lst((void*)ans.it);
 
   return dst;
 }
