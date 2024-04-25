@@ -1,0 +1,104 @@
+{
+  "indicationMessageFormat": {
+    "listOfCellsReported": [
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "1067854852",
+          "plmnIdentity": {
+            "mcc": "456",
+            "mnc": "89"
+          }
+        },
+        "listOfConfigurationStructuresReported": [
+          {
+            "changeType": "modification",
+            "oldValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "bwpContext": "SUL",
+                "cyclicPrefix": "120",
+                "isInitialBwp": "INITIAL",
+                "numberOfRBs": 54,
+                "startRB": 227,
+                "subCarrierSpacing": 60
+              }
+            },
+            "ranConfigurationStructureName": "O-BWP",
+            "valuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "bwpContext": "SUL",
+                "cyclicPrefix": "120",
+                "isInitialBwp": "SUL",
+                "numberOfRBs": 712,
+                "startRB": 962,
+                "subCarrierSpacing": 60
+              }
+            }
+          },
+          {
+            "changeType": "modification",
+            "ranConfigurationStructureName": "O-BWP",
+            "valuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "bwpContext": "DL",
+                "cyclicPrefix": "30",
+                "isInitialBwp": "OTHER",
+                "numberOfRBs": 116,
+                "startRB": 842,
+                "subCarrierSpacing": 30
+              }
+            }
+          },
+          {
+            "changeType": "none",
+            "ranConfigurationStructureName": "O-BWP",
+            "valuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "bwpContext": "SUL",
+                "cyclicPrefix": "30",
+                "isInitialBwp": "OTHER",
+                "numberOfRBs": 207,
+                "startRB": 80,
+                "subCarrierSpacing": 120
+              }
+            }
+          }
+        ]
+      },
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "1873579795",
+          "plmnIdentity": {
+            "mcc": "524",
+            "mnc": "49"
+          }
+        },
+        "listOfConfigurationStructuresReported": [
+          {
+            "changeType": "modification",
+            "oldValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "bwpContext": "DL",
+                "cyclicPrefix": "120",
+                "isInitialBwp": "SUL",
+                "numberOfRBs": 530,
+                "startRB": 922,
+                "subCarrierSpacing": 15
+              }
+            },
+            "ranConfigurationStructureName": "O-BWP",
+            "valuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "bwpContext": "DL",
+                "cyclicPrefix": "120",
+                "isInitialBwp": "SUL",
+                "numberOfRBs": 991,
+                "startRB": 175,
+                "subCarrierSpacing": 60
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

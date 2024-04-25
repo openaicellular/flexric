@@ -1,0 +1,17 @@
+{
+  "indicationMessageFormat": {
+    "listOfConfigurationStructuresReported": [
+      {
+        "changeType": "modification",
+        "ranConfigurationStructureName": "O-CESManagementFunction",
+        "valuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "cesSwitch": false,
+            "energySavingControl": "toBeEnergySaving",
+            "energySavingState": "isEnergySaving"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "indicationMessageFormat": {
+    "listOfConfigurationStructuresReported": [
+      {
+        "changeType": "modification",
+        "ranConfigurationStructureName": "O-BWP",
+        "valuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "bwpContext": "SUL",
+            "cyclicPrefix": "30",
+            "isInitialBwp": "SUL",
+            "numberOfRBs": 461,
+            "startRB": 788,
+            "subCarrierSpacing": 15
+          }
+        }
+      },
+      {
+        "changeType": "addition",
+        "ranConfigurationStructureName": "O-BWP",
+        "valuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "bwpContext": "UL",
+            "cyclicPrefix": "120",
+            "isInitialBwp": "INITIAL",
+            "numberOfRBs": 279,
+            "startRB": 197,
+            "subCarrierSpacing": 120
+          }
+        }
+      }
+    ]
+  }
+}
