@@ -1,8 +1,8 @@
 add_executable(xapp_ho
-				xapp_ho.c
-				${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
-				${CMAKE_SOURCE_DIR}/src/util/e2ap_ngran_type.c
-				)
+		xapp_ho.c
+		${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
+		${CMAKE_SOURCE_DIR}/src/util/e2ap_ngran_type.c
+		)
 
 if(XAPP_DB STREQUAL "MYSQL_XAPP")
 	include_directories(${LIBMYSQLCLIENT_INCLUDE_DIRS})

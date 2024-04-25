@@ -6,6 +6,7 @@
 #include "../../../../src/util/alg_ds/alg/defer.h"
 #include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "../../../../src/sm/rc_sm/rc_sm_id.h"
+#include "../../../../src/util/time_now_us.h"
 
 static
 ue_id_e2sm_t* ue_id = NULL;
@@ -269,6 +270,7 @@ int main(int argc, char *argv[])
   sm_ans_xapp_t* hndl = calloc(arr.len, sizeof(sm_ans_xapp_t)); 
   defer({ free(hndl); });
 
+  int64_t const t0 = time_now_us();
   // Init latch to syncronize threads
   latch = init_latch_cv(arr.len);
   defer({ free_latch_cv(&latch); } );
@@ -293,6 +295,9 @@ int main(int argc, char *argv[])
   // Send the Handover cmd 
   sm_ans_xapp_t ans = control_sm_xapp_api(src_e2_node, SM_RC_ID, &ho);
   assert(ans.success == true);
+
+  int64_t const t1 = time_now_us();
+  printf("Elapsed time %ld \n", t1 - t0);
 
   // stop the xApp
   while(try_stop_xapp_api() == false)

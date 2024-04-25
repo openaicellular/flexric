@@ -544,8 +544,10 @@ seq_arr_t match_s_nssai_test_cond_type(test_info_lst_t const* info, kpm_msgs_amr
   seq_arr_t dst = {0};
   seq_init(&dst, sizeof(idx_ue_id_e2sm_t)); //
 
+  printf("[PROXY]: ues->sz %d  \n", ues->sz);
   for(size_t i = 0; i < ues->sz; ++i){
     ue_lst_amr_t const* ue = &ues->ue_lst[i]; 
+    printf("ue->qos_flows.sz %d \n", ue->qos_flows.sz);
     for(size_t j = 0; j < ue->qos_flows.sz; ++j){
       qos_flows_ue_lst_amr_t const* flows = &ue->qos_flows.qos_flows[j]; 
       int64_t const nssai = create_nssai(flows->sd, flows->sst); 
@@ -589,7 +591,7 @@ seq_arr_t matching_ues_amr(matching_condition_format_4_lst_t const* cond, size_t
 {
   assert(cond != NULL && "Condition equal NULL");
   assert(len == 1 && "Only one condition supported");
-
+  printf("Condition type %d \n",cond->test_info_lst.test_cond_type);
   seq_arr_t dst = match_cond_arr[cond->test_info_lst.test_cond_type](&cond->test_info_lst, msgs);
 
   return dst;
@@ -733,6 +735,7 @@ bool read_kpm_sm_amr(void* data)
 
     // If no UEs match the condition, do not send data to the nearRT-RIC
     if(seq_size(&match_ues) == 0){
+      printf("[PROXY]: No UE matches condition \n");
       return false;
     }
 
