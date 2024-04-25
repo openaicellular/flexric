@@ -15,7 +15,6 @@ void free_e2sm_ccc_ind_msg_frmt_1(e2sm_ccc_ind_msg_frmt_1_t const* src)
     free_ind_msg_ran_conf(&src->ind_msg_ran_conf[i]);
   }
 
-  assert(src->ind_msg_ran_conf!= NULL);
   free(src->ind_msg_ran_conf);
 }
 

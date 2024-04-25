@@ -4,6 +4,7 @@ set (IR_CCC_SRC
         g_gnb_id_lst.c
         act_def_ran_conf.c
         ind_msg_ran_conf.c
+        ctrl_msg_ran_conf.c
         control_service_ccc.c
         report_service_ccc.c
         ev_trigger_ccc.c
