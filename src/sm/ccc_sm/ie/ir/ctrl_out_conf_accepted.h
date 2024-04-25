@@ -2,6 +2,7 @@
 #define CCC_CTRL_OUT_CONF_ACCEPTED_H
 
 #include "../../../../util/byte_array.h"
+#include "values_of_attributes.h"
 
 typedef struct{
   // RAN Configuration Structure Name
@@ -11,11 +12,13 @@ typedef struct{
 
   // Old Values of Attributes
   // Mandatory
-  byte_array_t old_atr_val;
+  // 8.6.1
+  values_of_attributes_t old_atr_val;
 
   // Current Values of Attributes
   // Mandatory
-  byte_array_t cur_atr_val;
+  // 8.6.1
+  values_of_attributes_t cur_atr_val;
 
   // Applied Timestamp
   // Optional

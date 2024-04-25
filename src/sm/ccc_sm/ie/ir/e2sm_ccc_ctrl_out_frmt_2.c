@@ -17,12 +17,18 @@ void free_ctrl_out_cell(ctrl_out_cell_t * src)
     free_ctrl_out_conf_accepted(&src->ctrl_out_conf_accepted[i]);
   }
 
+  if (src->sz_ctrl_out_conf_accepted> 0)
+    free(src->ctrl_out_conf_accepted);
+
   // RAN Configuration Structures Failed List
   // [0-65535]
   assert(src->sz_ctrl_out_conf_failed < 65536);
   for(size_t i = 0; i < src->sz_ctrl_out_conf_failed; ++i){
     free_ctrl_out_conf_failed(&src->ctrl_out_conf_failed[i]);
   }
+
+  if (src->sz_ctrl_out_conf_failed > 0)
+    free(src->ctrl_out_conf_failed);
 }
 
 static
@@ -101,8 +107,7 @@ void free_e2sm_ccc_ctrl_out_frmt_2(e2sm_ccc_ctrl_out_frmt_2_t* src)
 {
   assert(src != NULL);
 
-  if (src->rev_timestamp.buf != NULL)
-    free_byte_array(src->rev_timestamp);
+  free_byte_array(src->rev_timestamp);
 
   // List of cells
   // [1-65535]
@@ -110,6 +115,8 @@ void free_e2sm_ccc_ctrl_out_frmt_2(e2sm_ccc_ctrl_out_frmt_2_t* src)
   for(size_t i = 0; i < src->sz_ctrl_out_cell; ++i){
     free_ctrl_out_cell(&src->ctrl_out_cell[i]);
   }
+
+  free(src->ctrl_out_cell);
 }
 
 bool eq_e2sm_ccc_ctrl_out_frmt_2(e2sm_ccc_ctrl_out_frmt_2_t const* m0, e2sm_ccc_ctrl_out_frmt_2_t const* m1)

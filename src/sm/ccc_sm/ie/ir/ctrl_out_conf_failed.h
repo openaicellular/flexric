@@ -3,6 +3,7 @@
 
 #include "../../../../util/byte_array.h"
 #include "cause.h"
+#include "values_of_attributes.h"
 
 typedef struct{
   // RAN Configuration Structure Name
@@ -12,11 +13,13 @@ typedef struct{
 
   // Old Values of Attributes
   // Mandatory
-  byte_array_t old_atr_val;
+  // 8.6.1
+  values_of_attributes_t old_atr_val;
 
   // Requested Values of Attributes
   // Mandatory
-  byte_array_t req_atr_val;
+  // 8.6.1
+  values_of_attributes_t req_atr_val;
 
   // Cause
   // Mandatory

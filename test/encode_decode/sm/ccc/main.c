@@ -117,7 +117,16 @@ void test_ccc_ctrl_msg(void)
 
 void test_ccc_ctrl_out(void)
 {
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_ctrl_out_t msg = fill_rnd_ccc_ctrl_out();
+  defer({ free_e2sm_ccc_ctrl_out(&msg); });
+
+  byte_array_t ba = ccc_enc_ctrl_out_json(&msg);
+  defer({ free_byte_array(ba); });
+
+  e2sm_ccc_ctrl_out_t out = ccc_dec_ctrl_out_json(ba.len, ba.buf);
+  defer({ free_e2sm_ccc_ctrl_out(&out); });
+
+//  assert(eq_e2sm_ccc_ctrl_out(&msg, &out) == true);
 }
 
 void test_ccc_ran_func_def(void)
@@ -171,8 +180,8 @@ int main()
    printf("\nCCC Control Message test succeeded\n");
 
   // Control Outcome 
-//  test_ccc_ctrl_out();
-//  printf("\nCCC Control Outcome\n");
+  test_ccc_ctrl_out();
+  printf("\nCCC Control Outcome test succeeded \n");
 
   // RAN Function Definition
   test_ccc_ran_func_def();

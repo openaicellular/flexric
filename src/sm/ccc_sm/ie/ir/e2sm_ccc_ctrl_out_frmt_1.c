@@ -7,8 +7,7 @@ void free_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_t* src)
 {
   assert(src != NULL);
 
-  if (src->rev_timestamp.buf != NULL)
-    free_byte_array(src->rev_timestamp);
+  free_byte_array(src->rev_timestamp);
 
   // RAN Configuration Structures Accepted List
   // [0-65535]
@@ -17,12 +16,18 @@ void free_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_t* src)
     free_ctrl_out_conf_accepted(&src->ctrl_out_conf_accepted[i]);
   }
 
+  if (src->sz_ctrl_out_conf_accepted> 0)
+    free(src->ctrl_out_conf_accepted);
+
   // RAN Configuration Structures Failed List
   // [0-65535]
   assert(src->sz_ctrl_out_conf_failed < 65535);
   for(size_t i = 0; i < src->sz_ctrl_out_conf_failed; ++i){
     free_ctrl_out_conf_failed(&src->ctrl_out_conf_failed[i]);
   }
+
+  if (src->sz_ctrl_out_conf_failed > 0)
+    free(src->ctrl_out_conf_failed);
 }
 
 bool eq_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_t const* m0, e2sm_ccc_ctrl_out_frmt_1_t const* m1)

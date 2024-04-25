@@ -26,6 +26,12 @@
 #include <math.h>
 #include <limits.h>
 
+typedef struct {
+  byte_array_t ran_conf_name;
+  values_of_attributes_t values_of_attributes;
+  values_of_attributes_t old_values_of_attributes;
+} ran_conf_t;
+
 static
 e2sm_plmn_t fill_rnd_plmn_id(){
   e2sm_plmn_t dst = (e2sm_plmn_t) {
@@ -491,117 +497,126 @@ e2sm_ccc_o_ces_management_function_t fill_rnd_o_ces_man_func_cell(){
   return dst;
 }
 
-ind_msg_ran_conf_t fill_rnd_ind_msg_ran_conf(){
- ind_msg_ran_conf_t res = {0};
- values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
+values_of_attributes_t fill_values_of_attributes(values_of_attributes_e values_of_attributes_type){
+  values_of_attributes_t res = {0};
 
   switch (values_of_attributes_type) {
     case VALUES_OF_ATTRIBUTES_O_GNBDUFunction:
-      res.ran_conf_name = cp_str_to_ba("O-GNBDUFunction");
-      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBDUFunction;
-      res.vals_attributes.e2sm_ccc_o_gnb_du_function = fill_rnd_du_function_node();
-      if(rand()%2 == 1){
-        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-        assert(res.old_vals_attributes != NULL);
-        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
-        res.old_vals_attributes->e2sm_ccc_o_gnb_du_function = fill_rnd_du_function_node();
-      }
+      res.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBDUFunction;
+      res.e2sm_ccc_o_gnb_du_function = fill_rnd_du_function_node();
       break;
     case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction:
-      res.ran_conf_name = cp_str_to_ba("O-GNBCUCPFunction");
-      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction;
-      res.vals_attributes.e2sm_ccc_o_gnb_cu_cp_function= fill_rnd_cu_cp_function_node();
-      if(rand()%2 == 1){
-        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-        assert(res.old_vals_attributes != NULL);
-        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
-        res.old_vals_attributes->e2sm_ccc_o_gnb_cu_cp_function= fill_rnd_cu_cp_function_node();
-      }
+      res.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction;
+      res.e2sm_ccc_o_gnb_cu_cp_function= fill_rnd_cu_cp_function_node();
       break;
     case VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction:
-      res.ran_conf_name = cp_str_to_ba("O-GNBCUUPFunction");
-      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction;
-      res.vals_attributes.e2sm_ccc_o_gnb_cu_up_function= fill_rnd_cu_up_function_node();
-      if(rand()%2 == 1){
-        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-        assert(res.old_vals_attributes != NULL);
-        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
-        res.old_vals_attributes->e2sm_ccc_o_gnb_cu_up_function = fill_rnd_cu_up_function_node();
-      }
+      res.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction;
+      res.e2sm_ccc_o_gnb_cu_up_function= fill_rnd_cu_up_function_node();
       break;
     case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio:
-      res.ran_conf_name = cp_str_to_ba("O-RRMPolicyRatio");
-      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio;
-      res.vals_attributes.e2sm_ccc_o_rrm_policy_ratio = fill_rnd_o_rrm_policy_ratio();
-      if(rand()%2 == 1){
-        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-        assert(res.old_vals_attributes != NULL);
-        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
-        res.old_vals_attributes->e2sm_ccc_o_rrm_policy_ratio = fill_rnd_o_rrm_policy_ratio();
-      }
+      res.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio;
+      res.e2sm_ccc_o_rrm_policy_ratio = fill_rnd_o_rrm_policy_ratio();
       break;
     case VALUES_OF_ATTRIBUTES_O_CESManagementFunction:
-      res.ran_conf_name = cp_str_to_ba("O-CESManagementFunction");
-      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_CESManagementFunction;
-      res.vals_attributes.e2sm_ccc_o_ces_management_function = fill_rnd_o_ces_man_func_cell();
-      if(rand()%2 == 1){
-        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-        assert(res.old_vals_attributes != NULL);
-        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
-        res.old_vals_attributes->e2sm_ccc_o_ces_management_function = fill_rnd_o_ces_man_func_cell();
-      }
+      res.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_CESManagementFunction;
+      res.e2sm_ccc_o_ces_management_function = fill_rnd_o_ces_man_func_cell();
       break;
     case VALUES_OF_ATTRIBUTES_O_BWP:
-      res.ran_conf_name = cp_str_to_ba("O-BWP");
-      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_BWP;
-      res.vals_attributes.e2sm_ccc_o_bwp = fill_rnd_e2sm_ccc_o_bwp();
-      if(rand()%2 == 1){
-        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-        assert(res.old_vals_attributes != NULL);
-        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
-        res.old_vals_attributes->e2sm_ccc_o_bwp = fill_rnd_e2sm_ccc_o_bwp();
-      }
+      res.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_BWP;
+      res.e2sm_ccc_o_bwp = fill_rnd_e2sm_ccc_o_bwp();
       break;
     case VALUES_OF_ATTRIBUTES_O_NRCellDU:
-      res.ran_conf_name = cp_str_to_ba("O-NRCellDU");
-      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_NRCellDU;
-      res.vals_attributes.e2sm_ccc_o_nr_cell_du = fill_rnd_e2sm_ccc_o_nr_cell_du();
-      if(rand()%2 == 1){
-        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-        assert(res.old_vals_attributes != NULL);
-        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
-        res.old_vals_attributes->e2sm_ccc_o_nr_cell_du = fill_rnd_e2sm_ccc_o_nr_cell_du();
-      }
+      res.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_NRCellDU;
+      res.e2sm_ccc_o_nr_cell_du = fill_rnd_e2sm_ccc_o_nr_cell_du();
       break;
     case VALUES_OF_ATTRIBUTES_O_NRCellCU:
-      res.ran_conf_name = cp_str_to_ba("O-NRCellCU");
-      res.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_NRCellCU;
-      res.vals_attributes.e2sm_ccc_o_nr_cell_cu = fill_rnd_e2sm_ccc_o_nr_cell_cu();
-      if(rand()%2 == 1){
-        res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-        assert(res.old_vals_attributes != NULL);
-        res.old_vals_attributes->values_of_attributes_type = res.vals_attributes.values_of_attributes_type;
-        res.old_vals_attributes->e2sm_ccc_o_nr_cell_cu = fill_rnd_e2sm_ccc_o_nr_cell_cu();
-      }
+      res.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_NRCellCU;
+      res.e2sm_ccc_o_nr_cell_cu = fill_rnd_e2sm_ccc_o_nr_cell_cu();
       break;
     default:
       break;
+  }
+
+  return res;
+}
+
+byte_array_t fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_e values_of_attributes_type){
+  switch (values_of_attributes_type) {
+    case VALUES_OF_ATTRIBUTES_O_GNBDUFunction:
+      return cp_str_to_ba("O-GNBDUFunction");
+    case VALUES_OF_ATTRIBUTES_O_GNBCUCPFunction:
+      return cp_str_to_ba("O-GNBCUCPFunction");
+    case VALUES_OF_ATTRIBUTES_O_GNBCUUPFunction:
+      return cp_str_to_ba("O-GNBCUUPFunction");
+    case VALUES_OF_ATTRIBUTES_O_RRMPolicyRatio:
+      return cp_str_to_ba("O-RRMPolicyRatio");
+    case VALUES_OF_ATTRIBUTES_O_CESManagementFunction:
+      return cp_str_to_ba("O-CESManagementFunction");
+    case VALUES_OF_ATTRIBUTES_O_BWP:
+      return cp_str_to_ba("O-BWP");
+    case VALUES_OF_ATTRIBUTES_O_NRCellDU:
+      return cp_str_to_ba("O-NRCellDU");
+    case VALUES_OF_ATTRIBUTES_O_NRCellCU:
+      return cp_str_to_ba("O-NRCellCU");
+   default:
+      return cp_str_to_ba("");
+  }
+}
+
+ind_msg_ran_conf_t fill_rnd_ind_msg_ran_conf(){
+ ind_msg_ran_conf_t res = {0};
+ values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
+  res.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
+  res.vals_attributes = fill_values_of_attributes(values_of_attributes_type);
+  if(rand()%2 == 1){
+    res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+    assert(res.old_vals_attributes != NULL);
+    *res.old_vals_attributes = fill_values_of_attributes(values_of_attributes_type);
   }
 
  return res;
 }
 
 ctrl_msg_ran_conf_t fill_rnd_ctrl_msg_ran_conf(){
-  ctrl_msg_ran_conf_t dst = {0};
+  ctrl_msg_ran_conf_t res = {0};
+  values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
+  res.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
+  res.vals_attributes = fill_values_of_attributes(values_of_attributes_type);
+  if(rand()%2 == 1){
+    res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+    assert(res.old_vals_attributes != NULL);
+    *res.old_vals_attributes = fill_values_of_attributes(values_of_attributes_type);
+  }
 
-  ind_msg_ran_conf_t ind_msg_ran_conf = fill_rnd_ind_msg_ran_conf();
+  return res;
+}
 
-  dst.ran_conf_name = ind_msg_ran_conf.ran_conf_name;
-  dst.vals_attributes = ind_msg_ran_conf.vals_attributes;
-  dst.old_vals_attributes = ind_msg_ran_conf.old_vals_attributes;
+static
+ctrl_out_conf_accepted_t fill_ctrl_out_conf_accepted(){
+  ctrl_out_conf_accepted_t dst = {0};
+  values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
+  dst.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
+  dst.cur_atr_val = fill_values_of_attributes(values_of_attributes_type);
+  dst.old_atr_val = fill_values_of_attributes(values_of_attributes_type);
+  if (rand() % 2 == 1)
+    dst.app_timestamp = cp_str_to_ba("app_timestamp");
 
   return dst;
 }
+
+static
+ctrl_out_conf_failed_t fill_ctrl_out_conf_failed(){
+  ctrl_out_conf_failed_t dst = {0};
+  dst.cause = rand()%END_CAUSE;
+
+  values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
+  dst.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
+  dst.req_atr_val = fill_values_of_attributes(values_of_attributes_type);
+  dst.old_atr_val = fill_values_of_attributes(values_of_attributes_type);
+
+  return dst;
+}
+
 
 static
 e2sm_ccc_ind_msg_frmt_1_t fill_rnd_ccc_ind_msg_frmt_1(){
@@ -677,6 +692,69 @@ e2sm_ccc_ctrl_msg_frmt_1_t fill_rnd_ctrl_msg_frmt_1(void)
 }
 
 static
+e2sm_ccc_ctrl_out_frmt_1_t fill_rnd_ctrl_out_frmt_1(void)
+{
+  e2sm_ccc_ctrl_out_frmt_1_t dst = {0};
+
+  if (rand() % 2 == 1)
+    dst.rev_timestamp = cp_str_to_ba("rev_timestamp");
+
+  dst.sz_ctrl_out_conf_accepted = rand()%3;
+  if (dst.sz_ctrl_out_conf_accepted > 0){
+    dst.ctrl_out_conf_accepted = calloc(dst.sz_ctrl_out_conf_accepted, sizeof(ctrl_out_conf_accepted_t));
+    assert(dst.ctrl_out_conf_accepted!= NULL && "Memory exhausted");
+    for (size_t i = 0; i < dst.sz_ctrl_out_conf_accepted; i++){
+      dst.ctrl_out_conf_accepted[i] = fill_ctrl_out_conf_accepted();
+    }
+  }
+
+  dst.sz_ctrl_out_conf_failed = rand()%3;
+  if (dst.sz_ctrl_out_conf_failed > 0){
+    dst.ctrl_out_conf_failed = calloc(dst.sz_ctrl_out_conf_failed, sizeof(ctrl_out_conf_failed_t));
+    assert(dst.ctrl_out_conf_failed != NULL && "Memory exhausted");
+    for (size_t i = 0; i < dst.sz_ctrl_out_conf_failed; i++){
+      dst.ctrl_out_conf_failed[i] = fill_ctrl_out_conf_failed();
+    }
+  }
+
+  return dst;
+}
+
+static
+e2sm_ccc_ctrl_out_frmt_2_t fill_rnd_ctrl_out_frmt_2(void)
+{
+  e2sm_ccc_ctrl_out_frmt_2_t dst = {0};
+
+  if (rand() % 2 == 1)
+    dst.rev_timestamp = cp_str_to_ba("rev_timestamp");
+
+  dst.sz_ctrl_out_cell = rand()%3 + 1;
+  dst.ctrl_out_cell = calloc(dst.sz_ctrl_out_cell, sizeof(ctrl_out_cell_t));
+  assert(dst.ctrl_out_cell!= NULL && "Memory exhausted");
+  for (size_t i = 0; i < dst.sz_ctrl_out_cell; i++) {
+    dst.ctrl_out_cell[i].sz_ctrl_out_conf_accepted = rand()%3;
+    if (dst.ctrl_out_cell[i].sz_ctrl_out_conf_accepted > 0){
+      dst.ctrl_out_cell[i].ctrl_out_conf_accepted = calloc(dst.ctrl_out_cell[i].sz_ctrl_out_conf_accepted, sizeof(ctrl_out_conf_accepted_t));
+      assert(dst.ctrl_out_cell[i].ctrl_out_conf_accepted!= NULL && "Memory exhausted");
+      for (size_t z = 0; i < dst.ctrl_out_cell[z].sz_ctrl_out_conf_accepted; z++){
+        dst.ctrl_out_cell[i].ctrl_out_conf_accepted[z] = fill_ctrl_out_conf_accepted();
+      }
+    }
+
+    dst.ctrl_out_cell[i].sz_ctrl_out_conf_failed = rand()%3;
+    if (dst.ctrl_out_cell[i].sz_ctrl_out_conf_failed > 0){
+      dst.ctrl_out_cell[i].ctrl_out_conf_failed = calloc(dst.ctrl_out_cell[i].sz_ctrl_out_conf_failed, sizeof(ctrl_out_conf_failed_t));
+      assert(dst.ctrl_out_cell[i].ctrl_out_conf_failed != NULL && "Memory exhausted");
+      for (size_t z = 0; z < dst.ctrl_out_cell[i].sz_ctrl_out_conf_failed; z++){
+        dst.ctrl_out_cell[i].ctrl_out_conf_failed[z] = fill_ctrl_out_conf_failed();
+      }
+    }
+  }
+
+  return dst;
+}
+
+static
 e2sm_ccc_ctrl_msg_frmt_2_t fill_rnd_ctrl_msg_frmt_2(void)
 {
   e2sm_ccc_ctrl_msg_frmt_2_t dst = {0};
@@ -716,7 +794,19 @@ e2sm_ccc_ctrl_msg_t fill_rnd_ccc_ctrl_msg(void){
 }
 
 e2sm_ccc_ctrl_out_t fill_rnd_ccc_ctrl_out(void){
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_ctrl_out_t dst = {0};
+
+  dst.format = rand() % END_E2SM_CCC_CTRL_OUT;
+
+  if(dst.format == FORMAT_1_E2SM_CCC_CTRL_OUT){
+    dst.frmt_1 = fill_rnd_ctrl_out_frmt_1();
+  } else if (dst.format == FORMAT_2_E2SM_CCC_CTRL_OUT){
+    dst.frmt_2 = fill_rnd_ctrl_out_frmt_2();
+  } else {
+    assert(0 && "Unknown format");
+  }
+
+  return dst;
 }
 
 ran_function_name_t fill_ccc_ran_func_name(void){
