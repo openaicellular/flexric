@@ -32,7 +32,7 @@ void send_msg_ue_get(ep_amr_t const* ep, int msg_id)
   assert(msg_id > -1);
 
   char msg[64] = {0}; 
-  size_t sz = snprintf(msg, 64, "{\"message\": \"ue_get\", \"message_id\": %d }", msg_id );
+  size_t sz = snprintf(msg, 64, "{\"message\": \"ue_get\", \"message_id\": %d, \"stats\": 1}", msg_id );
   assert(sz < 64);
 
   send_ep_amr(ep, (uint8_t*)msg, sz);
