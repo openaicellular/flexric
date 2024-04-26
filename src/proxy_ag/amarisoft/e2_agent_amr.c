@@ -176,7 +176,7 @@ void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg)
   assert(ag != NULL);
   assert(msg != NULL);
 
-  int64_t t1 = time_now_us();
+  int64_t const t0 = time_now_us();
 
   kpm_pend_msg_t kpm = init_kpm_pend_msg(msg);
   defer({ free_kpm_pend_msg(&kpm); } );
@@ -187,20 +187,16 @@ void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg)
   int const msg_id1 = ag->msg_id++;
   send_msg_ue_get_kpm(ag, msg_id1, &kpm);
 
-  int64_t t2 = time_now_us();
-
   int const msg_id2 = ag->msg_id++;
   send_config_get_kpm(ag, msg_id2, &kpm);
-
-  int64_t t3 = time_now_us();
 
   // Other thread will notify it, once
   // the kpm_msgs_amr_t answer is completely filled 
   wait_untill_filled_kp(&kpm);
 
-  int64_t t4 = time_now_us();
+  int64_t const t1 = time_now_us();
 
-  printf("Elapsed %ld %ld %ld \n", t2 - t1, t3 - t2, t4 - t3);
+  printf("Elapsed websocket+fetch messages %ld\n", t1 - t0);
 }
 
 void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg)

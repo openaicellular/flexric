@@ -45,7 +45,6 @@ meas_record_lst_t fill_DRB_PdcpSduVolumeDL(idx_ue_id_e2sm_t const* ue, kpm_msgs_
   size_t const i = ue->idx_ue;
   size_t const j = ue->idx_qos_flows;
   dst.real_val = ue_amr->ue_lst[i].qos_flows.qos_flows[j].dl_total_bytes * 8.0 / 1000.0; 
-  printf("dst.real_val %lf \n", dst.real_val );
   return dst;
 }
 
@@ -625,7 +624,6 @@ seq_arr_t matching_ues_amr(matching_condition_format_4_lst_t const* cond, size_t
 {
   assert(cond != NULL && "Condition equal NULL");
   assert(len == 1 && "Only one condition supported");
-  printf("Condition type %d \n",cond->test_info_lst.test_cond_type);
   seq_arr_t dst = match_cond_arr[cond->test_info_lst.test_cond_type](&cond->test_info_lst, msgs);
 
   return dst;
