@@ -53,7 +53,7 @@ list_of_configuration_structures_reported_element_t * cJSON_Getlist_of_configura
         x->change_type = cJSON_Getchange_typeValue(cJSON_GetObjectItemCaseSensitive(j, "changeType"));
       }
       if (cJSON_HasObjectItem(j, "oldValuesOfAttributes")) {
-        x->old_values_of_attributes = cJSON_Getold_values_of_attributesValue(cJSON_GetObjectItemCaseSensitive(j, "oldValuesOfAttributes"));
+        x->old_values_of_attributes = cJSON_Getvalues_of_attributesValue(cJSON_GetObjectItemCaseSensitive(j, "oldValuesOfAttributes"));
       }
       if (cJSON_HasObjectItem(j, "ranConfigurationStructureName")) {
         x->ran_configuration_structure_name = strdup(cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(j, "ranConfigurationStructureName")));
@@ -64,7 +64,7 @@ list_of_configuration_structures_reported_element_t * cJSON_Getlist_of_configura
         }
       }
       if (cJSON_HasObjectItem(j, "valuesOfAttributes")) {
-        x->values_of_attributes = cJSON_Getold_values_of_attributesValue(cJSON_GetObjectItemCaseSensitive(j, "valuesOfAttributes"));
+        x->values_of_attributes = cJSON_Getvalues_of_attributesValue(cJSON_GetObjectItemCaseSensitive(j, "valuesOfAttributes"));
       }
     }
   }
@@ -77,7 +77,7 @@ cJSON * cJSON_Createlist_of_configuration_structures_reported_element(const list
     if (NULL != (j = cJSON_CreateObject())) {
       cJSON_AddItemToObject(j, "changeType", cJSON_Createchange_type(x->change_type));
       if (NULL != x->old_values_of_attributes) {
-        cJSON_AddItemToObject(j, "oldValuesOfAttributes", cJSON_Createold_values_of_attributes(x->old_values_of_attributes));
+        cJSON_AddItemToObject(j, "oldValuesOfAttributes", cJSON_Createvalues_of_attributes(x->old_values_of_attributes));
       }
       if (NULL != x->ran_configuration_structure_name) {
         cJSON_AddStringToObject(j, "ranConfigurationStructureName", x->ran_configuration_structure_name);
@@ -85,7 +85,7 @@ cJSON * cJSON_Createlist_of_configuration_structures_reported_element(const list
       else {
         cJSON_AddStringToObject(j, "ranConfigurationStructureName", "");
       }
-      cJSON_AddItemToObject(j, "valuesOfAttributes", cJSON_Createold_values_of_attributes(x->values_of_attributes));
+      cJSON_AddItemToObject(j, "valuesOfAttributes", cJSON_Createvalues_of_attributes(x->values_of_attributes));
     }
   }
   return j;
@@ -106,13 +106,13 @@ char * cJSON_Printlist_of_configuration_structures_reported_element(const list_o
 void cJSON_Deletelist_of_configuration_structures_reported_element(list_of_configuration_structures_reported_element_t * x) {
   if (NULL != x) {
     if (NULL != x->old_values_of_attributes) {
-      cJSON_Deleteold_values_of_attributes(x->old_values_of_attributes);
+      cJSON_Deletevalues_of_attributes(x->old_values_of_attributes);
     }
     if (NULL != x->ran_configuration_structure_name) {
       cJSON_free(x->ran_configuration_structure_name);
     }
     if (NULL != x->values_of_attributes) {
-      cJSON_Deleteold_values_of_attributes(x->values_of_attributes);
+      cJSON_Deletevalues_of_attributes(x->values_of_attributes);
     }
     cJSON_free(x);
   }

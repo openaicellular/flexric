@@ -105,12 +105,6 @@ cJSON * cJSON_Createran_configuration_structure(const ran_configuration_structur
 char * cJSON_Printran_configuration_structure(const ran_configuration_structure_json_t * x);
 void cJSON_Deleteran_configuration_structure(ran_configuration_structure_json_t * x);
 
-values_of_attributes_json_t * cJSON_Parseold_values_of_attributes(const char * s);
-values_of_attributes_json_t * cJSON_Getold_values_of_attributesValue(const cJSON * j);
-cJSON * cJSON_Createold_values_of_attributes(const values_of_attributes_json_t * x);
-char * cJSON_Printold_values_of_attributes(const values_of_attributes_json_t * x);
-void cJSON_Deleteold_values_of_attributes(values_of_attributes_json_t * x);
-
 list_of_configuration_structures_reported_element_t * cJSON_Parselist_of_configuration_structures_reported_element(const char * s);
 list_of_configuration_structures_reported_element_t * cJSON_Getlist_of_configuration_structures_reported_elementValue(const cJSON * j);
 cJSON * cJSON_Createlist_of_configuration_structures_reported_element(const list_of_configuration_structures_reported_element_t * x);

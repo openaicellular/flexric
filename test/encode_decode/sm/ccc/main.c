@@ -126,7 +126,7 @@ void test_ccc_ctrl_out(void)
   e2sm_ccc_ctrl_out_t out = ccc_dec_ctrl_out_json(ba.len, ba.buf);
   defer({ free_e2sm_ccc_ctrl_out(&out); });
 
-//  assert(eq_e2sm_ccc_ctrl_out(&msg, &out) == true);
+  assert(eq_e2sm_ccc_ctrl_out(&msg, &out) == true);
 }
 
 void test_ccc_ran_func_def(void)
@@ -176,8 +176,8 @@ int main()
 //   printf("\nCCC Control Header \n");
 
   // Control Message  
-   test_ccc_ctrl_msg();
-   printf("\nCCC Control Message test succeeded\n");
+  test_ccc_ctrl_msg();
+  printf("\nCCC Control Message test succeeded\n");
 
   // Control Outcome 
   test_ccc_ctrl_out();

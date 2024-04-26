@@ -1,0 +1,220 @@
+{
+  "controlOutcomeFormat": {
+    "receivedTimestamp": "rev_timestamp",
+    "listOfCellsForControlOutcome": [
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "209955350",
+          "plmnIdentity": {
+            "mcc": "707",
+            "mnc": "51"
+          }
+        },
+        "ranConfigurationStructuresAcceptedList": [
+          {
+            "appliedTimestamp": "app_timestamp",
+            "currentValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "cesSwitch": true,
+                "energySavingControl": "toBeNotEnergySaving",
+                "energySavingState": "isEnergySaving"
+              }
+            },
+            "oldValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "cesSwitch": true,
+                "energySavingControl": "toBeEnergySaving",
+                "energySavingState": "isEnergySaving"
+              }
+            },
+            "ranConfigurationStructureName": "O-CESManagementFunction"
+          },
+          {
+            "appliedTimestamp": "app_timestamp",
+            "currentValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbId": 1481026222,
+                "gnbIdLength": 89,
+                "gnbCuUpId": 1360927251,
+                "plmnInfoList": [
+                  {
+                    "plmnId": {
+                      "mcc": "236",
+                      "mnc": "49"
+                    },
+                    "snssai": {
+                      "sd": "786432",
+                      "sst": 80
+                    }
+                  },
+                  {
+                    "plmnId": {
+                      "mcc": "883",
+                      "mnc": "58"
+                    }
+                  }
+                ]
+              }
+            },
+            "oldValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbId": 273845673,
+                "gnbIdLength": 172,
+                "gnbCuUpId": 954837739,
+                "plmnInfoList": [
+                  {
+                    "plmnId": {
+                      "mcc": "486",
+                      "mnc": "92"
+                    }
+                  }
+                ]
+              }
+            },
+            "ranConfigurationStructureName": "O-GNBCUUPFunction"
+          }
+        ]
+      },
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "527481421",
+          "plmnIdentity": {
+            "mcc": "994",
+            "mnc": "30"
+          }
+        },
+        "ranConfigurationStructuresAcceptedList": [
+          {
+            "appliedTimestamp": "app_timestamp",
+            "currentValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbCuName": "gnb_cu_name",
+                "gnbId": 2009479124,
+                "gnbIdLength": 36,
+                "plmnId": {
+                  "mcc": "630",
+                  "mnc": "22"
+                },
+                "x2AllowList": [
+                  "g_enb_id_lst",
+                  "g_enb_id_lst"
+                ],
+                "x2BlockList": [
+                  "g_enb_id_lst",
+                  "g_enb_id_lst"
+                ],
+                "x2HOBlockList": [
+                  "g_enb_id_lst",
+                  "g_enb_id_lst"
+                ]
+              }
+            },
+            "oldValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbCuName": "gnb_cu_name",
+                "gnbId": 26600854,
+                "gnbIdLength": 196,
+                "plmnId": {
+                  "mcc": "217",
+                  "mnc": "61"
+                },
+                "x2AllowList": [
+                  "g_enb_id_lst"
+                ],
+                "x2HOBlockList": [
+                  "g_enb_id_lst",
+                  "g_enb_id_lst"
+                ],
+                "xnAllowList": [
+                  "g_gnb_id_lst"
+                ],
+                "xnBlockList": [
+                  "g_gnb_id_lst"
+                ],
+                "xnHOBlockList": [
+                  "g_gnb_id_lst",
+                  "g_gnb_id_lst"
+                ]
+              }
+            },
+            "ranConfigurationStructureName": "O-GNBCUCPFunction"
+          }
+        ],
+        "ranConfigurationStructuresFailedList": [
+          {
+            "cause": "JsonError",
+            "oldValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "resourceType": "DRB",
+                "rRMPolicyDedicatedRatio": 132,
+                "rRMPolicyMaxRatio": 210,
+                "rRMPolicyMemberList": [
+                  {
+                    "plmnId": {
+                      "mcc": "119",
+                      "mnc": "51"
+                    },
+                    "snssai": {
+                      "sd": "786432",
+                      "sst": 34
+                    }
+                  },
+                  {
+                    "plmnId": {
+                      "mcc": "189",
+                      "mnc": "18"
+                    }
+                  },
+                  {
+                    "plmnId": {
+                      "mcc": "228",
+                      "mnc": "55"
+                    },
+                    "snssai": {
+                      "sd": "786432",
+                      "sst": 161
+                    }
+                  }
+                ],
+                "rRMPolicyMinRatio": 32
+              }
+            },
+            "ranConfigurationStructureName": "O-RRMPolicyRatio",
+            "requestedValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "resourceType": "RRC",
+                "rRMPolicyDedicatedRatio": 110,
+                "rRMPolicyMaxRatio": 36,
+                "rRMPolicyMemberList": [
+                  {
+                    "plmnId": {
+                      "mcc": "801",
+                      "mnc": "52"
+                    },
+                    "snssai": {
+                      "sd": "786432",
+                      "sst": 111
+                    }
+                  },
+                  {
+                    "plmnId": {
+                      "mcc": "582",
+                      "mnc": "14"
+                    }
+                  },
+                  {
+                    "plmnId": {
+                      "mcc": "735",
+                      "mnc": "53"
+                    }
+                  }
+                ],
+                "rRMPolicyMinRatio": 67
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

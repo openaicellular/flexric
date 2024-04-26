@@ -28,6 +28,7 @@
 #include "../ie/json/ric_indication_message_json.h"
 #include "../ie/json/ric_function_definition_json.h"
 #include "../ie/json/ric_event_trigger_definition_json.h"
+#include "../ie/json/ric_control_outcome_json.h"
 
 #include "../../../util/alg_ds/alg/defer.h"
 
@@ -683,6 +684,129 @@ control_message_format_json_t* create_ctrl_msg_frmt_1(e2sm_ccc_ctrl_msg_frmt_1_t
 }
 
 static
+ran_configuration_structures_accepted_list_element_t* create_ctrl_out_accepted_list_element(const ctrl_out_conf_accepted_t src){
+  ran_configuration_structures_accepted_list_element_t* res = calloc(1, sizeof(ran_configuration_structures_accepted_list_element_t));
+  assert(res != NULL && "Memory exhausted");
+  if (src.app_timestamp.buf){
+   res->applied_timestamp = copy_ba_to_str(&src.app_timestamp);
+  }
+  res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
+  res->current_values_of_attributes = create_values_of_attributes(&src.cur_atr_val);
+  res->old_values_of_attributes = create_values_of_attributes(&src.old_atr_val);
+
+  return res;
+}
+
+static
+ran_configuration_structures_failed_list_element_t* create_ctrl_out_failed_list_element(const ctrl_out_conf_failed_t src){
+  assert(src.cause == CAUSE_INCOMPATIBLE_STATE||
+         src.cause == CAUSE_JSON_ERROR||
+         src.cause == CAUSE_NOT_AVAILABLE||
+         src.cause == CAUSE_NOT_SUPPORTED||
+         src.cause == CAUSE_SEMANTIC_ERROR||
+         src.cause == CAUSE_UNSPECIFIED
+  );
+
+  ran_configuration_structures_failed_list_element_t* res = calloc(1, sizeof(ran_configuration_structures_failed_list_element_t));
+  assert(res != NULL && "Memory exhausted");
+  res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
+  res->requested_values_of_attributes = create_values_of_attributes(&src.req_atr_val);
+  res->old_values_of_attributes = create_values_of_attributes(&src.old_atr_val);
+  res->cause = src.cause;
+
+  return res;
+}
+
+static
+list_of_cells_for_control_outcome_element_t* create_ctrl_out_cells_list_element(const ctrl_out_cell_t src){
+
+  list_of_cells_for_control_outcome_element_t* res = calloc(1, sizeof(list_of_cells_for_control_outcome_element_t));
+  assert(res!= NULL && "Memory exhausted");
+  res->cell_global_id = create_cell_global_id(src.cell_global_id);
+
+  if (src.sz_ctrl_out_conf_accepted > 0){
+    res->ran_configuration_structures_accepted_list = list_create(false, NULL);
+    for (size_t i = 0; i < src.sz_ctrl_out_conf_accepted; ++i){
+      list_add_tail(
+          res->ran_configuration_structures_accepted_list,
+          create_ctrl_out_accepted_list_element(src.ctrl_out_conf_accepted[i]),
+          sizeof(ran_configuration_structures_accepted_list_element_t*)
+      );
+    }
+  }
+
+  if (src.sz_ctrl_out_conf_failed > 0){
+    res->ran_configuration_structures_failed_list = list_create(false, NULL);
+    for (size_t i = 0; i < src.sz_ctrl_out_conf_failed; ++i){
+      list_add_tail(
+          res->ran_configuration_structures_failed_list,
+          create_ctrl_out_failed_list_element(src.ctrl_out_conf_failed[i]),
+          sizeof(ran_configuration_structures_failed_list_element_t*)
+      );
+    }
+  }
+
+  return res;
+}
+
+static
+control_outcome_format_json_t* create_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_t const src)
+{
+  control_outcome_format_json_t* dst = calloc(1, sizeof(control_outcome_format_json_t));
+  assert(dst != NULL && "Memory exhausted");
+
+  if (src.rev_timestamp.len > 0){
+    dst->received_timestamp = copy_ba_to_str(&src.rev_timestamp);
+  }
+
+  if (src.sz_ctrl_out_conf_accepted > 0){
+    dst->ran_configuration_structures_accepted_list = list_create(false, NULL);
+    for (size_t i = 0; i < src.sz_ctrl_out_conf_accepted; ++i){
+      list_add_tail(
+          dst->ran_configuration_structures_accepted_list,
+          create_ctrl_out_accepted_list_element(src.ctrl_out_conf_accepted[i]),
+          sizeof(ran_configuration_structures_accepted_list_element_t*)
+      );
+    }
+  }
+
+  if (src.sz_ctrl_out_conf_failed > 0){
+    dst->ran_configuration_structures_failed_list = list_create(false, NULL);
+    for (size_t i = 0; i < src.sz_ctrl_out_conf_failed; ++i){
+      list_add_tail(
+          dst->ran_configuration_structures_failed_list,
+          create_ctrl_out_failed_list_element(src.ctrl_out_conf_failed[i]),
+          sizeof(ran_configuration_structures_failed_list_element_t*)
+      );
+    }
+  }
+
+  return dst;
+}
+
+static
+control_outcome_format_json_t* create_ctrl_out_frmt_2(e2sm_ccc_ctrl_out_frmt_2_t const src)
+{
+  control_outcome_format_json_t* dst = calloc(1, sizeof(control_outcome_format_json_t));
+  assert(dst != NULL && "Memory exhausted");
+
+  if (src.rev_timestamp.len > 0){
+    dst->received_timestamp = copy_ba_to_str(&src.rev_timestamp);
+  }
+
+  dst->list_of_cells_for_control_outcome = list_create(false, NULL);
+  for (size_t i = 0; i < src.sz_ctrl_out_cell; ++i){
+    list_add_tail(
+        dst->list_of_cells_for_control_outcome,
+        create_ctrl_out_cells_list_element(src.ctrl_out_cell[i]),
+        sizeof(list_of_cells_for_control_outcome_element_t*)
+    );
+  }
+
+  return dst;
+}
+
+static
 list_of_cells_reported_element_t* create_ind_msg_cell_report(ind_msg_cell_report_t const src){
   list_of_cells_reported_element_t* res = calloc(1, sizeof(list_of_cells_reported_element_t));
   assert(res != NULL && "Memory exhausted");
@@ -805,9 +929,20 @@ byte_array_t ccc_enc_ctrl_msg_json(e2sm_ccc_ctrl_msg_t const* src)
 
 byte_array_t ccc_enc_ctrl_out_json(e2sm_ccc_ctrl_out_t const* src)
 {
-  assert(0 != 0 && "Not implemented");
-  byte_array_t ba = {0};
+  ric_control_outcome_json_t* ric_ctrl_out = calloc(1, sizeof(ric_control_outcome_json_t));
+  assert(ric_ctrl_out != NULL && "Memory exhausted");
+  defer({cJSON_Deleteric_control_outcome(ric_ctrl_out); });
 
+  if (src->format == FORMAT_1_E2SM_CCC_CTRL_OUT) {
+    ric_ctrl_out->control_outcome_format = create_ctrl_out_frmt_1(src->frmt_1);
+  } else if (src->format == FORMAT_2_E2SM_CCC_CTRL_OUT){
+    ric_ctrl_out->control_outcome_format = create_ctrl_out_frmt_2(src->frmt_2);
+  } else {
+    assert(0 != 0 && "unknown format type");
+  }
+
+  char * res = cJSON_Printric_control_outcome(ric_ctrl_out);
+  byte_array_t ba = {.len = strlen(res) + 1, .buf = (uint8_t *)res};
   return ba;
 }
 

@@ -50,10 +50,10 @@ list_of_configuration_structure_control_element_t * cJSON_Getlist_of_configurati
     if (NULL != (x = cJSON_malloc(sizeof(list_of_configuration_structure_control_element_t)))) {
       memset(x, 0, sizeof(list_of_configuration_structure_control_element_t));
       if (cJSON_HasObjectItem(j, "newValuesOfAttributes")) {
-        x->new_values_of_attributes = cJSON_Getold_values_of_attributesValue(cJSON_GetObjectItemCaseSensitive(j, "newValuesOfAttributes"));
+        x->new_values_of_attributes = cJSON_Getvalues_of_attributesValue(cJSON_GetObjectItemCaseSensitive(j, "newValuesOfAttributes"));
       }
       if (cJSON_HasObjectItem(j, "oldValuesOfAttributes")) {
-        x->old_values_of_attributes = cJSON_Getold_values_of_attributesValue(cJSON_GetObjectItemCaseSensitive(j, "oldValuesOfAttributes"));
+        x->old_values_of_attributes = cJSON_Getvalues_of_attributesValue(cJSON_GetObjectItemCaseSensitive(j, "oldValuesOfAttributes"));
       }
       if (cJSON_HasObjectItem(j, "ranConfigurationStructureName")) {
         x->ran_configuration_structure_name = strdup(cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(j, "ranConfigurationStructureName")));
@@ -72,8 +72,8 @@ cJSON * cJSON_Createlist_of_configuration_structure_control_element(const list_o
   cJSON * j = NULL;
   if (NULL != x) {
     if (NULL != (j = cJSON_CreateObject())) {
-      cJSON_AddItemToObject(j, "newValuesOfAttributes", cJSON_Createold_values_of_attributes(x->new_values_of_attributes));
-      cJSON_AddItemToObject(j, "oldValuesOfAttributes", cJSON_Createold_values_of_attributes(x->old_values_of_attributes));
+      cJSON_AddItemToObject(j, "newValuesOfAttributes", cJSON_Createvalues_of_attributes(x->new_values_of_attributes));
+      cJSON_AddItemToObject(j, "oldValuesOfAttributes", cJSON_Createvalues_of_attributes(x->old_values_of_attributes));
       if (NULL != x->ran_configuration_structure_name) {
         cJSON_AddStringToObject(j, "ranConfigurationStructureName", x->ran_configuration_structure_name);
       }
@@ -100,10 +100,10 @@ char * cJSON_Printlist_of_configuration_structure_control_element(const list_of_
 void cJSON_Deletelist_of_configuration_structure_control_element(list_of_configuration_structure_control_element_t * x) {
   if (NULL != x) {
     if (NULL != x->new_values_of_attributes) {
-      cJSON_Deleteold_values_of_attributes(x->new_values_of_attributes);
+      cJSON_Deletevalues_of_attributes(x->new_values_of_attributes);
     }
     if (NULL != x->old_values_of_attributes) {
-      cJSON_Deleteold_values_of_attributes(x->old_values_of_attributes);
+      cJSON_Deletevalues_of_attributes(x->old_values_of_attributes);
     }
     if (NULL != x->ran_configuration_structure_name) {
       cJSON_free(x->ran_configuration_structure_name);

@@ -1515,19 +1515,19 @@ void cJSON_Deleteran_configuration_structure(ran_configuration_structure_json_t 
   }
 }
 
-values_of_attributes_json_t * cJSON_Parseold_values_of_attributes(const char * s) {
+values_of_attributes_json_t * cJSON_Parsevalues_of_attributes(const char * s) {
   values_of_attributes_json_t * x = NULL;
   if (NULL != s) {
     cJSON * j = cJSON_Parse(s);
     if (NULL != j) {
-      x = cJSON_Getold_values_of_attributesValue(j);
+      x = cJSON_Getvalues_of_attributesValue(j);
       cJSON_Delete(j);
     }
   }
   return x;
 }
 
-values_of_attributes_json_t * cJSON_Getold_values_of_attributesValue(const cJSON * j) {
+values_of_attributes_json_t * cJSON_Getvalues_of_attributesValue(const cJSON * j) {
   values_of_attributes_json_t * x = NULL;
   if (NULL != j) {
     if (NULL != (x = cJSON_malloc(sizeof(values_of_attributes_json_t)))) {
@@ -1540,7 +1540,7 @@ values_of_attributes_json_t * cJSON_Getold_values_of_attributesValue(const cJSON
   return x;
 }
 
-cJSON * cJSON_Createold_values_of_attributes(const values_of_attributes_json_t * x) {
+cJSON * cJSON_Createvalues_of_attributes(const values_of_attributes_json_t * x) {
   cJSON * j = NULL;
   if (NULL != x) {
     if (NULL != (j = cJSON_CreateObject())) {
@@ -1550,10 +1550,10 @@ cJSON * cJSON_Createold_values_of_attributes(const values_of_attributes_json_t *
   return j;
 }
 
-char * cJSON_Printold_values_of_attributes(const values_of_attributes_json_t * x) {
+char * cJSON_Printvalues_of_attributes(const values_of_attributes_json_t * x) {
   char * s = NULL;
   if (NULL != x) {
-    cJSON * j = cJSON_Createold_values_of_attributes(x);
+    cJSON * j = cJSON_Createvalues_of_attributes(x);
     if (NULL != j) {
       s = cJSON_PrintUnformatted(j);
       cJSON_Delete(j);
@@ -1562,7 +1562,7 @@ char * cJSON_Printold_values_of_attributes(const values_of_attributes_json_t * x
   return s;
 }
 
-void cJSON_Deleteold_values_of_attributes(values_of_attributes_json_t * x) {
+void cJSON_Deletevalues_of_attributes(values_of_attributes_json_t * x) {
   if (NULL != x) {
     if (NULL != x->ran_configuration_structure) {
       cJSON_Deleteran_configuration_structure(x->ran_configuration_structure);

@@ -12,6 +12,7 @@ set(JSON_CCC_SRC
         ric_function_definition_json.c
         ric_event_trigger_definition_json.c
         ric_control_message_json.c
+        ric_control_outcome_json.c
 )
 
 add_library(e2sm_ccc_json_obj OBJECT ${JSON_CCC_SRC})

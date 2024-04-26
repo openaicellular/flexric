@@ -25,6 +25,7 @@
 #include "../ie/json/ric_indication_message_json.h"
 #include "../ie/json/ric_control_message_json.h"
 #include "../ie/json/ric_function_definition_json.h"
+#include "../ie/json/ric_control_outcome_json.h"
 #include "../ie/json/ric_event_trigger_definition_json.h"
 #include "../../../util/alg_ds/alg/defer.h"
 
@@ -606,6 +607,114 @@ e2sm_ccc_ctrl_msg_frmt_1_t get_ctrl_msg_frmt1(list_t* const src){
 }
 
 static
+ctrl_out_conf_accepted_t* get_ctrl_out_conf_accepted(list_t* const src){
+  assert(src != NULL);
+  ctrl_out_conf_accepted_t* res = calloc(src->count, sizeof(ctrl_out_conf_accepted_t));
+  assert(res != NULL && "Memory exhausted");
+
+  size_t index = 0;
+  ran_configuration_structures_accepted_list_element_t* ran_conf = list_get_head(src);
+  while (ran_conf!= NULL){
+    if (ran_conf->applied_timestamp)
+      res[index].app_timestamp = cp_str_to_ba(ran_conf->applied_timestamp);
+    res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
+    res[index].cur_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->current_values_of_attributes->ran_configuration_structure);
+    res[index].old_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
+    ran_conf = list_get_next(src);
+    index++;
+  }
+
+  return res;
+}
+
+static
+ctrl_out_conf_failed_t* get_ctrl_out_conf_failed(list_t* const src){
+  assert(src != NULL);
+  ctrl_out_conf_failed_t* res = calloc(src->count, sizeof(ctrl_out_conf_failed_t));
+  assert(res != NULL && "Memory exhausted");
+
+  size_t index = 0;
+  ran_configuration_structures_failed_list_element_t* ran_conf = list_get_head(src);
+  while (ran_conf!= NULL){
+    res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
+    res[index].req_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->requested_values_of_attributes->ran_configuration_structure);
+    res[index].old_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
+    res[index].cause = ran_conf->cause;
+    ran_conf = list_get_next(src);
+    index++;
+  }
+
+  return res;
+}
+
+static
+e2sm_ccc_ctrl_out_frmt_1_t get_ctrl_out_frmt1(control_outcome_format_json_t* const src){
+  assert(src != NULL);
+  e2sm_ccc_ctrl_out_frmt_1_t res = {0};
+
+  if (src->received_timestamp)
+    res.rev_timestamp = cp_str_to_ba(src->received_timestamp);
+
+  if (src->ran_configuration_structures_accepted_list != NULL && src->ran_configuration_structures_accepted_list->count > 0){
+    res.sz_ctrl_out_conf_accepted = src->ran_configuration_structures_accepted_list->count;
+    res.ctrl_out_conf_accepted = get_ctrl_out_conf_accepted(src->ran_configuration_structures_accepted_list);
+  }
+
+  if (src->ran_configuration_structures_failed_list != NULL && src->ran_configuration_structures_failed_list->count > 0){
+    res.sz_ctrl_out_conf_failed = src->ran_configuration_structures_failed_list->count;
+    res.ctrl_out_conf_failed = get_ctrl_out_conf_failed(src->ran_configuration_structures_failed_list);
+  }
+
+  return res;
+}
+
+static
+ctrl_out_cell_t* get_ctrl_out_cell(list_t* const src){
+  assert(src != NULL);
+  ctrl_out_cell_t* res = calloc(src->count, sizeof(ctrl_out_cell_t));
+  assert(res != NULL && "Memory exhausted");
+
+  size_t index = 0;
+  list_of_cells_for_control_outcome_element_t* ran_conf = list_get_head(src);
+  while (ran_conf!= NULL){
+    res[index].cell_global_id = get_cell_global_id(ran_conf->cell_global_id);
+
+    if (ran_conf->ran_configuration_structures_accepted_list != NULL && ran_conf->ran_configuration_structures_accepted_list->count > 0){
+      res[index].sz_ctrl_out_conf_accepted = ran_conf->ran_configuration_structures_accepted_list->count;
+      res[index].ctrl_out_conf_accepted = get_ctrl_out_conf_accepted(ran_conf->ran_configuration_structures_accepted_list);
+    }
+
+    if (ran_conf->ran_configuration_structures_failed_list != NULL && ran_conf->ran_configuration_structures_failed_list->count > 0){
+      res[index].sz_ctrl_out_conf_failed = ran_conf->ran_configuration_structures_failed_list->count;
+      res[index].ctrl_out_conf_failed = get_ctrl_out_conf_failed(ran_conf->ran_configuration_structures_failed_list);
+    }
+
+    ran_conf = list_get_next(src);
+    index++;
+  }
+
+  return res;
+}
+
+static
+e2sm_ccc_ctrl_out_frmt_2_t get_ctrl_out_frmt2(control_outcome_format_json_t* const src){
+  assert(src != NULL);
+  e2sm_ccc_ctrl_out_frmt_2_t res = {0};
+
+  if (src->received_timestamp)
+    res.rev_timestamp = cp_str_to_ba(src->received_timestamp);
+
+  if (src->list_of_cells_for_control_outcome != NULL && src->list_of_cells_for_control_outcome->count > 0){
+    res.sz_ctrl_out_cell = src->list_of_cells_for_control_outcome->count;
+    res.ctrl_out_cell = get_ctrl_out_cell(src->list_of_cells_for_control_outcome);
+  }
+
+
+
+  return res;
+}
+
+static
 e2sm_ccc_act_def_frmt_1_t get_act_def_frmt1(list_t* const src){
   assert(src != NULL);
   e2sm_ccc_act_def_frmt_1_t res = {};
@@ -779,7 +888,6 @@ e2sm_ccc_ctrl_msg_t ccc_dec_ctrl_msg_json(size_t len, uint8_t const ctrl_msg[len
     dst.frmt_2 = get_ctrl_msg_frmt2(ric_ctrl_msg->control_message_format->list_of_cells_controlled);
   }
 
-
   return dst;
 }
 
@@ -787,8 +895,21 @@ e2sm_ccc_ctrl_out_t ccc_dec_ctrl_out_json(size_t len, uint8_t const ctrl_out[len
 {
   assert(ctrl_out != NULL);
   assert(len > 0);
-  assert(0 != 0 && "Not implemented");
+  assert(ctrl_out[len-1] == '\0' && "Need zero terminated string for this interface");
+
+  ric_control_outcome_json_t * ric_ctrl_out = cJSON_Parseric_control_outcome((char *)ctrl_out);
+  defer({cJSON_Deleteric_control_outcome(ric_ctrl_out);});
+
   e2sm_ccc_ctrl_out_t dst = {0};
+  if(ric_ctrl_out->control_outcome_format->list_of_cells_for_control_outcome == NULL){
+    // Format 1
+    dst.format = FORMAT_1_E2SM_CCC_CTRL_OUT;
+    dst.frmt_1 = get_ctrl_out_frmt1(ric_ctrl_out->control_outcome_format);
+  } else {
+    // Format 2
+    dst.format = FORMAT_2_E2SM_CCC_CTRL_OUT;
+    dst.frmt_2 = get_ctrl_out_frmt2(ric_ctrl_out->control_outcome_format);
+  }
 
   return dst;
 }
