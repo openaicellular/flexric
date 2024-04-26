@@ -173,8 +173,6 @@ void msg_handle_config_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
   assert(ag != NULL);
   assert(msg != NULL);
 
-  int64_t t0 = time_now_us();
-
   msg_config_get_amr_t const* cfg = &msg->config;
 
   int const first_msg_id = 0; 
@@ -200,17 +198,13 @@ void msg_handle_config_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
     rc_pend_msg_t* r = extract_rc_pend_ds(&ag->rc_pend_ds, cfg->msg_id);
     // Move memory ownership
     r->msg->cfg = *cfg;
-    printf("RC config %u\n", *r->msg->cfg.arr_nr_cells.nr_cells->arr_ncell_lst->ncell_lst->ssb_nr_arfcn);
     notify_part_filled_rp(r);
   }
 
-  int64_t t1 = time_now_us();
-  printf("Elapsed time  msg_handle_config_get %ld \n", t1 - t0);
 }
 
 void msg_handle_stats(e2_agent_amr_t* ag, msg_amr_t const* msg)
 {
-  int64_t t0 = time_now_us();
   assert(ag != NULL);
   assert(msg != NULL);
 
@@ -225,14 +219,10 @@ void msg_handle_stats(e2_agent_amr_t* ag, msg_amr_t const* msg)
   // Move memory ownership
   k->msg->stats = *s;
   notify_part_filled_kp(k);
-
-  int64_t t1 = time_now_us();
-  printf("Elapsed time  msg_handle_stats %ld \n", t1 -t0);
 }
 
 void msg_handle_ue_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
 {
-  int64_t t0 = time_now_us();
   assert(ag != NULL);
   assert(msg != NULL);
 
@@ -251,14 +241,10 @@ void msg_handle_ue_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
     r->msg->ues = *ue;
     notify_part_filled_rp(r);
   }
- 
-  int64_t t1 = time_now_us();
-  printf("Elapsed time msg_handle_ue_get %ld \n", t1 -t0);
 }
 
 void msg_handle_ho(e2_agent_amr_t* ag, msg_amr_t const* msg)
 {
-  int64_t t0 = time_now_us();
   assert(ag != NULL);
   assert(msg != NULL);
  
@@ -270,9 +256,6 @@ void msg_handle_ho(e2_agent_amr_t* ag, msg_amr_t const* msg)
   // Move memory ownership
   r->msg->ho = *ho;
   notify_part_filled_rp(r);
- 
-  int64_t t1 = time_now_us();
-  printf("Elapsed time msg_handle_ue_get %ld \n", t1 -t0);
 }
 
 void msg_handle_amr_ag(e2_agent_amr_t* ag, msg_amr_t const* msg)

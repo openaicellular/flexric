@@ -74,7 +74,7 @@ meas_record_lst_t fill_DRB_RlcSduDelayDl(idx_ue_id_e2sm_t const* ue,  kpm_msgs_a
 
   printf("[E2-AGENT] No implementation fill_DRB_RlcSduDelayDl - Fill random value\n");
   meas_record_lst_t dst = {.value = INTEGER_MEAS_VALUE}; 
-  dst.int_val = 1021;
+  dst.int_val = rand()% 1024;
   return dst;
 }
 
@@ -120,11 +120,18 @@ meas_record_lst_t fill_RRU_PrbTotDl(idx_ue_id_e2sm_t const* ue, kpm_msgs_amr_t c
   meas_record_lst_t dst = {0};
   dst.value = REAL_MEAS_VALUE;
 
-  printf("[E2-AGENT] No implementation  fill_RRU_PrbTotDl - Fill random value\n");
+  msg_stats_amr_t const* s = &kpm_msgs->stats;
+  // This is most probably a bug. 
+  // RRU assumed to be the equal to the RAN 
+  // and been one
+  // Why average ???
+  // Copied from previous implementation
+  float dl_use_avg =  0.0;
+  for(size_t i = 0; i < s->cells.sz; ++i){
+    dl_use_avg += s->cells.cells[i].dl_use_avg;
+  } 
 
-  // This is the average use of RBs per cell
-  //msg_stats_amr_t stats;
-  //stats.cells.cells[0].dl_use_avg  
+  dst.real_val = dl_use_avg*100;
   
   return dst;
 }
@@ -139,16 +146,22 @@ meas_record_lst_t fill_RRU_PrbTotUl(idx_ue_id_e2sm_t const* ue, kpm_msgs_amr_t c
   meas_record_lst_t dst = {0};
   dst.value = REAL_MEAS_VALUE;
 
-  printf("[E2-AGENT] No implementation fill_RRU_PrbTotUl - Fill random value\n");
+  msg_stats_amr_t const* s = &kpm_msgs->stats;
+  // This is most probably a bug. 
+  // RRU assumed to be the equal to the RAN 
+  // and been one
+  // Why average ???
+  // Copied from previous implementation
+  float ul_use_avg = 0.0;
+  for(size_t i = 0; i < s->cells.sz; ++i){
+    ul_use_avg += s->cells.cells[i].ul_use_avg;
+  } 
 
-  // This is the average use of RBs per cell
-  //msg_stats_amr_t stats;
-  //stats.cells.cells[0].ul_use_avg  
+  dst.real_val = ul_use_avg*100;
   
   return dst;
 }
 
-  //amarisoft_ue_stats_t const* ue_stats, const ran_config_t* ran_config, const amarisoft_ran_stats_t* ran_stats, const size_t cell_idx)
 static
 meas_record_lst_t fill_WBCQIDist_BinXYZ( idx_ue_id_e2sm_t const* ue, kpm_msgs_amr_t const* kpm_msgs) 
 {
@@ -191,12 +204,26 @@ meas_record_lst_t fill_PUSCHMCSDist_BinXYZ(idx_ue_id_e2sm_t const* ue, kpm_msgs_
 }
 
 static
+double sum_total_epre(msg_ue_get_t const* ue_get)
+{
+  double epre = 0;
+  for(size_t i = 0; i < ue_get->sz; ++i){
+    ue_lst_amr_t const* lst = &ue_get->ue_lst[i]; 
+    for(size_t j = 0; j < lst->arr_cells.sz; ++j){
+      epre += lst->arr_cells.cell[j].epre;
+    }
+  }
+  return epre;
+}
+
+static
 meas_record_lst_t fill_MeanTxPwr(idx_ue_id_e2sm_t const* ue, kpm_msgs_amr_t const* kpm_msgs)
 {
   assert(ue != NULL);
   assert(kpm_msgs != NULL);
   msg_stats_amr_t const* stats = &kpm_msgs->stats;
   msg_config_get_amr_t const* cfg = &kpm_msgs->cfg;
+  msg_ue_get_t const* ue_get = &kpm_msgs->ues;
 
   // TS28.552 5.1.1.29.2
   // This measurement is obtained by retaining the mean value of the total carrier power transmitted in the cell within the measurement granularity period.
@@ -206,15 +233,25 @@ meas_record_lst_t fill_MeanTxPwr(idx_ue_id_e2sm_t const* ue, kpm_msgs_amr_t cons
     int const cell_id = atoi(stats->cells.names[i]);
     if(cell_id == cfg->arr_nr_cells.nr_cells[i].n_id_nrcell){
       double used_rbs = stats->cells.cells[i].dl_use_avg * cfg->arr_nr_cells.nr_cells[i].n_rb_dl;
-      printf("Unknow parameter epre. Ask Chieh! ");
-      tx_power = 3.4; 
-      //tx_power = stats->cells.cells[i].epre + 10 * log10(12 * used_rbs);
+      double epre = sum_total_epre(ue_get);
+      // Formula copied from previous design
+      // probably from here:
+      // https://5g-tools.com/epre-energy-per-resource-element-calculator-5g-4g/
+      // Not sure about its correctness
+      tx_power = epre + 10 * log10(12 * used_rbs);
       break;
     }
   }
 
   return (meas_record_lst_t){.value = REAL_MEAS_VALUE, .real_val = tx_power};
 }
+
+
+
+
+
+
+
 
 
 
@@ -544,10 +581,8 @@ seq_arr_t match_s_nssai_test_cond_type(test_info_lst_t const* info, kpm_msgs_amr
   seq_arr_t dst = {0};
   seq_init(&dst, sizeof(idx_ue_id_e2sm_t)); //
 
-  printf("[PROXY]: ues->sz %d  \n", ues->sz);
   for(size_t i = 0; i < ues->sz; ++i){
     ue_lst_amr_t const* ue = &ues->ue_lst[i]; 
-    printf("ue->qos_flows.sz %d \n", ue->qos_flows.sz);
     for(size_t j = 0; j < ue->qos_flows.sz; ++j){
       qos_flows_ue_lst_amr_t const* flows = &ue->qos_flows.qos_flows[j]; 
       int64_t const nssai = create_nssai(flows->sd, flows->sst); 
@@ -559,9 +594,8 @@ seq_arr_t match_s_nssai_test_cond_type(test_info_lst_t const* info, kpm_msgs_amr
         idx_ue_id.ue_id.gnb = fill_gnb(ue);
 
         seq_push_back(&dst, &idx_ue_id, sizeof(idx_ue_id_e2sm_t));
-        printf("nsaai matching %ld \n", nssai);
       } else {
-        printf("NOT nsaai matching %ld \n", nssai);
+        printf("[PROXY]: nsaai not matching %ld \n", nssai);
       }
     }
   }
@@ -724,7 +758,7 @@ bool read_kpm_sm_amr(void* data)
   kpm_msgs_amr_t kpm_msg = {0};
   defer({ free_kpm_msgs_amr(&kpm_msg); });
 
-   fill_msg_kpm_sm_api(&kpm_msg);
+  fill_msg_kpm_sm_api(&kpm_msg);
 
   if(kpm->act_def->type == FORMAT_4_ACTION_DEFINITION){
     kpm_act_def_format_4_t const* frm_4 = &kpm->act_def->frm_4 ;  // 8.2.1.2.4
@@ -735,7 +769,6 @@ bool read_kpm_sm_amr(void* data)
 
     // If no UEs match the condition, do not send data to the nearRT-RIC
     if(seq_size(&match_ues) == 0){
-      printf("[PROXY]: No UE matches condition \n");
       return false;
     }
 

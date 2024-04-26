@@ -151,10 +151,6 @@ void dec_msg_ho_ans_amr(const char* in, msg_ho_ans_amr_t* out)
   assert(in != NULL);
   assert(out != NULL);
 
-
-  printf("Receiving HO answer %s \n", in);
-
-
   cJSON *json = cJSON_Parse(in);
   defer({ cJSON_Delete(json); });
   if (json == NULL) {
@@ -241,9 +237,6 @@ void dec_msg_ue_get_amr(const char* in, msg_ue_get_t* out)
 {
   assert(in != NULL);
   assert(out != NULL);
-
-  printf(" %s \n", in);
-
 
   cJSON *json = cJSON_Parse(in);
   defer({ cJSON_Delete(json); });
@@ -1604,8 +1597,6 @@ ncell_list_amr_t dec_ncell_list_amr(void* it )
     dst.ssb_nr_arfcn = calloc(1, sizeof(int)); 
     *dst.ssb_nr_arfcn = ((cJSON*)tmp.it)->valueint;
   }
-
-  printf("dst.ssb_nr_arfcn %u \n", *dst.ssb_nr_arfcn  );
 
   // Optional
   tmp = find_object(it, "n_id_nrcell");

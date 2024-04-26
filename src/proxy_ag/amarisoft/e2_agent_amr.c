@@ -74,10 +74,8 @@ void e2_event_loop_agent_amr(e2_agent_amr_t* ag)
       case WS_MSG_ARRIVED_EVENT:
         {
           defer({ free(e.ws_msg.buf); });
-          int64_t t0 = time_now_us(); 
           msg_amr_t msg = msg_dec_amr_ag(&e.ws_msg);
-          int64_t t1 = time_now_us(); 
-          printf("Elapsed decoding %ld \n", t1 -t0);
+          
           // Memory ownership of msg is passed to the handle function
           msg_handle_amr_ag(ag, &msg);
 

@@ -10,7 +10,6 @@ void send_config_get(ep_amr_t const* ep, int msg_id)
   size_t sz = snprintf(msg, 64, "{\"message\": \"config_get\", \"message_id\": %d }", msg_id );
   assert(sz < 64);
 
-  printf("Sending message \n");
   send_ep_amr(ep, (uint8_t*)msg, sz);
 }
 
