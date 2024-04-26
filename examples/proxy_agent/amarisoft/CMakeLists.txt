@@ -21,6 +21,7 @@ add_executable(proxy_agent
 target_link_libraries(proxy_agent
                       PUBLIC
                       e2_ag_amr
+		      -lm
                       )
 
 find_package(PkgConfig REQUIRED)

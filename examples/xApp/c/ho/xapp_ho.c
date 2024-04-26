@@ -287,6 +287,11 @@ int main(int argc, char *argv[])
 
   // Syncronize. Wait until all the previous messages arrive using a latch
   wait_latch_cv(&latch);
+  
+  assert(ue_id != NULL && "No UE connected!");
+  assert(src_e2_node != NULL);
+  assert(target_cell != 0); 
+  assert(ssb_nr_arfcn != NULL);
 
   // Generate RAN CONTROL Control msg 
   rc_ctrl_req_data_t ho = hand_over_rc_ctrl_msg(ue_id, target_cell, *ssb_nr_arfcn); 
