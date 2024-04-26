@@ -196,7 +196,7 @@ void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg)
 
   int64_t const t1 = time_now_us();
 
-  printf("Elapsed websocket+fetch messages %ld\n", t1 - t0);
+  printf("[PROXY-AGENT]: Elapsed websocket+fetch messages %ld\n", t1 - t0);
 }
 
 void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg)

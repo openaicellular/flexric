@@ -71,7 +71,7 @@ meas_record_lst_t fill_DRB_RlcSduDelayDl(idx_ue_id_e2sm_t const* ue,  kpm_msgs_a
   assert(ue != NULL);
   assert(kpm_msgs != NULL);
 
-  printf("[E2-AGENT] No implementation fill_DRB_RlcSduDelayDl - Fill random value\n");
+  printf("[PROXY-AGENT] No implementation fill_DRB_RlcSduDelayDl - Fill random value\n");
   meas_record_lst_t dst = {.value = INTEGER_MEAS_VALUE}; 
   dst.int_val = rand()% 1024;
   return dst;
