@@ -4,26 +4,28 @@
       {
         "newValuesOfAttributes": {
           "ranConfigurationStructure": {
-            "cesSwitch": false,
-            "energySavingControl": "toBeNotEnergySaving",
-            "energySavingState": "isNotEnergySaving"
+            "gnbId": 196269568,
+            "gnbIdLength": 80,
+            "gnbDuId": 184943683,
+            "gnbDuName": "gnb_du_name"
           }
         },
         "oldValuesOfAttributes": {
           "ranConfigurationStructure": {
-            "cesSwitch": true,
-            "energySavingControl": "toBeNotEnergySaving",
-            "energySavingState": "isNotEnergySaving"
+            "gnbId": 1315414339,
+            "gnbIdLength": 239,
+            "gnbDuId": 1202309640,
+            "gnbDuName": "gnb_du_name"
           }
         },
-        "ranConfigurationStructureName": "O-CESManagementFunction"
+        "ranConfigurationStructureName": "O-GNBDUFunction"
       },
       {
         "newValuesOfAttributes": {
           "ranConfigurationStructure": {
-            "cesSwitch": true,
+            "cesSwitch": false,
             "energySavingControl": "toBeEnergySaving",
-            "energySavingState": "isEnergySaving"
+            "energySavingState": "isNotEnergySaving"
           }
         },
         "ranConfigurationStructureName": "O-CESManagementFunction"

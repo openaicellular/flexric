@@ -1,0 +1,83 @@
+{
+  "indicationMessageFormat": {
+    "listOfCellsReported": [
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "569591452",
+          "plmnIdentity": {
+            "mcc": "970",
+            "mnc": "51"
+          }
+        },
+        "listOfConfigurationStructuresReported": [
+          {
+            "changeType": "none",
+            "ranConfigurationStructureName": "O-GNBDUFunction",
+            "valuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbId": 1524327226,
+                "gnbIdLength": 55,
+                "gnbDuId": 247447948,
+                "gnbDuName": "gnb_du_name"
+              }
+            }
+          },
+          {
+            "changeType": "none",
+            "oldValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "plmnInfoList": [
+                  {
+                    "plmnId": {
+                      "mcc": "734",
+                      "mnc": "89"
+                    },
+                    "snssai": {
+                      "sd": "786432",
+                      "sst": 208
+                    }
+                  },
+                  {
+                    "plmnId": {
+                      "mcc": "116",
+                      "mnc": "25"
+                    }
+                  }
+                ],
+                "cellLocalId": 290
+              }
+            },
+            "ranConfigurationStructureName": "O-NRCellCU",
+            "valuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "plmnInfoList": [
+                  {
+                    "plmnId": {
+                      "mcc": "910",
+                      "mnc": "69"
+                    },
+                    "snssai": {
+                      "sd": "786432",
+                      "sst": 246
+                    }
+                  },
+                  {
+                    "plmnId": {
+                      "mcc": "597",
+                      "mnc": "70"
+                    },
+                    "snssai": {
+                      "sd": "786432",
+                      "sst": 74
+                    }
+                  }
+                ],
+                "cellLocalId": 162
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
