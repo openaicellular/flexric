@@ -53,3 +53,18 @@ void free_s_nssai_e2sm( s_nssai_e2sm_t* src)
     free(src->sD);
 
 }
+
+s_nssai_e2sm_t cp_s_nssai_e2sm(const s_nssai_e2sm_t* src){
+  assert(src != NULL);
+
+  s_nssai_e2sm_t dst = {0};
+
+  dst.sST = src->sST;
+  if (src->sD != NULL){
+    dst.sD = calloc(1, sizeof(uint32_t));
+    assert(dst.sD != NULL);
+    *dst.sD = *src->sD;
+  }
+
+  return dst;
+}

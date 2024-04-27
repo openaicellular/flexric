@@ -21,6 +21,8 @@ bool eq_s_nssai_e2sm(const s_nssai_e2sm_t* m0, const s_nssai_e2sm_t* m1);
 
 void free_s_nssai_e2sm( s_nssai_e2sm_t* src);
 
+s_nssai_e2sm_t cp_s_nssai_e2sm(const s_nssai_e2sm_t* src);
+
 #ifdef __cplusplus
 }
 #endif
