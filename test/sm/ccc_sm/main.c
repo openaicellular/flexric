@@ -36,12 +36,18 @@ bool read_ind_ccc(void* read)
 {
   assert(read != NULL);
 
-  ccc_rd_ind_data_t* rc = (ccc_rd_ind_data_t*)read;
+  ccc_rd_ind_data_t* ccc = (ccc_rd_ind_data_t*)read;
 
-  rc->ind = fill_rnd_ccc_ind_data();
-  cp_ind = cp_ccc_ind_data(&rc->ind);
+  ccc->ind.hdr = fill_rnd_ccc_ind_hdr();
+  ccc->ind.msg = fill_rnd_ccc_ind_msg();
+  assert(ccc->act_def != NULL);
 
-  assert(eq_ccc_ind_data(&rc->ind, &cp_ind) == true);
+  cp_ind.hdr = cp_e2sm_ccc_ind_hdr(&ccc->ind.hdr);
+  cp_ind.msg = cp_e2sm_ccc_ind_msg(&ccc->ind.msg);
+
+  assert(eq_e2sm_ccc_ind_hdr(&ccc->ind.hdr, &cp_ind.hdr) == true);
+  assert(eq_e2sm_ccc_ind_msg(&ccc->ind.msg, &cp_ind.msg) == true);
+
   return true;
 }
 
@@ -193,12 +199,10 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   assert(ag != NULL);
   assert(ric != NULL);
 
-  ccc_ind_data_t* d = calloc(1, sizeof(ccc_ind_data_t)); 
-  assert(d != NULL && "Memory exhausted");
-  *d = fill_rnd_ccc_ind_data();
-  cp_ind = cp_ccc_ind_data(d);
+  e2sm_ccc_action_def_t act_def = fill_rnd_ccc_action_def();
+  defer({free_e2sm_ccc_action_def(&act_def); } );
 
-  exp_ind_data_t exp = ag->proc.on_indication(ag, d);
+  exp_ind_data_t exp = ag->proc.on_indication(ag, &act_def);
   assert(exp.has_value == true);
   defer({ free_exp_ind_data(&exp); }); 
   defer({ free_ccc_ind_data(&cp_ind); });
