@@ -565,6 +565,7 @@ byte_array_t fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_e
 
 ind_msg_ran_conf_t fill_rnd_ind_msg_ran_conf(){
  ind_msg_ran_conf_t res = {0};
+ // TODO: Finish NRDU_cell type
  values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
   res.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
   res.vals_attributes = fill_values_of_attributes(values_of_attributes_type);

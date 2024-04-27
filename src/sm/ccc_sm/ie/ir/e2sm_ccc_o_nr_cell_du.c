@@ -93,7 +93,7 @@ bool eq_e2sm_ccc_o_nr_cell_du(e2sm_ccc_o_nr_cell_du_t const* m0, e2sm_ccc_o_nr_c
     return false;
 
   for (size_t i = 0; i < m0->sz_plmn_info_lst; i++){
-    if (!eq_e2sm_ccc_plmn_info(&m0->plmn_info_lst[0], &m1->plmn_info_lst[1]))
+    if (!eq_e2sm_ccc_plmn_info(&m0->plmn_info_lst[i], &m1->plmn_info_lst[i]))
       return false;
   }
   // bWPList
@@ -103,7 +103,7 @@ bool eq_e2sm_ccc_o_nr_cell_du(e2sm_ccc_o_nr_cell_du_t const* m0, e2sm_ccc_o_nr_c
     return false;
 
   for (size_t i = 0; i < m0->sz_bwp_lst; i++){
-    if (!eq_e2sm_ccc_o_bwp(&m0->bwp_lst[0], &m1->bwp_lst[1]))
+    if (!eq_e2sm_ccc_o_bwp(&m0->bwp_lst[i], &m1->bwp_lst[i]))
       return false;
   }
 
@@ -143,14 +143,18 @@ e2sm_ccc_o_nr_cell_du_t cp_e2sm_ccc_o_nr_cell_du(e2sm_ccc_o_nr_cell_du_t const* 
   dst.sz_plmn_info_lst = src->sz_plmn_info_lst;
   dst.plmn_info_lst = calloc(src->sz_plmn_info_lst, sizeof(e2sm_ccc_plmn_info_t));
   assert(dst.plmn_info_lst!= NULL);
-  memcpy(dst.plmn_info_lst, src->plmn_info_lst, sizeof(e2sm_ccc_plmn_info_t));
+  for (size_t i = 0; i < src->sz_plmn_info_lst; i++){
+    dst.plmn_info_lst[i] = cp_e2sm_ccc_plmn_info(&src->plmn_info_lst[i]);
+  }
 
   // [1..128]
   assert(src->sz_bwp_lst > 0 && src->sz_bwp_lst< 129);
   dst.sz_bwp_lst = src->sz_bwp_lst;
   dst.bwp_lst = calloc(src->sz_bwp_lst, sizeof(e2sm_ccc_o_bwp_t));
   assert(dst.bwp_lst != NULL);
-  memcpy(dst.bwp_lst, src->bwp_lst, sizeof(e2sm_ccc_o_bwp_t));
+  for (size_t i = 0; i < dst.sz_plmn_info_lst; i++){
+    dst.bwp_lst[i] = cp_e2sm_ccc_o_bwp(&src->bwp_lst[i]);
+  }
 
   dst.partition_lst = cp_e2sm_ccc_partition_lst(&src->partition_lst);
 

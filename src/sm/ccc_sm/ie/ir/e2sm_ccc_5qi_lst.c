@@ -49,7 +49,7 @@ e2sm_ccc_5qi_lst_t cp_e2sm_ccc_5qi_lst(e2sm_ccc_5qi_lst_t const* src)
   dst.sz_lst_5qi = src->sz_lst_5qi;
   dst.lst_5qi = calloc(src->sz_lst_5qi, sizeof(uint32_t));
   assert(dst.lst_5qi!= NULL);
-  memcpy(dst.lst_5qi, src->lst_5qi, sizeof(uint32_t));
+  memcpy(dst.lst_5qi, src->lst_5qi, sizeof(uint32_t) * src->sz_lst_5qi);
 
   return dst;
 }

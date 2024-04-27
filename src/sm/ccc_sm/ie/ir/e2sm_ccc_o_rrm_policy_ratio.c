@@ -69,7 +69,9 @@ e2sm_ccc_o_rrm_policy_ratio_t cp_e2sm_ccc_o_rrm_policy_ratio(e2sm_ccc_o_rrm_poli
   dst.sz_rrm_policy_member_lst = src->sz_rrm_policy_member_lst;
   dst.rrm_policy_member_lst = calloc(src->sz_rrm_policy_member_lst, sizeof(e2sm_ccc_rrm_policy_member_t));
   assert(dst.rrm_policy_member_lst != NULL);
-  memcpy(dst.rrm_policy_member_lst, src->rrm_policy_member_lst, sizeof(e2sm_ccc_rrm_policy_member_t));
+  for (size_t i = 0; i < src->sz_rrm_policy_member_lst; i++){
+    dst.rrm_policy_member_lst[i] = cp_e2sm_ccc_rrm_policy_member(&src->rrm_policy_member_lst[i]);
+  }
 
   return dst;
 }

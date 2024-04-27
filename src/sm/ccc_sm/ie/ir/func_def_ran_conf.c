@@ -44,25 +44,25 @@ bool eq_lst_sp_attribute(lst_sp_attributes_t const* m0, lst_sp_attributes_t cons
   return true;
 }
 
-//static
-//lst_sp_attributes_t cp_lst_sp_attribute(lst_sp_attributes_t const* src)
-//{
-//  assert(src != NULL);
-//
-//  lst_sp_attributes_t dst = {0};
-//
-//  // Attribute name
-//  // Mandatory
-//  // 9.3.8
-//  dst.attribute_name = copy_byte_array(src->attribute_name);
-//
-//  // Supported Services
-//  // Mandatory
-//  // 9.2.2.2
-//  dst.supported_services = cp_supported_services(&src->supported_services);
-//
-//  return dst;
-//}
+static
+lst_sp_attributes_t cp_lst_sp_attribute(lst_sp_attributes_t const* src)
+{
+  assert(src != NULL);
+
+  lst_sp_attributes_t dst = {0};
+
+  // Attribute name
+  // Mandatory
+  // 9.3.8
+  dst.attribute_name = copy_byte_array(src->attribute_name);
+
+  // Supported Services
+  // Mandatory
+  // 9.2.2.2
+  dst.supported_services = cp_supported_services(&src->supported_services);
+
+  return dst;
+}
 
 void free_func_def_ran_conf(func_def_ran_conf_t* src)
 {
@@ -127,7 +127,9 @@ func_def_ran_conf_t cp_func_def_ran_conf(func_def_ran_conf_t const* src)
   if (src->lst_sp_attributes != NULL){
     dst.lst_sp_attributes = calloc(src->sz_lst_sp_attributes, sizeof(lst_sp_attributes_t));
     assert(dst.lst_sp_attributes != NULL && "Memory exhausted");
-    memcpy(dst.lst_sp_attributes, src->lst_sp_attributes, sizeof(lst_sp_attributes_t) * src->sz_lst_sp_attributes);
+    for (size_t i = 0; i < dst.sz_lst_sp_attributes; ++i){
+      dst.lst_sp_attributes[i] = cp_lst_sp_attribute(&src->lst_sp_attributes[i]);
+    }
   }
 
   return dst;

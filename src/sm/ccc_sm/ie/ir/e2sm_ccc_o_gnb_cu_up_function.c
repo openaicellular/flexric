@@ -63,12 +63,15 @@ e2sm_ccc_o_gnb_cu_up_function_t cp_e2sm_ccc_o_gnb_cu_up_function(e2sm_ccc_o_gnb_
   dst.gnb_id_len = src->gnb_id_len;
   dst.gnb_cu_up_id = src->gnb_cu_up_id;
 
+  // TODO: FIx all memcpy because of size and internal pointer
   // [1..65536]
   assert(src->sz_plmn_info_lst > 0 && src->sz_plmn_info_lst < 65537);
   dst.sz_plmn_info_lst = src->sz_plmn_info_lst;
   dst.plmn_info_lst = calloc(src->sz_plmn_info_lst, sizeof(e2sm_ccc_plmn_info_t));
   assert(dst.plmn_info_lst != NULL);
-  memcpy(dst.plmn_info_lst, src->plmn_info_lst, sizeof(e2sm_ccc_plmn_info_t));
+  for (size_t i = 0; i < src->sz_plmn_info_lst; i++){
+    dst.plmn_info_lst[i] = cp_e2sm_ccc_plmn_info(&src->plmn_info_lst[i]);
+  }
 
   return dst;
 }

@@ -104,9 +104,11 @@ e2sm_ccc_partition_lst_t cp_e2sm_ccc_partition_lst(e2sm_ccc_partition_lst_t cons
   // [1..128]
   assert(src->sz_partition_lst_item > 0 && src->sz_partition_lst_item < 129);
   dst.sz_partition_lst_item = src->sz_partition_lst_item;
-  dst.partition_lst_item = calloc(src->partition_lst_item, sizeof(e2sm_ccc_partition_lst_item_t));
+  dst.partition_lst_item = calloc(src->sz_partition_lst_item, sizeof(e2sm_ccc_partition_lst_item_t));
   assert(dst.partition_lst_item!= NULL);
-  memcpy(dst.partition_lst_item, src->partition_lst_item, sizeof(e2sm_ccc_partition_lst_item_t));
+  for (size_t i = 0; i < dst.sz_partition_lst_item; i++){
+    dst.partition_lst_item[i] = cp_e2sm_ccc_partition_lst_item(&src->partition_lst_item[i]);
+  }
 
   return dst;
 }

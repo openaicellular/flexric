@@ -46,33 +46,33 @@ bool eq_e2sm_ccc_partition_flow_item(e2sm_ccc_partition_flow_lst_item_t const* m
   return true;
 }
 
-//static
-//e2sm_ccc_partition_flow_lst_item_t cp_e2sm_ccc_partition_flow_item(e2sm_ccc_partition_flow_lst_item_t const* src)
-//{
-//  assert(src != NULL);
-//
-//  e2sm_ccc_partition_flow_lst_item_t dst = {0};
-//
-//  // Mandatory
-//  dst.plmn_id = cp_e2sm_plmn(&src->plmn_id);
-//
-//  // Mandatory
-//  dst.s_nssai.sST = src->s_nssai.sST;
-//  if (src->s_nssai.sD != NULL){
-//    dst.s_nssai.sD = calloc(1, sizeof(uint32_t));
-//    assert(dst.s_nssai.sD != NULL);
-//    *dst.s_nssai.sD = *src->s_nssai.sD;
-//  }
-//
-//  // Optional
-//  if (src->lst_5qi){
-//    dst.lst_5qi = calloc(1, sizeof(e2sm_ccc_partition_flow_lst_item_t));
-//    assert(dst.lst_5qi != NULL);
-//    *dst.lst_5qi = cp_e2sm_ccc_5qi_lst(src->lst_5qi);
-//  }
-//
-//  return dst;
-//}
+static
+e2sm_ccc_partition_flow_lst_item_t cp_e2sm_ccc_partition_flow_item(e2sm_ccc_partition_flow_lst_item_t const* src)
+{
+  assert(src != NULL);
+
+  e2sm_ccc_partition_flow_lst_item_t dst = {0};
+
+  // Mandatory
+  dst.plmn_id = cp_e2sm_plmn(&src->plmn_id);
+
+  // Mandatory
+  dst.s_nssai.sST = src->s_nssai.sST;
+  if (src->s_nssai.sD != NULL){
+    dst.s_nssai.sD = calloc(1, sizeof(uint32_t));
+    assert(dst.s_nssai.sD != NULL);
+    *dst.s_nssai.sD = *src->s_nssai.sD;
+  }
+
+  // Optional
+  if (src->lst_5qi){
+    dst.lst_5qi = calloc(1, sizeof(e2sm_ccc_partition_flow_lst_item_t));
+    assert(dst.lst_5qi != NULL);
+    *dst.lst_5qi = cp_e2sm_ccc_5qi_lst(src->lst_5qi);
+  }
+
+  return dst;
+}
 
 void free_e2sm_ccc_partition_flow_lst(e2sm_ccc_partition_flow_lst_t* src)
 {
@@ -122,7 +122,9 @@ e2sm_ccc_partition_flow_lst_t cp_e2sm_ccc_partition_flow_lst(e2sm_ccc_partition_
   dst.sz_partition_flow_lst_item = src->sz_partition_flow_lst_item;
   dst.partition_flow_lst_item = calloc(src->sz_partition_flow_lst_item, sizeof(e2sm_ccc_partition_flow_lst_item_t));
   assert(dst.partition_flow_lst_item != NULL);
-  memcpy(dst.partition_flow_lst_item, src->partition_flow_lst_item, sizeof(e2sm_ccc_partition_flow_lst_item_t));
+  for (size_t i = 0; i < dst.sz_partition_flow_lst_item; i++){
+    dst.partition_flow_lst_item[i] = cp_e2sm_ccc_partition_flow_item(&src->partition_flow_lst_item[i]);
+  }
 
 
   return dst;

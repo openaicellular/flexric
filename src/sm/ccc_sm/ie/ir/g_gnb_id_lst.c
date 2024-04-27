@@ -40,9 +40,12 @@ g_gnb_id_lst_t cp_g_gnb_id_lst(g_gnb_id_lst_t const* src)
   g_gnb_id_lst_t dst = {0};
 
   if (src->sz_g_gnb_id_lst > 0){
+    dst.sz_g_gnb_id_lst = src->sz_g_gnb_id_lst;
     dst.g_gnb_id_lst = calloc(src->sz_g_gnb_id_lst, sizeof(char*));
     assert(dst.g_gnb_id_lst != NULL);
-    memcpy(dst.g_gnb_id_lst, src->g_gnb_id_lst, sizeof(char*));
+    for (size_t i = 0; i < src->sz_g_gnb_id_lst; ++i){
+      dst.g_gnb_id_lst[i] = strdup(src->g_gnb_id_lst[i]);
+    }
   }
 
   return dst;

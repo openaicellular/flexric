@@ -56,7 +56,9 @@ e2sm_ccc_o_nr_cell_cu_t cp_e2sm_ccc_o_nr_cell_cu(e2sm_ccc_o_nr_cell_cu_t const* 
   dst.sz_plmn_info_lst = src->sz_plmn_info_lst;
   dst.plmn_info_lst = calloc(src->sz_plmn_info_lst, sizeof(e2sm_ccc_plmn_info_t));
   assert(dst.plmn_info_lst != NULL);
-  memcpy(dst.plmn_info_lst, src->plmn_info_lst, sizeof(e2sm_ccc_plmn_info_t));
+  for (size_t i = 0; i < dst.sz_plmn_info_lst; i++){
+    dst.plmn_info_lst[i] = cp_e2sm_ccc_plmn_info(&src->plmn_info_lst[i]);
+  }
 
   return dst;
 }

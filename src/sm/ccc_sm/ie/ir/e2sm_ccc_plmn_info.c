@@ -50,14 +50,9 @@ e2sm_ccc_plmn_info_t cp_e2sm_ccc_plmn_info(e2sm_ccc_plmn_info_t const* src)
 
   // Optional
   if (src->s_nssai != NULL){
-    dst.s_nssai = calloc(1, sizeof(e2sm_plmn_t));
+    dst.s_nssai = calloc(1, sizeof(s_nssai_e2sm_t));
     assert(dst.s_nssai!= NULL);
-    dst.s_nssai->sST = src->s_nssai->sST;
-    if (src->s_nssai->sD != NULL){
-      dst.s_nssai->sD = calloc(1, sizeof(uint32_t));
-      assert(dst.s_nssai->sD != NULL);
-      *dst.s_nssai->sD = *src->s_nssai->sD;
-    }
+    *dst.s_nssai = cp_s_nssai_e2sm(src->s_nssai);
   }
   return dst;
 }
