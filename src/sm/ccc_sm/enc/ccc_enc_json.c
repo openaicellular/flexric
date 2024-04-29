@@ -23,12 +23,13 @@
 
 #include "ccc_enc_json.h"
 #include "../ie/json/ric_control_message_json.h"
+#include "../ie/json/ric_control_outcome_json.h"
 #include "../ie/json/ric_indication_header_json.h"
 #include "../ie/json/ric_action_definition_json.h"
 #include "../ie/json/ric_indication_message_json.h"
 #include "../ie/json/ric_function_definition_json.h"
 #include "../ie/json/ric_event_trigger_definition_json.h"
-#include "../ie/json/ric_control_outcome_json.h"
+#include "../ie/json/ric_control_header_json.h"
 
 #include "../../../util/alg_ds/alg/defer.h"
 
@@ -902,11 +903,25 @@ byte_array_t ccc_enc_cpid_json(e2sm_ccc_cpid_t const* src)
 
 byte_array_t ccc_enc_ctrl_hdr_json(e2sm_ccc_ctrl_hdr_t const* src)
 {
-  assert(0 != 0 && "Not implemented");
-  byte_array_t ba = {0};
+  static_assert(sizeof(control_header_format_json_t) == sizeof(e2sm_ccc_ctrl_hdr_frmt_1_t), "Size not compatible");
+  cJSON * cjson_out = cJSON_CreateObject();
+  defer({cJSON_Delete(cjson_out); });
 
+  if (src->format == FORMAT_1_E2SM_CCC_CTRL_HDR){
+    cJSON_AddItemToObject(cjson_out,
+                          "controlHeaderFormat",
+                          cJSON_CreateControlHeaderFormat((control_header_format_json_t *)&src->frmt_1)
+                          );
+  } else {
+    assert(0 != 0 && "unknown format type");
+  };
+
+  char * res = cJSON_PrintUnformatted(cjson_out);
+  byte_array_t ba = {.len = strlen(res) + 1, .buf = (uint8_t *)res};
   return ba;
 }
+
+
 
 byte_array_t ccc_enc_ctrl_msg_json(e2sm_ccc_ctrl_msg_t const* src)
 {

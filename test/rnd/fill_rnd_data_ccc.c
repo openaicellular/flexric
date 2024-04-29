@@ -673,8 +673,30 @@ e2sm_ccc_cpid_t fill_rnd_ccc_cpid(void){
   assert(0 != 0 && "Not implemented");
 }
 
+static
+e2sm_ccc_ctrl_hdr_frmt_1_t fill_rnd_ccc_ctrl_hdr_frmt(){
+  e2sm_ccc_ctrl_hdr_frmt_1_t dst ={0};
+
+  dst.ric_style_type = ((rand()%1024) + 1) ;
+
+  assert(dst.ric_style_type != 0 && "Memory exhausted");
+
+  
+  return dst;
+}
+
 e2sm_ccc_ctrl_hdr_t fill_rnd_ccc_ctrl_hdr(void){
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_ctrl_hdr_t dst = {0};
+
+  dst.format = rand()%END_E2SM_CCC_CTRL_HDR;
+
+
+  if (dst.format == FORMAT_1_E2SM_CCC_CTRL_HDR){
+    dst.frmt_1 = fill_rnd_ccc_ctrl_hdr_frmt();
+  } else{
+    assert(0 != 0 && "Not implemented");
+  }
+  return dst;
 }
 
 static
