@@ -430,6 +430,7 @@ partition_list_element_t* create_partition_list_element(e2sm_ccc_partition_lst_i
 }
 
 // bwp_list_element are subset of values_of_attributes structure
+// that will be used in both cases: nr_cell du and o bwp itself
 static
 bwp_list_element_t* create_bwp_list_element(e2sm_ccc_o_bwp_t const src){
   bwp_list_element_t* dst = calloc(1, sizeof(bwp_list_element_t));
@@ -675,50 +676,10 @@ ran_configuration_structure_json_t* create_e2sm_ccc_o_bwp(e2sm_ccc_o_bwp_t const
   ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
   assert(dst != NULL);
 
-  //  src.start_rb
-  dst->start_rb = calloc(1, sizeof(uint32_t));
-  assert(dst->start_rb!= NULL);
-  *dst->start_rb = src.start_rb;
-
-  //  src.number_of_rbs
-  dst->number_of_r_bs = calloc(1, sizeof(uint32_t));
-  assert(dst->number_of_r_bs != NULL);
-  *dst->number_of_r_bs = src.number_of_rbs;
-
-  //  src.is_initial_bwp
-  dst->is_initial_bwp = calloc(1, sizeof(is_initial_bwp_e));
-  assert(dst->is_initial_bwp != NULL);
-  *dst->is_initial_bwp = src.is_initial_bwp;
-
-  //  src.cyclic_prefix
-  dst->cyclic_prefix = calloc(1, sizeof(cyclic_prefix_e));
-  assert(dst->cyclic_prefix != NULL);
-  *dst->cyclic_prefix = src.cyclic_prefix;
-
-  //  src.bwp_context
-  dst->bwp_context = calloc(1, sizeof(bwp_context_e));
-  assert(dst->bwp_context != NULL);
-  *dst->bwp_context = src.bwp_context;
-
-  //  src.sub_carrier_spacing
-  dst->sub_carrier_spacing = calloc(1, sizeof(uint32_t));
-  assert(dst->sub_carrier_spacing != NULL);
-  switch (src.sub_carrier_spacing) {
-    case SUB_CARRIER_SPACING_15:
-      *dst->sub_carrier_spacing = 15;
-      break;
-    case SUB_CARRIER_SPACING_30:
-      *dst->sub_carrier_spacing = 30;
-      break;
-    case SUB_CARRIER_SPACING_60:
-      *dst->sub_carrier_spacing = 60;
-      break;
-    case SUB_CARRIER_SPACING_120:
-      *dst->sub_carrier_spacing = 120;
-      break;
-    default:
-      break;
-  }
+  bwp_list_element_t* bwp_list_element = create_bwp_list_element(src);
+  // There are internal pointers that will be used for dst.
+  defer({free(bwp_list_element);});
+  memcpy(dst, bwp_list_element, sizeof(bwp_list_element_t));
 
   return dst;
 }
