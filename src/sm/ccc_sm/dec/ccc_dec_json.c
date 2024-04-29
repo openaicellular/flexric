@@ -27,6 +27,7 @@
 #include "../ie/json/ric_function_definition_json.h"
 #include "../ie/json/ric_control_outcome_json.h"
 #include "../ie/json/ric_event_trigger_definition_json.h"
+#include "../ie/json/ric_control_header_json.h"
 #include "../../../util/alg_ds/alg/defer.h"
 
 #include <string.h>
@@ -595,6 +596,8 @@ e2sm_ccc_ind_msg_frmt_1_t get_ind_msg_frmt1(list_t* const src){
   return res;
 }
 
+
+
 static
 e2sm_ccc_ctrl_msg_frmt_1_t get_ctrl_msg_frmt1(list_t* const src){
   assert(src != NULL);
@@ -814,6 +817,7 @@ e2sm_ccc_action_def_t ccc_dec_action_def_json(size_t len, uint8_t const action_d
 
 e2sm_ccc_ind_hdr_t ccc_dec_ind_hdr_json(size_t len, uint8_t const ind_hdr[len])
 {
+  static_assert(sizeof(e2sm_ccc_ind_hdr_frmt_1_t) == sizeof(indication_header_format_json_t));
   assert(ind_hdr != NULL);
   assert(len != 0);
   assert(ind_hdr[len-1] == '\0' && "Need zero terminated string for this interface");
@@ -835,7 +839,7 @@ e2sm_ccc_ind_msg_t ccc_dec_ind_msg_json(size_t len, uint8_t const ind_msg[len])
 
   ric_indication_message_json_t * ric_ind_msg = cJSON_Parseric_indication_message((char *)ind_msg);
   defer({cJSON_Deleteric_indication_message(ric_ind_msg);});
-
+   
   e2sm_ccc_ind_msg_t dst = {0};
   if(ric_ind_msg->indication_message_format->list_of_configuration_structures_reported != NULL){
     // Format 1
@@ -861,9 +865,17 @@ e2sm_ccc_cpid_t ccc_dec_cpid_json(size_t len, uint8_t const call_proc_id[len])
 
 e2sm_ccc_ctrl_hdr_t ccc_dec_ctrl_hdr_json(size_t len, uint8_t const ctrl_hdr[len])
 {
+  static_assert(sizeof(e2sm_ccc_ctrl_hdr_frmt_1_t) == sizeof(control_header_format_json_t));
   assert(ctrl_hdr != NULL);
-  assert(0 != 0 && "Not implemented");
-  e2sm_ccc_ctrl_hdr_t dst = {0};
+  assert(len != 0);
+  assert(ctrl_hdr[len-1] == '\0' && "Need zero terminated string for this interface");
+
+  ric_control_header_json_t * ric_ctrl_hdr = cJSON_ParseRicControlHeaderJson((char *)ctrl_hdr);
+  defer({cJSON_DeleteRicControlHeaderJson(ric_ctrl_hdr);});
+
+  
+  e2sm_ccc_ctrl_hdr_t dst = {.format = FORMAT_1_E2SM_CCC_CTRL_HDR};
+  dst.frmt_1 = cp_e2sm_ccc_ctrl_hdr_frmt_1((e2sm_ccc_ctrl_hdr_frmt_1_t *)ric_ctrl_hdr->control_header_format);
 
   return dst;
 }

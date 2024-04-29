@@ -97,7 +97,16 @@ void test_ccc_call_process_id()
 
 void test_ccc_ctrl_hdr(void)
 {
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_ctrl_hdr_t ctrl_hdr = fill_rnd_ccc_ctrl_hdr();
+  defer({free_e2sm_ccc_ctrl_hdr(&ctrl_hdr);});
+
+  byte_array_t ba = ccc_enc_ctrl_hdr_json(&ctrl_hdr);
+  defer({free_byte_array(ba); });
+
+  e2sm_ccc_ctrl_hdr_t out = ccc_dec_ctrl_hdr_json(ba.len, ba.buf);
+  defer({free_e2sm_ccc_ctrl_hdr(&out); });
+
+  assert(eq_e2sm_ccc_ctrl_hdr(&ctrl_hdr, &out) == true);
 }
 
 
@@ -172,8 +181,8 @@ int main()
 //  printf("\nCCC Call Process ID\n");
 
   // Control Header 
-//   test_ccc_ctrl_hdr();
-//   printf("\nCCC Control Header \n");
+  test_ccc_ctrl_hdr();
+  printf("\nCCC Control Header test succeeded\n");
 
   // Control Message  
   test_ccc_ctrl_msg();
