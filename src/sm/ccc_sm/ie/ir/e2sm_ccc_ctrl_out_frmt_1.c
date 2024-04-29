@@ -16,8 +16,7 @@ void free_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_t* src)
     free_ctrl_out_conf_accepted(&src->ctrl_out_conf_accepted[i]);
   }
 
-  if (src->sz_ctrl_out_conf_accepted> 0)
-    free(src->ctrl_out_conf_accepted);
+  free(src->ctrl_out_conf_accepted);
 
   // RAN Configuration Structures Failed List
   // [0-65535]
@@ -26,8 +25,7 @@ void free_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_t* src)
     free_ctrl_out_conf_failed(&src->ctrl_out_conf_failed[i]);
   }
 
-  if (src->sz_ctrl_out_conf_failed > 0)
-    free(src->ctrl_out_conf_failed);
+  free(src->ctrl_out_conf_failed);
 }
 
 bool eq_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_t const* m0, e2sm_ccc_ctrl_out_frmt_1_t const* m1)
@@ -79,7 +77,6 @@ e2sm_ccc_ctrl_out_frmt_1_t cp_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_
   // [0-65535]
   assert(src->sz_ctrl_out_conf_accepted< 65536);
   dst.sz_ctrl_out_conf_accepted = src->sz_ctrl_out_conf_accepted;
-
   dst.ctrl_out_conf_accepted = calloc(dst.sz_ctrl_out_conf_accepted, sizeof(ctrl_out_conf_accepted_t));
   assert(dst.ctrl_out_conf_accepted != NULL && "Memory exhausted");
 
@@ -91,7 +88,6 @@ e2sm_ccc_ctrl_out_frmt_1_t cp_e2sm_ccc_ctrl_out_frmt_1(e2sm_ccc_ctrl_out_frmt_1_
   // [0-65535]
   assert(src->sz_ctrl_out_conf_failed< 65536);
   dst.sz_ctrl_out_conf_failed = src->sz_ctrl_out_conf_failed;
-
   dst.ctrl_out_conf_failed = calloc(dst.sz_ctrl_out_conf_failed, sizeof(ctrl_out_conf_failed_t));
   assert(dst.ctrl_out_conf_failed != NULL && "Memory exhausted");
 

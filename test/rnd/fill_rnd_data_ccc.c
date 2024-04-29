@@ -924,11 +924,18 @@ ccc_sub_data_t fill_rnd_ccc_subscription(void){
 }
 
 e2sm_ccc_ctrl_out_t fill_ccc_ctrl_out(void){
-  assert(0 != 0 && "Not implemented");
+  e2sm_ccc_ctrl_out_t dst = fill_rnd_ccc_ctrl_out();
+
+  return dst;
 }
 
 ccc_ctrl_req_data_t fill_ccc_ctrl(void){
-  assert(0 != 0 && "Not implemented");
+  ccc_ctrl_req_data_t dst = {0};
+
+  dst.hdr = fill_rnd_ccc_ctrl_hdr();
+  dst.msg = fill_rnd_ccc_ctrl_msg();
+
+  return dst;
 }
 
 e2sm_ccc_func_def_t fill_ccc_ran_func_def(void){

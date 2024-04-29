@@ -144,8 +144,23 @@ sm_ctrl_out_data_t on_control_ccc_sm_ag(sm_agent_t const* sm_agent, sm_ctrl_req_
 {
   assert(sm_agent != NULL);
   assert(data != NULL);
-  assert(0!=0 && "Not implemented");
+  sm_ccc_agent_t* sm = (sm_ccc_agent_t*) sm_agent;
+  
+  ccc_ctrl_req_data_t ccc_ctrl = {0};
+  ccc_ctrl.hdr = ccc_dec_ctrl_hdr(&sm->enc, data->len_hdr, data->ctrl_hdr);
+  ccc_ctrl.msg = ccc_dec_ctrl_msg(&sm->enc, data->len_msg, data->ctrl_msg);
+  defer({ free_ccc_ctrl_req_data(&ccc_ctrl); });
 
+  sm_ag_if_ans_t ret = sm->base.io.write_ctrl(&ccc_ctrl);
+  assert(ret.type == CTRL_OUTCOME_SM_AG_IF_ANS_V0);
+  assert(ret.ctrl_out.type == CCC_V3_0_AGENT_IF_CTRL_ANS_V0);
+  defer({ free_e2sm_ccc_ctrl_out(&ret.ctrl_out.ccc); });
+
+  // Answer from the E2 Node
+  byte_array_t ba = ccc_enc_ctrl_out(&sm->enc, &ret.ctrl_out.ccc);
+  sm_ctrl_out_data_t ans = {.ctrl_out = ba.buf, .len_out = ba.len};
+  
+  return ans;
 }
 
 static
