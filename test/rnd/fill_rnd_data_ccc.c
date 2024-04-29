@@ -429,8 +429,8 @@ e2sm_ccc_o_nr_cell_du_t fill_rnd_e2sm_ccc_o_nr_cell_du() {
 
   // Integer fields
   dst.cell_local_id = rand() % 1024;
-  dst.n_rpci = rand() % 504;  // 0 to 503
-  dst.n_rtac = rand() % 0x1000000;  // 0 to 16777215
+  dst.nr_pci = rand() % 504;  // 0 to 503
+  dst.nr_tac = rand() % 0x1000000;  // 0 to 16777215
   dst.arfcn_dl = rand() % 1024;
   dst.arfcn_ul = rand() % 1024;
   dst.arfcn_sul = rand() % 1024;
@@ -440,12 +440,12 @@ e2sm_ccc_o_nr_cell_du_t fill_rnd_e2sm_ccc_o_nr_cell_du() {
   dst.bS_Channel_BwSUL = rand() % 1024;
 
   // Enum fields
-  dst.operational_state = END_OPERATIONAL_STATE;
-  dst.administrative_state = END_ADMINISTRATIVE_STATE;
-  dst.cell_state = END_CELL_STATE;
-  dst.ssb_periodicity = SSB_PERIODICITY_END;
-  dst.ssb_sub_carrier_spacing = SSB_SUB_CARRIER_SPACING_END;
-  dst.ssb_duration = SSB_DURATION_END;
+  dst.operational_state = rand()%END_OPERATIONAL_STATE;
+  dst.administrative_state = rand()%END_ADMINISTRATIVE_STATE;
+  dst.cell_state = rand()%END_CELL_STATE;
+  dst.ssb_periodicity = rand()%SSB_PERIODICITY_END;
+  dst.ssb_sub_carrier_spacing = rand()%SSB_SUB_CARRIER_SPACING_END;
+  dst.ssb_duration = rand()%SSB_DURATION_END;
 
   // Byte field
   dst.ssb_off_set = rand() % 160;  // 0 to 159
@@ -565,7 +565,6 @@ byte_array_t fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_e
 
 ind_msg_ran_conf_t fill_rnd_ind_msg_ran_conf(){
  ind_msg_ran_conf_t res = {0};
- // TODO: Finish NRDU_cell type
  values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
   res.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
   res.vals_attributes = fill_values_of_attributes(values_of_attributes_type);

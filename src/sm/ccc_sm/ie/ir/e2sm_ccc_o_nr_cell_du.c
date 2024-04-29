@@ -48,10 +48,10 @@ bool eq_e2sm_ccc_o_nr_cell_du(e2sm_ccc_o_nr_cell_du_t const* m0, e2sm_ccc_o_nr_c
   if (m0->cell_state != m1->cell_state)
     return false;
 
-  if (m0->n_rpci != m1->n_rpci)
+  if (m0->nr_pci != m1->nr_pci)
     return false;
 
-  if (m0->n_rtac != m1->n_rtac)
+  if (m0->nr_tac != m1->nr_tac)
     return false;
 
   if (m0->arfcn_ul != m1->arfcn_ul)
@@ -124,8 +124,8 @@ e2sm_ccc_o_nr_cell_du_t cp_e2sm_ccc_o_nr_cell_du(e2sm_ccc_o_nr_cell_du_t const* 
   dst.operational_state = src->operational_state;
   dst.administrative_state = src->administrative_state;
   dst.cell_state = src->cell_state;
-  dst.n_rpci = src->n_rpci;
-  dst.n_rtac = src->n_rtac;
+  dst.nr_pci = src->nr_pci;
+  dst.nr_tac = src->nr_tac;
   dst.arfcn_dl = src->arfcn_dl;
   dst.arfcn_ul = src->arfcn_ul;
   dst.arfcn_sul = src->arfcn_sul;
@@ -152,7 +152,7 @@ e2sm_ccc_o_nr_cell_du_t cp_e2sm_ccc_o_nr_cell_du(e2sm_ccc_o_nr_cell_du_t const* 
   dst.sz_bwp_lst = src->sz_bwp_lst;
   dst.bwp_lst = calloc(src->sz_bwp_lst, sizeof(e2sm_ccc_o_bwp_t));
   assert(dst.bwp_lst != NULL);
-  for (size_t i = 0; i < dst.sz_plmn_info_lst; i++){
+  for (size_t i = 0; i < src->sz_bwp_lst; i++){
     dst.bwp_lst[i] = cp_e2sm_ccc_o_bwp(&src->bwp_lst[i]);
   }
 

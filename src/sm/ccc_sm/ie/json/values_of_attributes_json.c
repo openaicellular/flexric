@@ -65,7 +65,7 @@ administrative_state_e cJSON_Getadministrative_stateValue(const cJSON * j) {
   administrative_state_e x = 0;
   if (NULL != j) {
     if (!strcmp(cJSON_GetStringValue(j), "LOCKED")) x = LOCKED_ADMINISTRATIVE_STATE;
-    else if (!strcmp(cJSON_GetStringValue(j), "SHUTTINGDOWN")) x = SHUTTING_ADMINISTRATIVE_STATE;
+    else if (!strcmp(cJSON_GetStringValue(j), "SHUTTINGDOWN")) x = SHUTTING_DOWN_ADMINISTRATIVE_STATE;
     else if (!strcmp(cJSON_GetStringValue(j), "UNLOCKED")) x = UNLOCKED_ADMINISTRATIVE_STATE;
   }
   return x;
@@ -75,7 +75,7 @@ cJSON * cJSON_Createadministrative_state(const administrative_state_e x) {
   cJSON * j = NULL;
   switch (x) {
     case LOCKED_ADMINISTRATIVE_STATE: j = cJSON_CreateString("LOCKED"); break;
-    case SHUTTING_ADMINISTRATIVE_STATE: j = cJSON_CreateString("SHUTTINGDOWN"); break;
+    case SHUTTING_DOWN_ADMINISTRATIVE_STATE: j = cJSON_CreateString("SHUTTINGDOWN"); break;
     case UNLOCKED_ADMINISTRATIVE_STATE: j = cJSON_CreateString("UNLOCKED"); break;
     default:
       break;
@@ -290,7 +290,7 @@ bwp_list_element_t * cJSON_Getbwp_list_elementValue(const cJSON * j) {
         }
       }
       if (cJSON_HasObjectItem(j, "numberOfRBs")) {
-        if (NULL != (x->number_of_r_bs = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->number_of_r_bs = cJSON_malloc(sizeof(uint32_t)))) {
           *x->number_of_r_bs = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "numberOfRBs"));
         }
       }
@@ -300,7 +300,7 @@ bwp_list_element_t * cJSON_Getbwp_list_elementValue(const cJSON * j) {
         }
       }
       if (cJSON_HasObjectItem(j, "subCarrierSpacing")) {
-        if (NULL != (x->sub_carrier_spacing = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->sub_carrier_spacing = cJSON_malloc(sizeof(uint32_t)))) {
           *x->sub_carrier_spacing = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "subCarrierSpacing"));
         }
       }
@@ -464,10 +464,10 @@ partition_flow_list_element_t * cJSON_Getpartition_flow_list_elementValue(const 
           cJSON * e1 = NULL;
           cJSON * j1 = cJSON_GetObjectItemCaseSensitive(j, "5qiList");
           cJSON_ArrayForEach(e1, j1) {
-            int64_t * tmp = cJSON_malloc(sizeof(int64_t));
+            uint32_t * tmp = cJSON_malloc(sizeof(uint32_t));
             if (NULL != tmp) {
               * tmp = cJSON_GetNumberValue(e1);
-              list_add_tail(x1, tmp, sizeof(int64_t *));
+              list_add_tail(x1, tmp, sizeof(uint32_t *));
             }
           }
           x->the_5_qi_list = x1;
@@ -491,7 +491,7 @@ cJSON * cJSON_Createpartition_flow_list_element(const partition_flow_list_elemen
       if (NULL != x->the_5_qi_list) {
         cJSON * j1 = cJSON_AddArrayToObject(j, "5qiList");
         if (NULL != j1) {
-          int64_t * x1 = list_get_head(x->the_5_qi_list);
+          uint32_t * x1 = list_get_head(x->the_5_qi_list);
           while (NULL != x1) {
             cJSON_AddItemToArray(j1, cJSON_CreateNumber(*x1));
             x1 = list_get_next(x->the_5_qi_list);
@@ -524,7 +524,7 @@ char * cJSON_Printpartition_flow_list_element(const partition_flow_list_element_
 void cJSON_Deletepartition_flow_list_element(partition_flow_list_element_t * x) {
   if (NULL != x) {
     if (NULL != x->the_5_qi_list) {
-      int64_t * x1 = list_get_head(x->the_5_qi_list);
+      uint32_t * x1 = list_get_head(x->the_5_qi_list);
       while (NULL != x1) {
         cJSON_free(x1);
         x1 = list_get_next(x->the_5_qi_list);
@@ -575,7 +575,7 @@ partition_list_element_t * cJSON_Getpartition_list_elementValue(const cJSON * j)
         }
       }
       if (cJSON_HasObjectItem(j, "pOffsetToPointA")) {
-        if (NULL != (x->p_offset_to_point_a = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->p_offset_to_point_a = cJSON_malloc(sizeof(uint32_t)))) {
           *x->p_offset_to_point_a = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "pOffsetToPointA"));
         }
       }
@@ -909,32 +909,32 @@ ran_configuration_structure_json_t * cJSON_Getran_configuration_structureValue(c
         }
       }
       if (cJSON_HasObjectItem(j, "arfcnDL")) {
-        if (NULL != (x->arfcn_dl = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->arfcn_dl = cJSON_malloc(sizeof(uint32_t)))) {
           *x->arfcn_dl = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "arfcnDL"));
         }
       }
       if (cJSON_HasObjectItem(j, "arfcnSUL")) {
-        if (NULL != (x->arfcn_sul = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->arfcn_sul = cJSON_malloc(sizeof(uint32_t)))) {
           *x->arfcn_sul = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "arfcnSUL"));
         }
       }
       if (cJSON_HasObjectItem(j, "arfcnUL")) {
-        if (NULL != (x->arfcn_ul = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->arfcn_ul = cJSON_malloc(sizeof(uint32_t)))) {
           *x->arfcn_ul = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "arfcnUL"));
         }
       }
       if (cJSON_HasObjectItem(j, "bSChannelBwDL")) {
-        if (NULL != (x->b_s_channel_bw_dl = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->b_s_channel_bw_dl = cJSON_malloc(sizeof(uint32_t)))) {
           *x->b_s_channel_bw_dl = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "bSChannelBwDL"));
         }
       }
       if (cJSON_HasObjectItem(j, "bSChannelBwSUL")) {
-        if (NULL != (x->b_s_channel_bw_sul = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->b_s_channel_bw_sul = cJSON_malloc(sizeof(uint32_t)))) {
           *x->b_s_channel_bw_sul = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "bSChannelBwSUL"));
         }
       }
       if (cJSON_HasObjectItem(j, "bSChannelBwUL")) {
-        if (NULL != (x->b_s_channel_bw_ul = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->b_s_channel_bw_ul = cJSON_malloc(sizeof(uint32_t)))) {
           *x->b_s_channel_bw_ul = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "bSChannelBwUL"));
         }
       }
@@ -955,12 +955,12 @@ ran_configuration_structure_json_t * cJSON_Getran_configuration_structureValue(c
         }
       }
       if (cJSON_HasObjectItem(j, "nrPci")) {
-        if (NULL != (x->nr_pci = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->nr_pci = cJSON_malloc(sizeof(uint16_t)))) {
           *x->nr_pci = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "nrPci"));
         }
       }
       if (cJSON_HasObjectItem(j, "nrTac")) {
-        if (NULL != (x->nr_tac = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->nr_tac = cJSON_malloc(sizeof(uint32_t)))) {
           *x->nr_tac = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "nrTac"));
         }
       }
@@ -981,27 +981,27 @@ ran_configuration_structure_json_t * cJSON_Getran_configuration_structureValue(c
         }
       }
       if (cJSON_HasObjectItem(j, "ssbDuration")) {
-        if (NULL != (x->ssb_duration = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->ssb_duration = cJSON_malloc(sizeof(uint32_t)))) {
           *x->ssb_duration = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "ssbDuration"));
         }
       }
       if (cJSON_HasObjectItem(j, "ssbFrequency")) {
-        if (NULL != (x->ssb_frequency = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->ssb_frequency = cJSON_malloc(sizeof(uint32_t)))) {
           *x->ssb_frequency = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "ssbFrequency"));
         }
       }
       if (cJSON_HasObjectItem(j, "ssbOffset")) {
-        if (NULL != (x->ssb_offset = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->ssb_offset = cJSON_malloc(sizeof(uint8_t)))) {
           *x->ssb_offset = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "ssbOffset"));
         }
       }
       if (cJSON_HasObjectItem(j, "ssbPeriodicity")) {
-        if (NULL != (x->ssb_periodicity = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->ssb_periodicity = cJSON_malloc(sizeof(uint32_t)))) {
           *x->ssb_periodicity = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "ssbPeriodicity"));
         }
       }
       if (cJSON_HasObjectItem(j, "ssbSubCarrierSpacing")) {
-        if (NULL != (x->ssb_sub_carrier_spacing = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->ssb_sub_carrier_spacing = cJSON_malloc(sizeof(uint32_t)))) {
           *x->ssb_sub_carrier_spacing = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "ssbSubCarrierSpacing"));
         }
       }
@@ -1052,12 +1052,12 @@ ran_configuration_structure_json_t * cJSON_Getran_configuration_structureValue(c
         }
       }
       if (cJSON_HasObjectItem(j, "numberOfRBs")) {
-        if (NULL != (x->number_of_r_bs = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->number_of_r_bs = cJSON_malloc(sizeof(uint32_t)))) {
           *x->number_of_r_bs = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "numberOfRBs"));
         }
       }
       if (cJSON_HasObjectItem(j, "startRB")) {
-        if (NULL != (x->start_rb = cJSON_malloc(sizeof(int64_t)))) {
+        if (NULL != (x->start_rb = cJSON_malloc(sizeof(uint32_t)))) {
           *x->start_rb = cJSON_GetNumberValue(cJSON_GetObjectItemCaseSensitive(j, "startRB"));
         }
       }

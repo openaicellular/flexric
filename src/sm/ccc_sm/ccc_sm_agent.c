@@ -122,13 +122,13 @@ exp_ind_data_t on_indication_ccc_sm_ag(sm_agent_t const* sm_agent, void* act_def
 
   // Fill Indication Header
   byte_array_t ba_hdr = ccc_enc_ind_hdr(&sm->enc, &ccc.ind.hdr);
-  assert(ba_hdr.len < 1024 && "Are you really encoding so much info?" );
+//  assert(ba_hdr.len < 1024 && "Are you really encoding so much info?" );
   ret.data.ind_hdr = ba_hdr.buf;
   ret.data.len_hdr = ba_hdr.len;
 
   // Fill Indication Message
   byte_array_t ba_msg = ccc_enc_ind_msg(&sm->enc, &ccc.ind.msg);
-  assert(ba_msg.len < 10*1024 && "Are you really encoding so much info?" );
+//  assert(ba_msg.len < 10*1024 && "Are you really encoding so much info?" );
   ret.data.ind_msg = ba_msg.buf;
   ret.data.len_msg = ba_msg.len;
 

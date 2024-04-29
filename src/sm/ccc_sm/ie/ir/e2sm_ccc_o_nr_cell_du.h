@@ -16,8 +16,7 @@ typedef enum{
 
 typedef enum{
   LOCKED_ADMINISTRATIVE_STATE,
-  SHUTTING_ADMINISTRATIVE_STATE,
-  DOWN_ADMINISTRATIVE_STATE,
+  SHUTTING_DOWN_ADMINISTRATIVE_STATE,
   UNLOCKED_ADMINISTRATIVE_STATE,
   END_ADMINISTRATIVE_STATE
 }administrative_state_e;
@@ -69,10 +68,10 @@ typedef struct{
   cell_state_e cell_state;
   // Integer
   // [0..503]
-  uint16_t n_rpci;
+  uint16_t nr_pci;
   // Integer
   // [0..16777215]
-  uint32_t n_rtac;
+  uint32_t nr_tac;
   // Integer
   uint32_t arfcn_dl;
   // Integer

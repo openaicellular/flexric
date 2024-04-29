@@ -377,6 +377,300 @@ ran_configuration_structure_json_t* create_e2sm_ccc_nr_cell_cu(e2sm_ccc_o_nr_cel
 }
 
 static
+partition_flow_list_element_t * create_partition_flow_list_element(e2sm_ccc_partition_flow_lst_item_t const src){
+  partition_flow_list_element_t* dst = calloc(1, sizeof(partition_flow_list_element_t));
+  assert(dst != NULL);
+
+  dst->plmn_id = create_plmn_id_json(src.plmn_id);
+
+  dst->snssai = create_snssai_json(src.s_nssai);
+
+  if (src.lst_5qi != NULL){
+    dst->the_5_qi_list = list_create(false, NULL);
+    for (size_t i = 0; i < src.lst_5qi->sz_lst_5qi; ++i){
+      uint32_t* item = calloc(1, sizeof(uint32_t));
+      assert(item != NULL);
+      *item = src.lst_5qi->lst_5qi[i];
+      list_add_tail(
+          dst->the_5_qi_list,
+          item,
+          sizeof(uint32_t*)
+      );
+    }
+  }
+
+  return dst;
+}
+
+static
+partition_list_element_t* create_partition_list_element(e2sm_ccc_partition_lst_item_t const src){
+  partition_list_element_t* dst = calloc(1, sizeof(partition_list_element_t));
+  assert(dst != NULL);
+
+  dst->p_number_of_r_bs = calloc(1, sizeof(uint32_t));
+  assert(dst->p_number_of_r_bs != NULL);
+  *dst->p_number_of_r_bs = src.p_number_of_rbs;
+
+  dst->p_offset_to_point_a = calloc(1, sizeof(uint32_t));
+  assert(dst->p_offset_to_point_a != NULL);
+  *dst->p_offset_to_point_a = src.p_offset_to_point_A;
+
+  if (src.partition_flow_lst.sz_partition_flow_lst_item > 0){
+    dst->partition_flow_list = list_create(false, NULL);
+    for (size_t i = 0; i < src.partition_flow_lst.sz_partition_flow_lst_item; ++i){
+      list_add_tail(
+          dst->partition_flow_list,
+          create_partition_flow_list_element(src.partition_flow_lst.partition_flow_lst_item[i]),
+          sizeof(partition_flow_list_element_t *)
+      );
+    }
+  }
+
+  return dst;
+}
+
+// bwp_list_element are subset of values_of_attributes structure
+static
+bwp_list_element_t* create_bwp_list_element(e2sm_ccc_o_bwp_t const src){
+  bwp_list_element_t* dst = calloc(1, sizeof(bwp_list_element_t));
+  assert(dst != NULL);
+
+  //  src.start_rb
+  dst->start_rb = calloc(1, sizeof(uint32_t));
+  assert(dst->start_rb!= NULL);
+  *dst->start_rb = src.start_rb;
+
+  //  src.number_of_rbs
+  dst->number_of_r_bs = calloc(1, sizeof(uint32_t));
+  assert(dst->number_of_r_bs != NULL);
+  *dst->number_of_r_bs = src.number_of_rbs;
+
+  //  src.is_initial_bwp
+  dst->is_initial_bwp = calloc(1, sizeof(is_initial_bwp_e));
+  assert(dst->is_initial_bwp != NULL);
+  *dst->is_initial_bwp = src.is_initial_bwp;
+
+  //  src.cyclic_prefix
+  dst->cyclic_prefix = calloc(1, sizeof(cyclic_prefix_e));
+  assert(dst->cyclic_prefix != NULL);
+  *dst->cyclic_prefix = src.cyclic_prefix;
+
+  //  src.bwp_context
+  dst->bwp_context = calloc(1, sizeof(bwp_context_e));
+  assert(dst->bwp_context != NULL);
+  *dst->bwp_context = src.bwp_context;
+
+  //  src.sub_carrier_spacing
+  dst->sub_carrier_spacing = calloc(1, sizeof(uint32_t));
+  assert(dst->sub_carrier_spacing != NULL);
+  switch (src.sub_carrier_spacing) {
+    case SUB_CARRIER_SPACING_15:
+      *dst->sub_carrier_spacing = 15;
+      break;
+    case SUB_CARRIER_SPACING_30:
+      *dst->sub_carrier_spacing = 30;
+      break;
+    case SUB_CARRIER_SPACING_60:
+      *dst->sub_carrier_spacing = 60;
+      break;
+    case SUB_CARRIER_SPACING_120:
+      *dst->sub_carrier_spacing = 120;
+      break;
+    default:
+      break;
+  }
+
+  return dst;
+}
+
+static
+ran_configuration_structure_json_t* create_e2sm_ccc_nr_cell_du(e2sm_ccc_o_nr_cell_du_t const src){
+  ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
+  assert(dst != NULL);
+
+  dst->cell_local_id = calloc(1, sizeof(uint32_t));
+  assert(dst->cell_local_id != NULL);
+  *dst->cell_local_id = src.cell_local_id;
+
+  dst->operational_state = calloc(1, sizeof(operational_state_e));
+  assert(dst->operational_state != NULL);
+  *dst->operational_state = src.operational_state;
+
+  dst->administrative_state = calloc(1, sizeof(administrative_state_e));
+  assert(dst->administrative_state != NULL);
+  *dst->administrative_state = src.administrative_state;
+
+  dst->cell_state = calloc(1, sizeof(cell_state_e));
+  assert(dst->cell_state != NULL);
+  *dst->cell_state = src.cell_state;
+
+  dst->nr_pci = calloc(1, sizeof(uint16_t));
+  assert(dst->nr_pci != NULL);
+  *dst->nr_pci = src.nr_pci;
+
+  dst->nr_tac = calloc(1, sizeof(uint32_t));
+  assert(dst->nr_tac != NULL);
+  *dst->nr_tac = src.nr_tac;
+
+  dst->arfcn_dl = calloc(1, sizeof(uint32_t));
+  assert(dst->arfcn_dl != NULL);
+  *dst->arfcn_dl = src.arfcn_dl;
+
+  dst->arfcn_ul = calloc(1, sizeof(uint32_t));
+  assert(dst->arfcn_ul != NULL);
+  *dst->arfcn_ul = src.arfcn_ul;
+
+  dst->arfcn_sul = calloc(1, sizeof(uint32_t));
+  assert(dst->arfcn_sul != NULL);
+  *dst->arfcn_sul = src.arfcn_sul;
+
+  dst->ssb_frequency = calloc(1, sizeof(uint32_t));
+  assert(dst->ssb_frequency!= NULL);
+  *dst->ssb_frequency = src.ssb_frequency;
+
+  switch (src.ssb_periodicity) {
+    case SSB_PERIODICITY_5:
+      dst->ssb_periodicity = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_periodicity != NULL);
+      *dst->ssb_periodicity = 5;
+      break;
+    case SSB_PERIODICITY_10:
+      dst->ssb_periodicity = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_periodicity != NULL);
+      *dst->ssb_periodicity = 10;
+      break;
+    case SSB_PERIODICITY_20:
+      dst->ssb_periodicity = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_periodicity != NULL);
+      *dst->ssb_periodicity = 20;
+      break;
+    case SSB_PERIODICITY_40:
+      dst->ssb_periodicity = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_periodicity != NULL);
+      *dst->ssb_periodicity = 40;
+      break;
+    case SSB_PERIODICITY_80:
+      dst->ssb_periodicity = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_periodicity != NULL);
+      *dst->ssb_periodicity = 80;
+      break;
+    case SSB_PERIODICITY_160:
+      dst->ssb_periodicity = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_periodicity != NULL);
+      *dst->ssb_periodicity = 160;
+      break;
+    default:
+      break;
+  }
+
+  switch (src.ssb_sub_carrier_spacing) {
+    case SSB_SUB_CARRIER_SPACING_15:
+      dst->ssb_sub_carrier_spacing = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_sub_carrier_spacing != NULL);
+      *dst->ssb_sub_carrier_spacing = 15;
+      break;
+    case SSB_SUB_CARRIER_SPACING_30:
+      dst->ssb_sub_carrier_spacing = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_sub_carrier_spacing != NULL);
+      *dst->ssb_sub_carrier_spacing = 30;
+      break;
+    case SSB_SUB_CARRIER_SPACING_120:
+      dst->ssb_sub_carrier_spacing = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_sub_carrier_spacing != NULL);
+      *dst->ssb_sub_carrier_spacing = 120;
+      break;
+    case SSB_SUB_CARRIER_SPACING_240:
+      dst->ssb_sub_carrier_spacing = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_sub_carrier_spacing != NULL);
+      *dst->ssb_sub_carrier_spacing = 240;
+      break;
+    default:
+      break;
+  }
+
+  dst->ssb_offset = calloc(1, sizeof(uint8_t));
+  assert(dst->ssb_offset != NULL);
+  *dst->ssb_offset = src.ssb_off_set;
+
+  switch (src.ssb_duration) {
+    case SSB_DURATION_1:
+      dst->ssb_duration = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_duration != NULL);
+      *dst->ssb_duration = 1;
+      break;
+    case SSB_DURATION_2:
+      dst->ssb_duration = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_duration != NULL);
+      *dst->ssb_duration = 2;
+      break;
+    case SSB_DURATION_3:
+      dst->ssb_duration = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_duration != NULL);
+      *dst->ssb_duration = 3;
+      break;
+    case SSB_DURATION_4:
+      dst->ssb_duration = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_duration != NULL);
+      *dst->ssb_duration = 4;
+      break;
+    case SSB_DURATION_5:
+      dst->ssb_duration = calloc(1, sizeof(uint32_t));
+      assert(dst->ssb_duration != NULL);
+      *dst->ssb_duration = 5;
+      break;
+    default:
+      break;
+  }
+
+  dst->b_s_channel_bw_dl = calloc(1, sizeof(uint32_t));
+  assert(dst->b_s_channel_bw_dl != NULL);
+  *dst->b_s_channel_bw_dl = src.bS_Channel_BwDL;
+
+  dst->b_s_channel_bw_ul = calloc(1, sizeof(uint32_t));
+  assert(dst->b_s_channel_bw_ul != NULL);
+  *dst->b_s_channel_bw_ul = src.bS_Channel_BwUL;
+
+  dst->b_s_channel_bw_sul = calloc(1, sizeof(uint32_t));
+  assert(dst->b_s_channel_bw_sul != NULL);
+  *dst->b_s_channel_bw_sul = src.bS_Channel_BwSUL;
+
+  if (src.sz_plmn_info_lst > 0){
+    dst->plmn_info_list = list_create(false, NULL);
+    for (size_t i = 0; i < src.sz_plmn_info_lst; ++i){
+      list_add_tail(
+          dst->plmn_info_list,
+          create_info_list_element(src.plmn_info_lst[i]),
+          sizeof(plmn_info_list_element_t *)
+      );
+    }
+  }
+
+  if (src.sz_bwp_lst){
+    dst->bwp_list = list_create(false, NULL);
+    for (size_t i = 0; i < src.sz_bwp_lst; ++i){
+      list_add_tail(
+          dst->bwp_list,
+          create_bwp_list_element(src.bwp_lst[i]),
+          sizeof(bwp_list_element_t *)
+      );
+    }
+  }
+
+  if (src.partition_lst.sz_partition_lst_item > 0){
+    dst->partition_list = list_create(false, NULL);
+    for (size_t i = 0; i < src.partition_lst.sz_partition_lst_item; ++i){
+      list_add_tail(
+          dst->partition_list,
+          create_partition_list_element(src.partition_lst.partition_lst_item[i]),
+          sizeof(partition_list_element_t*)
+      );
+    }
+  }
+
+  return dst;
+}
+
+static
 ran_configuration_structure_json_t* create_e2sm_ccc_o_bwp(e2sm_ccc_o_bwp_t const src){
   ran_configuration_structure_json_t* dst = calloc(1, sizeof(ran_configuration_structure_json_t));
   assert(dst != NULL);
@@ -617,7 +911,8 @@ values_of_attributes_json_t* create_values_of_attributes(values_of_attributes_t 
       res->ran_configuration_structure = create_e2sm_ccc_o_bwp(src->e2sm_ccc_o_bwp);
       break;
     case VALUES_OF_ATTRIBUTES_O_NRCellDU:
-      assert(0 != 0 && "No support VALUES_OF_ATTRIBUTES_O_NRCellDU");
+      res->ran_configuration_structure = create_e2sm_ccc_nr_cell_du(src->e2sm_ccc_o_nr_cell_du);
+      break;
     case VALUES_OF_ATTRIBUTES_O_NRCellCU:
       res->ran_configuration_structure = create_e2sm_ccc_nr_cell_cu(src->e2sm_ccc_o_nr_cell_cu);
       break;

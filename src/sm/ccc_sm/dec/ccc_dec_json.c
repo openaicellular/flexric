@@ -431,12 +431,6 @@ values_of_attributes_t  get_o_nr_cell_cu_cell(ran_configuration_structure_json_t
 }
 
 static
-values_of_attributes_t get_o_nr_cell_du_cell(ran_configuration_structure_json_t const* src){
-  assert(src != NULL);
-  assert(0 != 0 && "Not implemented");
-}
-
-static
 values_of_attributes_t get_o_bwp_cell(ran_configuration_structure_json_t const* src){
   assert(src != NULL);
   e2sm_ccc_o_bwp_t o_bwp = {0};
@@ -478,6 +472,229 @@ values_of_attributes_t get_o_bwp_cell(ran_configuration_structure_json_t const* 
   values_of_attributes_t dst = {0};
   dst.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_BWP;
   dst.e2sm_ccc_o_bwp = o_bwp;
+
+  return dst;
+}
+
+
+static
+e2sm_ccc_partition_flow_lst_item_t get_e2sm_ccc_partition_flow_lst_item(partition_flow_list_element_t const* src){
+  assert(src != NULL);
+
+  e2sm_ccc_partition_flow_lst_item_t dst = {0};
+
+  if (src->snssai)
+    dst.s_nssai = get_s_nssai_e2sm(src->snssai);
+
+  if (src->plmn_id){
+    dst.plmn_id = get_plmn_id_json(src->plmn_id);
+  }
+
+  if (src->the_5_qi_list != NULL){
+    dst.lst_5qi = calloc(1, sizeof(e2sm_ccc_5qi_lst_t));
+    assert(dst.lst_5qi != NULL);
+
+    int index = 0;
+    dst.lst_5qi->sz_lst_5qi = src->the_5_qi_list->count;
+    dst.lst_5qi->lst_5qi = calloc(src->the_5_qi_list->count, sizeof(uint32_t));
+    assert(dst.lst_5qi->lst_5qi != NULL && "Memory exhausted");
+    uint32_t* node = list_get_head(src->the_5_qi_list);
+    while(node != NULL){
+      dst.lst_5qi->lst_5qi[index] = *node;
+      node = list_get_next(src->the_5_qi_list);
+      index++;
+    }
+  }
+
+  return dst;
+}
+
+static
+e2sm_ccc_partition_lst_item_t get_e2sm_ccc_partition_lst_item(partition_list_element_t const* src){
+  assert(src != NULL);
+
+  e2sm_ccc_partition_lst_item_t dst = {0};
+
+  if (src->p_offset_to_point_a)
+    dst.p_offset_to_point_A = *src->p_offset_to_point_a;
+
+  if (src->p_number_of_r_bs){
+    dst.p_number_of_rbs = *src->p_number_of_r_bs;
+  }
+
+  if (src->partition_flow_list != NULL){
+    int index = 0;
+    dst.partition_flow_lst.sz_partition_flow_lst_item = src->partition_flow_list->count;
+    dst.partition_flow_lst.partition_flow_lst_item = calloc(src->partition_flow_list->count, sizeof(e2sm_ccc_partition_flow_lst_item_t));
+    assert(dst.partition_flow_lst.partition_flow_lst_item != NULL && "Memory exhausted");
+    partition_flow_list_element_t* node = list_get_head(src->partition_flow_list);
+    while(node != NULL){
+      dst.partition_flow_lst.partition_flow_lst_item[index] = get_e2sm_ccc_partition_flow_lst_item(node);
+      node = list_get_next(src->partition_flow_list);
+      index++;
+    }
+  }
+
+  return dst;
+}
+
+static
+values_of_attributes_t get_o_nr_cell_du_cell(ran_configuration_structure_json_t const* src){
+  assert(src != NULL);
+
+  e2sm_ccc_o_nr_cell_du_t nr_cell_du = {0};
+
+  if (src->cell_local_id)
+    nr_cell_du.cell_local_id = *src->cell_local_id;
+
+  if (src->operational_state)
+    nr_cell_du.operational_state = *src->operational_state;
+
+  if (src->administrative_state)
+    nr_cell_du.administrative_state = *src->administrative_state;
+
+  if (src->cell_state)
+    nr_cell_du.cell_state = *src->cell_state;
+
+  if (src->nr_pci)
+    nr_cell_du.nr_pci = *src->nr_pci;
+
+  if(src->nr_tac)
+    nr_cell_du.nr_tac = *src->nr_tac;
+
+  if (src->arfcn_dl)
+    nr_cell_du.arfcn_dl = *src->arfcn_dl;
+
+  if (src->arfcn_ul)
+    nr_cell_du.arfcn_ul = *src->arfcn_ul;
+
+  if (src->arfcn_sul)
+    nr_cell_du.arfcn_sul = *src->arfcn_sul;
+
+  if (src->ssb_frequency)
+    nr_cell_du.ssb_frequency = *src->ssb_frequency;
+
+  if (src->ssb_periodicity){
+    switch (*src->ssb_periodicity) {
+      case 5:
+        nr_cell_du.ssb_periodicity = SSB_PERIODICITY_5;
+        break;
+      case 10:
+        nr_cell_du.ssb_periodicity = SSB_PERIODICITY_10;
+        break;
+      case 20:
+        nr_cell_du.ssb_periodicity = SSB_PERIODICITY_20;
+        break;
+      case 40:
+        nr_cell_du.ssb_periodicity = SSB_PERIODICITY_40;
+        break;
+      case 80:
+        nr_cell_du.ssb_periodicity = SSB_PERIODICITY_80;
+        break;
+      case 160:
+        nr_cell_du.ssb_periodicity = SSB_PERIODICITY_160;
+        break;
+      default:
+        break;
+    }
+  }
+
+  if (src->ssb_sub_carrier_spacing){
+    switch (*src->ssb_sub_carrier_spacing) {
+      case 15:
+        nr_cell_du.ssb_sub_carrier_spacing = SSB_SUB_CARRIER_SPACING_15;
+        break;
+      case 30:
+        nr_cell_du.ssb_sub_carrier_spacing = SSB_SUB_CARRIER_SPACING_30;
+        break;
+      case 120:
+        nr_cell_du.ssb_sub_carrier_spacing = SSB_SUB_CARRIER_SPACING_120;
+        break;
+      case 240:
+        nr_cell_du.ssb_sub_carrier_spacing = SSB_SUB_CARRIER_SPACING_240;
+        break;
+      default:
+        break;
+    }
+  }
+
+  if (src->ssb_offset)
+    nr_cell_du.ssb_off_set = *src->ssb_offset;
+
+  if (src->ssb_duration){
+    switch (*src->ssb_duration) {
+      case 1:
+        nr_cell_du.ssb_duration= SSB_DURATION_1;
+        break;
+      case 2:
+        nr_cell_du.ssb_duration= SSB_DURATION_2;
+        break;
+      case 3:
+        nr_cell_du.ssb_duration= SSB_DURATION_3;
+        break;
+      case 4:
+        nr_cell_du.ssb_duration= SSB_DURATION_4;
+        break;
+      case 5:
+        nr_cell_du.ssb_duration= SSB_DURATION_5;
+        break;
+      default:
+        break;
+    }
+  }
+
+  if (src->b_s_channel_bw_dl)
+    nr_cell_du.bS_Channel_BwDL = *src->b_s_channel_bw_dl;
+
+  if (src->b_s_channel_bw_ul)
+    nr_cell_du.bS_Channel_BwUL = *src->b_s_channel_bw_ul;
+
+  if (src->b_s_channel_bw_sul)
+    nr_cell_du.bS_Channel_BwSUL = *src->b_s_channel_bw_sul;
+
+  if(src->plmn_info_list){
+    int index = 0;
+    nr_cell_du.sz_plmn_info_lst = src->plmn_info_list->count;
+    nr_cell_du.plmn_info_lst = calloc(src->plmn_info_list->count, sizeof(e2sm_ccc_plmn_info_t));
+    assert(nr_cell_du.plmn_info_lst != NULL && "Memory exhausted");
+    plmn_info_list_element_t* node = list_get_head(src->plmn_info_list);
+    while(node != NULL){
+      nr_cell_du.plmn_info_lst[index] = get_e2sm_ccc_plmn_info(node);
+      node = list_get_next(src->plmn_info_list);
+      index++;
+    }
+  }
+
+  if (src->bwp_list){
+    int index = 0;
+    nr_cell_du.sz_bwp_lst = src->bwp_list->count;
+    nr_cell_du.bwp_lst = calloc(src->bwp_list->count, sizeof(e2sm_ccc_o_bwp_t));
+    assert(nr_cell_du.bwp_lst!= NULL && "Memory exhausted");
+    bwp_list_element_t* node = list_get_head(src->bwp_list);
+    while(node != NULL){
+      values_of_attributes_t values_of_attributes = get_o_bwp_cell((ran_configuration_structure_json_t*)node);
+      nr_cell_du.bwp_lst[index] = values_of_attributes.e2sm_ccc_o_bwp;
+      node = list_get_next(src->bwp_list);
+      index++;
+    }
+  }
+
+  if (src->partition_list){
+    int index = 0;
+    nr_cell_du.partition_lst.sz_partition_lst_item = src->partition_list->count;
+    nr_cell_du.partition_lst.partition_lst_item = calloc(src->partition_list->count, sizeof(e2sm_ccc_partition_lst_item_t));
+    assert(nr_cell_du.partition_lst.partition_lst_item != NULL && "Memory exhausted");
+    partition_list_element_t* node = list_get_head(src->partition_list);
+    while(node != NULL){
+      nr_cell_du.partition_lst.partition_lst_item[index] = get_e2sm_ccc_partition_lst_item(node);
+      node = list_get_next(src->partition_list);
+      index++;
+    }
+  }
+
+  values_of_attributes_t dst = {0};
+  dst.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_NRCellDU;
+  dst.e2sm_ccc_o_nr_cell_du = nr_cell_du;
 
   return dst;
 }

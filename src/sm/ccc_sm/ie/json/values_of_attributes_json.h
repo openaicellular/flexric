@@ -16,9 +16,9 @@ typedef struct {
   bwp_context_e * bwp_context;
   cyclic_prefix_e * cyclic_prefix;
   is_initial_bwp_e * is_initial_bwp;
-  int64_t * number_of_r_bs;
-  int64_t * start_rb;
-  int64_t * sub_carrier_spacing;
+  uint32_t * number_of_r_bs;
+  uint32_t * start_rb;
+  uint32_t * sub_carrier_spacing;
 } bwp_list_element_t;
 
 typedef struct {
@@ -34,8 +34,8 @@ typedef struct {
 
 typedef struct {
   list_t * partition_flow_list;
-  int64_t * p_number_of_r_bs;
-  int64_t * p_offset_to_point_a;
+  uint32_t * p_number_of_r_bs;
+  uint32_t * p_offset_to_point_a;
 } partition_list_element_t ;
 
 typedef struct {
@@ -49,6 +49,13 @@ typedef struct {
 } r_rm_policy_member_list_element_t;
 
 typedef struct {
+  bwp_context_e * bwp_context;
+  cyclic_prefix_e * cyclic_prefix;
+  is_initial_bwp_e * is_initial_bwp;
+  uint32_t * number_of_r_bs;
+  uint32_t * start_rb;
+  uint32_t * sub_carrier_spacing;
+  // Keep the order correctly to map to bwp_list_element_t
   char * gnb_cu_name;
   uint32_t* gnb_id;
   uint8_t* gnb_id_length;
@@ -65,34 +72,28 @@ typedef struct {
   char * gnb_du_name;
   uint32_t * cell_local_id;
   administrative_state_e * administrative_state;
-  int64_t * arfcn_dl;
-  int64_t * arfcn_sul;
-  int64_t * arfcn_ul;
-  int64_t * b_s_channel_bw_dl;
-  int64_t * b_s_channel_bw_sul;
-  int64_t * b_s_channel_bw_ul;
+  uint32_t * arfcn_dl;
+  uint32_t * arfcn_sul;
+  uint32_t * arfcn_ul;
+  uint32_t * b_s_channel_bw_dl;
+  uint32_t * b_s_channel_bw_sul;
+  uint32_t * b_s_channel_bw_ul;
   list_t * bwp_list;
   cell_state_e * cell_state;
-  int64_t * nr_pci;
-  int64_t * nr_tac;
+  uint16_t* nr_pci;
+  uint32_t * nr_tac;
   operational_state_e * operational_state;
   list_t * partition_list;
-  int64_t * ssb_duration;
-  int64_t * ssb_frequency;
-  int64_t * ssb_offset;
-  int64_t * ssb_periodicity;
-  int64_t * ssb_sub_carrier_spacing;
+  uint32_t * ssb_duration;
+  uint32_t * ssb_frequency;
+  uint8_t * ssb_offset;
+  uint32_t * ssb_periodicity;
+  uint32_t * ssb_sub_carrier_spacing;
   resource_type_e * resource_type;
   uint8_t * r_rm_policy_dedicated_ratio;
   uint8_t * r_rm_policy_max_ratio;
   list_t * r_rm_policy_member_list;
   uint8_t * r_rm_policy_min_ratio;
-  bwp_context_e * bwp_context;
-  cyclic_prefix_e * cyclic_prefix;
-  is_initial_bwp_e * is_initial_bwp;
-  uint32_t* number_of_r_bs;
-  uint32_t* start_rb;
-  uint32_t* sub_carrier_spacing;
   bool * ces_switch;
   energy_saving_control_e * energy_saving_control;
   energy_saving_state_e * energy_saving_state;
