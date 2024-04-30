@@ -618,7 +618,6 @@ ctrl_out_conf_failed_t fill_ctrl_out_conf_failed(){
 }
 
 
-static
 e2sm_ccc_ind_msg_frmt_1_t fill_rnd_ccc_ind_msg_frmt_1(){
   e2sm_ccc_ind_msg_frmt_1_t dst = {0};
 
@@ -632,7 +631,6 @@ e2sm_ccc_ind_msg_frmt_1_t fill_rnd_ccc_ind_msg_frmt_1(){
   return dst;
 }
 
-static
 e2sm_ccc_ind_msg_frmt_2_t fill_rnd_ccc_ind_msg_frmt_2(){
   e2sm_ccc_ind_msg_frmt_2_t dst = {0};
 

@@ -29,7 +29,7 @@ e2sm_ccc_ind_hdr_t fill_rnd_ccc_ind_hdr(void);
 e2sm_ccc_ind_hdr_frmt_1_t fill_rnd_ccc_ind_hdr_frmt_1(void);
 
 e2sm_ccc_ind_msg_t fill_rnd_ccc_ind_msg(void);
-e2sm_ccc_ind_msg_frmt_2_t fill_rnd_ind_msg_frmt_2(void);
+e2sm_ccc_ind_msg_frmt_2_t fill_rnd_ccc_ind_msg_frmt_2(void);
 
 e2sm_ccc_cpid_t fill_rnd_ccc_cpid(void);
 
