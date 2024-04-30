@@ -158,12 +158,19 @@ void read_rc_e2_setup_xapp(void* data)
 }
 
 static
+void read_ccc_e2_setup_xapp(void* data)
+{
+  assert(data != NULL);
+}
+
+static
 sm_io_ag_ran_t init_io_ag_ran(void)
 {
   sm_io_ag_ran_t dst = {0};
 
   dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_kpm_e2setup_xapp;
   dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_rc_e2_setup_xapp;
+  dst.read_setup_tbl[CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_ccc_e2_setup_xapp;
 
   return dst;
 }

@@ -713,7 +713,7 @@ void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, ui
   assert(ctrl != NULL);
 
 //  assert(ran_func_id == SM_RC_ID || ran_func_id == SM_SLICE_ID || ran_func_id == SM_TC_ID );
-  assert(ran_func_id == 3 || ran_func_id == 145 || ran_func_id == 146);
+  assert(ran_func_id == 3 || ran_func_id == 145 || ran_func_id == 146 || ran_func_id == 4);
 
   sm_ric_t* sm = sm_plugin_ric(&ric->plugin ,ran_func_id); 
 
