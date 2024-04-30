@@ -56,10 +56,10 @@ void read_setup_ccc(void* read)
 {
   assert(read != NULL);
 
-  ccc_e2_setup_t* rc = (ccc_e2_setup_t*) read;
-  rc->ran_func_def = fill_ccc_ran_func_def();
-  cp_e2_setup.ran_func_def = cp_e2sm_ccc_func_def(&rc->ran_func_def);
-  assert(eq_e2sm_ccc_func_def(&cp_e2_setup.ran_func_def, &rc->ran_func_def) == true);
+  ccc_e2_setup_t* src = (ccc_e2_setup_t*) read;
+  src->ran_func_def = fill_ccc_ran_func_def();
+  cp_e2_setup.ran_func_def = cp_e2sm_ccc_func_def(&src->ran_func_def);
+  assert(eq_e2sm_ccc_func_def(&cp_e2_setup.ran_func_def, &src->ran_func_def) == true);
 }
 
 // For testing purposes
