@@ -58,15 +58,17 @@ sm_ag_if_ans_subs_t on_subscription_ccc_sm_ag(sm_agent_t const* sm_agent, const 
 
   sm_ag_if_ans_subs_t ans = {0};
 
-  e2sm_ccc_event_trigger_t event_trigger = ccc_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
-  defer({free_e2sm_ccc_event_trigger(&event_trigger);});
+  ccc_sub_data_t ccc = {0};
+  defer({free_ccc_sub_data(&ccc);});
 
-  if (event_trigger.format == FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT){
+  ccc.et = ccc_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
+
+  if (ccc.et.format == FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT){
     // Periodic
-    assert(event_trigger.frmt_3.period > 0);
+    assert(ccc.et.frmt_3.period > 0);
     subscribe_timer_t timer = {
         .type = CCC_V3_0_SUB_DATA_ENUM,
-        .ms = event_trigger.frmt_3.period
+        .ms = ccc.et.frmt_3.period
     };
     // Only 1 supported
     e2sm_ccc_action_def_t* tmp = calloc(1, sizeof(e2sm_ccc_action_def_t));
@@ -81,7 +83,7 @@ sm_ag_if_ans_subs_t on_subscription_ccc_sm_ag(sm_agent_t const* sm_agent, const 
     // Aperiodic
     wr_ccc_sub_data_t wr_ccc = {0};
     wr_ccc.ric_req_id = data->ric_req_id;
-    wr_ccc.ccc.et = event_trigger;
+    wr_ccc.ccc.et = ccc.et;
 
     // Only 1 supported
     wr_ccc.ccc.sz_ad = 1;

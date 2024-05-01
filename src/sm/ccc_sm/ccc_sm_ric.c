@@ -38,7 +38,6 @@ sm_subs_data_t on_subscription_ccc_sm_ric(sm_ric_t const* sm_ric, void* cmd)
   assert(src->ad != NULL); 
 
   const byte_array_t ba_ad = ccc_enc_action_def(&sm->enc, src->ad); 
-  assert(ba_ad.len < 10*1024 && "Really encoding so much data?" );
   dst.action_def = ba_ad.buf;
   dst.len_ad = ba_ad.len;
 

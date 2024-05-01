@@ -651,7 +651,6 @@ void free_ccc_sub_data(ccc_sub_data_t* src)
   free_e2sm_ccc_event_trigger(&src->et);
 
   // [1-16]
-  assert(src->sz_ad > 0 && src->sz_ad < 17);
   for(size_t i = 0; i < src->sz_ad; ++i){
     free_e2sm_ccc_action_def(&src->ad[i]);
   }
