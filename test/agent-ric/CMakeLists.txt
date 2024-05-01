@@ -16,20 +16,21 @@ endif()
 #############################
 
 add_executable(test_near_ric 
-  test_near_ric.c 
-  ../rnd/fill_rnd_data_gtp.c  
-  ../rnd/fill_rnd_data_tc.c                  
-  ../rnd/fill_rnd_data_mac.c  
+  test_near_ric.c
+  ../rnd/fill_rnd_data_gtp.c
+  ../rnd/fill_rnd_data_tc.c
+  ../rnd/fill_rnd_data_mac.c
   ../rnd/fill_rnd_data_rlc.c 
   ../rnd/fill_rnd_data_pdcp.c
   ../rnd/fill_rnd_data_kpm.c
   ../rnd/fill_rnd_data_rc.c                  
-  ../rnd/fill_rnd_data_slice.c 
+  ../rnd/fill_rnd_data_slice.c
+  ../rnd/fill_rnd_data_ccc.c
   ../rnd/fill_rnd_data_e2_setup_req.c
   ${KPM_SRC}
   ../../src/sm/rc_sm/ie/rc_data_ie.c
   ../../src/util/conversions.c
-  )
+)
 
 target_link_libraries(test_near_ric
   PUBLIC
@@ -38,6 +39,7 @@ target_link_libraries(test_near_ric
   ${FlatCC}
   kpm_sm_static
   rc_sm_static
+  ccc_sm_static
   #/home/mir/workspace/flatcc/lib/libflatccrt_d.a
   -pthread
   -lsctp

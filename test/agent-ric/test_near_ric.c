@@ -22,14 +22,14 @@
 #include "../src/ric/near_ric_api.h"
 #include "../src/agent/e2_agent_api.h"
 #include "../src/util/alg_ds/alg/defer.h"
-#include "../rnd/fill_rnd_data_gtp.h"                  
+#include "../rnd/fill_rnd_data_gtp.h"
 #include "../rnd/fill_rnd_data_tc.h"                  
 #include "../rnd/fill_rnd_data_mac.h"                  
 #include "../rnd/fill_rnd_data_rlc.h"                  
 #include "../rnd/fill_rnd_data_pdcp.h"                  
 #include "../rnd/fill_rnd_data_rc.h"                  
-#include "../rnd/fill_rnd_data_tc.h"                  
-#include "../rnd/fill_rnd_data_kpm.h"                  
+#include "../rnd/fill_rnd_data_ccc.h"
+#include "../rnd/fill_rnd_data_kpm.h"
 #include "../rnd/fill_rnd_data_slice.h"                  
 #include "../rnd/fill_rnd_data_e2_setup_req.h"
 
@@ -41,7 +41,10 @@
 #include <unistd.h>
 
 static
-pthread_t t;
+pthread_t t_rc;
+
+static
+pthread_t t_ccc;
 
 static
 void read_e2_setup_kpm(void* data)
@@ -182,7 +185,7 @@ void* emulate_rrc_msg(void* ptr)
     assert(d != NULL && "Memory exhausted");
     *d = fill_rnd_rc_ind_data();
     async_event_agent_api(sta_ric_id, d);
-    printf("Event for RIC Req ID %u generated\n", sta_ric_id);
+    printf("Event for RC RIC Req ID %u generated\n", sta_ric_id);
   }
 
   return NULL;
@@ -196,7 +199,7 @@ sm_ag_if_ans_t write_subs_rc(void const* data)
 
   sta_ric_id = wr_rc->ric_req_id;
 
-  int rc = pthread_create(&t, NULL, emulate_rrc_msg, NULL);
+  int rc = pthread_create(&t_rc, NULL, emulate_rrc_msg, NULL);
   assert(rc == 0);
 
   sm_ag_if_ans_t ans = {.type = SUBS_OUTCOME_SM_AG_IF_ANS_V0};
@@ -204,6 +207,94 @@ sm_ag_if_ans_t write_subs_rc(void const* data)
   ans.subs_out.aper.free_aper_subs = free_aperiodic_subscription;
   return ans;
 }
+
+/////////////////////////////
+/////////////////////////////
+////////// Start of CCC
+/////////////////////////////
+/////////////////////////////
+
+static
+sm_ag_if_ans_t write_ctrl_ccc(void const* ctrl)
+{
+  assert(ctrl != NULL);
+
+  ccc_ctrl_req_data_t const* ccc_ctrl = (ccc_ctrl_req_data_t const*)ctrl;
+  (void)ccc_ctrl;
+
+  printf("CCC message called in the RAN \n");
+
+  sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0};
+  ans.ctrl_out.type = CCC_V3_0_AGENT_IF_CTRL_ANS_V0;
+  ans.ctrl_out.ccc = fill_rnd_ccc_ctrl_out();
+  return ans;
+}
+
+static
+bool read_ind_ccc(void* ind)
+{
+  assert(ind != NULL);
+  ccc_ind_data_t* ccc = (ccc_ind_data_t *)ind;
+  ccc->hdr = fill_rnd_ccc_ind_hdr();
+  ccc->msg = fill_rnd_ccc_ind_msg();
+  return true;
+}
+
+static
+void read_e2_setup_ccc(void* data)
+{
+  assert(data != NULL);
+  //rc_e2_setup_t* ccc = (ccc_e2_setup_t*)data;
+}
+
+static
+uint32_t sta_ric_id_ccc;
+
+static
+void free_aperiodic_subscription_ccc(uint32_t ric_req_id)
+{
+  assert(ric_req_id == sta_ric_id_ccc);
+  (void)ric_req_id;
+}
+
+static
+void* emulate_aperiodic_event_ccc(void* ptr)
+{
+  (void)ptr;
+  for(size_t i = 0; i < 1; ++i){
+    usleep(rand()%5000);
+    ccc_ind_data_t* d = calloc(1, sizeof(ccc_ind_data_t));
+    assert(d != NULL && "Memory exhausted");
+    *d = fill_rnd_ccc_ind_data();
+    async_event_agent_api(sta_ric_id_ccc, d);
+    printf("Event for CCC RIC Req ID %u generated\n", sta_ric_id_ccc);
+  }
+
+  return NULL;
+}
+
+static
+sm_ag_if_ans_t write_subs_ccc(void const* data)
+{
+  assert(data != NULL);
+  wr_ccc_sub_data_t const* wr_ccc = (wr_ccc_sub_data_t const*)data;
+
+  sta_ric_id_ccc = wr_ccc->ric_req_id;
+
+  int rc = pthread_create(&t_ccc, NULL, emulate_aperiodic_event_ccc, NULL);
+  assert(rc == 0);
+
+  sm_ag_if_ans_t ans = {.type = SUBS_OUTCOME_SM_AG_IF_ANS_V0};
+  ans.subs_out.type = APERIODIC_SUBSCRIPTION_FLRC;
+  ans.subs_out.aper.free_aper_subs = free_aperiodic_subscription_ccc;
+  return ans;
+}
+
+/////////////////////////////
+/////////////////////////////
+////////// End of CCC
+/////////////////////////////
+/////////////////////////////
 
 static
 sm_io_ag_ran_t init_sm_io_ag_ran(void)
@@ -219,10 +310,12 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
   dst.read_ind_tbl[GTP_STATS_V0] =   read_ind_gtp;
   dst.read_ind_tbl[KPM_STATS_V3_0] =   read_ind_kpm;
   dst.read_ind_tbl[RAN_CTRL_STATS_V1_03] = read_ind_rc;
+  dst.read_ind_tbl[CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_ind_ccc;
 
   //  READ: E2 Setup
   dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
   dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_rc;
+  dst.read_setup_tbl[CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_ccc;
 
 #if defined(E2AP_V2) || defined(E2AP_V3)
   dst.read_setup_ran = read_e2_setup_ran;
@@ -230,9 +323,11 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
 
   // WRITE: CONTROL
   dst.write_ctrl_tbl[RAN_CONTROL_CTRL_V1_03] = write_ctrl_rc;
+  dst.write_ctrl_tbl[CCC_CTRL_REQ_V3_0] = write_ctrl_ccc;
 
   // WRITE: SUBSCRIPTION
-  dst.write_subs_tbl[RAN_CTRL_SUBS_V1_03] = write_subs_rc; 
+  dst.write_subs_tbl[RAN_CTRL_SUBS_V1_03] = write_subs_rc;
+  dst.write_subs_tbl[CCC_SUBS_V3_0] = write_subs_ccc;
 
   return dst;
 }
@@ -315,6 +410,26 @@ int main(int argc, char *argv[])
 
   control_service_near_ric_api(id, RC_ran_func_id, &rc_ctrl);
 
+  /// CCC Subscription
+  const uint16_t CCC_ran_func_id = 4;
+
+  ccc_sub_data_t ccc_sub = {.et.format = FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT,
+                            .et.frmt_3.period = 1};
+
+  // [1-16]
+  ccc_sub.sz_ad = 1;
+  ccc_sub.ad = calloc(ccc_sub.sz_ad, sizeof(e2sm_ccc_action_def_t));
+  assert(ccc_sub.ad != NULL && "Memory exhausted");
+
+  ccc_sub.ad[0] = fill_rnd_ccc_action_def();
+
+  const uint16_t h9 = report_service_near_ric_api(id, CCC_ran_func_id, &ccc_sub);
+
+  // CCC Control
+  ccc_ctrl_req_data_t ccc_ctrl = fill_ccc_ctrl();
+
+  control_service_near_ric_api(id, CCC_ran_func_id, &ccc_ctrl);
+
   sleep(2);
 
   rm_report_service_near_ric_api(id, MAC_ran_func_id, h);
@@ -325,6 +440,7 @@ int main(int argc, char *argv[])
   rm_report_service_near_ric_api(id, GTP_ran_func_id, h6);
   rm_report_service_near_ric_api(id, KPM_ran_func_id, h7);
   rm_report_service_near_ric_api(id, RC_ran_func_id, h8);
+  rm_report_service_near_ric_api(id, CCC_ran_func_id, h9);
 
   sleep(1);
 
@@ -337,11 +453,18 @@ int main(int argc, char *argv[])
   free_kpm_sub_data(&kpm_sub); 
   free_rc_sub_data(&rc_sub); 
   free_rc_ctrl_req_data(&rc_ctrl);
+  free_ccc_sub_data(&ccc_sub);
+  free_ccc_ctrl_req_data(&ccc_ctrl);
 
   free_e2_nodes_api(&e2_nodes); // e2_nodes_api_t* src);
 
-  int rc = pthread_join(t, NULL);
+  int rc = pthread_join(t_rc, NULL);
   assert(rc == 0);
+
+  if (ccc_sub.et.format != FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT){
+    int ccc = pthread_join(t_ccc, NULL);
+    assert(ccc == 0);
+  }
 
   printf("Test communicating E2-Agent and Near-RIC run SUCCESSFULLY\n");
 }
