@@ -52,6 +52,8 @@ void free_sm_ag_if_rd_ind(sm_ag_if_rd_ind_t* d)
     free_kpm_ind_data(&d->kpm.ind);
   } else if(d->type == RAN_CTRL_STATS_V1_03 ){
     free_rc_ind_data(&d->rc.ind);
+  } else if(d->type == CCC_STATS_V3_0){
+    free_ccc_ind_data(&d->ccc.ind);
   } else {
     assert(0!=0 && "Unforeseen case");
   }
@@ -90,6 +92,15 @@ sm_ag_if_rd_ind_t cp_sm_ag_if_rd_ind(sm_ag_if_rd_ind_t const* d)
       assert(tmp != NULL && "Memory exhausted");
       *tmp = cp_e2sm_rc_action_def(d->rc.act_def);
       ans.rc.act_def = tmp;
+    }
+  } else if(ans.type == CCC_STATS_V3_0) {
+    ans.ccc.ric_id = d->ccc.ric_id;
+    ans.ccc.ind = cp_ccc_ind_data(&d->ccc.ind);
+    if(d->ccc.act_def != NULL){
+      e2sm_ccc_action_def_t* tmp = calloc(1, sizeof(e2sm_ccc_action_def_t));
+      assert(tmp != NULL && "Memory exhausted");
+      *tmp = cp_e2sm_ccc_action_def(d->ccc.act_def);
+      ans.ccc.act_def = tmp;
     }
   } else {
     assert("Unknown type or not implemented");

@@ -48,6 +48,7 @@
 #include "../sm/gtp_sm/gtp_sm_id.h"
 #include "../sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../sm/rc_sm/rc_sm_id.h"
+#include "../sm/ccc_sm/ccc_sm_id.h"
 
 #include "../../test/rnd/fill_rnd_data_rc.h"
 #include "../../test/rnd/fill_rnd_data_kpm.h"
@@ -400,6 +401,7 @@ bool valid_ran_func_id(uint16_t ran_func_id)\
       || ran_func_id == SM_GTP_ID
       || ran_func_id == SM_KPM_ID
       || ran_func_id == SM_RC_ID
+      || ran_func_id == SM_CCC_ID
     )
     return true;
 
