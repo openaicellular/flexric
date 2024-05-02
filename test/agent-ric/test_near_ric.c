@@ -413,8 +413,11 @@ int main(int argc, char *argv[])
   /// CCC Subscription
   const uint16_t CCC_ran_func_id = 4;
 
-  ccc_sub_data_t ccc_sub = {.et.format = FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT,
-                            .et.frmt_3.period = 1};
+//  ccc_sub_data_t ccc_sub = {.et.format = FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT,
+//                            .et.frmt_3.period = 1};
+
+  ccc_sub_data_t ccc_sub = {0};
+  ccc_sub.et = fill_rnd_ccc_event_trigger();
 
   // [1-16]
   ccc_sub.sz_ad = 1;
