@@ -254,7 +254,16 @@ char const* oid_ccc_sm_ag (void)
   return SM_CCC_OID;
 }
 
+static
+void free_act_def_ccc_sm_ag(sm_agent_t *sm_agent, void* act_def_v)
+{
+  assert(sm_agent != NULL);
+  assert(act_def_v != NULL);
 
+  e2sm_ccc_action_def_t * act_def = act_def_v;
+  free_e2sm_ccc_action_def(act_def);
+  free(act_def);
+}
 
 sm_agent_t* make_ccc_sm_agent(sm_io_ag_ran_t io)
 {
@@ -272,7 +281,7 @@ sm_agent_t* make_ccc_sm_agent(sm_io_ag_ran_t io)
   sm->base.io.write_subs = io.write_subs_tbl[CCC_SUBS_V3_0];
 
   sm->base.free_sm = free_ccc_sm_ag;
-  sm->base.free_act_def = NULL; //free_act_def_ccc_sm_ag;
+  sm->base.free_act_def = free_act_def_ccc_sm_ag; //free_act_def_ccc_sm_ag;
 
   sm->base.proc.on_subscription = on_subscription_ccc_sm_ag;
   sm->base.proc.on_indication = on_indication_ccc_sm_ag;
