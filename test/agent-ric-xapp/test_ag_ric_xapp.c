@@ -597,17 +597,17 @@ int main(int argc, char *argv[])
   sm_ans_xapp_t h_5 = report_sm_xapp_api(&nodes.n[0].id, SM_RC_ID, &rc_sub, sm_cb_rc);
   assert(h_5.success);
 
-  // RC Control
+  // CCC Control
   ccc_ctrl_req_data_t ccc_ctrl = fill_ccc_ctrl();
   control_sm_xapp_api(&nodes.n[0].id, SM_CCC_ID, &ccc_ctrl);
   free_ccc_ctrl_req_data(&ccc_ctrl);
 
-  // RC Subscription
+  // CCC Subscription
   ccc_sub_data_t ccc_sub = {0};
   defer({ free_ccc_sub_data(&ccc_sub); });
 
   ccc_sub.et.format = FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT;
-  ccc_sub.et.frmt_3.period = 1;
+  ccc_sub.et.frmt_3.period = 10;
   // [1-16]
   ccc_sub.sz_ad = 1;
   ccc_sub.ad = calloc(ccc_sub.sz_ad, sizeof(e2sm_ccc_action_def_t));
@@ -615,7 +615,7 @@ int main(int argc, char *argv[])
   ccc_sub.ad[0] = fill_rnd_ccc_action_def();
 
   sm_ans_xapp_t h_6 = report_sm_xapp_api(&nodes.n[0].id, SM_CCC_ID, &ccc_sub, sm_cb_ccc);
-  assert(h_5.success);
+  assert(h_6.success);
 
   sleep(3);
   

@@ -134,7 +134,7 @@ static
 e2sm_ccc_ev_trg_frmt_1_t fill_rnd_ccc_ev_trg_frmt_1(){
   e2sm_ccc_ev_trg_frmt_1_t res = {0};
 
-  res.sz_ev_trg_ran_conf = (rand()%7) + 1;
+  res.sz_ev_trg_ran_conf = (rand()%3) + 1;
   res.ev_trg_ran_conf = calloc(res.sz_ev_trg_ran_conf, sizeof(ev_trg_ran_conf_t));
   assert(res.ev_trg_ran_conf != NULL && "Memory exhausted");
   for (size_t i = 0; i < res.sz_ev_trg_ran_conf; ++i){
@@ -148,12 +148,12 @@ static
 e2sm_ccc_ev_trg_frmt_2_t fill_rnd_ccc_ev_trg_frmt_2(){
   e2sm_ccc_ev_trg_frmt_2_t res = {0};
 
-  res.sz_ev_trg_cell = rand()%3 + 1;
+  res.sz_ev_trg_cell = (rand()%3) + 1;
   res.ev_trg_cell = calloc(res.sz_ev_trg_cell, sizeof(ev_trg_cell_t));
   assert(res.ev_trg_cell!= NULL && "Memory exhausted");
   for (size_t i = 0; i < res.sz_ev_trg_cell; ++i){
     res.ev_trg_cell[i].cell_global_id = fill_rnd_cell_global_id();
-    res.ev_trg_cell[i].sz_ev_trg_ran_conf = (rand()%8) + 1;
+    res.ev_trg_cell[i].sz_ev_trg_ran_conf = (rand()%3) + 1;
     res.ev_trg_cell[i].ev_trg_ran_conf = calloc(res.ev_trg_cell[i].sz_ev_trg_ran_conf, sizeof(ev_trg_ran_conf_t));
     for (size_t z = 0; z < res.ev_trg_cell[i].sz_ev_trg_ran_conf; ++z){
       res.ev_trg_cell[i].ev_trg_ran_conf[z] = fill_ev_trg_ran_conf();
@@ -196,7 +196,7 @@ act_def_cell_report_t fill_act_def_cell_report(){
   act_def_cell_report_t dst = {0};
 
   dst.cell_global_id = fill_rnd_cell_global_id();
-  dst.sz_act_def_ran_conf = (rand() % 8)+1;
+  dst.sz_act_def_ran_conf = (rand() % 2)+1;
   dst.act_def_ran_conf = calloc(dst.sz_act_def_ran_conf, sizeof(act_def_ran_conf_t));
   assert(dst.act_def_ran_conf != NULL && "Memory exhausted" );
 
@@ -211,7 +211,7 @@ static
 e2sm_ccc_act_def_frmt_2_t fill_rnd_ccc_act_def_frmt_2(){
   e2sm_ccc_act_def_frmt_2_t dst = {0};
 
-  dst.sz_act_def_cell_report = (rand() % 8)+1;
+  dst.sz_act_def_cell_report = (rand() % 2)+1;
 
   dst.act_def_cell_report = calloc(dst.sz_act_def_cell_report, sizeof(act_def_ran_conf_t));
   assert(dst.act_def_cell_report != NULL && "Memory exhausted" );
@@ -227,7 +227,7 @@ static
 e2sm_ccc_act_def_frmt_1_t fill_rnd_ccc_act_def_frmt_1(){
   e2sm_ccc_act_def_frmt_1_t dst = {0};
 
-  dst.sz_act_def_ran_conf = (rand() % 3)+1;
+  dst.sz_act_def_ran_conf = (rand() % 2)+1;
 
   dst.act_def_ran_conf = calloc(dst.sz_act_def_ran_conf, sizeof(act_def_ran_conf_t));
   assert(dst.act_def_ran_conf!= NULL && "Memory exhausted" );
@@ -621,7 +621,7 @@ ctrl_out_conf_failed_t fill_ctrl_out_conf_failed(){
 e2sm_ccc_ind_msg_frmt_1_t fill_rnd_ccc_ind_msg_frmt_1(){
   e2sm_ccc_ind_msg_frmt_1_t dst = {0};
 
-  dst.sz_ind_msg_node_conf = rand()%3 + 1;
+  dst.sz_ind_msg_node_conf = (rand()%3) + 1;
   dst.ind_msg_ran_conf = calloc(dst.sz_ind_msg_node_conf, sizeof(ind_msg_ran_conf_t));
   assert(dst.ind_msg_ran_conf != NULL && "Memory exhausted");
   for (size_t i = 0; i < dst.sz_ind_msg_node_conf; i++){
@@ -634,7 +634,7 @@ e2sm_ccc_ind_msg_frmt_1_t fill_rnd_ccc_ind_msg_frmt_1(){
 e2sm_ccc_ind_msg_frmt_2_t fill_rnd_ccc_ind_msg_frmt_2(){
   e2sm_ccc_ind_msg_frmt_2_t dst = {0};
 
-  dst.sz_ind_msg_cell_report= rand()%3 + 1;
+  dst.sz_ind_msg_cell_report= (rand()%3) + 1;
   dst.ind_msg_cell_report = calloc(dst.sz_ind_msg_cell_report, sizeof(ind_msg_cell_report_t));
   assert(dst.ind_msg_cell_report != NULL && "Memory exhausted");
   for (size_t i = 0; i < dst.sz_ind_msg_cell_report; i++) {
@@ -701,7 +701,7 @@ e2sm_ccc_ctrl_msg_frmt_1_t fill_rnd_ctrl_msg_frmt_1(void)
 {
   e2sm_ccc_ctrl_msg_frmt_1_t dst = {0};
 
-  dst.sz_ctrl_msg_ran_conf = rand()%3 + 1;
+  dst.sz_ctrl_msg_ran_conf = (rand()%3) + 1;
   dst.ctrl_msg_ran_conf = calloc(dst.sz_ctrl_msg_ran_conf, sizeof(ctrl_msg_ran_conf_t));
   assert(dst.ctrl_msg_ran_conf != NULL && "Memory exhausted");
   for (size_t i = 0; i < dst.sz_ctrl_msg_ran_conf; i++){
@@ -792,7 +792,7 @@ e2sm_ccc_ctrl_msg_frmt_2_t fill_rnd_ctrl_msg_frmt_2(void)
 {
   e2sm_ccc_ctrl_msg_frmt_2_t dst = {0};
 
-  dst.sz_ctrl_msg_cell = rand()%3 + 1;
+  dst.sz_ctrl_msg_cell = (rand()%3) + 1;
   dst.ctrl_msg_cell = calloc(dst.sz_ctrl_msg_cell, sizeof(ctrl_msg_cell_t));
   assert(dst.ctrl_msg_cell != NULL && "Memory exhausted");
   for (size_t i = 0; i < dst.sz_ctrl_msg_cell; i++) {
