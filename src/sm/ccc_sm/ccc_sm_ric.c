@@ -13,6 +13,7 @@ typedef struct{
 #ifdef JSON
   ccc_enc_json_t enc;
 #elif PLAIN
+  static_assert(false, "Not implemented ");
   ccc_enc_plain_t enc;
 #else
   static_assert(false, "No encryption type selected");

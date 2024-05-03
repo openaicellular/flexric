@@ -31,12 +31,27 @@
 
 typedef struct sm_agent_s sm_agent_t;
 
+typedef enum{
+  PERIODIC_ON_INDICATION_EVENT,
+  APERIODIC_ON_INDICATION_EVENT,
+
+  END_ON_INDICATIONI_EVENT
+} on_indication_ev_e;
+
+typedef struct{
+   on_indication_ev_e type;
+  union{
+    void* act_def; // used by periodic events
+    void* ind_data; // used by aperiodic events
+  };
+} on_ind_t;
+
 typedef struct{
 
   // @return granularity in ms or -1 if no periodic timer needed
   sm_ag_if_ans_subs_t (*on_subscription)(sm_agent_t const* sm, sm_subs_data_t const* data);
 
-  exp_ind_data_t (*on_indication)(sm_agent_t const* sm, void* act_def);
+  exp_ind_data_t (*on_indication)(sm_agent_t const* sm, on_ind_t on_ind);
 
   sm_ctrl_out_data_t (*on_control)(sm_agent_t const* sm, sm_ctrl_req_data_t const* data);
 

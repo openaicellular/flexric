@@ -67,17 +67,17 @@ bool eq_ind_event(const void* value, const void* key)
   return eq;
 }
 
-
-/*
 void free_ind_event(ind_event_t* src)
 {
   assert(src != NULL);
 
-//  ric_gen_id_t ric_id;
-  // Non-owning ptr
-//  sm_agent_t* sm;
-//  uint8_t action_id;
-  free_subscribe_timer(&src->sub);
+  // These 6 lines need refactoring
+  if(src->type == PERIODIC_SUBSCRIPTION_FLRC){
+     if(src->sm->free_act_def != NULL)
+        src->sm->free_act_def(src->sm, src->act_def);
+  } else if(src->type == APERIODIC_SUBSCRIPTION_FLRC)
+    src->free_subs_aperiodic(src->ric_id.ric_req_id);
+  else
+    assert(0 != 0 && "Unknown event type");
 }
-*/
 

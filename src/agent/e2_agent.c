@@ -217,7 +217,7 @@ void init_indication_event(e2_agent_t* ag)
   size_t key_sz_fd = sizeof(int);
   size_t key_sz_ind = sizeof(ind_event_t);
 
-  bi_map_init(&ag->ind_event, key_sz_fd, key_sz_ind, cmp_fd, cmp_ind_event, free_ind_event_map, free_key);
+  bi_map_init(&ag->ind_event, key_sz_fd, key_sz_ind, cmp_fd_ind_ev, cmp_ind_event, free_ind_event_map, free_key);
 
   pthread_mutexattr_t attr = {0};
 #ifdef DEBUG
@@ -237,7 +237,7 @@ void* ind_fd(e2_agent_t* ag, int fd)
   void* start_it = assoc_front(&ag->ind_event.left);
   void* end_it = assoc_end(&ag->ind_event.left);
 
-  void* it = find_if(&ag->ind_event.left, start_it, end_it, &fd, eq_fd );
+  void* it = find_if(&ag->ind_event.left, start_it, end_it, &fd, eq_fd_ind_ev);
   return it;
 }
 
@@ -365,7 +365,7 @@ async_event_t next_async_event_agent(e2_agent_t* ag)
     e.type = APERIODIC_INDICATION_EVENT;
 
   } else if (ind_event(ag, fd, &e.i_ev) == true) {
-    e.type = INDICATION_EVENT;
+    e.type = PERIODIC_INDICATION_EVENT;
 
   } else if (pend_event(ag, fd, &e.p_ev) == true){
     e.type = PENDING_EVENT;
@@ -414,7 +414,9 @@ void e2_event_loop_agent(e2_agent_t* ag)
 
             sm_agent_t const* sm = aind->arr[i].sm;
             void* ind_data = aind->arr[i].ind_data;
-            exp_ind_data_t exp = sm->proc.on_indication(sm, ind_data); // , &e.i_ev->ric_id);
+
+            on_ind_t const on_ind = {.type = APERIODIC_ON_INDICATION_EVENT, .ind_data = ind_data};
+            exp_ind_data_t exp = sm->proc.on_indication(sm, on_ind); 
             // Condition not matched e.g., No UE matches condition
             if(exp.has_value == false) {
               int rc = consume_fd_async(ag->io.pipe.r);
@@ -435,7 +437,7 @@ void e2_event_loop_agent(e2_agent_t* ag)
           }
           break;
         }
-      case INDICATION_EVENT:
+      case PERIODIC_INDICATION_EVENT:
         {
           #ifdef PROXY_AGENT
           if (get_IndTimer_sts() == false){
@@ -446,8 +448,8 @@ void e2_event_loop_agent(e2_agent_t* ag)
           #endif
 
           sm_agent_t const* sm = e.i_ev->sm;
-          void* act_def = e.i_ev->act_def; 
-          exp_ind_data_t exp = sm->proc.on_indication(sm, act_def); // , &e.i_ev->ric_id);
+          on_ind_t const on_ind = {.type = PERIODIC_ON_INDICATION_EVENT, .act_def = e.i_ev->act_def};
+          exp_ind_data_t exp = sm->proc.on_indication(sm, on_ind); 
           // Condition not matched e.g., No UE matches condition
           if(exp.has_value == false){
             printf("[E2 AGENT]: Condition not matched e.g., No UE matches condition. Emulator triggers this condition for testing, but not the RAN \n");

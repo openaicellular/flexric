@@ -37,6 +37,7 @@ typedef struct{
 #ifdef JSON
   ccc_enc_json_t enc;
 #elif PLAIN
+  static_assert(false, "Not implemented");
   ccc_enc_plain_t enc;
 #else
   static_assert(false, "No encryption type selected");
@@ -102,35 +103,18 @@ sm_ag_if_ans_subs_t on_subscription_ccc_sm_ag(sm_agent_t const* sm_agent, const 
 }
 
 static
-exp_ind_data_t on_indication_ccc_sm_ag(sm_agent_t const* sm_agent, void* act_def_v)
+exp_ind_data_t ccc_enc_ind(sm_ccc_agent_t const* sm, ccc_ind_data_t const* ind)
 {
-//  printf("on_indication CCC called \n");
-  assert(sm_agent != NULL);
-  assert(act_def_v != NULL && "Indication data needed for this SM");
-  
-  sm_ccc_agent_t* sm = (sm_ccc_agent_t*)sm_agent;
-
-  e2sm_ccc_action_def_t* act_def = act_def_v;
-
   exp_ind_data_t ret = {.has_value = true};
-
-  ccc_rd_ind_data_t ccc = {0};
-  defer({free_ccc_ind_data(&ccc.ind); });
-
-  ccc.act_def = act_def;
-  bool const success = sm->base.io.read_ind(&ccc);
-  if (success == false)
-    return (exp_ind_data_t){.has_value = false};
-
   // Fill Indication Header
-  byte_array_t ba_hdr = ccc_enc_ind_hdr(&sm->enc, &ccc.ind.hdr);
-//  assert(ba_hdr.len < 1024 && "Are you really encoding so much info?" );
+  byte_array_t ba_hdr = ccc_enc_ind_hdr(&sm->enc, &ind->hdr);
+  //  assert(ba_hdr.len < 1024 && "Are you really encoding so much info?" );
   ret.data.ind_hdr = ba_hdr.buf;
   ret.data.len_hdr = ba_hdr.len;
 
   // Fill Indication Message
-  byte_array_t ba_msg = ccc_enc_ind_msg(&sm->enc, &ccc.ind.msg);
-//  assert(ba_msg.len < 10*1024 && "Are you really encoding so much info?" );
+  byte_array_t ba_msg = ccc_enc_ind_msg(&sm->enc, &ind->msg);
+  // assert(ba_msg.len < 10*1024 && "Are you really encoding so much info?" );
   ret.data.ind_msg = ba_msg.buf;
   ret.data.len_msg = ba_msg.len;
 
@@ -139,6 +123,50 @@ exp_ind_data_t on_indication_ccc_sm_ag(sm_agent_t const* sm_agent, void* act_def
   ret.data.len_cpid = 0;
 
   return ret;
+}
+
+static
+exp_ind_data_t on_indication_per_ccc_sm_ag(sm_ccc_agent_t* sm, e2sm_ccc_action_def_t const* act_def)
+{
+  ccc_rd_ind_data_t ccc = {.act_def = act_def};
+  defer({free_ccc_ind_data(&ccc.ind); });
+
+  bool const success = sm->base.io.read_ind(&ccc);
+  if (success == false)
+    return (exp_ind_data_t){.has_value = false};
+
+  exp_ind_data_t ret = ccc_enc_ind(sm, &ccc.ind);
+  assert(ret.data.ind_hdr != NULL);
+
+  return ret; 
+}
+
+static
+exp_ind_data_t on_indication_aper_ccc_sm_ag(sm_ccc_agent_t* sm, ccc_ind_data_t* ind_data)
+{
+  exp_ind_data_t ret = ccc_enc_ind(sm, ind_data);
+
+  free_ccc_ind_data(ind_data);
+  free(ind_data);
+
+  assert(ret.data.ind_hdr != NULL);
+  return ret;
+}
+
+static
+exp_ind_data_t on_indication_ccc_sm_ag(sm_agent_t const* sm_agent, on_ind_t on_ind)
+{
+//  printf("on_indication CCC called \n");
+  assert(sm_agent != NULL);
+  assert(on_ind.type == PERIODIC_ON_INDICATION_EVENT || on_ind.type == APERIODIC_ON_INDICATION_EVENT);
+  
+  sm_ccc_agent_t* sm = (sm_ccc_agent_t*)sm_agent;
+
+  if(on_ind.type == PERIODIC_ON_INDICATION_EVENT)
+    return on_indication_per_ccc_sm_ag(sm, on_ind.act_def);
+ 
+  // APERIODIC_ON_INDICATION_EVENT 
+  return on_indication_aper_ccc_sm_ag(sm, on_ind.ind_data);
 }
 
 static
@@ -260,7 +288,7 @@ void free_act_def_ccc_sm_ag(sm_agent_t *sm_agent, void* act_def_v)
   assert(sm_agent != NULL);
   assert(act_def_v != NULL);
 
-  e2sm_ccc_action_def_t * act_def = act_def_v;
+  e2sm_ccc_action_def_t* act_def = act_def_v;
   free_e2sm_ccc_action_def(act_def);
   free(act_def);
 }

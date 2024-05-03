@@ -70,11 +70,12 @@ sm_ag_if_ans_subs_t on_subscription_mac_sm_ag(sm_agent_t const* sm_agent, const 
 }
 
 static
-exp_ind_data_t on_indication_mac_sm_ag(sm_agent_t const* sm_agent, void* act_def)
+exp_ind_data_t on_indication_mac_sm_ag(sm_agent_t const* sm_agent, on_ind_t on_ind)
 {
   //printf("on_indication called \n");
   assert(sm_agent != NULL);
-  assert(act_def == NULL && "Action definition data not needed for this SM");
+  assert(on_ind.type == PERIODIC_ON_INDICATION_EVENT);
+  assert(on_ind.act_def == NULL && "Action definition data not needed for this SM");
   sm_mac_agent_t* sm = (sm_mac_agent_t*)sm_agent;
 
   exp_ind_data_t ret = {.has_value = true};

@@ -59,6 +59,7 @@ byte_array_t ccc_enc_action_def_plain(e2sm_ccc_action_def_t const* action_def)
 byte_array_t ccc_enc_ind_hdr_plain(e2sm_ccc_ind_hdr_t const* ind_hdr)
 {
   assert(ind_hdr != NULL);
+  assert(0!=0 && "Not implemented");
 
   byte_array_t ba = {0};
 
@@ -68,6 +69,7 @@ byte_array_t ccc_enc_ind_hdr_plain(e2sm_ccc_ind_hdr_t const* ind_hdr)
 byte_array_t ccc_enc_ind_msg_plain(e2sm_ccc_ind_msg_t const* ind_msg)
 {
   assert(ind_msg != NULL);
+  assert(0!=0 && "Not implemented");
 
   byte_array_t ba = {0}; 
 

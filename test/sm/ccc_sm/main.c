@@ -194,7 +194,7 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
 
 // E2 -> RIC
 static
-void check_indication(sm_agent_t* ag, sm_ric_t* ric)
+void check_indication_per(sm_agent_t* ag, sm_ric_t* ric)
 {
   assert(ag != NULL);
   assert(ric != NULL);
@@ -202,7 +202,9 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   e2sm_ccc_action_def_t act_def = fill_rnd_ccc_action_def();
   defer({free_e2sm_ccc_action_def(&act_def); } );
 
-  exp_ind_data_t exp = ag->proc.on_indication(ag, &act_def);
+
+  on_ind_t on_ind = {.type = PERIODIC_ON_INDICATION_EVENT, .act_def= &act_def };
+  exp_ind_data_t exp = ag->proc.on_indication(ag, on_ind);
   assert(exp.has_value == true);
   defer({ free_exp_ind_data(&exp); }); 
   defer({ free_ccc_ind_data(&cp_ind); });
@@ -216,6 +218,32 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   assert(eq_ccc_ind_data(&cp_ind, data) == true);
 }
 
+// E2 -> RIC
+static
+void check_indication_aper(sm_agent_t* ag, sm_ric_t* ric)
+{
+  assert(ag != NULL);
+  assert(ric != NULL);
+
+  ccc_ind_data_t* d = calloc(1, sizeof(ccc_ind_data_t)); 
+  assert(d != NULL && "Memory exhausted");
+  *d = fill_rnd_ccc_ind_data();
+  cp_ind = cp_ccc_ind_data(d);
+
+  on_ind_t on_ind = {.type = APERIODIC_ON_INDICATION_EVENT, .ind_data = d };
+  exp_ind_data_t exp = ag->proc.on_indication(ag, on_ind );
+  assert(exp.has_value == true);
+  defer({ free_exp_ind_data(&exp); }); 
+  defer({ free_ccc_ind_data(&cp_ind); });
+
+  sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &exp.data);
+  assert(msg.type == CCC_STATS_V3_0);
+  defer({ free_ccc_ind_data(&msg.ccc.ind); });
+
+  ccc_ind_data_t const* data = &msg.ccc.ind;
+
+  assert(eq_ccc_ind_data(&cp_ind, data) == true);
+}
 
 static
 void check_ctrl(sm_agent_t* ag, sm_ric_t* ric)
@@ -278,7 +306,9 @@ int main()
   printf("Running RAN Control SM test. Patience. \n");
   for(int i =0 ; i < 1024; ++i){
     // check_eq_ran_function(sm_ag, sm_ric);
-    check_indication(sm_ag, sm_ric);
+    check_indication_per(sm_ag, sm_ric);
+    check_indication_aper(sm_ag, sm_ric);
+
     check_subscription(sm_ag, sm_ric);
     check_ctrl(sm_ag, sm_ric);
     check_e2_setup(sm_ag, sm_ric);

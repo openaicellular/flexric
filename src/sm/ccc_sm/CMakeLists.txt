@@ -16,6 +16,8 @@ set(SM_ENCODING_CCC_SRC
   )
 
 if(SM_ENCODING_CCC STREQUAL "PLAIN")
+  message(FATAL_ERROR "CCC SM PLAIN not implemented")
+
   add_subdirectory(ie/ir)
 
   set(SM_ENCODING_CCC_SRC_PLAIN
@@ -38,7 +40,7 @@ if(SM_ENCODING_CCC STREQUAL "PLAIN")
   # Static
   add_library(ccc_sm_static STATIC ${SM_ENCODING_CCC_SRC_PLAIN})
 
-elseif(SM_ENCODING_CCC STREQUAL "JSON" )
+elseif(SM_ENCODING_CCC STREQUAL "JSON")
   add_subdirectory(ie/json)
   add_subdirectory(ie/ir)
 
@@ -46,6 +48,11 @@ elseif(SM_ENCODING_CCC STREQUAL "JSON" )
           ${SM_ENCODING_CCC_SRC}
           enc/ccc_enc_json.c
           dec/ccc_dec_json.c
+
+          # Needed?
+          enc/ccc_enc_plain.c
+          dec/ccc_dec_plain.c
+
           $<TARGET_OBJECTS:e2sm_ccc_json_obj>
           $<TARGET_OBJECTS:e2sm_ccc_ir_obj>
           $<TARGET_OBJECTS:3gpp_derived_ie_obj>
@@ -56,7 +63,6 @@ elseif(SM_ENCODING_CCC STREQUAL "JSON" )
   add_library(ccc_sm SHARED ${SM_ENCODING_CCC_SRC_JSON})
 
   target_include_directories(ccc_sm PRIVATE "ie/json")
-#  target_compile_options(ccc_sm PRIVATE "-DASN_DISABLE_OER_SUPPORT" "-DASN_DISABLE_JER_SUPPORT" )
   target_compile_options(ccc_sm PRIVATE -fPIC -Wno-missing-field-initializers -Wno-unused-parameter -fvisibility=hidden)
   target_link_libraries(ccc_sm PRIVATE -lm -lpthread)
 
@@ -64,7 +70,6 @@ elseif(SM_ENCODING_CCC STREQUAL "JSON" )
   # Static
   add_library(ccc_sm_static STATIC ${SM_ENCODING_CCC_SRC_JSON})
   target_include_directories(ccc_sm_static PRIVATE "ie/json")
-#  target_compile_options(ccc_sm_static PRIVATE "-DASN_DISABLE_JER_SUPPORT" "-DASN_DISABLE_OER_SUPPORT")
   target_compile_options(ccc_sm_static PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fvisibility=hidden )
   target_link_libraries(ccc_sm_static PRIVATE -lm -lpthread)
 
