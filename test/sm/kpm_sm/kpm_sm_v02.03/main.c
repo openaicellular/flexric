@@ -123,7 +123,7 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
 
 // E2 -> RIC
 static
-void check_indication(sm_agent_t* ag, sm_ric_t* ric)
+void check_indication_per(sm_agent_t* ag, sm_ric_t* ric)
 {
   assert(ag != NULL);
   assert(ric != NULL);
@@ -141,7 +141,8 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   kpm_act_def_t act_def = fill_rnd_kpm_action_def();
   defer({  free_kpm_action_def(&act_def); } );
   
-  exp_ind_data_t exp = ag->proc.on_indication(ag, &act_def);
+  on_ind_t on_ind = {.type = PERIODIC_ON_INDICATION_EVENT, .act_def = &act_def };
+  exp_ind_data_t exp = ag->proc.on_indication(ag, on_ind);
   assert(exp.has_value == true);
   defer({ free_exp_ind_data(&exp); });
   defer({ free_kpm_ind_data(&cp_ind); });
@@ -187,7 +188,7 @@ int main()
   for(int i =0 ; i < 1024; ++i){
  //   check_eq_ran_function(sm_ag, sm_ric);
  //
-    check_indication(sm_ag, sm_ric);
+    check_indication_per(sm_ag, sm_ric);
     check_subscription(sm_ag, sm_ric);
 //    check_ctrl(sm_ag, sm_ric);
     check_e2_setup(sm_ag, sm_ric);

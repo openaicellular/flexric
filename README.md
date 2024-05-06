@@ -96,13 +96,12 @@ https://bit.ly/3uOXuCV
 
 - **Build and install**
 
-  List of options in CmakeList:
+  List of options in CMakeList:
   - `E2AP_VERSION=E2AP_V1/E2AP_V2/E2AP_V3` (E2AP_V2 by default)
   - `KPM_VERSION=KPM_V2_01/KPM_V2_03/KPM_V3_00` (KPM_V3 by default)
   - `XAPP_DB=SQLITE3_XAPP/MYSQL_XAPP/NONE_XAPP` (MYSQL_XAPP by default)
   - `XAPP_PYTHON_SWIG=ON/OFF` (ON by default)
   - `XAPP_GO_SWIG=ON/OFF` (OFF by default)
-  - `PROXY_AGENT=ON/OFF` (OFF by default)
    ```bash
    $ cd flexric
    $ mkdir build

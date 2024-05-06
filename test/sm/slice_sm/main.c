@@ -102,7 +102,8 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   assert(ag != NULL);
   assert(ric != NULL);
 
-  exp_ind_data_t exp = ag->proc.on_indication(ag, NULL);
+  on_ind_t on_ind = {.type = PERIODIC_ON_INDICATION_EVENT, .act_def = NULL };
+  exp_ind_data_t exp = ag->proc.on_indication(ag, on_ind);
   defer({ free_exp_ind_data(&exp); }); 
 
   sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &exp.data);

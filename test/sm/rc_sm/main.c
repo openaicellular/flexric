@@ -203,7 +203,7 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
 
 // E2 -> RIC
 static
-void check_indication(sm_agent_t* ag, sm_ric_t* ric)
+void check_indication_aper(sm_agent_t* ag, sm_ric_t* ric)
 {
   assert(ag != NULL);
   assert(ric != NULL);
@@ -213,7 +213,8 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   *d = fill_rnd_rc_ind_data();
   cp_ind = cp_rc_ind_data(d);
 
-  exp_ind_data_t exp = ag->proc.on_indication(ag, d);
+  on_ind_t on_ind = {.type = APERIODIC_ON_INDICATION_EVENT, .ind_data = d };
+  exp_ind_data_t exp = ag->proc.on_indication(ag, on_ind );
   assert(exp.has_value == true);
   defer({ free_exp_ind_data(&exp); }); 
   defer({ free_rc_ind_data(&cp_ind); });
@@ -289,7 +290,7 @@ int main()
   printf("Running RAN Control SM test. Patience. \n");
   for(int i =0 ; i < 1024; ++i){
     // check_eq_ran_function(sm_ag, sm_ric);
-    check_indication(sm_ag, sm_ric);
+    check_indication_aper(sm_ag, sm_ric);
     check_subscription(sm_ag, sm_ric);
     check_ctrl(sm_ag, sm_ric);
     check_e2_setup(sm_ag, sm_ric);

@@ -535,7 +535,7 @@ byte_array_t slice_enc_ctrl_hdr_plain(slice_ctrl_hdr_t const* ctrl_hdr)
   byte_array_t ba = {0};
   ba.len = sizeof(slice_ctrl_hdr_t);
   ba.buf = calloc(ba.len, sizeof(uint8_t));
-  assert(ba.buf != NULL && "memory exhausted");
+  assert(ba.buf != NULL && "Memory exhausted");
   memcpy(ba.buf, ctrl_hdr, ba.len);
 
   return ba;

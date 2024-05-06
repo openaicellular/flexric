@@ -45,10 +45,6 @@ add_library(e2_conf_obj OBJECT
 target_include_directories(e2_conf_obj PRIVATE ${LibConfig_INCLUDE_DIR})
 target_link_libraries(e2_conf_obj PRIVATE ${LibConfig_LIBRARY})
 target_compile_definitions(e2_conf_obj PRIVATE ${XAPP_DB})
-if(PROXY_AGENT)
-    target_compile_definitions(e2_conf_obj PRIVATE PROXY_AGENT)
-endif()
-
 
 add_library(e2_conv_obj OBJECT
                         conversions.c

@@ -32,10 +32,6 @@
 #include "util/conf_file.h"
 #include "util/alg_ds/ds/lock_guard/lock_guard.h"
 
-#ifdef PROXY_AGENT
-#include "proxy-agent/proxy_agent.h"
-#endif
-
 static
 e2_agent_t* agent = NULL;
 
@@ -132,13 +128,7 @@ void stop_agent_api(void)
 
 void async_event_agent_api(uint32_t ric_req_id, void* ind_data)
 {
-#ifdef PROXY_AGENT
-  e2_agent_t* proxy_agent = get_proxy_agent()->e2_if;
-  assert(proxy_agent != NULL);
-  e2_async_event_agent(proxy_agent, ric_req_id, ind_data);
-#else
   assert(agent != NULL);
   e2_async_event_agent(agent, ric_req_id, ind_data);
-#endif
 }
 

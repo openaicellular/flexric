@@ -36,6 +36,7 @@
 #define rc_enc_event_trigger(T,U) _Generic ((T), \
                            rc_enc_plain_t*: rc_enc_event_trigger_plain, \
                            rc_enc_asn_t*: rc_enc_event_trigger_asn,\
+                           rc_enc_asn_t const*: rc_enc_event_trigger_asn,\
                            rc_enc_fb_t*: rc_enc_event_trigger_fb,\
                            default: rc_enc_event_trigger_plain) (U)
 
@@ -48,42 +49,49 @@
 #define rc_enc_ind_hdr(T,U) _Generic ((T), \
                            rc_enc_plain_t*: rc_enc_ind_hdr_plain , \
                            rc_enc_asn_t*: rc_enc_ind_hdr_asn, \
+                           rc_enc_asn_t const*: rc_enc_ind_hdr_asn, \
                            rc_enc_fb_t*: rc_enc_ind_hdr_fb, \
                            default:  rc_enc_ind_hdr_plain) (U)
 
 #define rc_enc_ind_msg(T,U) _Generic ((T), \
                            rc_enc_plain_t*: rc_enc_ind_msg_plain , \
                            rc_enc_asn_t*: rc_enc_ind_msg_asn, \
+                           rc_enc_asn_t const*: rc_enc_ind_msg_asn, \
                            rc_enc_fb_t*: rc_enc_ind_msg_fb, \
                            default:  rc_enc_ind_msg_plain) (U)
 
 #define rc_enc_call_proc_id(T,U) _Generic ((T), \
                            rc_enc_plain_t*: rc_enc_call_proc_id_plain , \
                            rc_enc_asn_t*: rc_enc_call_proc_id_asn, \
+                           rc_enc_asn_t const*: rc_enc_call_proc_id_asn, \
                            rc_enc_fb_t*: rc_enc_call_proc_id_fb, \
                            default:  rc_enc_call_proc_id_plain) (U)
 
 #define rc_enc_ctrl_hdr(T,U) _Generic ((T), \
                            rc_enc_plain_t*: rc_enc_ctrl_hdr_plain , \
                            rc_enc_asn_t*: rc_enc_ctrl_hdr_asn, \
+                           rc_enc_asn_t const*: rc_enc_ctrl_hdr_asn, \
                            rc_enc_fb_t*: rc_enc_ctrl_hdr_fb, \
                            default:  rc_enc_ctrl_hdr_plain) (U)
 
 #define rc_enc_ctrl_msg(T,U) _Generic ((T), \
                            rc_enc_plain_t*: rc_enc_ctrl_msg_plain , \
                            rc_enc_asn_t*: rc_enc_ctrl_msg_asn, \
+                           rc_enc_asn_t const*: rc_enc_ctrl_msg_asn, \
                            rc_enc_fb_t*: rc_enc_ctrl_msg_fb, \
                            default: rc_enc_ctrl_msg_plain) (U)
 
 #define rc_enc_ctrl_out(T,U) _Generic ((T), \
                            rc_enc_plain_t*: rc_enc_ctrl_out_plain , \
                            rc_enc_asn_t*: rc_enc_ctrl_out_asn, \
+                           rc_enc_asn_t const*: rc_enc_ctrl_out_asn, \
                            rc_enc_fb_t*: rc_enc_ctrl_out_fb, \
                            default: rc_enc_ctrl_out_plain) (U)
 
 #define rc_enc_func_def(T,U) _Generic ((T), \
                            rc_enc_plain_t*: rc_enc_func_def_plain, \
                            rc_enc_asn_t*: rc_enc_func_def_asn, \
+                           rc_enc_asn_t const*: rc_enc_func_def_asn, \
                            rc_enc_fb_t*:  rc_enc_func_def_fb, \
                            default:  rc_enc_func_def_plain) (U)
 

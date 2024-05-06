@@ -46,81 +46,6 @@ typedef struct{
 
 } sm_rc_agent_t;
 
-/*
-static
-byte_array_t cp_str_to_ba(const char* str)
-{
-  assert(str != NULL);
-  
-  const size_t sz = strlen(str);
-
-  byte_array_t dst = {.len = sz};
-
-  dst.buf = calloc(sz,sizeof(uint8_t));
-  assert(dst.buf != NULL && "Memory exhausted");
-
-  memcpy(dst.buf, str, sz);
-
-  return dst;
-}
-static
-ran_function_name_t fill_rc_ran_func_name(void)
-{
-  ran_function_name_t dst = {0}; 
-
-    // RAN Function Short Name
-    // Mandatory
-    // PrintableString [1-150]
-    dst.name = cp_str_to_ba(SM_RAN_CTRL_SHORT_NAME);
-
-    // RAN Function Service Model OID
-    // Mandatory
-    // PrintableString [1-1000]
-    
-    //iso(1) identified-organization(3)
-    //dod(6) internet(1) private(4)
-    //enterprise(1) 53148 e2(1)
-    // version1 (1) e2sm(2) e2sm-RC-
-    // IEs (3)
-    dst.oid = cp_str_to_ba(SM_RAN_CTRL_OID);
-
-    // RAN Function Description
-    // Mandatory
-    // PrintableString [1- 150]
-    //RAN function RC “RAN Control” performs the following
-    //functionalities:
-    //- Exposure of RAN control and UE context related
-    //information.
-    //- Modification and initiation of RAN control related call
-    //processes and messages
-    //- Execution of policies that may result in change of
-    //RAN control behavior 
-
-    dst.description = cp_str_to_ba( SM_RAN_CTRL_DESCRIPTION);
-
-    // RAN Function Instance
-    // Optional
-    // INTEGER
-//    long* instance;	// OPTIONAL: it is suggested to be used when E2 Node declares
-//                                multiple RAN Function ID supporting the same  E2SM specification
-
-  return dst;
-}
-
-static
-e2sm_rc_func_def_t fill_rc_ran_func_def(sm_rc_agent_t const* sm)
-{
-  assert(sm != NULL);
-
-  // Call the RAN and fill the data  
-  sm_ag_if_rd_t rd = {.type = E2_SETUP_AGENT_IF_ANS_V0};
-  rd.e2ap.type = RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0;
-  sm->base.io.read(&rd);
-
-  return rd.e2ap.rc.func_def;
-}
-*/
-
 // 7.4.6
 // REPORT Service Style 5: On Demand Report
 static
@@ -129,50 +54,75 @@ bool on_demand_service_style(e2sm_rc_event_trigger_t et)
   return et.format == FORMAT_5_E2SM_RC_EV_TRIGGER_FORMAT ;
 }
 
-
 // Function pointers provided by the RAN for the 
 // 5 procedures, 
 // subscription, indication, control, 
 // E2 Setup and RIC Service Update. 
-//
+
 static
-exp_ind_data_t on_indication_rc_sm_ag(sm_agent_t const* sm_agent, void* act_def_v)
+exp_ind_data_t rc_enc_ind(sm_rc_agent_t const* sm, rc_ind_data_t const* ind)
 {
-//  printf("on_indication RC called \n");
-  assert(sm_agent != NULL);
-  assert(act_def_v != NULL && "Action Definition data needed for this SM");
-
-  sm_rc_agent_t* sm = (sm_rc_agent_t*)sm_agent;
-
-  e2sm_rc_action_def_t* act_def = act_def_v;
-
-  // Fill Indication Message and Header
-  rc_rd_ind_data_t rc = {.act_def = act_def}; 
-  // Free memory allocated by the RAN at read_ind. Sucks
-  defer({ free_rc_ind_data(&rc.ind); });
-
-  bool const success = sm->base.io.read_ind(&rc); 
-  if(success == false){
-    return ( exp_ind_data_t ){.has_value = false};
-  }
-
   exp_ind_data_t ret = {.has_value = true};
   // Fill Indication Header
-  byte_array_t ba_hdr = rc_enc_ind_hdr(&sm->enc, &rc.ind.hdr);
-  assert(ba_hdr.len < 1024 && "Are you really encoding so much info?" );
+  byte_array_t ba_hdr = rc_enc_ind_hdr(&sm->enc, &ind->hdr);
+  //  assert(ba_hdr.len < 1024 && "Are you really encoding so much info?" );
   ret.data.ind_hdr = ba_hdr.buf;
   ret.data.len_hdr = ba_hdr.len;
 
   // Fill Indication Message
-  byte_array_t ba_msg = rc_enc_ind_msg(&sm->enc, &rc.ind.msg);
-  assert(ba_msg.len < 10*1024 && "Are you really encoding so much info?" );
+  byte_array_t ba_msg = rc_enc_ind_msg(&sm->enc, &ind->msg);
+  // assert(ba_msg.len < 10*1024 && "Are you really encoding so much info?" );
   ret.data.ind_msg = ba_msg.buf;
   ret.data.len_msg = ba_msg.len;
 
-  // Fill Call Process ID
-  assert(rc.ind.proc_id == NULL && "Not implemented" );
+  // we do not have Call Process ID
+  ret.data.call_process_id = NULL;
+  ret.data.len_cpid = 0;
 
   return ret;
+}
+
+static
+exp_ind_data_t on_indication_per_rc_sm_ag(sm_rc_agent_t* sm, e2sm_rc_action_def_t const* act_def)
+{
+  rc_rd_ind_data_t rc = {.act_def = act_def};
+  defer({free_rc_ind_data(&rc.ind); });
+
+  bool const success = sm->base.io.read_ind(&rc);
+  if (success == false)
+    return (exp_ind_data_t){.has_value = false};
+
+  exp_ind_data_t ret = rc_enc_ind(sm, &rc.ind);
+  assert(ret.data.ind_hdr != NULL);
+
+  return ret; 
+}
+
+static
+exp_ind_data_t on_indication_aper_rc_sm_ag(sm_rc_agent_t* sm, rc_ind_data_t* ind_data)
+{
+  exp_ind_data_t ret = rc_enc_ind(sm, ind_data);
+
+  free_rc_ind_data(ind_data);
+  free(ind_data);
+
+  assert(ret.data.ind_hdr != NULL);
+  return ret;
+}
+
+static
+exp_ind_data_t on_indication_rc_sm_ag(sm_agent_t const* sm_agent, on_ind_t on_ind)
+{
+  assert(sm_agent != NULL);
+  assert(on_ind.type == PERIODIC_ON_INDICATION_EVENT || on_ind.type == APERIODIC_ON_INDICATION_EVENT);
+  
+  sm_rc_agent_t* sm = (sm_rc_agent_t*)sm_agent;
+
+  if(on_ind.type == PERIODIC_ON_INDICATION_EVENT)
+    return on_indication_per_rc_sm_ag(sm, on_ind.act_def);
+ 
+  // APERIODIC_ON_INDICATION_EVENT 
+  return on_indication_aper_rc_sm_ag(sm, on_ind.ind_data);
 }
 
 static
@@ -192,7 +142,7 @@ sm_ag_if_ans_subs_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const s
   wr_rc.rc.et = rc_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
   defer({ free_e2sm_rc_event_trigger(&wr_rc.rc.et); });
 
-  // Only 1 action definition supported
+  // Only 1 supported
   wr_rc.rc.sz_ad = 1;
   wr_rc.rc.ad = calloc(wr_rc.rc.sz_ad, sizeof(e2sm_rc_action_def_t));
   assert(wr_rc.rc.ad != NULL && "Memory exhausted");
@@ -201,8 +151,9 @@ sm_ag_if_ans_subs_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const s
   wr_rc.rc.ad[0] = rc_dec_action_def(&sm->enc, data->len_ad, data->action_def);
 
   if(on_demand_service_style(wr_rc.rc.et)){
-    sm_ag_if_ans_subs_t ans = {.type = ON_DEMAND_REPORT_RC_SM_FLRC};   
-    ans.rc_ind = on_indication_rc_sm_ag(sm_agent, wr_rc.rc.ad);
+    sm_ag_if_ans_subs_t ans = {.type = ON_DEMAND_REPORT_RC_SM_FLRC};
+    on_ind_t on_ind = {.type = PERIODIC_ON_INDICATION_EVENT, .act_def = wr_rc.rc.ad};
+    ans.rc_ind = on_indication_rc_sm_ag(sm_agent, on_ind);
     return ans;
   }
 

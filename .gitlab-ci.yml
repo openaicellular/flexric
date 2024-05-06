@@ -89,7 +89,7 @@ ProxyAgent-build:
     - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v2-kpm-v3.00-proxyagent
     - cd build-e2ap-v2-kpm-v3.00-proxyagent
-    - cmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF -DPROXY_AGENT=ON ..
+    - cmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
     - make -j
   artifacts:
     paths:

@@ -146,5 +146,36 @@ bool cmp_str(const void* a, const void* b)
   return ret == 0;
 }
 
+
+
+// Equality file descriptors
+static inline
+bool eq_fd_ind_ev(const void* key1, const void* key2 )
+{
+  assert(key1 != NULL);
+  assert(key2 != NULL);
+
+  int* fd1 = (int*)key1;
+  int* fd2 = (int*)key2;
+
+  return *fd1 == *fd2;
+}
+
+// Comparation file descriptors
+static inline 
+int cmp_fd_ind_ev(void const* fd_v1, void const* fd_v2)
+{
+  assert(fd_v1 != NULL);
+  assert(fd_v2 != NULL);
+  int* fd1 = (int*)fd_v1;
+  int* fd2 = (int*)fd_v2;
+
+  if(*fd1 < *fd2) return 1;
+  if(*fd1 == *fd2) return 0;
+  return -1;
+}
+
+
+
 #endif
 

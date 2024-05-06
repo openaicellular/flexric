@@ -82,13 +82,14 @@ sm_ag_if_ans_subs_t on_subscription_kpm_sm_ag(sm_agent_t const* sm_agent, const 
 }
 
 static 
-exp_ind_data_t on_indication_kpm_sm_ag(sm_agent_t const* sm_agent, void* act_def_v)
+exp_ind_data_t on_indication_kpm_sm_ag(sm_agent_t const* sm_agent, on_ind_t on_ind)
 {
   assert(sm_agent != NULL);
-  assert(act_def_v != NULL && "Action Definition data needed for this SM");
+  assert(on_ind.type == PERIODIC_ON_INDICATION_EVENT);
+  assert(on_ind.act_def != NULL && "Action Definition data needed for this SM");
   sm_kpm_agent_t* sm = (sm_kpm_agent_t*)sm_agent;
 
-  kpm_act_def_t* act_def = act_def_v;
+  kpm_act_def_t* act_def = on_ind.act_def;
 
   exp_ind_data_t ret = {.has_value = true};
 
