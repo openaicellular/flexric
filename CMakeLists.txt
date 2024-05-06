@@ -57,7 +57,7 @@ endif()
 
 #https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110157
 
-set(SANITIZER "NONE" CACHE STRING "Sanitizers")
+set(SANITIZER "ADDRESS" CACHE STRING "Sanitizers")
 set_property(CACHE SANITIZER PROPERTY STRINGS "NONE" "ADDRESS" "THREAD")
 message(STATUS "Selected SANITIZER TYPE: ${SANITIZER}")
 
