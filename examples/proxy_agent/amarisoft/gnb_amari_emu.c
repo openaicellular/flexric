@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <poll.h>
-#include "../src/proxy_ag/amarisoft/e2_agent_amr_api.h"
+#include "../src/proxy_agent/amarisoft/e2_agent_amr_api.h"
 
 static
 void stop_and_exit()
