@@ -213,7 +213,7 @@ e2sm_ccc_act_def_frmt_2_t fill_rnd_ccc_act_def_frmt_2(){
 
   dst.sz_act_def_cell_report = (rand() % 2)+1;
 
-  dst.act_def_cell_report = calloc(dst.sz_act_def_cell_report, sizeof(act_def_ran_conf_t));
+  dst.act_def_cell_report = calloc(dst.sz_act_def_cell_report, sizeof(act_def_cell_report_t));
   assert(dst.act_def_cell_report != NULL && "Memory exhausted" );
 
   for(size_t i = 0; i < dst.sz_act_def_cell_report; ++i){
@@ -296,12 +296,13 @@ e2sm_ccc_o_gnb_du_function_t fill_rnd_du_function_node(){
   return dst;
 }
 
-g_enb_id_lst_t fill_rnd_g_enb_id_lst(){
+g_enb_id_lst_t fill_rnd_g_enb_id_lst()
+{
   g_enb_id_lst_t dst = {0};
 
   dst.sz_g_enb_id_lst = rand()%3;
   if (dst.sz_g_enb_id_lst > 0){
-    dst.g_enb_id_lst = calloc(dst.sz_g_enb_id_lst, sizeof(g_enb_id_lst_t));
+    dst.g_enb_id_lst = calloc(dst.sz_g_enb_id_lst, sizeof(char*));
     assert(dst.g_enb_id_lst != NULL);
     for (size_t i = 0; i < dst.sz_g_enb_id_lst; i++){
       dst.g_enb_id_lst[i] = strdup("g_enb_id_lst");
@@ -316,7 +317,7 @@ g_gnb_id_lst_t fill_rnd_g_gnb_id_lst(){
 
   dst.sz_g_gnb_id_lst= rand()%3;
   if (dst.sz_g_gnb_id_lst> 0){
-    dst.g_gnb_id_lst = calloc(dst.sz_g_gnb_id_lst, sizeof(g_gnb_id_lst_t));
+    dst.g_gnb_id_lst = calloc(dst.sz_g_gnb_id_lst, sizeof(char*));
     assert(dst.g_gnb_id_lst!= NULL);
     for (size_t i = 0; i < dst.sz_g_gnb_id_lst; i++){
       dst.g_gnb_id_lst[i] = strdup("g_gnb_id_lst");

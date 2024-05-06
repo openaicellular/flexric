@@ -66,7 +66,7 @@ e2sm_ccc_partition_flow_lst_item_t cp_e2sm_ccc_partition_flow_item(e2sm_ccc_part
 
   // Optional
   if (src->lst_5qi){
-    dst.lst_5qi = calloc(1, sizeof(e2sm_ccc_partition_flow_lst_item_t));
+    dst.lst_5qi = calloc(1, sizeof(e2sm_ccc_5qi_lst_t));
     assert(dst.lst_5qi != NULL);
     *dst.lst_5qi = cp_e2sm_ccc_5qi_lst(src->lst_5qi);
   }
