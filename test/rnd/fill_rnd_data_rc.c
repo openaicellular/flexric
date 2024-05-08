@@ -1920,7 +1920,7 @@ nghbr_rel_info_t fill_rnd_nghbr_rel_info(void)
   // Neighbour Cell List
   // [1,65535]
   dst.sz_nghbr_cell = (rand()% 4) + 1 ;
-  dst.nghbr_cell = calloc(dst.sz_nghbr_cell, sizeof(nghbr_cell_t));
+  dst.nghbr_cell = calloc(dst.sz_nghbr_cell, sizeof(nr_nghbr_cell_t));
   assert(dst.nghbr_cell != NULL && "Memory exahusted");
   for(size_t i = 0; i < dst.sz_nghbr_cell; ++i){
    dst.nghbr_cell[i] = fill_rnd_nghbr_cell();  

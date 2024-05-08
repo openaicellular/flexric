@@ -354,9 +354,10 @@ mac_ctrl_msg_t cp_mac_ctrl_msg(mac_ctrl_msg_t* src)
   if (dst.ran_conf_len > 0) {
     dst.ran_conf = calloc(src->ran_conf_len, sizeof(mac_conf_t));
     assert(dst.ran_conf != NULL && "memory exhausted");
+
+    memcpy(dst.ran_conf, src->ran_conf, sizeof(mac_conf_t)*dst.ran_conf_len);
   }
 
-  memcpy(dst.ran_conf, src->ran_conf, sizeof(mac_conf_t)*dst.ran_conf_len);
   return dst;
 }
 

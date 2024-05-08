@@ -146,7 +146,7 @@ ric_indication_t generate_aindication(e2_agent_t const* ag, sm_ind_data_t const*
   ind.msg.len = data->len_msg;
   ind.msg.buf = data->ind_msg;
   if(data->call_process_id != NULL){
-    ind.call_process_id = malloc(sizeof(data->len_cpid) );
+    ind.call_process_id = calloc(1, sizeof(byte_array_t));
     assert(ind.call_process_id != NULL && "Memory exhausted" );
     ind.call_process_id->buf = data->call_process_id;
     ind.call_process_id->len = data->len_cpid;
@@ -171,7 +171,7 @@ ric_indication_t generate_indication(e2_agent_t const* ag, sm_ind_data_t const* 
   ind.msg.len = data->len_msg;
   ind.msg.buf = data->ind_msg;
   if(data->call_process_id != NULL){
-    ind.call_process_id = malloc(sizeof(data->len_cpid) );
+    ind.call_process_id = calloc(1, sizeof(byte_array_t));
     assert(ind.call_process_id != NULL && "Memory exhausted" );
     ind.call_process_id->buf = data->call_process_id;
     ind.call_process_id->len = data->len_cpid;
