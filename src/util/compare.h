@@ -146,8 +146,6 @@ bool cmp_str(const void* a, const void* b)
   return ret == 0;
 }
 
-
-
 // Equality file descriptors
 static inline
 bool eq_fd_ind_ev(const void* key1, const void* key2 )
@@ -174,8 +172,6 @@ int cmp_fd_ind_ev(void const* fd_v1, void const* fd_v2)
   if(*fd1 == *fd2) return 0;
   return -1;
 }
-
-
 
 #endif
 

@@ -25,6 +25,7 @@
 #include <assert.h>                        // for assert
 #include <errno.h>                         // for errno
 #include <fcntl.h>                         // for fcntl, F_GETFL, F_SETFL
+#include <stdbool.h>   
 #include <stdio.h>                         // for NULL, fprintf, stderr
 #include <string.h>                        // for strerror
 #include <sys/epoll.h>                     // for epoll_event, epoll_ctl
@@ -92,17 +93,72 @@ void add_fd_asio_agent(asio_agent_t* io, int fd)
   assert(rc != -1);
 }
 
+static inline
+bool periodic_ind_event(int fd)
+{
+  // Positive values used for periodic indication events
+  return fd >= 0;
+}
+
+static inline
+bool aperiodic_ind_event(int fd)
+{
+// Negative values are used for aperiodic indication events 
+  return fd < 0;
+}
+
 void rm_fd_asio_agent(asio_agent_t* io, int fd)
 {
   assert(io != NULL);
-  const int op = EPOLL_CTL_DEL;
-  const epoll_data_t e_data = {.fd = fd};
-  const int e_events = EPOLLIN; // open for reading
-  struct epoll_event event = {.events = e_events, .data = e_data};
-  int rc = epoll_ctl(io->efd, op, fd, &event);
-  assert(rc != -1);
-  rc = close(fd);
-  assert(rc == 0);
+
+  if(periodic_ind_event(fd)){
+    const int op = EPOLL_CTL_DEL;
+    const epoll_data_t e_data = {.fd = fd};
+    const int e_events = EPOLLIN; // open for reading
+    struct epoll_event event = {.events = e_events, .data = e_data};
+    int rc = epoll_ctl(io->efd, op, fd, &event);
+    assert(rc != -1);
+    rc = close(fd);
+    assert(rc == 0);
+  } else if(aperiodic_ind_event(fd)){
+    // Negative fd represetn aperiodic events
+    int const rc = close((-1)*fd);
+    assert(rc == 0);
+  } else {
+    assert(0!=0 && "Unknown type");
+  }
+}
+
+static
+int create_dummy_fd_asio_agent(void)
+{
+  // Create the timer
+  const int clockid = CLOCK_MONOTONIC;
+  const int flags = TFD_NONBLOCK | TFD_CLOEXEC;
+  const int tfd = timerfd_create(clockid, flags);
+  assert(tfd != -1);
+  return tfd;
+}
+
+static
+int create_aper_fd(int fd)
+{
+  assert(fd > -1);
+  // Negative fd values are used for aperiodic events
+  return (-1)*fd;
+}
+
+int create_aper_fd_asio_agent(asio_agent_t* io)
+{
+  assert(io != NULL);
+  (void)io;
+
+  int fd = create_dummy_fd_asio_agent();
+  assert(fd > -1);
+
+  int const aper_fd = create_aper_fd(fd);
+
+  return aper_fd;
 }
 
 int create_timer_ms_asio_agent(asio_agent_t* io, long initial_ms, long interval_ms)
@@ -112,10 +168,7 @@ int create_timer_ms_asio_agent(asio_agent_t* io, long initial_ms, long interval_
   assert(interval_ms > -1);
 
   // Create the timer
-  const int clockid = CLOCK_MONOTONIC;
-  const int flags = TFD_NONBLOCK | TFD_CLOEXEC;
-  const int tfd = timerfd_create(clockid, flags);
-  assert(tfd != -1);
+  const int tfd = create_dummy_fd_asio_agent();
 
   const time_t initial_sec = initial_ms / 1000;
   const long initial_nsec = (initial_ms * 1000000) % 1000000000;

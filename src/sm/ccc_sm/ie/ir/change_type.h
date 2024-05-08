@@ -1,0 +1,14 @@
+#ifndef CHANGE_TYPE_H
+#define  CHANGE_TYPE_H
+
+typedef enum {
+  CHANGE_TYPE_NONE,
+  CHANGE_TYPE_MODIFICATION,
+  CHANGE_TYPE_ADDITION,
+  CHANGE_TYPE_DELETION,
+
+  END_CHANGE_TYPE
+} change_type_e;
+
+
+#endif

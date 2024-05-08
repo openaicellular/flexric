@@ -23,12 +23,14 @@
 #define SUBSCRIBE_TIMER_EUR_H
 
 #include "../../kpm_sm/kpm_data_ie_wrapper.h"
+#include "../../ccc_sm/ie/ccc_data_ie.h"
 #include <stdint.h>
 #include <stdlib.h>
 
 typedef enum{
   KPM_V3_0_SUB_DATA_ENUM,
   RAN_CONTROL_V1_3_SUB_DATA_ENUM,
+  CCC_V3_0_SUB_DATA_ENUM,
   NONE_SUB_DATA_ENUM,
 
   END_SUB_DATA_ENUM,
@@ -40,7 +42,7 @@ typedef struct{
   // Number of elements.
   // Just one is supported
   size_t sz;
-  void* act_def; // e.g., kpm_act_def_t
+  void* act_def; // e.g., kpm_act_def_t. e2sm_ccc_action_def_t
 } subscribe_timer_t;
 
 void free_subscribe_timer(subscribe_timer_t* src);

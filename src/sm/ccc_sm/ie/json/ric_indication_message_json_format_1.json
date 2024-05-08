@@ -1,0 +1,62 @@
+{
+  "indicationMessageFormat": {
+    "listOfConfigurationStructuresReported": [
+      {
+        "changeType": "none",
+        "ranConfigurationStructureName": "O-NRCellCU",
+        "valuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "907",
+                  "mnc": "34"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 200
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "916",
+                  "mnc": "58"
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "824",
+                  "mnc": "28"
+                }
+              }
+            ],
+            "cellLocalId": 986
+          }
+        }
+      },
+      {
+        "changeType": "none",
+        "ranConfigurationStructureName": "O-GNBDUFunction",
+        "valuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbId": 2106464715,
+            "gnbIdLength": 124,
+            "gnbDuId": 1620735468,
+            "gnbDuName": "gnb_du_name"
+          }
+        }
+      },
+      {
+        "changeType": "none",
+        "ranConfigurationStructureName": "O-CESManagementFunction",
+        "valuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "cesSwitch": false,
+            "energySavingControl": "toBeEnergySaving",
+            "energySavingState": "isEnergySaving"
+          }
+        }
+      }
+    ]
+  }
+}

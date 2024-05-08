@@ -127,16 +127,6 @@ void check_indication_per(sm_agent_t* ag, sm_ric_t* ric)
 {
   assert(ag != NULL);
   assert(ric != NULL);
-/*  
-  sm_ag_if_wr_subs_t sub = {.type = KPM_SUBS_V3_0 }; 
-  defer({ free_kpm_sub_data(&sub.kpm); });
-
-  sub.kpm.ev_trg_def = fill_rnd_kpm_event_trigger_def();
-  sub.kpm.sz_ad = 1;
-  sub.kpm.ad = calloc(sub.kpm.sz_ad, sizeof(kpm_act_def_t));
-  assert(sub.kpm.ad != NULL && "Memory exhausted");
-  sub.kpm.ad[0] = 
-*/
   
   kpm_act_def_t act_def = fill_rnd_kpm_action_def();
   defer({  free_kpm_action_def(&act_def); } );

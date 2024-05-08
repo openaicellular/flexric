@@ -248,6 +248,11 @@ set(SM_ENCODING_RC "ASN" CACHE STRING "The RC SM encoding to use")
 set_property(CACHE SM_ENCODING_RC PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
 message(STATUS "Selected RC SM_ENCODING: ${SM_ENCODING_RC}")
 
+# CCC service Model encoding definitions
+set(SM_ENCODING_CCC "JSON" CACHE STRING "The CCC SM encoding to use")
+set_property(CACHE SM_ENCODING_CCC PROPERTY STRINGS "PLAIN" "JSON" "FLATBUFFERS")
+message(STATUS "Selected CCC SM_ENCODING: ${SM_ENCODING_CCC}")
+
 # MAC Service Model
 set(SM_ENCODING_MAC "PLAIN" CACHE STRING "The MAC SM encoding to use")
 set_property(CACHE SM_ENCODING_MAC PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
@@ -372,6 +377,12 @@ if (SM_RC)
   install(TARGETS rc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
 endif()
 
+option(SM_CCC "Install CCC SM" ON)
+message(STATUS "Install CCC SM: ${SM_CCC}")
+if (SM_CCC)
+  install(TARGETS ccc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
 ###
 # Install the configuration file
 ###
@@ -421,6 +432,9 @@ if (XAPP_C)
       DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   # slice ctrl
   install(TARGETS xapp_cust_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  # rb ctrl
+  install(TARGETS xapp_oran_rb_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  # rb ctrl
   # mwc
   install(TARGETS xapp_rc_ho_kpm DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   install(TARGETS xapp_rc_ctrl_ho DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)

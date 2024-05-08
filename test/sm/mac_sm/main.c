@@ -128,6 +128,9 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   free_mac_ind_hdr(&data->hdr);
   free_mac_ind_msg(&data->msg);
 
+  free_mac_ind_hdr(&cp.hdr);
+  free_mac_ind_msg(&cp.msg);
+
   free_exp_ind_data(&exp);
 }
 

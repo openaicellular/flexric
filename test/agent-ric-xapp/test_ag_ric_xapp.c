@@ -26,6 +26,7 @@
 #include "../../src/sm/gtp_sm/gtp_sm_id.h"
 #include "../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../../src/sm/rc_sm/rc_sm_id.h" 
+#include "../../src/sm/ccc_sm/ccc_sm_id.h"
 #include "../../src/util/alg_ds/alg/defer.h"
 #include "../../src/util/time_now_us.h"
 
@@ -37,6 +38,7 @@
 #include "../rnd/fill_rnd_data_rc.h"                  
 #include "../rnd/fill_rnd_data_tc.h"                  
 #include "../rnd/fill_rnd_data_kpm.h"                  
+#include "../rnd/fill_rnd_data_ccc.h"
 #include "../rnd/fill_rnd_data_slice.h"
 #include "../rnd/fill_rnd_data_e2_setup_req.h"
 
@@ -58,6 +60,12 @@ void read_e2_setup_rc(void* data)
 {
   assert(data != NULL);
   //rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
+}
+
+static
+void read_e2_setup_ccc(void* data)
+{
+  assert(data != NULL);
 }
 
 #ifdef E2AP_V1
@@ -235,6 +243,90 @@ sm_ag_if_ans_t write_subs_rc(void const* data)
   return ans;
 }
 
+/////////////////////////////
+/////////////////////////////
+////////// Start of CCC
+/////////////////////////////
+/////////////////////////////
+
+static
+pthread_t t_ccc;
+
+static
+sm_ag_if_ans_t write_ctrl_ccc(void const* ctrl)
+{
+  assert(ctrl != NULL);
+
+  ccc_ctrl_req_data_t const* ccc_ctrl = (ccc_ctrl_req_data_t const*)ctrl;
+  (void)ccc_ctrl;
+
+  printf("CCC message called in the RAN \n");
+
+  sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0};
+  ans.ctrl_out.type = CCC_V3_0_AGENT_IF_CTRL_ANS_V0;
+  ans.ctrl_out.ccc = fill_rnd_ccc_ctrl_out();
+  return ans;
+}
+
+static
+bool read_ind_ccc(void* ind)
+{
+  assert(ind != NULL);
+  ccc_ind_data_t* ccc = (ccc_ind_data_t *)ind;
+  ccc->hdr = fill_rnd_ccc_ind_hdr();
+  ccc->msg = fill_rnd_ccc_ind_msg();
+  return true;
+}
+
+static
+uint32_t sta_ric_id_ccc;
+
+static
+void free_aperiodic_subscription_ccc(uint32_t ric_req_id)
+{
+  assert(ric_req_id == sta_ric_id_ccc);
+  (void)ric_req_id;
+}
+
+static
+void* emulate_aperiodic_event_ccc(void* ptr)
+{
+  (void)ptr;
+  for(size_t i = 0; i < 1; ++i){
+    usleep(rand()%5000);
+    ccc_ind_data_t* d = calloc(1, sizeof(ccc_ind_data_t));
+    assert(d != NULL && "Memory exhausted");
+    *d = fill_rnd_ccc_ind_data();
+    async_event_agent_api(sta_ric_id_ccc, d);
+    printf("Event for CCC RIC Req ID %u generated\n", sta_ric_id_ccc);
+  }
+
+  return NULL;
+}
+
+static
+sm_ag_if_ans_t write_subs_ccc(void const* data)
+{
+  assert(data != NULL);
+  wr_ccc_sub_data_t const* wr_ccc = (wr_ccc_sub_data_t const*)data;
+
+  sta_ric_id_ccc = wr_ccc->ric_req_id;
+
+  int rc = pthread_create(&t_ccc, NULL, emulate_aperiodic_event_ccc, NULL);
+  assert(rc == 0);
+
+  sm_ag_if_ans_t ans = {.type = SUBS_OUTCOME_SM_AG_IF_ANS_V0};
+  ans.subs_out.type = APERIODIC_SUBSCRIPTION_FLRC;
+  ans.subs_out.aper.free_aper_subs = free_aperiodic_subscription_ccc;
+  return ans;
+}
+
+/////////////////////////////
+/////////////////////////////
+////////// End of CCC
+/////////////////////////////
+/////////////////////////////
+
 static
 int cnt_mac = 0;
 static
@@ -313,6 +405,17 @@ void sm_cb_rc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
   printf("RAN Control Indication data arrived from E2-node type %d ID %d\n", id->type, id->nb_id.nb_id);
 }
 
+static
+void sm_cb_ccc(sm_ag_if_rd_t const* rd, global_e2_node_id_t const* id)
+{
+  assert(rd != NULL);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == CCC_STATS_V3_0);
+
+  ccc_rd_ind_data_t const* ccc = &rd->ind.ccc;
+  (void)ccc;
+  printf("CCC data arrived from E2-node type %d ID %d\n", id->type, id->nb_id.nb_id);
+}
 
 static
 sm_ag_if_wr_t create_add_slice(void)
@@ -379,10 +482,12 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
   dst.read_ind_tbl[GTP_STATS_V0] =   read_ind_gtp;
   dst.read_ind_tbl[KPM_STATS_V3_0] =   read_ind_kpm;
   dst.read_ind_tbl[RAN_CTRL_STATS_V1_03] = read_ind_rc;
+  dst.read_ind_tbl[CCC_STATS_V3_0] = read_ind_ccc;
 
   //  READ: E2 Setup
   dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_kpm;
   dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_rc;
+  dst.read_setup_tbl[CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_e2_setup_ccc;
 
   //  READ: E2 Setup RAN
 #if defined(E2AP_V2) || defined(E2AP_V3)
@@ -392,17 +497,14 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
   // WRITE: CONTROL
   dst.write_ctrl_tbl[SLICE_CTRL_REQ_V0] = write_ctrl_slice;
   dst.write_ctrl_tbl[RAN_CONTROL_CTRL_V1_03] = write_ctrl_rc;
+  dst.write_ctrl_tbl[CCC_CTRL_REQ_V3_0] = write_ctrl_ccc;
 
   // WRITE: SUBSCRIPTION
   dst.write_subs_tbl[RAN_CTRL_SUBS_V1_03] = write_subs_rc;
+  dst.write_subs_tbl[CCC_SUBS_V3_0] = write_subs_ccc;
 
   return dst;
 }
-
-
-
-
-
 
 int main(int argc, char *argv[])
 {
@@ -495,6 +597,26 @@ int main(int argc, char *argv[])
   sm_ans_xapp_t h_5 = report_sm_xapp_api(&nodes.n[0].id, SM_RC_ID, &rc_sub, sm_cb_rc);
   assert(h_5.success);
 
+  // CCC Control
+  ccc_ctrl_req_data_t ccc_ctrl = fill_ccc_ctrl();
+  control_sm_xapp_api(&nodes.n[0].id, SM_CCC_ID, &ccc_ctrl);
+  free_ccc_ctrl_req_data(&ccc_ctrl);
+
+  // CCC Subscription
+  ccc_sub_data_t ccc_sub = {0};
+  defer({ free_ccc_sub_data(&ccc_sub); });
+
+  ccc_sub.et.format = FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT;
+  ccc_sub.et.frmt_3.period = 10;
+  // [1-16]
+  ccc_sub.sz_ad = 1;
+  ccc_sub.ad = calloc(ccc_sub.sz_ad, sizeof(e2sm_ccc_action_def_t));
+  assert(ccc_sub.ad != NULL && "Memory exhausted");
+  ccc_sub.ad[0] = fill_rnd_ccc_action_def();
+
+  sm_ans_xapp_t h_6 = report_sm_xapp_api(&nodes.n[0].id, SM_CCC_ID, &ccc_sub, sm_cb_ccc);
+  assert(h_6.success);
+
   sleep(3);
   
   rm_report_sm_xapp_api(h_1.u.handle);
@@ -502,6 +624,7 @@ int main(int argc, char *argv[])
   rm_report_sm_xapp_api(h_3.u.handle);
   rm_report_sm_xapp_api(h_4.u.handle);
   rm_report_sm_xapp_api(h_5.u.handle);
+  rm_report_sm_xapp_api(h_6.u.handle);
 
   sleep(1);
 

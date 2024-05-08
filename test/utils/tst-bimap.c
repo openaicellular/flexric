@@ -4,7 +4,7 @@
 #include "util/compare.h"
 #include "util/alg_ds/ds/assoc_container/bimap.h"
 
-static inline void free_ind_event(void* key, void* value)
+static inline void sta_free_ind_event(void* key, void* value)
 {
   assert(key != NULL);
   assert(value != NULL);
@@ -32,7 +32,7 @@ static void init_indication_event(bi_map_t *ind_event)
   size_t key_sz_fd = sizeof(int);
   size_t key_sz_ind = sizeof(ind_event_t);
 
-  bi_map_init(ind_event, key_sz_fd, key_sz_ind, cmp_fd, cmp_ind_event, free_ind_event, free_key);
+  bi_map_init(ind_event, key_sz_fd, key_sz_ind, cmp_fd, cmp_ind_event, sta_free_ind_event, free_key);
 }
 
 int main(){

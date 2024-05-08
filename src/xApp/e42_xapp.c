@@ -48,6 +48,7 @@
 #include "../sm/gtp_sm/gtp_sm_id.h"
 #include "../sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../sm/rc_sm/rc_sm_id.h"
+#include "../sm/ccc_sm/ccc_sm_id.h"
 
 #include "../../test/rnd/fill_rnd_data_rc.h"
 #include "../../test/rnd/fill_rnd_data_kpm.h"
@@ -158,12 +159,19 @@ void read_rc_e2_setup_xapp(void* data)
 }
 
 static
+void read_ccc_e2_setup_xapp(void* data)
+{
+  assert(data != NULL);
+}
+
+static
 sm_io_ag_ran_t init_io_ag_ran(void)
 {
   sm_io_ag_ran_t dst = {0};
 
   dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_kpm_e2setup_xapp;
   dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_rc_e2_setup_xapp;
+  dst.read_setup_tbl[CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_ccc_e2_setup_xapp;
 
   return dst;
 }
@@ -393,6 +401,7 @@ bool valid_ran_func_id(uint16_t ran_func_id)\
       || ran_func_id == SM_GTP_ID
       || ran_func_id == SM_KPM_ID
       || ran_func_id == SM_RC_ID
+      || ran_func_id == SM_CCC_ID
     )
     return true;
 

@@ -240,6 +240,8 @@ void fill_slice_ctrl(slice_ctrl_req_data_t* ctrl)
 {
    assert(ctrl != NULL);
 
+   ctrl->hdr.dummy = 2;
+
    uint32_t type = rand()%SLICE_CTRL_SM_V0_END;
    ctrl->msg.type = type;
 

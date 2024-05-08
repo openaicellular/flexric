@@ -1,0 +1,135 @@
+{
+  "controlMessageFormat": {
+    "listOfCellsControlled": [
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "1010550162",
+          "plmnIdentity": {
+            "mcc": "883",
+            "mnc": "94"
+          }
+        },
+        "listOfConfigurationStructures": [
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbCuName": "gnb_cu_name",
+                "gnbId": 561403665,
+                "gnbIdLength": 221,
+                "plmnId": {
+                  "mcc": "130",
+                  "mnc": "69"
+                },
+                "x2AllowList": [
+                  "g_enb_id_lst",
+                  "g_enb_id_lst"
+                ],
+                "x2BlockList": [
+                  "g_enb_id_lst",
+                  "g_enb_id_lst"
+                ],
+                "x2HOBlockList": [
+                  "g_enb_id_lst"
+                ],
+                "xnAllowList": [
+                  "g_gnb_id_lst",
+                  "g_gnb_id_lst"
+                ],
+                "xnBlockList": [
+                  "g_gnb_id_lst",
+                  "g_gnb_id_lst"
+                ]
+              }
+            },
+            "ranConfigurationStructureName": "O-GNBCUCPFunction"
+          },
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbId": 1090992686,
+                "gnbIdLength": 255,
+                "gnbDuId": 1669511407,
+                "gnbDuName": "gnb_du_name"
+              }
+            },
+            "oldValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "gnbId": 168362107,
+                "gnbIdLength": 125,
+                "gnbDuId": 2020620680,
+                "gnbDuName": "gnb_du_name"
+              }
+            },
+            "ranConfigurationStructureName": "O-GNBDUFunction"
+          }
+        ]
+      },
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "1142433508",
+          "plmnIdentity": {
+            "mcc": "804",
+            "mnc": "58"
+          }
+        },
+        "listOfConfigurationStructures": [
+          {
+            "newValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "plmnInfoList": [
+                  {
+                    "plmnId": {
+                      "mcc": "347",
+                      "mnc": "35"
+                    }
+                  },
+                  {
+                    "plmnId": {
+                      "mcc": "456",
+                      "mnc": "15"
+                    },
+                    "snssai": {
+                      "sd": "786432",
+                      "sst": 114
+                    }
+                  }
+                ],
+                "cellLocalId": 435
+              }
+            },
+            "oldValuesOfAttributes": {
+              "ranConfigurationStructure": {
+                "plmnInfoList": [
+                  {
+                    "plmnId": {
+                      "mcc": "951",
+                      "mnc": "58"
+                    }
+                  },
+                  {
+                    "plmnId": {
+                      "mcc": "686",
+                      "mnc": "83"
+                    },
+                    "snssai": {
+                      "sd": "786432",
+                      "sst": 208
+                    }
+                  },
+                  {
+                    "plmnId": {
+                      "mcc": "406",
+                      "mnc": "23"
+                    }
+                  }
+                ],
+                "cellLocalId": 372
+              }
+            },
+            "ranConfigurationStructureName": "O-NRCellCU"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -257,7 +257,7 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
   assert(msg_disp.rd.ind.type == MAC_STATS_V0 || msg_disp.rd.ind.type == RLC_STATS_V0
       || msg_disp.rd.ind.type == PDCP_STATS_V0 || msg_disp.rd.ind.type == SLICE_STATS_V0
       || msg_disp.rd.ind.type == KPM_STATS_V3_0 || msg_disp.rd.ind.type == GTP_STATS_V0
-      || msg_disp.rd.ind.type == RAN_CTRL_STATS_V1_03);
+      || msg_disp.rd.ind.type == RAN_CTRL_STATS_V1_03 || msg_disp.rd.ind.type == CCC_STATS_V3_0);
   
   act_proc_ans_t ans = find_act_proc(&xapp->act_proc, src->ric_id.ric_req_id);
 

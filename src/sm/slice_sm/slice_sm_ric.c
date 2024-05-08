@@ -89,7 +89,6 @@ sm_ctrl_req_data_t ric_on_control_req_slice_sm_ric(sm_ric_t const* sm_ric, void*
   sm_ag_if_wr_t* wr = (sm_ag_if_wr_t*)ctrl;
   assert(wr->type == CONTROL_SM_AG_IF_WR);
   assert(wr->ctrl.type == SLICE_CTRL_REQ_V0);
-  assert(wr->ctrl.slice_req_ctrl.hdr.dummy == 2);
 
   slice_ctrl_req_data_t const* data = &wr->ctrl.slice_req_ctrl;
   assert(data->hdr.dummy == 2);

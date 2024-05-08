@@ -54,7 +54,7 @@ bool eq_ind_event_ric_req_id(const void* value, const void* key);
 
 bool eq_ind_event(const void* value, const void* key);
 
-// void free_ind_event(ind_event_t* src);
+void free_ind_event(ind_event_t* src);
 
 #endif
 

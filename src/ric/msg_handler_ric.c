@@ -229,7 +229,7 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   assert(d.type == MAC_STATS_V0 || d.type == RLC_STATS_V0 
         || d.type == PDCP_STATS_V0 || d.type == SLICE_STATS_V0 
         || d.type == KPM_STATS_V3_0 || d.type == RAN_CTRL_STATS_V1_03 
-        || d.type == GTP_STATS_V0 || d.type == TC_STATS_V0 );
+        || d.type == GTP_STATS_V0 || d.type == TC_STATS_V0 || d.type == CCC_STATS_V3_0);
 
   publish_ind_msg(ric, ran_func_id, &d);
 

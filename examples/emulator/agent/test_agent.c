@@ -37,6 +37,7 @@
 #include "sm_tc.h"
 #include "sm_kpm.h"
 #include "sm_rc.h"
+#include "sm_ccc.h"
 #include <assert.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -56,6 +57,7 @@ void init_read_ind_tbl(read_ind_fp (*read_ind_tbl)[SM_AGENT_IF_READ_V0_END])
   (*read_ind_tbl)[GTP_STATS_V0] = read_gtp_sm ;
   (*read_ind_tbl)[KPM_STATS_V3_0] = read_kpm_sm ;
   (*read_ind_tbl)[RAN_CTRL_STATS_V1_03] = read_rc_sm;
+  (*read_ind_tbl)[CCC_STATS_V3_0] = read_ccc_sm;
 }
 
 static
@@ -69,6 +71,7 @@ void init_read_setup_tbl(read_e2_setup_fp (*read_setup_tbl)[SM_AGENT_IF_E2_SETUP
   (*read_setup_tbl)[GTP_AGENT_IF_E2_SETUP_ANS_V0] = read_gtp_setup_sm ;
   (*read_setup_tbl)[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_kpm_setup_sm ;
   (*read_setup_tbl)[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_rc_setup_sm;
+  (*read_setup_tbl)[CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_ccc_setup_sm;
 }
 
 static
@@ -81,6 +84,7 @@ void init_write_ctrl( write_ctrl_fp (*write_ctrl_tbl)[SM_AGENT_IF_WRITE_CTRL_V0_
   (*write_ctrl_tbl)[TC_CTRL_REQ_V0] =  write_ctrl_tc_sm;
   (*write_ctrl_tbl)[GTP_CTRL_REQ_V0] =  write_ctrl_gtp_sm;
   (*write_ctrl_tbl)[RAN_CONTROL_CTRL_V1_03] =  write_ctrl_rc_sm;
+  (*write_ctrl_tbl)[CCC_CTRL_REQ_V3_0] =  write_ctrl_ccc_sm;
 }
 
 
@@ -95,6 +99,7 @@ void init_write_subs(write_subs_fp (*write_subs_tbl)[SM_AGENT_IF_WRITE_SUBS_V0_E
   (*write_subs_tbl)[GTP_SUBS_V0] = NULL;
   (*write_subs_tbl)[KPM_SUBS_V3_0] = NULL;
   (*write_subs_tbl)[RAN_CTRL_SUBS_V1_03] = write_subs_rc_sm;
+  (*write_subs_tbl)[CCC_CTRL_REQ_V3_0] = write_subs_ccc_sm;
 }
 
 static
@@ -108,6 +113,7 @@ void init_sm(void)
   init_rlc_sm();
   init_slice_sm();
   init_tc_sm();
+  init_ccc_sm();
 }
 
 static

@@ -72,6 +72,11 @@ if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
             ../../test/rnd/fill_rnd_data_rc.c
             $<TARGET_OBJECTS:e2sm_rc_ir_obj>
 
+            # CCC SM
+            ../sm/ccc_sm/ie/ccc_data_ie.c
+            ../../test/rnd/fill_rnd_data_ccc.c
+            $<TARGET_OBJECTS:e2sm_ccc_ir_obj>
+
             ../util/e2ap_ngran_type.c
             ../sm/mac_sm/ie/mac_data_ie.c
             ../sm/rlc_sm/ie/rlc_data_ie.c
@@ -128,6 +133,11 @@ else()
             ../sm/rc_sm/ie/rc_data_ie.c
             ../../test/rnd/fill_rnd_data_rc.c
             $<TARGET_OBJECTS:e2sm_rc_ir_obj>
+
+            # CCC SM
+            ../sm/ccc_sm/ie/ccc_data_ie.c
+            ../../test/rnd/fill_rnd_data_ccc.c
+            $<TARGET_OBJECTS:e2sm_ccc_ir_obj>
 
             ../util/e2ap_ngran_type.c
             ../sm/mac_sm/ie/mac_data_ie.c
