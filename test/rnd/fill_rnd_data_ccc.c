@@ -860,8 +860,7 @@ ran_function_name_t fill_ccc_ran_func_name(void){
   //iso(1) identified-organization(3)
   //dod(6) internet(1) private(4)
   //enterprise(1) 53148 e2(1)
-  // version1 (1) e2sm(2) e2sm-RC-
-  // IEs (3)
+  // version1 (1) e2sm(2) e2sm-CCC-IEs (4)
   dst.oid.buf = calloc(strlen(SM_CCC_OID) + 1, sizeof(uint8_t));
   memcpy(dst.oid.buf, SM_CCC_OID, strlen(SM_CCC_OID));
   dst.oid.len = strlen(SM_CCC_OID);

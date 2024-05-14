@@ -1,6 +1,7 @@
 #include "init_sm_amr.h"
 #include "kpm_sm_amr.h"
 #include "rc_sm_amr.h"
+#include "ccc_sm_amr.h"
 #include "../../../lib/e2ap/e2ap_node_component_config_add_wrapper.h"
 
 static
@@ -53,6 +54,7 @@ void init_read_ind_tbl_proxy(read_ind_fp (*read_ind_tbl)[SM_AGENT_IF_READ_V0_END
   (*read_ind_tbl)[GTP_STATS_V0] = NULL;
   (*read_ind_tbl)[KPM_STATS_V3_0] = read_kpm_sm_amr;
   (*read_ind_tbl)[RAN_CTRL_STATS_V1_03] = read_rc_sm_amr;
+  (*read_ind_tbl)[CCC_STATS_V3_0] = read_ccc_sm_amr;
 }
 
 static
@@ -66,6 +68,7 @@ void init_read_setup_tbl_proxy(read_e2_setup_fp (*read_setup_tbl)[SM_AGENT_IF_E2
   (*read_setup_tbl)[GTP_AGENT_IF_E2_SETUP_ANS_V0] = NULL;
   (*read_setup_tbl)[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_kpm_setup_sm_amr;
   (*read_setup_tbl)[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_rc_setup_sm_amr;
+  (*read_setup_tbl)[CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_ccc_setup_sm_amr;
 }
 
 static
@@ -78,6 +81,7 @@ void init_write_ctrl_proxy(write_ctrl_fp (*write_ctrl_tbl)[SM_AGENT_IF_WRITE_CTR
   (*write_ctrl_tbl)[TC_CTRL_REQ_V0] = NULL;
   (*write_ctrl_tbl)[GTP_CTRL_REQ_V0] = NULL;
   (*write_ctrl_tbl)[RAN_CONTROL_CTRL_V1_03] = write_ctrl_rc_sm_amr;
+  (*write_ctrl_tbl)[CCC_CTRL_REQ_V3_0] = write_ctrl_ccc_sm_amr;
 }
 
 static
@@ -91,6 +95,7 @@ void init_write_subs_proxy(write_subs_fp (*write_subs_tbl)[SM_AGENT_IF_WRITE_SUB
   (*write_subs_tbl)[GTP_SUBS_V0] = NULL;
   (*write_subs_tbl)[KPM_SUBS_V3_0] = NULL;
   (*write_subs_tbl)[RAN_CTRL_SUBS_V1_03] = write_subs_rc_sm_amr;
+  (*write_subs_tbl)[CCC_V3_0_SUB_DATA_ENUM] = write_subs_ccc_sm_amr;
 }
 
 static
@@ -98,6 +103,7 @@ void init_sm_all(void)
 {
   init_kpm_sm_amr();
   init_rc_sm_amr();
+  init_ccc_sm_amr();
 }
 
 void init_sm_amr(sm_io_ag_ran_t* io)
@@ -119,5 +125,6 @@ void free_sm_amr(sm_io_ag_ran_t* io)
 {
   assert(io != NULL);
   free_kpm_sm_amr();
+  free_ccc_sm_amr();
 }
 
