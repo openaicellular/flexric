@@ -52,6 +52,7 @@ ctrl_msg_ran_conf_t fill_ctrl_msg_ran_conf()
   dst.ran_conf_name = cp_str_to_ba("O-BWP");
   dst.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_BWP;
   dst.vals_attributes.e2sm_ccc_o_bwp = fill_e2sm_ccc_o_bwp();
+  // TODO: Add old value of attributes because its mandatory
   return dst;
 }
 
@@ -64,10 +65,7 @@ ctrl_msg_cell_t fill_ctrl_msg_cell()
   dst.sz_ctrl_msg_ran_conf = 1;
   dst.ctrl_msg_ran_conf = calloc(dst.sz_ctrl_msg_ran_conf, sizeof(ctrl_msg_ran_conf_t));
   assert(dst.ctrl_msg_ran_conf!= NULL && "Memory exhausted");
-
-  for (size_t i = 0; i < dst.sz_ctrl_msg_ran_conf; i++) {
-    dst.ctrl_msg_ran_conf[i] = fill_ctrl_msg_ran_conf();
-  }
+  dst.ctrl_msg_ran_conf[0] = fill_ctrl_msg_ran_conf();
 
   return dst;
 }
@@ -82,10 +80,7 @@ e2sm_ccc_ctrl_msg_t gen_msg(void)
   dst.frmt_2.sz_ctrl_msg_cell = 1;
   dst.frmt_2.ctrl_msg_cell = calloc(dst.frmt_2.sz_ctrl_msg_cell, sizeof(ctrl_msg_cell_t));
   assert(dst.frmt_2.ctrl_msg_cell != NULL);
-  
-  for (size_t i = 0; i < dst.frmt_2.sz_ctrl_msg_cell; i++){
-    dst.frmt_2.ctrl_msg_cell[i] = fill_ctrl_msg_cell();
-  }
+  dst.frmt_2.ctrl_msg_cell[0] = fill_ctrl_msg_cell();
 
   return dst;
 }
