@@ -18,8 +18,8 @@ typedef struct{
   values_of_attributes_t vals_attributes;
 
   // Old Values of Attributes
-  // Optional
-  values_of_attributes_t* old_vals_attributes;
+  // Mandatory
+  values_of_attributes_t old_vals_attributes;
 
 } ctrl_msg_ran_conf_t;
 

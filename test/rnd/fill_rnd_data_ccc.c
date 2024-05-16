@@ -584,11 +584,7 @@ ctrl_msg_ran_conf_t fill_rnd_ctrl_msg_ran_conf()
   values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
   res.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
   res.vals_attributes = fill_values_of_attributes(values_of_attributes_type);
-  if (rand() % 2 == 1) {
-    res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-    assert(res.old_vals_attributes != NULL);
-    *res.old_vals_attributes = fill_values_of_attributes(values_of_attributes_type);
-  }
+  res.old_vals_attributes = fill_values_of_attributes(values_of_attributes_type);
 
   return res;
 }

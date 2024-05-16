@@ -199,7 +199,6 @@ byte_array_t ccc_enc_event_trigger_json(e2sm_ccc_event_trigger_t const* src)
 
   char * res = cJSON_Printric_event_trigger_definition(ric_ev_trigger);
   byte_array_t ba = {.len = strlen(res) + 1, .buf = (uint8_t *)res};
-  return ba;
 
   return ba;
 }
@@ -918,8 +917,7 @@ list_of_configuration_structure_control_element_t* create_ctrl_msg_ran_element(c
   assert(res != NULL && "Memory exhausted");
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
   res->new_values_of_attributes = create_values_of_attributes(&src.vals_attributes);
-  if (src.old_vals_attributes)
-    res->old_values_of_attributes = create_values_of_attributes(src.old_vals_attributes);
+  res->old_values_of_attributes = create_values_of_attributes(&src.old_vals_attributes);
   return res;
 }
 

@@ -790,11 +790,7 @@ ctrl_msg_ran_conf_t* get_ctrl_msg_ran_conf(list_t* const src){
   while (ran_conf!= NULL){
     res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
     res[index].vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->new_values_of_attributes->ran_configuration_structure);
-    if (ran_conf->old_values_of_attributes){
-      res[index].old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-      assert(res[index].old_vals_attributes != NULL);
-      *res[index].old_vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
-    }
+    res[index].old_vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
     ran_conf = list_get_next(src);
     index++;
   }
