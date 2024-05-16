@@ -11,11 +11,13 @@ const json_msg_conf = fs.readFileSync('roland_config_get.json', 'utf8');
 const json_msg_stats = fs.readFileSync('msg_stats.json', 'utf8');
 const json_msg_ue = fs.readFileSync('msg_ue_get.json', 'utf8');
 const json_msg_ho = fs.readFileSync('msg_ho_failure.json', 'utf8');
+const json_msg_config_set = fs.readFileSync('msg_config_set.json', 'utf8');
 
 var obj_json_conf = JSON.parse(json_msg_conf);
 var obj_json_stats = JSON.parse(json_msg_stats);
 var obj_json_ue = JSON.parse(json_msg_ue);
 var obj_json_ho = JSON.parse(json_msg_ho);
+var obj_json_config_set = JSON.parse(json_msg_config_set);
 
 server.on('connection', function(socket) {
   sockets.push(socket);
@@ -43,10 +45,14 @@ server.on('connection', function(socket) {
       sockets.forEach(s => s.send(JSON.stringify(obj_json_ue)));
 
       console.log(`Send ue_get`)
-    } else if (obj["message"] == "handover"){
+    } else if (obj["message"] == "handover") {
       obj_json_ho["message_id"] = obj["message_id"]
       console.log(JSON.stringify(obj));
       sockets.forEach(s => s.send(JSON.stringify(obj_json_ho)));
+    } else if (obj["message"] == "config_set") {
+      obj_json_config_set["message_id"] = obj["message_id"]
+      console.log(JSON.stringify(obj));
+      sockets.forEach(s => s.send(JSON.stringify(obj_json_config_set)));
     } else {
       console.log(`Unknown Message type received`)
     }
