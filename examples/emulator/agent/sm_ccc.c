@@ -5,6 +5,7 @@
 #include "../../../test/rnd/fill_rnd_data_ccc.h"
 #include "../../../src/util/alg_ds/alg/murmur_hash_32.h"
 #include "../../../src/util/alg_ds/ds/assoc_container/assoc_generic.h"
+#include "../../../src/util/alg_ds/alg/defer.h"
 #include "../../../src/util/time_now_us.h"
 #include "sm_ccc.h"
 
@@ -274,7 +275,9 @@ sm_ag_if_ans_t cell_cfg_ctrl(ccc_ctrl_req_data_t* const ctrl)
 
     for (size_t z = 0; z < cur_cell->sz_ctrl_msg_ran_conf; z++){
       ctrl_msg_ran_conf_t* const cur_ran_conf = &cur_cell->ctrl_msg_ran_conf[z];
-      void* key = cur_ran_conf->ran_conf_name.buf;
+      void* key = copy_ba_to_str(&cur_ran_conf->ran_conf_name);
+      defer({free(key);});
+
       // Get the value pointer from the key i.e., the function to be called
       // for the key that represents a ran configuration name e.g., O-BWP
       void* value = assoc_ht_open_value(&ht, &key);
