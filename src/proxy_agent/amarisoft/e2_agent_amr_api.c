@@ -71,3 +71,9 @@ void ho_rc_sm_api(uint64_t n_id_nrcell, uint64_t ran_ue_id, size_t ssb_nr_arfcn 
   ho_rc_sm(ag, n_id_nrcell, ran_ue_id, ssb_nr_arfcn, msg);
 }
 
+void config_set_ccc_sm_api(uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb, ccc_msgs_amr_t* msg)
+{
+  assert(ag != NULL);
+  config_set_ccc_sm(ag, cell_id, pusch_fixed_rb_start, pusch_fixed_l_crb, msg);
+}
+

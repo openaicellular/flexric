@@ -12,12 +12,14 @@
 #include "msg_handle_amr_ag.h"
 #include "kpm_pend_msg.h"
 #include "rc_pend_msg.h"
+#include "ccc_pend_msg.h"
 
 #include "lib/dec/dec_msg_amr_json.h"
 
 #include "io_ran/send_msg_amr.h"
 #include "io_ran/kpm_msgs_amr.h"
 #include "io_ran/rc_msgs_amr.h"
+#include "io_ran/ccc_msgs_amr.h"
 #include "io_sm/init_sm_amr.h"
 
 static inline
@@ -113,7 +115,7 @@ e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
   add_fd_asio_agent_amr(&dst.asio, dst.ep.fd);
 
   // SM io
-   init_sm_amr(&dst.sm_io);
+  init_sm_amr(&dst.sm_io);
 
   // Message ID
   dst.msg_id = 0;
@@ -129,13 +131,17 @@ e2_agent_amr_t init_e2_agent_amr(args_proxy_ag_t const* args)
 
   // Pending events RC SMs
   init_rc_pend_ds(&dst.rc_pend_ds);
-   
+
+  // Pending events CCC SMs
+  init_ccc_pend_ds(&dst.ccc_pend_ds);
+
   // Message handler
   dst.msg_hndl[MSG_READY_AMR_E] = msg_handle_ready; 
   dst.msg_hndl[MSG_CONFIG_GET_AMR_E] = msg_handle_config_get; 
   dst.msg_hndl[MSG_STATS_AMR_E] = msg_handle_stats; 
   dst.msg_hndl[MSG_UE_GET_E] = msg_handle_ue_get; 
-  dst.msg_hndl[MSG_HANDOVER_E] = msg_handle_ho; 
+  dst.msg_hndl[MSG_HANDOVER_E] = msg_handle_ho;
+  dst.msg_hndl[MSG_CONFIG_SET_E] = msg_handle_config_set;
 
   dst.stop_token = false;
   dst.stopped = false;
@@ -169,6 +175,9 @@ void free_e2_agent_amr(e2_agent_amr_t* ag)
  
   // Pending events RC SMs
   free_rc_pend_ds(&ag->rc_pend_ds);
+
+  // Pending events CCC SMs
+  free_ccc_pend_ds(&ag->ccc_pend_ds);
 }
 
 void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg)
@@ -244,3 +253,18 @@ void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, size_t ssb_n
   wait_untill_filled_rp(&rc);
 }
 
+void config_set_ccc_sm(e2_agent_amr_t* ag, uint64_t cell_id, uint64_t pusch_fixed_rb_start, size_t pusch_fixed_l_crb, ccc_msgs_amr_t* msg)
+{
+  assert(ag != NULL);
+
+  ccc_pend_msg_t ccc = {.msg = msg};
+  defer({ free_ccc_pend_msg(&ccc); } );
+
+  ccc.latch = init_latch_cv(1);
+  defer({ free_latch_cv(&ccc.latch); });
+
+  int const msg_id = ag->msg_id++;
+  send_config_set_ccc(ag, msg_id, &ccc, cell_id, pusch_fixed_rb_start, pusch_fixed_l_crb);
+
+  wait_untill_filled_cccp(&ccc);
+}

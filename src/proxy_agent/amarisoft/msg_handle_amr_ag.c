@@ -126,6 +126,25 @@ void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci,
   send_ho(&ag->ep, msg_id, pci, ue_id, ssb_nr_arfcn);
 }
 
+/////
+// CCC SM
+/////
+
+void send_config_set_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg_t* ccc, uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb)
+{
+  assert(ag != NULL);
+  assert(msg_id > 0);
+
+  // Add ccc answer placeholder. In this case only the latch will be used
+  add_ccc_pend_ds(&ag->ccc_pend_ds, msg_id, ccc);
+
+  // Add pending timeout
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, HAND_OVER_PENDING_EVENT, CCC_ORIGINATED_MSG_E);
+
+  // Send message
+  send_config_set(&ag->ep, msg_id, cell_id, pusch_fixed_rb_start, pusch_fixed_l_crb);
+}
+
 void msg_handle_ready(e2_agent_amr_t* ag, msg_amr_t const* msg)
 {
   assert(ag != NULL);
@@ -256,6 +275,21 @@ void msg_handle_ho(e2_agent_amr_t* ag, msg_amr_t const* msg)
   // Move memory ownership
   r->msg->ho = *ho;
   notify_part_filled_rp(r);
+}
+
+void msg_handle_config_set(e2_agent_amr_t* ag, msg_amr_t const* msg)
+{
+  assert(ag != NULL);
+  assert(msg != NULL);
+
+  msg_config_set_ans_amr_t const* cfg_set = &msg->config_set;
+  ws_orig_msg_e const orig = rm_pend_ev_prox(&ag->pend, &ag->asio, cfg_set->msg_id);
+  assert(orig == CCC_ORIGINATED_MSG_E);
+
+  ccc_pend_msg_t* c = extract_ccc_pend_ds(&ag->ccc_pend_ds, cfg_set->msg_id);
+  // Move memory ownership
+  c->msg->cfg_set = *cfg_set;
+  notify_part_filled_cccp(c);
 }
 
 void msg_handle_amr_ag(e2_agent_amr_t* ag, msg_amr_t const* msg)

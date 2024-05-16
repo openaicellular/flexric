@@ -63,3 +63,15 @@ void send_ho(ep_amr_t const* ep, int msg_id, uint64_t pci, uint64_t ran_ue_id, s
   send_ep_amr(ep, (uint8_t*)msg, sz);
 }
 
+void send_config_set(ep_amr_t const* ep, int msg_id, uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb){
+  assert(ep != NULL);
+  assert(msg_id > -1);
+
+  char msg[256] = {0};
+  size_t sz = snprintf(msg, 256, "{\"message\": \"config_set\", \"message_id\": %d,\"cells\":{\"%ld\": { \"pusch_fixed_rb_start\" : %ld, \"pusch_fixed_l_crb\": %ld, \"pusch_fixed_rb_alloc\":true }} }", msg_id, cell_id, pusch_fixed_rb_start, pusch_fixed_l_crb);
+  assert(sz < 256);
+
+  printf("Sending config set %s \n", msg);
+
+  send_ep_amr(ep, (uint8_t*)msg, sz);
+}

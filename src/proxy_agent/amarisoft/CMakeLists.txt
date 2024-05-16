@@ -13,8 +13,11 @@ add_library(e2_ag_amr STATIC
   pending_event_proxy.c
   rc_pend_ds.c
   rc_pend_msg.c
+  ccc_pend_ds.c
+  ccc_pend_msg.c
 
   $<TARGET_OBJECTS:kpm_ric_info_common_obj>
+  $<TARGET_OBJECTS:e2sm_ccc_ir_obj>
   $<TARGET_OBJECTS:sm_common_ie_obj>
   $<TARGET_OBJECTS:e2ap_ds_obj>
   $<TARGET_OBJECTS:e2ap_alg_obj>

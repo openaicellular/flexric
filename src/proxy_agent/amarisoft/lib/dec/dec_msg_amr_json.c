@@ -22,12 +22,13 @@ typedef struct{
 } needle_msg_type_t ;
 
 static
-const needle_msg_type_t arr_msgs[5] = {
+const needle_msg_type_t arr_msgs[6] = {
   {.type = MSG_READY_AMR_E , .buf = "\"ready\"" , .len = 7},
   {.type = MSG_CONFIG_GET_AMR_E , .buf = "\"config_get\"" , .len = 12},
   {.type = MSG_STATS_AMR_E, .buf = "\"stats\"", .len = 7},
   {.type = MSG_UE_GET_E, .buf = "\"ue_get\"", .len = 8},
   {.type = MSG_HANDOVER_E, .buf = "\"handover\"", .len = 10},
+  {.type = MSG_CONFIG_SET_E, .buf = "\"config_set\"", .len = 12},
 };
 
 static
@@ -67,6 +68,8 @@ msg_amr_t msg_dec_amr_ag(ws_msg_t const* src)
     dec_msg_ue_get_amr((char*)src->buf, &dst.ue);
   } else if(dst.type == MSG_HANDOVER_E){
     dec_msg_ho_ans_amr((char*)src->buf, &dst.ho);
+  } else if(dst.type == MSG_CONFIG_SET_E) {
+    dec_msg_config_set_ans_amr((char *) src->buf, &dst.config_set);
   } else {
     assert(0 !=0 && "Unknown message type");
   }
@@ -175,6 +178,37 @@ void dec_msg_ho_ans_amr(const char* in, msg_ho_ans_amr_t* out)
 
   // Time
   out->time = dec_float_opt(json, "time");  
+}
+
+void dec_msg_config_set_ans_amr(const char* in, msg_config_set_ans_amr_t* out)
+{
+  assert(in != NULL);
+  assert(out != NULL);
+
+  cJSON *json = cJSON_Parse(in);
+  defer({ cJSON_Delete(json); });
+  if (json == NULL) {
+    const char *error_ptr = cJSON_GetErrorPtr();
+    assert(error_ptr != NULL);
+    fprintf(stderr, "Error before: %s\n", error_ptr);
+  }
+  assert(json != NULL && "Error parsing the input json");
+
+  // Message ID. Mandatory
+  out->msg_id = dec_int(json, "message_id");
+
+  // Error. Optional
+  ans_cjson_t ans = find_object(json, "error");
+  if(ans.it != NULL){
+    assert(((cJSON*)ans.it)->valuestring != NULL);
+    size_t const sz = strlen(((cJSON*)ans.it)->valuestring);
+    out->error = calloc(sz + 1, sizeof(char));
+    assert(out->error != NULL && "Memory exhausted");
+    memcpy(out->error, ((cJSON*)ans.it)->valuestring, sz);
+  }
+
+  // Time
+  out->time = dec_float_opt(json, "time");
 }
 
 void dec_msg_stats_amr(const char* in, msg_stats_amr_t* out)

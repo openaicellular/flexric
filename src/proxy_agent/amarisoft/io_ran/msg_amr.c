@@ -14,6 +14,8 @@ void free_msg_amr(msg_amr_t* src)
     free_msg_stats_amr(&src->stats);
   } else if(src->type == MSG_UE_GET_E){
     free_msg_ue_get(&src->ue);
+  } else if(src->type == MSG_CONFIG_SET_E){
+    free_msg_config_set_ans_amr(&src->config_set);
   } else {
     assert(0!=0 && "Unknown type");
   }

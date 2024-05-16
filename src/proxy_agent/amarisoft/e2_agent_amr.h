@@ -16,6 +16,7 @@
 #include "kpm_pend_ds.h"
 #include "pending_event_proxy.h"
 #include "rc_pend_ds.h"
+#include "ccc_pend_ds.h"
 
 #include <stdatomic.h>
 
@@ -38,9 +39,8 @@ typedef struct e2_agent_amr_s{
   kpm_pend_ds_t kpm_pend_ds;
   // RC Pending events. SMs 
   rc_pend_ds_t rc_pend_ds;
-  // 
-
-
+  // CCC Pending events. SMs
+  ccc_pend_ds_t ccc_pend_ds;
 
   // Message handler
   fp_msg_hndlr msg_hndl[END_MSG_AMR_E]; 
@@ -66,5 +66,7 @@ void fill_msg_kpm_sm(e2_agent_amr_t* ag, kpm_msgs_amr_t* msg);
 void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg);
 
 void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, size_t ssb_nr_arfcn, rc_msgs_amr_t* msg);
+
+void config_set_ccc_sm(e2_agent_amr_t* ag, uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb, ccc_msgs_amr_t* msg);
 
 #endif

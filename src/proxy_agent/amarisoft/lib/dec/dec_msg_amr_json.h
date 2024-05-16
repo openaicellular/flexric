@@ -8,10 +8,11 @@
 #include "../ie/msg_ho_ans_amr.h"
 #include "../ie/msg_config_get.h"
 #include "../ie/msg_stats.h"
+#include "../ie/msg_config_set_ans_amr.h"
 
 msg_amr_t msg_dec_amr_ag(ws_msg_t const* src);
 
-// 4 Messages from the RAN
+// 5 Messages from the RAN
 
 void dec_msg_ho_ans_amr(const char* in, msg_ho_ans_amr_t* out);
 
@@ -20,6 +21,8 @@ void dec_config_get_amr(const char* in, msg_config_get_amr_t* out);
 void dec_msg_stats_amr(const char* in, msg_stats_amr_t* out);
 
 void dec_msg_ue_get_amr(const char* in, msg_ue_get_t* out);
+
+void dec_msg_config_set_ans_amr(const char* in, msg_config_set_ans_amr_t* out);
 
 // Decode from the types
 
