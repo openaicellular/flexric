@@ -8,6 +8,12 @@
 #include <unistd.h>
 
 static
+uint32_t start_rb = 0;
+
+static
+uint32_t number_of_rbs = 0;
+
+static
 cell_global_id_t fill_rnd_cell_global_id()
 {
   cell_global_id_t dst = {0};
@@ -27,8 +33,8 @@ e2sm_ccc_o_bwp_t fill_e2sm_ccc_o_bwp()
   e2sm_ccc_o_bwp_t dst = {0};
 
   dst.bwp_context = DL_BWP_CONTEXT;
-  dst.start_rb = 0;
-  dst.number_of_rbs = 10;
+  dst.start_rb = start_rb;
+  dst.number_of_rbs = number_of_rbs;
 
   return dst;
 }
@@ -88,8 +94,17 @@ e2sm_ccc_ctrl_msg_t gen_msg(void)
 
 int main(int argc, char *argv[])
 {
+  assert(argc > 2 && "Require rb start and number of rbs");
   fr_args_t args = init_fr_args(argc, argv);
   defer({ free_fr_args(&args); });
+  for (int i = argc - 1; i > 0; i--){
+    if(i == argc - 1)
+      number_of_rbs = atoi(argv[i]);
+    if(i == argc - 2)
+      start_rb = atoi(argv[i]);
+    if(i < argc - 2)
+      break;
+  }
 
   //Init the xApp
   init_xapp_api(&args);
