@@ -253,7 +253,7 @@ void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, size_t ssb_n
   wait_untill_filled_rp(&rc);
 }
 
-void config_set_ccc_sm(e2_agent_amr_t* ag, uint64_t cell_id, uint64_t pusch_fixed_rb_start, size_t pusch_fixed_l_crb, ccc_msgs_amr_t* msg)
+void config_set_rb_ctrl_ul_ccc_sm(e2_agent_amr_t* ag, uint64_t cell_id, uint64_t pusch_fixed_rb_start, size_t pusch_fixed_l_crb, ccc_msgs_amr_t* msg)
 {
   assert(ag != NULL);
 
@@ -264,7 +264,24 @@ void config_set_ccc_sm(e2_agent_amr_t* ag, uint64_t cell_id, uint64_t pusch_fixe
   defer({ free_latch_cv(&ccc.latch); });
 
   int const msg_id = ag->msg_id++;
-  send_config_set_ccc(ag, msg_id, &ccc, cell_id, pusch_fixed_rb_start, pusch_fixed_l_crb);
+  send_config_set_rb_ctrl_ul_ccc(ag, msg_id, &ccc, cell_id, pusch_fixed_rb_start, pusch_fixed_l_crb);
+
+  wait_untill_filled_cccp(&ccc);
+}
+
+
+void config_set_rb_ctrl_dl_ccc_sm(e2_agent_amr_t* ag, uint64_t cell_id, uint64_t pdsch_fixed_rb_start, size_t pdsch_fixed_l_crb, ccc_msgs_amr_t* msg)
+{
+  assert(ag != NULL);
+
+  ccc_pend_msg_t ccc = {.msg = msg};
+  defer({ free_ccc_pend_msg(&ccc); } );
+
+  ccc.latch = init_latch_cv(1);
+  defer({ free_latch_cv(&ccc.latch); });
+
+  int const msg_id = ag->msg_id++;
+  send_config_set_rb_ctrl_dl_ccc(ag, msg_id, &ccc, cell_id, pdsch_fixed_rb_start, pdsch_fixed_l_crb);
 
   wait_untill_filled_cccp(&ccc);
 }

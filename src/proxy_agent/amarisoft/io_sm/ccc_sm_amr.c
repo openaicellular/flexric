@@ -76,20 +76,6 @@ wr_val_of_attribute write_ctrl_ces_management_func(ctrl_msg_ran_conf_t* const sr
 }
 
 static
-char* bwp_context_to_str(bwp_context_e src){
-  switch (src) {
-    case UL_BWP_CONTEXT:
-      return "UL_BWP_CONTEXT";
-    case DL_BWP_CONTEXT:
-      return "DL_BWP_CONTEXT";
-    case SUL_BWP_CONTEXT:
-      return "SUL_BWP_CONTEXT";
-    default:
-      assert(0 != 0 && "Unknown BWP context");
-  }
-}
-
-static
 wr_val_of_attribute write_ctrl_o_bwp(ctrl_msg_ran_conf_t* const src){
   assert(src != NULL);
   assert(src->old_vals_attributes.values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
@@ -100,17 +86,24 @@ wr_val_of_attribute write_ctrl_o_bwp(ctrl_msg_ran_conf_t* const src){
   // Wait for the answer
   ccc_msgs_amr_t msg = {0};
   defer({free_ccc_msgs_amr(&msg);});
-  // TODO: Get Cell id here
-  config_set_ccc_sm_api(1,
-                    src->vals_attributes.e2sm_ccc_o_bwp.start_rb,
-                    src->vals_attributes.e2sm_ccc_o_bwp.number_of_rbs,
-                    &msg);
-
-
-  printf("O-BWP: %s Start rb %d, number of rbs %d \n",
-         bwp_context_to_str(src->vals_attributes.e2sm_ccc_o_bwp.bwp_context),
-         src->vals_attributes.e2sm_ccc_o_bwp.start_rb,
-         src->vals_attributes.e2sm_ccc_o_bwp.number_of_rbs);
+  switch (src->vals_attributes.e2sm_ccc_o_bwp.bwp_context) {
+    case UL_BWP_CONTEXT:
+      // TODO: Get Cell id
+      config_set_rb_ctrl_ul_ccc_sm_api(1,
+                                       src->vals_attributes.e2sm_ccc_o_bwp.start_rb,
+                                       src->vals_attributes.e2sm_ccc_o_bwp.number_of_rbs,
+                                       &msg);
+      break;
+    case DL_BWP_CONTEXT:
+      // TODO: Get Cell id
+      config_set_rb_ctrl_dl_ccc_sm_api(1,
+                                       src->vals_attributes.e2sm_ccc_o_bwp.start_rb,
+                                       src->vals_attributes.e2sm_ccc_o_bwp.number_of_rbs,
+                                       &msg);
+      break;
+    default:
+      assert(0 != 0 && "Not support current bwp context");
+  }
 
   if(msg.cfg_set.error == NULL){
     ans.is_accepted = true;
@@ -118,7 +111,7 @@ wr_val_of_attribute write_ctrl_o_bwp(ctrl_msg_ran_conf_t* const src){
     ans.accepted.old_atr_val = cp_values_of_attributes(&src->vals_attributes);
     ans.accepted.cur_atr_val = cp_values_of_attributes(&src->old_vals_attributes);
   } else {
-    printf("[PROXY-AGENT]: Config set error: %s\n", msg.cfg_set.error);
+    printf("[PROXY-AGENT]: Config set rb control error: %s\n", msg.cfg_set.error);
     ans.is_accepted = false;
     ans.failed.ran_conf_name = cp_str_to_ba("O-BWP");
     ans.failed.old_atr_val = cp_values_of_attributes(&src->vals_attributes);

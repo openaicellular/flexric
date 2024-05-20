@@ -34,6 +34,8 @@ void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci,
 
 // Send CCC
 
-void send_config_set_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg_t* ccc, uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb);
+void send_config_set_rb_ctrl_ul_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg_t* ccc, uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb);
+
+void send_config_set_rb_ctrl_dl_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg_t* ccc, uint64_t cell_id, uint64_t pdsch_fixed_rb_start, uint64_t pdsch_fixed_l_crb);
 
 #endif

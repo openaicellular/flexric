@@ -63,7 +63,20 @@ void send_ho(ep_amr_t const* ep, int msg_id, uint64_t pci, uint64_t ran_ue_id, s
   send_ep_amr(ep, (uint8_t*)msg, sz);
 }
 
-void send_config_set(ep_amr_t const* ep, int msg_id, uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb){
+void send_config_set_rb_control_dl(ep_amr_t const* ep, int msg_id, uint64_t cell_id, uint64_t pdsch_fixed_rb_start, uint64_t pdsch_fixed_l_crb){
+  assert(ep != NULL);
+  assert(msg_id > -1);
+
+  char msg[256] = {0};
+  size_t sz = snprintf(msg, 256, "{\"message\": \"config_set\", \"message_id\": %d,\"cells\":{\"%ld\": { \"pdsch_fixed_rb_start\" : %ld, \"pdsch_fixed_l_crb\": %ld, \"pdsch_fixed_rb_alloc\":true }} }", msg_id, cell_id, pdsch_fixed_rb_start, pdsch_fixed_l_crb);
+  assert(sz < 256);
+
+  printf("Sending config set set rb control dl %s \n", msg);
+
+  send_ep_amr(ep, (uint8_t*)msg, sz);
+}
+
+void send_config_set_rb_control_ul(ep_amr_t const* ep, int msg_id, uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb){
   assert(ep != NULL);
   assert(msg_id > -1);
 
@@ -71,7 +84,7 @@ void send_config_set(ep_amr_t const* ep, int msg_id, uint64_t cell_id, uint64_t 
   size_t sz = snprintf(msg, 256, "{\"message\": \"config_set\", \"message_id\": %d,\"cells\":{\"%ld\": { \"pusch_fixed_rb_start\" : %ld, \"pusch_fixed_l_crb\": %ld, \"pusch_fixed_rb_alloc\":true }} }", msg_id, cell_id, pusch_fixed_rb_start, pusch_fixed_l_crb);
   assert(sz < 256);
 
-  printf("Sending config set %s \n", msg);
+  printf("Sending config set rb control ul %s \n", msg);
 
   send_ep_amr(ep, (uint8_t*)msg, sz);
 }

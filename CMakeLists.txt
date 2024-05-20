@@ -433,7 +433,8 @@ if (XAPP_C)
   # slice ctrl
   install(TARGETS xapp_cust_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   # rb ctrl
-  install(TARGETS xapp_oran_rb_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  install(TARGETS xapp_oran_rb_ctrl_ul DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  install(TARGETS xapp_oran_rb_ctrl_dl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   # rb ctrl
   # mwc
   install(TARGETS xapp_rc_ho_kpm DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)

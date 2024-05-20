@@ -130,7 +130,7 @@ void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci,
 // CCC SM
 /////
 
-void send_config_set_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg_t* ccc, uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb)
+void send_config_set_rb_ctrl_ul_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg_t* ccc, uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb)
 {
   assert(ag != NULL);
   assert(msg_id > 0);
@@ -142,7 +142,22 @@ void send_config_set_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg_t* ccc, ui
   add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, HAND_OVER_PENDING_EVENT, CCC_ORIGINATED_MSG_E);
 
   // Send message
-  send_config_set(&ag->ep, msg_id, cell_id, pusch_fixed_rb_start, pusch_fixed_l_crb);
+  send_config_set_rb_control_ul(&ag->ep, msg_id, cell_id, pusch_fixed_rb_start, pusch_fixed_l_crb);
+}
+
+void send_config_set_rb_ctrl_dl_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg_t* ccc, uint64_t cell_id, uint64_t pdsch_fixed_rb_start, uint64_t pdsch_fixed_l_crb)
+{
+  assert(ag != NULL);
+  assert(msg_id > 0);
+
+  // Add ccc answer placeholder. In this case only the latch will be used
+  add_ccc_pend_ds(&ag->ccc_pend_ds, msg_id, ccc);
+
+  // Add pending timeout
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, HAND_OVER_PENDING_EVENT, CCC_ORIGINATED_MSG_E);
+
+  // Send message
+  send_config_set_rb_control_dl(&ag->ep, msg_id, cell_id, pdsch_fixed_rb_start, pdsch_fixed_l_crb);
 }
 
 void msg_handle_ready(e2_agent_amr_t* ag, msg_amr_t const* msg)
