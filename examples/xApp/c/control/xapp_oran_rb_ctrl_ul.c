@@ -8,10 +8,10 @@
 #include <unistd.h>
 
 static
-uint32_t start_rb = 0;
+uint32_t START_RB = 0;
 
 static
-uint32_t number_of_rbs = 0;
+uint32_t NUMBER_OF_RBS = 0;
 
 static
 cell_global_id_t fill_rnd_cell_global_id()
@@ -28,13 +28,13 @@ cell_global_id_t fill_rnd_cell_global_id()
 }
 
 static
-e2sm_ccc_o_bwp_t fill_e2sm_ccc_o_bwp() 
+e2sm_ccc_o_bwp_t fill_e2sm_ccc_o_bwp()
 {
   e2sm_ccc_o_bwp_t dst = {0};
 
-  dst.bwp_context = DL_BWP_CONTEXT;
-  dst.start_rb = start_rb;
-  dst.number_of_rbs = number_of_rbs;
+  dst.bwp_context = UL_BWP_CONTEXT;
+  dst.start_rb = START_RB;
+  dst.number_of_rbs = NUMBER_OF_RBS;
 
   return dst;
 }
@@ -99,9 +99,9 @@ int main(int argc, char *argv[])
   defer({ free_fr_args(&args); });
   for (int i = argc - 1; i > 0; i--){
     if(i == argc - 1)
-      number_of_rbs = atoi(argv[i]);
+      NUMBER_OF_RBS = atoi(argv[i]);
     if(i == argc - 2)
-      start_rb = atoi(argv[i]);
+      START_RB = atoi(argv[i]);
     if(i < argc - 2)
       break;
   }

@@ -51,12 +51,27 @@ target_link_libraries(xapp_oran_slice_ctrl
 		)
 
 # xapp_oran_rb_ctrl
-add_executable(xapp_oran_rb_ctrl
-		xapp_oran_rb_ctrl.c
+add_executable(xapp_oran_rb_ctrl_dl
+        xapp_oran_rb_ctrl_dl.c
 		${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
 )
 
-target_link_libraries(xapp_oran_rb_ctrl
+target_link_libraries(xapp_oran_rb_ctrl_dl
+		PUBLIC
+		e42_xapp
+		$<TARGET_OBJECTS:e2_time_obj>
+		$<$<STREQUAL:${XAPP_DB},MYSQL_XAPP>:${LIBMYSQLCLIENT_LIBRARIES}>
+		-pthread
+		-lsctp
+		-ldl
+)
+
+add_executable(xapp_oran_rb_ctrl_ul
+		xapp_oran_rb_ctrl_ul.c
+		${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
+)
+
+target_link_libraries(xapp_oran_rb_ctrl_ul
 		PUBLIC
 		e42_xapp
 		$<TARGET_OBJECTS:e2_time_obj>
