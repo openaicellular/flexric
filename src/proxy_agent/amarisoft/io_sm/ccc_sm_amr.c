@@ -78,27 +78,27 @@ wr_val_of_attribute write_ctrl_ces_management_func(ctrl_msg_ran_conf_t* const sr
 static
 wr_val_of_attribute write_ctrl_o_bwp(ctrl_msg_ran_conf_t* const src){
   assert(src != NULL);
-  assert(src->old_vals_attributes.values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
-  assert(src->vals_attributes.values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
+  assert(src->old_vals_attributes->values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
+  assert(src->vals_attributes->values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
 
   wr_val_of_attribute ans = {0};
 
   // Wait for the answer
   ccc_msgs_amr_t msg = {0};
   defer({free_ccc_msgs_amr(&msg);});
-  switch (src->vals_attributes.e2sm_ccc_o_bwp.bwp_context) {
+  switch (src->vals_attributes->e2sm_ccc_o_bwp.bwp_context) {
     case UL_BWP_CONTEXT:
       // TODO: Get Cell id
       config_set_rb_ctrl_ul_ccc_sm_api(1,
-                                       src->vals_attributes.e2sm_ccc_o_bwp.start_rb,
-                                       src->vals_attributes.e2sm_ccc_o_bwp.number_of_rbs,
+                                       src->vals_attributes->e2sm_ccc_o_bwp.start_rb,
+                                       src->vals_attributes->e2sm_ccc_o_bwp.number_of_rbs,
                                        &msg);
       break;
     case DL_BWP_CONTEXT:
       // TODO: Get Cell id
       config_set_rb_ctrl_dl_ccc_sm_api(1,
-                                       src->vals_attributes.e2sm_ccc_o_bwp.start_rb,
-                                       src->vals_attributes.e2sm_ccc_o_bwp.number_of_rbs,
+                                       src->vals_attributes->e2sm_ccc_o_bwp.start_rb,
+                                       src->vals_attributes->e2sm_ccc_o_bwp.number_of_rbs,
                                        &msg);
       break;
     default:
@@ -108,14 +108,30 @@ wr_val_of_attribute write_ctrl_o_bwp(ctrl_msg_ran_conf_t* const src){
   if(msg.cfg_set.error == NULL){
     ans.is_accepted = true;
     ans.accepted.ran_conf_name = cp_str_to_ba("O-BWP");
-    ans.accepted.old_atr_val = cp_values_of_attributes(&src->vals_attributes);
-    ans.accepted.cur_atr_val = cp_values_of_attributes(&src->old_vals_attributes);
+
+    // Mandatory
+    ans.accepted.old_atr_val = calloc(1, sizeof(values_of_attributes_t));
+    assert(ans.accepted.old_atr_val != NULL);
+    *ans.accepted.old_atr_val = cp_values_of_attributes(src->old_vals_attributes);
+
+    // Mandatory
+    ans.accepted.cur_atr_val = calloc(1, sizeof(values_of_attributes_t));
+    assert(ans.accepted.cur_atr_val != NULL);
+    *ans.accepted.cur_atr_val = cp_values_of_attributes(src->vals_attributes);
   } else {
     printf("[PROXY-AGENT]: Config set rb control error: %s\n", msg.cfg_set.error);
     ans.is_accepted = false;
     ans.failed.ran_conf_name = cp_str_to_ba("O-BWP");
-    ans.failed.old_atr_val = cp_values_of_attributes(&src->vals_attributes);
-    ans.failed.req_atr_val = cp_values_of_attributes(&src->old_vals_attributes);
+
+    // Mandatory
+    ans.failed.old_atr_val = calloc(1, sizeof(values_of_attributes_t));
+    assert(ans.failed.old_atr_val != NULL);
+    *ans.failed.old_atr_val = cp_values_of_attributes(src->old_vals_attributes);
+
+    // Mandatory
+    ans.failed.req_atr_val = calloc(1, sizeof(values_of_attributes_t));
+    assert(ans.failed.req_atr_val != NULL);
+    *ans.failed.req_atr_val = cp_values_of_attributes(src->vals_attributes);
     ans.failed.cause = CAUSE_UNSPECIFIED;
   }
 
@@ -277,8 +293,8 @@ void get_ctrl_out_conf_failed(ctrl_out_conf_failed_t** dst, seq_arr_t* const src
     void* start_it = seq_front(src);
     void* end_it = seq_end(src);
     while(start_it != end_it){
-      start_it = seq_next(src, start_it);
       *dst[index] = cp_ctrl_out_conf_failed((ctrl_out_conf_failed_t *)start_it);
+      start_it = seq_next(src, start_it);
       index++;
     }
   }
@@ -295,8 +311,8 @@ void get_ctrl_out_conf_accepted(ctrl_out_conf_accepted_t** dst, seq_arr_t* const
     void* start_it = seq_front(src);
     void* end_it = seq_end(src);
     while(start_it != end_it){
-      start_it = seq_next(src, start_it);
       *dst[index] = cp_ctrl_out_conf_accepted((ctrl_out_conf_accepted_t*)start_it);
+      start_it = seq_next(src, start_it);
       index++;
     }
   }
