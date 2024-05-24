@@ -13,12 +13,12 @@ typedef struct{
   // Old Values of Attributes
   // Mandatory
   // 8.6.1
-  values_of_attributes_t old_atr_val;
+  values_of_attributes_t* old_atr_val;
 
   // Current Values of Attributes
   // Mandatory
   // 8.6.1
-  values_of_attributes_t cur_atr_val;
+  values_of_attributes_t* cur_atr_val;
 
   // Applied Timestamp
   // Optional

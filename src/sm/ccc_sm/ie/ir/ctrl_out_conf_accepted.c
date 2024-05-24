@@ -8,9 +8,11 @@ void free_ctrl_out_conf_accepted(ctrl_out_conf_accepted_t * src)
 
   free_byte_array(src->ran_conf_name);
 
-  free_values_of_attributes(&src->old_atr_val);
+  free_values_of_attributes(src->old_atr_val);
+  free(src->old_atr_val);
 
-  free_values_of_attributes(&src->cur_atr_val);
+  free_values_of_attributes(src->cur_atr_val);
+  free(src->cur_atr_val);
 
   free_byte_array(src->app_timestamp);
 }
@@ -25,10 +27,10 @@ bool eq_ctrl_out_conf_accepted(ctrl_out_conf_accepted_t const* m0, ctrl_out_conf
   if (!eq_byte_array(&m0->ran_conf_name, &m1->ran_conf_name))
     return false;
 
-  if (!eq_values_of_attributes(&m0->old_atr_val, &m1->old_atr_val))
+  if (!eq_values_of_attributes(m0->old_atr_val, m1->old_atr_val))
     return false;
 
-  if (!eq_values_of_attributes(&m0->cur_atr_val, &m1->cur_atr_val))
+  if (!eq_values_of_attributes(m0->cur_atr_val, m1->cur_atr_val))
     return false;
 
   if(eq_byte_array(&m0->app_timestamp, &m1->app_timestamp) == false)
@@ -45,9 +47,13 @@ ctrl_out_conf_accepted_t cp_ctrl_out_conf_accepted(ctrl_out_conf_accepted_t cons
 
   dst.ran_conf_name = copy_byte_array(src->ran_conf_name);
 
-  dst.old_atr_val= cp_values_of_attributes(&src->old_atr_val);
+  dst.old_atr_val = calloc(1, sizeof(values_of_attributes_t));
+  assert(dst.old_atr_val != NULL);
+  *dst.old_atr_val= cp_values_of_attributes(src->old_atr_val);
 
-  dst.cur_atr_val= cp_values_of_attributes(&src->cur_atr_val);
+  dst.cur_atr_val = calloc(1, sizeof(values_of_attributes_t));
+  assert(dst.cur_atr_val != NULL);
+  *dst.cur_atr_val= cp_values_of_attributes(src->cur_atr_val);
 
   if (src->app_timestamp.buf != NULL)
     dst.app_timestamp = copy_byte_array(src->app_timestamp);

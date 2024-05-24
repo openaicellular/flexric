@@ -14,12 +14,12 @@ typedef struct{
   // Old Values of Attributes
   // Mandatory
   // 8.6.1
-  values_of_attributes_t old_atr_val;
+  values_of_attributes_t* old_atr_val;
 
   // Requested Values of Attributes
   // Mandatory
   // 8.6.1
-  values_of_attributes_t req_atr_val;
+  values_of_attributes_t* req_atr_val;
 
   // Cause
   // Mandatory

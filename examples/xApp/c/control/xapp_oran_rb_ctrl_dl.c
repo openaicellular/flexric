@@ -56,9 +56,15 @@ ctrl_msg_ran_conf_t fill_ctrl_msg_ran_conf()
   ctrl_msg_ran_conf_t dst = {0}; 
 
   dst.ran_conf_name = cp_str_to_ba("O-BWP");
-  dst.vals_attributes.values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_BWP;
-  dst.vals_attributes.e2sm_ccc_o_bwp = fill_e2sm_ccc_o_bwp();
-  // TODO: Add old value of attributes because its mandatory
+  dst.vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+  assert(dst.vals_attributes != NULL);
+  dst.vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_BWP;
+  dst.vals_attributes->e2sm_ccc_o_bwp = fill_e2sm_ccc_o_bwp();
+
+  dst.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+  assert(dst.old_vals_attributes != NULL);
+  dst.old_vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_BWP;
+  dst.old_vals_attributes->e2sm_ccc_o_bwp = fill_e2sm_ccc_o_bwp();
   return dst;
 }
 

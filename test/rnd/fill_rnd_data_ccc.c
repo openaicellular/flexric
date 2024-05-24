@@ -568,8 +568,12 @@ ind_msg_ran_conf_t fill_rnd_ind_msg_ran_conf(){
  ind_msg_ran_conf_t res = {0};
  values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
   res.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
-  res.vals_attributes = fill_values_of_attributes(values_of_attributes_type);
+  // Mandatory
+  res.vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+  assert(res.vals_attributes != NULL);
+  *res.vals_attributes = fill_values_of_attributes(values_of_attributes_type);
   if(rand()%2 == 1){
+    // Optional
     res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
     assert(res.old_vals_attributes != NULL);
     *res.old_vals_attributes = fill_values_of_attributes(values_of_attributes_type);
@@ -583,8 +587,14 @@ ctrl_msg_ran_conf_t fill_rnd_ctrl_msg_ran_conf()
   ctrl_msg_ran_conf_t res = {0};
   values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
   res.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
-  res.vals_attributes = fill_values_of_attributes(values_of_attributes_type);
-  res.old_vals_attributes = fill_values_of_attributes(values_of_attributes_type);
+  // Mandatory
+  res.vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+  assert(res.vals_attributes != NULL);
+  *res.vals_attributes = fill_values_of_attributes(values_of_attributes_type);
+  // Mandatory
+  res.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+  assert(res.old_vals_attributes != NULL);
+  *res.old_vals_attributes = fill_values_of_attributes(values_of_attributes_type);
 
   return res;
 }
@@ -594,8 +604,14 @@ ctrl_out_conf_accepted_t fill_ctrl_out_conf_accepted(){
   ctrl_out_conf_accepted_t dst = {0};
   values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
   dst.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
-  dst.cur_atr_val = fill_values_of_attributes(values_of_attributes_type);
-  dst.old_atr_val = fill_values_of_attributes(values_of_attributes_type);
+  // Mandatory
+  dst.cur_atr_val = calloc(1, sizeof(values_of_attributes_t));
+  assert(dst.cur_atr_val != NULL);
+  *dst.cur_atr_val = fill_values_of_attributes(values_of_attributes_type);
+  // Mandatory
+  dst.old_atr_val = calloc(1, sizeof(values_of_attributes_t));
+  assert(dst.old_atr_val != NULL);
+  *dst.old_atr_val = fill_values_of_attributes(values_of_attributes_type);
   if (rand() % 2 == 1)
     dst.app_timestamp = cp_str_to_ba("app_timestamp");
 
@@ -609,8 +625,14 @@ ctrl_out_conf_failed_t fill_ctrl_out_conf_failed(){
 
   values_of_attributes_e values_of_attributes_type = rand()%VALUES_OF_ATTRIBUTES_END;
   dst.ran_conf_name = fill_ran_conf_name_from_value_of_attribute_e(values_of_attributes_type);
-  dst.req_atr_val = fill_values_of_attributes(values_of_attributes_type);
-  dst.old_atr_val = fill_values_of_attributes(values_of_attributes_type);
+  // Mandatory
+  dst.req_atr_val= calloc(1, sizeof(values_of_attributes_t));
+  assert(dst.req_atr_val!= NULL);
+  *dst.req_atr_val = fill_values_of_attributes(values_of_attributes_type);
+  // Mandatory
+  dst.old_atr_val = calloc(1, sizeof(values_of_attributes_t));
+  assert(dst.old_atr_val != NULL);
+  *dst.old_atr_val = fill_values_of_attributes(values_of_attributes_type);
 
   return dst;
 }

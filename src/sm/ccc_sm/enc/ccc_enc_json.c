@@ -884,13 +884,16 @@ values_of_attributes_json_t* create_values_of_attributes(values_of_attributes_t 
 
 static
 list_of_configuration_structures_reported_element_t* create_ind_msg_ran_element(ind_msg_ran_conf_t const src){
+  assert(src.vals_attributes != NULL && "Value of attributes is mandatory");
   list_of_configuration_structures_reported_element_t* res = calloc(1, sizeof(list_of_configuration_structures_reported_element_t));
   assert(res != NULL && "Memory exhausted");
   res->change_type = src.change_type;
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
-  res->values_of_attributes = create_values_of_attributes(&src.vals_attributes);
-  if (src.old_vals_attributes)
+  res->values_of_attributes = create_values_of_attributes(src.vals_attributes);
+  if (src.old_vals_attributes){
+    assert(src.vals_attributes->values_of_attributes_type == src.old_vals_attributes->values_of_attributes_type && "Value attribute and old value attribute must have same type");
     res->old_values_of_attributes = create_values_of_attributes(src.old_vals_attributes);
+  }
   return res;
 }
 
@@ -913,11 +916,13 @@ indication_message_format_json_t* create_ind_msg_frmt_1(e2sm_ccc_ind_msg_frmt_1_
 
 static
 list_of_configuration_structure_control_element_t* create_ctrl_msg_ran_element(ctrl_msg_ran_conf_t const src){
+  assert(src.vals_attributes != NULL && src.old_vals_attributes != NULL && "value of attributes and old value of attributes are mandatory");
+  assert(src.vals_attributes->values_of_attributes_type == src.old_vals_attributes->values_of_attributes_type && "Value attribute and old value attribute must have same type");
   list_of_configuration_structure_control_element_t* res = calloc(1, sizeof(list_of_configuration_structure_control_element_t));
   assert(res != NULL && "Memory exhausted");
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
-  res->new_values_of_attributes = create_values_of_attributes(&src.vals_attributes);
-  res->old_values_of_attributes = create_values_of_attributes(&src.old_vals_attributes);
+  res->new_values_of_attributes = create_values_of_attributes(src.vals_attributes);
+  res->old_values_of_attributes = create_values_of_attributes(src.old_vals_attributes);
   return res;
 }
 
@@ -940,20 +945,24 @@ control_message_format_json_t* create_ctrl_msg_frmt_1(e2sm_ccc_ctrl_msg_frmt_1_t
 
 static
 ran_configuration_structures_accepted_list_element_t* create_ctrl_out_accepted_list_element(const ctrl_out_conf_accepted_t src){
+  assert(src.cur_atr_val != NULL && src.old_atr_val != NULL && "value of attributes and old value of attributes are mandatory");
+  assert(src.cur_atr_val->values_of_attributes_type == src.old_atr_val->values_of_attributes_type && "Value attribute and old value attribute must have same type");
   ran_configuration_structures_accepted_list_element_t* res = calloc(1, sizeof(ran_configuration_structures_accepted_list_element_t));
   assert(res != NULL && "Memory exhausted");
   if (src.app_timestamp.buf){
    res->applied_timestamp = copy_ba_to_str(&src.app_timestamp);
   }
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
-  res->current_values_of_attributes = create_values_of_attributes(&src.cur_atr_val);
-  res->old_values_of_attributes = create_values_of_attributes(&src.old_atr_val);
+  res->current_values_of_attributes = create_values_of_attributes(src.cur_atr_val);
+  res->old_values_of_attributes = create_values_of_attributes(src.old_atr_val);
 
   return res;
 }
 
 static
 ran_configuration_structures_failed_list_element_t* create_ctrl_out_failed_list_element(const ctrl_out_conf_failed_t src){
+  assert(src.req_atr_val != NULL && src.old_atr_val != NULL && "value of attributes and old value of attributes are mandatory");
+  assert(src.req_atr_val->values_of_attributes_type == src.old_atr_val->values_of_attributes_type && "Value attribute and old value attribute must have same type");
   assert(src.cause == CAUSE_INCOMPATIBLE_STATE||
          src.cause == CAUSE_JSON_ERROR||
          src.cause == CAUSE_NOT_AVAILABLE||
@@ -965,8 +974,8 @@ ran_configuration_structures_failed_list_element_t* create_ctrl_out_failed_list_
   ran_configuration_structures_failed_list_element_t* res = calloc(1, sizeof(ran_configuration_structures_failed_list_element_t));
   assert(res != NULL && "Memory exhausted");
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
-  res->requested_values_of_attributes = create_values_of_attributes(&src.req_atr_val);
-  res->old_values_of_attributes = create_values_of_attributes(&src.old_atr_val);
+  res->requested_values_of_attributes = create_values_of_attributes(src.req_atr_val);
+  res->old_values_of_attributes = create_values_of_attributes(src.old_atr_val);
   res->cause = src.cause;
 
   return res;

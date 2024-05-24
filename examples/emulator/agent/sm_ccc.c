@@ -85,20 +85,26 @@ char* bwp_context_to_str(bwp_context_e src){
 static
 wr_val_of_attribute write_ctrl_o_bwp(ctrl_msg_ran_conf_t* const src){
   assert(src != NULL);
-  assert(src->old_vals_attributes.values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
-  assert(src->vals_attributes.values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
+  assert(src->old_vals_attributes->values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
+  assert(src->vals_attributes->values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
 
   wr_val_of_attribute ans = {0};
 
   printf("O-BWP: %s Start rb %d, number of rbs %d \n",
-         bwp_context_to_str(src->vals_attributes.e2sm_ccc_o_bwp.bwp_context),
-         src->vals_attributes.e2sm_ccc_o_bwp.start_rb,
-         src->vals_attributes.e2sm_ccc_o_bwp.number_of_rbs);
+         bwp_context_to_str(src->vals_attributes->e2sm_ccc_o_bwp.bwp_context),
+         src->vals_attributes->e2sm_ccc_o_bwp.start_rb,
+         src->vals_attributes->e2sm_ccc_o_bwp.number_of_rbs);
 
   ans.is_accepted = true;
   ans.accepted.ran_conf_name = cp_str_to_ba("O-BWP");
-  ans.accepted.old_atr_val = cp_values_of_attributes(&src->vals_attributes);
-  ans.accepted.cur_atr_val = cp_values_of_attributes(&src->old_vals_attributes);
+  // Mandatory
+  ans.accepted.old_atr_val = calloc(1, sizeof(values_of_attributes_t));
+  assert(ans.accepted.old_atr_val != NULL);
+  *ans.accepted.old_atr_val = cp_values_of_attributes(src->old_vals_attributes);
+  // Mandatory
+  ans.accepted.cur_atr_val= calloc(1, sizeof(values_of_attributes_t));
+  assert(ans.accepted.cur_atr_val!= NULL);
+  *ans.accepted.cur_atr_val = cp_values_of_attributes(src->vals_attributes);
 
   return ans;
 }
@@ -216,8 +222,8 @@ void get_ctrl_out_conf_failed(ctrl_out_conf_failed_t** dst, seq_arr_t* const src
     void* start_it = seq_front(src);
     void* end_it = seq_end(src);
     while(start_it != end_it){
-      start_it = seq_next(src, start_it);
       *dst[index] = cp_ctrl_out_conf_failed((ctrl_out_conf_failed_t *)start_it);
+      start_it = seq_next(src, start_it);
       index++;
     }
   }
@@ -234,8 +240,8 @@ void get_ctrl_out_conf_accepted(ctrl_out_conf_accepted_t** dst, seq_arr_t* const
     void* start_it = seq_front(src);
     void* end_it = seq_end(src);
     while(start_it != end_it){
-      start_it = seq_next(src, start_it);
       *dst[index] = cp_ctrl_out_conf_accepted((ctrl_out_conf_accepted_t*)start_it);
+      start_it = seq_next(src, start_it);
       index++;
     }
   }

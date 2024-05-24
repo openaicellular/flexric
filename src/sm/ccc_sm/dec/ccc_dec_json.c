@@ -766,7 +766,9 @@ ind_msg_ran_conf_t* get_ind_msg_ran_conf(list_t* const src){
   while (ran_conf!= NULL){
     res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
     res[index].change_type = ran_conf->change_type;
-    res[index].vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->values_of_attributes->ran_configuration_structure);
+    res[index].vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+    assert(res[index].vals_attributes != NULL);
+    *res[index].vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->values_of_attributes->ran_configuration_structure);
     if (ran_conf->old_values_of_attributes){
       res[index].old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
       assert(res[index].old_vals_attributes != NULL);
@@ -789,8 +791,14 @@ ctrl_msg_ran_conf_t* get_ctrl_msg_ran_conf(list_t* const src){
   list_of_configuration_structure_control_element_t* ran_conf = list_get_head(src);
   while (ran_conf!= NULL){
     res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
-    res[index].vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->new_values_of_attributes->ran_configuration_structure);
-    res[index].old_vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
+    // Mandatory
+    res[index].vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+    assert(res[index].vals_attributes != NULL);
+    *res[index].vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->new_values_of_attributes->ran_configuration_structure);
+    // Mandatory
+    res[index].old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
+    assert(res[index].old_vals_attributes != NULL);
+    *res[index].old_vals_attributes = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
     ran_conf = list_get_next(src);
     index++;
   }
@@ -834,8 +842,14 @@ ctrl_out_conf_accepted_t* get_ctrl_out_conf_accepted(list_t* const src){
     if (ran_conf->applied_timestamp)
       res[index].app_timestamp = cp_str_to_ba(ran_conf->applied_timestamp);
     res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
-    res[index].cur_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->current_values_of_attributes->ran_configuration_structure);
-    res[index].old_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
+    // Mandatory
+    res[index].cur_atr_val = calloc(1, sizeof(values_of_attributes_t));
+    assert(res[index].cur_atr_val != NULL);
+    *res[index].cur_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->current_values_of_attributes->ran_configuration_structure);
+    // Mandatory
+    res[index].old_atr_val = calloc(1, sizeof(values_of_attributes_t));
+    assert(res[index].old_atr_val != NULL);
+    *res[index].old_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
     ran_conf = list_get_next(src);
     index++;
   }
@@ -853,8 +867,14 @@ ctrl_out_conf_failed_t* get_ctrl_out_conf_failed(list_t* const src){
   ran_configuration_structures_failed_list_element_t* ran_conf = list_get_head(src);
   while (ran_conf!= NULL){
     res[index].ran_conf_name = cp_str_to_ba(ran_conf->ran_configuration_structure_name);
-    res[index].req_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->requested_values_of_attributes->ran_configuration_structure);
-    res[index].old_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
+    // Mandatory
+    res[index].req_atr_val = calloc(1, sizeof(values_of_attributes_t));
+    assert(res[index].req_atr_val != NULL);
+    *res[index].req_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->requested_values_of_attributes->ran_configuration_structure);
+    // Mandatory
+    res[index].old_atr_val = calloc(1, sizeof(values_of_attributes_t));
+    assert(res[index].old_atr_val != NULL);
+    *res[index].old_atr_val = get_values_of_attributes(ran_conf->ran_configuration_structure_name, ran_conf->old_values_of_attributes->ran_configuration_structure);
     res[index].cause = ran_conf->cause;
     ran_conf = list_get_next(src);
     index++;
