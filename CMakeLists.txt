@@ -49,7 +49,6 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   add_compile_options("-march=native;-flto")
-elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options("-D_FORTIFY_SOURCE=3")
 endif()
 
