@@ -2,6 +2,7 @@
 #include "../../../../src/sm/ccc_sm/ccc_sm_id.h"
 #include "../../../../src/util/time_now_us.h"
 #include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
+#include "../../../../src/util/alg_ds/ds/latch_cv/latch_cv.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -12,6 +13,76 @@ uint32_t START_RB = 0;
 
 static
 uint32_t NUMBER_OF_RBS = 0;
+
+//////////////
+// CCC MONITOR
+//////////////
+
+static
+e2sm_ccc_event_trigger_t gen_ev_trig(void)
+{
+  // Periodic event
+  e2sm_ccc_event_trigger_t dst = {.format = FORMAT_3_E2SM_CCC_EV_TRIGGER_FORMAT};
+  dst.frmt_3.period = 10;
+
+  return dst;
+}
+
+static
+e2sm_ccc_action_def_t gen_act_def(void)
+{
+ e2sm_ccc_action_def_t dst = {.format = FORMAT_2_E2SM_CCC_ACT_DEF};
+ size_t sz_act_def_cell_report = 1;
+ dst.frmt_2.sz_act_def_cell_report = sz_act_def_cell_report;
+ dst.frmt_2.act_def_cell_report = calloc(sz_act_def_cell_report, sizeof(act_def_cell_report_t));
+ assert(dst.frmt_2.act_def_cell_report != NULL);
+
+ size_t sz_act_def_ran_conf = 1;
+ dst.frmt_2.act_def_cell_report[0].sz_act_def_ran_conf = sz_act_def_ran_conf;
+ dst.frmt_2.act_def_cell_report[0].act_def_ran_conf = calloc(sz_act_def_ran_conf, sizeof(act_def_ran_conf_t));
+ assert(dst.frmt_2.act_def_cell_report[0].act_def_ran_conf != NULL);
+
+ dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].ran_conf_name = cp_str_to_ba("O-NRCellCU");
+ dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].report_type = REPORT_TYPE_ALL;
+ size_t sz_attribute = 1;
+ dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].sz_attribute = sz_attribute;
+ dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].attribute = calloc(sz_attribute, sizeof(attribute_t));
+ assert(dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].attribute != NULL);
+ dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].attribute[0].attribute_name = cp_str_to_ba("cellLocalId");
+
+ return dst;
+}
+
+void cb(sm_ag_if_rd_t const *rd, global_e2_node_id_t const *n)
+{
+  assert(n != NULL);
+  assert(rd != NULL);
+  assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+  assert(rd->ind.type == CCC_STATS_V3_0);
+
+  ccc_ind_data_t const* ind = &rd->ind.ccc.ind;
+
+  // Header
+  assert(ind->hdr.format == FORMAT_1_E2SM_CCC_IND_HDR);
+
+  // Message
+  assert(ind->msg.format == FORMAT_2_E2SM_CCC_IND_MSG);
+  e2sm_ccc_ind_msg_frmt_2_t const* frmt_2 = &ind->msg.frmt_2; // 9.2.1.4.2
+
+  for (size_t i = 0; i < frmt_2->sz_ind_msg_cell_report; i++){
+    printf("Cell global id: %ld \n", frmt_2->ind_msg_cell_report[i].cell_global_id.nr_cgi.nr_cell_id);
+    for (size_t j = 0; j < frmt_2->ind_msg_cell_report[i].sz_ind_msg_ran_conf; j++){
+      char * ran_conf_name = copy_ba_to_str(&frmt_2->ind_msg_cell_report[i].ind_msg_ran_conf[j].ran_conf_name);
+      defer({free(ran_conf_name);});
+      assert(strcmp(ran_conf_name, "O-NRCellCU") == 0);
+      printf("Cell local id: %d \n", frmt_2->ind_msg_cell_report[i].ind_msg_ran_conf[j].vals_attributes->e2sm_ccc_o_nr_cell_cu.cell_local_id);
+    }
+  }
+}
+
+//////////////////
+// End CCC Monitor
+//////////////////
 
 static
 cell_global_id_t fill_rnd_cell_global_id()
@@ -124,6 +195,35 @@ int main(int argc, char *argv[])
   ////////////
   // START CCC
   ////////////
+
+  /// CCC Monitor
+  // Report Service style 2
+  // Indication header format 2 - return upon subscription
+  // Indication message format 2 - return cell ID and their changes
+  // O-NRCellCU
+  // CellLocalID
+  sm_ans_xapp_t* hndl = calloc(nodes.len, sizeof(sm_ans_xapp_t));
+  defer({ free(hndl); });
+
+  ccc_sub_data_t ccc_sub = {0};
+  defer({free_ccc_sub_data(&ccc_sub);});
+  ccc_sub.et = gen_ev_trig();
+  ccc_sub.sz_ad = 1;
+  ccc_sub.ad = calloc(ccc_sub.sz_ad, sizeof(e2sm_ccc_action_def_t));
+  assert(ccc_sub.ad != NULL);
+  ccc_sub.ad[0] = gen_act_def();
+
+  for (size_t i = 0; i < nodes.len; ++i) {
+    hndl[i] = report_sm_xapp_api(&nodes.n[i].id, SM_CCC_ID, &ccc_sub, cb);
+    assert(hndl[i].success == true);
+  }
+
+  sleep(5);
+
+  for(int i = 0; i < nodes.len; ++i) {
+    rm_report_sm_xapp_api(hndl[i].u.handle);
+    sleep(1);
+  }
 
   // CCC Control
   // CONTROL Service Style 2: Cell level configuration and control
