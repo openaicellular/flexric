@@ -8,7 +8,11 @@ void free_act_def_cell_report(act_def_cell_report_t *src)
 {
   assert(src != NULL);
 
-  free_cell_global_id(&src->cell_global_id);
+  // Optional
+  if (src->cell_global_id != NULL){
+    free_cell_global_id(src->cell_global_id);
+    free(src->cell_global_id);
+  }
 
   // List of Cell-level RAN Configuration Structures
   // [1-1024]
@@ -30,8 +34,11 @@ bool eq_act_def_cell_report(act_def_cell_report_t const* m0, act_def_cell_report
   if(m0 == NULL || m1 == NULL)
     return false;
 
-  if(!eq_cell_global_id(&m0->cell_global_id, &m1->cell_global_id))
-    return false;
+  // Optional
+  if (m0->cell_global_id != NULL && m1->cell_global_id != NULL){
+    if(!eq_cell_global_id(m0->cell_global_id, m1->cell_global_id))
+      return false;
+  }
 
   for (size_t i = 0; i < m0->sz_act_def_ran_conf; i++){
     if (!eq_act_def_ran_conf(&m0->act_def_ran_conf[i], &m1->act_def_ran_conf[i]))
@@ -48,7 +55,12 @@ act_def_cell_report_t cp_act_def_cell_report(act_def_cell_report_t const* src)
 
   act_def_cell_report_t dst = {0};
 
-  dst.cell_global_id = cp_cell_global_id(&src->cell_global_id);
+  // Optional
+  if (src->cell_global_id != NULL){
+    dst.cell_global_id = calloc(1, sizeof(cell_global_id_t));
+    assert(dst.cell_global_id != NULL);
+    *dst.cell_global_id = cp_cell_global_id(src->cell_global_id);
+  }
 
   // List of Cell-level RAN Configuration Structures
   // [1 - 1024]

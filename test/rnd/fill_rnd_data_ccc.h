@@ -28,6 +28,8 @@ e2sm_ccc_action_def_t fill_rnd_ccc_action_def(void);
 e2sm_ccc_ind_hdr_t fill_rnd_ccc_ind_hdr(void);
 e2sm_ccc_ind_hdr_frmt_1_t fill_rnd_ccc_ind_hdr_frmt_1(void);
 
+values_of_attributes_t fill_values_of_attributes(values_of_attributes_e values_of_attributes_type);
+
 e2sm_ccc_ind_msg_t fill_rnd_ccc_ind_msg(void);
 e2sm_ccc_ind_msg_frmt_2_t fill_rnd_ccc_ind_msg_frmt_2(void);
 

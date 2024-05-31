@@ -106,7 +106,24 @@ e2sm_ccc_rrm_policy_member_t get_e2sm_ccc_rrm_policy_member(r_rm_policy_member_l
 }
 
 static
-attribute_t* get_lst_attribute(list_t* const src){
+attribute_t* get_lst_attribute_act_def(list_t* const src){
+  assert(src != NULL);
+  attribute_t* res = calloc(src->count, sizeof(attribute_t));
+  assert(res != NULL && "Memory exhausted");
+
+  size_t index = 0;
+  lst_attribute_element_json_t* attribute_name = list_get_head(src);
+  while (attribute_name != NULL){
+    res[index].attribute_name = cp_str_to_ba(attribute_name->attribute_name);
+    attribute_name = list_get_next(src);
+    index++;
+  }
+
+  return res;
+}
+
+static
+attribute_t* get_lst_attribute_ev_trg(list_t* const src){
   assert(src != NULL);
   attribute_t* res = calloc(src->count, sizeof(attribute_t));
   assert(res != NULL && "Memory exhausted");
@@ -134,7 +151,7 @@ ev_trg_ran_conf_t* get_ev_trg_ran_conf(list_t* const src){
 
     if (node->list_of_attributes != NULL && node->list_of_attributes->count > 0){
       res[index].sz_attribute = node->list_of_attributes->count;
-      res[index].attribute = get_lst_attribute(node->list_of_attributes);
+      res[index].attribute = get_lst_attribute_ev_trg(node->list_of_attributes);
     } else {
       res[index].sz_attribute = 0;
     }
@@ -220,7 +237,7 @@ act_def_ran_conf_t* get_act_def_ran_conf(list_t* const src){
     res[index].report_type = ran_conf->report_type;
     if (ran_conf->list_of_attributes != NULL && ran_conf->list_of_attributes->count > 0){
       res[index].sz_attribute = ran_conf->list_of_attributes->count;
-      res[index].attribute = get_lst_attribute(ran_conf->list_of_attributes);
+      res[index].attribute = get_lst_attribute_act_def(ran_conf->list_of_attributes);
     } else {
       res[index].sz_attribute = 0;
     }
@@ -1014,7 +1031,12 @@ e2sm_ccc_act_def_frmt_2_t get_act_def_frmt2(list_t* const src){
   assert(res.act_def_cell_report != NULL && "Memory exhausted");
   lst_act_def_cell_ran_conf_element_json_t* node = list_get_head(src);
   while(node != NULL){
-    res.act_def_cell_report[index].cell_global_id = get_cell_global_id(node->cell_global_id);
+    // Optional
+    if (node->cell_global_id != NULL){
+      res.act_def_cell_report[index].cell_global_id = calloc(1, sizeof(cell_global_id_t));
+      assert(res.act_def_cell_report[index].cell_global_id != NULL);
+      *res.act_def_cell_report[index].cell_global_id = get_cell_global_id(node->cell_global_id);
+    }
     res.act_def_cell_report[index].sz_act_def_ran_conf = node->list_of_cell_level_ran_configuration_structures_for_adf->count;
     res.act_def_cell_report[index].act_def_ran_conf = get_act_def_ran_conf(node->list_of_cell_level_ran_configuration_structures_for_adf);
     node = list_get_next(src);

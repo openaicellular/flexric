@@ -107,6 +107,7 @@ list_of_node_level_configuration_structures_for_event_trigger_element_t* create_
   assert(dst != NULL && "Memory exhausted");
 
   dst->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
+  assert(strcmp(dst->ran_configuration_structure_name, "") != 0 && "ran conf name is empty");
 
   if (src.sz_attribute > 0){
     dst->list_of_attributes = list_create(false, NULL);
@@ -204,14 +205,27 @@ byte_array_t ccc_enc_event_trigger_json(e2sm_ccc_event_trigger_t const* src)
 }
 
 static
+lst_attribute_element_json_t* create_lst_attribute_element_json(attribute_t const src){
+  lst_attribute_element_json_t* res = calloc(1, sizeof(lst_attribute_element_json_t));
+  assert(res != NULL);
+  res->attribute_name = copy_ba_to_str(&src.attribute_name);
+
+  return res;
+}
+
+static
 lst_act_def_ran_conf_element_json_t* create_act_def_ran_element(act_def_ran_conf_t const src){
   lst_act_def_ran_conf_element_json_t* res = calloc(1, sizeof(lst_act_def_ran_conf_element_json_t));
   assert(res != NULL && "Memory exhausted");
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
+  assert(strcmp(res->ran_configuration_structure_name, "") != 0 && "ran conf name is empty");
   res->report_type = src.report_type;
   res->list_of_attributes = list_create(false, NULL);
   for (size_t i = 0; i < src.sz_attribute; ++i){
-    list_add_tail(res->list_of_attributes, copy_ba_to_str(&src.attribute[i].attribute_name), sizeof(char *));
+    list_add_tail(res->list_of_attributes,
+                  create_lst_attribute_element_json(src.attribute[i]),
+                  sizeof(lst_attribute_element_json_t*)
+                  );
   }
 
   return res;
@@ -237,7 +251,10 @@ static
 lst_act_def_cell_ran_conf_element_json_t* create_act_def_cell_report(act_def_cell_report_t const src){
   lst_act_def_cell_ran_conf_element_json_t* res = calloc(1, sizeof(*res));
   assert(res != NULL && "Memory exhausted");
-  res->cell_global_id = create_cell_global_id(src.cell_global_id);
+  // Optional
+  if (src.cell_global_id != NULL){
+    res->cell_global_id = create_cell_global_id(*src.cell_global_id);
+  }
   res->list_of_cell_level_ran_configuration_structures_for_adf = list_create(false, NULL);
   for (size_t i = 0; i < src.sz_act_def_ran_conf; ++i){
     list_add_tail(
@@ -888,7 +905,9 @@ list_of_configuration_structures_reported_element_t* create_ind_msg_ran_element(
   list_of_configuration_structures_reported_element_t* res = calloc(1, sizeof(list_of_configuration_structures_reported_element_t));
   assert(res != NULL && "Memory exhausted");
   res->change_type = src.change_type;
+
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
+  assert(strcmp(res->ran_configuration_structure_name, "") != 0 && "ran conf name is empty");
   res->values_of_attributes = create_values_of_attributes(src.vals_attributes);
   if (src.old_vals_attributes){
     assert(src.vals_attributes->values_of_attributes_type == src.old_vals_attributes->values_of_attributes_type && "Value attribute and old value attribute must have same type");
@@ -921,6 +940,7 @@ list_of_configuration_structure_control_element_t* create_ctrl_msg_ran_element(c
   list_of_configuration_structure_control_element_t* res = calloc(1, sizeof(list_of_configuration_structure_control_element_t));
   assert(res != NULL && "Memory exhausted");
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
+  assert(strcmp(res->ran_configuration_structure_name, "") != 0 && "ran conf name is empty");
   res->new_values_of_attributes = create_values_of_attributes(src.vals_attributes);
   res->old_values_of_attributes = create_values_of_attributes(src.old_vals_attributes);
   return res;
@@ -953,6 +973,7 @@ ran_configuration_structures_accepted_list_element_t* create_ctrl_out_accepted_l
    res->applied_timestamp = copy_ba_to_str(&src.app_timestamp);
   }
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
+  assert(strcmp(res->ran_configuration_structure_name, "") != 0 && "ran conf name is empty");
   res->current_values_of_attributes = create_values_of_attributes(src.cur_atr_val);
   res->old_values_of_attributes = create_values_of_attributes(src.old_atr_val);
 
@@ -974,6 +995,7 @@ ran_configuration_structures_failed_list_element_t* create_ctrl_out_failed_list_
   ran_configuration_structures_failed_list_element_t* res = calloc(1, sizeof(ran_configuration_structures_failed_list_element_t));
   assert(res != NULL && "Memory exhausted");
   res->ran_configuration_structure_name = copy_ba_to_str(&src.ran_conf_name);
+  assert(strcmp(res->ran_configuration_structure_name, "") != 0 && "ran conf name is empty");
   res->requested_values_of_attributes = create_values_of_attributes(src.req_atr_val);
   res->old_values_of_attributes = create_values_of_attributes(src.old_atr_val);
   res->cause = src.cause;

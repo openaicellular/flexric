@@ -187,7 +187,13 @@ act_def_ran_conf_t fill_act_def_ran_conf(){
   res.report_type = rand()%END_REPORT_TYPE;
   res.ran_conf_name = cp_str_to_ba("test");
 
-  res.sz_attribute = 0;
+  res.sz_attribute = rand()%2;
+  res.attribute = calloc(res.sz_attribute, sizeof(attribute_t));
+  assert(res.attribute != NULL);
+  for (size_t i = 0; i < res.sz_attribute; i++){
+    res.attribute[i].attribute_name = cp_str_to_ba("test");
+  }
+
   return res;
 }
 
@@ -195,7 +201,13 @@ static
 act_def_cell_report_t fill_act_def_cell_report(){
   act_def_cell_report_t dst = {0};
 
-  dst.cell_global_id = fill_rnd_cell_global_id();
+  // Optional
+  if (rand()%2 == 1){
+    dst.cell_global_id = calloc(1, sizeof(cell_global_id_t));
+    assert(dst.cell_global_id != NULL);
+    *dst.cell_global_id = fill_rnd_cell_global_id();
+  }
+
   dst.sz_act_def_ran_conf = (rand() % 2)+1;
   dst.act_def_ran_conf = calloc(dst.sz_act_def_ran_conf, sizeof(act_def_ran_conf_t));
   assert(dst.act_def_ran_conf != NULL && "Memory exhausted" );
@@ -817,7 +829,7 @@ e2sm_ccc_ctrl_msg_frmt_2_t fill_rnd_ctrl_msg_frmt_2(void)
   assert(dst.ctrl_msg_cell != NULL && "Memory exhausted");
   for (size_t i = 0; i < dst.sz_ctrl_msg_cell; i++) {
     dst.ctrl_msg_cell[i].cell_global_id = fill_rnd_cell_global_id();
-    dst.ctrl_msg_cell[i].sz_ctrl_msg_ran_conf = (rand() % 3) + 1;
+    dst.ctrl_msg_cell[i].sz_ctrl_msg_ran_conf = 1;
     dst.ctrl_msg_cell[i].ctrl_msg_ran_conf = calloc(dst.ctrl_msg_cell[i].sz_ctrl_msg_ran_conf, sizeof(ctrl_msg_ran_conf_t));
     assert(dst.ctrl_msg_cell[i].ctrl_msg_ran_conf!= NULL && "Memory exhausted");
     for (size_t z = 0; z < dst.ctrl_msg_cell[i].sz_ctrl_msg_ran_conf; z++) {

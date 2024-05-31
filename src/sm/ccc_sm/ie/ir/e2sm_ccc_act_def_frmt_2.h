@@ -12,7 +12,7 @@ typedef struct{
   // Cell global ID
   // Optional
   // 9.3.6
-  cell_global_id_t cell_global_id;
+  cell_global_id_t* cell_global_id;
 
   // List of Cell-level RAN Configuration Structures
   // [1 - 1024]
