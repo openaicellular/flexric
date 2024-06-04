@@ -8,11 +8,22 @@
 #include <time.h>
 #include <unistd.h>
 
+#define MAX_LEN_CELL 3
+
 static
 uint32_t START_RB = 0;
 
 static
 uint32_t NUMBER_OF_RBS = 0;
+
+static
+cell_global_id_t* LIST_CELL_ID_LOCAL[MAX_LEN_CELL];
+
+static
+pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+
+static
+latch_cv_t latch;
 
 //////////////
 // CCC MONITOR
@@ -69,9 +80,16 @@ void cb(sm_ag_if_rd_t const *rd, global_e2_node_id_t const *n)
   assert(ind->msg.format == FORMAT_2_E2SM_CCC_IND_MSG);
   e2sm_ccc_ind_msg_frmt_2_t const* frmt_2 = &ind->msg.frmt_2; // 9.2.1.4.2
 
+  assert(frmt_2->sz_ind_msg_cell_report <= MAX_LEN_CELL);
   for (size_t i = 0; i < frmt_2->sz_ind_msg_cell_report; i++){
     printf("Cell global id: %ld \n", frmt_2->ind_msg_cell_report[i].cell_global_id.nr_cgi.nr_cell_id);
+    if (LIST_CELL_ID_LOCAL[i] == NULL){
+      LIST_CELL_ID_LOCAL[i] = calloc(1, sizeof(cell_global_id_t));
+      assert(LIST_CELL_ID_LOCAL[i] != NULL);
+      *LIST_CELL_ID_LOCAL[i] = frmt_2->ind_msg_cell_report[i].cell_global_id;
+    }
     for (size_t j = 0; j < frmt_2->ind_msg_cell_report[i].sz_ind_msg_ran_conf; j++){
+      lock_guard(&mtx);
       char * ran_conf_name = copy_ba_to_str(&frmt_2->ind_msg_cell_report[i].ind_msg_ran_conf[j].ran_conf_name);
       defer({free(ran_conf_name);});
       assert(strcmp(ran_conf_name, "O-NRCellCU") == 0);
@@ -83,20 +101,6 @@ void cb(sm_ag_if_rd_t const *rd, global_e2_node_id_t const *n)
 //////////////////
 // End CCC Monitor
 //////////////////
-
-static
-cell_global_id_t fill_rnd_cell_global_id()
-{
-  cell_global_id_t dst = {0};
-
-  // CHOICE RAT type
-  // Mandatory
-  dst.type = NR_RAT_TYPE;
-  dst.nr_cgi.plmn_id = (e2sm_plmn_t){.mcc = 505, .mnc = 55, .mnc_digit_len = 2};
-  dst.nr_cgi.nr_cell_id = 10001;
-
-  return dst;
-}
 
 static
 e2sm_ccc_o_bwp_t fill_e2sm_ccc_o_bwp()
@@ -140,11 +144,12 @@ ctrl_msg_ran_conf_t fill_ctrl_msg_ran_conf()
 }
 
 static
-ctrl_msg_cell_t fill_ctrl_msg_cell()
+ctrl_msg_cell_t fill_ctrl_msg_cell(cell_global_id_t* const cell_local_id)
 {
+  assert(cell_local_id != NULL);
   ctrl_msg_cell_t dst = {0};
 
-  dst.cell_global_id = fill_rnd_cell_global_id();
+  dst.cell_global_id = *cell_local_id;
   dst.sz_ctrl_msg_ran_conf = 1;
   dst.ctrl_msg_ran_conf = calloc(dst.sz_ctrl_msg_ran_conf, sizeof(ctrl_msg_ran_conf_t));
   assert(dst.ctrl_msg_ran_conf!= NULL && "Memory exhausted");
@@ -154,8 +159,9 @@ ctrl_msg_cell_t fill_ctrl_msg_cell()
 }
 
 static
-e2sm_ccc_ctrl_msg_t gen_msg(void)
+e2sm_ccc_ctrl_msg_t gen_msg(cell_global_id_t* const cell_local_id)
 {
+  assert(cell_local_id != NULL);
   e2sm_ccc_ctrl_msg_t dst = {0}; 
 
   // Cell Level
@@ -163,7 +169,7 @@ e2sm_ccc_ctrl_msg_t gen_msg(void)
   dst.frmt_2.sz_ctrl_msg_cell = 1;
   dst.frmt_2.ctrl_msg_cell = calloc(dst.frmt_2.sz_ctrl_msg_cell, sizeof(ctrl_msg_cell_t));
   assert(dst.frmt_2.ctrl_msg_cell != NULL);
-  dst.frmt_2.ctrl_msg_cell[0] = fill_ctrl_msg_cell();
+  dst.frmt_2.ctrl_msg_cell[0] = fill_ctrl_msg_cell(cell_local_id);
 
   return dst;
 }
@@ -202,6 +208,9 @@ int main(int argc, char *argv[])
   // Indication message format 2 - return cell ID and their changes
   // O-NRCellCU
   // CellLocalID
+  latch = init_latch_cv(nodes.len);
+  defer({free_latch_cv(&latch); });
+
   sm_ans_xapp_t* hndl = calloc(nodes.len, sizeof(sm_ans_xapp_t));
   defer({ free(hndl); });
 
@@ -223,23 +232,34 @@ int main(int argc, char *argv[])
   for(int i = 0; i < nodes.len; ++i) {
     rm_report_sm_xapp_api(hndl[i].u.handle);
     sleep(1);
+    count_down_latch_cv(&latch);
   }
+
+  wait_latch_cv(&latch);
 
   // CCC Control
   // CONTROL Service Style 2: Cell level configuration and control
   // E2SM-CCC Control Header Format 1
   // E2SM-CCC Control Message Format 2
 
-  ccc_ctrl_req_data_t ccc_ctrl = {0};
-  ccc_ctrl.hdr = gen_hdr();
-  ccc_ctrl.msg = gen_msg();
+  // Send control message for each cell
+  for (size_t i = 0; i < MAX_LEN_CELL; ++i) {
+    if (LIST_CELL_ID_LOCAL[i] == NULL){
+      continue;
+    }
 
-  int64_t const t0 = time_now_us();
-  for (size_t i = 0; i < nodes.len; ++i) {
-    control_sm_xapp_api(&nodes.n[i].id, SM_CCC_ID, &ccc_ctrl);
+    ccc_ctrl_req_data_t ccc_ctrl = {0};
+    ccc_ctrl.hdr = gen_hdr();
+    ccc_ctrl.msg = gen_msg(LIST_CELL_ID_LOCAL[i]);
+
+    int64_t const t0 = time_now_us();
+    for (size_t j = 0; j < nodes.len; ++j) {
+      control_sm_xapp_api(&nodes.n[j].id, SM_CCC_ID, &ccc_ctrl);
+    }
+
+    printf("[xApp]: Control Loop Latency: %ld us\n", time_now_us() - t0);
+    free_ccc_ctrl_req_data(&ccc_ctrl);
   }
-  printf("[xApp]: Control Loop Latency: %ld us\n", time_now_us() - t0);
-  free_ccc_ctrl_req_data(&ccc_ctrl);
 
   ////////////
   // END CCC
@@ -248,6 +268,13 @@ int main(int argc, char *argv[])
   //Stop the xApp
   while(try_stop_xapp_api() == false)
     usleep(1000);
+
+  for (int i = 0; i < MAX_LEN_CELL; ++i) {
+    if (LIST_CELL_ID_LOCAL[i] != NULL){
+      free_cell_global_id(LIST_CELL_ID_LOCAL[i]);
+    }
+    free(LIST_CELL_ID_LOCAL[i]);
+  }
 
   printf("Test xApp run SUCCESSFULLY\n");
 

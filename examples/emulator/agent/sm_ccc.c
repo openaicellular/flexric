@@ -33,7 +33,7 @@ typedef struct {
   };
 } ans_val_of_attribute_t;
 
-typedef ans_val_of_attribute_t (*fp_ccc_val_attr)(void* const src, val_e type);
+typedef ans_val_of_attribute_t (*fp_ccc_val_attr)(void* const src, val_e type, cell_global_id_t* const cell_global_id);
 
 typedef struct{
   const char* key;
@@ -63,6 +63,17 @@ cell_global_id_t fill_rnd_cell_global_id()
   dst.nr_cgi.nr_cell_id = rand()% (1UL << 36);
 
   return dst;
+}
+
+
+static
+uint64_t get_cell_local_id(uint64_t nr_cgi){
+  // Extract 36 bits from input
+  uint64_t res = nr_cgi & ((1UL << 36) - 1);
+  // nb_id default number of bits is 28 bits
+  // Local UE id is 36 - 28 = 8 left most bits
+  // 0xFF: 1111 1111
+  return res & 0xFF;
 }
 
 /////////////////////////////
@@ -157,12 +168,15 @@ wr_val_of_attribute_t write_ctrl_o_rrm_policy_ratio(ctrl_msg_ran_conf_t* const s
 static
 wr_val_of_attribute_t write_ctrl_nr_cell_cu(ctrl_msg_ran_conf_t* const src){
   assert(src != NULL);
+  assert(0 != 0 && "Not implemented");
 }
+
 static
 wr_val_of_attribute_t write_ctrl_nr_cell_du(ctrl_msg_ran_conf_t* const src){
   assert(src != NULL);
   assert(0 != 0 && "Not implemented");
 }
+
 static
 wr_val_of_attribute_t write_ctrl_ces_management_func(ctrl_msg_ran_conf_t* const src){
   assert(src != NULL);
@@ -184,17 +198,19 @@ char* bwp_context_to_str(bwp_context_e src){
 }
 
 static
-wr_val_of_attribute_t write_ctrl_o_bwp(ctrl_msg_ran_conf_t* const src){
+wr_val_of_attribute_t write_ctrl_o_bwp(ctrl_msg_ran_conf_t* const src, cell_global_id_t* const cell_global_id){
   assert(src != NULL);
+  assert(cell_global_id != NULL);
   assert(src->old_vals_attributes->values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
   assert(src->vals_attributes->values_of_attributes_type == VALUES_OF_ATTRIBUTES_O_BWP);
 
   wr_val_of_attribute_t ans = {0};
 
-  printf("O-BWP: %s Start rb %d, number of rbs %d \n",
+  printf("O-BWP: %s Start rb %d, number of rbs %d on cell local id %ld \n",
          bwp_context_to_str(src->vals_attributes->e2sm_ccc_o_bwp.bwp_context),
          src->vals_attributes->e2sm_ccc_o_bwp.start_rb,
-         src->vals_attributes->e2sm_ccc_o_bwp.number_of_rbs);
+         src->vals_attributes->e2sm_ccc_o_bwp.number_of_rbs,
+         get_cell_local_id(cell_global_id->nr_cgi.nr_cell_id));
 
   ans.is_accepted = true;
   ans.accepted.ran_conf_name = cp_str_to_ba("O-BWP");
@@ -215,8 +231,9 @@ wr_val_of_attribute_t write_ctrl_o_bwp(ctrl_msg_ran_conf_t* const src){
 /////////////////////////////
 
 static
-ans_val_of_attribute_t o_gnb_du_wrapper(void* const src, val_e type){
+ans_val_of_attribute_t o_gnb_du_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
   assert(src != NULL);
+  (void) cell_global_id;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -232,8 +249,9 @@ ans_val_of_attribute_t o_gnb_du_wrapper(void* const src, val_e type){
 }
 
 static
-ans_val_of_attribute_t o_gnb_cu_cp_wrapper(void* const src, val_e type){
+ans_val_of_attribute_t o_gnb_cu_cp_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
   assert(src != NULL);
+  (void) cell_global_id;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -249,8 +267,9 @@ ans_val_of_attribute_t o_gnb_cu_cp_wrapper(void* const src, val_e type){
 }
 
 static
-ans_val_of_attribute_t o_gnb_cu_up_wrapper(void* const src, val_e type){
+ans_val_of_attribute_t o_gnb_cu_up_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
   assert(src != NULL);
+  (void) cell_global_id;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -266,8 +285,9 @@ ans_val_of_attribute_t o_gnb_cu_up_wrapper(void* const src, val_e type){
 }
 
 static
-ans_val_of_attribute_t o_rrm_policy_ratio_wrapper(void* const src, val_e type){
+ans_val_of_attribute_t o_rrm_policy_ratio_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
   assert(src != NULL);
+  (void) cell_global_id;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -283,8 +303,9 @@ ans_val_of_attribute_t o_rrm_policy_ratio_wrapper(void* const src, val_e type){
 }
 
 static
-ans_val_of_attribute_t nr_cell_cu_wrapper(void* const src, val_e type){
+ans_val_of_attribute_t nr_cell_cu_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
   assert(src != NULL);
+  (void) cell_global_id;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -300,8 +321,9 @@ ans_val_of_attribute_t nr_cell_cu_wrapper(void* const src, val_e type){
 }
 
 static
-ans_val_of_attribute_t nr_cell_du_wrapper(void* const src, val_e type){
+ans_val_of_attribute_t nr_cell_du_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
   assert(src != NULL);
+  (void) cell_global_id;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -316,8 +338,9 @@ ans_val_of_attribute_t nr_cell_du_wrapper(void* const src, val_e type){
   return dst;
 }
 static
-ans_val_of_attribute_t ces_management_func_wrapper(void* const src, val_e type){
+ans_val_of_attribute_t ces_management_func_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
   assert(src != NULL);
+  (void) cell_global_id;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -333,7 +356,7 @@ ans_val_of_attribute_t ces_management_func_wrapper(void* const src, val_e type){
 }
 
 static
-ans_val_of_attribute_t o_bwp_wrapper(void* const src, val_e type) {
+ans_val_of_attribute_t o_bwp_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id) {
   assert(src != NULL);
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
@@ -341,7 +364,7 @@ ans_val_of_attribute_t o_bwp_wrapper(void* const src, val_e type) {
       dst.read = read_o_bwp((act_def_ran_conf_t*) src);
       break;
     case VALUE_WRITE:
-      dst.write =  write_ctrl_o_bwp((ctrl_msg_ran_conf_t*) src);
+      dst.write =  write_ctrl_o_bwp((ctrl_msg_ran_conf_t*) src, cell_global_id);
       break;
     default:
       assert(0 != 0 && "Unknown type");
@@ -464,7 +487,7 @@ bool cell_cfg_read(ccc_rd_ind_data_t* const ccc_read){
       void* value = assoc_ht_open_value(&ht, &key);
       assert(value != NULL && "Not registered name used as key");
       // Get the control outcome (e.g., O-BWP) for the control output
-      ans_val_of_attribute_t rd_ans = (*(fp_ccc_val_attr*)value)(cur_ran_conf, VALUE_READ);
+      ans_val_of_attribute_t rd_ans = (*(fp_ccc_val_attr*)value)(cur_ran_conf, VALUE_READ, NULL);
       assert(rd_ans.type == VALUE_READ);
 
       ccc_read->ind.msg.frmt_2.ind_msg_cell_report[i].ind_msg_ran_conf[j] = rd_ans.read;
@@ -590,7 +613,7 @@ sm_ag_if_ans_t cell_cfg_ctrl(ccc_ctrl_req_data_t* const ctrl)
       void* value = assoc_ht_open_value(&ht, &key);
       assert(value != NULL && "Not registered name used as key");
       // Get the control outcome (e.g., O-BWP) for the control output
-      ans_val_of_attribute_t wr_ans = (*(fp_ccc_val_attr*)value)(cur_ran_conf, VALUE_WRITE);
+      ans_val_of_attribute_t wr_ans = (*(fp_ccc_val_attr*)value)(cur_ran_conf, VALUE_WRITE, &cur_cell->cell_global_id);
       assert(wr_ans.type == VALUE_WRITE);
 
       if (wr_ans.write.is_accepted){
