@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-static
 void free_ind_msg_cell_report(ind_msg_cell_report_t* src)
 {
   assert(src != NULL);
@@ -21,7 +20,6 @@ void free_ind_msg_cell_report(ind_msg_cell_report_t* src)
   free(src->ind_msg_ran_conf);
 }
 
-static
 bool eq_ind_msg_cell_report(ind_msg_cell_report_t const* m0,  ind_msg_cell_report_t const* m1)
 {
   if(m0 == m1)
@@ -45,7 +43,6 @@ bool eq_ind_msg_cell_report(ind_msg_cell_report_t const* m0,  ind_msg_cell_repor
   return true;
 }
 
-static
 ind_msg_cell_report_t cp_ind_msg_cell_report(ind_msg_cell_report_t const* src)
 {
   assert(src != NULL);

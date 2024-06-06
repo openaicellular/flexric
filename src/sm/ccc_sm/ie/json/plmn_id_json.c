@@ -53,7 +53,7 @@ plmn_id_json_t * cJSON_Getplmn_idValue(const cJSON * j) {
       }
       if (cJSON_HasObjectItem(j, "mnc")) {
         char * mnc = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(j, "mnc"));
-        assert(isMNCValid(mnc) && "mcc is not 3 or 2 digits string");
+        assert(isMNCValid(mnc) && "mnc is not 3 or 2 digits string");
         x->mnc = strdup(mnc);
       }
     }

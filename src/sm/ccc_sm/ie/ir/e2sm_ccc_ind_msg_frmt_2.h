@@ -30,6 +30,12 @@ typedef struct{
 
 } e2sm_ccc_ind_msg_frmt_2_t;
 
+void free_ind_msg_cell_report(ind_msg_cell_report_t* src);
+
+bool eq_ind_msg_cell_report(ind_msg_cell_report_t const* m0,  ind_msg_cell_report_t const* m1);
+
+ind_msg_cell_report_t cp_ind_msg_cell_report(ind_msg_cell_report_t const* src);
+
 void free_e2sm_ccc_ind_msg_frmt_2(e2sm_ccc_ind_msg_frmt_2_t const* src);
 
 bool eq_e2sm_ccc_ind_msg_frmt_2( e2sm_ccc_ind_msg_frmt_2_t const* m0,  e2sm_ccc_ind_msg_frmt_2_t const* m1);
