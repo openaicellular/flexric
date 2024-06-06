@@ -237,6 +237,28 @@ void fill_msg_rc_sm(e2_agent_amr_t* ag, rc_msgs_amr_t* msg)
   printf("Elapsed RAN Control get %ld %ld %ld \n", t2 - t1, t3 - t2, t4 - t3);
 }
 
+void fill_msg_ccc_sm(e2_agent_amr_t* ag, ccc_msgs_amr_t* msg)
+{
+  assert(ag != NULL);
+  assert(msg != NULL);
+
+  int64_t t1 = time_now_us();
+
+  ccc_pend_msg_t ccc = init_ccc_pend_msg(msg);
+  defer({ free_ccc_pend_msg(&ccc); } );
+
+  int const msg_id1 = ag->msg_id++;
+  send_config_get_ccc(ag, msg_id1, &ccc);
+
+  // Other thread will notify it, once
+  // the ccc_msgs_amr_t answer is completely filled
+  wait_untill_filled_cccp(&ccc);
+
+  int64_t t2 = time_now_us();
+
+  printf("Elapsed CCC get %ld \n", t2 - t1);
+}
+
 void ho_rc_sm(e2_agent_amr_t* ag, uint64_t pci, uint64_t ran_ue_id, size_t ssb_nr_arfcn, rc_msgs_amr_t* msg)
 {
   assert(ag != NULL);

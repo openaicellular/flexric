@@ -130,6 +130,18 @@ void send_ho_rc(e2_agent_amr_t* ag, int msg_id, rc_pend_msg_t* rc, uint64_t pci,
 // CCC SM
 /////
 
+void send_config_get_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg_t* ccc)
+{
+  // Add ccc answer placeholder
+  add_ccc_pend_ds(&ag->ccc_pend_ds, msg_id, ccc);
+
+  // Add pending timeout
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_GET_PROXY_PENDING_EVENT, CCC_ORIGINATED_MSG_E);
+
+  // Send message
+  send_config_get(&ag->ep, msg_id);
+}
+
 void send_config_set_rb_ctrl_ul_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg_t* ccc, uint64_t cell_id, uint64_t pusch_fixed_rb_start, uint64_t pusch_fixed_l_crb)
 {
   assert(ag != NULL);
@@ -139,7 +151,7 @@ void send_config_set_rb_ctrl_ul_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg
   add_ccc_pend_ds(&ag->ccc_pend_ds, msg_id, ccc);
 
   // Add pending timeout
-  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, HAND_OVER_PENDING_EVENT, CCC_ORIGINATED_MSG_E);
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_SET_PENDING_EVENT, CCC_ORIGINATED_MSG_E);
 
   // Send message
   send_config_set_rb_control_ul(&ag->ep, msg_id, cell_id, pusch_fixed_rb_start, pusch_fixed_l_crb);
@@ -154,7 +166,7 @@ void send_config_set_rb_ctrl_dl_ccc(e2_agent_amr_t* ag, int msg_id, ccc_pend_msg
   add_ccc_pend_ds(&ag->ccc_pend_ds, msg_id, ccc);
 
   // Add pending timeout
-  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, HAND_OVER_PENDING_EVENT, CCC_ORIGINATED_MSG_E);
+  add_pend_ev_prox(&ag->pend, &ag->asio, msg_id, CONFIG_SET_PENDING_EVENT, CCC_ORIGINATED_MSG_E);
 
   // Send message
   send_config_set_rb_control_dl(&ag->ep, msg_id, cell_id, pdsch_fixed_rb_start, pdsch_fixed_l_crb);
@@ -219,7 +231,7 @@ void msg_handle_config_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
   } 
 
   ws_orig_msg_e const orig = rm_pend_ev_prox(&ag->pend, &ag->asio, cfg->msg_id);
-  assert(orig == KPM_ORIGINATED_MSG_E || orig == RC_ORIGINATED_MSG_E);
+  assert(orig == KPM_ORIGINATED_MSG_E || orig == RC_ORIGINATED_MSG_E || orig == CCC_ORIGINATED_MSG_E);
   
   if(orig == KPM_ORIGINATED_MSG_E){
     // Get kpm answer. This is OK, as the pointer points to the stack
@@ -228,11 +240,16 @@ void msg_handle_config_get(e2_agent_amr_t* ag, msg_amr_t const* msg)
     // Move memory ownership
     k->msg->cfg = *cfg;
     notify_part_filled_kp(k);
-  } else { // orig == RC_ORIGINATED_MSG_E)
+  } else if(orig == RC_ORIGINATED_MSG_E){ // orig == RC_ORIGINATED_MSG_E)
     rc_pend_msg_t* r = extract_rc_pend_ds(&ag->rc_pend_ds, cfg->msg_id);
     // Move memory ownership
     r->msg->cfg = *cfg;
     notify_part_filled_rp(r);
+  } else { // orig == CCC_ORIGINATED_MSG_E)
+    ccc_pend_msg_t* c = extract_ccc_pend_ds(&ag->ccc_pend_ds, cfg->msg_id);
+    // Move memory ownership
+    c->msg->cfg_get = *cfg;
+    notify_part_filled_cccp(c);
   }
 
 }

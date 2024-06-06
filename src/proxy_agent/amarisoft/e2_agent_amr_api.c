@@ -65,6 +65,14 @@ void fill_msg_rc_sm_api(rc_msgs_amr_t* msg)
   fill_msg_rc_sm(ag, msg);
 }
 
+void fill_msg_ccc_sm_api(ccc_msgs_amr_t* msg)
+{
+  assert(ag != NULL);
+  assert(msg != NULL);
+
+  fill_msg_ccc_sm(ag, msg);
+}
+
 void ho_rc_sm_api(uint64_t n_id_nrcell, uint64_t ran_ue_id, size_t ssb_nr_arfcn ,rc_msgs_amr_t* msg)
 {
   assert(ag != NULL);

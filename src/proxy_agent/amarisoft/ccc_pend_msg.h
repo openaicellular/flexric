@@ -19,11 +19,11 @@ typedef struct{
 
 ccc_pend_msg_t init_ccc_pend_msg(ccc_msgs_amr_t* msg);
 
-void free_ccc_pend_msg(ccc_pend_msg_t* k);
+void free_ccc_pend_msg(ccc_pend_msg_t* c);
 
-void notify_part_filled_cccp(ccc_pend_msg_t* k);
+void notify_part_filled_cccp(ccc_pend_msg_t* c);
 
-void wait_untill_filled_cccp(ccc_pend_msg_t* k);
+void wait_untill_filled_cccp(ccc_pend_msg_t* c);
 
 #endif
 

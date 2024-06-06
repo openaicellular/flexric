@@ -43,7 +43,7 @@ typedef struct {
   };
 } ans_val_of_attribute_t;
 
-typedef ans_val_of_attribute_t (*fp_ccc_val_attr)(void* const src, val_e type, cell_global_id_t* const cell_global_id);
+typedef ans_val_of_attribute_t (*fp_ccc_val_attr)(void* const src, val_e type, cell_global_id_t* const cell_global_id, ccc_msgs_amr_t const* ccc_msgs_amr);
 
 typedef struct{
   const char* key;
@@ -51,30 +51,32 @@ typedef struct{
 } kv_val_of_attribute_t;
 
 static
-e2sm_plmn_t fill_rnd_plmn_id(){
-  e2sm_plmn_t dst = (e2sm_plmn_t) {
-      .mcc = (rand()%900) + 100,
-      .mnc = (rand()%90) + 10,
-      .mnc_digit_len = 2
-  };
+e2sm_plmn_t convert_amr_plmn_e2sm_plmn(char* const src){
+  assert(src != NULL);
+  e2sm_plmn_t dst = {0};
+
+  size_t size = strlen(src);
+  char* mcc = calloc(4, sizeof(uint8_t));
+  defer({free(mcc);});
+  char* mnc = calloc(4, sizeof(uint8_t));
+  defer({free(mnc);});
+
+  if (size == 5) {
+    strncpy(mcc, src, 3); // Copy first 3 digits
+    strncpy(mnc, src + 3, 2); // Copy next 2 digits
+    dst.mnc_digit_len = 2;
+  } else if (size == 6) {
+    strncpy(mcc, src, 3); // Copy first 3 digits
+    strncpy(mnc, src + 3, 3); // Copy next 3 digits
+    dst.mnc_digit_len = 3;
+  }
+
+  // TODO: Fix this mcc and mnc
+  dst.mcc = atoi(src);
+  dst.mnc = atoi(src);
 
   return dst;
 }
-
-static
-cell_global_id_t fill_rnd_cell_global_id()
-{
-  cell_global_id_t dst = {0};
-
-  // CHOICE RAT type
-  // Mandatory
-  dst.type = NR_RAT_TYPE;
-  dst.nr_cgi.plmn_id = fill_rnd_plmn_id();
-  dst.nr_cgi.nr_cell_id = rand()% (1UL << 36);
-
-  return dst;
-}
-
 
 static
 uint64_t get_cell_local_id(uint64_t nr_cgi){
@@ -112,21 +114,31 @@ ind_msg_ran_conf_t read_o_rrm_policy_ratio(act_def_ran_conf_t* const src){
   assert(0 != 0 && "Not implemented");
 }
 static
-ind_msg_ran_conf_t read_nr_cell_cu(act_def_ran_conf_t* const src){
+ind_msg_ran_conf_t read_nr_cell_cu(act_def_ran_conf_t* const src, nr_cells_amr_t* const nr_cell){
   assert(src != NULL);
-  ind_msg_ran_conf_t dst = {0};
+  assert(nr_cell != NULL);
 
+  // [0 - 66535]
+  if (src->sz_attribute > 0)
+    assert(0 != 0 && "Not implemented");
+
+  ind_msg_ran_conf_t dst = {0};
   dst.ran_conf_name = copy_byte_array(src->ran_conf_name);
-  dst.change_type = rand()%END_CHANGE_TYPE;
+  dst.change_type = CHANGE_TYPE_NONE;
+
   dst.vals_attributes = calloc(1, sizeof(values_of_attributes_t));
   assert(dst.vals_attributes != NULL);
-  // TODO: Fill with calling config_get
-//  *dst.vals_attributes = fill_values_of_attributes(VALUES_OF_ATTRIBUTES_O_NRCellCU);
-//  if (rand()%2 == 1){
-//    dst.old_vals_attributes = calloc(1, sizeof(values_of_attributes_t));
-//    assert(dst.old_vals_attributes != NULL);
-//    *dst.old_vals_attributes = fill_values_of_attributes(VALUES_OF_ATTRIBUTES_O_NRCellCU);
-//  }
+  dst.vals_attributes->values_of_attributes_type = VALUES_OF_ATTRIBUTES_O_NRCellCU;
+  // [1..65536]
+  dst.vals_attributes->e2sm_ccc_o_nr_cell_cu.sz_plmn_info_lst = nr_cell->sz_plm_lst;
+  dst.vals_attributes->e2sm_ccc_o_nr_cell_cu.plmn_info_lst = calloc(nr_cell->sz_plm_lst, sizeof(e2sm_ccc_plmn_info_t));
+  assert(dst.vals_attributes->e2sm_ccc_o_nr_cell_cu.plmn_info_lst != NULL);
+  for (size_t i = 0; i < nr_cell->sz_plm_lst ; ++i) {
+    // O-RAN standard: each plmn info goes with 1 plmn id
+    // Amarisoft: each plmn info goes with list of plmn ids
+    // Temporary option: plmn info goes with first item of the list
+    dst.vals_attributes->e2sm_ccc_o_nr_cell_cu.plmn_info_lst[i].plmn_id = convert_amr_plmn_e2sm_plmn(nr_cell->plmn_lst[i].plmn_ids[0]);
+  }
 
   return dst;
 }
@@ -260,9 +272,10 @@ wr_val_of_attribute_t write_ctrl_o_bwp(ctrl_msg_ran_conf_t* const src, cell_glob
 /////////////////////////////
 
 static
-ans_val_of_attribute_t o_gnb_du_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
+ans_val_of_attribute_t o_gnb_du_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id, ccc_msgs_amr_t const* ccc_msgs_amr){
   assert(src != NULL);
   (void) cell_global_id;
+  (void) ccc_msgs_amr;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -278,9 +291,10 @@ ans_val_of_attribute_t o_gnb_du_wrapper(void* const src, val_e type, cell_global
 }
 
 static
-ans_val_of_attribute_t o_gnb_cu_cp_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
+ans_val_of_attribute_t o_gnb_cu_cp_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id, ccc_msgs_amr_t const* ccc_msgs_amr){
   assert(src != NULL);
   (void) cell_global_id;
+  (void) ccc_msgs_amr;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -296,9 +310,10 @@ ans_val_of_attribute_t o_gnb_cu_cp_wrapper(void* const src, val_e type, cell_glo
 }
 
 static
-ans_val_of_attribute_t o_gnb_cu_up_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
+ans_val_of_attribute_t o_gnb_cu_up_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id, ccc_msgs_amr_t const* ccc_msgs_amr){
   assert(src != NULL);
   (void) cell_global_id;
+  (void) ccc_msgs_amr;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -314,9 +329,10 @@ ans_val_of_attribute_t o_gnb_cu_up_wrapper(void* const src, val_e type, cell_glo
 }
 
 static
-ans_val_of_attribute_t o_rrm_policy_ratio_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
+ans_val_of_attribute_t o_rrm_policy_ratio_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id, ccc_msgs_amr_t const* ccc_msgs_amr){
   assert(src != NULL);
   (void) cell_global_id;
+  (void) ccc_msgs_amr;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -332,13 +348,18 @@ ans_val_of_attribute_t o_rrm_policy_ratio_wrapper(void* const src, val_e type, c
 }
 
 static
-ans_val_of_attribute_t nr_cell_cu_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
+ans_val_of_attribute_t nr_cell_cu_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id, ccc_msgs_amr_t const* ccc_msgs_amr){
   assert(src != NULL);
   (void) cell_global_id;
+  (void) ccc_msgs_amr;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
-      dst.read = read_nr_cell_cu((act_def_ran_conf_t*) src);
+      for (size_t i = 0; i < ccc_msgs_amr->cfg_get.arr_nr_cells.sz ; ++i) {
+        if ((uint64_t)ccc_msgs_amr->cfg_get.arr_nr_cells.nr_cells[i].ncgi.nci == cell_global_id->nr_cgi.nr_cell_id){
+          dst.read = read_nr_cell_cu((act_def_ran_conf_t*) src, &ccc_msgs_amr->cfg_get.arr_nr_cells.nr_cells[i]);
+        }
+      }
       break;
     case VALUE_WRITE:
       dst.write =  write_ctrl_nr_cell_cu((ctrl_msg_ran_conf_t*) src);
@@ -350,9 +371,10 @@ ans_val_of_attribute_t nr_cell_cu_wrapper(void* const src, val_e type, cell_glob
 }
 
 static
-ans_val_of_attribute_t nr_cell_du_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
+ans_val_of_attribute_t nr_cell_du_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id, ccc_msgs_amr_t const* ccc_msgs_amr){
   assert(src != NULL);
   (void) cell_global_id;
+  (void) ccc_msgs_amr;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -367,9 +389,10 @@ ans_val_of_attribute_t nr_cell_du_wrapper(void* const src, val_e type, cell_glob
   return dst;
 }
 static
-ans_val_of_attribute_t ces_management_func_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id){
+ans_val_of_attribute_t ces_management_func_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id, ccc_msgs_amr_t const* ccc_msgs_amr){
   assert(src != NULL);
   (void) cell_global_id;
+  (void) ccc_msgs_amr;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -385,8 +408,9 @@ ans_val_of_attribute_t ces_management_func_wrapper(void* const src, val_e type, 
 }
 
 static
-ans_val_of_attribute_t o_bwp_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id) {
+ans_val_of_attribute_t o_bwp_wrapper(void* const src, val_e type, cell_global_id_t* const cell_global_id, ccc_msgs_amr_t const* ccc_msgs_amr) {
   assert(src != NULL);
+  (void) ccc_msgs_amr;
   ans_val_of_attribute_t dst = {.type = type};
   switch (type) {
     case VALUE_READ:
@@ -478,9 +502,63 @@ void free_ccc_sm_amr(void)
   free_wr_ctrl_val_atr();
 }
 
+void free_cell_ind_wrapper(void* src){
+  assert(src != NULL);
+  free_ind_msg_cell_report(src);
+}
+
+void get_ind_msg_cell_report_seq(ind_msg_cell_report_t** dst, seq_arr_t* const src){
+  assert(src != NULL);
+  size_t len = seq_size(src);
+
+  if (len > 0){
+    size_t index = 0;
+    *dst = calloc(len, sizeof(ind_msg_cell_report_t));
+    assert(*dst != NULL);
+    void* start_it = seq_front(src);
+    void* end_it = seq_end(src);
+    while(start_it != end_it){
+      *dst[index] = cp_ind_msg_cell_report((ind_msg_cell_report_t*)start_it);
+      start_it = seq_next(src, start_it);
+      index++;
+    }
+  }
+}
+
 bool node_cfg_read(ccc_rd_ind_data_t* const ccc_read){
   assert(ccc_read != NULL);
   assert(0 != 0 && "Not implemented");
+}
+
+ind_msg_cell_report_t fill_ind_msg_cell_report(act_def_cell_report_t* const src, cell_global_id_t* const cell_global_id, ccc_msgs_amr_t* const ccc_msgs_amr){
+  assert(cell_global_id != NULL);
+  assert(ccc_msgs_amr != NULL);
+  assert(src != NULL);
+  assert(src->sz_act_def_ran_conf > 0 && src->sz_act_def_ran_conf < 1025);
+
+  ind_msg_cell_report_t dst = {0};
+  dst.cell_global_id = *cell_global_id;
+  dst.sz_ind_msg_ran_conf = src->sz_act_def_ran_conf;
+  dst.ind_msg_ran_conf = calloc(src->sz_act_def_ran_conf, sizeof(ind_msg_ran_conf_t));
+  assert(dst.ind_msg_ran_conf != NULL);
+
+  for (size_t j = 0; j < src->sz_act_def_ran_conf; j++) {
+    act_def_ran_conf_t* const cur_ran_conf = &src->act_def_ran_conf[j];
+    void* key = copy_ba_to_str(&cur_ran_conf->ran_conf_name);
+    defer({free(key);});
+
+    // Get the value pointer from the key i.e., the function to be called
+    // for the key that represents a ran configuration name e.g., O-BWP
+    void* value = assoc_ht_open_value(&ht, &key);
+    assert(value != NULL && "Not registered name used as key");
+    // Get the control outcome (e.g., O-BWP) for the control output
+    ans_val_of_attribute_t rd_ans = (*(fp_ccc_val_attr*)value)(cur_ran_conf, VALUE_READ, cell_global_id, ccc_msgs_amr);
+    assert(rd_ans.type == VALUE_READ);
+
+    dst.ind_msg_ran_conf[j] = rd_ans.read;
+  }
+
+  return dst;
 }
 
 bool cell_cfg_read(ccc_rd_ind_data_t* const ccc_read){
@@ -489,43 +567,59 @@ bool cell_cfg_read(ccc_rd_ind_data_t* const ccc_read){
 
   e2sm_ccc_act_def_frmt_2_t const* act_def = &ccc_read->act_def->frmt_2;
 
-  ccc_read->ind.msg.format = FORMAT_2_E2SM_CCC_IND_MSG;
-  ccc_read->ind.msg.frmt_2.sz_ind_msg_cell_report = act_def->sz_act_def_cell_report;
-  ccc_read->ind.msg.frmt_2.ind_msg_cell_report = calloc(act_def->sz_act_def_cell_report, sizeof(ind_msg_cell_report_t));
-  assert(ccc_read->ind.msg.frmt_2.ind_msg_cell_report != NULL);
+  ccc_msgs_amr_t ccc_amr_msg = {0};
+  defer({ free_ccc_msgs_amr(&ccc_amr_msg); });
+
+  fill_msg_ccc_sm_api(&ccc_amr_msg);
+
+  if (ccc_amr_msg.cfg_get.arr_nr_cells.sz == 0){
+    return false;
+  }
+
+  // Init sequential array
+  seq_arr_t cell_ind_arr = {0};
+  seq_init(&cell_ind_arr, sizeof(ind_msg_cell_report_t));
+  defer({seq_free(&cell_ind_arr, free_cell_ind_wrapper);});
 
   // [1 - 1024]
   assert(act_def->sz_act_def_cell_report > 0 && act_def->sz_act_def_cell_report < 1025);
   for (size_t i = 0; i < act_def->sz_act_def_cell_report; i++){
-    // [1 - 1024]
-    assert(act_def->act_def_cell_report[i].sz_act_def_ran_conf > 0);
-    assert(act_def->act_def_cell_report[i].sz_act_def_ran_conf < 1025);
-    ccc_read->ind.msg.frmt_2.ind_msg_cell_report[i].cell_global_id = fill_rnd_cell_global_id();
-    ccc_read->ind.msg.frmt_2.ind_msg_cell_report[i].sz_ind_msg_ran_conf = act_def->act_def_cell_report[i].sz_act_def_ran_conf;
-    ccc_read->ind.msg.frmt_2.ind_msg_cell_report[i].ind_msg_ran_conf = calloc(act_def->act_def_cell_report[i].sz_act_def_ran_conf, sizeof(ind_msg_ran_conf_t));
-    assert(ccc_read->ind.msg.frmt_2.ind_msg_cell_report[i].ind_msg_ran_conf != NULL);
+    if (act_def->act_def_cell_report[i].cell_global_id){
+      ind_msg_cell_report_t ind_msg_cell_report = fill_ind_msg_cell_report(
+          &act_def->act_def_cell_report[i],
+          act_def->act_def_cell_report[i].cell_global_id,
+          &ccc_amr_msg
+          );
+      seq_push_back(&cell_ind_arr, &ind_msg_cell_report, sizeof(ind_msg_cell_report_t));
+    } else {
+      // TODO: Problem with size of cell > 1
+      for (size_t j = 0; j < ccc_amr_msg.cfg_get.arr_nr_cells.sz; j++){
+        cell_global_id_t cell_global_id = {0};
+        cell_global_id.type = NR_RAT_TYPE;
+        cell_global_id.nr_cgi.nr_cell_id = ccc_amr_msg.cfg_get.arr_nr_cells.nr_cells[i].ncgi.nci;
+        cell_global_id.nr_cgi.plmn_id = convert_amr_plmn_e2sm_plmn(ccc_amr_msg.cfg_get.arr_nr_cells.nr_cells[i].ncgi.plmn);
 
-    for (size_t j = 0; j < act_def->act_def_cell_report[i].sz_act_def_ran_conf; j++) {
-      act_def_ran_conf_t* const cur_ran_conf = &act_def->act_def_cell_report[i].act_def_ran_conf[j];
-      void* key = copy_ba_to_str(&cur_ran_conf->ran_conf_name);
-      defer({free(key);});
-
-      // Get the value pointer from the key i.e., the function to be called
-      // for the key that represents a ran configuration name e.g., O-BWP
-      void* value = assoc_ht_open_value(&ht, &key);
-      assert(value != NULL && "Not registered name used as key");
-      // Get the control outcome (e.g., O-BWP) for the control output
-      ans_val_of_attribute_t rd_ans = (*(fp_ccc_val_attr*)value)(cur_ran_conf, VALUE_READ, NULL);
-      assert(rd_ans.type == VALUE_READ);
-
-      ccc_read->ind.msg.frmt_2.ind_msg_cell_report[i].ind_msg_ran_conf[j] = rd_ans.read;
+        ind_msg_cell_report_t ind_msg_cell_report = fill_ind_msg_cell_report(
+            &act_def->act_def_cell_report[i],
+            &cell_global_id,
+            &ccc_amr_msg
+            );
+        seq_push_back(&cell_ind_arr, &ind_msg_cell_report, sizeof(ind_msg_cell_report_t));
+      }
     }
   }
 
   ccc_read->ind.hdr.format = FORMAT_1_E2SM_CCC_IND_HDR;
   ccc_read->ind.hdr.frmt_1.ind_reason = IND_REASON_PERIODIC;
   uint64_t time = time_now_us();
+  // TODO: Check len of event time
+  ccc_read->ind.hdr.frmt_1.event_time = calloc(1024, sizeof(uint8_t));
+  assert(ccc_read->ind.hdr.frmt_1.event_time != NULL);
   sprintf(ccc_read->ind.hdr.frmt_1.event_time, "%ld", time);
+
+  ccc_read->ind.msg.format = FORMAT_2_E2SM_CCC_IND_MSG;
+  ccc_read->ind.msg.frmt_2.sz_ind_msg_cell_report = seq_size(&cell_ind_arr);
+  get_ind_msg_cell_report_seq(&ccc_read->ind.msg.frmt_2.ind_msg_cell_report, &cell_ind_arr);
 
   return true;
 }
@@ -686,7 +780,7 @@ sm_ag_if_ans_t cell_cfg_ctrl(ccc_ctrl_req_data_t* const ctrl)
       void* value = assoc_ht_open_value(&ht, &key);
       assert(value != NULL && "Not registered name used as key");
       // Get the control outcome (e.g., O-BWP) for the control output
-      ans_val_of_attribute_t wr_ans = (*(fp_ccc_val_attr*)value)(cur_ran_conf, VALUE_WRITE, &cur_cell->cell_global_id);
+      ans_val_of_attribute_t wr_ans = (*(fp_ccc_val_attr*)value)(cur_ran_conf, VALUE_WRITE, &cur_cell->cell_global_id, NULL);
       assert(wr_ans.type == VALUE_WRITE);
 
       if (wr_ans.write.is_accepted){
