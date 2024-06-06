@@ -11,6 +11,9 @@
 #define MAX_LEN_CELL 3
 
 static
+bwp_context_e BWP_CONTEXT = END_BWP_CONTEXT;
+
+static
 uint32_t START_RB = 0;
 
 static
@@ -55,11 +58,7 @@ e2sm_ccc_action_def_t gen_act_def(void)
 
  dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].ran_conf_name = cp_str_to_ba("O-NRCellCU");
  dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].report_type = REPORT_TYPE_ALL;
- size_t sz_attribute = 1;
- dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].sz_attribute = sz_attribute;
- dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].attribute = calloc(sz_attribute, sizeof(attribute_t));
- assert(dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].attribute != NULL);
- dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].attribute[0].attribute_name = cp_str_to_ba("cellLocalId");
+ dst.frmt_2.act_def_cell_report[0].act_def_ran_conf[0].sz_attribute = 0;
 
  return dst;
 }
@@ -82,18 +81,12 @@ void cb(sm_ag_if_rd_t const *rd, global_e2_node_id_t const *n)
 
   assert(frmt_2->sz_ind_msg_cell_report <= MAX_LEN_CELL);
   for (size_t i = 0; i < frmt_2->sz_ind_msg_cell_report; i++){
+    lock_guard(&mtx);
     printf("Cell global id: %ld \n", frmt_2->ind_msg_cell_report[i].cell_global_id.nr_cgi.nr_cell_id);
     if (LIST_CELL_ID_LOCAL[i] == NULL){
       LIST_CELL_ID_LOCAL[i] = calloc(1, sizeof(cell_global_id_t));
       assert(LIST_CELL_ID_LOCAL[i] != NULL);
       *LIST_CELL_ID_LOCAL[i] = frmt_2->ind_msg_cell_report[i].cell_global_id;
-    }
-    for (size_t j = 0; j < frmt_2->ind_msg_cell_report[i].sz_ind_msg_ran_conf; j++){
-      lock_guard(&mtx);
-      char * ran_conf_name = copy_ba_to_str(&frmt_2->ind_msg_cell_report[i].ind_msg_ran_conf[j].ran_conf_name);
-      defer({free(ran_conf_name);});
-      assert(strcmp(ran_conf_name, "O-NRCellCU") == 0);
-      printf("Cell local id: %d \n", frmt_2->ind_msg_cell_report[i].ind_msg_ran_conf[j].vals_attributes->e2sm_ccc_o_nr_cell_cu.cell_local_id);
     }
   }
 }
@@ -107,7 +100,7 @@ e2sm_ccc_o_bwp_t fill_e2sm_ccc_o_bwp()
 {
   e2sm_ccc_o_bwp_t dst = {0};
 
-  dst.bwp_context = DL_BWP_CONTEXT;
+  dst.bwp_context = BWP_CONTEXT;
   dst.start_rb = START_RB;
   dst.number_of_rbs = NUMBER_OF_RBS;
 
@@ -177,7 +170,7 @@ e2sm_ccc_ctrl_msg_t gen_msg(cell_global_id_t* const cell_local_id)
 
 int main(int argc, char *argv[])
 {
-  assert(argc > 2 && "Require rb start and number of rbs");
+  assert(argc > 3 && "Require bwp_context(1 = dl, 2 = ul), rb start and number of rbs");
   fr_args_t args = init_fr_args(argc, argv);
   defer({ free_fr_args(&args); });
   for (int i = argc - 1; i > 0; i--){
@@ -185,7 +178,17 @@ int main(int argc, char *argv[])
       NUMBER_OF_RBS = atoi(argv[i]);
     if(i == argc - 2)
       START_RB = atoi(argv[i]);
-    if(i < argc - 2)
+    if(i == argc - 3){
+      int opt = atoi(argv[i]);
+      if (opt == 1){
+        BWP_CONTEXT = DL_BWP_CONTEXT;
+      } else if (opt == 2) {
+        BWP_CONTEXT = UL_BWP_CONTEXT;
+      } else {
+        assert("Unknown bwp context");
+      }
+    }
+    if(i < argc - 3)
       break;
   }
 
