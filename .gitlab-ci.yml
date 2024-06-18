@@ -1,4 +1,22 @@
-image: ubuntu:20.04
+variables:
+  GIT_SUBMODULE_STRATEGY: normal
+  GIT_SSL_NO_VERIFY: "1"
+  GIT_CREDENTIALS: "https://chiehchun:glpat-CYcMNsdSQb5Y9SzenMzb@gitlab.eurecom.fr/br/flexric.git"
+
+# need to move to dockerfile
+before_script:
+  - export DEBIAN_FRONTEND=noninteractive
+  - apt-get update
+  - ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
+  - echo "Etc/UTC" > /etc/timezone
+  - apt-get -y install tzdata
+  - dpkg-reconfigure --frontend noninteractive tzdata
+  - apt-get -y install cmake autotools-dev automake libpcre2-dev build-essential
+  - apt-get -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev python3 python3-dev libwebsockets-dev libjson-c-dev
+  - apt-get -y install git dnsutils
+  - nslookup gitlab.eurecom.fr
+  - git config --global http.sslVerify false
+  - git remote set-url origin $GIT_CREDENTIALS
 
 stages:
   - build
@@ -6,12 +24,11 @@ stages:
 
 # E2AP-v2-KPM-v2.01
 E2AP-v2-KPM-v2.01-build:
+  image: ubuntu:20.04
   stage: build
   tags:
     - test
   script:
-    - apt update
-    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v2-kpm-v2.01
     - cd build-e2ap-v2-kpm-v2.01
     - cmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V2_01 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
@@ -21,9 +38,12 @@ E2AP-v2-KPM-v2.01-build:
       - build-e2ap-v2-kpm-v2.01/
 
 E2AP-v2-KPM-v2.01-test:
+  image: ubuntu:20.04
   stage: test
   tags:
     - test
+  dependencies:
+    - E2AP-v2-KPM-v2.01-build
   script:
     - cd build-e2ap-v2-kpm-v2.01
     - make install
@@ -31,12 +51,11 @@ E2AP-v2-KPM-v2.01-test:
 
 # E2AP-v2-KPM-v2.03
 E2AP-v2-KPM-v2.03-build:
+  image: ubuntu:20.04
   stage: build
   tags:
     - test
   script:
-    - apt update
-    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v2-kpm-v2.03
     - cd build-e2ap-v2-kpm-v2.03
     - cmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V2_03 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
@@ -46,9 +65,12 @@ E2AP-v2-KPM-v2.03-build:
       - build-e2ap-v2-kpm-v2.03/
 
 E2AP-v2-KPM-v2.03-test:
+  image: ubuntu:20.04
   stage: test
   tags:
     - test
+  dependencies:
+    - E2AP-v2-KPM-v2.03-build
   script:
     - cd build-e2ap-v2-kpm-v2.03
     - make install
@@ -56,12 +78,11 @@ E2AP-v2-KPM-v2.03-test:
 
 # E2AP-v2-KPM-v3.00
 E2AP-v2-KPM-v3.00-build:
+  image: ubuntu:20.04
   stage: build
   tags:
     - test
   script:
-    - apt update
-    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v2-kpm-v3.00
     - cd build-e2ap-v2-kpm-v3.00
     - cmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
@@ -71,9 +92,12 @@ E2AP-v2-KPM-v3.00-build:
       - build-e2ap-v2-kpm-v3.00/
 
 E2AP-v2-KPM-v3.00-test:
+  image: ubuntu:20.04
   stage: test
   tags:
     - test
+  dependencies:
+    - E2AP-v2-KPM-v3.00-build
   script:
     - cd build-e2ap-v2-kpm-v3.00
     - make install
@@ -81,12 +105,11 @@ E2AP-v2-KPM-v3.00-test:
 
 # E2AP-v2-KPM-v3.00-ProxyAgent
 ProxyAgent-build:
+  image: ubuntu:20.04
   stage: build
   tags:
     - test
   script:
-    - apt update
-    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v2-kpm-v3.00-proxyagent
     - cd build-e2ap-v2-kpm-v3.00-proxyagent
     - cmake -DE2AP_VERSION=E2AP_V2 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF -DPROXY_AGENT=ON ..
@@ -96,9 +119,12 @@ ProxyAgent-build:
       - build-e2ap-v2-kpm-v3.00-proxyagent/
 
 ProxyAgent-test:
+  image: ubuntu:20.04
   stage: test
   tags:
     - test
+  dependencies:
+    - ProxyAgent-build
   script:
     - cd build-e2ap-v2-kpm-v3.00-proxyagent
     - make install
@@ -107,12 +133,11 @@ ProxyAgent-test:
 
 # E2AP-v3-KPM-v2.01
 E2AP-v3-KPM-v2.01-build:
+  image: ubuntu:20.04
   stage: build
   tags:
     - test
   script:
-    - apt update
-    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v3-kpm-v2.01
     - cd build-e2ap-v3-kpm-v2.01
     - cmake -DE2AP_VERSION=E2AP_V3 -DKPM_VERSION=KPM_V2_01 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
@@ -122,9 +147,12 @@ E2AP-v3-KPM-v2.01-build:
       - build-e2ap-v3-kpm-v2.01/
 
 E2AP-v3-KPM-v2.01-test:
+  image: ubuntu:20.04
   stage: test
   tags:
     - test
+  dependencies:
+    - E2AP-v3-KPM-v2.01-build
   script:
     - cd build-e2ap-v3-kpm-v2.01
     - make install
@@ -132,12 +160,11 @@ E2AP-v3-KPM-v2.01-test:
 
 # E2AP-v3-KPM-v2.03
 E2AP-v3-KPM-v2.03-build:
+  image: ubuntu:20.04
   stage: build
   tags:
     - test
   script:
-    - apt update
-    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v3-kpm-v2.03
     - cd build-e2ap-v3-kpm-v2.03
     - cmake -DE2AP_VERSION=E2AP_V3 -DKPM_VERSION=KPM_V2_03 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
@@ -147,9 +174,12 @@ E2AP-v3-KPM-v2.03-build:
       - build-e2ap-v3-kpm-v2.03/
 
 E2AP-v3-KPM-v2.03-test:
+  image: ubuntu:20.04
   stage: test
   tags:
     - test
+  dependencies:
+    - E2AP-v3-KPM-v2.03-build
   script:
     - cd build-e2ap-v3-kpm-v2.03
     - make install
@@ -157,12 +187,11 @@ E2AP-v3-KPM-v2.03-test:
 
 # E2AP-v3-KPM-v3.00
 E2AP-v3-KPM-v3.00-build:
+  image: ubuntu:20.04
   stage: build
   tags:
     - test
   script:
-    - apt update
-    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v3-kpm-v3.00
     - cd build-e2ap-v3-kpm-v3.00
     - cmake -DE2AP_VERSION=E2AP_V3 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
@@ -172,9 +201,12 @@ E2AP-v3-KPM-v3.00-build:
       - build-e2ap-v3-kpm-v3.00/
 
 E2AP-v3-KPM-v3.00-test:
+  image: ubuntu:20.04
   stage: test
   tags:
     - test
+  dependencies:
+    - E2AP-v3-KPM-v3.00-build
   script:
     - cd build-e2ap-v3-kpm-v3.00
     - make install
@@ -182,12 +214,11 @@ E2AP-v3-KPM-v3.00-test:
 
 # E2AP-v1-KPM-v2.01
 E2AP-v1-KPM-v2.01-build:
+  image: ubuntu:20.04
   stage: build
   tags:
     - test
   script:
-    - apt update
-    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v1-kpm-v2.01
     - cd build-e2ap-v1-kpm-v2.01
     - cmake -DE2AP_VERSION=E2AP_V1 -DKPM_VERSION=KPM_V2_01 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
@@ -197,9 +228,12 @@ E2AP-v1-KPM-v2.01-build:
       - build-e2ap-v1-kpm-v2.01/
 
 E2AP-v1-KPM-v2.01-test:
+  image: ubuntu:20.04
   stage: test
   tags:
     - test
+  dependencies:
+    - E2AP-v1-KPM-v2.01-build
   script:
     - cd build-e2ap-v1-kpm-v2.01
     - make install
@@ -207,12 +241,11 @@ E2AP-v1-KPM-v2.01-test:
 
 # E2AP-v1-KPM-v2.03
 E2AP-v1-KPM-v2.03-build:
+  image: ubuntu:20.04
   stage: build
   tags:
     - test
   script:
-    - apt update
-    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v1-kpm-v2.03
     - cd build-e2ap-v1-kpm-v2.03
     - cmake -DE2AP_VERSION=E2AP_V1 -DKPM_VERSION=KPM_V2_03 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
@@ -222,9 +255,12 @@ E2AP-v1-KPM-v2.03-build:
       - build-e2ap-v1-kpm-v2.03/
 
 E2AP-v1-KPM-v2.03-test:
+  image: ubuntu:20.04
   stage: test
   tags:
     - test
+  dependencies:
+    - E2AP-v1-KPM-v2.03-build
   script:
     - cd build-e2ap-v1-kpm-v2.03
     - make install
@@ -232,12 +268,11 @@ E2AP-v1-KPM-v2.03-test:
 
 # E2AP-v1-KPM-v3.00
 E2AP-v1-KPM-v3.00-build:
+  image: ubuntu:20.04
   stage: build
   tags:
     - test
   script:
-    - apt update
-    - apt -y install libsctp-dev pkg-config libconfig-dev libconfig++-dev
     - mkdir build-e2ap-v1-kpm-v3.00
     - cd build-e2ap-v1-kpm-v3.00
     - cmake -DE2AP_VERSION=E2AP_V1 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DXAPP_MULTILANGUAGE=OFF ..
@@ -247,9 +282,12 @@ E2AP-v1-KPM-v3.00-build:
       - build-e2ap-v1-kpm-v3.00/
 
 E2AP-v1-KPM-v3.00-test:
+  image: ubuntu:20.04
   stage: test
   tags:
     - test
+  dependencies:
+    - E2AP-v1-KPM-v3.00-build
   script:
     - cd build-e2ap-v1-kpm-v3.00
     - make install
