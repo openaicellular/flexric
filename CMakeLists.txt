@@ -57,7 +57,7 @@ endif()
 
 #https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110157
 
-set(SANITIZER "ADDRESS" CACHE STRING "Sanitizers")
+set(SANITIZER "NONE" CACHE STRING "Sanitizers")
 set_property(CACHE SANITIZER PROPERTY STRINGS "NONE" "ADDRESS" "THREAD")
 message(STATUS "Selected SANITIZER TYPE: ${SANITIZER}")
 
@@ -299,7 +299,7 @@ set(XAPP_DB "MYSQL_XAPP" CACHE STRING "xApp DB")
 set_property(CACHE XAPP_DB PROPERTY STRINGS "MYSQL_XAPP" "SQLITE3_XAPP" "NONE_XAPP")
 message(STATUS "Selected xApp DB : ${XAPP_DB}")
 
-option(XAPP_MULTILANGUAGE "xApp Multilanguage" ON)
+option(XAPP_MULTILANGUAGE "xApp Multilanguage" OFF)
 message(STATUS "xApp multilanguage support e.g., python : ${XAPP_MULTILANGUAGE}")
 
 
@@ -434,7 +434,6 @@ if (XAPP_C)
   install(TARGETS xapp_cust_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   # rb ctrl
   install(TARGETS xapp_oran_rb_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
-  # rb ctrl
   # mwc
   install(TARGETS xapp_rc_ho_kpm DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
   install(TARGETS xapp_rc_ctrl_ho DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
@@ -479,23 +478,23 @@ if(XAPP_PYTHON_ML)
           DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON)
 endif()
 
-#if (XAPP_GO_SWIG)
+if (XAPP_GO_SWIG)
 
-#  install(FILES
-#          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
-#          DESTINATION ${CMAKE_INSTALL_LIBDIR}) # no need to put libxapp_sdk.go
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}) # no need to put libxapp_sdk.go
 
-#  install(PROGRAMS ${GO_BINARIES}
-#          DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/go)
+  install(PROGRAMS ${GO_BINARIES}
+          DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/go)
 
   # Find all *.conf files recursively in the source directory
-  #  file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/examples/xApp/go/*.conf")
+    file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/examples/xApp/go/*.conf")
 
   # Add these to the install command
-  #  install(FILES ${CONF_FILES}
-  #          DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
+    install(FILES ${CONF_FILES}
+            DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
 
-  #endif()
+endif()
 
 
 # make uninstall
