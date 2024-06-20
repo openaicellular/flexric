@@ -89,8 +89,10 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
  
   char sub[] = "2_ms";
   sm_subs_data_t data = ric->proc.on_subscription(ric, &sub);
-  subscribe_timer_t t = ag->proc.on_subscription(ag, &data); 
-  assert(t.ms == 2);
+  
+  sm_ag_if_ans_subs_t const subs = ag->proc.on_subscription(ag, &data); 
+  assert(subs.type == PERIODIC_SUBSCRIPTION_FLRC);
+  assert(subs.per.t.ms == 2);
 
   free_sm_subs_data(&data);
 }
@@ -102,7 +104,8 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   assert(ag != NULL);
   assert(ric != NULL);
 
-  exp_ind_data_t exp = ag->proc.on_indication(ag, NULL);
+  on_ind_t on_ind = {.type = PERIODIC_ON_INDICATION_EVENT, .act_def = NULL };
+  exp_ind_data_t exp = ag->proc.on_indication(ag, on_ind);
   assert(exp.has_value == true);
   defer({ free_exp_ind_data(&exp); }); 
 

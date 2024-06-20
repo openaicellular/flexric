@@ -20,6 +20,7 @@ set(e2ap_src_types
   e2_node_connected.c
   e42_ric_subscription_request.c
   e42_ric_subscription_delete_request.c
+  e42_update_e2_node.c
 
   e2ap_reset_request.c 
   e2ap_reset_response.c 
@@ -56,3 +57,5 @@ set(e2ap_src_types
 add_library(e2ap_types_obj OBJECT 
                        ${e2ap_src_types} 
                         ) 
+
+target_link_libraries(e2ap_types_obj PRIVATE e2_conv_obj)

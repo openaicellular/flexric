@@ -86,7 +86,7 @@ void init_map_xapps_sad(map_xapps_sockaddr_t* m)
 
 //  pthread_mutexattr_t *mtx_attr = NULL;
 //#ifdef DEBUG
-//  *mtx_attr = PTHREAD_MUTEX_ERRORCHECK; 
+//  *mtx_attr = PTHREAD_MUTEX_ERRORCHECK;
 //#endif
 //  int rc = pthread_mutex_init(&m->mtx, mtx_attr);
 //  assert(rc == 0);
@@ -94,12 +94,12 @@ void init_map_xapps_sad(map_xapps_sockaddr_t* m)
 
   pthread_rwlockattr_t attr = {0};
 #ifdef DEBUG
-  attr = PTHREAD_MUTEX_ERRORCHECK; 
+  attr = PTHREAD_MUTEX_ERRORCHECK;
 #endif
   int const rc = pthread_rwlock_init(&m->rw, &attr);
   assert(rc == 0);
 
-  // left:  key1: uint16_t xapp_id | value: sctp_info_t 
+  // left:  key1: uint16_t xapp_id | value: sctp_info_t
   // right: key2: sctp_info_t      | value:  uint16_t xapp_id
   const size_t key_sz_1 = sizeof(uint16_t);
   bi_map_cmp const cmp1 = cmp_uint16_wrapper;
@@ -141,16 +141,16 @@ void add_map_xapps_sad(map_xapps_sockaddr_t* m, uint16_t xapp_id, sctp_info_t* s
   it = find_if(tree, it, end, &xapp_id, eq_uint16_wrapper);
   assert(it == end && "xApp ID already registered in the tree");
 
- // sctp_info_t* info = calloc(1, sizeof(sctp_info_t)); 
+ // sctp_info_t* info = calloc(1, sizeof(sctp_info_t));
 //  assert(info != NULL && "Memory exhausted");
  // *info = *s;
-  
-  sctp_info_t const info = *s; 
+
+  sctp_info_t const info = *s;
   bi_map_insert(&m->bimap, &xapp_id, sizeof(uint16_t), &info, sizeof(sctp_info_t));
 
   //assoc_insert(&m->tree, &xapp_id, sizeof(uint16_t), info);
 
-  rc = pthread_rwlock_unlock(&m->rw); 
+  rc = pthread_rwlock_unlock(&m->rw);
   assert(rc == 0);
 }
 
@@ -171,7 +171,7 @@ void rm_map_xapps_sad(map_xapps_sockaddr_t* m, uint16_t xapp_id)
 //  sctp_info_t* s = assoc_extract(&m->tree, &xapp_id);
 //  free(s);
 
-  rc = pthread_rwlock_unlock(&m->rw); 
+  rc = pthread_rwlock_unlock(&m->rw);
   assert(rc == 0);
 
 }
@@ -193,9 +193,9 @@ sctp_info_t find_map_xapps_sad(map_xapps_sockaddr_t* m, uint16_t xapp_id)
   it = find_if(tree, it, end, &xapp_id, eq_uint16_wrapper);
   assert(it != end && "xApp ID not found in the tree");
 
-  sctp_info_t s = *(sctp_info_t*)assoc_value(tree, it);  
+  sctp_info_t s = *(sctp_info_t*)assoc_value(tree, it);
 
-  rc = pthread_rwlock_unlock(&m->rw); 
+  rc = pthread_rwlock_unlock(&m->rw);
   assert(rc == 0);
 
   return s;
@@ -217,12 +217,17 @@ uint16_t find_map_xapps_xid(map_xapps_sockaddr_t* m, sctp_info_t const* s)
   it = find_if(tree, it, end, s, eq_sctp_info_wrapper);
   assert(it != end && "SCTP info not found in the tree");
 
-  uint16_t xapp_id = *(uint16_t*)assoc_value(tree, it);  
+  uint16_t xapp_id = *(uint16_t*)assoc_value(tree, it);
 
-  rc = pthread_rwlock_unlock(&m->rw); 
+  rc = pthread_rwlock_unlock(&m->rw);
   assert(rc == 0);
 
   return xapp_id;
 }
 
 
+size_t get_num_connected_xapps(map_xapps_sockaddr_t* m)
+{
+  assert(m != NULL);
+  return assoc_rb_tree_size(&m->bimap.left);
+}

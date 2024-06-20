@@ -21,7 +21,7 @@ extern "C" {
 
 /* E2connectionUpdateFailure */
 typedef struct E2connectionUpdateFailure {
-	ProtocolIE_Container_2691P31_t	 protocolIEs;
+	ProtocolIE_Container_2702P31_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

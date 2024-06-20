@@ -103,15 +103,6 @@ void add_pending_event(pending_event_xapp_ds_t* p, int fd ,pending_event_xapp_t*
   bi_map_insert(&p->pending, &fd, sizeof(fd), ev, sizeof(*ev));
 }
 
-static inline
-bool eq_int(const void* m0_v, const void* m1_v)
-{
-  assert(m0_v != NULL);
-  assert(m1_v != NULL);
-
-  return *(int*)m0_v == *(int*)m1_v;
-}
-
 bool find_pending_event_fd(pending_event_xapp_ds_t* p, int fd)
 {
   assert(p != NULL);

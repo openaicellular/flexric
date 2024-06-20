@@ -395,7 +395,7 @@ void test_setup_rquest()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -410,8 +410,8 @@ void test_setup_rquest()
   ran_func_item[0].rev = 0;
   const char* def = "This is the possible deficniotn";
   ran_func_item[0].defn.buf = malloc(strlen(def));
-  memcpy(ran_func_item[0].defn.buf, def, strlen(def)); 
-  ran_func_item[0].defn.len = strlen(def); 
+  memcpy(ran_func_item[0].defn.buf, def, strlen(def));
+  ran_func_item[0].defn.len = strlen(def);
 
 
   e2_node_component_config_update_t* comp_conf_update = NULL;
@@ -713,7 +713,7 @@ void fill_ran_function(ran_function_t* rf)
 
   rf->defn.len = sz;
   rf->defn.buf = malloc(sz);
-  assert(rf->defn.buf != NULL && "Memory exhauested"); 
+  assert(rf->defn.buf != NULL && "Memory exhauested");
   memcpy(rf->defn.buf, def, sz);
 
   rf->id = rand()%1024;  
@@ -780,7 +780,7 @@ void test_e42_setup_response()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -841,7 +841,7 @@ void test_e42_subscription_request()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -928,7 +928,7 @@ void test_e42_control_request()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -991,6 +991,69 @@ void test_e42_control_request()
 
 }
 
+void test_e42_update_e2_node()
+{
+  time_t t;
+  srand((unsigned) time(&t));
+
+  e2ap_plmn_t plmn = {
+      .mcc = 10,
+      .mnc = 15,
+      .mnc_digit_len = 2
+  };
+
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
+
+  global_e2_node_id_t id = {
+      .type = type,
+      .plmn = plmn,
+      .nb_id.nb_id = 0,
+      .nb_id.unused = 0
+  };
+
+
+  e42_update_e2_node_t sr_begin = {
+      .xapp_id = rand()%1024,
+      .len_e2_nodes_conn = rand()%4+1,
+  };
+
+  if(sr_begin.len_e2_nodes_conn > 0 ){
+    sr_begin.nodes = calloc(sr_begin.len_e2_nodes_conn, sizeof( e2_node_connected_t ) );
+    assert(sr_begin.nodes != NULL && "Memory exhausted");
+  }
+
+  for(size_t i = 0; i < sr_begin.len_e2_nodes_conn; ++i){
+    e2_node_connected_t* n = &sr_begin.nodes[i];
+    n->id = id;
+
+    uint32_t r = rand()%8;
+
+    n->len_rf = r;
+    if(r > 0){
+      n->ack_rf = calloc(r, sizeof(ran_function_t));
+      assert(n->ack_rf != NULL && "Memory exhausted");
+    }
+
+    for(size_t i = 0; i < r; ++i){
+      ran_function_t* rf = &n->ack_rf[i];
+      fill_ran_function(rf);
+    }
+  }
+
+
+  byte_array_t ba = e2ap_enc_e42_update_e2_node_asn(&sr_begin);
+  assert(ba.buf != NULL && ba.len > 0);
+  E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
+  free_byte_array(ba);
+  assert(pdu != NULL);
+  e2ap_msg_t msg =  e2ap_dec_e42_update_e2_node(pdu);
+  free_pdu(pdu);
+  assert(msg.type == E42_UPDATE_E2_NODE);
+  e42_update_e2_node_t * sr_end = &msg.u_msgs.e42_updt_e2_node;
+  assert(eq_e42_setup_response((e42_setup_response_t*)&sr_begin, (e42_setup_response_t*)sr_end) == true);
+  e2ap_free_e42_setup_response((e42_setup_response_t*)&sr_begin);
+  e2ap_free_e42_setup_response((e42_setup_response_t*)sr_end);
+}
 
 int main()
 {
@@ -1031,7 +1094,7 @@ int main()
     test_e42_subscription_request();
     test_e42_subscription_delete_request();     
     test_e42_control_request();
-
+    test_e42_update_e2_node();
   }
   puts("Sucess running the encoding/decoding test");
   return 0;

@@ -39,9 +39,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_executable(tsn_queue 
   test_tsn_queue.c  
-  ../../seq_container/seq_ring.c
+  ${CMAKE_SOURCE_DIR}/src/util/alg_ds/ds/seq_container/seq_ring.c
   tsn_queue.c
-  ../../alg/defer.c
+  ${CMAKE_SOURCE_DIR}/src/util/alg_ds/alg/defer.c
   )
   
 target_link_libraries(tsn_queue -lpthread )
@@ -54,5 +54,8 @@ IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
     ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
   )
 ENDIF()
+
+enable_testing()
+add_test(Unit_test_tsn_queue tsn_queue)
 
 

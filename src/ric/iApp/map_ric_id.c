@@ -77,7 +77,7 @@ int cmp_e2_node_ric_req_wrapper(void const* m0_v, void const* m1_v)
 
   return cmp_uint32(&m0->ric_id.ric_req_id, &m1->ric_id.ric_req_id);
 
-  //return cmp_ric_gen_id(&m0->ric_id, &m1->ric_id); 
+  //return cmp_ric_gen_id(&m0->ric_id, &m1->ric_id);
 } 
 
 void init_map_ric_id(map_ric_id_t* map)
@@ -126,7 +126,7 @@ bool eq_e2_node_ric_req(void const* m0_v, void const* m1_v)
   e2_node_ric_id_t* m0 = (e2_node_ric_id_t*)m0_v;
   e2_node_ric_id_t* m1 = (e2_node_ric_id_t*)m1_v;
 
-  //return eq_ric_gen_id(&m0->ric_id, &m1->ric_id); 
+  //return eq_ric_gen_id(&m0->ric_id, &m1->ric_id);
   return m0->ric_id.ric_req_id == m1->ric_id.ric_req_id;
 }
 
@@ -159,7 +159,7 @@ void rm_map_ric_id(map_ric_id_t* map, xapp_ric_id_t const* ric_id)
   assert(rc == 0);
 
   // left: key1:   e2_node_ric_id_t | value: xapp_ric_id_t
-  // right: key2:  xapp_ric_id_t | value: e2_node_ric_id_t  
+  // right: key2:  xapp_ric_id_t | value: e2_node_ric_id_t
 
   // It returns the void* of key1. the void* of the key2 is freed
   void (*free_xapp_ric_id)(void*) = NULL;
@@ -182,14 +182,14 @@ xapp_ric_id_xpct_t find_xapp_map_ric_id(map_ric_id_t* map, uint16_t ric_req_id)
 
   e2_node_ric_id_t dummy_node = {   //  global_e2_node_id_t e2_node_id;
     .ric_id.ric_req_id =  ric_req_id
-  }; 
+  };
 
   xapp_ric_id_xpct_t ans = {.has_value = false};
 
   int rc = pthread_rwlock_rdlock(&map->rw);
   assert(rc == 0);
 
-  assoc_rb_tree_t* left = &map->bimap.left; 
+  assoc_rb_tree_t* left = &map->bimap.left;
   void* it = assoc_front(left);
   void* end = assoc_end(left);
   it = find_if(left , it, end, &dummy_node, eq_e2_node_ric_req );
@@ -234,22 +234,22 @@ e2_node_ric_id_t find_ric_req_map_ric_id(map_ric_id_t* map, xapp_ric_id_t* x)
   return id;
 }
 
-// array of e2_node_ric_id_t 
+// array of e2_node_ric_id_t
 seq_arr_t find_all_subs_map_ric_id(map_ric_id_t* map, uint16_t xapp_id)
 {
   assert(map != NULL);
 
-  seq_arr_t arr = {0}; 
+  seq_arr_t arr = {0};
   seq_init(&arr, sizeof(e2_node_ric_id_t) );
 
-  xapp_ric_id_t first_xapp_id = {// ric_gen_id_t .ric_id = , 
+  xapp_ric_id_t first_xapp_id = {// ric_gen_id_t .ric_id = ,
                             .xapp_id = xapp_id
   };
 
   int rc = pthread_rwlock_rdlock(&map->rw);
   assert(rc == 0);
 
-  assoc_rb_tree_t* right = &map->bimap.right; 
+  assoc_rb_tree_t* right = &map->bimap.right;
 
   void* it = assoc_front(right);
   void* end = assoc_end(right);

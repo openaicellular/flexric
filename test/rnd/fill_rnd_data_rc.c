@@ -21,6 +21,7 @@
 
 #include "fill_rnd_data_rc.h"
 
+#include "../../src/sm/rc_sm/rc_sm_id.h"
 #include "../../src/sm/rc_sm/ie/ir/ran_param_struct.h"
 #include "../../src/sm/rc_sm/ie/ir/ran_param_list.h"
 
@@ -1080,7 +1081,6 @@ e2sm_rc_action_def_t fill_rnd_rc_action_def(void)
   return dst;
 }
 
-static
 e2sm_rc_ind_hdr_frmt_1_t fill_rnd_rc_ind_hdr_frmt_1(void)
 {
   e2sm_rc_ind_hdr_frmt_1_t dst = {0};
@@ -1649,7 +1649,6 @@ seq_ue_id_t fill_rnd_seq_ue_id(void)
   return dst;
 }
 
-static
 e2sm_rc_ind_msg_frmt_2_t fill_rnd_ind_msg_frmt_2(void)
 {
   e2sm_rc_ind_msg_frmt_2_t dst = {0}; 
@@ -1676,10 +1675,10 @@ cell_global_id_t fill_rnd_cell_global_id()
   // CHOICE RAT type
   // Mandatory
   dst.type = rand() % END_CGI_RAT_TYPE;
-  if(dst.type == NR_CGI_RAT_TYPE){
+  if(dst.type == NR_RAT_TYPE){
     dst.nr_cgi.plmn_id = (e2sm_plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
     dst.nr_cgi.nr_cell_id = rand()% (1UL << 36);
-  } else if(dst.type == EUTRA_CGI_RAT_TYPE ){
+  } else if(dst.type == EUTRA_RAT_TYPE ){
     dst.eutra.plmn_id =  (e2sm_plmn_t) {.mcc = 222, .mnc = 99, .mnc_digit_len = 2};
     dst.eutra.eutra_cell_id = rand()% (1 << 28); 
   } else {
@@ -1688,6 +1687,105 @@ cell_global_id_t fill_rnd_cell_global_id()
 
   return dst;
 }
+
+static
+nr_frq_bnd_it_t fill_rnd_nr_frq_bnd_it()
+{
+  nr_frq_bnd_it_t dst = {0};
+
+  dst.bnd = (rand()%1024) + 1; // [1,1024]
+
+  // [0,32]
+  dst.sz_sul = rand()%32;
+  if(dst.sz_sul > 0)
+    dst.sul_bnd_it = calloc(dst.sz_sul, sizeof(uint16_t));
+
+  for(size_t i = 0; i < dst.sz_sul; ++i)
+    dst.sul_bnd_it[i] = (rand() % 1024) + 1; // [1,1024] 
+
+  return dst;
+}
+
+static
+nr_freq_info_t fill_rnd_nr_freq_info()
+{
+  nr_freq_info_t dst = {0};
+  //NR ARFCN
+  //Mandatory
+  //6.2.3.30
+  dst.arfcn = (rand() % 3279166) ; // [0,3279165]
+
+  // [1,32]
+  dst.sz_frq_bnd_it = (rand() % 4) + 1;
+  dst.frq_bnd_it = calloc(dst.sz_frq_bnd_it, sizeof(nr_frq_bnd_it_t));
+  for(size_t i = 0; i < dst.sz_frq_bnd_it; ++i){
+    dst.frq_bnd_it[i] = fill_rnd_nr_frq_bnd_it();
+    assert(dst.frq_bnd_it[i].bnd < 1025);
+  } 
+
+  // NRFrequency Shift
+  // 7p5khz
+  // Optional
+  dst.freq_shift_7p5khz = NULL;
+
+  return dst;
+}
+
+static
+nr_nghbr_cell_t fill_rnd_nghbr_cell()
+{
+  nr_nghbr_cell_t dst = {0}; 
+  // 9.3.41
+  // NR CGI
+  // 6.2.3.7
+  // Mandatory
+  dst.cgi.plmn_id = (e2sm_plmn_t) {.mcc = 505, .mnc = 1, .mnc_digit_len = 2};
+  dst.cgi.nr_cell_id = rand()% (1UL << 36);
+
+  // 9.3.42
+  // NR PCI
+  // Mandatory
+  dst.pci = rand() % 1008; //[0,1007]
+
+  // 9.3.43
+  // 5GS TAC
+  // 6.2.3.31
+  // Defined in TS 38.473
+  // 9.3.1.29
+  // Mandatory
+  uint8_t tmp[3] = {0xAB, 0xAA, 0xBB}; 
+  memcpy(dst.tac, tmp, 3);
+
+  // NR Mode Info
+  // Mandatory
+  dst.mode_info = rand() % END_MODE_NR_NGHBR_CELL_E;
+
+  // 9.3.44
+  // NR Frequency Info
+  // 6.2.3.36.
+  // Bug in the standard!!!
+  // 6.2.3.36 should be 6.2.3.35
+  // for O-RAN.WG3.E2SM-R003-v05.00
+  // NR Frequency Info 
+  // Mandatory
+  dst.nr_freq_info = fill_rnd_nr_freq_info();
+
+  // Xn X2 Established
+  // Mandatory
+  dst.xn_x2_established = rand();
+
+  // HO Validated
+  // Mandatory
+  dst.ho_validated = rand();
+
+  // Version
+  // Mandatory
+  // [1-65535] 
+  dst.version = (rand() % 65535) + 1;
+
+  return dst;
+}
+
 
 static
 seq_cell_info_t fill_rnd_seq_cell_info(void)
@@ -1761,6 +1859,78 @@ seq_ue_info_t fill_rnd_seq_ue_info(void)
 }
 
 static
+cell_pci_t fill_rnd_cell_pci(void)
+{
+  cell_pci_t dst = {0}; 
+
+  // CHOICE RAT type
+  // Mandatory
+  dst.type = rand() % END_CGI_RAT_TYPE;
+
+  if(dst.type == NR_RAT_TYPE){
+    // [0,1007]  6.2.3.29
+    dst.nr_pci = rand() % 1008;
+  } else if(dst.type == EUTRA_RAT_TYPE) {
+    // [0,503] // 6.2.3.32
+    dst.eutra_pci = rand() % 504;
+  } else {
+    assert(0 != 0 && "Unknown type");
+  }
+
+  return dst;
+}
+
+static
+cell_arfcn_t fill_rnd_cell_arfcn(void)
+{
+  cell_arfcn_t dst; 
+
+  // CHOICE RAT type
+  // Mandatory
+  dst.type = rand() % END_CGI_RAT_TYPE;
+  // [0,3279165] 
+  if(dst.type == NR_RAT_TYPE){
+    // [0,3279165]  6.2.3.30
+    dst.nr_arfcn = rand() % 3279166;
+  } else if(dst.type == EUTRA_RAT_TYPE){
+    // [0,65535] 6.2.3.33
+    dst.eutra_arfcn = rand()% 65536;
+  } else {
+    assert(0 != 0 && "Unknown RAT type");
+  }
+
+  return dst;
+}
+
+static
+nghbr_rel_info_t fill_rnd_nghbr_rel_info(void)
+{
+  nghbr_rel_info_t dst = {0}; 
+
+  // Serving Cell PCI
+  // Mandatory
+  // 9.3.39
+  dst.pci = fill_rnd_cell_pci();
+
+  // Serving Cell ARFCN
+  // Mandatory
+  // 9.3.40
+  dst.arfcn = fill_rnd_cell_arfcn();
+
+  // Neighbour Cell List
+  // [1,65535]
+  dst.sz_nghbr_cell = (rand()% 4) + 1 ;
+  dst.nghbr_cell = calloc(dst.sz_nghbr_cell, sizeof(nr_nghbr_cell_t));
+  assert(dst.nghbr_cell != NULL && "Memory exahusted");
+  for(size_t i = 0; i < dst.sz_nghbr_cell; ++i){
+   dst.nghbr_cell[i] = fill_rnd_nghbr_cell();  
+  } 
+
+  return dst;
+}
+
+
+static
 seq_cell_info_2_t fill_rnd_seq_cell_info_2(void)
 {
   seq_cell_info_2_t dst = {0}; 
@@ -1779,7 +1949,9 @@ seq_cell_info_2_t fill_rnd_seq_cell_info_2(void)
   // Neighbour Relation Table
   // Optional
   // 9.3.38
-  dst.neighbour_rela_tbl = NULL;
+  dst.neighbour_rela_tbl = calloc(1, sizeof(nghbr_rel_info_t)); 
+  assert(dst.neighbour_rela_tbl != NULL && "Memory exhausted");
+  *dst.neighbour_rela_tbl = fill_rnd_nghbr_rel_info();
 
   return dst;
 }
@@ -1797,7 +1969,7 @@ e2sm_rc_ind_msg_frmt_4_t fill_rnd_ind_msg_frmt_4(void)
     dst.seq_ue_info = calloc(dst.sz_seq_ue_info, sizeof(seq_ue_info_t));
     assert(dst.seq_ue_info != NULL && "memory exhausted");
   }
-  
+
   for(size_t i = 0; i < dst.sz_seq_ue_info; ++i){
     dst.seq_ue_info[i] = fill_rnd_seq_ue_info();
   }
@@ -1936,7 +2108,7 @@ e2sm_rc_ind_msg_t fill_rnd_rc_ind_msg(void)
 {
   e2sm_rc_ind_msg_t dst = {0};
   
-  dst.format = rand()% END_E2SM_RC_IND_MSG;
+  dst.format = rand()% END_E2SM_RC_IND_MSG ;
 
   if(dst.format == FORMAT_1_E2SM_RC_IND_MSG){
     dst.frmt_1 = fill_rnd_ind_msg_frmt_1();
@@ -2374,8 +2546,9 @@ ran_function_name_t fill_rc_ran_func_name(void)
     // RAN Function Short Name
     // Mandatory
     // PrintableString [1-150]
-    const char name[] = "E2SM-RC";
-    dst.name = cp_str_to_ba(name);
+    dst.name.buf = calloc(strlen(SM_RAN_CTRL_SHORT_NAME) + 1, sizeof(uint8_t));
+    memcpy(dst.name.buf, SM_RAN_CTRL_SHORT_NAME, strlen(SM_RAN_CTRL_SHORT_NAME));
+    dst.name.len = strlen(SM_RAN_CTRL_SHORT_NAME);
 
     // RAN Function Service Model OID
     // Mandatory
@@ -2386,8 +2559,9 @@ ran_function_name_t fill_rc_ran_func_name(void)
     //enterprise(1) 53148 e2(1)
     // version1 (1) e2sm(2) e2sm-RC-
     // IEs (3)
-    const char oid[] = "1.3.6.1.4.1.53148.1.1.2.3"; 
-    dst.oid = cp_str_to_ba(oid);
+    dst.oid.buf = calloc(strlen(SM_RAN_CTRL_OID) + 1, sizeof(uint8_t));
+    memcpy(dst.oid.buf, SM_RAN_CTRL_OID, strlen(SM_RAN_CTRL_OID));
+    dst.oid.len = strlen(SM_RAN_CTRL_OID);
 
     // RAN Function Description
     // Mandatory
@@ -2401,8 +2575,9 @@ ran_function_name_t fill_rc_ran_func_name(void)
     //- Execution of policies that may result in change of
     //RAN control behavior 
 
-    const char description[] = "RAN Control"; 
-    dst.description = cp_str_to_ba(description);
+    dst.description.buf = calloc(strlen(SM_RAN_CTRL_DESCRIPTION) + 1, sizeof(uint8_t));
+    memcpy(dst.description.buf, SM_RAN_CTRL_DESCRIPTION, strlen(SM_RAN_CTRL_DESCRIPTION));
+    dst.description.len = strlen(SM_RAN_CTRL_DESCRIPTION);
 
     // RAN Function Instance
     // Optional

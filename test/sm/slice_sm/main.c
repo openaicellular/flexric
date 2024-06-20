@@ -87,9 +87,11 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
 
   char sub[] = "2_ms";
   sm_subs_data_t data = ric->proc.on_subscription(ric, &sub );
-  subscribe_timer_t t = ag->proc.on_subscription(ag, &data); 
 
-  assert(t.ms == 2);
+  sm_ag_if_ans_subs_t const subs = ag->proc.on_subscription(ag, &data); 
+  assert(subs.type == PERIODIC_SUBSCRIPTION_FLRC);
+  assert(subs.per.t.ms == 2);
+
   free_sm_subs_data(&data);
 }
 
@@ -100,7 +102,8 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   assert(ag != NULL);
   assert(ric != NULL);
 
-  exp_ind_data_t exp = ag->proc.on_indication(ag, NULL);
+  on_ind_t on_ind = {.type = PERIODIC_ON_INDICATION_EVENT, .act_def = NULL };
+  exp_ind_data_t exp = ag->proc.on_indication(ag, on_ind);
   defer({ free_exp_ind_data(&exp); }); 
 
   sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &exp.data);
@@ -126,13 +129,16 @@ void check_ctrl(sm_agent_t* ag, sm_ric_t* ric)
   //sm_ag_if_wr_t wr = {.type = CONTROL_SM_AG_IF_WR };
   //wr.ctrl.type = SLICE_CTRL_REQ_V0 ;
 
-  slice_ctrl_req_data_t slice_req_ctrl = {0};
-  fill_slice_ctrl(&slice_req_ctrl);
+  sm_ag_if_wr_t ctrl_msg = {0};
+  ctrl_msg.type = CONTROL_SM_AG_IF_WR;
+  ctrl_msg.ctrl.type = SLICE_CTRL_REQ_V0;
+  slice_ctrl_req_data_t* slice_req_ctrl = &ctrl_msg.ctrl.slice_req_ctrl;
+  fill_slice_ctrl(slice_req_ctrl);
 
-  cp_ctrl.hdr = cp_slice_ctrl_hdr(&slice_req_ctrl.hdr);
-  cp_ctrl.msg = cp_slice_ctrl_msg(&slice_req_ctrl.msg);
+  cp_ctrl.hdr = cp_slice_ctrl_hdr(&slice_req_ctrl->hdr);
+  cp_ctrl.msg = cp_slice_ctrl_msg(&slice_req_ctrl->msg);
 
-  sm_ctrl_req_data_t ctrl_req = ric->proc.on_control_req(ric, &slice_req_ctrl);
+  sm_ctrl_req_data_t ctrl_req = ric->proc.on_control_req(ric, &ctrl_msg);
 
   sm_ctrl_out_data_t out_data = ag->proc.on_control(ag, &ctrl_req);
 
@@ -150,8 +156,8 @@ void check_ctrl(sm_agent_t* ag, sm_ric_t* ric)
 
   free_slice_ctrl_out(&ans.slice);
 
-  free_slice_ctrl_hdr(&slice_req_ctrl.hdr); 
-  free_slice_ctrl_msg(&slice_req_ctrl.msg); 
+  free_slice_ctrl_hdr(&slice_req_ctrl->hdr);
+  free_slice_ctrl_msg(&slice_req_ctrl->msg);
 
   free_slice_ctrl_hdr(&cp_ctrl.hdr);
   free_slice_ctrl_msg(&cp_ctrl.msg);

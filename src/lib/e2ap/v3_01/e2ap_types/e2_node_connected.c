@@ -84,7 +84,7 @@ bool eq_e2_node_connected(const e2_node_connected_t* m0, const e2_node_connected
 
   if( eq_global_e2_node_id(&m0->id, &m1->id) == false)
     return false;
- 
+
   // [1 - 255 ]
   assert(m0->len_cca > 0 && m1->len_cca > 0);
   if(m0->len_cca != m1->len_cca)

@@ -1,0 +1,94 @@
+{
+  "actionDefinitionFormat": {
+    "listOfCellConfigurationsToBeReportedForADF": [
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "1734440769",
+          "plmnIdentity": {
+            "mcc": "962",
+            "mnc": "66"
+          }
+        },
+        "listOfCellLevelRANConfigurationStructuresForADF": [
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "change"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "all"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "change"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "change"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "change"
+          }
+        ]
+      },
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "1483631639",
+          "plmnIdentity": {
+            "mcc": "238",
+            "mnc": "13"
+          }
+        },
+        "listOfCellLevelRANConfigurationStructuresForADF": [
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "change"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "change"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "all"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "all"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "all"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "all"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "change"
+          },
+          {
+            "listOfAttributes": [],
+            "ranConfigurationStructureName": "test",
+            "reportType": "all"
+          }
+        ]
+      }
+    ]
+  },
+  "ricStyleType": 262
+}

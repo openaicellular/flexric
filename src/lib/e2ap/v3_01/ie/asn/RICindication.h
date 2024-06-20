@@ -21,7 +21,7 @@ extern "C" {
 
 /* RICindication */
 typedef struct RICindication {
-	ProtocolIE_Container_2691P15_t	 protocolIEs;
+	ProtocolIE_Container_2702P15_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

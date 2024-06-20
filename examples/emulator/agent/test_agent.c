@@ -20,13 +20,14 @@
  */
 
 #if defined(__clang__) || defined (__GNUC__)
-# define ATTRIBUTE_NO_SANITIZE_THREAD  __attribute__((no_sanitize("thread"))) 
+# define ATTRIBUTE_NO_SANITIZE_THREAD  __attribute__((no_sanitize("thread")))
 #else
-# define ATTRIBUTE_NO_SANITIZE_THREAD 
+# define ATTRIBUTE_NO_SANITIZE_THREAD
 #endif
 
 
 #include "../../../src/agent/e2_agent_api.h"
+#include "../../../src/util/alg_ds/alg/defer.h"
 #include "read_setup_ran.h"
 #include "sm_mac.h"
 #include "sm_rlc.h"
@@ -36,6 +37,7 @@
 #include "sm_tc.h"
 #include "sm_kpm.h"
 #include "sm_rc.h"
+#include "sm_ccc.h"
 #include <assert.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -52,9 +54,10 @@ void init_read_ind_tbl(read_ind_fp (*read_ind_tbl)[SM_AGENT_IF_READ_V0_END])
   (*read_ind_tbl)[PDCP_STATS_V0] = read_pdcp_sm ;
   (*read_ind_tbl)[SLICE_STATS_V0] = read_slice_sm ;
   (*read_ind_tbl)[TC_STATS_V0] = read_tc_sm ;
-  (*read_ind_tbl)[GTP_STATS_V0] = read_gtp_sm ; 
-  (*read_ind_tbl)[KPM_STATS_V3_0] = read_kpm_sm ; 
+  (*read_ind_tbl)[GTP_STATS_V0] = read_gtp_sm ;
+  (*read_ind_tbl)[KPM_STATS_V3_0] = read_kpm_sm ;
   (*read_ind_tbl)[RAN_CTRL_STATS_V1_03] = read_rc_sm;
+  (*read_ind_tbl)[CCC_STATS_V3_0] = read_ccc_sm;
 }
 
 static
@@ -65,9 +68,10 @@ void init_read_setup_tbl(read_e2_setup_fp (*read_setup_tbl)[SM_AGENT_IF_E2_SETUP
   (*read_setup_tbl)[PDCP_AGENT_IF_E2_SETUP_ANS_V0] = read_pdcp_setup_sm ;
   (*read_setup_tbl)[SLICE_AGENT_IF_E2_SETUP_ANS_V0] = read_slice_setup_sm ;
   (*read_setup_tbl)[TC_AGENT_IF_E2_SETUP_ANS_V0] = read_tc_setup_sm ;
-  (*read_setup_tbl)[GTP_AGENT_IF_E2_SETUP_ANS_V0] = read_gtp_setup_sm ; 
-  (*read_setup_tbl)[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_kpm_setup_sm ; 
+  (*read_setup_tbl)[GTP_AGENT_IF_E2_SETUP_ANS_V0] = read_gtp_setup_sm ;
+  (*read_setup_tbl)[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_kpm_setup_sm ;
   (*read_setup_tbl)[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_rc_setup_sm;
+  (*read_setup_tbl)[CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_ccc_setup_sm;
 }
 
 static
@@ -80,6 +84,7 @@ void init_write_ctrl( write_ctrl_fp (*write_ctrl_tbl)[SM_AGENT_IF_WRITE_CTRL_V0_
   (*write_ctrl_tbl)[TC_CTRL_REQ_V0] =  write_ctrl_tc_sm;
   (*write_ctrl_tbl)[GTP_CTRL_REQ_V0] =  write_ctrl_gtp_sm;
   (*write_ctrl_tbl)[RAN_CONTROL_CTRL_V1_03] =  write_ctrl_rc_sm;
+  (*write_ctrl_tbl)[CCC_CTRL_REQ_V3_0] =  write_ctrl_ccc_sm;
 }
 
 
@@ -94,6 +99,7 @@ void init_write_subs(write_subs_fp (*write_subs_tbl)[SM_AGENT_IF_WRITE_SUBS_V0_E
   (*write_subs_tbl)[GTP_SUBS_V0] = NULL;
   (*write_subs_tbl)[KPM_SUBS_V3_0] = NULL;
   (*write_subs_tbl)[RAN_CTRL_SUBS_V1_03] = write_subs_rc_sm;
+  (*write_subs_tbl)[CCC_CTRL_REQ_V3_0] = write_subs_ccc_sm;
 }
 
 static
@@ -107,7 +113,7 @@ void init_sm(void)
   init_rlc_sm();
   init_slice_sm();
   init_tc_sm();
-
+  init_ccc_sm();
 }
 
 static
@@ -123,7 +129,6 @@ sm_io_ag_ran_t init_io_ag(void)
   init_write_subs(&io.write_subs_tbl);
 
   init_sm();
-
 
   return io;
 }
@@ -166,7 +171,7 @@ sm_ag_if_ans_t write_RAN(sm_ag_if_wr_t const* ag_wr)
 */
 
 
-ATTRIBUTE_NO_SANITIZE_THREAD static 
+ATTRIBUTE_NO_SANITIZE_THREAD static
 void stop_and_exit()
 {
   // Stop the E2 Agent
@@ -174,7 +179,7 @@ void stop_and_exit()
   exit(EXIT_SUCCESS);
 }
 
-static 
+static
 pthread_once_t once = PTHREAD_ONCE_INIT;
 
 static
@@ -192,7 +197,7 @@ int main(int argc, char *argv[])
 
   // Init the Agent
   // Values defined in the CMakeLists.txt file
-  const ngran_node_t ran_type = TEST_AGENT_RAN_TYPE;
+  const e2ap_ngran_node_t ran_type = TEST_AGENT_RAN_TYPE;
   const int mcc = TEST_AGENT_MCC;
   const int mnc = TEST_AGENT_MNC;
   const int mnc_digit_len = TEST_AGENT_MNC_DIG_LEN;
@@ -202,11 +207,12 @@ int main(int argc, char *argv[])
   sm_io_ag_ran_t io = init_io_ag();
 
   fr_args_t args = init_fr_args(argc, argv);
+  defer({ free_fr_args(&args); });
 
-  if (NODE_IS_MONOLITHIC(ran_type))
-    printf("[E2 AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n", nb_id, mcc, mnc, mnc_digit_len, get_ngran_name(ran_type));
+  if (E2AP_NODE_IS_MONOLITHIC(ran_type))
+    printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s\n", nb_id, mcc, mnc, mnc_digit_len, get_e2ap_ngran_name(ran_type));
   else
-    printf("[E2 AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %d\n", nb_id, mcc, mnc, mnc_digit_len, get_ngran_name(ran_type), cu_du_id);
+    printf("[E2-AGENT]: nb_id %d, mcc %d, mnc %d, mnc_digit_len %d, ran_type %s, cu_du_id %d\n", nb_id, mcc, mnc, mnc_digit_len, get_e2ap_ngran_name(ran_type), cu_du_id);
 
   init_agent_api(mcc, mnc, mnc_digit_len, nb_id, cu_du_id, ran_type, io, &args);
 
@@ -218,4 +224,3 @@ int main(int argc, char *argv[])
 
   return EXIT_SUCCESS;
 }
-

@@ -30,7 +30,7 @@ if(SM_ENCODING_GTP STREQUAL "PLAIN")
   add_library(gtp_sm SHARED
               ${SM_ENCODING_GTP_SRC_PLAIN}
               )
-  target_compile_options(gtp_sm PRIVATE -fvisibility=hidden)
+  target_compile_options(gtp_sm PRIVATE -fPIC -fvisibility=hidden)
 
   # Static
   add_library(gtp_sm_static STATIC 

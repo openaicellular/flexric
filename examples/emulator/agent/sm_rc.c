@@ -17,9 +17,6 @@ void free_rc_sm(void)
   // No allocation needed
 }
 
-
-
-
 bool read_rc_sm(void* data)
 {
   assert(data != NULL);
@@ -75,6 +72,132 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
       }
 
 
+    } else if (ctrl->hdr.frmt_1.ric_style_type == 2 && ctrl->hdr.frmt_1.ctrl_act_id == Slice_level_PRB_quotal_7_6_3_1) {
+      e2sm_rc_ctrl_msg_frmt_1_t const* msg = &ctrl->msg.frmt_1;
+      assert(msg->sz_ran_param == 1 && "not support msg->sz_ran_param != 1");
+      seq_ran_param_t* RRM_Policy_Ratio_List = &msg->ran_param[0];
+      assert(RRM_Policy_Ratio_List->ran_param_id == RRM_Policy_Ratio_List_8_4_3_6 && "wrong RRM_Policy_Ratio_List id");
+      assert(RRM_Policy_Ratio_List->ran_param_val.type == LIST_RAN_PARAMETER_VAL_TYPE && "wrong RRM_Policy_Ratio_List type");
+      if (RRM_Policy_Ratio_List->ran_param_val.lst) {
+        size_t num_slice = RRM_Policy_Ratio_List->ran_param_val.lst->sz_lst_ran_param;
+        for (size_t i = 0; i < num_slice; i++) {
+          lst_ran_param_t* RRM_Policy_Ratio_Group = &RRM_Policy_Ratio_List->ran_param_val.lst->lst_ran_param[i];
+          //Bug in rc_enc_asn.c:1003, asn didn't define ran_param_id for lst_ran_param_t...
+          //assert(RRM_Policy_Ratio_Group->ran_param_id == RRM_Policy_Ratio_Group_8_4_3_6 && "wrong RRM_Policy_Ratio_Group id");
+          assert(RRM_Policy_Ratio_Group->ran_param_struct.sz_ran_param_struct == 4 && "wrong RRM_Policy_Ratio_Group->ran_param_struct.sz_ran_param_struct");
+          assert(RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct != NULL && "NULL RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct");
+
+          seq_ran_param_t* RRM_Policy = &RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct[0];
+          assert(RRM_Policy->ran_param_id == RRM_Policy_8_4_3_6 && "wrong RRM_Policy id");
+          assert(RRM_Policy->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong RRM_Policy type");
+          assert(RRM_Policy->ran_param_val.strct != NULL && "NULL RRM_Policy->ran_param_val.strct");
+          assert(RRM_Policy->ran_param_val.strct->sz_ran_param_struct == 1 && "wrong RRM_Policy->ran_param_val.strct->sz_ran_param_struct");
+          assert(RRM_Policy->ran_param_val.strct->ran_param_struct != NULL && "NULL RRM_Policy->ran_param_val.strct->ran_param_struct");
+
+          seq_ran_param_t* RRM_Policy_Member_List = &RRM_Policy->ran_param_val.strct->ran_param_struct[0];
+          assert(RRM_Policy_Member_List->ran_param_id == RRM_Policy_Member_List_8_4_3_6 && "wrong RRM_Policy_Member_List id");
+          assert(RRM_Policy_Member_List->ran_param_val.type == LIST_RAN_PARAMETER_VAL_TYPE && "wrong RRM_Policy_Member_List type");
+          assert(RRM_Policy_Member_List->ran_param_val.lst != NULL && "NULL RRM_Policy_Member_List->ran_param_val.lst");
+          assert(RRM_Policy_Member_List->ran_param_val.lst->sz_lst_ran_param == 1 && "wrong RRM_Policy_Member_List->ran_param_val.lst->sz_lst_ran_param");
+          assert(RRM_Policy_Member_List->ran_param_val.lst->lst_ran_param != NULL && "NULL RRM_Policy_Member_List->ran_param_val.lst->lst_ran_param");
+
+          lst_ran_param_t* RRM_Policy_Member = &RRM_Policy_Member_List->ran_param_val.lst->lst_ran_param[0];
+          //Bug in rc_enc_asn.c:1003, asn didn't define ran_param_id for lst_ran_param_t ...
+          //assert(RRM_Policy_Member->ran_param_id == RRM_Policy_Member_8_4_3_6 && "wrong RRM_Policy_Member id");
+          assert(RRM_Policy_Member->ran_param_struct.sz_ran_param_struct == 2 && "wrong RRM_Policy_Member->ran_param_struct.sz_ran_param_struct");
+          assert(RRM_Policy_Member->ran_param_struct.ran_param_struct != NULL && "NULL RRM_Policy_Member->ran_param_struct.ran_param_struct");
+
+          // TODO: check PLMN ID
+
+          seq_ran_param_t* S_NSSAI = &RRM_Policy_Member->ran_param_struct.ran_param_struct[1];
+          assert(S_NSSAI->ran_param_id == S_NSSAI_8_4_3_6 && "wrong S_NSSAI id");
+          assert(S_NSSAI->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong S_NSSAI type");
+          assert(S_NSSAI->ran_param_val.strct != NULL && "NULL S_NSSAI->ran_param_val.strct");
+          assert(S_NSSAI->ran_param_val.strct->sz_ran_param_struct == 2 && "wrong S_NSSAI->ran_param_val.strct->sz_ran_param_struct");
+          assert(S_NSSAI->ran_param_val.strct->ran_param_struct != NULL && "NULL S_NSSAI->ran_param_val.strct->ran_param_struct");
+
+          seq_ran_param_t* SST = &S_NSSAI->ran_param_val.strct->ran_param_struct[0];
+          assert(SST->ran_param_id == SST_8_4_3_6 && "wrong SST id");
+          assert(SST->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong SST type");
+          assert(SST->ran_param_val.flag_false != NULL && "NULL SST->ran_param_val.flag_false");
+          assert(SST->ran_param_val.flag_false->type == OCTET_STRING_RAN_PARAMETER_VALUE && "wrong SST->ran_param_val.flag_false type");
+          seq_ran_param_t* SD = &S_NSSAI->ran_param_val.strct->ran_param_struct[1];
+          assert(SD->ran_param_id == SD_8_4_3_6 && "wrong SD id");
+          assert(SD->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong SD type");
+          assert(SD->ran_param_val.flag_false != NULL && "NULL SD->ran_param_val.flag_false");
+          assert(SD->ran_param_val.flag_false->type == OCTET_STRING_RAN_PARAMETER_VALUE && "wrong SD->ran_param_val.flag_false type");
+          ///// SLICE LABEL NAME /////
+          char* sst_str = copy_ba_to_str(&SST->ran_param_val.flag_false->octet_str_ran);
+          char* sd_str = copy_ba_to_str(&SD->ran_param_val.flag_false->octet_str_ran);
+
+          ///// SLICE NVS CAP /////
+          seq_ran_param_t* Dedicated_PRB_Policy_Ratio = &RRM_Policy_Ratio_Group->ran_param_struct.ran_param_struct[3];
+          assert(Dedicated_PRB_Policy_Ratio->ran_param_id == Dedicated_PRB_Policy_Ratio_8_4_3_6 && "wrong Dedicated_PRB_Policy_Ratio id");
+          assert(Dedicated_PRB_Policy_Ratio->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong Dedicated_PRB_Policy_Ratio type");
+          assert(Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false != NULL && "NULL Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false");
+          assert(Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false->type == INTEGER_RAN_PARAMETER_VALUE && "wrong Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false type");
+          int nvs_cap = Dedicated_PRB_Policy_Ratio->ran_param_val.flag_false->int_ran;
+          printf("RC SM: configure slice %ld, label %s %s, nvs_cap %d\n", i, sst_str, sd_str, nvs_cap);
+          free(sst_str);
+        }
+      } else {
+        printf("RRM_Policy_Ratio_List->ran_param_val.lst is NULL\n");
+      }
+    }
+
+    else if(ctrl->hdr.frmt_1.ric_style_type == 3 && ctrl->hdr.frmt_1.ctrl_act_id == Handover_control_7_6_4_1) {
+        printf("[E2 AGENT]: Recv control message for handover \n");
+        e2sm_rc_ctrl_msg_frmt_1_t const *msg = &ctrl->msg.frmt_1;
+        assert(msg->sz_ran_param == 1 && "not support msg->sz_ran_param != 1");
+
+        seq_ran_param_t *target_primary_cell_id = &msg->ran_param[0];
+        assert(target_primary_cell_id->ran_param_id == Target_primary_cell_id_8_4_4_1 &&
+               "Wrong Target_primary_cell_id id ");
+        assert(target_primary_cell_id->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE &&
+               "wrong Target_primary_cell_id type");
+        assert(target_primary_cell_id->ran_param_val.strct != NULL &&
+               "NULL target_primary_cell_id->ran_param_val.strct");
+        assert(target_primary_cell_id->ran_param_val.strct->sz_ran_param_struct == 1 &&
+               "wrong target_primary_cell_id->ran_param_val.strct->sz_ran_param_struct");
+        assert(target_primary_cell_id->ran_param_val.strct->ran_param_struct != NULL &&
+               "NULL target_primary_cell_id->ran_param_val.strct->ran_param_struct");
+
+        seq_ran_param_t *choice_target_cell = &target_primary_cell_id->ran_param_val.strct->ran_param_struct[0];
+        assert(choice_target_cell->ran_param_id == CHOICE_target_cell_8_4_4_1 && "wrong CHOICE_target_cell id");
+        assert(choice_target_cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE &&
+               "wrong CHOICE_target_cell type");
+        assert(choice_target_cell->ran_param_val.strct != NULL && "NULL CHOICE_target_cell->ran_param_val.strct");
+        assert(choice_target_cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
+               "wrong CHOICE_target_cell->ran_param_val.strct->sz_ran_param_struct");
+        assert(choice_target_cell->ran_param_val.strct->ran_param_struct != NULL &&
+               "NULL CHOICE_target_cell->ran_param_val.strct->ran_param_struct");
+
+        seq_ran_param_t *nr_cell = &choice_target_cell->ran_param_val.strct->ran_param_struct[0];
+        assert(nr_cell->ran_param_id == NR_cell_8_4_4_1 && "wrong NR_cell id");
+        assert(nr_cell->ran_param_val.type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && "wrong NR_cell type");
+        assert(nr_cell->ran_param_val.strct != NULL && "NULL nr_cell->ran_param_val.strct");
+        assert(nr_cell->ran_param_val.strct->sz_ran_param_struct == 1 &&
+               "wrong NR_cell->ran_param_val.strct->sz_ran_param_struct");
+        assert(nr_cell->ran_param_val.strct->ran_param_struct != NULL &&
+               "NULL NR_cell->ran_param_val.strct->ran_param_struct");
+
+        seq_ran_param_t *nr_cgi = &nr_cell->ran_param_val.strct->ran_param_struct[0];
+        assert(nr_cgi->ran_param_id == NR_CGI_8_4_4_1 && "wrong NR_CGI id");
+        assert(nr_cgi->ran_param_val.type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE && "wrong NR_CGI type");
+        assert(nr_cgi->ran_param_val.flag_false != NULL && "NULL NR_CGI->ran_param_val.flag_false");
+        assert(nr_cgi->ran_param_val.flag_false->type == BIT_STRING_RAN_PARAMETER_VALUE &&
+               "wrong NR_CGI->ran_param_val.flag_false type");
+        char *nr_cgi_str = copy_ba_to_str(&nr_cgi->ran_param_val.flag_false->bit_str_ran);
+
+        ue_id_e2sm_t ue_id = ctrl->hdr.frmt_1.ue_id;
+        assert(ue_id.type == GNB_UE_ID_E2SM && "Wrong ue_id_e2sm type");
+        //assert(ue_id.gnb.ran_ue_id != NULL && "NULL GNB_RAN_UE_ID");
+        if (ue_id.gnb.ran_ue_id != NULL)
+          printf("RC SM: Handover control, handover ran_ue_id %ld to target cell NR_CGI %s\n", *ue_id.gnb.ran_ue_id, nr_cgi_str);
+        else
+          printf("RC SM: Handover control, decrease cell gain of current cell NR_CGI %s\n", nr_cgi_str);
+
+      free(nr_cgi_str);
     }
   }
 
@@ -84,20 +207,32 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
 }
 
 static
+uint32_t sta_ric_id;
+
+static
+void free_aperiodic_subscription(uint32_t ric_req_id)
+{
+  assert(ric_req_id == sta_ric_id); 
+  (void)ric_req_id;
+}
+
+static
 void* emulate_rrc_msg(void* ptr)
 {
-  
-  uint32_t* ric_id = (uint32_t*)ptr; 
+  (void)ptr; 
   for(size_t i = 0; i < 5; ++i){
     usleep(rand()%4000);
     rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t)); 
     assert(d != NULL && "Memory exhausted");
-    *d = fill_rnd_rc_ind_data();
-    async_event_agent_api(*ric_id, d);
-    printf("Event for RIC Req ID %u generated\n", *ric_id);
+    d->hdr.format = FORMAT_1_E2SM_RC_IND_HDR;
+    d->hdr.frmt_1 = fill_rnd_rc_ind_hdr_frmt_1();
+    d->msg.format = FORMAT_2_E2SM_RC_IND_MSG;
+    d->msg.frmt_2 = fill_rnd_ind_msg_frmt_2();
+
+    async_event_agent_api(sta_ric_id, d);
+    printf("Event for RIC Req ID %u generated\n", sta_ric_id);
   }
 
-  free(ptr);
   return NULL;
 }
 
@@ -111,15 +246,14 @@ sm_ag_if_ans_t write_subs_rc_sm(void const* src)
   wr_rc_sub_data_t* wr_rc = (wr_rc_sub_data_t*)src;
   printf("ric req id %d \n", wr_rc->ric_req_id);
 
-  uint32_t* ptr = malloc(sizeof(uint32_t));
-  assert(ptr != NULL);
-  *ptr = wr_rc->ric_req_id;
+  sta_ric_id = wr_rc->ric_req_id;
 
-  int rc = pthread_create(&t_ran_ctrl, NULL, emulate_rrc_msg, ptr);
+  int rc = pthread_create(&t_ran_ctrl, NULL, emulate_rrc_msg, NULL);
   assert(rc == 0);
 
-  sm_ag_if_ans_t ans = {0}; 
+  sm_ag_if_ans_t ans = {.type = SUBS_OUTCOME_SM_AG_IF_ANS_V0};
+  ans.subs_out.type = APERIODIC_SUBSCRIPTION_FLRC;
+  ans.subs_out.aper.free_aper_subs = free_aperiodic_subscription;
 
   return ans;
 }
-

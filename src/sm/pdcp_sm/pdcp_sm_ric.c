@@ -62,6 +62,10 @@ sm_subs_data_t on_subscription_pdcp_sm_ric(sm_ric_t const* sm_ric, void* cmd)
     pdcp.et.ms = 5;
   } else if (strncmp(cmd, "10_ms", max_str_sz) == 0 ) {
     pdcp.et.ms = 10;
+  } else if (strncmp(cmd, "100_ms", max_str_sz) == 0 ) {
+    pdcp.et.ms = 100;
+  } else if (strncmp(cmd, "1000_ms", max_str_sz) == 0 ) {
+    pdcp.et.ms = 1000;
   } else {
     assert(0 != 0 && "Invalid input");
   }
@@ -138,11 +142,17 @@ static
 sm_ag_if_rd_e2setup_t on_e2_setup_pdcp_sm_ric(sm_ric_t const* sm_ric, sm_e2_setup_data_t const* setup)
 {
   assert(sm_ric != NULL); 
-  assert(setup == NULL); 
-  //  sm_pdcp_ric_t* sm = (sm_pdcp_ric_t*)sm_ric;  
+  assert(setup != NULL); 
 
-  assert(0!=0 && "Not implemented");
-  sm_ag_if_rd_e2setup_t dst = {0}; 
+  sm_ag_if_rd_e2setup_t dst = {.type = PDCP_AGENT_IF_E2_SETUP_ANS_V0}; 
+
+  dst.pdcp.func_def.len = setup->len_rfd;
+  if(dst.pdcp.func_def.len > 0){
+    dst.pdcp.func_def.buf = calloc(dst.pdcp.func_def.len, sizeof(uint8_t));
+    assert(dst.pdcp.func_def.buf != NULL && "Memory exhausted");
+    memcpy(dst.pdcp.func_def.buf, setup->ran_fun_def, setup->len_rfd);
+  }
+
   return dst;
 }
 

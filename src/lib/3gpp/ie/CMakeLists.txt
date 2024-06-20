@@ -22,3 +22,4 @@ set(3GPP_DERIVED_IE_SRCS
 
 add_library(3gpp_derived_ie_obj OBJECT ${3GPP_DERIVED_IE_SRCS})
               
+target_compile_options(3gpp_derived_ie_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC -fvisibility=hidden )

@@ -96,7 +96,7 @@ e42_setup_request_t generate_e42_setup_request(e42_xapp_t* xapp)
     ran_func[i].id = sm->info.id();
     ran_func[i].rev = sm->info.rev();
 #ifdef E2AP_V1
-   ran_func[i].oid = calloc(1, sizeof(byte_array_t)); 
+   ran_func[i].oid = calloc(1, sizeof(byte_array_t));
    assert(ran_func[i].oid != NULL && "Memory exhausted");
    *ran_func[i].oid = cp_str_to_ba(sm->info.oid());
 #elif E2AP_V2
@@ -104,7 +104,7 @@ e42_setup_request_t generate_e42_setup_request(e42_xapp_t* xapp)
 #elif E2AP_V3
    ran_func[i].oid = cp_str_to_ba(sm->info.oid());
 #else
-    assert(0 !=0 && "Not implemented"); 
+    assert(0 !=0 && "Not implemented");
 #endif
     it = assoc_next(&xapp->plugin_ag.sm_ds ,it);
   }

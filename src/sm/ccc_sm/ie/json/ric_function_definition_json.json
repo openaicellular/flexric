@@ -1,0 +1,7 @@
+{
+  "ranFunctionName": {
+    "ranFunctionDescription": "Cell Configuration and Control",
+    "ranFunctionServiceModelOID": "1.3.6.1.4.1.53148.1.1.2.4",
+    "ranFunctionShortName": "ORAN-E2SM-CCC"
+  }
+}

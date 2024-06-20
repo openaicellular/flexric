@@ -496,7 +496,7 @@ void* worker_thread(void* arg)
   int const num_it = 3*(man->len_thr + idx); 
 
   not_q_t* q_arr = (not_q_t*)man->q_arr;
-  ret_try_t ret = {.success = false}; 
+  ret_try_t ret = {.success = false};
   for(;;){
     for(int i = idx; i < num_it; ++i){
       ret = try_pop_not_q(&q_arr[i%len]);

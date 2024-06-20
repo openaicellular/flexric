@@ -1,7 +1,6 @@
 #include <assert.h>
 
 #include "../../../util/conversions.h"
-
 #include "enc_ng_enb.h"
 #include "enc_global_ng_ran.h"
 #include "enc_global_ng_enb.h"

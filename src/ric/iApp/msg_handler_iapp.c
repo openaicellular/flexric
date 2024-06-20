@@ -49,7 +49,8 @@ bool check_valid_msg_type(e2_msg_type_t msg_type )
       || msg_type == E42_RIC_CONTROL_REQUEST
       || msg_type == RIC_CONTROL_ACKNOWLEDGE
       || msg_type == RIC_INDICATION
-      || msg_type == RIC_SUBSCRIPTION_DELETE_RESPONSE;
+      || msg_type == RIC_SUBSCRIPTION_DELETE_RESPONSE
+      || msg_type == E2_SETUP_RESPONSE;
 }
 
 void init_handle_msg_iapp(size_t len, handle_msg_fp_iapp (*handle_msg)[len])
@@ -66,6 +67,7 @@ void init_handle_msg_iapp(size_t len, handle_msg_fp_iapp (*handle_msg)[len])
   (*handle_msg)[RIC_CONTROL_ACKNOWLEDGE] = e2ap_handle_e42_ric_control_ack_iapp;
   (*handle_msg)[RIC_INDICATION] = e2ap_handle_ric_indication_iapp;
   (*handle_msg)[RIC_SUBSCRIPTION_DELETE_RESPONSE] = e2ap_handle_subscription_delete_response_iapp;
+  (*handle_msg)[E2_SETUP_RESPONSE] = e2ap_handle_ric_e2_setup_response_iapp;
 
 //  (*handle_msg)[RIC_SUBSCRIPTION_REQUEST] = e2ap_handle_subscription_request_iapp;
 //  (*handle_msg)[RIC_SUBSCRIPTION_DELETE_REQUEST] =  e2ap_handle_subscription_delete_request_iapp;
@@ -92,8 +94,8 @@ e2ap_msg_t e2ap_handle_subscription_response_iapp(e42_iapp_t* iapp, const e2ap_m
   ric_subscription_response_t const* src = &msg->u_msgs.ric_sub_resp; 
 
   xapp_ric_id_xpct_t const xpctd = find_xapp_map_ric_id(&iapp->map_ric_id, src->ric_id.ric_req_id);
-  assert(xpctd.has_value == true && "RIC Req Id not found!"); 
-  xapp_ric_id_t const x = xpctd.xapp_ric_id; 
+  assert(xpctd.has_value == true && "RIC Req Id not found!");
+  xapp_ric_id_t const x = xpctd.xapp_ric_id;
 
   assert(src->ric_id.ran_func_id == x.ric_id.ran_func_id);
   assert(src->ric_id.ric_inst_id == x.ric_id.ric_inst_id);
@@ -104,11 +106,11 @@ e2ap_msg_t e2ap_handle_subscription_response_iapp(e42_iapp_t* iapp, const e2ap_m
   *dst = mv_ric_subscription_respponse(src);
   dst->ric_id.ric_req_id = x.ric_id.ric_req_id;
 
-  sctp_msg_t sctp_msg = {0}; 
+  sctp_msg_t sctp_msg = {0};
   sctp_msg.info = find_map_xapps_sad(&iapp->ep.xapps, x.xapp_id);
   sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans); 
   defer({ free_sctp_msg(&sctp_msg); } );
-       
+
   e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
 
   e2ap_msg_t none = {.type = NONE_E2_MSG_TYPE};
@@ -129,11 +131,11 @@ e2ap_msg_t e2ap_handle_subscription_delete_response_iapp(e42_iapp_t* iapp, const
     e2ap_msg_t none = {.type = NONE_E2_MSG_TYPE};
     return none;
   }
- 
-  assert(xpctd.has_value == true && "RIC Req Id not found!"); 
+
+  assert(xpctd.has_value == true && "RIC Req Id not found!");
 
 
-  xapp_ric_id_t const x = xpctd.xapp_ric_id; 
+  xapp_ric_id_t const x = xpctd.xapp_ric_id;
 
   assert(src->ric_id.ran_func_id == x.ric_id.ran_func_id);
   assert(src->ric_id.ric_inst_id == x.ric_id.ric_inst_id);
@@ -147,7 +149,7 @@ e2ap_msg_t e2ap_handle_subscription_delete_response_iapp(e42_iapp_t* iapp, const
   sctp_msg.info = find_map_xapps_sad(&iapp->ep.xapps, x.xapp_id);
   sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans); 
   defer({ free_sctp_msg(&sctp_msg); } );
-       
+
   e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
 
   printf("[iApp]: RIC_SUBSCRIPTION_DELETE_RESPONSE tx RAN_FUNC_ID %d RIC_REQ_ID %d \n", x.ric_id.ran_func_id, x.ric_id.ric_req_id);
@@ -167,8 +169,8 @@ e2ap_msg_t e2ap_handle_e42_ric_control_ack_iapp(e42_iapp_t* iapp, const e2ap_msg
   ric_control_acknowledge_t const* src = &msg->u_msgs.ric_ctrl_ack; 
 
   xapp_ric_id_xpct_t const xpctd = find_xapp_map_ric_id(&iapp->map_ric_id, src->ric_id.ric_req_id);
-  assert(xpctd.has_value == true && "RIC Req Id not found!"); 
-  xapp_ric_id_t const x = xpctd.xapp_ric_id; 
+  assert(xpctd.has_value == true && "RIC Req Id not found!");
+  xapp_ric_id_t const x = xpctd.xapp_ric_id;
 
   assert(src->ric_id.ran_func_id == x.ric_id.ran_func_id);
   assert(src->ric_id.ric_inst_id == x.ric_id.ric_inst_id);
@@ -179,14 +181,14 @@ e2ap_msg_t e2ap_handle_e42_ric_control_ack_iapp(e42_iapp_t* iapp, const e2ap_msg
   dst->ric_id = x.ric_id;
 
 #ifdef E2AP_V1
-  dst->status = src->status; 
+  dst->status = src->status;
 #endif
 
   sctp_msg_t sctp_msg = {0};
   sctp_msg.info = find_map_xapps_sad(&iapp->ep.xapps, x.xapp_id);
   sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans); 
   defer({ free_sctp_msg(&sctp_msg); } );
-       
+
   e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
 
   printf("[iApp]: RIC_CONTROL_ACKNOWLEDGE tx\n");
@@ -233,7 +235,7 @@ e2ap_msg_t e2ap_handle_e42_setup_request_iapp(e42_iapp_t* iapp, const e2ap_msg_t
   ans.u_msgs.e42_stp_resp = generate_setup_response(iapp, req); 
 
   printf("[iApp]: E42 SETUP-RESPONSE tx\n");
-
+  fflush(stdout);
   return ans;
 }
 
@@ -252,8 +254,8 @@ e2ap_msg_t e2ap_handle_ric_indication_iapp(e42_iapp_t* iapp, const e2ap_msg_t* m
     e2ap_msg_t none = {.type = NONE_E2_MSG_TYPE};
     return none;
   }
-  
-  xapp_ric_id_t const x = xpctd.xapp_ric_id; 
+
+  xapp_ric_id_t const x = xpctd.xapp_ric_id;
 
   assert(src->ric_id.ran_func_id == x.ric_id.ran_func_id);
   assert(src->ric_id.ric_inst_id == x.ric_id.ric_inst_id);
@@ -265,7 +267,7 @@ e2ap_msg_t e2ap_handle_ric_indication_iapp(e42_iapp_t* iapp, const e2ap_msg_t* m
   *dst = mv_ric_indication((ric_indication_t*)src);
   dst->ric_id.ric_req_id = x.ric_id.ric_req_id;
 
-  sctp_msg_t sctp_msg = {0}; 
+  sctp_msg_t sctp_msg = {0};
   sctp_msg.info = find_map_xapps_sad(&iapp->ep.xapps, x.xapp_id);
   sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans); 
   defer({ free_sctp_msg(&sctp_msg); } );
@@ -295,12 +297,12 @@ bool valid_global_e2_node(e42_iapp_t* iapp, global_e2_node_id_t const* id )
 
   for(size_t i = 0; i < nodes.len; ++i){
    if( eq_global_e2_node_id(&nodes.n[i].id, id) == true){
-      free_e2_node_arr(&nodes); 
+      free_e2_node_arr(&nodes);
      return true; 
    }
   }
-  
-  free_e2_node_arr(&nodes); 
+
+  free_e2_node_arr(&nodes);
   return false;
 }
 
@@ -347,20 +349,20 @@ e2ap_msg_t e2ap_handle_e42_ric_subscription_request_iapp(e42_iapp_t* iapp, const
 
 
   // I do not like the mtx here but there is a data race if not
-  int rc = pthread_rwlock_wrlock(&iapp->map_ric_id.rw); 
+  int rc = pthread_rwlock_wrlock(&iapp->map_ric_id.rw);
   assert(rc == 0);
 
   uint16_t const new_ric_id = fwd_ric_subscription_request_gen(iapp->ric_if.type, &e42_sr->id, &e42_sr->sr, notify_msg_iapp_api);
 
   e2_node_ric_id_t n = { .ric_id = e42_sr->sr.ric_id, //  new_ric_id,
-                          .e2_node_id = cp_global_e2_node_id(&e42_sr->id), 
-                          .ric_req_type = SUBSCRIPTION_RIC_REQUEST_TYPE }; 
+                          .e2_node_id = cp_global_e2_node_id(&e42_sr->id),
+                          .ric_req_type = SUBSCRIPTION_RIC_REQUEST_TYPE };
 
   n.ric_id.ric_req_id = new_ric_id;
 
 
   add_map_ric_id(&iapp->map_ric_id, &n, &xapp_ric_id);
-  rc = pthread_rwlock_unlock(&iapp->map_ric_id.rw); 
+  rc = pthread_rwlock_unlock(&iapp->map_ric_id.rw);
   assert(rc == 0);
 
   printf("[iApp]: SUBSCRIPTION-REQUEST RAN_FUNC_ID %d RIC_REQ_ID %d tx \n", xapp_ric_id.ric_id.ran_func_id, xapp_ric_id.ric_id.ric_req_id);
@@ -385,18 +387,18 @@ e2ap_msg_t e2ap_handle_e42_ric_control_request_iapp(e42_iapp_t* iapp, const e2ap
                                 .xapp_id = e42_cr->xapp_id};
 
   // I do not like the mtx here but there is a data race if not
-  int rc = pthread_rwlock_wrlock(&iapp->map_ric_id.rw); 
+  int rc = pthread_rwlock_wrlock(&iapp->map_ric_id.rw);
   assert(rc == 0);
 
   uint16_t new_ric_id = fwd_ric_control_request_gen(iapp->ric_if.type, &e42_cr->id, &e42_cr->ctrl_req, notify_msg_iapp_api);
 
   e2_node_ric_id_t n = { .ric_id = e42_cr->ctrl_req.ric_id, //  new_ric_id,
                           .e2_node_id = cp_global_e2_node_id(&e42_cr->id),
-                          .ric_req_type = CONTROL_RIC_REQUEST_TYPE }; 
+                          .ric_req_type = CONTROL_RIC_REQUEST_TYPE };
   n.ric_id.ric_req_id = new_ric_id;
 
   add_map_ric_id(&iapp->map_ric_id, &n, &xapp_ric_id);
-  rc = pthread_rwlock_unlock(&iapp->map_ric_id.rw); 
+  rc = pthread_rwlock_unlock(&iapp->map_ric_id.rw);
   assert(rc == 0);
 
   printf("[iApp]: E42_RIC_CONTROL_REQUEST rx\n");
@@ -531,4 +533,61 @@ e2ap_msg_t e2ap_handle_connection_update_iapp(e42_iapp_t* iapp, const e2ap_msg_t
   return ans; 
 }
 
+static
+void generate_update_e2_node(e42_iapp_t* iapp, size_t num_xapp)
+{
+  assert(iapp != NULL);
+  assert(num_xapp != 0);
+
+  size_t init_xapp_id = 7;
+  e2_node_arr_t new_e2_arr = generate_e2_node_arr(&iapp->e2_nodes);
+
+  for (size_t i = init_xapp_id; i < init_xapp_id+num_xapp; i++) {
+    e2ap_msg_t ans = {.type = E42_UPDATE_E2_NODE};
+    defer({ e2ap_msg_free_iapp(&iapp->ap, &ans);} );
+
+    ans.u_msgs.e42_updt_e2_node.xapp_id = i;
+    ans.u_msgs.e42_updt_e2_node.len_e2_nodes_conn = new_e2_arr.len;
+    ans.u_msgs.e42_updt_e2_node.nodes = new_e2_arr.n;
+
+    sctp_msg_t sctp_msg = {0};
+    defer({ free_sctp_msg(&sctp_msg); } );
+    sctp_msg.info = find_map_xapps_sad(&iapp->ep.xapps, ans.u_msgs.e42_updt_e2_node.xapp_id);
+    sctp_msg.ba = e2ap_msg_enc_iapp(&iapp->ap, &ans);
+
+    e2ap_send_sctp_msg_iapp(&iapp->ep, &sctp_msg);
+    printf("[iApp]: send E42 UPDATE-E2-NODE to xApp id %ld\n", i);
+    fflush(stdout);
+  }
+  return;
+}
+
+e2ap_msg_t e2ap_handle_ric_e2_setup_response_iapp(e42_iapp_t* iapp, const e2ap_msg_t* msg)
+{
+  assert(iapp != NULL);
+  assert(msg != NULL);
+  assert(msg->type == E2_SETUP_RESPONSE);
+
+  size_t num_xapp = get_num_connected_xapps(&iapp->ep.xapps);
+  e2ap_msg_t none = {.type = NONE_E2_MSG_TYPE};
+
+  if (num_xapp <= 0) {
+    printf("[iApp]: no xApp connected, no need to generate E42 UPDATE-E2-NODE\n");
+    return none;
+  }
+
+  // mir: don;t write raw for loops. The abstraction here is that you want to do a for_each. There is an algorithm
+  // there. If not I will implement it.
+  // Also, things like iapp->ep.xapps.tree.size; normally mean that you are going too deep into the structure and that
+  // you are not in the correct abstraction level.
+  // maybe what is missing here is a good structure where you have the connected xApps, rather than the endpoints, which
+  // is bad.
+  // Maybe implement a ds for maintainig the number of connected xApps?
+
+  // if connected xApps > 0
+  // generate E42 UPDATE-E2-NODE for each xApp
+  generate_update_e2_node(iapp, num_xapp);
+
+  return none;
+}
 

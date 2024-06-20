@@ -27,7 +27,7 @@
 #include "util/alg_ds/ds/tsq/tsq.h"
 
 #include "util/conf_file.h"
-#include "util/ngran_types.h"
+#include "util/e2ap_ngran_types.h"
 
 #include "asio_agent.h"
 #include "e2ap_agent.h"
@@ -39,11 +39,11 @@
 #include <stdbool.h>
 
 #ifdef E2AP_V1
-#define NUM_HANDLE_MSG 31
-#elif E2AP_V2 
-#define NUM_HANDLE_MSG 34
-#elif E2AP_V3 
-#define NUM_HANDLE_MSG 43
+#define NUM_HANDLE_MSG 32 // 31 + E42-UPDATE-E2-NODE
+#elif E2AP_V2
+#define NUM_HANDLE_MSG 35 // 34 + E42-UPDATE-E2-NODE
+#elif E2AP_V3
+#define NUM_HANDLE_MSG 44 // 43 + E42-UPDATE-E2-NODE
 #else
 static_assert(0!=0, "Unknown E2AP version");
 #endif
@@ -79,7 +79,7 @@ typedef struct e2_agent_s
 
 #if defined(E2AP_V2) || defined (E2AP_V3)
   // Read RAN 
-  void (*read_setup_ran)(void* data);
+  void (*read_setup_ran)(void* data, const e2ap_ngran_node_t node_type);
   _Atomic uint32_t trans_id_setup_req;
 #endif
 
@@ -116,7 +116,7 @@ void e2_send_control_failure(e2_agent_t* ag, const ric_control_failure_t* cf);
 
 ////////////////////////////////////////////////
 
-#undef NUM_HANDLE_MSG 
+#undef NUM_HANDLE_MSG
 
 #endif
 

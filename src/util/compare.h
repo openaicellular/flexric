@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdlib.h>
 
 //////////////////////////////////////////////////////////////////////
@@ -66,8 +67,39 @@ int cmp_fd(void const* fd_v1, void const* fd_v2)
   return -1;
 }
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
+// Equality file descriptors
+static inline
+bool eq_int(const void* key1, const void* key2 )
+{
+  assert(key1 != NULL);
+  assert(key2 != NULL);
 
+  int* m0 = (int*)key1;
+  int* m1 = (int*)key2;
+
+  return *m0 == *m1;
+}
+
+// Comparation file descriptors
+static inline 
+int cmp_int(void const* key1, void const* key2)
+{
+  assert(key1 != NULL);
+  assert(key2 != NULL);
+  int* m0 = (int*)key1;
+  int* m1 = (int*)key2;
+
+  assert(*m0 > -1 && "File descriptors must be larger than zero");
+  assert(*m1 > -1 && "File descriptors must be larger than zero");
+
+  if(*m0 < *m1) return 1;
+  if(*m0 == *m1) return 0;
+  return -1;
+}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -104,7 +136,42 @@ int cmp_ran_func_id(const void* a_v, const void* b_v)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+static inline
+bool cmp_str(const void* a, const void* b)
+{
+  char* a_str = *(char**)(a);
+  char* b_str = *(char**)(b);
 
+  int const ret = strcmp(a_str, b_str);
+  return ret == 0;
+}
+
+// Equality file descriptors
+static inline
+bool eq_fd_ind_ev(const void* key1, const void* key2 )
+{
+  assert(key1 != NULL);
+  assert(key2 != NULL);
+
+  int* fd1 = (int*)key1;
+  int* fd2 = (int*)key2;
+
+  return *fd1 == *fd2;
+}
+
+// Comparation file descriptors
+static inline 
+int cmp_fd_ind_ev(void const* fd_v1, void const* fd_v2)
+{
+  assert(fd_v1 != NULL);
+  assert(fd_v2 != NULL);
+  int* fd1 = (int*)fd_v1;
+  int* fd2 = (int*)fd_v2;
+
+  if(*fd1 < *fd2) return 1;
+  if(*fd1 == *fd2) return 0;
+  return -1;
+}
 
 #endif
 

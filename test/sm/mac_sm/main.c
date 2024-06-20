@@ -33,6 +33,8 @@
 static
 mac_ind_data_t cp;
 
+static
+mac_ctrl_req_data_t cp_ctrl;
 /////
 // AGENT
 ////
@@ -53,16 +55,24 @@ bool read_ind_mac(void* read)
 }
 
 
-static 
-sm_ag_if_ans_t write_ctrl(void const* data)
+static
+sm_ag_if_ans_t write_ctrl_mac(void const* data)
 {
   assert(data != NULL);
 
-  mac_ctrl_req_data_t* ctrl = (mac_ctrl_req_data_t*)data; 
-  assert(ctrl->hdr.dummy == 1);
-  assert(ctrl->msg.action == 42);
+  mac_ctrl_req_data_t const* mac_req_ctrl = (mac_ctrl_req_data_t const* )data; // &data->slice_req_ctrl;
+  mac_ctrl_msg_t const* msg = &mac_req_ctrl->msg;
 
-  sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0 };
+  for (size_t i = 0; i < msg->ran_conf_len; i++) {
+    // TODO
+    printf("ran_conf[%ld].isset_pusch_mcs %d\n", i, msg->ran_conf[i].isset_pusch_mcs);
+    printf("ran_conf[%ld].pusch_mcs %d\n", i, msg->ran_conf[i].pusch_mcs);
+    printf("ran_conf[%ld].rnti %d\n", i, msg->ran_conf[i].rnti);
+  }
+
+  sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0};
+  ans.ctrl_out.type = MAC_AGENT_IF_CTRL_ANS_V0;
+  ans.ctrl_out.mac.ans = MAC_CTRL_OUT_OK;
   return ans;
 }
 
@@ -89,8 +99,9 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
   char sub[] = "2_ms";
   sm_subs_data_t data = ric->proc.on_subscription(ric, &sub);
 
-  subscribe_timer_t t = ag->proc.on_subscription(ag, &data); 
-  assert(t.ms == 2);
+  sm_ag_if_ans_subs_t const subs = ag->proc.on_subscription(ag, &data); 
+  assert(subs.type == PERIODIC_SUBSCRIPTION_FLRC);
+  assert(subs.per.t.ms == 2);
 
   free_sm_subs_data(&data);
 }
@@ -102,7 +113,8 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   assert(ag != NULL);
   assert(ric != NULL);
 
-  exp_ind_data_t exp = ag->proc.on_indication(ag, NULL);
+  on_ind_t on_ind = {.type = PERIODIC_ON_INDICATION_EVENT, .act_def = NULL };
+  exp_ind_data_t exp = ag->proc.on_indication(ag, on_ind);
   assert(exp.has_value == true);
   sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &exp.data);
 
@@ -116,39 +128,73 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   free_mac_ind_hdr(&data->hdr);
   free_mac_ind_msg(&data->msg);
 
-  free_exp_ind_data(&exp); 
+  free_mac_ind_hdr(&cp.hdr);
+  free_mac_ind_msg(&cp.msg);
+
+  free_exp_ind_data(&exp);
 }
 
 
 // RIC -> E2
+
 static
 void check_ctrl(sm_agent_t* ag, sm_ric_t* ric)
 {
   assert(ag != NULL);
   assert(ric != NULL);
 
-  mac_ctrl_req_data_t ctrl = {.hdr.dummy = 1, .msg.action = 42}; 
-  sm_ctrl_req_data_t msg = ric->proc.on_control_req(ric, &ctrl);
-  
-  sm_ctrl_out_data_t out = ag->proc.on_control(ag, &msg);
-  assert(out.len_out == 0 && out.ctrl_out == NULL );
+  //sm_ag_if_wr_t wr = {.type = CONTROL_SM_AG_IF_WR };
+  //wr.ctrl.type = SLICE_CTRL_REQ_V0 ;
 
-  free_sm_ctrl_req_data(&msg);
+  sm_ag_if_wr_t ctrl_msg = {0};
+  ctrl_msg.type = CONTROL_SM_AG_IF_WR;
+  ctrl_msg.ctrl.type = MAC_CTRL_REQ_V0;
+  mac_ctrl_req_data_t* mac_req_ctrl = &ctrl_msg.ctrl.mac_ctrl;
+  fill_mac_ctrl(mac_req_ctrl);
+
+  cp_ctrl.hdr = cp_mac_ctrl_hdr(&mac_req_ctrl->hdr);
+  cp_ctrl.msg = cp_mac_ctrl_msg(&mac_req_ctrl->msg);
+
+  sm_ctrl_req_data_t ctrl_req = ric->proc.on_control_req(ric, &ctrl_msg);
+
+  sm_ctrl_out_data_t out_data = ag->proc.on_control(ag, &ctrl_req);
+
+  sm_ag_if_ans_ctrl_t ans = ric->proc.on_control_out(ric, &out_data);
+  assert(ans.type == MAC_AGENT_IF_CTRL_ANS_V0);
+
+  if(ctrl_req.len_hdr > 0)
+    free(ctrl_req.ctrl_hdr);
+
+  if(ctrl_req.len_msg > 0)
+    free(ctrl_req.ctrl_msg);
+
+  if(out_data.len_out > 0)
+    free(out_data.ctrl_out);
+
+  free_mac_ctrl_out(&ans.mac);
+
+  free_mac_ctrl_hdr(&mac_req_ctrl->hdr);
+  free_mac_ctrl_msg(&mac_req_ctrl->msg);
+
+  free_mac_ctrl_hdr(&cp_ctrl.hdr);
+  free_mac_ctrl_msg(&cp_ctrl.msg);
 }
 
 int main()
 {
   sm_io_ag_ran_t io_ag = {0};
-  io_ag.read_ind_tbl[MAC_STATS_V0] = read_ind_mac; 
-  io_ag.write_ctrl_tbl[MAC_CTRL_REQ_V0] = write_ctrl; 
+  io_ag.read_ind_tbl[MAC_STATS_V0] = read_ind_mac;
+  io_ag.write_ctrl_tbl[MAC_STATS_V0] = write_ctrl_mac;
 
   sm_agent_t* sm_ag = make_mac_sm_agent(io_ag);
   sm_ric_t* sm_ric = make_mac_sm_ric();
 
-  check_eq_ran_function(sm_ag, sm_ric);
-  check_subscription(sm_ag, sm_ric);
-  check_indication(sm_ag, sm_ric);
-  check_ctrl(sm_ag, sm_ric);
+  for(int i = 0; i < 64*1024; ++i) {
+    check_eq_ran_function(sm_ag, sm_ric);
+    check_subscription(sm_ag, sm_ric);
+    check_indication(sm_ag, sm_ric);
+    check_ctrl(sm_ag, sm_ric);
+  }
 
   sm_ag->free_sm(sm_ag);
   sm_ric->free_sm(sm_ric);

@@ -48,10 +48,10 @@
 #include "../sm/gtp_sm/gtp_sm_id.h"
 #include "../sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../sm/rc_sm/rc_sm_id.h"
+#include "../sm/ccc_sm/ccc_sm_id.h"
 
 #include "../../test/rnd/fill_rnd_data_rc.h"
 #include "../../test/rnd/fill_rnd_data_kpm.h"
-
 
 #include <assert.h>
 #include <time.h>
@@ -129,7 +129,7 @@ void read_xapp(sm_ag_if_rd_t* data)
 
   assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
   if(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 ){
-    e2ap->kpm.ran_func_def = fill_rnd_kpm_ran_func_def(); 
+    e2ap->kpm.ran_func_def = fill_rnd_kpm_ran_func_def();
   } else if(e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0 ){
     e2ap->rc.ran_func_def = fill_rc_ran_func_def();
   } else {
@@ -139,22 +139,29 @@ void read_xapp(sm_ag_if_rd_t* data)
 }
 */
 
+// Not needed when using E42
 static
 void read_kpm_e2setup_xapp(void* data)
 {
   assert(data != NULL);
-  kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(data);
-  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
-
+  //kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(data);
+  //kpm->ran_func_def = fill_rnd_kpm_ran_func_def();
 }
 
+// Not needed when using E42
 static
 void read_rc_e2_setup_xapp(void* data)
 {
   assert(data != NULL);
 //  assert(data->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
-  rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
-  rc->ran_func_def = fill_rc_ran_func_def();
+//  rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
+//  rc->ran_func_def = fill_rc_ran_func_def();
+}
+
+static
+void read_ccc_e2_setup_xapp(void* data)
+{
+  assert(data != NULL);
 }
 
 static
@@ -164,6 +171,7 @@ sm_io_ag_ran_t init_io_ag_ran(void)
 
   dst.read_setup_tbl[KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_kpm_e2setup_xapp;
   dst.read_setup_tbl[RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0] = read_rc_e2_setup_xapp;
+  dst.read_setup_tbl[CCC_V3_0_AGENT_IF_E2_SETUP_ANS_V0] = read_ccc_e2_setup_xapp;
 
   return dst;
 }
@@ -173,19 +181,14 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 {
   assert(args != NULL);
 
-  printf("[xAapp]: Initializing ... \n");
+  printf("[xAap]: Initializing ... \n");
 
   e42_xapp_t* xapp = calloc(1, sizeof(*xapp));
   assert(xapp != NULL && "Memory exhausted");
 
-  uint32_t const port = 36422;
+  printf("[xApp]: nearRT-RIC IP Address = %s, PORT = %d\n", args->ip, args->e42_port);
 
-  char* addr = get_near_ric_ip(args);
-  defer({ free(addr); } );
-
-  printf("[xApp]: nearRT-RIC IP Address = %s, PORT = %d\n", addr, port);
-
-  e2ap_init_ep_xapp(&xapp->ep, addr, port);
+  e2ap_init_ep_xapp(&xapp->ep, args->ip, args->e42_port);
 
   init_asio_xapp(&xapp->io); 
 
@@ -211,32 +214,16 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
 
   init_msg_dispatcher(&xapp->msg_disp);
 
-  char* dir = get_conf_db_dir(args);
-  assert(strlen(dir) < 128 && "String too large");
-  char* db_name = get_conf_db_name(args);
-  assert(strlen(db_name) < 128 && "String too large");
-  const char* default_dir = XAPP_DB_DIR;
-  assert(strlen(default_dir) < 128 && "String too large");
-  char filename[256] = {0};
-  int n = 0;
-  int64_t const now = time_now_us();
-  if (strlen(dir)) {
-    if (strlen(db_name))
-      n = snprintf(filename, 255, "%s%s", dir, db_name);
-    else
-      n = snprintf(filename, 255, "%sxapp_db_%ld", dir, now);
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
+  // Check DB is enabled for this xApp
+  printf("[xApp]: DB_ENABLE = %s\n", args->db_params.enable?"TRUE":"FALSE");
+  if (args->db_params.enable) {
+    bool t = init_db_xapp(&xapp->db, &args->db_params);
+    assert(t == true && "init db failed\n");
   } else {
-    n = snprintf(filename, 255, "%sxapp_db_%ld", default_dir, now);
+    printf("[xApp]: do not initial database\n");
   }
-  assert(n < 256 && "Overflow");
-
-  printf("[xApp]: DB filename = %s \n ", filename );
-
-  init_db_xapp(&xapp->db, filename);
-
-  free(dir);
-  free(db_name);
-
+#endif
 
   const pthread_mutexattr_t *attr = NULL;
   int rc = pthread_mutex_init(&xapp->conn_mtx , attr);
@@ -264,7 +251,7 @@ void e2_event_loop_xapp(e42_xapp_t* xapp)
   while (xapp->stop_token == false) {
     int fd = event_asio_xapp(&xapp->io);
     if(fd == -1){ // no event happened. Just for checking the stop_token condition
-          continue; 
+          continue;
     }
     async_event_xapp_t const e = find_event_type(xapp,fd);
 
@@ -353,7 +340,11 @@ void free_e42_xapp(e42_xapp_t* xapp)
 
   free_msg_dispatcher(&xapp->msg_disp);
 
-  close_db_xapp(&xapp->db);
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
+  if(xapp->db.handler != NULL){
+    close_db_xapp(&xapp->db);
+  }
+#endif
 
   int rc = pthread_mutex_destroy(&xapp->conn_mtx);
   assert(rc == 0);
@@ -361,11 +352,17 @@ void free_e42_xapp(e42_xapp_t* xapp)
   free(xapp);
 }
 
-e2_node_arr_t e2_nodes_xapp(e42_xapp_t* xapp)
+e2_node_arr_xapp_t e2_nodes_xapp(e42_xapp_t* xapp)
 {
   assert(xapp != NULL);
-  e2_node_arr_t ans = generate_e2_node_arr(&xapp->e2_nodes); 
+  e2_node_arr_xapp_t ans = generate_e2_node_arr_xapp(&xapp->e2_nodes, &xapp->plugin_ric);
   return ans;
+}
+
+size_t e2_nodes_len_xapp(e42_xapp_t* xapp)
+{
+  assert(xapp != NULL);
+  return sz_reg_e2_node(&xapp->e2_nodes);
 }
 
 static
@@ -373,6 +370,7 @@ void send_subscription_request(e42_xapp_t* xapp, global_e2_node_id_t* id, ric_ge
 {
   assert(xapp != NULL);
   assert(id != NULL);
+  printf("E42_RIC_SUBSCRIPTION_REQUEST %d \n", E42_RIC_SUBSCRIPTION_REQUEST);
   assert(xapp->handle_msg[E42_RIC_SUBSCRIPTION_REQUEST]!= NULL);
 
   sm_ric_t* sm = sm_plugin_ric(&xapp->plugin_ric, ric_id.ran_func_id);
@@ -403,12 +401,12 @@ bool valid_ran_func_id(uint16_t ran_func_id)\
       || ran_func_id == SM_GTP_ID
       || ran_func_id == SM_KPM_ID
       || ran_func_id == SM_RC_ID
+      || ran_func_id == SM_CCC_ID
     )
     return true;
 
   return false;
 }
-
 
 static
 ric_gen_id_t generate_ric_gen_id(e42_xapp_t* xapp, act_proc_val_e type, uint16_t ran_func_id, global_e2_node_id_t const* id, sm_cb cb)
@@ -424,7 +422,6 @@ ric_gen_id_t generate_ric_gen_id(e42_xapp_t* xapp, act_proc_val_e type, uint16_t
 
   return ric_req;
 }
-
 
 sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t rf_id , void* data, sm_cb cb)
 {
@@ -444,7 +441,6 @@ sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uin
   printf("[xApp]: Successfully subscribed to RAN_FUNC_ID %d \n", rf_id);
 
   // The RIC_SUBSCRIPTION_PROCEDURE is still active
-
   sm_ans_xapp_t ans = {0};
   ans.success = true;
   ans.u.handle = ric_id.ric_req_id;

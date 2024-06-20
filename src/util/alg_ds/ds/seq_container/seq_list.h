@@ -73,5 +73,11 @@ void* seq_list_value(void* a);
 
 size_t seq_list_size(seq_list_t*);
 
+/* 
+ * This function removes the first element of the sequence list LST. If there are no elements in the sequence, it does nothing. 
+ * If sequence is NULL, you get an assert.
+ */
+void seq_list_pop_front(seq_list_t* lst);
+
 #endif
 

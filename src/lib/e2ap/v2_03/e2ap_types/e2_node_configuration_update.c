@@ -29,6 +29,9 @@ bool eq_node_configuration_update(const e2_node_configuration_update_t* m0, cons
 
   if(m0 == NULL || m1 == NULL) return false;
 
+  if(m0->trans_id != m1->trans_id)
+    return false;
+
   if(m0->len_ccul != m1 ->len_ccul)
     return false;
 

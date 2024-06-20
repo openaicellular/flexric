@@ -62,7 +62,7 @@ void bi_map_insert(bi_map_t* map, void const* key1, size_t key_sz1, void const* 
 
   void* val1 = malloc(key_sz2);
   assert(val1 != NULL && "Memory exhausted");
-  
+
   // POD or this is a bug. If it is not, it will probably be in the future
   memcpy(val1, key2, key_sz2);
 
@@ -169,7 +169,7 @@ bml_iter_t bi_map_next_left(bi_map_t* map, bml_iter_t it)
 bml_iter_t bi_map_end_left(bi_map_t* map)
 {
   assert(map != NULL);
-  bml_iter_t it = {.it = assoc_front(&map->left)};
+  bml_iter_t it = {.it = assoc_end(&map->left)};
   return it;
 }
 

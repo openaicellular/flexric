@@ -95,16 +95,40 @@ mac_ctrl_hdr_t mac_dec_ctrl_hdr_plain(size_t len, uint8_t const ctrl_hdr[len])
 
 mac_ctrl_msg_t mac_dec_ctrl_msg_plain(size_t len, uint8_t const ctrl_msg[len])
 {
-  assert(len == sizeof(mac_ctrl_msg_t)); 
-  mac_ctrl_msg_t ret;
-  memcpy(&ret, ctrl_msg, len);
-  return ret;
+  mac_ctrl_msg_t ctrl = {0};
+  assert(len >0);
+  assert(ctrl_msg != NULL);
+
+  size_t sz = sizeof(ctrl.ran_conf_len);
+  memcpy(&ctrl.ran_conf_len, ctrl_msg, sz);
+
+  if(ctrl.ran_conf_len > 0){
+    ctrl.ran_conf = calloc(ctrl.ran_conf_len, sizeof(mac_conf_t));
+    assert(ctrl.ran_conf != NULL && "memory exhausted");
+  }
+
+  void* ptr = (void*)&ctrl_msg[sz];
+  for(size_t i = 0; i < ctrl.ran_conf_len; ++i){
+    memcpy(&ctrl.ran_conf[i], ptr, sizeof(mac_conf_t));
+    ptr += sizeof(mac_conf_t);
+  }
+
+  assert(ptr == ctrl_msg + len && "Data layout mismatch");
+
+  return ctrl;
+ 
 }
 
 mac_ctrl_out_t mac_dec_ctrl_out_plain(size_t len, uint8_t const ctrl_out[len]) 
 {
-  assert(0!=0 && "Not implemented");
   assert(ctrl_out != NULL);
+  mac_ctrl_out_t ret = {0};
+
+  memcpy(&ret.ans, ctrl_out, sizeof(ret.ans));
+  size_t sz = sizeof(ret.ans);
+  assert(sz == len && "Data layout mismatch");
+
+  return ret;
 }
 
 mac_func_def_t mac_dec_func_def_plain(size_t len, uint8_t const func_def[len])

@@ -33,7 +33,7 @@ void e2ap_ep_init(e2ap_ep_t* ep)
 void e2ap_ep_free(e2ap_ep_t* ep)
 {
   assert(ep != NULL);
-  
+
   int rc = close(ep->fd);
   assert(rc == 0);
 
@@ -135,7 +135,7 @@ struct sctp_send_failed cp_sn_send_failed(struct sctp_send_failed const* src)
      .ssf_assoc_id = src->ssf_assoc_id,
      // We losse this data as Flexible Arrat members cannot be copied in the stack...
      //.ssf_data = src->ssf_data
-     
+
   };
 
   return dst;
@@ -235,7 +235,7 @@ sctp_msg_t e2ap_recv_sctp_msg(e2ap_ep_t* ep)
     from.notif = calloc(1,sizeof(union sctp_notification));
     assert(from.notif != NULL && "Memory exhausted");
 
-    *from.notif = cp_sctp_notification((union sctp_notification*) buf, rc); 
+    *from.notif = cp_sctp_notification((union sctp_notification*) buf, rc);
   } else {
     from.type = SCTP_MSG_PAYLOAD;
     from.ba.len = rc; // set actually received number of bytes

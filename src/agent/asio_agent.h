@@ -40,7 +40,13 @@ void init_asio_agent(asio_agent_t* io);
 
 void add_fd_asio_agent(asio_agent_t* io, int fd);
 
+int create_aper_fd_asio_agent(asio_agent_t* io);
+
 void rm_fd_asio_agent(asio_agent_t* io, int fd);
+
+//void rm_dummy_fd_asio_agent(asio_agent_t* io, int fd);
+
+// int create_dummy_fd_asio_agent(asio_agent_t* io);
 
 int create_timer_ms_asio_agent(asio_agent_t* io, long initial_ms, long interval_ms);
 

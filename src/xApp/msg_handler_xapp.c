@@ -54,7 +54,9 @@ bool check_valid_msg_type(e2_msg_type_t msg_type)
 
       msg_type == E42_SETUP_RESPONSE ||
       msg_type == E2_SETUP_FAILURE ||
- 
+
+      msg_type == E42_UPDATE_E2_NODE ||
+
       msg_type == E42_RIC_CONTROL_REQUEST || 
 
       msg_type == E42_SETUP_REQUEST ||
@@ -113,6 +115,7 @@ void init_handle_msg_xapp(size_t len, e2ap_handle_msg_fp_xapp (*handle_msg)[len]
   (*handle_msg)[E42_RIC_SUBSCRIPTION_DELETE_REQUEST] = e2ap_handle_e42_subscription_delete_request_xapp;
 
   (*handle_msg)[E42_RIC_CONTROL_REQUEST] = e2ap_handle_e42_ric_control_request_xapp;
+  (*handle_msg)[E42_UPDATE_E2_NODE] = e2ap_handle_e42_update_e2_node_xapp;
 
   (*handle_msg)[E2AP_RESET_REQUEST] = e2ap_handle_reset_request_xapp;
   (*handle_msg)[E2AP_RESET_RESPONSE] = e2ap_handle_reset_response_xapp;
@@ -162,7 +165,7 @@ e2ap_msg_t e2ap_msg_handle_xapp(e42_xapp_t* xapp, const e2ap_msg_t* msg)
   return ans;
 }
 
-// E2 -> RIC 
+// E2 -> RIC
  e2ap_msg_t e2ap_handle_subscription_failure_xapp(e42_xapp_t* xapp, const e2ap_msg_t* msg)
 {
   assert(xapp != NULL);
@@ -251,10 +254,10 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
 
   msg_dispatch_t msg_disp = {.rd.type = INDICATION_MSG_AGENT_IF_ANS_V0 };
   msg_disp.rd.ind = sm->proc.on_indication(sm, &ind_data);
-  assert(msg_disp.rd.ind.type == MAC_STATS_V0 || msg_disp.rd.ind.type == RLC_STATS_V0 
-      || msg_disp.rd.ind.type == PDCP_STATS_V0 || msg_disp.rd.ind.type == SLICE_STATS_V0 
+  assert(msg_disp.rd.ind.type == MAC_STATS_V0 || msg_disp.rd.ind.type == RLC_STATS_V0
+      || msg_disp.rd.ind.type == PDCP_STATS_V0 || msg_disp.rd.ind.type == SLICE_STATS_V0
       || msg_disp.rd.ind.type == KPM_STATS_V3_0 || msg_disp.rd.ind.type == GTP_STATS_V0
-      || msg_disp.rd.ind.type == RAN_CTRL_STATS_V1_03);
+      || msg_disp.rd.ind.type == RAN_CTRL_STATS_V1_03 || msg_disp.rd.ind.type == CCC_STATS_V3_0);
   
   act_proc_ans_t ans = find_act_proc(&xapp->act_proc, src->ric_id.ric_req_id);
 
@@ -263,14 +266,17 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
     printf("ric_req_id = %d not in the registry. Spuriosly can happen.\n",  src->ric_id.ric_req_id);
     free_sm_ag_if_rd(&msg_disp.rd);
   } else {
-   
-   // Write to SQL DB
-   write_db_xapp(&xapp->db, &ans.val.e2_node, &msg_disp.rd);
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
+  if(xapp->db.handler != NULL){
+    write_db_xapp(&xapp->db, &ans.val.e2_node ,&msg_disp.rd);
+  }
+#endif
 
     // Write to the callback. Should I send the E2 Node info to the cb??
     msg_disp.sm_cb = ans.val.sm_cb;
+    msg_disp.e2_node = cp_global_e2_node_id(&ans.val.e2_node);
     send_msg_dispatcher(&xapp->msg_disp, &msg_disp );
- }
+  }
 
   e2ap_msg_t ret = {.type = NONE_E2_MSG_TYPE };
   return ret;
@@ -284,7 +290,7 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
   assert(msg->type == RIC_CONTROL_ACKNOWLEDGE);
 
   ric_control_acknowledge_t const* ack = &msg->u_msgs.ric_ctrl_ack;
-#ifdef E2AP_V1 
+#ifdef E2AP_V1
   assert( ack->status == RIC_CONTROL_STATUS_SUCCESS && "Only success supported ") ;
 #endif
   act_proc_ans_t rv = find_act_proc(&xapp->act_proc, ack->ric_id.ric_req_id);
@@ -302,8 +308,8 @@ sm_ind_data_t ind_sm_payload(ric_indication_t const* src)
   // Unblock UI thread  
   signal_sync_ui(&xapp->sync);
 
-  // If the answer of control_ack is needed 
-  // use the field ack->control_outcome 
+  // If the answer of control_ack is needed
+  // use the field ack->control_outcome
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans;
@@ -346,7 +352,7 @@ e2ap_msg_t e2ap_handle_e42_setup_response_xapp(e42_xapp_t* xapp, const e2ap_msg_
 
   if(xapp->connected == true){
     e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
-    return ans; 
+    return ans;
   }
   assert(xapp->connected == false);
 
@@ -520,7 +526,7 @@ e2ap_msg_t e2ap_handle_e42_ric_subscription_request_xapp(struct e42_xapp_s* xapp
   defer({ free_byte_array(ba_msg) ;}; );
 
   // A pending event is created along with a timer of 5000 ms,
-  // after which an event will be triggered. The answer needs to arrive before 
+  // after which an event will be triggered. The answer needs to arrive before
   // the timer expires
   pending_event_xapp_t ev = {.ev = E42_RIC_SUBSCRIPTION_REQUEST_PENDING_EVENT, 
                               .id = e42_sr->sr.ric_id,
@@ -589,3 +595,59 @@ e2ap_msg_t e2ap_handle_e42_ric_control_request_xapp(e42_xapp_t* xapp, const e2ap
   return ans;
 }
 
+e2ap_msg_t e2ap_handle_e42_update_e2_node_xapp(e42_xapp_t* xapp, const e2ap_msg_t* msg)
+{
+  assert(xapp != NULL);
+  assert(msg != NULL);
+  assert(msg->type == E42_UPDATE_E2_NODE);
+
+  e42_update_e2_node_t const* sr = &msg->u_msgs.e42_updt_e2_node;
+
+  printf("[xApp]: E42 UPDATE-E2-NODE received\n");
+
+  *(uint16_t*)&xapp->id = sr->xapp_id;
+  printf("[xApp]: xApp ID = %u \n", sr->xapp_id);
+
+  // mir what you want to do is extend the reg_e2_nodes struct which is basically a rb_tree with an
+  // update_or_insert_reg_e2_nodes function.
+  // There you first check if the node is already registered with a find function.
+  // And you either update it or call insert
+  // Also think that this code needs to be thread safe
+  // The level of abstraction does not belong to this function
+  //
+
+  e2_node_arr_t cur_nodes = generate_e2_node_arr(&xapp->e2_nodes);
+  defer( {  free_e2_node_arr(&cur_nodes);  }  );
+
+  size_t cur_nodes_len = cur_nodes.len;
+  size_t update_nodes_len = sr->len_e2_nodes_conn;
+  // 1) remove all the existing e2 nodes from tree
+  for(size_t i = 0; i < cur_nodes_len; ++i) {
+    global_e2_node_id_t const* id = &cur_nodes.n[i].id;
+    rm_reg_e2_node(&xapp->e2_nodes, id);
+  }
+
+  // 2) copy the e2 node info from e42 update msg to xapp
+  for(size_t i = 0; i < update_nodes_len; ++i) {
+      global_e2_node_id_t const* id = &sr->nodes[i].id;
+    if (!find_reg_e2_node(&xapp->e2_nodes, id)) {
+      //printf("[xApp]: haven't registered e2 node, nb_id = %d\n", &sr->nodes[i].id.nb_id.nb_id);
+      const size_t len = sr->nodes[i].len_rf;
+      ran_function_t* rf = sr->nodes[i].ack_rf;
+      #ifdef E2AP_V1
+            add_reg_e2_node_v1(&xapp->e2_nodes, id, len, rf);
+      #elif defined(E2AP_V2) || defined(E2AP_V3)
+            add_reg_e2_node(&xapp->e2_nodes, id, len, rf, sr->nodes[i].len_cca, sr->nodes[i].cca);
+      #else
+            static_assert(0 !=0, "Unknown E2AP version");
+      #endif
+      printf("[xApp]: Registered E2 Nodes = %ld \n",   sz_reg_e2_node(&xapp->e2_nodes) );
+    } else {
+      printf("[xApp]: Already registered E2 Node, nb_id = %d\n", sr->nodes[i].id.nb_id.nb_id);
+    }
+  }
+
+
+  e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
+  return ans;
+}

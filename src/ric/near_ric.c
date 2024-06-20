@@ -47,24 +47,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/*
-static inline
-void free_sm_ric(void* key, void* value)
-{
-  assert(key != NULL);
-  assert(value != NULL);
-
-  sm_ric_t* sm = (sm_ric_t*)value;
-
-  void* handle = sm->handle;
-  sm->free_sm(sm);
-
-  if(handle != NULL)
-      dlclose(handle);
-}
-*/
-
-
 static inline
 void free_fd(void* key, void* value)
 {
@@ -132,10 +114,10 @@ void load_default_pub_sub_ric(near_ric_t* ric)
   void* end_it = assoc_end(&ric->plugin.sm_ds);
   while(it != end_it){
     const uint16_t *ran_func_id = assoc_key(&ric->plugin.sm_ds, it);
-
+#ifdef STDOUT_LOG
     subs_ric_t std_listener = {.name = "stdout listener", .fp = notify_stdout_listener };
     register_listeners_for_ran_func_id(ric, ran_func_id, std_listener);
-
+#endif
     subs_ric_t redis_listener = {.name = "redis listener", .fp = notify_redis_listener };
     register_listeners_for_ran_func_id(ric, ran_func_id, redis_listener);
 
@@ -220,12 +202,8 @@ near_ric_t* init_near_ric(fr_args_t const* args)
   near_ric_t* ric = calloc(1, sizeof(near_ric_t));
   assert(ric != NULL);
 
-  char* addr = get_near_ric_ip(args);
-  defer({ free(addr); } );
-
-  const int port = 36421;
-  printf("[NEAR-RIC]: nearRT-RIC IP Address = %s, PORT = %d\n", addr, port);
-  e2ap_init_ep_ric(&ric->ep, addr, port);
+  printf("[NEAR-RIC]: nearRT-RIC IP Address = %s, PORT = %d\n", args->ip, args->e2_port);
+  e2ap_init_ep_ric(&ric->ep, args->ip, args->e2_port);
 
   init_asio_ric(&ric->io); 
 
@@ -247,7 +225,7 @@ near_ric_t* init_near_ric(fr_args_t const* args)
   init_pending_events(ric);
 
   near_ric_if_t ric_if = {.type = ric};
-  init_iapp_api(addr, ric_if);
+  init_iapp_api(args->ip, args->e42_port, ric_if);
 
   uint32_t const num_threads = TASK_MAN_NUMBER_THREADS;
   printf("[NEAR-RIC]: Initializing Task Manager with %u threads \n", num_threads);
@@ -377,21 +355,21 @@ async_event_arr_t next_asio_event_ric(near_ric_t* ric)
   // No event happened. Just for checking the stop_token condition
   // Early return
   if(fd_read.len == -1){
-    arr.ev[0].type = CHECK_STOP_TOKEN_EVENT; 
+    arr.ev[0].type = CHECK_STOP_TOKEN_EVENT;
     arr.len = 1;
     return arr;
-  } 
+  }
 
   arr.len = fd_read.len;
   for(int i = 0; i < arr.len; ++i){
-    async_event_t* dst = &arr.ev[i]; 
+    async_event_t* dst = &arr.ev[i];
     if (net_pkt(&ric->ep.base, fd_read.fd[i]) == true){
       dst->msg = e2ap_recv_msg_ric(&ric->ep);
       if(dst->msg.type == SCTP_MSG_NOTIFICATION ){
         dst->type = SCTP_CONNECTION_SHUTDOWN_EVENT;
       } else if (dst->msg.type == SCTP_MSG_PAYLOAD){
         dst->type = SCTP_MSG_ARRIVED_EVENT;
-      } else { 
+      } else {
         assert(0!=0 && "Unknown type");
       }
     } else if (pend_event(ric,fd_read.fd[i], &dst->p_ev) == true){
@@ -422,7 +400,7 @@ void sctp_msg_arrived_event(void* arg)
   sctp_msg_t const* sctp_msg = &ric_ev->msg;
   defer({free_sctp_msg((sctp_msg_t*)sctp_msg);});
 
-  e2ap_msg_t const msg = e2ap_msg_dec_ric(&ric->ap, sctp_msg->ba); 
+  e2ap_msg_t const msg = e2ap_msg_dec_ric(&ric->ap, sctp_msg->ba);
   defer({e2ap_msg_free_ric(&ric->ap, (e2ap_msg_t*)&msg); } );
 
   if(msg.type == E2_SETUP_REQUEST){
@@ -435,10 +413,10 @@ void sctp_msg_arrived_event(void* arg)
   defer({e2ap_msg_free_ric(&ric->ap, &ans);});
 
   if(ans.type != NONE_E2_MSG_TYPE){
-    sctp_msg_t sctp_msg2 = { .info = sctp_msg->info }; 
+    sctp_msg_t sctp_msg2 = { .info = sctp_msg->info };
     defer({free_sctp_msg(&sctp_msg2);});
 
-    sctp_msg2.ba = e2ap_msg_enc_ric(&ric->ap, &ans); 
+    sctp_msg2.ba = e2ap_msg_enc_ric(&ric->ap, &ans);
     e2ap_send_sctp_msg_ric(&ric->ep, &sctp_msg2);
   }
 }
@@ -449,17 +427,17 @@ void e2_event_loop_ric(near_ric_t* ric)
   assert(ric != NULL);
   while(ric->stop_token == false){ 
 
-    async_event_arr_t arr = next_asio_event_ric(ric); 
+    async_event_arr_t arr = next_asio_event_ric(ric);
     assert(arr.len > 0 && arr.len < 65);
     for(int i = 0; i < arr.len; ++i){
-      async_event_t e = arr.ev[i]; 
+      async_event_t e = arr.ev[i];
       assert(e.type != UNKNOWN_EVENT && "Unknown event triggered ");
 
       switch(e.type)
       {
         case SCTP_MSG_ARRIVED_EVENT:
           {
-            ric_sctp_msg_t* ric_sctp = calloc(1, sizeof( ric_sctp_msg_t)); 
+            ric_sctp_msg_t* ric_sctp = calloc(1, sizeof( ric_sctp_msg_t));
             assert(ric_sctp != NULL && "Memory exhausted");
             ric_sctp->ric = ric;
             // Pass ownership
@@ -476,7 +454,7 @@ void e2_event_loop_ric(near_ric_t* ric)
 
             break;
           }
-        case SCTP_CONNECTION_SHUTDOWN_EVENT: 
+        case SCTP_CONNECTION_SHUTDOWN_EVENT:
           {
             defer({free_sctp_msg(&e.msg);});
             notification_handle_ric(ric, &e.msg);
@@ -735,7 +713,7 @@ void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, ui
   assert(ctrl != NULL);
 
 //  assert(ran_func_id == SM_RC_ID || ran_func_id == SM_SLICE_ID || ran_func_id == SM_TC_ID );
-  assert(ran_func_id == 3 || ran_func_id == 145 || ran_func_id == 146);
+  assert(ran_func_id == 3 || ran_func_id == 145 || ran_func_id == 146 || ran_func_id == 4);
 
   sm_ric_t* sm = sm_plugin_ric(&ric->plugin ,ran_func_id); 
 
@@ -745,7 +723,7 @@ void control_service_near_ric(near_ric_t* ric, global_e2_node_id_t const* id, ui
   // after which an event will be generated
   pending_event_ric_t ev = {.ev = CONTROL_REQUEST_PENDING_EVENT, .id = ctrl_req.ric_id };
 
-  long const wait_ms = 3000;
+  long const wait_ms = 5000;
   int fd_timer = create_timer_ms_asio_ric(&ric->io, wait_ms, wait_ms); 
   //printf("RIC: Control fd_timer for control with value created == %d\n", fd_timer);
 
@@ -846,7 +824,7 @@ void fwd_ric_subscription_request_delete(near_ric_t* ric, global_e2_node_id_t co
   {
     lock_guard(&ric->pend_mtx);
 
-    // left: fd, right: pending_event_t 
+    // left: fd, right: pending_event_t
     assoc_rb_tree_t* tree = &ric->pending.right;
 
     void* first = assoc_front(tree);
@@ -857,7 +835,7 @@ void fwd_ric_subscription_request_delete(near_ric_t* ric, global_e2_node_id_t co
     }
 
     long const wait_ms = 3000;
-    int fd_timer = create_timer_ms_asio_ric(&ric->io, wait_ms, wait_ms); 
+    int fd_timer = create_timer_ms_asio_ric(&ric->io, wait_ms, wait_ms);
     bi_map_insert(&ric->pending, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev)); 
   }
 

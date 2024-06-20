@@ -1,0 +1,140 @@
+{
+  "eventTriggerDefinitionFormat": {
+    "listOfCellLevelConfigurationStructuresForEventTrigger": [
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "723654191",
+          "plmnIdentity": {
+            "mcc": "483",
+            "mnc": "46"
+          }
+        },
+        "listOfRANConfigurationStructuresForEventTrigger": [
+          {
+            "listOfAttributes": [
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name",
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name",
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          }
+        ]
+      },
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "514189380",
+          "plmnIdentity": {
+            "mcc": "603",
+            "mnc": "43"
+          }
+        },
+        "listOfRANConfigurationStructuresForEventTrigger": [
+          {
+            "listOfAttributes": [
+              "attribute_name",
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          }
+        ]
+      },
+      {
+        "cellGlobalId": {
+          "nRCellIdentity": "535334012",
+          "plmnIdentity": {
+            "mcc": "529",
+            "mnc": "14"
+          }
+        },
+        "listOfRANConfigurationStructuresForEventTrigger": [
+          {
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name",
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name",
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          },
+          {
+            "listOfAttributes": [
+              "attribute_name"
+            ],
+            "ranConfigurationStructureName": "test"
+          }
+        ]
+      }
+    ]
+  }
+}

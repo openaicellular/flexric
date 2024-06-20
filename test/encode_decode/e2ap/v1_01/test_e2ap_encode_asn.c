@@ -270,7 +270,7 @@ void test_e2_setup_request()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -285,8 +285,8 @@ void test_e2_setup_request()
   ran_func_item[0].rev = 0;
   const char* def = "This is the possible deficniotn";
   ran_func_item[0].defn.buf = malloc(strlen(def));
-  memcpy(ran_func_item[0].defn.buf, def, strlen(def)); 
-  ran_func_item[0].defn.len = strlen(def); 
+  memcpy(ran_func_item[0].defn.buf, def, strlen(def));
+  ran_func_item[0].defn.len = strlen(def);
 
 
   e2_node_component_config_update_t* comp_conf_update = NULL;

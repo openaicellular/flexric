@@ -9,16 +9,18 @@ else()
   message(FATAL_ERROR "E2AP V2 and V3 not implemented")
 endif()
 
-add_library(e2ap_ds_obj OBJECT 
-                        byte_array.c 
+add_library(e2ap_ds_obj OBJECT
+                        alg_ds/ds/assoc_container/assoc_rb_tree.c
+                        alg_ds/ds/assoc_container/assoc_ht_open_address.c
+                        alg_ds/ds/assoc_container/assoc_reg.c
+                        alg_ds/ds/assoc_container/bimap.c
+                        alg_ds/ds/latch_cv/latch_cv.c
                         alg_ds/ds/seq_container/seq_arr.c
                         alg_ds/ds/seq_container/seq_ring.c
-                        alg_ds/ds/assoc_container/assoc_rb_tree.c
-                        alg_ds/ds/assoc_container/bimap.c
-                        alg_ds/ds/assoc_container/assoc_reg.c
-                        alg_ds/ds/tsn_queue/tsn_queue.c
-                        alg_ds/ds/tsq/tsq.c
                         alg_ds/ds/task_man/task_manager.c
+                        alg_ds/ds/tsq/tsq.c
+                        alg_ds/ds/tsn_queue/tsn_queue.c
+                        byte_array.c 
                         )
 
 add_library(e2ap_alg_obj OBJECT 
@@ -35,15 +37,20 @@ add_library(e2ap_alg_obj OBJECT
                         $<TARGET_OBJECTS:e2ap_ds_obj>
                         )
 
-add_library(e2_conf_obj OBJECT 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LibConfig REQUIRED libconfig)
+add_library(e2_conf_obj OBJECT
                         conf_file.c
                         )
+target_include_directories(e2_conf_obj PRIVATE ${LibConfig_INCLUDE_DIR})
+target_link_libraries(e2_conf_obj PRIVATE ${LibConfig_LIBRARY})
+target_compile_definitions(e2_conf_obj PRIVATE ${XAPP_DB})
 
-add_library(e2_conv_obj OBJECT 
+add_library(e2_conv_obj OBJECT
                         conversions.c
                         )
 
-
+target_compile_options(e2_conv_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC -fvisibility=hidden )
 
 
 add_library(e2_time_obj OBJECT 
@@ -51,6 +58,6 @@ add_library(e2_time_obj OBJECT
                         )
 
 add_library(e2_ngran_obj OBJECT
-                         ngran_types.c
+                         e2ap_ngran_type.c
                          )
 

@@ -28,8 +28,10 @@ asn_TYPE_operation_t asn_OP_CHOICE = {
     0,
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 #if !defined(ASN_DISABLE_JER_SUPPORT)
+    CHOICE_decode_jer,
     CHOICE_encode_jer,
 #else
+    0,
     0,
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -154,12 +156,13 @@ CHOICE_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
 void
 CHOICE_free(const asn_TYPE_descriptor_t *td, void *ptr,
             enum asn_struct_free_method method) {
-    const asn_CHOICE_specifics_t *specs =
-        (const asn_CHOICE_specifics_t *)td->specifics;
+    const asn_CHOICE_specifics_t *specs;
     unsigned present;
 
 	if(!td || !ptr)
 		return;
+
+    specs = (const asn_CHOICE_specifics_t *)td->specifics;
 
 	ASN_DEBUG("Freeing %s as CHOICE", td->name);
 

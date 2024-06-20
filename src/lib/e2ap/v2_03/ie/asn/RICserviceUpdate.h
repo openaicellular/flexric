@@ -21,7 +21,7 @@ extern "C" {
 
 /* RICserviceUpdate */
 typedef struct RICserviceUpdate {
-	ProtocolIE_Container_2148P28_t	 protocolIEs;
+	ProtocolIE_Container_2161P28_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

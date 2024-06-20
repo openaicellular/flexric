@@ -1,0 +1,153 @@
+{
+  "controlOutcomeFormat": {
+    "ranConfigurationStructuresAcceptedList": [
+      {
+        "appliedTimestamp": "app_timestamp",
+        "currentValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbId": 1989441800,
+            "gnbIdLength": 67,
+            "gnbDuId": 562367797,
+            "gnbDuName": "gnb_du_name"
+          }
+        },
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbId": 1490255181,
+            "gnbIdLength": 99,
+            "gnbDuId": 269747188,
+            "gnbDuName": "gnb_du_name"
+          }
+        },
+        "ranConfigurationStructureName": "O-GNBDUFunction"
+      },
+      {
+        "appliedTimestamp": "app_timestamp",
+        "currentValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbId": 897242057,
+            "gnbIdLength": 207,
+            "gnbCuUpId": 68320742,
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "463",
+                  "mnc": "59"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 84
+                }
+              }
+            ]
+          }
+        },
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbId": 264931003,
+            "gnbIdLength": 32,
+            "gnbCuUpId": 1297012133,
+            "plmnInfoList": [
+              {
+                "plmnId": {
+                  "mcc": "714",
+                  "mnc": "82"
+                }
+              }
+            ]
+          }
+        },
+        "ranConfigurationStructureName": "O-GNBCUUPFunction"
+      }
+    ],
+    "ranConfigurationStructuresFailedList": [
+      {
+        "cause": "SemanticError",
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "bwpContext": "DL",
+            "cyclicPrefix": "120",
+            "isInitialBwp": "INITIAL",
+            "numberOfRBs": 619,
+            "startRB": 457,
+            "subCarrierSpacing": 30
+          }
+        },
+        "ranConfigurationStructureName": "O-BWP",
+        "requestedValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "bwpContext": "UL",
+            "cyclicPrefix": "30",
+            "isInitialBwp": "INITIAL",
+            "numberOfRBs": 724,
+            "startRB": 605,
+            "subCarrierSpacing": 120
+          }
+        }
+      },
+      {
+        "cause": "IncompatibleState",
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "resourceType": "DRB",
+            "rRMPolicyDedicatedRatio": 91,
+            "rRMPolicyMaxRatio": 147,
+            "rRMPolicyMemberList": [
+              {
+                "plmnId": {
+                  "mcc": "270",
+                  "mnc": "19"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 70
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "992",
+                  "mnc": "46"
+                },
+                "snssai": {
+                  "sd": "786432",
+                  "sst": 84
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "290",
+                  "mnc": "22"
+                }
+              }
+            ],
+            "rRMPolicyMinRatio": 231
+          }
+        },
+        "ranConfigurationStructureName": "O-RRMPolicyRatio",
+        "requestedValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "resourceType": "RRC",
+            "rRMPolicyDedicatedRatio": 90,
+            "rRMPolicyMaxRatio": 138,
+            "rRMPolicyMemberList": [
+              {
+                "plmnId": {
+                  "mcc": "773",
+                  "mnc": "61"
+                }
+              },
+              {
+                "plmnId": {
+                  "mcc": "459",
+                  "mnc": "53"
+                }
+              }
+            ],
+            "rRMPolicyMinRatio": 81
+          }
+        }
+      }
+    ],
+    "receivedTimestamp": "rev_timestamp"
+  }
+}

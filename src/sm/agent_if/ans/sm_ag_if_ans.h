@@ -29,6 +29,20 @@
 #include "../../tc_sm/ie/tc_data_ie.h"
 #include "../../gtp_sm/ie/gtp_data_ie.h"
 #include "../../rc_sm/ie/rc_data_ie.h"
+#include "../../ccc_sm/ie/ccc_data_ie.h"
+
+#include "../write/subscription_aperiod.h"
+#include "../write/subscription_period.h"
+#include "../../sm_proc_data.h"
+
+typedef enum {
+  CTRL_OUTCOME_SM_AG_IF_ANS_V0,
+  SUBS_OUTCOME_SM_AG_IF_ANS_V0,
+
+  NONE_SM_AG_IF_ANS_V0,
+
+  END_SM_AG_IF_ANS_V0,
+} sm_ag_if_ans_e;
 
 ////////////////////
 // Control Outcome
@@ -42,6 +56,7 @@ typedef enum{
   TC_AGENT_IF_CTRL_ANS_V0,
   GTP_AGENT_IF_CTRL_ANS_V0,
   RAN_CTRL_V1_3_AGENT_IF_CTRL_ANS_V0,
+  CCC_V3_0_AGENT_IF_CTRL_ANS_V0,
 
   SM_AGENT_IF_CTRL_ANS_V0_END,
 } sm_ag_if_ans_ctrl_e;
@@ -56,20 +71,42 @@ typedef struct{
     tc_ctrl_out_t tc;
     gtp_ctrl_out_t gtp;
     e2sm_rc_ctrl_out_t rc;
+    e2sm_ccc_ctrl_out_t ccc;
   };
 } sm_ag_if_ans_ctrl_t;
 
-typedef enum {
-  CTRL_OUTCOME_SM_AG_IF_ANS_V0,
-  NONE_SM_AG_IF_ANS_V0,
 
-  END_SM_AG_IF_ANS_V0,
-} sm_ag_if_ans_e;
+typedef enum{
+  PERIODIC_SUBSCRIPTION_FLRC,
+  APERIODIC_SUBSCRIPTION_FLRC,
+  // 7.4.6
+  // REPORT Service Style 5: On Demand Report
+  // Snapshot of one indicaiton message
+  ON_DEMAND_REPORT_RC_SM_FLRC,
+
+  END_SUBSCRIPTION__FLRC
+} subscription_ans_e;
+
+////////////////////
+// Subscription Outcome
+////////////////////
+
+typedef struct{
+  subscription_ans_e type;
+  union {
+    susbcription_period_t per;
+    susbcription_aperiod_t aper;
+    exp_ind_data_t rc_ind;
+  };
+
+} sm_ag_if_ans_subs_t;
+
 
 typedef struct{
   sm_ag_if_ans_e type; 
   union{
     sm_ag_if_ans_ctrl_t ctrl_out;
+    sm_ag_if_ans_subs_t subs_out;
   };
 } sm_ag_if_ans_t; 
 

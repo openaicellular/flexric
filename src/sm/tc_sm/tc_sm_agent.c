@@ -32,7 +32,7 @@ typedef struct{
 // E2 Setup and RIC Service Update. 
 //
 static
-subscribe_timer_t on_subscription_tc_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
+sm_ag_if_ans_subs_t on_subscription_tc_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 {
   assert(sm_agent != NULL);
   assert(data != NULL);
@@ -41,15 +41,17 @@ subscribe_timer_t on_subscription_tc_sm_ag(sm_agent_t const* sm_agent, const sm_
  
   tc_event_trigger_t ev = tc_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
 
-  subscribe_timer_t timer = {.ms = ev.ms };
-  return timer;
+  sm_ag_if_ans_subs_t ans = {.type = PERIODIC_SUBSCRIPTION_FLRC }; 
+  ans.per.t.ms = ev.ms;
+  return ans;
 }
 
 static
-exp_ind_data_t on_indication_tc_sm_ag(sm_agent_t const* sm_agent, void* act_def)
+exp_ind_data_t on_indication_tc_sm_ag(sm_agent_t const* sm_agent, on_ind_t on_ind)
 {
   assert(sm_agent != NULL);
-  assert(act_def == NULL && "Action definition data not needed for this SM");
+  assert(on_ind.type == PERIODIC_ON_INDICATION_EVENT);
+  assert(on_ind.act_def == NULL && "Action definition data not needed for this SM");
   sm_tc_agent_t* sm = (sm_tc_agent_t*)sm_agent;
 
   exp_ind_data_t ret = {.has_value = true};
@@ -133,7 +135,7 @@ sm_e2_setup_data_t on_e2_setup_tc_sm_ag(sm_agent_t const* sm_agent)
   assert(setup.ran_fun_def != NULL);
 
   memcpy(setup.ran_fun_def, SM_TC_STR , sz);
- 
+
  // RAN Function
 //  setup.rf.def = cp_str_to_ba(SM_TC_SHORT_NAME);
 //  setup.rf.id = SM_TC_ID;
@@ -180,7 +182,7 @@ char const* def_tc_sm_ag(void)
 static
 uint16_t id_tc_sm_ag(void)
 {
-  return SM_TC_ID; 
+  return SM_TC_ID;
 }
 
   // Revision
@@ -203,7 +205,7 @@ sm_agent_t* make_tc_sm_agent(sm_io_ag_ran_t io)
   sm_tc_agent_t* sm = calloc(1, sizeof(sm_tc_agent_t));
   assert(sm != NULL && "Memory exhausted!!!");
 
-//  *(uint16_t*)(&sm->base.ran_func_id) = SM_TC_ID; 
+//  *(uint16_t*)(&sm->base.ran_func_id) = SM_TC_ID;
 
 //  sm->base.io = io;
 
@@ -231,9 +233,9 @@ sm_agent_t* make_tc_sm_agent(sm_io_ag_ran_t io)
   sm->base.info.rev = rev_tc_sm_ag;
   sm->base.info.oid = oid_tc_sm_ag;
 
-//  *(uint16_t*)(&sm->base.ran_func_id) = SM_TC_ID; 
+//  *(uint16_t*)(&sm->base.ran_func_id) = SM_TC_ID;
 //  assert(strlen(SM_TC_STR) < sizeof( sm->base.ran_func_name) );
-//  memcpy(sm->base.ran_func_name, SM_TC_STR, strlen(SM_TC_STR)); 
+//  memcpy(sm->base.ran_func_name, SM_TC_STR, strlen(SM_TC_STR));
 
   return &sm->base;
 }

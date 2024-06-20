@@ -51,9 +51,9 @@ sm_subs_data_t on_subscription_mac_sm_ric(sm_ric_t const* sm_ric, void* cmd)
   assert(sm_ric != NULL); 
   assert(cmd != NULL); 
 
-  sm_mac_ric_t* sm = (sm_mac_ric_t*)sm_ric;  
+  sm_mac_ric_t* sm = (sm_mac_ric_t*)sm_ric;
  
-  mac_sub_data_t mac = {0}; 
+  mac_sub_data_t mac = {0};
 
   const int max_str_sz = 10;
   if(strncmp(cmd, "1_ms", max_str_sz) == 0 ){
@@ -64,12 +64,16 @@ sm_subs_data_t on_subscription_mac_sm_ric(sm_ric_t const* sm_ric, void* cmd)
     mac.et.ms = 5;
   } else if (strncmp(cmd, "10_ms", max_str_sz) == 0 ) {
     mac.et.ms = 10;
+  } else if (strncmp(cmd, "100_ms", max_str_sz) == 0 ) {
+    mac.et.ms = 100;
+  } else if (strncmp(cmd, "1000_ms", max_str_sz) == 0 ) {
+    mac.et.ms = 1000;
   } else {
     assert(0 != 0 && "Invalid input");
   }
-  
+
   // Event trigger
-  const byte_array_t ba = mac_enc_event_trigger(&sm->enc, &mac.et); 
+  const byte_array_t ba = mac_enc_event_trigger(&sm->enc, &mac.et);
 
   sm_subs_data_t data = {0}; 
   
@@ -100,7 +104,7 @@ sm_ag_if_rd_ind_t on_indication_mac_sm_ric(sm_ric_t const* sm_ric, sm_ind_data_t
   rd_if.mac.msg = mac_dec_ind_msg(&sm->enc, data->len_msg, data->ind_msg);
 
   //  call_process_id
-  assert(data->call_process_id == NULL && "not implemented"); 
+  assert(data->call_process_id == NULL && "not implemented");
   rd_if.mac.proc_id = NULL;
 
   return rd_if;
@@ -110,12 +114,12 @@ static
 sm_ctrl_req_data_t ric_on_control_req_mac_sm_ric(sm_ric_t const* sm_ric, void* ctrl)
 {
   assert(sm_ric != NULL); 
-  assert(ctrl != NULL); 
-  mac_ctrl_req_data_t const* req = (mac_ctrl_req_data_t const*)ctrl;
-  assert(req->hdr.dummy == 1);
-  assert(req->msg.action == 42);
+  assert(ctrl != NULL);
 
-  sm_mac_ric_t* sm = (sm_mac_ric_t*)sm_ric;  
+  sm_mac_ric_t* sm = (sm_mac_ric_t*)sm_ric;
+
+  sm_ag_if_wr_t* wr = (sm_ag_if_wr_t*)ctrl;
+  mac_ctrl_req_data_t const* req = &wr->ctrl.mac_ctrl;
 
   byte_array_t ba = mac_enc_ctrl_hdr(&sm->enc, &req->hdr);
   
@@ -138,7 +142,7 @@ sm_ag_if_ans_ctrl_t ric_on_control_out_mac_sm_ric(sm_ric_t const* sm_ric,const s
 
   sm_mac_ric_t* sm = (sm_mac_ric_t*)sm_ric;  
 
-  sm_ag_if_ans_ctrl_t ag_if = {.type =  MAC_AGENT_IF_CTRL_ANS_V0};  
+  sm_ag_if_ans_ctrl_t ag_if = {.type =  MAC_AGENT_IF_CTRL_ANS_V0};
   ag_if.mac = mac_dec_ctrl_out(&sm->enc, out->len_out, out->ctrl_out);
   assert(ag_if.mac.ans ==  MAC_CTRL_OUT_OK);
 
@@ -149,12 +153,17 @@ static
 sm_ag_if_rd_e2setup_t ric_on_e2_setup_mac_sm_ric(sm_ric_t const* sm_ric, sm_e2_setup_data_t const* setup)
 {
   assert(sm_ric != NULL); 
-  assert(setup == NULL); 
-//  sm_mac_ric_t* sm = (sm_mac_ric_t*)sm_ric;  
+  assert(setup != NULL);
 
-  assert(0!=0 && "Not implemented");
+  sm_ag_if_rd_e2setup_t dst = {.type = MAC_AGENT_IF_E2_SETUP_ANS_V0 };
 
-  sm_ag_if_rd_e2setup_t dst = {0}; 
+  dst.mac.func_def.len = setup->len_rfd;
+  if(dst.mac.func_def.len > 0){
+    dst.mac.func_def.buf = calloc(dst.mac.func_def.len, sizeof(uint8_t));
+    assert(dst.mac.func_def.buf != NULL && "Memory exhausted");
+    memcpy(dst.mac.func_def.buf, setup->ran_fun_def, setup->len_rfd);
+  }
+
   return dst;
 }
 
@@ -163,8 +172,8 @@ static
 sm_ag_if_rd_rsu_t on_ric_service_update_mac_sm_ric(sm_ric_t const* sm_ric, sm_ric_service_update_data_t const* rsu)
 {
   assert(sm_ric != NULL); 
-  assert(  rsu != NULL); 
-  //  sm_mac_ric_t* sm = (sm_mac_ric_t*)sm_ric;  
+  assert(  rsu != NULL);
+  //  sm_mac_ric_t* sm = (sm_mac_ric_t*)sm_ric;
 
   assert(0!=0 && "Not implemented");
   sm_ag_if_rd_rsu_t dst = {0};

@@ -70,6 +70,8 @@ set(ASN_MODULE_SRCS
   ENB-UE-X2AP-ID.c
   ENB-UE-X2AP-ID-Extension.c
   EN-GNB-ID.c
+  ENUMERATED_aper.c
+  ENUMERATED.c
   E-UTRA-ARFCN.c
   EUTRACellIdentity.c
   EUTRA-CGI.c
@@ -245,5 +247,5 @@ target_include_directories(e2sm_kpm_asn1_obj
                            )
 
 target_compile_options(e2sm_kpm_asn1_obj PRIVATE "-DASN_DISABLE_OER_SUPPORT" "-DASN_DISABLE_JER_SUPPORT")
-target_compile_options(e2sm_kpm_asn1_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC)
+target_compile_options(e2sm_kpm_asn1_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC -fvisibility=hidden)
 

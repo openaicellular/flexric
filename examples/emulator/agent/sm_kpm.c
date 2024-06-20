@@ -3,6 +3,7 @@
 #include "../../../src/util/time_now_us.h"
 #include "../../../src/util/alg_ds/alg/murmur_hash_32.h"
 #include "../../../src/util/alg_ds/ds/assoc_container/assoc_generic.h"
+#include "../../../src/util/e.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -11,7 +12,7 @@
 static
 meas_record_lst_t fill_rnd_int_data(void)
 {
-  meas_record_lst_t dst = {0}; 
+  meas_record_lst_t dst = {0};
 
   dst.value = INTEGER_MEAS_VALUE;
   dst.int_val = rand()%1024;
@@ -24,12 +25,12 @@ meas_record_lst_t fill_rnd_int_data(void)
 static
 meas_record_lst_t fill_rnd_float_data(void)
 {
-  meas_record_lst_t dst = {0}; 
+  meas_record_lst_t dst = {0};
 
-  // Only 1 supported. It could change according to granularity period 
+  // Only 1 supported. It could change according to granularity period
   dst.value = REAL_MEAS_VALUE;
   dst.real_val = 5.0 + rand()%1024 /(double)((rand()%2048) + 1);
-  // printf("measurement record value %f \n", dst.meas_data_lst[i].meas_record_lst[0].real_val); 
+  // printf("measurement record value %f \n", dst.meas_data_lst[i].meas_record_lst[0].real_val);
 
   return dst;
 }
@@ -59,7 +60,7 @@ static
 }
 
 static
- meas_record_lst_t fill_DRB_UEThpDl( ue_id_e2sm_t const* ue) 
+ meas_record_lst_t fill_DRB_UEThpDl( ue_id_e2sm_t const* ue)
 {
   assert(ue != NULL);
   //printf(" fill_DRB_UEThpDl\n");
@@ -91,25 +92,62 @@ static
 }
 
 static
+meas_record_lst_t fill_WBCQIDist_BinXYZ(ue_id_e2sm_t const* ue)
+{
+  assert(ue != NULL);
+  // where X represents the index of the CQI value (0 to 15). Y represents the index of rank value (1 to 8), Z represents the index of table value (1 to 4).
+  return fill_rnd_int_data();
+}
+
+static
+meas_record_lst_t fill_PDSCHMCSDist_BinXYZ(ue_id_e2sm_t const* ue)
+{
+  assert(ue != NULL);
+  // where X represents the index of rank value (1 to 8), Y represents the index of table value (1 to 4), and Z represents the index of the MCS value (0 to 31).
+  return fill_rnd_int_data();
+}
+
+static
+meas_record_lst_t fill_PUSCHMCSDist_BinXYZ(ue_id_e2sm_t const* ue)
+{
+  assert(ue != NULL);
+  return fill_rnd_int_data();
+}
+
+static
+meas_record_lst_t fill_MeanTxPwr(ue_id_e2sm_t const* ue)
+{
+  assert(ue != NULL);
+  // TS28.552 5.1.1.29.2
+  // This measurement is obtained by retaining the mean value of the total carrier power transmitted in the cell within the measurement granularity period.
+  // The power includes all radio power transmitted, included common channels, traffic channels, control channels. The value is expressed in dBm.
+  return fill_rnd_float_data();
+}
+
+static
 assoc_ht_open_t ht;
 
 typedef meas_record_lst_t (*kpm_fp)(ue_id_e2sm_t const* ue);
 
-typedef struct{ 
-  const char* key; 
+typedef struct{
+  const char* key;
   kpm_fp value;
 } kv_measure_t;
 
 static
 const kv_measure_t lst_measure[] = {
-  (kv_measure_t){.key = "DRB.PdcpSduVolumeDL", .value = fill_DRB_PdcpSduVolumeDL }, 
-  (kv_measure_t){.key = "DRB.PdcpSduVolumeUL", .value = fill_DRB_PdcpSduVolumeUL },  
-  (kv_measure_t){.key = "DRB.RlcSduDelayDl", .value =  fill_DRB_RlcSduDelayDl }, 
-  (kv_measure_t){.key = "DRB.UEThpDl", .value =  fill_DRB_UEThpDl }, 
-  (kv_measure_t){.key = "DRB.UEThpUl", .value =  fill_DRB_UEThpUl }, 
-  (kv_measure_t){.key = "RRU.PrbTotDl", .value =  fill_RRU_PrbTotDl }, 
-  (kv_measure_t){.key = "RRU.PrbTotUl", .value =  fill_RRU_PrbTotUl }, 
-  }; 
+  (kv_measure_t){.key = "DRB.PdcpSduVolumeDL", .value = fill_DRB_PdcpSduVolumeDL },
+  (kv_measure_t){.key = "DRB.PdcpSduVolumeUL", .value = fill_DRB_PdcpSduVolumeUL },
+  (kv_measure_t){.key = "DRB.RlcSduDelayDl", .value =  fill_DRB_RlcSduDelayDl },
+  (kv_measure_t){.key = "DRB.UEThpDl", .value =  fill_DRB_UEThpDl },
+  (kv_measure_t){.key = "DRB.UEThpUl", .value =  fill_DRB_UEThpUl },
+  (kv_measure_t){.key = "RRU.PrbTotDl", .value =  fill_RRU_PrbTotDl },
+  (kv_measure_t){.key = "RRU.PrbTotUl", .value =  fill_RRU_PrbTotUl },
+  (kv_measure_t){.key = "CARR.WBCQIDist.BinX.BinY.BinZ", .value = fill_WBCQIDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.PDSCHMCSDist.BinX.BinY.BinZ", .value = fill_PDSCHMCSDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.PUSCHMCSDist.BinX.BinY.BinZ", .value = fill_PUSCHMCSDist_BinXYZ },
+  (kv_measure_t){.key = "CARR.MeanTxPwr", .value = fill_MeanTxPwr },
+  };
   // 3GPP TS 28.552
 
 static
@@ -154,7 +192,7 @@ void init_lst_measurements(void)
     char* key = calloc(sz + 1, sizeof(char));
     memcpy(key, lst_measure[i].key, sz);
 
-    kpm_fp* value = calloc(1, sizeof(kpm_fp)); 
+    kpm_fp* value = calloc(1, sizeof(kpm_fp));
     assert(value != NULL && "Memory exhausted");
     *value = lst_measure[i].value;
     assoc_insert(&ht, &key, sizeof(char*), value);
@@ -171,7 +209,9 @@ gnb_cu_up_e2sm_t fill_rnd_gnb_cu_up_data(void)
   gnb_cu_up.gnb_cu_cp_ue_e1ap = rand();
 
   // 6.2.3.25, OPTIONAL
-  gnb_cu_up.ran_ue_id = NULL;
+  gnb_cu_up.ran_ue_id = calloc(1, sizeof(uint64_t));
+  assert(gnb_cu_up.ran_ue_id != NULL && "Memory exhausted");
+  *gnb_cu_up.ran_ue_id = (rand() % 2^64) + 0;
 
   return gnb_cu_up;
 }
@@ -185,12 +225,14 @@ gnb_du_e2sm_t fill_rnd_gnb_du_data(void)
   gnb_du.gnb_cu_ue_f1ap = rand();
 
   // 6.2.3.25, OPTIONAL
-  gnb_du.ran_ue_id = NULL;
+  gnb_du.ran_ue_id = calloc(1, sizeof(uint64_t));
+  assert(gnb_du.ran_ue_id != NULL && "Memory exhausted");
+  *gnb_du.ran_ue_id = (rand() % 2^64) + 0;
 
   return gnb_du;
 }
 
-static 
+static
 gnb_e2sm_t fill_rnd_gnb_data(void)
 {
   gnb_e2sm_t gnb = {0};
@@ -208,16 +250,19 @@ gnb_e2sm_t fill_rnd_gnb_data(void)
   gnb.guami.amf_set_id = (rand() % 2^10) + 0;
   gnb.guami.amf_ptr = (rand() % 2^6) + 0;
 
+  gnb.ran_ue_id = calloc(1, sizeof(uint64_t));
+  assert(gnb.ran_ue_id != NULL && "Memory exhausted");
+  *gnb.ran_ue_id = (rand() % 2^64) + 0;
+
   // gNB-CU UE F1AP ID List
-  // C-ifCUDUseparated 
-  if (TEST_AGENT_RAN_TYPE == ngran_gNB_CU){
+  // C-ifCUDUseparated
+  if (TEST_AGENT_RAN_TYPE == e2ap_ngran_gNB_CU){
     gnb.gnb_cu_ue_f1ap_lst_len = 1;
     gnb.gnb_cu_ue_f1ap_lst = calloc(gnb.gnb_cu_ue_f1ap_lst_len, sizeof(uint32_t));
     assert(gnb.gnb_cu_ue_f1ap_lst != NULL && "Memory exhausted");
 
     gnb.gnb_cu_ue_f1ap_lst[0] = rand();
   }
-  
 
   return gnb;
 }
@@ -227,16 +272,16 @@ ue_id_e2sm_t fill_rnd_ue_id_data(void)
 {
   ue_id_e2sm_t ue_id_data = {0};
 
-  if (TEST_AGENT_RAN_TYPE == ngran_gNB || TEST_AGENT_RAN_TYPE == ngran_gNB_CU){
+  if (TEST_AGENT_RAN_TYPE == e2ap_ngran_gNB || TEST_AGENT_RAN_TYPE == e2ap_ngran_gNB_CU){
     ue_id_data.type = GNB_UE_ID_E2SM;
     ue_id_data.gnb = fill_rnd_gnb_data();
   }
-  else if (TEST_AGENT_RAN_TYPE == ngran_gNB_DU)
+  else if (TEST_AGENT_RAN_TYPE == e2ap_ngran_gNB_DU)
   {
     ue_id_data.type = GNB_DU_UE_ID_E2SM;
     ue_id_data.gnb_du = fill_rnd_gnb_du_data();
   }
-  else if (TEST_AGENT_RAN_TYPE == ngran_gNB_CUUP)
+  else if (TEST_AGENT_RAN_TYPE == e2ap_ngran_gNB_CUUP)
   {
     ue_id_data.type = GNB_CU_UP_UE_ID_E2SM;
     ue_id_data.gnb_cu_up = fill_rnd_gnb_cu_up_data();
@@ -246,8 +291,6 @@ ue_id_e2sm_t fill_rnd_ue_id_data(void)
     assert(false && "NG-RAN Type not yet implemented");
   }
 
-  
-
   return ue_id_data;
 }
 
@@ -256,8 +299,15 @@ kpm_ric_ind_hdr_format_1_t fill_rnd_kpm_ind_hdr_frm_1(void)
 {
   kpm_ric_ind_hdr_format_1_t hdr_frm_1 = {0};
 
-  hdr_frm_1.collectStartTime = time_now_us();
-  
+int64_t t = time_now_us();
+#if defined(KPM_V2_01) || defined (KPM_V2_03)
+  hdr_frm_1.collectStartTime = t / 1000000; // needs to be truncated to 32 bits to arrive to a resolution of seconds
+#elif defined(KPM_V3_00)
+  hdr_frm_1.collectStartTime = t;
+#else
+  static_assert(0!=0, "Unknown KPM version");
+#endif
+
   hdr_frm_1.fileformat_version = NULL;
   
   hdr_frm_1.sender_name = calloc(1, sizeof(byte_array_t));
@@ -285,14 +335,14 @@ int dummy_cnt = 0;
 static
 bool ue_fullfills_predicate(test_cond_e cond, int64_t value)
 {
-  assert(cond == EQUAL_TEST_COND 
-      || cond == GREATERTHAN_TEST_COND 
+  assert(cond == EQUAL_TEST_COND
+      || cond == GREATERTHAN_TEST_COND
       || cond == CONTAINS_TEST_COND
       || cond == PRESENT_TEST_COND
       );
   assert(value > -1 && "Assuming this for testing");
 
-  dummy_cnt++; 
+  dummy_cnt++;
   if(dummy_cnt > 32 && dummy_cnt < 4*32){
     //printf("[KPM-SM]: Emulating no UEs matching condition\n");
     return false;
@@ -308,7 +358,7 @@ seq_arr_t emulate_ues_fullfilling_pred(test_info_lst_t const*  info)
   size_t const num_ues = 16;
 
   seq_arr_t dst = {0};
-  seq_init(&dst, sizeof(ue_id_e2sm_t)); // 
+  seq_init(&dst, sizeof(ue_id_e2sm_t)); //
 
   for(size_t i = 0; i < num_ues; ++i){
     bool const select_ue = ue_fullfills_predicate(*info->test_cond, *info->test_cond_value->int_value );
@@ -344,7 +394,7 @@ seq_arr_t match_isstat_test_cond_type(test_info_lst_t const* info)
 {
   assert(info != NULL);
   assert(info->test_cond_type == IsStat_TEST_COND_TYPE);
-  
+
   return emulate_ues_fullfilling_pred(info);
 }
 
@@ -375,7 +425,7 @@ seq_arr_t match_dl_rsrq_test_cond_type(test_info_lst_t const* info)
   return emulate_ues_fullfilling_pred(info);
 }
 
-    
+
 static
 seq_arr_t match_ul_rsrp_test_cond_type(test_info_lst_t const* info)
 {
@@ -425,7 +475,7 @@ seq_arr_t match_s_nssai_test_cond_type(test_info_lst_t const* info)
 typedef seq_arr_t (*fp_arr_cond)(test_info_lst_t const* info);
 
 static
-fp_arr_cond match_cond_arr[END_TEST_COND_TYPE_KPM_V2_01] = { 
+fp_arr_cond match_cond_arr[END_TEST_COND_TYPE_KPM_V2_01] = {
     match_gbr_test_cond_type,
     match_ambr_test_cond_type,
     match_isstat_test_cond_type,
@@ -445,7 +495,7 @@ seq_arr_t matching_ues(matching_condition_format_4_lst_t const* cond, size_t len
   assert(cond != NULL && "Condition equal NULL");
   assert(len == 1 && "Only one condition supported");
 
-  seq_arr_t dst = match_cond_arr[cond->test_info_lst.test_cond_type](&cond->test_info_lst); 
+  seq_arr_t dst = match_cond_arr[cond->test_info_lst.test_cond_type](&cond->test_info_lst);
 
   return dst;
 }
@@ -457,14 +507,14 @@ kpm_ind_msg_format_1_t collect_measurements(ue_id_e2sm_t const* ue, meas_info_fo
   assert(lst != NULL);
   assert(len > 0 && len < 65536);
 
-  kpm_ind_msg_format_1_t dst = {0}; 
+  kpm_ind_msg_format_1_t dst = {0};
   // Value depending on the (period subscription) / (granularity period)
   // currently only 1 supported
   dst.meas_data_lst_len = 1;
   dst.meas_data_lst = calloc(dst.meas_data_lst_len, sizeof(meas_data_lst_t));
   assert(dst.meas_data_lst != NULL && "Memory exhausted");
 
-  dst.meas_data_lst[0].meas_record_len = len; 
+  dst.meas_data_lst[0].meas_record_len = len;
   dst.meas_data_lst[0].meas_record_lst = calloc(len, sizeof(meas_record_lst_t));
   assert(dst.meas_data_lst[0].meas_record_lst != NULL && "Memory exhausted");
 
@@ -473,7 +523,7 @@ kpm_ind_msg_format_1_t collect_measurements(ue_id_e2sm_t const* ue, meas_info_fo
   assert(dst.meas_info_lst != NULL && "Memory exhausted");
 
   for(size_t i = 0; i < len; ++i) {
-    assert(lst[i].meas_type.type == NAME_MEAS_TYPE && "Only NAME supported"); 
+    assert(lst[i].meas_type.type == NAME_MEAS_TYPE && "Only NAME supported");
     dst.meas_info_lst[i] = cp_meas_info_format_1_lst(&lst[i]);
 
     const void* key = lst[i].meas_type.name.buf;
@@ -482,7 +532,7 @@ kpm_ind_msg_format_1_t collect_measurements(ue_id_e2sm_t const* ue, meas_info_fo
     void* value = assoc_ht_open_value(&ht, &key);
     assert(value != NULL && "Not registered name used as key");
     // Get the measurement (e.g., DRB_PdcpSduVolumeDL) for the UE
-    dst.meas_data_lst[0].meas_record_lst[i] = (*(kpm_fp*)value)(ue); 
+    dst.meas_data_lst[0].meas_record_lst[i] = (*(kpm_fp*)value)(ue);
   }
   return dst;
 }
@@ -492,7 +542,7 @@ kpm_ind_msg_format_3_t subscription_info(seq_arr_t const* ues, kpm_act_def_forma
 {
   assert(act_def != NULL);
 
-  kpm_ind_msg_format_3_t dst = {0}; 
+  kpm_ind_msg_format_3_t dst = {0};
 
   const size_t sz = seq_size((seq_arr_t*)ues);
   dst.ue_meas_report_lst_len = sz;
@@ -500,7 +550,7 @@ kpm_ind_msg_format_3_t subscription_info(seq_arr_t const* ues, kpm_act_def_forma
     dst.meas_report_per_ue = calloc(sz, sizeof(meas_report_per_ue_t));
     assert(dst.meas_report_per_ue != NULL && "Memory exhausted");
   }
-  
+
   void* it = seq_front((seq_arr_t*)ues);
   for(size_t i = 0; i < sz; ++i){
     ue_id_e2sm_t const* ue = (ue_id_e2sm_t const*)it;
@@ -510,8 +560,8 @@ kpm_ind_msg_format_3_t subscription_info(seq_arr_t const* ues, kpm_act_def_forma
 
     // We ignore the remaining fields from act_def by the moment
     // for simplicity
-    
-    it = seq_next((seq_arr_t*)ues, it); 
+
+    it = seq_next((seq_arr_t*)ues, it);
   }
 
   return dst;
@@ -543,7 +593,7 @@ bool read_kpm_sm(void* data)
 
   if(kpm->act_def->type == FORMAT_4_ACTION_DEFINITION){
     kpm_act_def_format_4_t const* frm_4 = &kpm->act_def->frm_4 ;  // 8.2.1.2.4
-    // Matching UEs 
+    // Matching UEs
     seq_arr_t match_ues = matching_ues(frm_4->matching_cond_lst, frm_4->matching_cond_lst_len);
     // If no UEs match the condition, do not send data to the nearRT-RIC
     if(seq_size(&match_ues) == 0){
@@ -552,12 +602,12 @@ bool read_kpm_sm(void* data)
     }
 
     // Subscription Information
-    kpm_ind_msg_format_3_t info = subscription_info(&match_ues, &frm_4->action_def_format_1); 
+    kpm_ind_msg_format_3_t info = subscription_info(&match_ues, &frm_4->action_def_format_1);
 
     // Header
-    kpm->ind.hdr.type =  FORMAT_1_INDICATION_HEADER;
+    kpm->ind.hdr.type = FORMAT_1_INDICATION_HEADER;
     kpm->ind.hdr.kpm_ric_ind_hdr_format_1 = fill_rnd_kpm_ind_hdr_frm_1();
-    // Message 
+    // Message
     // 7.8 Supported RIC Styles and E2SM IE Formats
     // Format 4 corresponds to indication message 3
     kpm->ind.msg.type = FORMAT_3_INDICATION_MESSAGE;
@@ -565,19 +615,104 @@ bool read_kpm_sm(void* data)
 
     seq_arr_free(&match_ues, free_ue_id_e2sm_wrapper);
   } else {
-     kpm->ind.hdr = fill_rnd_kpm_ind_hdr(); 
-     kpm->ind.msg = fill_rnd_kpm_ind_msg(); 
+     kpm->ind.hdr = fill_rnd_kpm_ind_hdr();
+     kpm->ind.msg = fill_rnd_kpm_ind_msg();
   }
   return true;
 }
 
+static
+ric_report_style_item_t fill_ric_report_style_item(void)
+{
+  ric_report_style_item_t dst = {0};
+
+  // 8.3.3
+  dst.report_style_type = STYLE_4_RIC_SERVICE_REPORT;
+
+  // 8.3.4
+  const char style_name[] = "Dummy style name";
+  dst.report_style_name = cp_str_to_ba(style_name);
+
+  // 8.3.5
+  dst.act_def_format_type = FORMAT_4_ACTION_DEFINITION;
+
+
+#ifdef NGRAN_GNB
+  // 3GPP TS 28.552
+  const char* kpm_meas[] = {
+    "DRB.PdcpSduVolumeDL",
+    "DRB.PdcpSduVolumeUL",
+    "DRB.RlcSduDelayDl",
+    "DRB.UEThpDl",
+    "DRB.UEThpUl",
+    "RRU.PrbTotDl",
+    "RRU.PrbTotUl",
+  };
+#elif defined NGRAN_GNB_CU
+  const char* kpm_meas[] = {
+    "DRB.PdcpSduVolumeDL",
+    "DRB.PdcpSduVolumeUL",
+  };
+#elif defined NGRAN_GNB_DU
+  const char* kpm_meas[] = {
+    "DRB.RlcSduDelayDl",
+    "DRB.UEThpDl",
+    "DRB.UEThpUl",
+    "RRU.PrbTotDl",
+    "RRU.PrbTotUl",
+  };
+#elif defined NGRAN_ENB
+  const char* kpm_meas[] = {
+    "DRB.PdcpSduVolumeDL",
+    "DRB.PdcpSduVolumeUL",
+    "RRU.PrbTotDl",
+    "RRU.PrbTotUl",
+  };
+#else
+  _Static_assert(0!=0, "Unknown node type");
+#endif
+
+  const size_t sz = sizeof(kpm_meas) / sizeof(char *);
+  // [1, 65535]
+  dst.meas_info_for_action_lst_len = sz;
+  dst.meas_info_for_action_lst = ecalloc(sz, sizeof(meas_info_for_action_lst_t));
+
+  for(size_t i = 0; i < sz; ++i){
+    dst.meas_info_for_action_lst[i].name = cp_str_to_ba(kpm_meas[i]);
+  }
+
+  // 8.3.5
+  dst.ind_hdr_format_type = FORMAT_1_INDICATION_HEADER;
+  dst.ind_msg_format_type = FORMAT_3_INDICATION_MESSAGE;
+
+  return dst;
+}
+
+static
+kpm_ran_function_def_t fill_kpm_ran_func_def(void)
+{
+  kpm_ran_function_def_t dst = {0};
+
+  // RAN Function name is already filled by the kpm_sm_agent.c
+  dst.sz_ric_event_trigger_style_list = 0;
+  dst.ric_event_trigger_style_list = 0;
+
+  dst.sz_ric_report_style_list = 1;
+  dst.ric_report_style_list = ecalloc(dst.sz_ric_report_style_list, sizeof(ric_report_style_item_t ));
+
+  dst.ric_report_style_list[0] = fill_ric_report_style_item();
+
+  return dst;
+}
+
+
 void read_kpm_setup_sm(void* e2ap)
 {
   assert(e2ap != NULL);
-//  assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0);
 
   kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(e2ap);
-  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
+  // Let's fill the RAN Function Definition with currently supported measurements
+  kpm->ran_func_def = fill_kpm_ran_func_def();
 }
 
 sm_ag_if_ans_t write_ctrl_kpm_sm(void const* src)

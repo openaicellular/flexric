@@ -21,7 +21,7 @@ extern "C" {
 
 /* RICsubscriptionModificationResponse */
 typedef struct RICsubscriptionModificationResponse {
-	ProtocolIE_Container_2691P10_t	 protocolIEs;
+	ProtocolIE_Container_2702P10_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

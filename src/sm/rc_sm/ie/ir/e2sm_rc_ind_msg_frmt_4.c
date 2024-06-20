@@ -25,11 +25,7 @@ void free_e2sm_rc_ind_msg_frmt_4(e2sm_rc_ind_msg_frmt_4_t* src)
     free_seq_cell_info_2(&src->seq_cell_info_2[i]);
   }
 
-  if(src->seq_cell_info_2 != NULL){
-    assert(src->sz_seq_cell_info_2 > 0);
-    free(src->seq_cell_info_2);
-  }
-
+  free(src->seq_cell_info_2);
 }
 
 

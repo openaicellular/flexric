@@ -1,0 +1,1454 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "E2SM-CCC",
+    "version": "3.0.0",
+    "description": "OAS 3.0.1 specification compatible schema for O-RAN WG3 E2SM-CCC"
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "GnbId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4294967295
+      },
+      "GnbIdLength": {
+        "type": "integer",
+        "minimum": 22,
+        "maximum": 32
+      },
+      "GnbName": {
+        "type": "string",
+        "maxLength": 150
+      },
+      "GnbDuId": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 68719476735
+      },
+      "GnbCuUpId": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 68719476735
+      },
+      "Sst": {
+        "type": "integer",
+        "maximum": 255
+      },
+      "Snssai": {
+        "type": "object",
+        "properties": {
+          "sst": {
+            "$ref": "#/components/schemas/Sst"
+          },
+          "sd": {
+            "type": "string"
+          }
+        }
+      },
+      "SnssaiList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Snssai"
+        }
+      },
+      "Mcc": {
+        "type": "string",
+        "pattern": "[0-9]{3}"
+      },
+      "Mnc": {
+        "type": "string",
+        "pattern": "[0-9]{3}|[0-9]{2}"
+      },
+      "PlmnId": {
+        "type": "object",
+        "properties": {
+          "mcc": {
+            "$ref": "#/components/schemas/Mcc"
+          },
+          "mnc": {
+            "$ref": "#/components/schemas/Mnc"
+          }
+        }
+      },
+      "PlmnIdList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PlmnId"
+        }
+      },
+      "PlmnInfo": {
+        "type": "object",
+        "properties": {
+          "plmnId": {
+            "$ref": "#/components/schemas/PlmnId"
+          },
+          "snssai": {
+            "$ref": "#/components/schemas/Snssai"
+          }
+        }
+      },
+      "PlmnInfoList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PlmnInfo"
+        }
+      },
+      "GGnbId": {
+        "type": "string",
+        "pattern": "^[0-9]{3}[0-9]{2,3}-(22|23|24|25|26|27|28|29|30|31|32)-[0-9]{1,10}"
+      },
+      "GEnbId": {
+        "type": "string",
+        "pattern": "^[0-9]{3}[0-9]{2,3}-(18|20|21|22)-[0-9]{1,7}"
+      },
+      "GGnbIdList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/GGnbId"
+        }
+      },
+      "GEnbIdList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/GEnbId"
+        }
+      },
+      "NrPci": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 503
+      },
+      "NrTac": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 16777215
+      },
+      "OperationalState": {
+        "type": "string",
+        "enum": [
+          "ENABLED",
+          "DISABLED"
+        ]
+      },
+      "AdministrativeState": {
+        "type": "string",
+        "enum": [
+          "LOCKED",
+          "SHUTTINGDOWN",
+          "UNLOCKED"
+        ]
+      },
+      "CellState": {
+        "type": "string",
+        "enum": [
+          "IDLE",
+          "INACTIVE",
+          "ACTIVE"
+        ]
+      },
+      "CyclicPrefix": {
+        "type": "string",
+        "enum": [
+          "15",
+          "30",
+          "60",
+          "120"
+        ]
+      },
+      "BwpContext": {
+        "type": "string",
+        "enum": [
+          "DL",
+          "UL",
+          "SUL"
+        ]
+      },
+      "IsInitialBwp": {
+        "type": "string",
+        "enum": [
+          "INITIAL",
+          "OTHER",
+          "SUL"
+        ]
+      },
+      "SubCarrierSpacing": {
+        "type": "integer",
+        "enum": [
+          15,
+          30,
+          60,
+          120
+        ]
+      },
+      "SsbPeriodicity": {
+        "type": "integer",
+        "enum": [
+          5,
+          10,
+          20,
+          40,
+          80,
+          160
+        ]
+      },
+      "SsbDuration": {
+        "type": "integer",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "SsbSubCarrierSpacing": {
+        "type": "integer",
+        "enum": [
+          15,
+          30,
+          120,
+          240
+        ]
+      },
+      "ResourceType": {
+        "type": "string",
+        "enum": [
+          "PRB_DL",
+          "PRB_UL",
+          "DRB",
+          "RRC"
+        ]
+      },
+      "RrmPolicyMember": {
+        "type": "object",
+        "properties": {
+          "plmnId": {
+            "$ref": "#/components/schemas/PlmnId"
+          },
+          "snssai": {
+            "$ref": "#/components/schemas/Snssai"
+          }
+        }
+      },
+      "RrmPolicyMemberList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/RrmPolicyMember"
+        }
+      },
+      "5QiList": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        }
+      },
+      "PartitionFlowList": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "snssai": {
+              "$ref": "#/components/schemas/Snssai"
+            },
+            "plmnId": {
+              "$ref": "#/components/schemas/PlmnId"
+            },
+            "5qiList": {
+              "$ref": "#/components/schemas/5QiList"
+            }
+          }
+        }
+      },
+      "PartitionList": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "pOffsetToPointA": {
+              "type": "integer"
+            },
+            "pNumberOfRBs": {
+              "type": "integer"
+            },
+            "partitionFlowList": {
+              "$ref": "#/components/schemas/PartitionFlowList"
+            }
+          }
+        }
+      },
+      "O-GnbCuCpFunction": {
+        "type": "object",
+        "properties": {
+          "gnbId": {
+            "$ref": "#/components/schemas/GnbId"
+          },
+          "gnbIdLength": {
+            "$ref": "#/components/schemas/GnbIdLength"
+          },
+          "gnbCuName": {
+            "$ref": "#/components/schemas/GnbName"
+          },
+          "plmnId": {
+            "$ref": "#/components/schemas/PlmnId"
+          },
+          "x2BlockList": {
+            "$ref": "#/components/schemas/GEnbIdList"
+          },
+          "xnBlockList": {
+            "$ref": "#/components/schemas/GGnbIdList"
+          },
+          "x2AllowList": {
+            "$ref": "#/components/schemas/GEnbIdList"
+          },
+          "xnAllowList": {
+            "$ref": "#/components/schemas/GGnbIdList"
+          },
+          "x2HOBlockList": {
+            "$ref": "#/components/schemas/GEnbIdList"
+          },
+          "xnHOBlockList": {
+            "$ref": "#/components/schemas/GGnbIdList"
+          }
+        }
+      },
+      "O-GnbCuUpFunction": {
+        "type": "object",
+        "properties": {
+          "gnbId": {
+            "$ref": "#/components/schemas/GnbId"
+          },
+          "gnbIdLength": {
+            "$ref": "#/components/schemas/GnbIdLength"
+          },
+          "gnbCuUpId": {
+            "$ref": "#/components/schemas/GnbCuUpId"
+          },
+          "plmnInfoList": {
+            "$ref": "#/components/schemas/PlmnInfoList"
+          }
+        }
+      },
+      "O-GnbDuFunction": {
+        "type": "object",
+        "properties": {
+          "gnbDuId": {
+            "$ref": "#/components/schemas/GnbDuId"
+          },
+          "gnbDuName": {
+            "$ref": "#/components/schemas/GnbName"
+          },
+          "gnbId": {
+            "$ref": "#/components/schemas/GnbId"
+          },
+          "gnbIdLength": {
+            "$ref": "#/components/schemas/GnbIdLength"
+          }
+        }
+      },
+      "O-NrCellCu": {
+        "type": "object",
+        "properties": {
+          "cellLocalId": {
+            "type": "integer"
+          },
+          "plmnInfoList": {
+            "$ref": "#/components/schemas/PlmnInfoList"
+          }
+        }
+      },
+      "O-NrCellDu": {
+        "type": "object",
+        "properties": {
+          "cellLocalId": {
+            "type": "integer"
+          },
+          "operationalState": {
+            "$ref": "#/components/schemas/OperationalState"
+          },
+          "administrativeState": {
+            "$ref": "#/components/schemas/AdministrativeState"
+          },
+          "cellState": {
+            "$ref": "#/components/schemas/CellState"
+          },
+          "plmnInfoList": {
+            "$ref": "#/components/schemas/PlmnInfoList"
+          },
+          "nrPci": {
+            "$ref": "#/components/schemas/NrPci"
+          },
+          "nrTac": {
+            "$ref": "#/components/schemas/NrTac"
+          },
+          "arfcnDL": {
+            "type": "integer"
+          },
+          "arfcnUL": {
+            "type": "integer"
+          },
+          "arfcnSUL": {
+            "type": "integer"
+          },
+          "bSChannelBwDL": {
+            "type": "integer"
+          },
+          "ssbFrequency": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3279165
+          },
+          "ssbPeriodicity": {
+            "$ref": "#/components/schemas/SsbPeriodicity"
+          },
+          "ssbSubCarrierSpacing": {
+            "$ref": "#/components/schemas/SsbSubCarrierSpacing"
+          },
+          "ssbOffset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 159
+          },
+          "ssbDuration": {
+            "$ref": "#/components/schemas/SsbDuration"
+          },
+          "bSChannelBwUL": {
+            "type": "integer"
+          },
+          "bSChannelBwSUL": {
+            "type": "integer"
+          },
+          "bwpList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/O-Bwp"
+            }
+          },
+          "partitionList": {
+            "$ref": "#/components/schemas/PartitionList"
+          }
+        }
+      },
+      "O-RRMPolicyRatio": {
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "$ref": "#/components/schemas/ResourceType"
+          },
+          "rRMPolicyMemberList": {
+            "$ref": "#/components/schemas/RrmPolicyMemberList"
+          },
+          "rRMPolicyMaxRatio": {
+            "type": "integer"
+          },
+          "rRMPolicyMinRatio": {
+            "type": "integer"
+          },
+          "rRMPolicyDedicatedRatio": {
+            "type": "integer"
+          }
+        }
+      },
+      "O-Bwp": {
+        "type": "object",
+        "properties": {
+          "bwpContext": {
+            "$ref": "#/components/schemas/BwpContext"
+          },
+          "isInitialBwp": {
+            "$ref": "#/components/schemas/IsInitialBwp"
+          },
+          "subCarrierSpacing": {
+            "$ref": "#/components/schemas/SubCarrierSpacing"
+          },
+          "cyclicPrefix": {
+            "$ref": "#/components/schemas/CyclicPrefix"
+          },
+          "startRB": {
+            "type": "integer"
+          },
+          "numberOfRBs": {
+            "type": "integer"
+          }
+        }
+      },
+      "O-CESManagementFunction": {
+        "type": "object",
+        "properties": {
+          "cesSwitch": {
+            "type": "boolean"
+          },
+          "energySavingState": {
+            "type": "string",
+            "enum": [
+              "isNotEnergySaving",
+              "isEnergySaving"
+            ]
+          },
+          "energySavingControl": {
+            "type": "string",
+            "enum": [
+              "toBeEnergySaving",
+              "toBeNotEnergySaving"
+            ]
+          }
+        }
+      },
+      "E2SM-CCC-RAN-Configuration-Structure": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/O-GnbCuCpFunction"
+          },
+          {
+            "$ref": "#/components/schemas/O-GnbCuUpFunction"
+          },
+          {
+            "$ref": "#/components/schemas/O-GnbDuFunction"
+          },
+          {
+            "$ref": "#/components/schemas/O-NrCellCu"
+          },
+          {
+            "$ref": "#/components/schemas/O-NrCellDu"
+          },
+          {
+            "$ref": "#/components/schemas/O-RRMPolicyRatio"
+          },
+          {
+            "$ref": "#/components/schemas/O-Bwp"
+          },
+          {
+            "$ref": "#/components/schemas/O-CESManagementFunction"
+          }
+        ]
+      },
+      "RIC-Indication-Header": {
+        "type": "object",
+        "properties": {
+          "indicationHeaderFormat": {
+            "$ref": "#/components/schemas/IndicationHeaderFormat"
+          }
+        },
+        "required": [
+          "indicationHeaderFormat"
+        ]
+      },
+      "IndicationHeaderFormat": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-IndicationHeaderFormat1"
+          }
+        ]
+      },
+      "E2SM-CCC-IndicationHeaderFormat1": {
+        "type": "object",
+        "properties": {
+          "indicationReason": {
+            "enum": [
+              "uponSubscription",
+              "uponChange",
+              "periodic"
+            ]
+          },
+          "eventTime": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "indicationReason",
+          "eventTime"
+        ]
+      },
+      "RIC-Indication-Message": {
+        "type": "object",
+        "properties": {
+          "indicationMessageFormat": {
+            "$ref": "#/components/schemas/IndicationMessageFormat"
+          }
+        },
+        "required": [
+          "indicationMessageFormat"
+        ]
+      },
+      "IndicationMessageFormat": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-IndicationMessageFormat1"
+          },
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-IndicationMessageFormat2"
+          }
+        ]
+      },
+      "E2SM-CCC-IndicationMessageFormat1": {
+        "type": "object",
+        "properties": {
+          "listOfConfigurationStructuresReported": {
+            "$ref": "#/components/schemas/ListOfConfigurationsReported"
+          }
+        },
+        "required": [
+          "listOfConfigurationStructuresReported"
+        ]
+      },
+      "ListOfConfigurationsReported": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ConfigurationStructure"
+        }
+      },
+      "ConfigurationStructure": {
+        "type": "object",
+        "properties": {
+          "changeType": {
+            "enum": [
+              "none",
+              "modification",
+              "addition",
+              "deletion"
+            ]
+          },
+          "ranConfigurationStructureName": {
+            "type": "string"
+          },
+          "valuesOfAttributes": {
+            "$ref": "#/components/schemas/ValuesOfAttributes"
+          },
+          "oldValuesOfAttributes": {
+            "$ref": "#/components/schemas/ValuesOfAttributes"
+          }
+        },
+        "required": [
+          "changeType",
+          "ranConfigurationStructureName",
+          "valuesOfAttributes"
+        ]
+      },
+      "ValuesOfAttributes": {
+        "type": "object",
+        "properties": {
+          "ranConfigurationStructure": {
+            "$ref": "#/components/schemas/E2SM-CCC-RAN-Configuration-Structure"
+          }
+        },
+        "required": [
+          "ranConfigurationStructure"
+        ]
+      },
+      "E2SM-CCC-IndicationMessageFormat2": {
+        "type": "object",
+        "properties": {
+          "listOfCellsReported": {
+            "$ref": "#/components/schemas/ListOfCellsReported"
+          }
+        },
+        "required": [
+          "listOfCellsReported"
+        ]
+      },
+      "ListOfCellsReported": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CellReported"
+        }
+      },
+      "CellReported": {
+        "type": "object",
+        "properties": {
+          "cellGlobalId": {
+            "$ref": "#/components/schemas/CellGlobalId"
+          },
+          "listOfConfigurationStructuresReported": {
+            "$ref": "#/components/schemas/ListOfConfigurationsReported"
+          }
+        },
+        "required": [
+          "cellGlobalId",
+          "listOfConfigurationStructuresReported"
+        ]
+      },
+      "CellGlobalId": {
+        "type": "object",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/NR-CGI"
+          },
+          {
+            "$ref": "#/components/schemas/EUTRA-CGI"
+          }
+        ]
+      },
+      "NR-CGI": {
+        "type": "object",
+        "properties": {
+          "plmnIdentity": {
+            "$ref": "#/components/schemas/PlmnId"
+          },
+          "nRCellIdentity": {
+            "$ref": "#/components/schemas/NRCellIdentity"
+          }
+        },
+        "required": [
+          "plmnIdentity",
+          "nRCellIdentity"
+        ]
+      },
+      "NRCellIdentity": {
+        "type": "string"
+      },
+      "EUTRA-CGI": {
+        "type": "object",
+        "properties": {
+          "plmnIdentity": {
+            "$ref": "#/components/schemas/PlmnId"
+          },
+          "eUTRACellIdentity": {
+            "$ref": "#/components/schemas/EUTRACellIdentity"
+          }
+        },
+        "required": [
+          "plmnIdentity",
+          "eUTRACellIdentity"
+        ]
+      },
+      "EUTRACellIdentity": {
+        "type": "string"
+      },
+      "RIC-Control-Header": {
+        "type": "object",
+        "properties": {
+          "controlHeaderFormat": {
+            "$ref": "#/components/schemas/ControlHeaderFormat"
+          }
+        },
+        "required": [
+          "controlHeaderFormat"
+        ]
+      },
+      "ControlHeaderFormat": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-ControlHeaderFormat1"
+          }
+        ]
+      },
+      "E2SM-CCC-ControlHeaderFormat1": {
+        "type": "object",
+        "properties": {
+          "ricStyleType": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ricStyleType"
+        ]
+      },
+      "RIC-Control-Message": {
+        "type": "object",
+        "properties": {
+          "controlMessageFormat": {
+            "$ref": "#/components/schemas/ControlMessageFormat"
+          }
+        },
+        "required": [
+          "controlMessageFormat"
+        ]
+      },
+      "ControlMessageFormat": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-ControlMessageFormat1"
+          },
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-ControlMessageFormat2"
+          }
+        ]
+      },
+      "E2SM-CCC-ControlMessageFormat1": {
+        "type": "object",
+        "properties": {
+          "listOfConfigurationStructures": {
+            "$ref": "#/components/schemas/ListOfConfigurationStructures"
+          }
+        },
+        "required": [
+          "listOfConfigurationStructures"
+        ]
+      },
+      "ListOfConfigurationStructures": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ConfigurationStructureWrite"
+        }
+      },
+      "ConfigurationStructureWrite": {
+        "type": "object",
+        "properties": {
+          "ranConfigurationStructureName": {
+            "type": "string"
+          },
+          "oldValuesOfAttributes": {
+            "$ref": "#/components/schemas/ValuesOfAttributes"
+          },
+          "newValuesOfAttributes": {
+            "$ref": "#/components/schemas/ValuesOfAttributes"
+          }
+        },
+        "required": [
+          "ranConfigurationStructureName",
+          "oldValuesOfAttributes",
+          "newValuesOfAttributes"
+        ]
+      },
+      "E2SM-CCC-ControlMessageFormat2": {
+        "type": "object",
+        "properties": {
+          "listOfCellsControlled": {
+            "$ref": "#/components/schemas/ListOfCellsControlled"
+          }
+        },
+        "required": [
+          "listOfCellsControlled"
+        ]
+      },
+      "ListOfCellsControlled": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CellControlled"
+        }
+      },
+      "CellControlled": {
+        "type": "object",
+        "properties": {
+          "cellGlobalId": {
+            "$ref": "#/components/schemas/CellGlobalId"
+          },
+          "listOfConfigurationStructures": {
+            "$ref": "#/components/schemas/ListOfConfigurationStructures"
+          }
+        },
+        "required": [
+          "cellGlobalId",
+          "listOfConfigurationStructures"
+        ]
+      },
+      "RANFunctionDefinition": {
+        "type": "object",
+        "properties": {
+          "ranFunctionName": {
+            "$ref": "#/components/schemas/RANFunctionName"
+          },
+          "listOfSupportedNodeLevelConfigurationStructures": {
+            "$ref": "#/components/schemas/ListOfSupportedRANConfigurationStructures"
+          },
+          "listOfCellsForRANFunctionDefinition": {
+            "$ref": "#/components/schemas/ListOfCellsForRANFunctionDefinition"
+          }
+        },
+        "required": [
+          "ranFunctionName"
+        ]
+      },
+      "RANFunctionName": {
+        "type": "object",
+        "properties": {
+          "ranFunctionShortName": {
+            "type": "string"
+          },
+          "ranFunctionServiceModelOID": {
+            "type": "string"
+          },
+          "ranFunctionDescription": {
+            "type": "string"
+          },
+          "ranFunctionInstance": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ranFunctionShortName",
+          "ranFunctionServiceModelOID",
+          "ranFunctionDescription"
+        ]
+      },
+      "ListOfSupportedRANConfigurationStructures": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/RANConfigurationStructure"
+        }
+      },
+      "RANConfigurationStructure": {
+        "type": "object",
+        "properties": {
+          "ranConfigurationStructureName": {
+            "type": "string"
+          },
+          "listOfSupportedAttributes": {
+            "$ref": "#/components/schemas/ListOfSupportedAttributes"
+          }
+        },
+        "required": [
+          "ranConfigurationStructureName"
+        ]
+      },
+      "ListOfSupportedAttributes": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Attribute"
+        }
+      },
+      "Attribute": {
+        "type": "object",
+        "properties": {
+          "attributeName": {
+            "type": "string"
+          },
+          "supportedServices": {
+            "$ref": "#/components/schemas/RICServices"
+          }
+        },
+        "required": [
+          "attributeName",
+          "supportedServices"
+        ]
+      },
+      "RICServices": {
+        "type": "object",
+        "properties": {
+          "eventTrigger": {
+            "$ref": "#/components/schemas/EventTrigger"
+          },
+          "reportService": {
+            "$ref": "#/components/schemas/ReportService"
+          },
+          "insertService": {
+            "$ref": "#/components/schemas/InsertService"
+          },
+          "controlService": {
+            "$ref": "#/components/schemas/ControlService"
+          },
+          "policyService": {
+            "$ref": "#/components/schemas/PolicyService"
+          }
+        }
+      },
+      "EventTrigger": {
+        "type": "object",
+        "properties": {
+          "listOfSupportedEventTriggerStyles": {
+            "$ref": "#/components/schemas/ListOfSupportedEventTriggerStyles"
+          }
+        },
+        "required": [
+          "listOfSupportedEventTriggerStyles"
+        ]
+      },
+      "ListOfSupportedEventTriggerStyles": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/EventTriggerStyle"
+        }
+      },
+      "EventTriggerStyle": {
+        "type": "object",
+        "properties": {
+          "eventTriggerStyleType": {
+            "type": "integer"
+          },
+          "eventTriggerStyleName": {
+            "type": "string"
+          },
+          "eventTriggerFormatType": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "eventTriggerStyleType",
+          "eventTriggerStyleName",
+          "eventTriggerFormatType"
+        ]
+      },
+      "ReportService": {
+        "type": "object",
+        "properties": {
+          "listOfSupportedReportStyles": {
+            "$ref": "#/components/schemas/ListOfSupportedReportStyles"
+          }
+        },
+        "required": [
+          "listOfSupportedReportStyles"
+        ]
+      },
+      "ListOfSupportedReportStyles": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ReportStyle"
+        }
+      },
+      "ReportStyle": {
+        "type": "object",
+        "properties": {
+          "reportServiceStyleType": {
+            "type": "integer"
+          },
+          "reportServiceStyleName": {
+            "type": "string"
+          },
+          "listOfSupportedEventTriggerStylesForReportStyle": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventTriggerStyleType"
+            }
+          },
+          "reportServiceActionDefinitionFormatType": {
+            "type": "integer"
+          },
+          "reportServiceIndicationHeaderFormatType": {
+            "type": "integer"
+          },
+          "reportServiceIndicationMessageFormatType": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "reportServiceStyleType",
+          "reportServiceStyleName",
+          "listOfSupportedEventTriggerStylesForReportStyle",
+          "reportServiceActionDefinitionFormatType",
+          "reportServiceIndicationHeaderFormatType",
+          "reportServiceIndicationMessageFormatType"
+        ]
+      },
+      "EventTriggerStyleType": {
+        "type": "object",
+        "properties": {
+          "eventTriggerStyleType": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "eventTriggerStyleType"
+        ]
+      },
+      "InsertService": {
+        "type": "object"
+      },
+      "ControlService": {
+        "type": "object",
+        "properties": {
+          "listOfSupportedControlStyles": {
+            "$ref": "#/components/schemas/ListOfSupportedControlStyles"
+          }
+        },
+        "required": [
+          "listOfSupportedControlStyles"
+        ]
+      },
+      "ListOfSupportedControlStyles": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ControlStyle"
+        }
+      },
+      "ControlStyle": {
+        "type": "object",
+        "properties": {
+          "controlServiceStyleType": {
+            "type": "integer"
+          },
+          "controlServiceStyleName": {
+            "type": "string"
+          },
+          "controlServiceHeaderFormatType": {
+            "type": "integer"
+          },
+          "controlServiceMessageFormatType": {
+            "type": "integer"
+          },
+          "ricCallProcessIDFormatType": {
+            "type": "integer"
+          },
+          "controlServiceControlOutcomeFormatType": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "controlServiceStyleType",
+          "controlServiceStyleName",
+          "controlServiceHeaderFormatType",
+          "controlServiceMessageFormatType",
+          "controlServiceControlOutcomeFormatType"
+        ]
+      },
+      "PolicyService": {
+        "type": "object"
+      },
+      "ListOfCellsForRANFunctionDefinition": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CellForRANFunctionDefinition"
+        }
+      },
+      "CellForRANFunctionDefinition": {
+        "type": "object",
+        "properties": {
+          "cellGlobalID": {
+            "$ref": "#/components/schemas/NR-CGI"
+          },
+          "listOfSupportedCellLevelRANConfigurationStructures": {
+            "$ref": "#/components/schemas/ListOfSupportedRANConfigurationStructures"
+          }
+        },
+        "required": [
+          "cellGlobalID"
+        ]
+      },
+      "RICEventTriggerDefinition": {
+        "type": "object",
+        "properties": {
+          "eventTriggerDefinitionFormat": {
+            "$ref": "#/components/schemas/EventTriggerDefinitionFormat"
+          }
+        },
+        "required": [
+          "eventTriggerDefinitionFormat"
+        ]
+      },
+      "EventTriggerDefinitionFormat": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-EventTriggerDefinition-Format1"
+          },
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-EventTriggerDefinition-Format2"
+          },
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-EventTriggerDefinition-Format3"
+          }
+        ]
+      },
+      "E2SM-CCC-EventTriggerDefinition-Format1": {
+        "type": "object",
+        "properties": {
+          "listOfNodeLevelConfigurationStructuresForEventTrigger": {
+            "$ref": "#/components/schemas/ListOfRANConfigurationStructuresForEventTrigger"
+          }
+        },
+        "required": [
+          "listOfNodeLevelConfigurationStructuresForEventTrigger"
+        ]
+      },
+      "ListOfRANConfigurationStructuresForEventTrigger": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/RANConfigurationStructureForEventTrigger"
+        }
+      },
+      "RANConfigurationStructureForEventTrigger": {
+        "type": "object",
+        "properties": {
+          "ranConfigurationStructureName": {
+            "type": "string"
+          },
+          "listOfAttributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ranConfigurationStructureName"
+        ]
+      },
+      "E2SM-CCC-EventTriggerDefinition-Format2": {
+        "type": "object",
+        "properties": {
+          "listOfCellLevelConfigurationStructuresForEventTrigger": {
+            "$ref": "#/components/schemas/ListOfCellLevelConfigurationStructuresForEventTrigger"
+          }
+        },
+        "required": [
+          "listOfCellLevelConfigurationStructuresForEventTrigger"
+        ]
+      },
+      "ListOfCellLevelConfigurationStructuresForEventTrigger": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CellLevelConfigurationStructureForEventTrigger"
+        }
+      },
+      "CellLevelConfigurationStructureForEventTrigger": {
+        "type": "object",
+        "properties": {
+          "cellGlobalId": {
+            "$ref": "#/components/schemas/NR-CGI"
+          },
+          "listOfRANConfigurationStructuresForEventTrigger": {
+            "$ref": "#/components/schemas/ListOfRANConfigurationStructuresForEventTrigger"
+          }
+        },
+        "required": [
+          "listOfRANConfigurationStructuresForEventTrigger"
+        ]
+      },
+      "E2SM-CCC-EventTriggerDefinition-Format3": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "period"
+        ]
+      },
+      "RICActionDefinition": {
+        "type": "object",
+        "properties": {
+          "ricStyleType": {
+            "type": "integer"
+          },
+          "actionDefinitionFormat": {
+            "$ref": "#/components/schemas/ActionDefinitionFormat"
+          }
+        },
+        "required": [
+          "ricStyleType",
+          "actionDefinitionFormat"
+        ]
+      },
+      "ActionDefinitionFormat": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-ActionDefinitionFormat1"
+          },
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-ActionDefinitionFormat2"
+          }
+        ]
+      },
+      "E2SM-CCC-ActionDefinitionFormat1": {
+        "type": "object",
+        "properties": {
+          "listOfNodeLevelRANConfigurationStructuresForADF": {
+            "$ref": "#/components/schemas/ListOfRANConfigurationStructuresForADF"
+          }
+        },
+        "required": [
+          "listOfNodeLevelRANConfigurationStructuresForADF"
+        ]
+      },
+      "ListOfRANConfigurationStructuresForADF": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/RANConfigurationStructureForADF"
+        }
+      },
+      "RANConfigurationStructureForADF": {
+        "type": "object",
+        "properties": {
+          "reportType": {
+            "enum": [
+              "all",
+              "change"
+            ]
+          },
+          "ranConfigurationStructureName": {
+            "type": "string"
+          },
+          "listOfAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttributeName"
+            }
+          }
+        },
+        "required": [
+          "reportType",
+          "ranConfigurationStructureName"
+        ]
+      },
+      "AttributeName": {
+        "type": "object",
+        "properties": {
+          "attributeName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "attributeName"
+        ]
+      },
+      "E2SM-CCC-ActionDefinitionFormat2": {
+        "type": "object",
+        "properties": {
+          "listOfCellConfigurationsToBeReportedForADF": {
+            "$ref": "#/components/schemas/ListOfCellConfigurationsToBeReportedForADF"
+          }
+        },
+        "required": [
+          "listOfCellConfigurationsToBeReported"
+        ]
+      },
+      "ListOfCellConfigurationsToBeReportedForADF": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CellConfigurationToBeReportedForADF"
+        }
+      },
+      "CellConfigurationToBeReportedForADF": {
+        "type": "object",
+        "properties": {
+          "cellGlobalId": {
+            "$ref": "#/components/schemas/NR-CGI"
+          },
+          "listOfCellLevelRANConfigurationStructuresForADF": {
+            "$ref": "#/components/schemas/ListOfRANConfigurationStructuresForADF"
+          }
+        }
+      },
+      "RIC-Control-Outcome": {
+        "type": "object",
+        "properties": {
+          "controlOutcomeFormat": {
+            "$ref": "#/components/schemas/ControlOutcomeFormat"
+          }
+        },
+        "required": [
+          "controlOutcomeFormat"
+        ]
+      },
+      "ControlOutcomeFormat": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-ControlOutcomeFormat1"
+          },
+          {
+            "$ref": "#/components/schemas/E2SM-CCC-ControlOutcomeFormat2"
+          }
+        ]
+      },
+      "E2SM-CCC-ControlOutcomeFormat1": {
+        "type": "object",
+        "properties": {
+          "receivedTimestamp": {
+            "type": "string"
+          },
+          "ranConfigurationStructuresAcceptedList": {
+            "$ref": "#/components/schemas/RanConfigurationStructuresAcceptedList"
+          },
+          "ranConfigurationStructuresFailedList": {
+            "$ref": "#/components/schemas/RanConfigurationStructuresFailedList"
+          }
+        }
+      },
+      "RanConfigurationStructuresAcceptedList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ConfigurationStructureAccepted"
+        }
+      },
+      "ConfigurationStructureAccepted": {
+        "type": "object",
+        "properties": {
+          "ranConfigurationStructureName": {
+            "type": "string"
+          },
+          "oldValuesOfAttributes": {
+            "$ref": "#/components/schemas/ValuesOfAttributes"
+          },
+          "currentValuesOfAttributes": {
+            "$ref": "#/components/schemas/ValuesOfAttributes"
+          },
+          "appliedTimestamp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ranConfigurationStructureName",
+          "oldValuesOfAttributes",
+          "currentValuesOfAttributes"
+        ]
+      },
+      "RanConfigurationStructuresFailedList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ConfigurationStructureFailed"
+        }
+      },
+      "ConfigurationStructureFailed": {
+        "type": "object",
+        "properties": {
+          "ranConfigurationStructureName": {
+            "type": "string"
+          },
+          "oldValuesOfAttributes": {
+            "$ref": "#/components/schemas/ValuesOfAttributes"
+          },
+          "requestedValuesOfAttributes": {
+            "$ref": "#/components/schemas/ValuesOfAttributes"
+          },
+          "cause": {
+            "$ref": "#/components/schemas/Cause"
+          }
+        },
+        "required": [
+          "ranConfigurationStructureName",
+          "oldValuesOfAttributes",
+          "requestedValuesOfAttributes",
+          "cause"
+        ]
+      },
+      "Cause": {
+        "type": "string",
+        "enum": [
+          "NotSupported",
+          "NotAvailable",
+          "IncompatibleState",
+          "JsonError",
+          "SemanticError",
+          "Unspecified"
+        ]
+      },
+      "E2SM-CCC-ControlOutcomeFormat2": {
+        "type": "object",
+        "properties": {
+          "receivedTimestamp": {
+            "type": "string"
+          },
+          "listOfCellsForControlOutcome": {
+            "$ref": "#/components/schemas/ListOfCellsForControlOutcome"
+          }
+        },
+        "required": [
+          "listOfCellsForControlOutcome"
+        ]
+      },
+      "ListOfCellsForControlOutcome": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CellControlOutcome"
+        }
+      },
+      "CellControlOutcome": {
+        "type": "object",
+        "properties": {
+          "cellGlobalId": {
+            "$ref": "#/components/schemas/CellGlobalId"
+          },
+          "ranConfigurationStructuresAcceptedList": {
+            "$ref": "#/components/schemas/RanConfigurationStructuresAcceptedList"
+          },
+          "ranConfigurationStructuresFailedList": {
+            "$ref": "#/components/schemas/RanConfigurationStructuresFailedList"
+          }
+        },
+        "required": [
+          "cellGlobalId"
+        ]
+      }
+    }
+  }
+}

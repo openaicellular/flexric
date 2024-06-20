@@ -34,7 +34,9 @@
 #include "util/alg_ds/ds/tsn_queue/tsn_queue.h"
 
 #include "../lib/msg_hand/reg_e2_nodes.h"
+#if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
 #include "db/db.h"
+#endif
 #include "e42_xapp_api.h"
 #include "pending_event_xapp.h"
 
@@ -46,11 +48,11 @@
 #include <stdatomic.h>
 
 #ifdef E2AP_V1
-#define HANDLE_MSG_NUM 31
+#define HANDLE_MSG_NUM 32 // 31 + E42-UPDATE-E2-NODE
 #elif  E2AP_V2
-#define HANDLE_MSG_NUM 34
+#define HANDLE_MSG_NUM 35 // 34 + E42-UPDATE-E2-NODE
 #elif  E2AP_V3
-#define HANDLE_MSG_NUM 43
+#define HANDLE_MSG_NUM 44 // 43 + E42-UPDATE-E2-NODE
 #else
 static_assert(0!=0 , "Not implemented");
 #endif
@@ -93,7 +95,9 @@ typedef struct e42_xapp_s
   msg_dispatcher_xapp_t msg_disp; 
 
   // DB handler
+  #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
   db_xapp_t db;
+  #endif
 
   pthread_mutex_t conn_mtx;
   atomic_bool connected;
@@ -110,7 +114,9 @@ void start_e42_xapp(e42_xapp_t* xapp);
 
 void free_e42_xapp(e42_xapp_t* xapp);
 
-e2_node_arr_t e2_nodes_xapp(e42_xapp_t* xapp);
+e2_node_arr_xapp_t e2_nodes_xapp(e42_xapp_t* xapp);
+
+size_t e2_nodes_len_xapp(e42_xapp_t* xapp);
 
 size_t not_dispatch_msg(e42_xapp_t* xapp);
 
@@ -123,7 +129,7 @@ void rm_report_sm_sync_xapp(e42_xapp_t* xapp, int handle);
 // We wait for the message to come back and avoid asyncronous programming
 sm_ans_xapp_t control_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t ran_func_id, void* ctrl_msg);
 
-#undef HANDLE_MSG_NUM 
+#undef HANDLE_MSG_NUM
 
 #endif
 

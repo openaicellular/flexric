@@ -21,7 +21,7 @@ extern "C" {
 
 /* E2setupFailure */
 typedef struct E2setupFailure {
-	ProtocolIE_Container_2691P28_t	 protocolIEs;
+	ProtocolIE_Container_2702P28_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

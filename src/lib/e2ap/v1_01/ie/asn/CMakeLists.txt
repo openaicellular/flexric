@@ -100,6 +100,7 @@ set(ASN_MODULE_SRCS
   E42RICsubscriptionRequest.c
   E42setupRequest.c
   E42setupResponse.c
+  E42updateE2node.c
   ENB-ID.c
   ENB-ID-Choice.c
   ENGNB-ID.c
@@ -408,6 +409,7 @@ set(ASN_MODULE_SRCS_2
     E42RICcontrolRequest.c
     XAPP-ID.c
     E2nodeConnected-List.c
+    E42updateE2node.c
 )
 
 
@@ -581,7 +583,7 @@ endif()
 
 
 
-add_library(e2ap_asn1_obj OBJECT ${ASN_MODULE_SRCS})
+add_library(e2ap_asn1_obj STATIC ${ASN_MODULE_SRCS})
 #${ASN_MODULE_HDRS})
 target_include_directories(e2ap_asn1_obj
                           PUBLIC
@@ -590,5 +592,5 @@ target_include_directories(e2ap_asn1_obj
 
 target_compile_options(e2ap_asn1_obj PUBLIC "-DASN_DISABLE_OER_SUPPORT")
 target_compile_options(e2ap_asn1_obj PUBLIC "-DASN_DISABLE_JER_SUPPORT")
-target_compile_options(e2ap_asn1_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
+target_compile_options(e2ap_asn1_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC -fvisibility=hidden )
 

@@ -25,7 +25,7 @@
 #define INDICATION_EVENT_H
 
 #include <stdint.h>                               // for uint8_t
-#include "lib/ap/e2ap_types/common/ric_gen_id.h"  // for ric_gen_id_t
+#include "../../lib/e2ap/ric_gen_id_wrapper.h""  // for ric_gen_id_t
 #include "sm/sm_agent.h"
 
 typedef struct

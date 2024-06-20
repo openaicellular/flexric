@@ -106,9 +106,9 @@ size_t tc_dec_mtr(uint8_t const* it, tc_mtr_t* mtr)
   assert(it != NULL);
   assert(mtr != NULL);
 
-  memcpy(mtr->bnd_uint, it, sizeof(uint8_t)*4);
-  it += sizeof(uint8_t)*4;
-  size_t sz = sizeof(uint8_t)*4;
+  memcpy(mtr->bnd_uint, it, 4 * sizeof(uint8_t));
+  it += 4 * sizeof(uint8_t);
+  size_t sz = 4 * sizeof(uint8_t);
 
   memcpy(&mtr->time_window_ms, it, sizeof(uint32_t) );
   sz += sizeof(uint32_t);

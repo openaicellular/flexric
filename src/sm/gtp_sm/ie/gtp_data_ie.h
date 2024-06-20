@@ -31,6 +31,7 @@ extern "C" {
  */
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 //////////////////////////////////////
@@ -88,13 +89,13 @@ typedef struct {
   // ngu tunnel stats
   uint32_t rnti; // user id
   uint32_t teidgnb; // tunnel id from gnb
+  uint32_t teidupf; // tunnel id from upf
   uint8_t qfi; // QoS flow indicator
-  uint8_t teidupf; // tunnel id from upf
-} gtp_ngu_t_stats_t; 
+} gtp_ngu_t_stats_t;
 
 typedef struct {
-  gtp_ngu_t_stats_t* ngut; 
   uint32_t len;
+  gtp_ngu_t_stats_t* ngut;
 
   int64_t tstamp;
 } gtp_ind_msg_t;
@@ -183,14 +184,15 @@ bool eq_gtp_ctrl_out(gtp_ctrl_out_t* m0, gtp_ctrl_out_t* m1);
 /////////////////////////////////////
 
 typedef struct {
-  uint32_t dummy;
+  uint8_t* buf;
+  size_t len;
 } gtp_func_def_t;
 
-void free_gtp_func_def( gtp_func_def_t* src); 
+void free_gtp_func_def(gtp_func_def_t* src); 
 
-gtp_func_def_t cp_gtp_func_def(gtp_func_def_t* src);
+gtp_func_def_t cp_gtp_func_def(gtp_func_def_t const* src);
 
-bool eq_gtp_func_def(gtp_func_def_t* m0, gtp_func_def_t* m1);
+bool eq_gtp_func_def(gtp_func_def_t const* m0, gtp_func_def_t const* m1);
 
 /////////////////////////////////////////////////
 //////////////////////////////////////////////////

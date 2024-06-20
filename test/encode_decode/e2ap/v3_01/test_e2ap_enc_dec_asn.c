@@ -87,7 +87,7 @@ static
 void free_pdu(E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
-  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2AP_PDU,pdu);
+  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2AP_PDU, pdu);
   free(pdu);
 }
 
@@ -447,7 +447,7 @@ void test_setup_request()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -612,9 +612,9 @@ void test_setup_failure()
   E2AP_PDU_t* pdu = e2ap_create_pdu(ba.buf, ba.len);
   free_byte_array(ba);
   e2ap_msg_t msg = e2ap_dec_setup_failure(pdu);
-  free_pdu(pdu); 
+  free_pdu(pdu);
 
-  assert(msg.type == E2_SETUP_FAILURE); 
+  assert(msg.type == E2_SETUP_FAILURE);
   e2_setup_failure_t* sf_end = &msg.u_msgs.e2_stp_fail;
 
   assert(eq_e2_setup_failure(&sf_begin, sf_end) == true);
@@ -822,7 +822,7 @@ void fill_ran_function(ran_function_t* rf)
 
   rf->defn.len = sz;
   rf->defn.buf = malloc(sz);
-  assert(rf->defn.buf != NULL && "Memory exhauested"); 
+  assert(rf->defn.buf != NULL && "Memory exhauested");
   memcpy(rf->defn.buf, def, sz);
 
   rf->id = rand()%1024;  
@@ -888,7 +888,7 @@ void test_e42_setup_response()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -912,7 +912,7 @@ void test_e42_setup_response()
     e2_node_connected_t* n = &sr_begin.nodes[i];
     n->id = id; 
 
-    n->len_cca = 1; 
+    n->len_cca = 1;
     n->cca = calloc(1, sizeof(e2ap_node_component_config_add_t));
     assert(n->cca != NULL && "Memory exhausted");
     for(size_t j = 0; j < n->len_cca; ++j){
@@ -957,7 +957,7 @@ void test_e42_subscription_request()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -1044,7 +1044,7 @@ void test_e42_control_request()
     .mnc_digit_len = 2
   };
 
-  const ngran_node_t type = ngran_gNB; 
+  const e2ap_ngran_node_t type = e2ap_ngran_gNB;
 
   global_e2_node_id_t id = {
     .type = type,
@@ -1130,7 +1130,7 @@ int main()
     test_setup_request();
     test_setup_response();
     test_setup_failure();
-    
+
     //test_reset_request(); 
     //test_reset_response();
     //test_service_update();

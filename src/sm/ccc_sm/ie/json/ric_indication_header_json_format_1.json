@@ -1,0 +1,6 @@
+{
+  "indicationHeaderFormat": {
+    "eventTime": "test",
+    "indicationReason": "uponSubscription"
+  }
+}

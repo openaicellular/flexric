@@ -108,6 +108,12 @@ sm_ag_if_ans_t write_ctrl_rc(void const* data)
   return ans;
 }
 
+static
+void free_aperiodic_subscription(uint32_t ric_req_id)
+{
+  (void)ric_req_id;
+}
+
 static 
 sm_ag_if_ans_t write_subs_rc(void const* data)
 {
@@ -116,8 +122,13 @@ sm_ag_if_ans_t write_subs_rc(void const* data)
   wr_rc_sub_data_t const* wr_rc = (wr_rc_sub_data_t const*)data;
 
   cp_rc_sub = cp_rc_sub_data(&wr_rc->rc);
+  assert(eq_rc_sub_data(&cp_rc_sub, &wr_rc->rc) == true);
 
-  sm_ag_if_ans_t ans = {.type = NONE_SM_AG_IF_ANS_V0};
+  sm_ag_if_ans_t ans = {.type = SUBS_OUTCOME_SM_AG_IF_ANS_V0 };
+
+  ans.subs_out.type = APERIODIC_SUBSCRIPTION_FLRC;
+  ans.subs_out.aper.free_aper_subs = free_aperiodic_subscription;
+
   return ans;
 }
 
@@ -184,16 +195,22 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
   sm_subs_data_t data = ric->proc.on_subscription(ric, &rc);
   defer({ free_sm_subs_data(&data); });
 
-  subscribe_timer_t t = ag->proc.on_subscription(ag, &data); 
-  defer({  free_rc_sub_data(&cp_rc_sub); });
-  assert(t.ms == 0);
+  sm_ag_if_ans_subs_t subs = ag->proc.on_subscription(ag, &data); 
+  assert(subs.type == APERIODIC_SUBSCRIPTION_FLRC || subs.type == ON_DEMAND_REPORT_RC_SM_FLRC );
 
-  assert(eq_rc_sub_data(&rc, &cp_rc_sub) == true);
+  if(subs.type == APERIODIC_SUBSCRIPTION_FLRC){
+    assert(eq_rc_sub_data(&rc, &cp_rc_sub) == true);
+    free_rc_sub_data(&cp_rc_sub); 
+  } else { // ON_DEMAND_REPORT_RC_SM_FLRC 
+    assert(subs.rc_ind.has_value == true); 
+    free_sm_ind_data(&subs.rc_ind.data);
+    free_rc_ind_data(&cp_ind);
+  }
 }
 
 // E2 -> RIC
 static
-void check_indication(sm_agent_t* ag, sm_ric_t* ric)
+void check_indication_aper(sm_agent_t* ag, sm_ric_t* ric)
 {
   assert(ag != NULL);
   assert(ric != NULL);
@@ -203,7 +220,8 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   *d = fill_rnd_rc_ind_data();
   cp_ind = cp_rc_ind_data(d);
 
-  exp_ind_data_t exp = ag->proc.on_indication(ag, d);
+  on_ind_t on_ind = {.type = APERIODIC_ON_INDICATION_EVENT, .ind_data = d };
+  exp_ind_data_t exp = ag->proc.on_indication(ag, on_ind );
   assert(exp.has_value == true);
   defer({ free_exp_ind_data(&exp); }); 
   defer({ free_rc_ind_data(&cp_ind); });
@@ -279,7 +297,7 @@ int main()
   printf("Running RAN Control SM test. Patience. \n");
   for(int i =0 ; i < 1024; ++i){
     // check_eq_ran_function(sm_ag, sm_ric);
-    check_indication(sm_ag, sm_ric);
+    check_indication_aper(sm_ag, sm_ric);
     check_subscription(sm_ag, sm_ric);
     check_ctrl(sm_ag, sm_ric);
     check_e2_setup(sm_ag, sm_ric);

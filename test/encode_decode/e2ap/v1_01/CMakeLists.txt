@@ -32,7 +32,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
   target_include_directories(test_e2ap_enc_dec_asn PRIVATE "../../../src/lib/ap/ie/asn/")
 
   #####
-  ### CTest 
+  ### CTest
   ####
   enable_testing()
   add_test(Unit_test_e2ap_v1 test_e2ap_encode_asn)

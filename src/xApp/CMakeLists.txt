@@ -11,7 +11,6 @@ else()
   message(FATAL_ERROR "Unknown type")
 endif()
 
-
 if(KPM_VERSION STREQUAL "KPM_V2_01")
   set(KPM_VERSION_SRC ../sm/kpm_sm/kpm_sm_v02.01/ie/kpm_data_ie.c)
 elseif(KPM_VERSION STREQUAL "KPM_V2_03")
@@ -22,71 +21,137 @@ else()
   message(FATAL_ERROR "Unknown KPM version")
 endif()
 
+if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
+  set(XAPP_SRC
+            e2ap_xapp.c
+            asio_xapp.c
+            endpoint_xapp.c
+            msg_handler_xapp.c
+            msg_generator_xapp.c
+            e42_xapp.c
+            e42_xapp_api.c
+            plugin_agent.c
+            plugin_ric.c
+            pending_event_xapp.c
+            sync_ui.c
+            act_proc.c
+            msg_dispatcher_xapp.c
 
-set(XAPP_SRC 
-  e2ap_xapp.c
-  asio_xapp.c
-  endpoint_xapp.c
-  msg_handler_xapp.c
-  msg_generator_xapp.c
-  e42_xapp.c
-  e42_xapp_api.c
-  plugin_agent.c
-  plugin_ric.c
-  pending_event_xapp.c
-  sync_ui.c
-  act_proc.c
-  msg_dispatcher_xapp.c
-  ../sm/agent_if/read/sm_ag_if_rd.c
- 
-  $<TARGET_OBJECTS:e2_conv_obj>
-  $<TARGET_OBJECTS:e2ap_ep_obj> 
-  $<TARGET_OBJECTS:e2ap_ap_obj>
-  $<TARGET_OBJECTS:msg_hand_obj>
-  $<TARGET_OBJECTS:e2ap_ds_obj>
-  $<TARGET_OBJECTS:e2ap_alg_obj>
-  $<TARGET_OBJECTS:e2_conf_obj>
-  $<TARGET_OBJECTS:e2ap_msg_enc_obj>
-  $<TARGET_OBJECTS:e2ap_msg_dec_obj>
-  $<TARGET_OBJECTS:e2ap_msg_free_obj>
-  $<TARGET_OBJECTS:e2ap_types_obj> 
-  $<TARGET_OBJECTS:pending_events_obj>
-  $<TARGET_OBJECTS:e42_xapp_db_obj>
+            e2_node_arr_xapp.c
+            e2_node_connected_xapp.c
+            sm_ran_function.c
+            sm_ran_function_def.c
 
-  # KPM SM
-  ${KPM_VERSION_SRC}
- 
-  ../../test/rnd/fill_rnd_data_kpm.c
-  #$<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
-  $<TARGET_OBJECTS:kpm_ric_info_common_obj>
-  $<TARGET_OBJECTS:kpm_ric_info_obj>
+            ../sm/agent_if/read/sm_ag_if_rd.c
 
-  # RAN Control SM
-  ../sm/rc_sm/ie/rc_data_ie.c
-  ../../test/rnd/fill_rnd_data_rc.c
-  $<TARGET_OBJECTS:e2sm_rc_ir_obj>
-  $<TARGET_OBJECTS:e2sm_common_ie_obj>
-  $<TARGET_OBJECTS:3gpp_common_ie_obj>
-  $<TARGET_OBJECTS:sm_common_ie_obj>
-  $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-  $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-  $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
-  $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-  $<TARGET_OBJECTS:sm_common_enc_asn_obj>
-  $<TARGET_OBJECTS:sm_common_ie_obj>
+            $<TARGET_OBJECTS:e2_conv_obj>
+            $<TARGET_OBJECTS:e2ap_ep_obj>
+            $<TARGET_OBJECTS:e2ap_ap_obj>
+            $<TARGET_OBJECTS:msg_hand_obj>
+            $<TARGET_OBJECTS:e2ap_ds_obj>
+            $<TARGET_OBJECTS:e2ap_alg_obj>
+            $<TARGET_OBJECTS:e2_conf_obj>
+            $<TARGET_OBJECTS:e2ap_msg_enc_obj>
+            $<TARGET_OBJECTS:e2ap_msg_dec_obj>
+            $<TARGET_OBJECTS:e2ap_msg_free_obj>
+            $<TARGET_OBJECTS:e2ap_types_obj>
+            $<TARGET_OBJECTS:pending_events_obj>
+            $<TARGET_OBJECTS:e42_xapp_db_obj>
 
-  ../util/ngran_types.c
-  ../sm/mac_sm/ie/mac_data_ie.c
-  ../sm/rlc_sm/ie/rlc_data_ie.c
-  ../sm/pdcp_sm/ie/pdcp_data_ie.c
-  ../sm/slice_sm/ie/slice_data_ie.c
-  ../sm/tc_sm/ie/tc_data_ie.c
-  ../sm/gtp_sm/ie/gtp_data_ie.c
+            $<TARGET_OBJECTS:sm_common_ie_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_obj>
 
-  )
+            # KPM SM
+            ${KPM_VERSION_SRC}
+            ../../test/rnd/fill_rnd_data_kpm.c
+            $<TARGET_OBJECTS:kpm_ric_info_common_obj>
+            $<TARGET_OBJECTS:kpm_ric_info_obj>
+
+            # RAN Control SM
+            ../sm/rc_sm/ie/rc_data_ie.c
+            ../../test/rnd/fill_rnd_data_rc.c
+            $<TARGET_OBJECTS:e2sm_rc_ir_obj>
+
+            # CCC SM
+            ../sm/ccc_sm/ie/ccc_data_ie.c
+            ../../test/rnd/fill_rnd_data_ccc.c
+            $<TARGET_OBJECTS:e2sm_ccc_ir_obj>
+
+            ../util/e2ap_ngran_type.c
+            ../sm/mac_sm/ie/mac_data_ie.c
+            ../sm/rlc_sm/ie/rlc_data_ie.c
+            ../sm/pdcp_sm/ie/pdcp_data_ie.c
+            ../sm/slice_sm/ie/slice_data_ie.c
+            ../sm/tc_sm/ie/tc_data_ie.c
+            ../sm/gtp_sm/ie/gtp_data_ie.c
+      )
+else()
+  set(XAPP_SRC
+            e2ap_xapp.c
+            asio_xapp.c
+            endpoint_xapp.c
+            msg_handler_xapp.c
+            msg_generator_xapp.c
+            e42_xapp.c
+            e42_xapp_api.c
+            plugin_agent.c
+            plugin_ric.c
+            pending_event_xapp.c
+            sync_ui.c
+            act_proc.c
+            msg_dispatcher_xapp.c
+            e2_node_arr_xapp.c
+            e2_node_connected_xapp.c
+            sm_ran_function.c
+            sm_ran_function_def.c
+
+            ../sm/agent_if/read/sm_ag_if_rd.c
+
+            $<TARGET_OBJECTS:e2_conv_obj>
+            $<TARGET_OBJECTS:e2ap_ep_obj>
+            $<TARGET_OBJECTS:e2ap_ap_obj>
+            $<TARGET_OBJECTS:msg_hand_obj>
+            $<TARGET_OBJECTS:e2ap_ds_obj>
+            $<TARGET_OBJECTS:e2ap_alg_obj>
+            $<TARGET_OBJECTS:e2_conf_obj>
+            $<TARGET_OBJECTS:e2ap_msg_enc_obj>
+            $<TARGET_OBJECTS:e2ap_msg_dec_obj>
+            $<TARGET_OBJECTS:e2ap_msg_free_obj>
+            $<TARGET_OBJECTS:e2ap_types_obj>
+            $<TARGET_OBJECTS:pending_events_obj>
+
+            $<TARGET_OBJECTS:sm_common_ie_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+
+            # KPM SM
+            ${KPM_VERSION_SRC}
+            ../../test/rnd/fill_rnd_data_kpm.c
+            $<TARGET_OBJECTS:kpm_ric_info_common_obj>
+            $<TARGET_OBJECTS:kpm_ric_info_obj>
+
+            # RAN Control SM
+            ../sm/rc_sm/ie/rc_data_ie.c
+            ../../test/rnd/fill_rnd_data_rc.c
+            $<TARGET_OBJECTS:e2sm_rc_ir_obj>
+
+            # CCC SM
+            ../sm/ccc_sm/ie/ccc_data_ie.c
+            ../../test/rnd/fill_rnd_data_ccc.c
+            $<TARGET_OBJECTS:e2sm_ccc_ir_obj>
+
+            ../util/e2ap_ngran_type.c
+            ../sm/mac_sm/ie/mac_data_ie.c
+            ../sm/rlc_sm/ie/rlc_data_ie.c
+            ../sm/pdcp_sm/ie/pdcp_data_ie.c
+            ../sm/slice_sm/ie/slice_data_ie.c
+            ../sm/tc_sm/ie/tc_data_ie.c
+            ../sm/gtp_sm/ie/gtp_data_ie.c
+      )
+endif()
+
 
 if(E2AP_ENCODING STREQUAL "ASN")
-  add_library(e42_xapp 
+  add_library(e42_xapp
             ${XAPP_BLD_LIB} # STATIC or SHARED
             ${XAPP_SRC}
             $<TARGET_OBJECTS:e2ap_asn1_obj>
@@ -97,6 +162,8 @@ if(E2AP_ENCODING STREQUAL "ASN")
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             $<TARGET_OBJECTS:e2_conv_obj>
             )
+          target_link_libraries(e42_xapp -lconfig)
+          target_link_libraries(e42_xapp_shared $<TARGET_OBJECTS:e2_time_obj> -lconfig)
 
 	 target_compile_options(e42_xapp_shared PRIVATE "-DASN_DISABLE_OER_SUPPORT" -fPIC)
 
@@ -118,13 +185,13 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
   add_library(e42_xapp_shared ${XAPP_BLD_LIB} # STATIC or SHARED
             ${XAPP_SRC}
             )
+  target_link_libraries(e42_xapp_shared $<TARGET_OBJECTS:e2_time_obj>)
 
 endif()
 
-target_compile_definitions(e42_xapp PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB}  ${KPM_VERSION})
+target_compile_definitions(e42_xapp PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB} ${KPM_VERSION})
 target_compile_definitions(e42_xapp_shared PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB}  ${KPM_VERSION})
 
-add_definitions(-DXAPP_DB_DIR="${XAPP_DB_DIR}")
 
 #string(TIMESTAMP NOW "%Y-%m-%dT%H:%M:%SZ")
 #string(APPEND XAPP_DB_DIR ${NOW} )

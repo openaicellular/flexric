@@ -18,5 +18,5 @@ set(KPM_RIC_INFO_COMMON_SRCS
 add_library(kpm_ric_info_common_obj OBJECT ${KPM_RIC_INFO_COMMON_SRCS})
 
               
-target_compile_options(kpm_ric_info_common_obj PUBLIC "-DASN_DISABLE_OER_SUPPORT")
-target_compile_options(kpm_ric_info_common_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC)
+target_compile_options(kpm_ric_info_common_obj PRIVATE "-DASN_DISABLE_OER_SUPPORT")
+target_compile_options(kpm_ric_info_common_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC -fvisibility=hidden)

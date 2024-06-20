@@ -14,8 +14,9 @@ extern "C" {
 
 typedef struct{
   e2sm_plmn_t plmn_id;  // 6.2.3.1
-  uint64_t nr_cell_id:36; // bit string of 36 bits
-
+  // Not using nr_cell_id:36 since bit fields are nto addressable, 
+  // and thus, memcpy does not work   
+  uint64_t nr_cell_id; // bit string of 36 bits
 } nr_cgi_t;
 
 void free_nr_cgi(nr_cgi_t* src);

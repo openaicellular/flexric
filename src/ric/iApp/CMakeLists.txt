@@ -63,5 +63,6 @@ target_link_libraries(e42_iapp
                       -pthread
                       -lsctp
                       -ldl
+                      -lconfig
                       )
 

@@ -1,9 +1,10 @@
 # FlexRIC
 
-This repository contains [O-RAN Alliance](https://www.o-ran.org/) compliant E2 Node Agent emulators, a nearRT-RIC, and xApps written in C/C++ and Python.
-It implements various service models (O-RAN standard KPM v2.01/v2.03/v3.00 and RC v1.03, as well as customized NG/GTP, PDCP, RLC, MAC, SC and TC). 
-Depending on the service model, different encoding schemes have been developed (ASN.1, flatbuffer, plain). 
-The indication data received in the xApp uses as persistence mechanism an sqlite3 database for enabling offline processing applications (e.g., ML/AI). 
+This repository contains [O-RAN Alliance](https://www.o-ran.org/) compliant E2 node Agent emulators, a NearRT-RIC, xApps written in C/C++, Python and Go. 
+It implements O-RAN service models (KPM v2, KPM v3, and RC) and various customized service models (NG/GTP, PDCP, RLC, MAC, SLICE, TC) and a built-in emulation.
+Depending on the service model, different encoding schemes have been developed (ASN.1, flatbuffer, plain).
+The indication data received in the xApp uses SQLite3 or MySQL database to store the data for enabling offline processing applications
+(e.g., ML/AI).
 Moreover it supports E2AP v1.01/v2.03/v3.01 for all the SMs.
 
 If you want to know more about FlexRIC and its original architecture, you can find more details at: Robert Schmidt, Mikel Irazabal, and Navid Nikaein. 2021.
@@ -11,172 +12,274 @@ FlexRIC: an SDK for next-generation SD-RANs. In Proceedings of the 17th Internat
 '21). Association for Computing Machinery, New York, NY, USA, 411–425. DOI: https://doi.org/10.1145/3485983.3494870. A pdf copy is available at
 https://bit.ly/3uOXuCV 
 
-Below is the list of features available in this version divided per component and per service model:
-
-|      |OAI-5g| SRS-5g | E2 Agent emulator | Near RT-RIC | xApp c/c++ SDK | xApp python SDK| O-RAN standardized|
-|:-----|:-----|:-------|:------------------|:------------|:------------------|:---------------|:--------------|
-| KPM  | Y    | Y      | Y                 | Y | Y  | N              | Y |
-| RC   | Y    | Y      | Y                 | Y | Y  | N              | Y |
-| MAC  | Y    | N      | Y                 | Y | Y  | Y              | N |
-| RLC  | Y    | N      | Y                 | Y | Y  | Y              | N | 
-| PDCP | Y    | N      | Y                 | Y | Y  | Y              | N | 
-| SLICE| N    | N      | Y                 | Y | Y  | Y              | N |
-| TC   | N    | N      | Y                 | Y | Y  | N              | N |
-| GTP  | N    | N      | Y                 | Y | Y  | N              | N |
+---
 
 ## 1. Installation
 
-1.1 Install prerequisites
+### 1.1 Install prerequisites
 
-- A *recent* CMake (at least v3.22). 
+- **A recent CMake (at least v3.22)**
 
   On Ubuntu, you might want to use [this PPA](https://apt.kitware.com/) to install an up-to-date version.
 
-- SWIG (at least  v.4.1). 
+- **GCC version (at least v10)**
+
+  > **NOTE: avoid using gcc-11**
+
+- **SWIG (at least  v.4.1)**
 
   We use SWIG as an interface generator to enable the multi-language feature (i.e., C/C++ and Python) for the xApps. Please, check your SWIG version (i.e, `swig
-  -version`) and install it from scratch if necessary as described here: https://swig.org/svn.html or via the code below: 
-  
-  ```bash
-  git clone https://github.com/swig/swig.git
-  cd swig
-  git checkout release-4.1
-  ./autogen.sh
-  ./configure --prefix=/usr/
-  make -j8
-  make install
-  ```
+  -version`) and install it from scratch if necessary as described here: https://swig.org/svn.html or via the code below:
+  - Required dependencies for SWIG:
+    ```bash
+    sudo apt install autotools-dev automake libpcre2-dev yacc build-essential
+    ```
+  - Install SWIG:
+    ```bash
+    git clone https://github.com/swig/swig.git
+    cd swig
+    git checkout v4.1.1
+    ./autogen.sh
+    ./configure --prefix=/usr/
+    make
+    make install
+    ```
 
-- Flatbuffer encoding(optional). 
+- (Optional) Flatbuffer encoding. 
   
   We also provide a flatbuffers encoding/decoding scheme as alternative to ASN.1. In case you want to use it, follow the
   instructions at https://github.com/dvidelabs/flatcc and provide the path for the lib and include when selecting it at `ccmake ..` from the build directory 
 
-1.2 Download the required dependencies. 
+### 1.2 Download the required dependencies.
 
-Below an example of how to install it in ubuntu
-```bash
-sudo apt install libsctp-dev python3.8 cmake-curses-gui libpcre2-dev python3-dev
-```
+- **Install common dependencies in Ubuntu:  (at least python3.8)**
+  ```bash
+  sudo apt install libsctp-dev python3 cmake-curses-gui python3-dev pkg-config libconfig-dev libconfig++-dev
+  ```
 
-1.3 Clone the FlexRIC project, build and install it. 
+- **Install MySQL as a storage for xApps:**
+  ```bash
+  sudo apt install libmysqlclient-dev mysql-server
+  ```
 
-* Download the code
+- (Optional) Install websocket for proxy agent:
+  ```bash
+  sudo apt install libwebsockets-dev libjson-c-dev
+  ```
+  > Proxy agent has been tested with specific version of `libwebsockets-dev` and `libjson-c-dev`;
+  cmake will check for that and promt an error in case the version you are trying to install is not compatible.
+
+- (Optional) Install Go for xApp:
+  ```bash
+  sudo snap install go --channel=1.19/stable
+  ```
+
+- (Optional) Install Python ML xApp:
+  ```
+  sudo add-apt-repository -y ppa:deadsnakes/ppa
+  sudo apt install libsnappy-dev python3.11 python3.11-dev
+  ```
+  
+  
+### 1.3 Clone the FlexRIC project, build and install it. 
+
+- **Download the code**
 
   Check the [release page](https://gitlab.eurecom.fr/mosaic5g/flexric/-/releases) and read the release notes for deciding which release you want to install. You
   can download directly the code from the web or use git in the following way:
 
   ```bash
   # i.e.: 
-  $ git clone https://gitlab.eurecom.fr/mosaic5g/flexric.git 
-  # i.e. git checkout v1.0.0
-  # There are rolling updates on `dev` branch that we consider unstable before releasing and tagging into master branch.
-  # You can play with new features on dev branch checking it out with $git checkout dev instead of the command below
-  $ git checkout <here put the release tag>
-  
+  $ git clone https://gitlab.eurecom.fr/mosaic5g/flexric.git
+  $ git checkout br-flexric
   ```
 
-* Build 
+- **Build and install**
 
+  List of options in CMakeList:
+  - `E2AP_VERSION=E2AP_V1/E2AP_V2/E2AP_V3` (E2AP_V2 by default)
+  - `KPM_VERSION=KPM_V2_01/KPM_V2_03/KPM_V3_00` (KPM_V3 by default)
+  - `XAPP_DB=SQLITE3_XAPP/MYSQL_XAPP/NONE_XAPP` (MYSQL_XAPP by default)
+  - `XAPP_PYTHON_SWIG=ON/OFF` (ON by default)
+  - `XAPP_GO_SWIG=ON/OFF` (OFF by default)
+   ```bash
+   $ cd flexric
+   $ mkdir build
+   $ cd build
+   $ cmake -D{your options} ..
+   $ make -j
+   $ sudo make install
+   ```
+  > By default the service model libraries will be installed in the path `/usr/local/lib/flexric` while the
+  configuration files in `/usr/local/etc/flexric`. 
+
+
+### 1.4 Unit Test (Optional step)
+
+- Ctest
   ```bash
-  $ cd flexric && mkdir build && cd build && cmake .. && make -j8 
+  cd build/
+  ctest
   ```
-
-Note:
-  Supported E2AP versions: v1.01/v2.03/v3.01
-  Supported KPM SM versions: v2.01/v2.03/v3.00
-  By default, FlexRIC will build the nearRT-RIC with E2AP v2.03 and KPM v2.03. If you are interested in other available versions, please, execute this command:
+- Service Model unit test
   ```bash
-  mkdir build && cd build && cmake .. -DE2AP_VERSION=<e2ap_version> -DKPM_VERSION=<kpm_version> && make -j8
+  cd build/test/sm
+  # example: KPM
+  cd sm/kpm_sm/kpm_sm_v03.00
+  ./test_kpm_sm
   ```
 
-* Install
+### 1.5 Docker (optional step)
 
-  You can install the Service Models (SM) in your computer via:
-  ```bash
-  sudo make install
-  ```
-  By default the service model libraries will be installed in the path `/usr/local/lib/flexric` while the
-  configuration file in `/usr/local/etc/flexric`.
-
-  Note: Command `sudo make install` installs shared libraries that represent Service Models. Every time E2AP or/and KPM versions are modified, this command must be executed afterwards.
-
-  Check that everything went fine running the tests:
-  ```bash
-  ctest 
-  ```
- 
-
-1.4 Test (optional step)
-
-There are some tests you can run. Precisely:
-* 3 nodes test. See directory `build/examples/xApp/c/monitor`. This test simulates an scenario with an E2 node, a nearRT-RIC and an xApp. Data is randomly filled. Example running in 3 terminals.
-```bash
-# terminal 1: start E2 Node agent
-./build/examples/emulator/agent/emu_agent_gnb
-# terminal 2: start nearRT-RIC
-./build/examples/ric/nearRT-RIC
-# terminal 3
-./build/examples/xApp/c/monitor/xapp_gtp_mac_rlc_pdcp_moni
-```
-
-1.5 Docker (optional step)
-
-We build regularly FlexRIC using docker files for Ubuntu20 and Ubuntu22. You can find the Dockerfile at 
+We build regularly FlexRIC using docker files for Ubuntu20 and Ubuntu22. You can find the Dockerfile at
 
 ```bash
 cd test/docker/
 ```
 
-## 2. Usage/deployment
+---
 
-Before starting the nearRT-RIC, check that the IP address where your nearRT-RIC will be listening is the desired one at `/usr/local/etc/flexric/flexric.conf`.
-Infact the default configuration assumes all the components are located in the same localhost. 
+## 2. Usage
 
-Start the nearRT-RIC with:
-```bash
-$ ./build/examples/ric/nearRT-RIC
-```
+The default configuration assumes all the components are located in the same localhost.
 
-Start one or multiple E2 node Agent emulators using default configuration
-```bash
-$ ./build/examples/emulator/agent/emu_agent_gnb_cu
-$ ./build/examples/emulator/agent/emu_agent_gnb_du
-```
-or a customized one, i.e.:
-```bash
-$ ./build/examples/emulator/agent/emu_agent_gnb_cu -c ~/flexric1.conf &
-$ ./build/examples/emulator/agent/emu_agent_gnb_du -c ~/flexric2.conf &
-```
-where, for example, flexric1.conf is: 
-```
-[NEAR-RIC]
-NEAR_RIC_IP = 127.0.0.1
+### 2.1 Steps to run
+- Terminal1: start the nearRT-RIC
+  ```bash
+  $ /usr/local/bin/flexric/ric/nearRT-RIC
+  ```
+- Terminal2: start first E2-emulator:
+  ```bash
+  $ /usr/local/bin/flexric/e2agent/emu_agent_gnb
+  ```
+  > Note: you can run up multiple E2-emulators depends on your scenario, four different type E2-emulators are provided: `emu_agent_gnb`, `emu_agent_gnb_du`, `emu_agent_gnb_cu`, `emu_agent_enb`
+- Terminal3: start monitoring ORAN service models xApp in C:
+  ```bash
+  $ /usr/local/bin/flexric/xApp/c/xapp_oran_moni -c /usr/local/etc/flexric/xapp_oran_sm.conf
+  ```
+- Terminal4: start monitoring ORAN service models xApp in Python:
+  ```bash
+  $ python3 /usr/local/lib/python3/dist-packages/monitor/xapp_oran_moni.py -c /usr/local/etc/flexric/xapp_oran_sm.conf
+  ```
+- (Optional) Terminal5: start monitoring customized service models xApp in Go:
+  ```bash
+  $ /usr/local/bin/flexric/xApp/go/go_xapp_cust_moni -c /usr/local/etc/flexric/xapp_cust_sm.conf
+  ```
+  
+### 2.2 Configuration
 
-[XAPP]
-DB_PATH = /tmp/
-DB_NAME = xapp_db1
-```
+> By default, without assigning any .conf file while running the executables (ex: `nearRT-RIC`, `emu_agent_gnb`) with flag `-c`, all the executables will use `/usr/local/etc/flexric/ric/ric.conf`.
 
-flexric2.conf is: 
+- **configuration file for nearRT-RIC:**
 
-```
-[NEAR-RIC]
-NEAR_RIC_IP = 127.0.0.1
+  In `ric.conf`, we need to assign IP address for nearRT-RIC, and Port for both E2 and E42 interface:
+  ```
+  Name = "NearRT_RIC"
+  NearRT_RIC_IP = "127.0.0.1"
+  E2_Port = 36421
+  E42_Port = 36422
+  ```
+- **configuration file for E2-emulator:**
 
-[XAPP]
-DB_PATH = /tmp/
-DB_NAME = xapp_db2
-```
+  In `e2agent.conf`, we need to assign IP address to connect to nearRT-RIC, and Port for both E2 interface:
+  ```
+  Name = "E2_Agent"
+  NearRT_RIC_IP = "127.0.0.1"
+  E2_Port = 36421
+  ```
+- **configuration file for xApp:**
 
-Next, you can fetch some statistics from the E2 Agents using python xApps via `$ python3 build/examples/xApp/python3/xapp_mac_rlc_pdcp_gtp_moni.py`, while in other window you can start a second xApp developed in c `$ ./build/examples/xApp/c/monitor/xapp_kpm_moni`
+  In `xapp_cust_sm.conf`, `xapp_oran_sm.conf`, and `xapp_all_sm.conf`,
+  we need to assign IP address to connect to nearRT-RIC, and Port for both E42 interface:
+  ```
+  Name = "xApp"
+  NearRT_RIC_IP = "127.0.0.1"
+  E42_Port = 36422
+  ```
+  To subscribe specific service models by xApp, the required info of service models are written in the config:
+  - subscribe to customized service models:
+    - supported name : MAC, RLC, PDCP, GTP, SLICE;
+    - supported time: 1_ms, 2_ms, 5_ms, 10_ms, 100_ms, 1000_ms;
+  - example in  `xapp_cust_sm.conf`:
+    ```
+     Sub_CUST_SM_List = (
+         { name = "MAC", time = "100_ms" },
+         { name = "RLC", time = "100_ms" },
+         { name = "PDCP", time = "100_ms" }
+     )
+     ```
+  - subscribe to ORAN service models:
+    - supported name : KPM
+    - supported time (ms): 1, 2, 5, 10, 100, 1000
+    - supported format: 1, 4 
+    - supported ran_type: ngran_gNB, ngran_gNB_CU, ngran_gNB_DU
+  - example in `xapp_oran_sm.conf`:
+    ```
+    Sub_ORAN_SM_List = (
+    { name = "KPM", time = 1000,
+      format = 4,
+      ran_type = "ngran_gNB",
+      actions = (
+            { name = "DRB.PdcpSduVolumeDL" },
+            { name = "DRB.PdcpSduVolumeUL" },
+            { name = "DRB.RlcSduDelayDl" },
+            { name = "DRB.UEThpDl" },
+            { name = "RRU.UEThpUl" },
+            { name = "RRU.PrbTotDl" },
+            { name = "RRU.PrbTotUl" }
+            )
+    },
+    { name = "KPM", time = 1000,
+      format = 4,
+      ran_type = "ngran_gNB_DU",
+      actions = (
+            { name = "DRB.RlcSduDelayDl" },
+            { name = "DRB.UEThpDl" },
+            { name = "RRU.UEThpUl" },
+            { name = "RRU.PrbTotDl" },
+            { name = "RRU.PrbTotUl" }
+            )
+    },
+    { name = "KPM", time = 1000,
+      format = 4,
+      ran_type = "ngran_gNB_CU",
+      actions = (
+            { name = "DRB.PdcpSduVolumeDL" },
+            { name = "DRB.PdcpSduVolumeUL" }
+            )
+    }
+    )
+    ```
+  To configure database:
 
-At this point, FlexRIC is working correctly in your computer and you have already tested the multi-agent, multi-xApp and multi-language capabilities. 
+  - example by default:
+  ```
+  xApp_DB = {
+      enable = "ON"
+      ip = "127.0.0.1"
+      dir = "/tmp/"
+      filename = "testdb"
+      username = "xapp" # if using mysql
+      password = "eurecom" # if using mysql
+  }
+  ```
+  - if you want to disable using database while running the specific xApp:
+  ```
+  xApp_DB = {
+      enable = "OFF"
+  }
+  ```
+
+### 2.3 Wireshark
+Configure the preference for the port number of E2AP protocol to be able see the E2 message between E2-emulator and nearRT-RIC.
+[to be completed, not yet updated]
+
+At this point, FlexRIC is working correctly in your computer and you have already tested the multi-agent, multi-xApp and multi-language capabilities.
 
 The latency that you observe in your monitor xApp is the latency from the E2 Agent to the nearRT-RIC and xApp. In modern computers the latency should be less than 200 microseconds or 50x faster than the O-RAN specified minimum nearRT-RIC latency i.e., (10 ms - 1 sec) range.
 Therefore, FlexRIC is well suited for use cases with ultra low-latency requirements.
 Additionally, all the data received in the xApp is also written to /tmp/xapp_db in case that offline data processing is wanted (e.g., Machine
-Learning/Artificial Intelligence applications). You browse the data using e.g., sqlitebrowser. 
+Learning/Artificial Intelligence applications). You browse the data using e.g., sqlitebrowser.
 Please, check the example folder for other working xApp use cases.
 
 ## 3. Integration with RAN and example of deployment
@@ -234,7 +337,36 @@ sudo phc2sys -m -s InterfaceName -w
 
 * Start different xApps
 
-  e.g, start the kpm monitoring xApp via `$ ./build/examples/xApp/c/monitor/xapp_kpm_moni`. The controlling sequence diagram is represented below:
+  * start the KPM monitor xApp
+    At the moment, the following measurements are supported:
+    * "DRB.PdcpSduVolumeDL"
+    * "DRB.PdcpSduVolumeUL"
+    * "DRB.RlcSduDelayDl"
+    * "DRB.UEThpDl"
+    * "DRB.UEThpUl"
+    * "RRU.PrbTotDl"
+    * "RRU.PrbTotUl"
+    
+  ```bash
+  $ ./build/examples/xApp/c/monitor/xapp_kpm_moni
+  ```
+
+  * start the RC monitor xApp - aperiodic subscription support for "UE RRC State Change"
+  ```bash
+  $ ./build/examples/xApp/c/monitor/xapp_rc_moni
+  ```
+
+  * start the RC control xApp - RAN control function "QoS flow mapping configuration" support, i.e. creating a new DRB
+  ```bash
+  $ ./build/examples/xApp/c/kpm_rc/xapp_kpm_rc
+  ```
+
+  * start the (MAC + RLC + PDCP + GTP) monitor xApp
+  ```bash
+  $ ./build/examples/xApp/c/monitor/xapp_gtp_mac_rlc_pdcp_moni
+  ```
+  
+  The controlling sequence diagram is represented below:
 
   ![alt text](fig/4.png)
 

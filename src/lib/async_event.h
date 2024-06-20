@@ -26,16 +26,21 @@
 #include "ind_event.h"
 #include "pending_events.h"
 #include "ep/sctp_msg.h"
+#include "ep/ws_msg.h"
 
 typedef enum
 {
   CHECK_STOP_TOKEN_EVENT,
   SCTP_CONNECTION_SHUTDOWN_EVENT,
   SCTP_MSG_ARRIVED_EVENT, 
-  INDICATION_EVENT,
+  PERIODIC_INDICATION_EVENT,
   APERIODIC_INDICATION_EVENT,
   PENDING_EVENT,
-
+  WS_MSG_ARRIVED_EVENT,
+  WS_MSG_TIME_OUT_PENDING,
+  //WS_ANS_MSG_ARRIVED_EVENT, // answer to a previous request arrived
+  //WS_APER_MSG_ARRIVED_EVENT, // aperiodic message arrived
+  
   UNKNOWN_EVENT,
 } async_event_e;
 
@@ -48,6 +53,7 @@ typedef struct
     ind_event_t* i_ev;
     arr_aind_event_t ai_ev;
     sctp_msg_t msg; 
+    ws_msg_t ws_msg; 
   };
 } async_event_t;
 

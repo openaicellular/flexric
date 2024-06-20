@@ -23,6 +23,7 @@
 
 #include <assert.h>
 
+#include "../../../util/conversions.h"
 #include "../../../util/alg_ds/alg/defer.h"
 
 #include "../ie/ir/ran_param_struct.h"
@@ -187,6 +188,16 @@
 
 
 #include "../ie/asn/RANFunctionDefinition-Control-Action-Item.h"
+
+#include "../ie/asn/PolicyAction-RANParameter-Item.h"
+#include "../ie/asn/NeighborRelation-Info.h"
+#include "../ie/asn/NR-ARFCN.h"
+#include "../ie/asn/NeighborCell-Item.h"
+#include "../ie/asn/NeighborCell-Item-Choice-NR.h"
+#include "../ie/asn/NRFrequencyBandItem.h"
+#include "../ie/asn/SupportedSULFreqBandItem.h"
+
+
 
 #include "../../../lib/sm/dec/dec_ue_id.h" 
 #include "../../../lib/sm/dec/dec_cell_global_id.h"
@@ -1679,15 +1690,15 @@ e2sm_rc_ind_hdr_frmt_1_t dec_ind_hdr_frmt_1(E2SM_RC_IndicationHeader_Format1_t c
   // Optional
   // 9.3.21
   // [1 - 65535]
-  assert(src->ric_eventTriggerCondition_ID != NULL && "Optional, but only one member" );
+  if (src->ric_eventTriggerCondition_ID != NULL) {
+    dst.ev_trigger_id = malloc(sizeof(uint16_t));
+    assert(dst.ev_trigger_id != NULL && "Memory exhausted" );
 
-  dst.ev_trigger_id = malloc(sizeof(uint16_t));
-  assert(dst.ev_trigger_id != NULL && "Memory exhausted" );
+    assert(*src->ric_eventTriggerCondition_ID > 0 && *src->ric_eventTriggerCondition_ID < 65535+1);
 
-  assert(*src->ric_eventTriggerCondition_ID > 0 && *src->ric_eventTriggerCondition_ID < 65535+1);
-
-  *dst.ev_trigger_id = *src->ric_eventTriggerCondition_ID;
-
+    *dst.ev_trigger_id = *src->ric_eventTriggerCondition_ID;
+  }
+  
   return dst;
 }
 
@@ -1988,6 +1999,274 @@ seq_ue_info_t dec_ind_msg_frmt_4_it_ue_info(E2SM_RC_IndicationMessage_Format4_It
 }
 
 static
+cell_pci_t dec_cell_pci(ServingCell_PCI_t	const* src)
+{
+  assert(src != NULL);
+
+  cell_pci_t dst = {0}; 
+
+  // CHOICE RAT type
+  // Mandatory
+  if(src->present == ServingCell_PCI_PR_nR){
+    dst.type = NR_RAT_TYPE;
+    // [0,1007]  6.2.3.29 
+    assert(src->choice.nR < 1008);
+    dst.nr_pci = src->choice.nR; 
+  } else if(src->present == ServingCell_PCI_PR_eUTRA){
+    dst.type = EUTRA_RAT_TYPE;
+    // [0,503] // 6.2.3.32
+    dst.eutra_pci = src->choice.eUTRA; 
+  } else {
+    assert(0 != 0 && "Unknown RAT type");
+  }
+
+  return dst;
+}
+
+static
+cell_arfcn_t dec_cell_arfcn(ServingCell_ARFCN_t const* src)
+{
+  assert(src != NULL);
+  cell_arfcn_t dst = {0};
+
+  // CHOICE RAT type
+  // Mandatory
+  if(src->present == ServingCell_ARFCN_PR_nR) {
+    dst.type = NR_RAT_TYPE;
+    // [0,3279165]  6.2.3.30 
+    assert(src->choice.nR->nRARFCN > -1); 
+    assert(src->choice.nR->nRARFCN < 3279166); 
+    dst.nr_arfcn = src->choice.nR->nRARFCN;
+  } else if (src->present == ServingCell_ARFCN_PR_eUTRA) { 
+    dst.type = EUTRA_RAT_TYPE;
+    // [0,65535] 6.2.3.33
+    assert(src->choice.eUTRA < 65536);
+    dst.eutra_arfcn = src->choice.eUTRA;
+  } else {
+    assert(0!=0 && "Unknown RAT type");
+  }
+
+  return dst;
+}
+
+static
+nr_cgi_t dec_nr_cgi(NR_CGI_t const* src)
+{
+  assert(src != NULL);
+
+  nr_cgi_t dst = {0}; 
+
+  // 6.2.3.1
+  PLMNID_TO_MCC_MNC(&src->pLMNIdentity, dst.plmn_id.mcc, dst.plmn_id.mnc, dst.plmn_id.mnc_digit_len);
+
+  // Not using nr_cell_id:36 since bit fields are nto addressable, 
+  // and thus, memcpy does not work   
+  assert(src->nRCellIdentity.buf != NULL); 
+  assert(src->nRCellIdentity.size == 5); 
+  assert(src->nRCellIdentity.bits_unused == 4); 
+  memcpy(&dst.nr_cell_id, src->nRCellIdentity.buf, 5);
+
+  return dst;
+}
+
+static
+uint16_t dec_sul_bnd_it( SupportedSULFreqBandItem_t const* src)
+{
+  assert(src != NULL);
+
+  // [1,1024]
+  assert(src->freqBandIndicatorNr > 0);
+  assert(src->freqBandIndicatorNr < 1025);
+  return src->freqBandIndicatorNr;
+}
+
+static
+nr_frq_bnd_it_t dec_frq_bnd_it(NRFrequencyBandItem_t const* src)
+{
+  assert(src != NULL);
+
+  nr_frq_bnd_it_t dst = {0}; 
+  // [1,1024]
+  assert(src->freqBandIndicatorNr > 0);
+  assert(src->freqBandIndicatorNr < 1025);
+  dst.bnd = src->freqBandIndicatorNr;
+
+  // [0,32]
+  assert(src->supportedSULBandList.list.count < 33);
+  dst.sz_sul = src->supportedSULBandList.list.count; 
+
+  if(dst.sz_sul > 0){
+    dst.sul_bnd_it = calloc(dst.sz_sul, sizeof(uint16_t));
+    assert(dst.sul_bnd_it != NULL && "Memory exhausted");
+  }
+
+  for(size_t i = 0; i < dst.sz_sul; ++i){
+    dst.sul_bnd_it[i] = dec_sul_bnd_it(src->supportedSULBandList.list.array[i]);
+  }
+
+  return dst;
+}
+
+static
+nr_freq_info_t dec_nr_freq_info(NRFrequencyInfo_t const* src)
+{
+  assert(src != NULL);
+
+  nr_freq_info_t dst = {0}; 
+
+  //NR ARFCN
+  //Mandatory
+  //6.2.3.30
+  assert(src->nrARFCN.nRARFCN < 3279166);
+  dst.arfcn = src->nrARFCN.nRARFCN;
+
+  // [1,32]
+  assert(src->frequencyBand_List.list.count > 0); 
+  assert(src->frequencyBand_List.list.count < 33); 
+  
+  dst.sz_frq_bnd_it = src->frequencyBand_List.list.count; 
+  dst.frq_bnd_it = calloc(dst.sz_frq_bnd_it, sizeof(nr_frq_bnd_it_t));
+  assert(dst.frq_bnd_it != NULL && "Memory exhausted");
+  
+  for(size_t i = 0; i < dst.sz_frq_bnd_it; ++i){
+   dst.frq_bnd_it[i] = dec_frq_bnd_it(src->frequencyBand_List.list.array[i]); 
+  }
+
+  // NRFrequency Shift
+  // 7p5khz
+  // Optional
+  assert(src->frequencyShift7p5khz == NULL && "Not implemented");
+
+  return dst;
+}
+
+static
+nr_nghbr_cell_t dec_nr_nghbr_cell(NeighborCell_Item_Choice_NR_t const* src)
+{
+  nr_nghbr_cell_t dst = {0}; 
+
+  // 9.3.41
+  // NR CGI
+  // 6.2.3.7
+  // Mandatory
+  dst.cgi = dec_nr_cgi(&src->nR_CGI); 
+
+  // 9.3.42
+  // NR PCI
+  // Mandatory
+  //[0,1007]
+  assert(src->nR_PCI < 1008);
+  dst.pci = src->nR_PCI;
+
+  // 9.3.43
+  // 5GS TAC
+  // 6.2.3.31
+  // Defined in TS 38.473
+  // 9.3.1.29
+  // Mandatory
+  assert(src->fiveGS_TAC.buf != NULL);
+  assert(src->fiveGS_TAC.size == 3);
+  memcpy(dst.tac, src->fiveGS_TAC.buf, 3);
+
+  // NR Mode Info
+  // Mandatory
+  if(src->nR_mode_info == NeighborCell_Item_Choice_NR__nR_mode_info_fdd	){
+    dst.mode_info = FDD_MODE_NR_NGHBR_CELL_E;
+  } else if(src->nR_mode_info == NeighborCell_Item_Choice_NR__nR_mode_info_tdd	){
+    dst.mode_info = TDD_MODE_NR_NGHBR_CELL_E;
+  } else {
+    assert(0 != 0 && "Unknown mode type");
+  }
+
+  // 9.3.44
+  // NR Frequency Info
+  // 6.2.3.36.
+  // Bug in the standard!!!
+  // 6.2.3.36 should be 6.2.3.35
+  // for O-RAN.WG3.E2SM-R003-v05.00
+  // NR Frequency Info 
+  // Mandatory
+  dst.nr_freq_info = dec_nr_freq_info(&src->nR_FreqInfo);
+
+  // Xn X2 Established
+  // Mandatory
+  if(src->x2_Xn_established == NeighborCell_Item_Choice_NR__x2_Xn_established_true) 
+    dst.xn_x2_established = true;
+  else if(src->x2_Xn_established == NeighborCell_Item_Choice_NR__x2_Xn_established_false){
+    dst.xn_x2_established = false;
+  } else {
+    assert(0 != 0 && "Unknown value");
+  }
+
+  // HO Validated
+  // Mandatory
+  if(src->hO_validated == NeighborCell_Item_Choice_NR__hO_validated_true){
+    dst.ho_validated = true;
+  } else if(src->hO_validated == NeighborCell_Item_Choice_NR__hO_validated_false){
+    dst.ho_validated = false;
+  } else {
+    assert(0 !=0 && "Unknown value");
+  }
+
+  // Version
+  // Mandatory
+  // [1-65535] 
+  assert(src->version > 0);
+  assert(src->version < 65536);
+  dst.version = src->version;
+
+  return dst;
+}
+
+static
+nr_nghbr_cell_t dec_nghbr_cell(NeighborCell_Item_t const* src)
+{
+  nr_nghbr_cell_t dst = {0}; 
+
+  if(src->present == NeighborCell_Item_PR_ranType_Choice_NR) {
+    dst = dec_nr_nghbr_cell(src->choice.ranType_Choice_NR);
+  } else if(src->present == NeighborCell_Item_PR_ranType_Choice_EUTRA){
+    assert(0 != 0 && "Not Implemented");
+  } else {
+    assert(0 != 0 && "Unknown RAT type");
+  }
+
+  return dst;
+}
+
+static
+nghbr_rel_info_t dec_neighbour_rela_tbl(NeighborRelation_Info_t const* src)
+{
+  assert(src != NULL);
+
+  nghbr_rel_info_t dst = {0}; 
+
+  // Serving Cell PCI
+  // Mandatory
+  // 9.3.39
+  dst.pci = dec_cell_pci(&src->servingCellPCI);
+
+  // Serving Cell ARFCN
+  // Mandatory
+  // 9.3.40
+  dst.arfcn = dec_cell_arfcn(&src->servingCellARFCN);
+
+  // Neighbour Cell List
+  // [1,65535]
+  assert(src->neighborCell_List.list.count > 0); 
+  assert(src->neighborCell_List.list.count < 33); 
+
+  dst.sz_nghbr_cell = src->neighborCell_List.list.count;
+  dst.nghbr_cell = calloc(dst.sz_nghbr_cell, sizeof(nr_nghbr_cell_t));
+  assert(dst.nghbr_cell != NULL && "Memory exhausted");
+  for(size_t i = 0; i < dst.sz_nghbr_cell; ++i){
+   dst.nghbr_cell[i] = dec_nghbr_cell(src->neighborCell_List.list.array[i]);    
+  }
+
+  return dst;
+}
+
+static
 seq_cell_info_2_t dec_ind_msg_frmt_4_it_dell_info(E2SM_RC_IndicationMessage_Format4_ItemCell_t const* src)
 {
   assert(src != NULL);
@@ -2008,7 +2287,11 @@ seq_cell_info_2_t dec_ind_msg_frmt_4_it_dell_info(E2SM_RC_IndicationMessage_Form
   // Neighbour Relation Table
   // Optional
   // 9.3.38
-  assert(src->neighborRelation_Table == NULL && "Not implemented");
+  if(src->neighborRelation_Table != NULL) {
+    dst.neighbour_rela_tbl = calloc(1, sizeof(nghbr_rel_info_t));
+    assert(dst.neighbour_rela_tbl != NULL && "Memory exhausted");
+    *dst.neighbour_rela_tbl = dec_neighbour_rela_tbl(src->neighborRelation_Table);  
+  } 
 
   return dst;
 }

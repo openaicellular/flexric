@@ -51,8 +51,8 @@ bool eq_e2ap_node_component_config_add(e2ap_node_component_config_add_t const* m
 
 typedef struct{
   e2ap_node_component_config_add_t* cca;
-  size_t len_cca; 
-} arr_node_component_config_add_t ; 
+  size_t len_cca;
+} arr_node_component_config_add_t ;
 
 #endif
 

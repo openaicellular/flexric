@@ -106,7 +106,7 @@ void free_ul_dl_slice_conf(ul_dl_slice_conf_t* conf)
     if(slice->len_label > 0){
       assert(slice->label != NULL);
       free(slice->label);
-    } 
+    }
 
     if(slice->len_sched > 0){
       assert(slice->sched != NULL);
@@ -257,7 +257,7 @@ bool eq_nvs_slice(nvs_slice_t const* m0, nvs_slice_t const* m1)
   } else if (m0->conf == SLICE_SM_NVS_V0_CAPACITY){
     ret = eq_nvs_cap(&m0->u.capacity, &m1->u.capacity);
   } else {
-    assert("Unknown type");
+    assert(0!=0 && "Unknown type");
   }
 
   return ret;
@@ -310,7 +310,7 @@ bool eq_edf_slice(edf_slice_t const* m0, edf_slice_t const* m1)
 {
   assert(m0 != NULL);
   assert(m1 != NULL);
-  
+
   if(m0->len_over != m1->len_over){
     assert(0!=0);
     return false;
@@ -518,20 +518,16 @@ slice_params_t cp_slice_params(slice_params_t const* src)
   } else if(src->type == SLICE_ALG_SM_V0_SCN19){
       dst.u.scn19 = cp_scn19_slice(&src->u.scn19);
   } else if(src->type == SLICE_ALG_SM_V0_EDF){
-      edf_slice_t* dst_edf = &dst.u.edf;
-      edf_slice_t const* src_edf = &src->u.edf; 
-
-      dst_edf->deadline = src_edf->deadline;
-      dst_edf->guaranteed_prbs = src_edf->guaranteed_prbs;
-      dst_edf->max_replenish = src_edf->max_replenish;
-      dst_edf->len_over = src_edf->len_over;
-      if(dst_edf->len_over > 0){
-        dst_edf->over = calloc(dst_edf->len_over,sizeof(uint32_t));
-        assert(dst_edf->over != NULL && "Memory exhausted");
+      dst.u.edf.deadline = src->u.edf.deadline;
+      dst.u.edf.guaranteed_prbs = src->u.edf.guaranteed_prbs;
+      dst.u.edf.max_replenish = src->u.edf.max_replenish;
+      dst.u.edf.len_over = src->u.edf.len_over;
+      if(dst.u.edf.len_over > 0){
+        dst.u.edf.over = calloc(dst.u.edf.len_over, sizeof(uint32_t));
+        assert(dst.u.edf.over != NULL && "Memory exhausted");
       }
-
-      for(size_t i = 0; i < src_edf->len_over; ++i)
-        dst_edf->over[i] = src_edf->over[i];
+      for(size_t i = 0; i < src->u.edf.len_over; ++i)
+        dst.u.edf.over[i] = src->u.edf.over[i];
   } else {
     assert(0!=0 && "Not implemented or unknown");
   }
@@ -894,7 +890,7 @@ void free_slice_func_def( slice_func_def_t* src)
     free(src->supported_alg);
 }
 
-slice_func_def_t cp_slice_func_def(slice_func_def_t* src)
+slice_func_def_t cp_slice_func_def(slice_func_def_t const* src)
 {
   assert(src != NULL);
 
@@ -910,7 +906,7 @@ slice_func_def_t cp_slice_func_def(slice_func_def_t* src)
   return ans;
 }
 
-bool eq_slice_func_def(slice_func_def_t* m0, slice_func_def_t* m1)
+bool eq_slice_func_def(slice_func_def_t const* m0, slice_func_def_t const* m1)
 {
   assert(m0 != NULL);
   assert(m1 != NULL);

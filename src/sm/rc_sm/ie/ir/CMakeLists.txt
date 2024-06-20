@@ -1,5 +1,5 @@
 set (IR_RC_SRC
-  call_proc_break.c 
+  call_proc_break.c
   e2_node_info_chng.c
   e2sm_rc_act_def_frmt_1.c
   e2sm_rc_act_def_frmt_2.c
@@ -26,24 +26,29 @@ set (IR_RC_SRC
   e2sm_rc_ind_msg_frmt_4.c
   e2sm_rc_ind_msg_frmt_5.c
   e2sm_rc_ind_msg_frmt_6.c
+  eutra_nghbr_cell.c
   lst_ran_param.c
   msg_ev_trg.c
   network_interface_e2rc.c
+  nghbr_cell.c
+  nghbr_rel_info.c
+  nr_freq_info.c
+  nr_nghbr_cell.c
   param_report_def.c
   policy_action.c
   policy_cond.c
-  ran_func_def_ctrl.c 
-  ran_func_def_ev_trig.c 
+  ran_func_def_ctrl.c
+  ran_func_def_ev_trig.c
   ran_func_def_insert.c
   ran_func_def_policy.c
   ran_func_def_report.c
   ran_param_cond_crit_def.c
+  ran_param_def.c
   ran_param_elm_key_false.c
   ran_param_elm_key_true.c
   ran_parameter_test_condition.c
   ran_parameter_value.c
   ran_parameter_value_type.c
-  ran_param_def.c
   ran_param_insertion.c
   ran_param_ins_ind.c
   ran_param_list.c
@@ -59,23 +64,23 @@ set (IR_RC_SRC
   seq_call_proc_type.c
   seq_cell_info_2.c
   seq_cell_info.c
-  seq_ctrl_act.c
   seq_ctrl_act_2.c
+  seq_ctrl_act.c
   seq_ctrl_act_out.c
   seq_ctrl_sma.c
   seq_ctrl_style.c
   seq_ctrl_sty_mul_out.c
-  seq_ev_trg_style.c 
-  seq_ins_ind.c 
+  seq_ev_trg_style.c
   seq_ins_ind_act_2.c
   seq_ins_ind_act_def.c
+  seq_ins_ind.c
   seq_ins_sty.c
   seq_ins_style_2.c
   seq_ins_style_multiple_action.c
-  seq_pol_action.c 
-  seq_policy_sty.c 
-  seq_ran_param_3.c
+  seq_pol_action.c
+  seq_policy_sty.c
   seq_ran_param_2.c
+  seq_ran_param_3.c
   seq_ran_param.c
   seq_report_sty.c
   seq_ue_id.c
@@ -89,6 +94,6 @@ target_include_directories(e2sm_rc_ir_obj
                            "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
                            )
 
-                         #target_compile_options(e2sm_rc_asn1_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
+target_compile_options(e2sm_rc_ir_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter  -fPIC -fvisibility=hidden )
 
 

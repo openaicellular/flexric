@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 #include "e2ap_plmn.h"
-#include "../../../../../util/ngran_types.h"
+#include "../../../../../util/e2ap_ngran_types.h"
 #include "../../../../3gpp/ie/e2ap_gnb_id.h"
 
 #include <stdbool.h>
@@ -36,7 +36,7 @@ extern "C" {
 
 
 typedef struct global_e2_node_id {
-  ngran_node_t type;
+  e2ap_ngran_node_t type;
   e2ap_plmn_t plmn;
   e2ap_gnb_id_t nb_id;
   uint64_t *cu_du_id;
@@ -45,7 +45,7 @@ typedef struct global_e2_node_id {
 global_e2_node_id_t cp_global_e2_node_id(global_e2_node_id_t const* src);
 
 void free_global_e2_node_id(global_e2_node_id_t* src);
- 
+
 void free_global_e2_node_id_wrapper(void* src);
 
 bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id_t* m1); 

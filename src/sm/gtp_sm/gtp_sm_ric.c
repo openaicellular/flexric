@@ -61,6 +61,10 @@ sm_subs_data_t on_subscription_gtp_sm_ric(sm_ric_t const* sm_ric, void* cmd)
     gtp.et.ms = 5;
   } else if (strncmp(cmd, "10_ms", max_str_sz) == 0 ) {
     gtp.et.ms = 10;
+  } else if (strncmp(cmd, "100_ms", max_str_sz) == 0 ) {
+    gtp.et.ms = 100;
+  } else if (strncmp(cmd, "1000_ms", max_str_sz) == 0 ) {
+    gtp.et.ms = 1000;
   } else {
     assert(0 != 0 && "Invalid input");
   }
@@ -145,13 +149,11 @@ static
 sm_ag_if_rd_e2setup_t ric_on_e2_setup_gtp_sm_ric(sm_ric_t const* sm_ric, sm_e2_setup_data_t const* setup)
 {
   assert(sm_ric != NULL); 
-  assert(setup == NULL); 
+  assert(setup != NULL); 
 
-  assert(0!=0 && "Not implemented");
-  sm_ag_if_rd_e2setup_t dst = {0};
+  sm_ag_if_rd_e2setup_t dst = {.type = GTP_AGENT_IF_E2_SETUP_ANS_V0};
   return dst;
 }
-
 
 static
 sm_ag_if_rd_rsu_t on_ric_service_update_gtp_sm_ric(sm_ric_t const* sm_ric, sm_ric_service_update_data_t const* sud)

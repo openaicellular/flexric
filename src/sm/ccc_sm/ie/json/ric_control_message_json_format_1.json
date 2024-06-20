@@ -1,0 +1,35 @@
+{
+  "controlMessageFormat": {
+    "listOfConfigurationStructures": [
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbId": 196269568,
+            "gnbIdLength": 80,
+            "gnbDuId": 184943683,
+            "gnbDuName": "gnb_du_name"
+          }
+        },
+        "oldValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "gnbId": 1315414339,
+            "gnbIdLength": 239,
+            "gnbDuId": 1202309640,
+            "gnbDuName": "gnb_du_name"
+          }
+        },
+        "ranConfigurationStructureName": "O-GNBDUFunction"
+      },
+      {
+        "newValuesOfAttributes": {
+          "ranConfigurationStructure": {
+            "cesSwitch": false,
+            "energySavingControl": "toBeEnergySaving",
+            "energySavingState": "isNotEnergySaving"
+          }
+        },
+        "ranConfigurationStructureName": "O-CESManagementFunction"
+      }
+    ]
+  }
+}

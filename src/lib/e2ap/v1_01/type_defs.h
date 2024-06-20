@@ -26,7 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../../../util/ngran_types.h"
+#include "../../../util/e2ap_ngran_types.h"
 #include "../../../util/byte_array.h"
 #include "e2ap_types/e2_setup_request.h"
 #include "e2ap_types/e2_setup_response.h"
@@ -60,6 +60,7 @@
 #include "e2ap_types/e42_ric_subscription_request.h"
 #include "e2ap_types/e42_ric_subscription_delete_request.h"
 #include "e2ap_types/e42_ric_control_request.h"
+#include "e2ap_types/e42_update_e2_node.h"
 
 //////////////////////////////////////////////////
 
@@ -96,9 +97,10 @@ typedef enum {
   E42_RIC_SUBSCRIPTION_REQUEST = 28,
   E42_RIC_SUBSCRIPTION_DELETE_REQUEST = 29,
   E42_RIC_CONTROL_REQUEST = 30,
+  E42_UPDATE_E2_NODE = 31,
 
   // Last type to indicate no message
-  NONE_E2_MSG_TYPE = 31,
+  NONE_E2_MSG_TYPE = 32,
 } e2_msg_type_t;
 
 typedef struct e2ap_msg_s {
@@ -136,8 +138,9 @@ typedef struct e2ap_msg_s {
     e42_ric_subscription_request_t e42_ric_sub_req;
     e42_ric_subscription_delete_request_t e42_ric_sub_del_req;
     e42_ric_control_request_t e42_ric_ctrl_req;
+    e42_update_e2_node_t e42_updt_e2_node;
   } u_msgs;
-  int64_t tstamp; // for debugginf purposes;
+  int64_t tstamp; // for debugging purposes;
 } e2ap_msg_t;
 
 #endif // E2AP_TYPE_DEFS_H 

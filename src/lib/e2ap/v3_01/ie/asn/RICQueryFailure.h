@@ -21,7 +21,7 @@ extern "C" {
 
 /* RICQueryFailure */
 typedef struct RICQueryFailure {
-	ProtocolIE_Container_2691P22_t	 protocolIEs;
+	ProtocolIE_Container_2702P22_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

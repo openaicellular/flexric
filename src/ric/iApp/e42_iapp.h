@@ -29,7 +29,7 @@
 
 #include "../../util/alg_ds/ds/assoc_container/assoc_generic.h"
 #include "../../util/alg_ds/ds/assoc_container/bimap.h"
-#include "../../util/ngran_types.h"
+#include "../../util/e2ap_ngran_types.h"
 
 #include "../near_ric.h"
 #include "near_ric_if.h"
@@ -44,11 +44,11 @@
 #include <stdbool.h>
 
 #ifdef E2AP_V1
-#define NUM_HANDLE_MSG 31
-#elif E2AP_V2 
-#define NUM_HANDLE_MSG 34
-#elif E2AP_V3 
-#define NUM_HANDLE_MSG 43
+#define NUM_HANDLE_MSG 32 // 31 + E42-UPDATE-E2-NODE
+#elif E2AP_V2
+#define NUM_HANDLE_MSG 35 // 34 + E42-UPDATE-E2-NODE
+#elif E2AP_V3
+#define NUM_HANDLE_MSG 44 // 43 + E42-UPDATE-E2-NODE
 #else
 static_assert(0!=0, "Unknown E2AP version");
 #endif
@@ -82,7 +82,7 @@ typedef struct e42_iapp_s
   atomic_bool stopped;
 } e42_iapp_t;
 
-e42_iapp_t* init_e42_iapp(const char* addr, near_ric_if_t ric_if); //, int port);
+e42_iapp_t* init_e42_iapp(const char* addr, int port, near_ric_if_t ric_if); //, int port);
 
 // Blocking call
 void start_e42_iapp(e42_iapp_t* iapp);

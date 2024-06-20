@@ -76,7 +76,7 @@ byte_array_t gtp_enc_ind_msg_plain(gtp_ind_msg_t const* ind_msg)
 
 //  printf("Size of the byte array = %lu\n", sz);
 
-  ba.buf = malloc(sz); 
+  ba.buf = calloc(1, sz); 
   assert(ba.buf != NULL && "Memory exhausted");
 
   memcpy(ba.buf, &ind_msg->len, sizeof(ind_msg->len));

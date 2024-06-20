@@ -32,7 +32,7 @@ typedef struct{
 // E2 Setup and RIC Service Update. 
 //
 static
-subscribe_timer_t on_subscription_slice_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
+sm_ag_if_ans_subs_t on_subscription_slice_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 {
   assert(sm_agent != NULL);
   assert(data != NULL);
@@ -41,22 +41,19 @@ subscribe_timer_t on_subscription_slice_sm_ag(sm_agent_t const* sm_agent, const 
  
   slice_event_trigger_t ev = slice_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
 
-  subscribe_timer_t timer = {.ms = ev.ms };
-  return timer;
-//  const sm_wr_if_t wr = {.type = SUBSCRIBE_TIMER, .sub_timer = timer };
-
-//  sm->base.io.write(&wr);
-
-//  printf("on_subscription called with event trigger = %u \n", ev.ms);
+  sm_ag_if_ans_subs_t ans = {.type = PERIODIC_SUBSCRIPTION_FLRC};
+  ans.per.t.ms = ev.ms;
+  return ans;
 }
 
 
 static
-exp_ind_data_t on_indication_slice_sm_ag(sm_agent_t const* sm_agent, void* act_def)
+exp_ind_data_t on_indication_slice_sm_ag(sm_agent_t const* sm_agent, on_ind_t on_ind)
 {
   //printf("on_indication SLICE called \n");
   assert(sm_agent != NULL);
-  assert(act_def == NULL && "Subscription data not needed for this SM");
+  assert(on_ind.type == PERIODIC_ON_INDICATION_EVENT);
+  assert(on_ind.act_def == NULL && "Action definition data not needed for this SM");
   sm_slice_agent_t* sm = (sm_slice_agent_t*)sm_agent;
 
   exp_ind_data_t ret = {.has_value = true};
@@ -139,7 +136,7 @@ sm_e2_setup_data_t on_e2_setup_slice_sm_ag(sm_agent_t const* sm_agent)
   assert(setup.ran_fun_def != NULL);
 
   memcpy(setup.ran_fun_def, SM_SLICE_STR , sz);
- 
+
 /*
   setup.len_rfd = strlen(sm->base.ran_func_name);
   setup.ran_fun_def = calloc(1, strlen(sm->base.ran_func_name));
@@ -193,7 +190,7 @@ char const* def_slice_sm_ag(void)
 static
 uint16_t id_slice_sm_ag(void)
 {
-  return SM_SLICE_ID; 
+  return SM_SLICE_ID;
 }
 
   // Revision
@@ -216,7 +213,7 @@ sm_agent_t* make_slice_sm_agent(sm_io_ag_ran_t io)
   sm_slice_agent_t* sm = calloc(1, sizeof(sm_slice_agent_t));
   assert(sm != NULL && "Memory exhausted!!!");
 
-//  *(uint16_t*)(&sm->base.ran_func_id) = SM_SLICE_ID; 
+//  *(uint16_t*)(&sm->base.ran_func_id) = SM_SLICE_ID;
 
 //  sm->base.io = io;
 
@@ -245,9 +242,9 @@ sm_agent_t* make_slice_sm_agent(sm_io_ag_ran_t io)
   sm->base.info.oid = oid_slice_sm_ag;
 
 
-//  *(uint16_t*)(&sm->base.ran_func_id) = SM_SLICE_ID; 
+//  *(uint16_t*)(&sm->base.ran_func_id) = SM_SLICE_ID;
 //  assert(strlen(SM_SLICE_STR) < sizeof( sm->base.ran_func_name) );
-//  memcpy(sm->base.ran_func_name, SM_SLICE_STR, strlen(SM_SLICE_STR)); 
+//  memcpy(sm->base.ran_func_name, SM_SLICE_STR, strlen(SM_SLICE_STR));
 
   return &sm->base;
 }

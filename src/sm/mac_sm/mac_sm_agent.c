@@ -52,7 +52,7 @@ typedef struct{
 // E2 Setup and RIC Service Update. 
 //
 static
-subscribe_timer_t on_subscription_mac_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
+sm_ag_if_ans_subs_t on_subscription_mac_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 {
   assert(sm_agent != NULL);
   assert(data != NULL);
@@ -61,19 +61,21 @@ subscribe_timer_t on_subscription_mac_sm_ag(sm_agent_t const* sm_agent, const sm
  
   mac_event_trigger_t ev = mac_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
 
-  subscribe_timer_t timer = {.ms = ev.ms };
-  return timer;
+  sm_ag_if_ans_subs_t ans = {.type = PERIODIC_SUBSCRIPTION_FLRC}; 
+  ans.per.t.ms = ev.ms;
+  return ans;
 //  const sm_wr_if_t wr = {.type = SUBSCRIBE_TIMER, .sub_timer = timer };
 //  sm->base.io.write(&wr);
 //  printf("on_subscription called with event trigger = %u \n", ev.ms);
 }
 
 static
-exp_ind_data_t on_indication_mac_sm_ag(sm_agent_t const* sm_agent, void* act_def)
+exp_ind_data_t on_indication_mac_sm_ag(sm_agent_t const* sm_agent, on_ind_t on_ind)
 {
   //printf("on_indication called \n");
   assert(sm_agent != NULL);
-  assert(act_def == NULL && "Action definition data not needed for this SM");
+  assert(on_ind.type == PERIODIC_ON_INDICATION_EVENT);
+  assert(on_ind.act_def == NULL && "Action definition data not needed for this SM");
   sm_mac_agent_t* sm = (sm_mac_agent_t*)sm_agent;
 
   exp_ind_data_t ret = {.has_value = true};
@@ -94,7 +96,7 @@ exp_ind_data_t on_indication_mac_sm_ag(sm_agent_t const* sm_agent, void* act_def
   defer({ free_mac_ind_hdr(&mac.hdr) ;});
   defer({ free_mac_ind_msg(&mac.msg) ;});
   defer({ free_mac_call_proc_id(mac.proc_id);});
- 
+
   // This may allocate memory by the RAN
   if(sm->base.io.read_ind(&mac) == false)
     return (exp_ind_data_t){.has_value = false};
@@ -117,23 +119,27 @@ sm_ctrl_out_data_t on_control_mac_sm_ag(sm_agent_t const* sm_agent, sm_ctrl_req_
   assert(data != NULL);
   sm_mac_agent_t* sm = (sm_mac_agent_t*) sm_agent;
 
-  mac_ctrl_hdr_t hdr = mac_dec_ctrl_hdr(&sm->enc, data->len_hdr, data->ctrl_hdr);
-  assert(hdr.dummy == 1 && "Only dummy == 1 supported ");
+  mac_ctrl_req_data_t ctrl = {0};
+  ctrl.hdr = mac_dec_ctrl_hdr(&sm->enc, data->len_hdr, data->ctrl_hdr);
+  defer({ free_mac_ctrl_hdr(&ctrl.hdr); });
 
-  mac_ctrl_msg_t msg = mac_dec_ctrl_msg(&sm->enc, data->len_msg, data->ctrl_msg);
-  assert(msg.action == 42 && "Only action number 42 supported");
+  ctrl.msg = mac_dec_ctrl_msg(&sm->enc, data->len_msg, data->ctrl_msg);
+  defer({ free_mac_ctrl_msg(&ctrl.msg); });
 
 //  sm_ag_if_wr_t wr = {.type = CONTROL_SM_AG_IF_WR };
-//  wr.ctrl.type = MAC_CTRL_REQ_V0; 
+//  wr.ctrl.type = MAC_CTRL_REQ_V0;
 
-  mac_ctrl_req_data_t mac_ctrl = {0};
-  mac_ctrl.hdr.dummy = hdr.dummy;
-  mac_ctrl.msg.action = msg.action;
+  sm_ag_if_ans_t ans = sm->base.io.write_ctrl(&ctrl);
+  assert(ans.type == CTRL_OUTCOME_SM_AG_IF_ANS_V0);
+  assert(ans.ctrl_out.type == MAC_AGENT_IF_CTRL_ANS_V0);
 
-  sm->base.io.write_ctrl(&mac_ctrl);
+  defer({free_mac_ctrl_out(&ans.ctrl_out.mac); });
+
+  byte_array_t ba = mac_enc_ctrl_out(&sm->enc, &ans.ctrl_out.mac);
+
   sm_ctrl_out_data_t ret = {0};
-  ret.len_out = 0;
-  ret.ctrl_out = NULL;
+  ret.len_out = ba.len;
+  ret.ctrl_out = ba.buf;
 
   //printf("on_control called \n");
   return ret;
@@ -145,7 +151,7 @@ sm_e2_setup_data_t on_e2_setup_mac_sm_ag(sm_agent_t const* sm_agent)
   assert(sm_agent != NULL);
 //  printf("[E2SM MAC] on_e2_setup called \n");
 
-  // Fill E2 Setup Request 
+  // Fill E2 Setup Request
   // sm_ag_if_rd_t rd_if = {.type = E2_SETUP__AGENT_IF_ANS_V0};
   // rd_if.e2ap.type = MAC_AGENT_IF_E2_SETUP_ANS_V0;
 
@@ -157,7 +163,7 @@ sm_e2_setup_data_t on_e2_setup_mac_sm_ag(sm_agent_t const* sm_agent)
   sm_mac_agent_t* sm = (sm_mac_agent_t*)sm_agent;
   (void)sm;
 
-  sm_e2_setup_data_t setup = {.len_rfd = 0, .ran_fun_def = NULL }; 
+  sm_e2_setup_data_t setup = {.len_rfd = 0, .ran_fun_def = NULL };
 
   size_t const sz = strnlen(SM_MAC_STR, 256);
   assert(sz < 256 && "Buffer overeflow?");
@@ -167,7 +173,7 @@ sm_e2_setup_data_t on_e2_setup_mac_sm_ag(sm_agent_t const* sm_agent)
   assert(setup.ran_fun_def != NULL);
 
   memcpy(setup.ran_fun_def, SM_MAC_STR , sz);
- 
+
   /*
   setup.len_rfd = strlen(sm->base.ran_func_name);
   setup.ran_fun_def = calloc(1, strlen(sm->base.ran_func_name));
@@ -195,7 +201,7 @@ static
   assert(0!=0 && "Not implemented");
 
   printf("on_ric_service_update called \n");
-  sm_ric_service_update_data_t dst = {0}; 
+  sm_ric_service_update_data_t dst = {0};
   return dst;
 }
 
@@ -221,7 +227,7 @@ char const* def_mac_sm_ag(void)
 static
 uint16_t id_mac_sm_ag(void)
 {
-  return SM_MAC_ID; 
+  return SM_MAC_ID;
 }
 
   // Revision
@@ -249,7 +255,7 @@ sm_agent_t* make_mac_sm_agent(sm_io_ag_ran_t io)
   // Read
   sm->base.io.read_ind = io.read_ind_tbl[MAC_STATS_V0];
   sm->base.io.read_setup = io.read_setup_tbl[MAC_AGENT_IF_E2_SETUP_ANS_V0];
- 
+
   //Write
   sm->base.io.write_ctrl = io.write_ctrl_tbl[MAC_CTRL_REQ_V0];
   sm->base.io.write_subs = io.write_subs_tbl[MAC_SUBS_V0];
@@ -272,7 +278,7 @@ sm_agent_t* make_mac_sm_agent(sm_io_ag_ran_t io)
 
 
 
-  //*(uint16_t*)(&sm->base.ran_func_id) = SM_MAC_ID; 
+  //*(uint16_t*)(&sm->base.ran_func_id) = SM_MAC_ID;
   //assert(strlen( SM_MAC_STR ) < sizeof(sm->base.ran_func_name));
   //memcpy(sm->base.ran_func_name, SM_MAC_STR, strlen(SM_MAC_STR));
 

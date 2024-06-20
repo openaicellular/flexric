@@ -26,7 +26,7 @@
 static
 bool supported_type(e2ap_node_comp_interface_type_e type){
 
-  if(type == NG_E2AP_NODE_COMP_INTERFACE_TYPE 
+  if(type == NG_E2AP_NODE_COMP_INTERFACE_TYPE
      || type == F1_E2AP_NODE_COMP_INTERFACE_TYPE
      || type == E1_E2AP_NODE_COMP_INTERFACE_TYPE
      || type == S1_E2AP_NODE_COMP_INTERFACE_TYPE)
@@ -68,7 +68,7 @@ e2ap_node_comp_id_t cp_e2ap_node_comp_id(e2ap_node_comp_id_t const* src)
   } else if (src->type == E1_E2AP_NODE_COMP_INTERFACE_TYPE ){
     dst.e1_gnb_cu_up_id = src->e1_gnb_cu_up_id;
   } else if (src->type == S1_E2AP_NODE_COMP_INTERFACE_TYPE ){
-    dst.s1_mme_name = copy_byte_array(src->s1_mme_name); 
+    dst.s1_mme_name = copy_byte_array(src->s1_mme_name);
   } else {
     assert(0 != 0 && "Unknown type");
   }

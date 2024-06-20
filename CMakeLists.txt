@@ -5,7 +5,7 @@ project(Flexric VERSION 0.0.1 LANGUAGES C)
 set(CMAKE_C_STANDARD 11)
 
 ###
-### Reduce compile time 
+### Reduce compile time
 ###
 
 # use ccache if available
@@ -52,7 +52,7 @@ if($default_build_type STREQUAL "Release")
 endif()
 
 ########
-### SANITIZER 
+### SANITIZER
 ########
 
 #https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110157
@@ -74,19 +74,18 @@ endif()
 
 
 ########
-### Compiler 
+### Compiler
 ########
-
 
 if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
   # using Clang
   add_compile_options("-fblocks;")
   add_link_options("-lBlocksRuntime;")
-  
+
   if(${SANITIZER} STREQUAL "ADDRESS")
     message(FATAL_ERROR "ASan not supported by CLANG as FlexRIC uses blocks e.g., defer. Use gcc or unselect the sanitizer")
-  endif() 
-  
+  endif()
+
   # using GCC
 elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
   # sudo update-alternatives --config gcc
@@ -119,7 +118,7 @@ if(CPP_CHECK)
 endif()
 
 ########
-### Clang Tidy 
+### Clang Tidy
 #######
 option(Clang_Tidy "Clang Tidy" OFF)
 if(Clang_Tidy)
@@ -127,35 +126,13 @@ if(Clang_Tidy)
 endif()
 
 ########
-### NUM_THREADS 
+### NUM_THREADS
 ########
-set(NUM_THREADS_RIC "2" CACHE STRING "Number of threads in the RIC's task manager")
+set(NUM_THREADS_RIC "4" CACHE STRING "Number of threads in the RIC's task manager")
 
-
-
-########
-### xApp 
-########
-set(XAPP_DB "SQLITE3_XAPP" CACHE STRING "xApp DB")
-set_property(CACHE XAPP_DB PROPERTY STRINGS "SQLITE3_XAPP" "NONE_XAPP")
-message(STATUS "Selected xApp DB : ${XAPP_DB}")
-
-set(XAPP_DB_DIR "/tmp/" CACHE STRING "The xApp DB write directory")
-if(NOT XAPP_DB_DIR  MATCHES "/$")
-  message(FATAL_ERROR "xApp directory path needs to terminate in one / char")
-endif() 
-
-if(NOT EXISTS ${XAPP_DB_DIR})
-  message(FATAL_ERROR "Selected XAPP_DB_DIR does not exist. Please create it or change path")
-endif()
-
-message(STATUS "Selected xApp dir : ${XAPP_DB_DIR}")
-
-option(XAPP_MULTILANGUAGE "xApp Multilanguage" ON)
-message(STATUS "xApp multilanguage support e.g., python : ${XAPP_MULTILANGUAGE}")
 
 ########
-### Coverage 
+### Coverage
 ########
 
 option(CODE_COVERAGE "Code coverage" OFF)
@@ -168,7 +145,7 @@ if(CODE_COVERAGE)
 endif()
 
 ########
-### Profiler 
+### Profiler
 ########
 
 option(CODE_PROFILER "Code Profiler" OFF)
@@ -197,7 +174,11 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(BUILDING_LIBRARY STREQUAL "STATIC")
-  add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-Warray-bounds;-Wempty-body;") #-fopt-info
+  if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-Warray-bounds;-Wempty-body;-fstack-protector-strong;-fstack-clash-protection;-D_FORTIFY_SOURCE=3;-D_GLIBCXX_ASSERTIONS;") # -fanalyzer -fopt-info -fhardened
+  elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-Warray-bounds;-Wempty-body;-fstack-protector-strong;-fstack-protector;-D_FORTIFY_SOURCE=3;-D_GLIBCXX_ASSERTIONS") #-fopt-info -fhardened
+  endif()
 elseif(BUILDING_LIBRARY STREQUAL "DYNAMIC")
   # -fPIC flag
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -208,7 +189,7 @@ endif()
 
 
 #######
-## E2AP encoding and versioning 
+## E2AP encoding and versioning
 #######
 
 set(E2AP_ENCODING "ASN" CACHE STRING "The E2AP encoding to use")
@@ -220,29 +201,32 @@ set_property(CACHE E2AP_VERSION PROPERTY STRINGS "E2AP_V1" "E2AP_V2" "E2AP_V3")
 message(STATUS "Selected E2AP_VERSION: ${E2AP_VERSION}")
 
 if(E2AP_VERSION STREQUAL "E2AP_V1")
-  add_library(e2ap_ran_func_obj OBJECT 
+  add_library(e2ap_ran_func_obj OBJECT
               src/lib/e2ap/v1_01/e2ap_types/common/e2ap_ran_function.c )
-  add_library(e2ap_plmn_obj OBJECT 
+  add_library(e2ap_plmn_obj OBJECT
               src/lib/e2ap/v1_01/e2ap_types/common/e2ap_plmn.c )
-  add_library(e2ap_global_node_id_obj OBJECT 
+  add_library(e2ap_global_node_id_obj OBJECT
               src/lib/e2ap/v1_01/e2ap_types/common/e2ap_global_node_id.c )
 elseif(E2AP_VERSION STREQUAL "E2AP_V2")
-  add_library(e2ap_ran_func_obj OBJECT 
+  add_library(e2ap_ran_func_obj OBJECT
               src/lib/e2ap/v2_03/e2ap_types/common/e2ap_ran_function.c )
-  add_library(e2ap_plmn_obj OBJECT 
+  add_library(e2ap_plmn_obj OBJECT
               src/lib/e2ap/v2_03/e2ap_types/common/e2ap_plmn.c )
-  add_library(e2ap_global_node_id_obj OBJECT 
+  add_library(e2ap_global_node_id_obj OBJECT
               src/lib/e2ap/v2_03/e2ap_types/common/e2ap_global_node_id.c )
 elseif(E2AP_VERSION STREQUAL "E2AP_V3")
-  add_library(e2ap_ran_func_obj OBJECT 
+  add_library(e2ap_ran_func_obj OBJECT
               src/lib/e2ap/v3_01/e2ap_types/common/e2ap_ran_function.c )
-  add_library(e2ap_plmn_obj OBJECT 
+  add_library(e2ap_plmn_obj OBJECT
               src/lib/e2ap/v3_01/e2ap_types/common/e2ap_plmn.c )
-  add_library(e2ap_global_node_id_obj OBJECT 
+  add_library(e2ap_global_node_id_obj OBJECT
               src/lib/e2ap/v3_01/e2ap_types/common/e2ap_global_node_id.c )
 else()
   message(FATAL_ERROR "E2AP Unknown version selected")
 endif()
+
+target_compile_options(e2ap_ran_func_obj PRIVATE -fPIC -fvisibility=hidden)
+
 
 #######
 ## Service Models 
@@ -255,14 +239,19 @@ set(SM_ENCODING_KPM "ASN" CACHE STRING "The KPM SM encoding to use")
 set_property(CACHE SM_ENCODING_KPM PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
 message(STATUS "Selected KPM SM_ENCODING: ${SM_ENCODING_KPM}")
 
-set(KPM_VERSION "KPM_V2_03" CACHE STRING "The KPM SM version to use")
-set_property(CACHE SM_ENCODING_KPM PROPERTY STRINGS  "KPM_V2_01" "KPM_V2_03" "KPM_V3_00")
+set(KPM_VERSION "KPM_V3_00" CACHE STRING "The KPM SM version to use")
+set_property(CACHE KPM_VERSION PROPERTY STRINGS  "KPM_V2_01" "KPM_V2_03" "KPM_V3_00")
 message(STATUS "Selected KPM Version: ${KPM_VERSION}")
 
 # RC service Model encoding definitions
 set(SM_ENCODING_RC "ASN" CACHE STRING "The RC SM encoding to use")
 set_property(CACHE SM_ENCODING_RC PROPERTY STRINGS "PLAIN" "ASN" "FLATBUFFERS")
 message(STATUS "Selected RC SM_ENCODING: ${SM_ENCODING_RC}")
+
+# CCC service Model encoding definitions
+set(SM_ENCODING_CCC "JSON" CACHE STRING "The CCC SM encoding to use")
+set_property(CACHE SM_ENCODING_CCC PROPERTY STRINGS "PLAIN" "JSON" "FLATBUFFERS")
+message(STATUS "Selected CCC SM_ENCODING: ${SM_ENCODING_CCC}")
 
 # MAC Service Model
 set(SM_ENCODING_MAC "PLAIN" CACHE STRING "The MAC SM encoding to use")
@@ -303,17 +292,42 @@ if(E2AP_ENCODING STREQUAL "FLATBUFFERS")
     )
 endif()
 
+########
+### xApp
+########
+set(XAPP_DB "MYSQL_XAPP" CACHE STRING "xApp DB")
+set_property(CACHE XAPP_DB PROPERTY STRINGS "MYSQL_XAPP" "SQLITE3_XAPP" "NONE_XAPP")
+message(STATUS "Selected xApp DB : ${XAPP_DB}")
+
+option(XAPP_MULTILANGUAGE "xApp Multilanguage" OFF)
+message(STATUS "xApp multilanguage support e.g., python : ${XAPP_MULTILANGUAGE}")
+
+
 ###
 # set install options
 ###
-set(NEAR_RIC_INSTALL "FALSE" CACHE STRING "NEAR real time RIC install selection")
-set_property(CACHE NEAR_RIC_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(EMU_AGENT_INSTALL "FALSE" CACHE STRING "emulator of E2 agent")
-set_property(CACHE EMU_AGENT_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(XAPP_C_INSTALL "FALSE" CACHE STRING "XAPP in C install selection")
-set_property(CACHE XAPP_C_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(UNIT_TEST "TRUE" CACHE STRING "build test cases")
-set_property(CACHE UNIT_TEST PROPERTY STRINGS "TRUE" "FALSE")
+option(NEAR_RIC "Build and install Near-Real-Time RIC" ON)
+message(STATUS "Build and install Near-Real-Time RIC: ${NEAR_RIC}")
+option(EMU_AGENT "Build and install emulator of E2 agents" ON)
+message(STATUS "Build and install emulator of E2 agents: ${EMU_AGENT}")
+option(XAPP_C "Build and install xAPP in C" ON)
+message(STATUS "Build and install xAPP in C: ${XAPP_C}")
+option(UNIT_TEST "Build and install unit test" ON)
+message(STATUS "Build and install unit test: ${UNIT_TEST}")
+
+option(PROXY_AGENT "Build and install proxy-agent to support websocket interface of RAN" OFF)
+message(STATUS "Build and install proxy-agent to support websocket interface of RAN: ${PROXY_AGENT}")
+if (PROXY_AGENT)
+  set(SM_KPM ON)
+  set(SM_RC ON)
+  set(SM_CCC ON)
+  set(SM_MAC OFF)
+  set(SM_RLC OFF)
+  set(SM_PDCP OFF)
+  set(SM_SLICE OFF)
+  set(SM_TC OFF)
+  set(SM_GTP OFF)
+endif()
 
 include_directories(src)
 add_subdirectory(src)
@@ -327,25 +341,77 @@ endif ()
 # Install the Service models
 ###
 
-message(STATUS "install prefix path ${CMAKE_INSTALL_PREFIX}/flexric")
+message(STATUS "Install prefix path ${CMAKE_INSTALL_PREFIX}/flexric")
 include(GNUInstallDirs)
-install(TARGETS mac_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS rlc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS pdcp_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS slice_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS tc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS gtp_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS kpm_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
-install(TARGETS rc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+option(SM_MAC "Install MAC SM" ON)
+message(STATUS "Install MAC SM: ${SM_MAC}")
+if (SM_MAC)
+  install(TARGETS mac_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_RLC "Install RLC SM" ON)
+message(STATUS "Install RLC SM: ${SM_RLC}")
+if (SM_RLC)
+  install(TARGETS rlc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_PDCP "Install PDCP SM" ON)
+message(STATUS "Install PDCP SM: ${SM_PDCP}")
+if (SM_PDCP)
+  install(TARGETS pdcp_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_SLICE "Install SLICE SM" ON)
+message(STATUS "Install SLICE SM: ${SM_SLICE}")
+if (SM_SLICE)
+  install(TARGETS slice_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_TC "Install TC SM" ON)
+message(STATUS "Install TC SM: ${SM_TC}")
+if (SM_TC)
+  install(TARGETS tc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_GTP "Install GTP SM" ON)
+message(STATUS "Install GTP SM: ${SM_GTP}")
+if (SM_GTP)
+  install(TARGETS gtp_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_KPM "Install KPM SM" ON)
+message(STATUS "Install KPM SM: ${SM_KPM}")
+if (SM_KPM)
+  install(TARGETS kpm_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_RC "Install RC SM" ON)
+message(STATUS "Install RC SM: ${SM_RC}")
+if (SM_RC)
+  install(TARGETS rc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
+
+option(SM_CCC "Install CCC SM" ON)
+message(STATUS "Install CCC SM: ${SM_CCC}")
+if (SM_CCC)
+  install(TARGETS ccc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
+endif()
 
 ###
 # Install the configuration file
 ###
+# Find all *.conf & *.json files recursively in the source directory
+file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/conf_files/*.conf")
+file(GLOB_RECURSE JSON_FILES "${CMAKE_SOURCE_DIR}/conf_files/*.json")
 
-install(FILES flexric.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
+# Add BOTH to the install command
+install(FILES ${CONF_FILES}
+        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
+install(FILES ${JSON_FILES}
+        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
 
 ###
-# CTest 
+# CTest
 ###
 
 set(CTEST_PARALLEL_LEVEL 4)
@@ -354,23 +420,98 @@ enable_testing()
 ###
 # Install Near real-time RIC
 ###
-if (NEAR_RIC_INSTALL)
-  install(TARGETS nearRT-RIC DESTINATION ${CMAKE_INSTALL_BINDIR})
+if (NEAR_RIC)
+  install(TARGETS nearRT-RIC DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/ric)
 endif ()
 
 ###
 # Install Emulator Agent
 ###
-if (EMU_AGENT_INSTALL)
-  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+if (EMU_AGENT)
+  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/e2agent)
+  if (PROXY_AGENT)
+    install(TARGETS proxy_agent DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/e2agent)
+  endif()
 endif ()
 
+
 ###
-# Install Emulator Agent
+# Install xApps
 ###
-if (XAPP_C_INSTALL)
-  install(TARGETS xapp_mac_rlc_pdcp_moni xapp_slice_moni_ctrl xapp_kpm_moni xapp_gtp_moni xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR})
+if (XAPP_C)
+  # hw
+  install(TARGETS xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  # monitor
+  install(TARGETS xapp_all_moni
+      xapp_cust_moni
+      xapp_oran_moni
+      DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  # slice ctrl
+  install(TARGETS xapp_cust_slice_moni_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  # rb ctrl
+  install(TARGETS xapp_oran_rb_ctrl DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  # mwc
+  install(TARGETS xapp_rc_ho_kpm DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  install(TARGETS xapp_rc_ctrl_ho DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
+  install(TARGETS xapp_rc_moni_ho_pre DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/c)
 endif ()
+
+
+if (XAPP_PYTHON_SWIG)
+  install(FILES
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/xapp_sdk.py
+      ${CMAKE_BINARY_DIR}/examples/xApp/python3/xapp_sdk/_xapp_sdk.so
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/xapp_sdk)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_all_moni.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_oran_moni.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/monitor/xapp_cust_moni.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/monitor)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/control/xapp_slice_moni_ctrl.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/control)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/interactive/xapp.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/interactive)
+  install(TARGETS e42_xapp_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
+
+if(XAPP_PYTHON_ML)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/xapp_sdk.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/_xapp_sdk.so
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/core.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/helpers.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/__init__.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON/ricmon)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/metrics/prb_utilization.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/ricmon/metrics/__init__.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON/ricmon/metrics)
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/preprocs.py
+          ${CMAKE_BINARY_DIR}/examples/xApp/python3/RICMON/run.py
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/python3/dist-packages/RICMON)
+endif()
+
+if (XAPP_GO_SWIG)
+
+  install(FILES
+          ${CMAKE_BINARY_DIR}/examples/xApp/go/xapp_sdk/libxapp_sdk.so
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}) # no need to put libxapp_sdk.go
+
+  install(PROGRAMS ${GO_BINARIES}
+          DESTINATION ${CMAKE_INSTALL_BINDIR}/flexric/xApp/go)
+
+  # Find all *.conf files recursively in the source directory
+    file(GLOB_RECURSE CONF_FILES "${CMAKE_SOURCE_DIR}/examples/xApp/go/*.conf")
+
+  # Add these to the install command
+    install(FILES ${CONF_FILES}
+            DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
+
+endif()
 
 
 # make uninstall
@@ -382,4 +523,3 @@ add_custom_command(
         COMMAND xargs rm -vf < install_manifest.txt || echo Nothing in
         install_manifest.txt to be uninstalled!
 )
-

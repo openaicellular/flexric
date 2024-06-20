@@ -21,7 +21,7 @@ extern "C" {
 
 /* E42RICsubscriptionRequest */
 typedef struct E42RICsubscriptionRequest {
-	ProtocolIE_Container_2691P4_t	 protocolIEs;
+	ProtocolIE_Container_2702P4_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

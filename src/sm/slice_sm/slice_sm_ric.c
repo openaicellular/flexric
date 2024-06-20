@@ -39,6 +39,10 @@ sm_subs_data_t on_subscription_slice_sm_ric(sm_ric_t const* sm_ric, void* cmd)
     slice.et.ms = 5;
   } else if (strncmp(cmd, "10_ms", max_str_sz) == 0 ) {
     slice.et.ms = 10;
+  } else if (strncmp(cmd, "100_ms", max_str_sz) == 0 ) {
+    slice.et.ms = 100;
+  } else if (strncmp(cmd, "1000_ms", max_str_sz) == 0 ) {
+    slice.et.ms = 1000;
   } else {
     assert(0 != 0 && "Invalid input");
   }
@@ -82,7 +86,12 @@ sm_ctrl_req_data_t ric_on_control_req_slice_sm_ric(sm_ric_t const* sm_ric, void*
 
   sm_slice_ric_t* sm = (sm_slice_ric_t*)sm_ric;  
 
-  slice_ctrl_req_data_t  const* data = (  slice_ctrl_req_data_t const*)ctrl; 
+  sm_ag_if_wr_t* wr = (sm_ag_if_wr_t*)ctrl;
+  assert(wr->type == CONTROL_SM_AG_IF_WR);
+  assert(wr->ctrl.type == SLICE_CTRL_REQ_V0);
+
+  slice_ctrl_req_data_t const* data = &wr->ctrl.slice_req_ctrl;
+  assert(data->hdr.dummy == 2);
 
   byte_array_t ba = slice_enc_ctrl_hdr(&sm->enc, &data->hdr);
 
@@ -96,7 +105,6 @@ sm_ctrl_req_data_t ric_on_control_req_slice_sm_ric(sm_ric_t const* sm_ric, void*
 
   return ret_data;
 }
-
 
 static
 sm_ag_if_ans_ctrl_t ric_on_control_out_slice_sm_ric(sm_ric_t const* sm_ric, const sm_ctrl_out_data_t * out)
@@ -114,17 +122,14 @@ sm_ag_if_ans_ctrl_t ric_on_control_out_slice_sm_ric(sm_ric_t const* sm_ric, cons
   return ag_if;
 }
 
-
 static
 sm_ag_if_rd_e2setup_t ric_on_e2_setup_slice_sm_ric(sm_ric_t const* sm_ric, sm_e2_setup_data_t const* setup)
 {
   assert(sm_ric != NULL); 
-  assert(setup == NULL); 
-  //  sm_slice_ric_t* sm = (sm_slice_ric_t*)sm_ric;  
+  assert(setup != NULL); 
 
-  assert(0!=0 && "Not implemented");
+  sm_ag_if_rd_e2setup_t dst = {.type = SLICE_AGENT_IF_E2_SETUP_ANS_V0 };
 
-  sm_ag_if_rd_e2setup_t dst = {0};
   return dst;
 }
 

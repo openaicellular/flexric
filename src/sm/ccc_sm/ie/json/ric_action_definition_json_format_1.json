@@ -1,0 +1,22 @@
+{
+  "actionDefinitionFormat": {
+    "listOfNodeLevelRANConfigurationStructuresForADF": [
+      {
+        "listOfAttributes": [],
+        "ranConfigurationStructureName": "test",
+        "reportType": "change"
+      },
+      {
+        "listOfAttributes": [],
+        "ranConfigurationStructureName": "test",
+        "reportType": "change"
+      },
+      {
+        "listOfAttributes": [],
+        "ranConfigurationStructureName": "test",
+        "reportType": "all"
+      }
+    ]
+  },
+  "ricStyleType": 725
+}

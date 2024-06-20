@@ -30,6 +30,7 @@
 #include "../sm/tc_sm/tc_sm_id.h"
 #include "../sm/rc_sm/rc_sm_id.h"
 #include "../sm/mac_sm/mac_sm_id.h"
+#include "../sm/ccc_sm/ccc_sm_id.h"
 
 #include <signal.h>
 #include <stdio.h>
@@ -68,7 +69,6 @@ void init_xapp_api(fr_args_t const* args)
   assert(xapp == NULL && "The init_xapp_api function can only be called once");
   assert(args != NULL);
 
-  // Signal handler
   signal(SIGINT, sig_handler);
 
   xapp = init_e42_xapp(args);
@@ -79,9 +79,9 @@ void init_xapp_api(fr_args_t const* args)
 
   while(connected_e42_xapp(xapp) == false)
     sleep(1);
- 
+
 }
-  
+
 bool try_stop_xapp_api(void)
 {
   assert(xapp != NULL);
@@ -98,13 +98,19 @@ bool try_stop_xapp_api(void)
   return true;
 }
 
-e2_node_arr_t e2_nodes_xapp_api(void)
+e2_node_arr_xapp_t e2_nodes_xapp_api(void)
 {
   assert(xapp != NULL);
   
   return e2_nodes_xapp(xapp);
 }
 
+size_t e2_nodes_len_xapp_api(void)
+{
+  assert(xapp != NULL);
+
+  return e2_nodes_len_xapp(xapp);
+}
 /*
 static inline
 bool valid_interval(inter_xapp_e i)
@@ -146,7 +152,7 @@ bool valid_sm_id(global_e2_node_id_t* id, uint32_t sm_id)
   assert(id != NULL);
 
   // Only for testing purposes
-  assert( sm_id == 2 ||  sm_id == 3 ||  sm_id == 142 || sm_id == 143 || sm_id == 144 
+  assert( sm_id == 2 ||  sm_id == 3 || sm_id == 4 || sm_id == 142 || sm_id == 143 || sm_id == 144
       || sm_id == 145 || sm_id == 146 || sm_id == 147 || sm_id == 148);
 
   return true;
@@ -179,7 +185,7 @@ sm_ans_xapp_t control_sm_xapp_api(global_e2_node_id_t* id, uint32_t ran_func_id,
 {
   assert(xapp != NULL);
   assert(id != NULL);
-  assert(ran_func_id == SM_MAC_ID || ran_func_id == SM_SLICE_ID || ran_func_id == SM_TC_ID || ran_func_id == SM_RC_ID);
+  assert(ran_func_id == SM_MAC_ID || ran_func_id == SM_SLICE_ID || ran_func_id == SM_TC_ID || ran_func_id == SM_RC_ID || ran_func_id == SM_CCC_ID);
   assert(wr != NULL);
 
   return control_sm_sync_xapp(xapp, id, ran_func_id, wr);

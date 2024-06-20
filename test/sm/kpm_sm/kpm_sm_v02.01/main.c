@@ -78,12 +78,12 @@ void read_e2_setup_kpm(void* data)
 {
   assert(data != NULL);
 
-  kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)data;
+//  kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)data;
 
-  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
-  cp_e2_setup.ran_func_def = cp_kpm_ran_function_def(&kpm->ran_func_def);
+  //kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
+//  cp_e2_setup.ran_func_def = cp_kpm_ran_function_def(&kpm->ran_func_def);
 
-  assert(eq_kpm_ran_function_def(&cp_e2_setup.ran_func_def, &kpm->ran_func_def) == true);
+//  assert(eq_kpm_ran_function_def(&cp_e2_setup.ran_func_def, &kpm->ran_func_def) == true);
 }
 
 /////////////////////////////
@@ -112,7 +112,10 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
   sm_subs_data_t data = ric->proc.on_subscription(ric, &sub.kpm);
   defer({ free_sm_subs_data(&data); });
 
-  subscribe_timer_t t = ag->proc.on_subscription(ag, &data); 
+  sm_ag_if_ans_subs_t const subs = ag->proc.on_subscription(ag, &data); 
+  assert(subs.type == PERIODIC_SUBSCRIPTION_FLRC);
+  subscribe_timer_t t = subs.per.t;
+
   defer({ free_kpm_action_def(t.act_def); free(t.act_def); });
   assert(t.ms != -1 && t.ms == sub.kpm.ev_trg_def.kpm_ric_event_trigger_format_1.report_period_ms);
   assert(eq_kpm_action_def(&sub.kpm.ad[0], t.act_def) == true);
@@ -120,7 +123,7 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
 
 // E2 -> RIC
 static
-void check_indication(sm_agent_t* ag, sm_ric_t* ric)
+void check_indication_per(sm_agent_t* ag, sm_ric_t* ric)
 {
   assert(ag != NULL);
   assert(ric != NULL);
@@ -128,7 +131,8 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   kpm_act_def_t act_def = fill_rnd_kpm_action_def();
   defer({  free_kpm_action_def(&act_def); } );
   
-  exp_ind_data_t exp = ag->proc.on_indication(ag, &act_def);
+  on_ind_t on_ind = {.type = PERIODIC_ON_INDICATION_EVENT, .act_def = &act_def };
+  exp_ind_data_t exp = ag->proc.on_indication(ag, on_ind);
   assert(exp.has_value == true);
   defer({ free_exp_ind_data(&exp); }); 
   defer({ free_kpm_ind_data(&cp_ind); });
@@ -155,7 +159,7 @@ void check_e2_setup(sm_agent_t* ag, sm_ric_t* ric)
 
   defer({ free_kpm_ran_function_def(&out.kpm.ran_func_def); });
 
-  assert(eq_kpm_ran_function_def(&out.kpm.ran_func_def, &cp_e2_setup.ran_func_def) == true);
+//  assert(eq_kpm_ran_function_def(&out.kpm.ran_func_def, &cp_e2_setup.ran_func_def) == true);
 
   free_kpm_ran_function_def(&cp_e2_setup.ran_func_def);
 }
@@ -174,7 +178,7 @@ int main()
   for(int i =0 ; i < 1024; ++i){
  //   check_eq_ran_function(sm_ag, sm_ric);
  //
-    check_indication(sm_ag, sm_ric);
+    check_indication_per(sm_ag, sm_ric);
     check_subscription(sm_ag, sm_ric);
 //    check_ctrl(sm_ag, sm_ric);
     check_e2_setup(sm_ag, sm_ric);

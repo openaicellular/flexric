@@ -23,7 +23,9 @@ endif()
     #)
 #endif()
 
-set(RIC_SRC 
+SET(STDOUT_LOG OFF)
+
+set(RIC_SRC
             e2ap_ric.c
             e2_node.c
             asio_ric.c
@@ -58,18 +60,22 @@ set(RIC_SRC
             )
 
 if(E2AP_ENCODING STREQUAL "ASN")
-  add_library(near_ric 
+  add_library(near_ric
             ${RIC_SRC}
             $<TARGET_OBJECTS:e42_iapp>
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             $<TARGET_OBJECTS:3gpp_derived_ie_obj>
             )
+  target_link_libraries(near_ric -lconfig)
+  target_compile_definitions(near_ric PRIVATE ${STDOUT_LOG})
 
-  add_library(near_ric_test 
+  add_library(near_ric_test
             ${RIC_SRC}
             $<TARGET_OBJECTS:e42_iapp>
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             )
+  target_link_libraries(near_ric_test -lconfig)
+  target_compile_definitions(near_ric_test PRIVATE ${STDOUT_LOG})
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
   add_library(near_ric 
@@ -97,7 +103,7 @@ target_compile_definitions(near_ric_test PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION}
 target_compile_definitions(near_ric_test PRIVATE TEST_AGENT_RIC)
 
 ########
-### nearRT-RIC Task Manager 
+### nearRT-RIC Task Manager
 ########
 target_compile_definitions(near_ric PRIVATE TASK_MAN_NUMBER_THREADS=${NUM_THREADS_RIC})
 target_compile_definitions(near_ric_test PRIVATE TASK_MAN_NUMBER_THREADS=${NUM_THREADS_RIC})

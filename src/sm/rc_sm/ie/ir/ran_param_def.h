@@ -16,7 +16,7 @@ typedef enum {
 
 // 9.3.51
 typedef struct ran_param_def_s{
-  
+
   // RAN Parameter Type
   // Mandatory
   ran_parameter_def_type_e type;
@@ -25,7 +25,7 @@ typedef struct ran_param_def_s{
     ran_param_type_t* lst;
     ran_param_type_t* strct;
   };
-  
+
 } ran_param_def_t;
 
 void free_ran_param_def(ran_param_def_t* src);

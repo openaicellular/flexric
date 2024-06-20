@@ -35,7 +35,7 @@ typedef struct
 
 int cmp_pending_event_ric(void const* p_v1, void const* p_v2);
 
-bool eq_pending_event_ric(void const* p_v1, void const* p_v2); 
+bool eq_pending_event_ric(void const* p_v1, void const* p_v2);
 
 #endif
 

@@ -11,7 +11,7 @@ asn_TYPE_member_t asn_MBR_E2setupResponse_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct E2setupResponse, protocolIEs),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_ProtocolIE_Container_2148P17,
+		&asn_DEF_ProtocolIE_Container_2161P17,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)

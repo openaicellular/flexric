@@ -1,0 +1,93 @@
+{
+    "message": "ue_get",
+    "message_id":255,
+    "ue_list": [
+        {
+            "ran_ue_id": 2,
+            "amf_ue_id": 108,
+            "qos_flow_list": [
+                {
+                    "pdu_session_id": 1,
+                    "dl_total_bytes": 0,
+                    "ul_total_bytes": 52264,
+                    "sst": 1,
+                    "sd": 0
+                }
+            ],
+            "rnti": 17922,
+            "cells": [
+                {
+                    "cell_id": 1,
+                    "dl_bitrate": 2781,
+                    "ul_bitrate": 1207,
+                    "dl_tx": 6,
+                    "ul_tx": 2,
+                    "dl_err": 0,
+                    "ul_err": 0,
+                    "dl_retx": 1,
+                    "ul_retx": 0,
+                    "pusch_snr": 21.5,
+                    "epre": -96.5,
+                    "ul_phr": 34,
+                    "ul_path_loss": 56,
+                    "p_ue": -24,
+                    "dl_mcs": 23,
+                    "ul_mcs": 13.5,
+                    "ul_n_layer": 1,
+                    "turbo_decoder_min": 2,
+                    "turbo_decoder_avg": 2,
+                    "turbo_decoder_max": 2,
+                    "cqi": 15,
+                    "ri": 1,
+                    "ul_rank": 1,
+                    "initial_ta": 6
+                }
+            ]
+        },
+        {
+            "ran_ue_id": 1,
+            "amf_ue_id": 107,
+            "qos_flow_list": [
+                {
+                    "pdu_session_id": 1,
+                    "dl_total_bytes": 0,
+                    "ul_total_bytes": 54705,
+                    "sst": 1,
+                    "sd": 0
+                }
+            ],
+            "rnti": 17921,
+            "cells": [
+                {
+                    "cell_id": 2,
+                    "dl_bitrate": 2364,
+                    "ul_bitrate": 1814,
+                    "dl_tx": 5,
+                    "ul_tx": 3,
+                    "dl_err": 0,
+                    "ul_err": 0,
+                    "dl_retx": 2,
+                    "ul_retx": 1,
+                    "pusch_snr": 21.1,
+                    "epre": -95.7,
+                    "ul_phr": 34,
+                    "ul_path_loss": 56.2,
+                    "p_ue": -24,
+                    "dl_mcs": 23.8,
+                    "ul_mcs": 16,
+                    "ul_n_layer": 1,
+                    "turbo_decoder_min": 1,
+                    "turbo_decoder_avg": 2.75,
+                    "turbo_decoder_max": 5,
+                    "cqi": 15,
+                    "ri": 1,
+                    "ul_rank": 1,
+                    "initial_ta": 6
+                }
+            ]
+        }
+    ],
+    "time": 59.344,
+    "utc": 1709053098.352
+}
+

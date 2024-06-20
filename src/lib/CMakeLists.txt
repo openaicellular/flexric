@@ -5,6 +5,7 @@ add_subdirectory(msg_hand)
 add_subdirectory(sm)
 
 add_library(pending_events_obj OBJECT 
+                                correlation_events.c
                                 pending_events.c 
                                 pending_event_ric.c
                                 ind_event.c

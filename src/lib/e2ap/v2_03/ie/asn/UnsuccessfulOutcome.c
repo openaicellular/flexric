@@ -41,6 +41,8 @@ static const long asn_VAL_16_id_ErrorIndication = 2;
 static const long asn_VAL_16_ignore = 1;
 static const long asn_VAL_17_id_RICsubscriptionDeleteRequired = 12;
 static const long asn_VAL_17_ignore = 1;
+static const long asn_VAL_18_id_E42updateE2node = 18;
+static const long asn_VAL_18_reject = 0;
 static const asn_ioc_cell_t asn_IOS_E2AP_ELEMENTARY_PROCEDURES_1_rows[] = {
 	{ "&InitiatingMessage", aioc__type, &asn_DEF_RICsubscriptionRequest },
 	{ "&SuccessfulOutcome", aioc__type, &asn_DEF_RICsubscriptionResponse },
@@ -126,10 +128,15 @@ static const asn_ioc_cell_t asn_IOS_E2AP_ELEMENTARY_PROCEDURES_1_rows[] = {
 	{ "&SuccessfulOutcome",  },
 	{ "&UnsuccessfulOutcome",  },
 	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_17_id_RICsubscriptionDeleteRequired },
-	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_17_ignore }
+	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_17_ignore },
+	{ "&InitiatingMessage", aioc__type, &asn_DEF_E42updateE2node },
+	{ "&SuccessfulOutcome",  },
+	{ "&UnsuccessfulOutcome",  },
+	{ "&procedureCode", aioc__value, &asn_DEF_ProcedureCode, &asn_VAL_18_id_E42updateE2node },
+	{ "&criticality", aioc__value, &asn_DEF_Criticality, &asn_VAL_18_reject }
 };
 static const asn_ioc_set_t asn_IOS_E2AP_ELEMENTARY_PROCEDURES_1[] = {
-	{ 17, 5, asn_IOS_E2AP_ELEMENTARY_PROCEDURES_1_rows }
+	{ 18, 5, asn_IOS_E2AP_ELEMENTARY_PROCEDURES_1_rows }
 };
 static int
 memb_procedureCode_constraint_1(const asn_TYPE_descriptor_t *td, const void *sptr,

@@ -12,16 +12,14 @@
 
 CGI_t enc_cell_global_id_asn(const cell_global_id_t * cell_global_id)
 {
-    assert(cell_global_id->type == NR_CGI_RAT_TYPE || cell_global_id->type == EUTRA_CGI_RAT_TYPE);
+  assert(cell_global_id->type == NR_RAT_TYPE || cell_global_id->type == EUTRA_RAT_TYPE);
 
-    //CGI_t * cell_global_id_asn = calloc(1, sizeof(CGI_t));
-    //assert(cell_global_id_asn != NULL && "Memory exhausted");
-    CGI_t cell_global_id_asn = {0}; 
+  CGI_t cell_global_id_asn = {0}; 
 
-    switch (cell_global_id->type)
-    {
-      case NR_CGI_RAT_TYPE:
-        {
+  switch (cell_global_id->type)
+  {
+    case NR_RAT_TYPE:
+      {
         cell_global_id_asn.present = CGI_PR_nR_CGI;
         cell_global_id_asn.choice.nR_CGI = calloc(1, sizeof(NR_CGI_t));
 
@@ -31,19 +29,19 @@ CGI_t enc_cell_global_id_asn(const cell_global_id_t * cell_global_id)
       }
 
 
-      case EUTRA_CGI_RAT_TYPE:{
-        cell_global_id_asn.present = CGI_PR_eUTRA_CGI;
-        cell_global_id_asn.choice.eUTRA_CGI = calloc(1, sizeof(EUTRA_CGI_t));
+    case EUTRA_RAT_TYPE:{
+                          cell_global_id_asn.present = CGI_PR_eUTRA_CGI;
+                          cell_global_id_asn.choice.eUTRA_CGI = calloc(1, sizeof(EUTRA_CGI_t));
 
-        MCC_MNC_TO_PLMNID(cell_global_id->eutra.plmn_id.mcc, cell_global_id->eutra.plmn_id.mnc, cell_global_id->eutra.plmn_id.mnc_digit_len, &cell_global_id_asn.choice.eUTRA_CGI->pLMNIdentity);
-        cell_global_id_asn.choice.eUTRA_CGI->eUTRACellIdentity = cp_eutra_cell_id_to_bit_string(cell_global_id->eutra.eutra_cell_id);
-        break;
-      }
+                          MCC_MNC_TO_PLMNID(cell_global_id->eutra.plmn_id.mcc, cell_global_id->eutra.plmn_id.mnc, cell_global_id->eutra.plmn_id.mnc_digit_len, &cell_global_id_asn.choice.eUTRA_CGI->pLMNIdentity);
+                          cell_global_id_asn.choice.eUTRA_CGI->eUTRACellIdentity = cp_eutra_cell_id_to_bit_string(cell_global_id->eutra.eutra_cell_id);
+                          break;
+                        }
 
-      default:
-          assert(0!=0 && "Unknown type");
-    }
+    default:
+                        assert(0!=0 && "Unknown type");
+  }
 
-    return cell_global_id_asn;
+  return cell_global_id_asn;
 
 }

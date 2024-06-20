@@ -13,6 +13,9 @@ if(E2AP_ENCODING STREQUAL "ASN")
                           $<TARGET_OBJECTS:e2ap_msg_enc_obj>
                           $<TARGET_OBJECTS:e2ap_msg_dec_obj>
                           $<TARGET_OBJECTS:e2ap_msg_free_obj>
+                          $<TARGET_OBJECTS:e2ap_ie_obj>
+                          $<TARGET_OBJECTS:e2_conv_obj>
+                          $<TARGET_OBJECTS:3gpp_derived_ie_obj>
                           )
 
 elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS")
@@ -25,7 +28,7 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS")
                           )
 
 else()
-  message(FATAL_ERROR "Unknonw E2AP encoding type")
+  message(FATAL_ERROR "Unknown E2AP encoding type")
 endif()
 
 # Set the MACRO variable that will be used by the compiler to select the encoding/decoding

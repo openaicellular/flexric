@@ -142,7 +142,7 @@ void free_sm_ric_query_out_data(sm_ric_query_out_data_t* data)
 void free_sm_sub_mod_data(sm_sub_mod_data_t* data)
 {
   assert(data != NULL);
-  
+
   if(data->mod != NULL){
     assert(data->len != 0);
     free(data->mod);

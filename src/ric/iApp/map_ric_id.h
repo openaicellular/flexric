@@ -54,8 +54,8 @@ xapp_ric_id_xpct_t find_xapp_map_ric_id(map_ric_id_t* map, uint16_t ric_req_id);
 
 e2_node_ric_id_t find_ric_req_map_ric_id(map_ric_id_t* map, xapp_ric_id_t* x);
 
-// array of e2_node_ric_id_t 
-seq_arr_t find_all_subs_map_ric_id(map_ric_id_t* map, uint16_t xapp_id); 
+// array of e2_node_ric_id_t
+seq_arr_t find_all_subs_map_ric_id(map_ric_id_t* map, uint16_t xapp_id);
 
 #endif
 

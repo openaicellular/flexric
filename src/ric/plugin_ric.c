@@ -149,7 +149,7 @@ void load_plugin_ric(plugin_ric_t* p, const char* path)
   assert(path != NULL);
   void* handle = dlopen(path, RTLD_NOW);
   if(handle == NULL){
-    printf("Not valid path for the SM plugins. Check the path (%s)!\n", path);
+    printf("%s\n", dlerror());
   }
   assert(handle != NULL && "Could not open the file path");
   dlerror();    

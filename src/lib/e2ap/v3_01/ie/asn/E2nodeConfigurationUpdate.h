@@ -21,7 +21,7 @@ extern "C" {
 
 /* E2nodeConfigurationUpdate */
 typedef struct E2nodeConfigurationUpdate {
-	ProtocolIE_Container_2691P32_t	 protocolIEs;
+	ProtocolIE_Container_2702P32_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

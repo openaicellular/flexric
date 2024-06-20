@@ -28,7 +28,7 @@
 #include "msg_handler_ric.h"
 #include "util/alg_ds/alg/alg.h"
 #include "util/compare.h"
-#include "util/ngran_types.h"
+#include "util/e2ap_ngran_types.h"
 #include "e2ap_ric.h"
 #include "near_ric.h"
 #include "e2_node.h"
@@ -73,7 +73,7 @@ void stop_pending_event(near_ric_t* ric, pending_event_ric_t* ev )
 
   int rc = pthread_mutex_lock(&ric->pend_mtx);
   assert(rc == 0);
-  void (*free_pending_event)(void*) = NULL; 
+  void (*free_pending_event)(void*) = NULL;
   int* fd = bi_map_extract_right(&ric->pending, ev, sizeof(*ev), free_pending_event);
   rc = pthread_mutex_unlock(&ric->pend_mtx);
   assert(rc == 0);
@@ -229,7 +229,7 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   assert(d.type == MAC_STATS_V0 || d.type == RLC_STATS_V0 
         || d.type == PDCP_STATS_V0 || d.type == SLICE_STATS_V0 
         || d.type == KPM_STATS_V3_0 || d.type == RAN_CTRL_STATS_V1_03 
-        || d.type == GTP_STATS_V0 || d.type == TC_STATS_V0 );
+        || d.type == GTP_STATS_V0 || d.type == TC_STATS_V0 || d.type == CCC_STATS_V3_0);
 
   publish_ind_msg(ric, ran_func_id, &d);
 
@@ -250,7 +250,7 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   assert(msg->type == RIC_CONTROL_ACKNOWLEDGE);
 
   ric_control_acknowledge_t const* ack = &msg->u_msgs.ric_ctrl_ack;
-#ifdef E2AP_V1 
+#ifdef E2AP_V1
   assert( ack->status == RIC_CONTROL_STATUS_SUCCESS && "Only success supported ") ;
 #endif
 
@@ -304,19 +304,23 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
 
   const e2_setup_request_t* req = &msg->u_msgs.e2_stp_req;
 
-  //  Working E2_SETUP_FAILURE 
+  //  Working E2_SETUP_FAILURE
   //  e2ap_msg_t ans = {.type = E2_SETUP_FAILURE };
-  //  ans.u_msgs.e2_stp_fail = generate_setup_failure(&ric->ap.version.type, ric, req); 
+  //  ans.u_msgs.e2_stp_fail = generate_setup_failure(&ric->ap.version.type, ric, req);
 
   const e2ap_plmn_t* plmn = &req->id.plmn;
-  char* ran_type = get_ngran_name(req->id.type);
+  char* ran_type = get_e2ap_ngran_name(req->id.type);
 
 #if defined(E2AP_V2) || defined(E2AP_V3)
-  if(req->id.type == ngran_gNB && req->len_cca == 2)
+  if(req->id.type == e2ap_ngran_gNB && req->len_cca == 2){
     ran_type = "ngran_gNB_CU";
+  }
+  else if (req->id.type == e2ap_ngran_gNB && req->len_cca == 3) {
+    ran_type = "ngran_gNB_CUCP";
+  }
 #endif
 
-  if (NODE_IS_MONOLITHIC(req->id.type))
+  if (E2AP_NODE_IS_MONOLITHIC(req->id.type))
     printf("[E2AP]: E2 SETUP-REQUEST rx from PLMN %3d.%*d Node ID %d RAN type %s\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id.nb_id, ran_type);
   else
     printf("[E2AP]: E2 SETUP-REQUEST rx from PLMN %3d.%*d Node ID %d RAN type %s ID %ld\n", plmn->mcc, plmn->mnc_digit_len, plmn->mnc, req->id.nb_id.nb_id, ran_type, *req->id.cu_du_id);
@@ -328,13 +332,18 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   add_e2_node_iapp_api((global_e2_node_id_t*)&req->id, req->len_rf, req->ran_func_item, req->len_cca, req->comp_conf_add);
 #endif
   e2ap_msg_t ans = {.type = E2_SETUP_RESPONSE };
-  ans.u_msgs.e2_stp_resp = generate_setup_response(&ric->ap.version.type, ric, req); 
+  ans.u_msgs.e2_stp_resp = generate_setup_response(&ric->ap.version.type, ric, req);
 
   e2_node_t n = {0};
   init_e2_node(&n, &req->id, ans.u_msgs.e2_stp_resp.len_acc, ans.u_msgs.e2_stp_resp.accepted); 
 
   lock_guard(&ric->conn_e2_nodes_mtx);
   seq_push_back(&ric->conn_e2_nodes, &n, sizeof(n));
+
+  // Notify the iApp
+#ifndef TEST_AGENT_RIC
+  notify_msg_iapp_api(&ans);
+#endif
 
   return ans;
 }
@@ -381,9 +390,21 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   assert(ric != NULL);
   assert(msg != NULL);
   assert(msg->type == E2_NODE_CONFIGURATION_UPDATE);
-  assert(0 != 0 && "Not Implemented");
+  printf("[NEAR-RIC]: not implemented E2NodeConfigurationUpdate yet, ignore this message for integrating with OSC O-DU\n");
+  //assert(0 != 0 && "Not Implemented");
 
-  e2ap_msg_t ans = {0};
+//  e2ap_msg_t ans = {.type = E2_NODE_CONFIGURATION_UPDATE_ACKNOWLEDGE};
+//
+//  const char* str_conf = "Configuration Update";
+//  byte_array_t* ba2 = malloc(sizeof(byte_array_t));
+//  ba2->buf = malloc(strlen(str_conf));
+//  ba2->len = strlen(str_conf);
+//  memcpy(ba2->buf, str_conf, ba2->len);
+//
+//  ans.u_msgs.e2_node_conf_updt_ack.len_ccual = 0;
+//  ans.u_msgs.e2_node_conf_updt_ack.comp_conf_update_ack_list = NULL;
+
+  e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans;
 }
 

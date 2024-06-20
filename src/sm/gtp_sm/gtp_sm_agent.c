@@ -53,7 +53,7 @@ typedef struct{
 // E2 Setup and RIC Service Update. 
 //
 static
-subscribe_timer_t on_subscription_gtp_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
+sm_ag_if_ans_subs_t on_subscription_gtp_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 {
   assert(sm_agent != NULL);
   assert(data != NULL);
@@ -62,16 +62,19 @@ subscribe_timer_t on_subscription_gtp_sm_ag(sm_agent_t const* sm_agent, const sm
  
   gtp_event_trigger_t ev = gtp_dec_event_trigger(&sm->enc, data->len_et, data->event_trigger);
 
-  subscribe_timer_t timer = {.ms = ev.ms };
-  return timer;
+  sm_ag_if_ans_subs_t ans = {.type = PERIODIC_SUBSCRIPTION_FLRC}; 
+  ans.per.t.ms = ev.ms; 
+
+  return ans;
 }
 
 static
-exp_ind_data_t on_indication_gtp_sm_ag(sm_agent_t const* sm_agent, void* act_def)
+exp_ind_data_t on_indication_gtp_sm_ag(sm_agent_t const* sm_agent, on_ind_t on_ind)
 {
   assert(sm_agent != NULL);
-  assert(act_def == NULL && "Action Definition data not needed for this SM");
-
+  assert(on_ind.type == PERIODIC_ON_INDICATION_EVENT);
+  assert(on_ind.act_def == NULL && "Action definition data not needed for this SM");
+ 
   sm_gtp_agent_t* sm = (sm_gtp_agent_t*)sm_agent;
 
   exp_ind_data_t ret = {.has_value = true};
@@ -159,7 +162,7 @@ sm_e2_setup_data_t on_e2_setup_gtp_sm_ag(sm_agent_t const* sm_agent)
   memcpy(setup.ran_fun_def, sm->base.ran_func_name, strlen(sm->base.ran_func_name));
 
   // RAN Function
-  setup.rf.def = cp_str_to_ba(SM_GTP_SHORT_NAME);
+  setup.rf.definition = cp_str_to_ba(SM_GTP_SHORT_NAME);
   setup.rf.id = SM_GTP_ID;
   setup.rf.rev = SM_GTP_REV;
 

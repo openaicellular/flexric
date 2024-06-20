@@ -311,11 +311,10 @@ bool eq_gtp_ctrl_out(gtp_ctrl_out_t* m0, gtp_ctrl_out_t* m1)
 void free_gtp_func_def( gtp_func_def_t* src)
 {
   assert(src != NULL);
-
-  assert(0!=0 && "Not implemented" ); 
+  free(src->buf);
 }
 
-gtp_func_def_t cp_gtp_func_def(gtp_func_def_t* src)
+gtp_func_def_t cp_gtp_func_def(gtp_func_def_t const* src)
 {
   assert(src != NULL);
 
@@ -324,7 +323,7 @@ gtp_func_def_t cp_gtp_func_def(gtp_func_def_t* src)
   return ret;
 }
 
-bool eq_gtp_func_def(gtp_func_def_t* m0, gtp_func_def_t* m1)
+bool eq_gtp_func_def(gtp_func_def_t const* m0, gtp_func_def_t const* m1)
 {
   assert(m0 != NULL);
   assert(m1 != NULL);

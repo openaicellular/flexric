@@ -53,6 +53,7 @@ per_type_encoder_f ProcedureCode_encode_aper;
 #define ProcedureCode_id_E42RICsubscription	((ProcedureCode_t)15)
 #define ProcedureCode_id_E42RICsubscriptionDelete	((ProcedureCode_t)16)
 #define ProcedureCode_id_E42RICcontrol	((ProcedureCode_t)17)
+#define ProcedureCode_id_E42updateE2node	((ProcedureCode_t)18)
 
 #ifdef __cplusplus
 }
