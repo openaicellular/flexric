@@ -1,5 +1,6 @@
-add_subdirectory(proxy_agent)
-
+if (PROXY_AGENT)
+    add_subdirectory(proxy_agent)
+endif()
 if (EMU_AGENT)
     add_subdirectory(emulator)
 endif()
