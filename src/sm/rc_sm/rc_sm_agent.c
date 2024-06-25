@@ -127,7 +127,7 @@ e2sm_rc_func_def_t fill_rc_ran_func_def(sm_rc_agent_t const* sm)
 // E2 Setup and RIC Service Update. 
 //
 static
-subscribe_timer_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
+sm_ag_if_ans_subs_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 {
   assert(sm_agent != NULL);
   sm_rc_agent_t* sm = (sm_rc_agent_t*)sm_agent;
@@ -151,38 +151,37 @@ subscribe_timer_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const sm_
 
   wr_rc.rc.ad[0] = rc_dec_action_def(&sm->enc, data->len_ad, data->action_def);
 
-  sm->base.io.write_subs(&wr_rc);
-
-  subscribe_timer_t timer = {.ms = 0};
-
-  return timer;
+ sm_ag_if_ans_t subs = sm->base.io.write_subs(&wr_rc);
+ assert(subs.type == SUBS_OUTCOME_SM_AG_IF_ANS_V0);
+ assert(subs.subs_out.type == APERIODIC_SUBSCRIPTION_FLRC);
+ return subs.subs_out;
 }
 
 static
-sm_ind_data_t on_indication_rc_sm_ag(sm_agent_t const* sm_agent, void* ind_data)
+exp_ind_data_t on_indication_rc_sm_ag(sm_agent_t const* sm_agent, void* ind_data)
 {
 //  printf("on_indication RC called \n");
   assert(sm_agent != NULL);
   assert(ind_data != NULL && "Indication data needed for this SM");
   sm_rc_agent_t* sm = (sm_rc_agent_t*)sm_agent;
 
-  sm_ind_data_t ret = {0};
+  exp_ind_data_t ret = {.has_value = true};
 
   // Liberate the memory if previously allocated by the RAN. It sucks
   rc_ind_data_t* ind = (rc_ind_data_t*)ind_data; 
-  defer({ free_rc_ind_data(ind); free(ind); });
+  defer({ free_rc_ind_data(ind);  free(ind); });
 
   // Fill Indication Header
   byte_array_t ba_hdr = rc_enc_ind_hdr(&sm->enc, &ind->hdr);
   assert(ba_hdr.len < 1024 && "Are you really encoding so much info?" );
-  ret.ind_hdr = ba_hdr.buf;
-  ret.len_hdr = ba_hdr.len;
+  ret.data.ind_hdr = ba_hdr.buf;
+  ret.data.len_hdr = ba_hdr.len;
 
   // Fill Indication Message
   byte_array_t ba_msg = rc_enc_ind_msg(&sm->enc, &ind->msg);
   assert(ba_msg.len < 10*1024 && "Are you really encoding so much info?" );
-  ret.ind_msg = ba_msg.buf;
-  ret.len_msg = ba_msg.len;
+  ret.data.ind_msg = ba_msg.buf;
+  ret.data.len_msg = ba_msg.len;
 
   // Fill Call Process ID
   assert(ind->proc_id == NULL && "Not implemented" );

@@ -190,6 +190,7 @@ n_hndlr = 0
 for sm_info in oran_sm:
     sm_name = sm_info.name
     if sm_name != "KPM":
+        print(f"not support {sm_name} in python")
         continue
     sm_time = sm_info.time
     tti = get_oran_tti(sm_time)
@@ -197,8 +198,8 @@ for sm_info in oran_sm:
     ran_type = sm_info.ran_type
     act_len = sm_info.act_len
     act = []
-    for act_name in sm_info.actions:
-        act.append(act_name)
+    for a in sm_info.actions:
+        act.append(a.name)
     for i in range(0, len(conn)):
         if conn[i].id.type == ric.e2ap_ngran_eNB:
             continue

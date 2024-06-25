@@ -1,9 +1,9 @@
 add_subdirectory(iApp)
 
 if(BUILDING_LIBRARY STREQUAL "STATIC")
-  set(RIC_BLD_LIB  "STATIC")
+  set(RIC_BLD_LIB "STATIC")
 elseif(BUILDING_LIBRARY STREQUAL "DYNAMIC")
-  set(RIC_BLD_LIB  "SHARED")
+  set(RIC_BLD_LIB "SHARED")
 else()
   message(FATAL_ERROR "Unknown type")
 endif()
@@ -25,7 +25,7 @@ endif()
 
 SET(STDOUT_LOG OFF)
 
-set(RIC_SRC 
+set(RIC_SRC
             e2ap_ric.c
             e2_node.c
             asio_ric.c
@@ -38,6 +38,7 @@ set(RIC_SRC
             iApps/influx.c
             iApps/string_parser.c
             generate_setup_response.c
+            generate_setup_failure.c
             plugin_ric.c
             map_e2_node_sockaddr.c
             not_handler_ric.c
@@ -59,19 +60,16 @@ set(RIC_SRC
             )
 
 if(E2AP_ENCODING STREQUAL "ASN")
-  add_library(near_ric 
-            ${RIC_BLD_LIB}# STATIC or SHARED
+  add_library(near_ric
             ${RIC_SRC}
             $<TARGET_OBJECTS:e42_iapp>
             $<TARGET_OBJECTS:e2ap_asn1_obj>
             $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-
             )
   target_link_libraries(near_ric -lconfig)
   target_compile_definitions(near_ric PRIVATE ${STDOUT_LOG})
 
-  add_library(near_ric_test 
-            ${RIC_BLD_LIB}# STATIC or SHARED
+  add_library(near_ric_test
             ${RIC_SRC}
             $<TARGET_OBJECTS:e42_iapp>
             $<TARGET_OBJECTS:e2ap_asn1_obj>
@@ -105,7 +103,7 @@ target_compile_definitions(near_ric_test PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION}
 target_compile_definitions(near_ric_test PRIVATE TEST_AGENT_RIC)
 
 ########
-### nearRT-RIC Task Manager 
+### nearRT-RIC Task Manager
 ########
 target_compile_definitions(near_ric PRIVATE TASK_MAN_NUMBER_THREADS=${NUM_THREADS_RIC})
 target_compile_definitions(near_ric_test PRIVATE TASK_MAN_NUMBER_THREADS=${NUM_THREADS_RIC})

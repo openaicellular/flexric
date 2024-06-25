@@ -34,9 +34,9 @@ byte_array_t tc_enc_ind_hdr_plain(tc_ind_hdr_t const* ind_hdr)
   byte_array_t ba = {0};
 
   ba.len = sizeof(tc_ind_hdr_t);
-  ba.buf = malloc(sizeof(tc_ind_msg_t));
+  ba.buf = calloc(ba.len , sizeof(uint8_t));
   assert(ba.buf != NULL && "memory exhausted");
-  memcpy(ba.buf, ind_hdr, sizeof(tc_ind_hdr_t));
+  memcpy(ba.buf, ind_hdr, ba.len);
 
   return ba;
 }
@@ -705,9 +705,9 @@ byte_array_t tc_enc_ctrl_hdr_plain(tc_ctrl_hdr_t const* ctrl_hdr)
   byte_array_t ba = {0};
 
   ba.len = sizeof(tc_ind_hdr_t);
-  ba.buf = malloc(sizeof(tc_ind_msg_t));
+  ba.buf = calloc(ba.len ,sizeof(uint8_t));
   assert(ba.buf != NULL && "memory exhausted");
-  memcpy(ba.buf, ctrl_hdr, sizeof(tc_ctrl_hdr_t));
+  memcpy(ba.buf, ctrl_hdr, ba.len);
 
   return ba;
 }
@@ -2281,11 +2281,12 @@ byte_array_t tc_enc_ctrl_out_plain(tc_ctrl_out_t const* ctrl)
   assert(ctrl != NULL );
   byte_array_t ba = {0};
 
-  ba.buf = malloc(sizeof(ctrl->out));
-  assert(ba.buf != NULL && "Memory exhausted" );
-  ba.len = sizeof(ctrl->out);
+  ba.len = sizeof(tc_ctrl_out_t);
 
-  memcpy(ba.buf, &ctrl->out, sizeof(ctrl->out) );
+  ba.buf = calloc(ba.len, sizeof(uint8_t));
+  assert(ba.buf != NULL && "Memory exhausted" );
+
+  memcpy(ba.buf, ctrl, ba.len);
 
   return ba;
 }

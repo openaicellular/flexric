@@ -8,7 +8,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
 # E2AP ASN Encoding
 ####################
 
-  add_executable(test_e2ap_encode_asn test_e2ap_encode_asn.c)
+  add_executable(test_e2ap_encode_asn test_e2ap_encode_asn.c  )
   target_link_libraries(test_e2ap_encode_asn
                         PUBLIC 
                         e2_agent
@@ -31,6 +31,12 @@ if(E2AP_ENCODING STREQUAL "ASN")
   target_include_directories(test_e2ap_enc_dec_asn PRIVATE "../../../../src/lib/e2ap/v1_01/ie/asn/")
   target_include_directories(test_e2ap_enc_dec_asn PRIVATE "../../../src/lib/ap/ie/asn/")
 
+  #####
+  ### CTest
+  ####
+  enable_testing()
+  add_test(Unit_test_e2ap_v1 test_e2ap_encode_asn)
+
 
 ###########################
 # E2AP Flatbuffers Encoding
@@ -50,4 +56,5 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS")
 else()
   message(FATAL_ERROR "Unknown E2AP encoding type")
 endif()
+
 

@@ -35,8 +35,10 @@ bool eq_e2sm_rc_act_def_frmt_1(e2sm_rc_act_def_frmt_1_t const* m0, e2sm_rc_act_d
     return false;
 
   for(size_t i = 0; i < m0->sz_param_report_def; ++i){
-    if(eq_param_report_def(&m0->param_report_def[i], &m1->param_report_def[i]) == false)
+    if(eq_param_report_def(&m0->param_report_def[i], &m1->param_report_def[i]) == false){
+      assert(0 != 0 && "debug");
       return false;
+    }
   }
 
   return true;

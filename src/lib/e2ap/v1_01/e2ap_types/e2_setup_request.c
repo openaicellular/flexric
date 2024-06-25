@@ -48,6 +48,9 @@ e2_setup_request_t cp_e2_setup_request(const e2_setup_request_t* src)
 void free_e2_setup_request(e2_setup_request_t* src)
 {
   assert(src != NULL);
+
+  free_global_e2_node_id(&src->id);
+
   for(size_t i = 0; i < src->len_rf; ++i){
     free_ran_function(&src->ran_func_item[i]); 
   }

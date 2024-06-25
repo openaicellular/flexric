@@ -80,48 +80,13 @@ byte_array_t copy_bs_to_ba(BIT_STRING_t src)
   return dst;
 }
 
-/*
-typedef struct {
-  uint32_t nd_id;
-  uint32_t unused;
-} pair_gnb_id_t;
-
-static inline
-pair_gnb_id_t cp_BS_to_gnb_id(BIT_STRING_t src)
-{
-  assert(src.size < 5 && "Max. 32 bits permited [22..32]");
-  assert(src.size == 3 || src.size == 4);
-
-  assert(src.bits_unused < 8);
-
-  pair_gnb_id_t dst = {0};
-
-  if(src.size == 3){
-    assert(src.bits_unused < 3 && "Min. 22 bits");
-    uint32_t const b0 = ((uint32_t)(src.buf[0]) << (16 - src.bits_unused) ); 
-    uint32_t const b1 = ((uint32_t)(src.buf[1]) << (8 - src.bits_unused) ); 
-    uint32_t const b2 = ((uint32_t)(src.buf[2]) >> src.bits_unused); 
-    dst.nd_id = b0 | b1 | b2;
-  } else { //src.size == 4
-    uint32_t const b0 = ((uint32_t)(src.buf[0]) << (24 - src.bits_unused) ); 
-    uint32_t const b1 = ((uint32_t)(src.buf[1]) << (16 - src.bits_unused) ); 
-    uint32_t const b2 = ((uint32_t)(src.buf[2]) << (8 - src.bits_unused) ); 
-    uint32_t const b3 = ((uint32_t)(src.buf[3]) >> src.bits_unused); 
-    dst.nd_id = b0 | b1 | b2 | b3;
-  }
-
-  dst.unused = src.bits_unused + (src.size == 3 ? 8 : 0);
-  return dst;
-}
-*/
-
 static inline
 ran_function_t copy_ran_function(const RANfunction_Item_t* src)
 {
   ran_function_t dst = {0};
   dst.id = src->ranFunctionID;
   dst.rev = src->ranFunctionRevision;
-  dst.def = copy_ostring_to_ba(src->ranFunctionDefinition);
+  dst.defn = copy_ostring_to_ba(src->ranFunctionDefinition);
   dst.oid = copy_ostring_to_ba(src->ranFunctionOID);
 
   return dst;
@@ -173,7 +138,6 @@ e2ap_node_comp_id_t e2ap_dec_node_component_id(e2ap_node_comp_interface_type_e i
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeE1:
       assert(interface_type == E1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeE1 != NULL);
-      
       dst.type = E1_E2AP_NODE_COMP_INTERFACE_TYPE; 
       asn_INTEGER2ulong(&cid->choice.e2nodeComponentInterfaceTypeE1->gNB_CU_CP_ID, &dst.e1_gnb_cu_up_id);
       break;
@@ -529,16 +493,10 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
     assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
     PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
-    
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
-    //BIT_STRING_TO_MACRO_GNB_ID(&, id->nb_id);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      // This is an abuse but the standard does not define how to
-      // differentiate between ngran_gNB_CU and ngran_gNB
-      // Here we do not know if it is a real CUUP or a CU. Assuming CU
-      // id->type = e2ap_ngran_gNB_CUUP;
-      id->type = e2ap_ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CUUP;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id  != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
@@ -682,7 +640,7 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
 
     assert(ai->id == ProtocolIE_ID_id_RICaction_Admitted_Item);
     // Check ASN definition to see the ignore
-    assert(ai->criticality == Criticality_ignore);
+    // assert(ai->criticality == Criticality_ignore);
     assert(ai->value.present == RICaction_Admitted_ItemIEs__value_PR_RICaction_Admitted_Item);
 
     ric_action_admitted_t* dst = &sr->admitted[i];
@@ -764,6 +722,7 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
 e2ap_msg_t e2ap_dec_subscription_failure(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
+
   e2ap_msg_t ret = {.type = RIC_SUBSCRIPTION_FAILURE};
 
   ric_subscription_failure_t* sf = &ret.u_msgs.ric_sub_fail;
@@ -941,8 +900,8 @@ e2ap_msg_t e2ap_dec_indication(const E2AP_PDU_t* pdu)
 
   assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
   assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_RICindication);
-  assert(pdu->choice.initiatingMessage->criticality == Criticality_ignore);
-  assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICindication); 
+  //assert(pdu->choice.initiatingMessage->criticality == Criticality_ignore);
+  //assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICindication);
 
   const RICindication_t* out = &pdu->choice.initiatingMessage->value.choice.RICindication;
 
@@ -988,7 +947,8 @@ e2ap_msg_t e2ap_dec_indication(const E2AP_PDU_t* pdu)
       //RIC indication SN. Optional
       assert(ric_ind->criticality == Criticality_reject);
       assert(ric_ind->value.present == RICindication_IEs__value_PR_RICindicationSN); 
-      ind->sn =  malloc(sizeof(uint16_t));
+      assert(ind->sn == NULL);
+      ind->sn = malloc(sizeof(uint16_t));
       assert(ric_ind->value.choice.RICindicationSN < MAX_RIC_INDICATION_SN );
       *ind->sn = ric_ind->value.choice.RICindicationSN; 
     } else if (id == ProtocolIE_ID_id_RICindicationType){
@@ -1002,16 +962,19 @@ e2ap_msg_t e2ap_dec_indication(const E2AP_PDU_t* pdu)
       assert(ric_ind->id == ProtocolIE_ID_id_RICindicationHeader);
       assert(ric_ind->criticality == Criticality_reject);
       assert(ric_ind->value.present == RICindication_IEs__value_PR_RICindicationHeader);
+      assert(ind->hdr.len == 0 && ind->hdr.buf == NULL);
       ind->hdr = copy_ostring_to_ba(ric_ind->value.choice.RICindicationHeader);
     } else if (id == ProtocolIE_ID_id_RICindicationMessage){
       // RIC indication message. Mandatory
       assert(ric_ind->criticality == Criticality_reject);
       assert(ric_ind->value.present == RICindication_IEs__value_PR_RICindicationMessage); 
+      assert(ind->msg.len == 0 && ind->msg.buf == NULL);
       ind->msg = copy_ostring_to_ba(ric_ind->value.choice.RICindicationMessage);
     } else { // if (id == ProtocolIE_ID_id_RICcallProcessID)
       // RIC call process id. Optional
       assert(ric_ind->criticality == Criticality_reject);
       assert(ric_ind->value.present == RICindication_IEs__value_PR_RICcallProcessID);
+      assert(ind->call_process_id == NULL);
       ind->call_process_id = malloc(sizeof(byte_array_t)); 
       *ind->call_process_id = copy_ostring_to_ba(ric_ind->value.choice.RICcallProcessID);  
     } 
@@ -1076,6 +1039,7 @@ e2ap_msg_t e2ap_dec_control_request(const E2AP_PDU_t* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == RICcontrolRequest_IEs__value_PR_RICcallProcessID);
+      assert(ctrl->call_process_id == NULL);
       ctrl->call_process_id = malloc(sizeof(*ctrl->call_process_id));
       assert(ctrl->call_process_id);
       *ctrl->call_process_id = copy_ostring_to_ba(ric_ctrl->value.choice.RICcallProcessID);
@@ -1085,6 +1049,7 @@ e2ap_msg_t e2ap_dec_control_request(const E2AP_PDU_t* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == RICcontrolRequest_IEs__value_PR_RICcontrolHeader);
+      assert(ctrl->hdr.len == 0 && ctrl->hdr.buf == NULL);
       ctrl->hdr = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolHeader);
     } else if (id == ProtocolIE_ID_id_RICcontrolMessage) {
       // RIC Control Message. Mandatory
@@ -1092,6 +1057,7 @@ e2ap_msg_t e2ap_dec_control_request(const E2AP_PDU_t* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == RICcontrolRequest_IEs__value_PR_RICcontrolMessage);
+      assert(ctrl->msg.len == 0 && ctrl->msg.buf == NULL);
       ctrl->msg = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolMessage);
     } else { // if (id == ProtocolIE_ID_id_RICcontrolAckRequest)
       // RIC Control Ack Request. Optional
@@ -1099,6 +1065,7 @@ e2ap_msg_t e2ap_dec_control_request(const E2AP_PDU_t* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == RICcontrolRequest_IEs__value_PR_RICcontrolAckRequest);
+      assert(ctrl->ack_req == NULL);
       ctrl->ack_req = malloc(sizeof(*ctrl->ack_req));
       assert(ctrl->ack_req);
       assert(ric_ctrl->value.choice.RICcontrolAckRequest < 3);
@@ -1158,11 +1125,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      // This is an abuse but the standard does not define how to
-      // differentiate between ngran_gNB_CU and ngran_gNB
-      // Here we do not know if it is a real CUUP or a CU. Assuming CU
-      // id->type = e2ap_ngran_gNB_CUUP;
-      id->type = e2ap_ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CUUP;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
@@ -1221,8 +1184,9 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcallProcessID);
+      assert(ctrl->call_process_id == NULL);
       ctrl->call_process_id = malloc(sizeof(*ctrl->call_process_id));
-      assert(ctrl->call_process_id);
+      assert(ctrl->call_process_id != NULL && "Memory exhausted");
       *ctrl->call_process_id = copy_ostring_to_ba(ric_ctrl->value.choice.RICcallProcessID);
     } else if (id == ProtocolIE_ID_id_RICcontrolHeader) {
       // RIC Control Header. Mandatory
@@ -1230,6 +1194,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolHeader);
+      assert(ctrl->hdr.len == 0 && ctrl->hdr.buf == NULL);
       ctrl->hdr = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolHeader);
     } else if (id == ProtocolIE_ID_id_RICcontrolMessage) {
       // RIC Control Message. Mandatory
@@ -1237,6 +1202,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolMessage);
+      assert(ctrl->msg.len == 0 && ctrl->msg.buf == NULL);
       ctrl->msg = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolMessage);
     } else { // if (id == ProtocolIE_ID_id_RICcontrolAckRequest)
       // RIC Control Ack Request. Optional
@@ -1244,6 +1210,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolAckRequest);
+      assert(ctrl->ack_req == NULL);
       ctrl->ack_req = malloc(sizeof(*ctrl->ack_req));
       assert(ctrl->ack_req);
       assert(ric_ctrl->value.choice.RICcontrolAckRequest < 3);
@@ -1296,14 +1263,16 @@ e2ap_msg_t e2ap_dec_control_ack(const E2AP_PDU_t* pdu)
         || id ==  ProtocolIE_ID_id_RICcontrolOutcome);
   //RIC Call process ID. Optional
     if(id == ProtocolIE_ID_id_RICcallProcessID){
-     assert(ric_ctrl->criticality == Criticality_reject);
-     assert(ric_ctrl->value.present == RICcontrolAcknowledge_IEs__value_PR_RICcallProcessID);
+      assert(ric_ctrl->criticality == Criticality_reject);
+      assert(ric_ctrl->value.present == RICcontrolAcknowledge_IEs__value_PR_RICcallProcessID);
+      assert(ctrl->call_process_id == NULL);
       ctrl->call_process_id = malloc(sizeof(byte_array_t));
-      *ctrl->call_process_id = copy_ostring_to_ba(ric_ctrl->value.choice.RICcallProcessID); 
-  //RIC Control Outcome. Mandatory
+      *ctrl->call_process_id = copy_ostring_to_ba(ric_ctrl->value.choice.RICcallProcessID);
+   //RIC Control Outcome. Mandatory
     } else { // id == ProtocolIE_ID_id_RICcontrolOutcome
       assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == RICcontrolAcknowledge_IEs__value_PR_RICcontrolOutcome);
+      assert(ctrl->control_outcome == NULL);
       ctrl->control_outcome = malloc(sizeof(byte_array_t));
       assert(ctrl->control_outcome != NULL && "Memory exhausted");
       *ctrl->control_outcome = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolOutcome); 
@@ -1481,15 +1450,10 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     GlobalE2node_gNB_ID_t *e2gnb = setup_rid->value.choice.GlobalE2node_ID.choice.gNB;
     assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
     PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, sr->id.plmn.mcc, sr->id.plmn.mnc, sr->id.plmn.mnc_digit_len);
-   
     sr->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      // This is an abuse but the standard does not define how to
-      // differentiate between ngran_gNB_CU and ngran_gNB
-      // Here we do not know if it is a real CUUP or a CU. Assuming CU
-      // sr->id.type = e2ap_ngran_gNB_CUUP;
-      sr->id.type = e2ap_ngran_gNB_CU;
+      sr->id.type = e2ap_ngran_gNB_CUUP;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, sr->id.cu_du_id);
@@ -1526,7 +1490,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
 
       assert(ran_list->value.choice.RANfunctions_List.list.count < MAX_NUM_RAN_FUNC_ID);
       sr->len_rf = ran_list->value.choice.RANfunctions_List.list.count;
-
+      assert(sr->ran_func_item == NULL);
       sr->ran_func_item = calloc(sr->len_rf, sizeof(ran_function_t));
       assert(sr->ran_func_item != NULL && "Memory exhausted");
 
@@ -1541,7 +1505,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
         assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
         dst->rev = src->ranFunctionRevision;
 
-        dst->def = copy_ostring_to_ba(src->ranFunctionDefinition); 
+        dst->defn = copy_ostring_to_ba(src->ranFunctionDefinition);
         dst->oid = copy_ostring_to_ba(src->ranFunctionOID); 
       }
     } else if (proto_id == ProtocolIE_ID_id_E2nodeComponentConfigAddition) {
@@ -1549,7 +1513,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
       assert(comp_add->criticality == Criticality_reject);
       assert(comp_add->value.present == E2setupRequestIEs__value_PR_E2nodeComponentConfigAddition_List); 
       sr->len_cca = comp_add->value.choice.E2nodeComponentConfigAddition_List.list.count;
-      assert(sr->len_cca > 0 && sr->len_cca < 1024);
+      assert(sr->len_cca > 0 && sr->len_cca < 1024 && sr->comp_conf_add == NULL);
       sr->comp_conf_add = calloc(sr->len_cca, sizeof(e2ap_node_component_config_add_t));
       assert(sr->comp_conf_add != NULL);
       
@@ -1661,7 +1625,7 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
 
       assert(ran_func->value.choice.RANfunctionsID_List.list.count < MAX_NUM_RAN_FUNC_ID);
       sr->len_acc = ran_func->value.choice.RANfunctionsID_List.list.count; 
-
+      assert(sr->accepted == NULL);
       sr->accepted = calloc(sr->len_acc, sizeof(accepted_ran_function_t));
       const RANfunctionID_ItemIEs_t** arr = (const RANfunctionID_ItemIEs_t**)ran_func->value.choice.RANfunctionsID_List.list.array; 
       for(size_t i =0; i < sr->len_acc; ++i){
@@ -1680,7 +1644,10 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
       assert(ran_rej->value.present == E2setupResponseIEs__value_PR_RANfunctionsIDcause_List); 
 
       sr->len_rej = ran_rej->value.choice.RANfunctionsID_List.list.count; 
-      sr->rejected = calloc( sr->len_rej, sizeof(rejected_ran_function_t));
+      assert(sr->rejected == NULL);
+      sr->rejected = calloc(sr->len_rej, sizeof(rejected_ran_function_t));
+      assert(sr->rejected != NULL && "Memory exhausted");
+
       RANfunctionIDcause_ItemIEs_t** arr = (RANfunctionIDcause_ItemIEs_t**)ran_rej->value.choice.RANfunctionsID_List.list.array; 
       for(size_t i =0; i < sr->len_rej; ++i){
         assert(arr[i]->id == ProtocolIE_ID_id_RANfunctionID_Item); 
@@ -1744,6 +1711,7 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
       const size_t sz = ca_list->value.choice.E2nodeComponentConfigAdditionAck_List.list.count;
       assert(sz < (size_t) MAX_NUM_E2_NODE_COMPONENTS);
       sr->len_ccaa = sz;
+      assert(sr->comp_config_add_ack == NULL);
       sr->comp_config_add_ack = calloc(sz, sizeof(*sr->comp_config_add_ack));
 
       E2nodeComponentConfigAdditionAck_ItemIEs_t** arr = (E2nodeComponentConfigAdditionAck_ItemIEs_t**)ca_list->value.choice.E2nodeComponentConfigAdditionAck_List.list.array;
@@ -1831,8 +1799,6 @@ e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
 
-  assert(0!=0 && "Untested code");
-
   e2ap_msg_t ret = {.type = E2_SETUP_FAILURE};
   e2_setup_failure_t* sf = &ret.u_msgs.e2_stp_fail;
 
@@ -1854,7 +1820,7 @@ e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
 
   // Cause. Mandatory
   const E2setupFailureIEs_t* cause = out->protocolIEs.list.array[1]; 
-  assert(cause->id  == ProtocolIE_ID_id_E2connectionSetupFailed);
+  assert(cause->id  == ProtocolIE_ID_id_Cause	); //  ProtocolIE_ID_id_E2connectionSetupFailed);
   assert(cause->criticality == Criticality_ignore);
   assert(cause->value.present == E2setupFailureIEs__value_PR_Cause);
   sf->cause = copy_cause(cause->value.choice.Cause);
@@ -1862,7 +1828,7 @@ e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
   int elm_id = out->protocolIEs.list.count - 1;
   assert(elm_id > -1 && elm_id < 4);
 
-  while(elm_id != 0){
+  while(elm_id > 1){
     const E2setupFailureIEs_t* src = out->protocolIEs.list.array[elm_id];
     assert(src->value.present == E2setupFailureIEs__value_PR_TimeToWait
         || src->value.present == E2setupFailureIEs__value_PR_CriticalityDiagnostics
@@ -1872,7 +1838,9 @@ e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
       //Time To Wait. Optional 
       assert(src->id == ProtocolIE_ID_id_TimeToWait); 
       assert(src->criticality == Criticality_ignore);
-      sf->time_to_wait_ms = calloc(1,sizeof(uint32_t));
+      assert(sf->time_to_wait_ms == NULL);
+      sf->time_to_wait_ms = calloc(1,sizeof(e2ap_time_to_wait_e));
+      assert(sf->time_to_wait_ms != NULL && "Memory exhausted");
       *sf->time_to_wait_ms = src->value.choice.TimeToWait;
     } else if (src->value.present == E2setupFailureIEs__value_PR_CriticalityDiagnostics){
       //Criticality Diagnostics. Optional
@@ -1883,7 +1851,9 @@ e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
       //Transport Layer Information. Optional
       assert(src->id == ProtocolIE_ID_id_TNLinformation); 
       assert(src->criticality == Criticality_ignore);
+      assert(sf->tl_info == NULL);
       sf->tl_info = calloc(1, sizeof(transport_layer_information_t));
+      assert(sf->tl_info != NULL && "Memory exhausted");
       sf->tl_info->address = copy_bs_to_ba(src->value.choice.TNLinformation.tnlAddress);
       if(src->value.choice.TNLinformation.tnlPort != NULL){
         sf->tl_info->port = calloc(1, sizeof(byte_array_t));
@@ -2030,7 +2000,7 @@ e2ap_msg_t e2ap_dec_service_update(const E2AP_PDU_t* pdu)
   assert(ran_del->criticality == Criticality_reject);
   assert(ran_del->value.present == RICserviceUpdate_IEs__value_PR_RANfunctionsID_List);
   const int sz_del = ran_del->value.choice.RANfunctions_List.list.count;
-  su->deleted  = calloc(sz_del, sizeof(ran_function_t));
+  su->deleted  = calloc(sz_del, sizeof(e2ap_ran_function_id_rev_t));
   su->len_deleted = sz_del;
   for(int i = 0; i < sz_del; ++i){
     const RANfunction_ItemIEs_t* r = (const RANfunction_ItemIEs_t*)ran_del->value.choice.RANfunctions_List.list.array[i];
@@ -2238,20 +2208,24 @@ e2ap_msg_t e2ap_dec_node_configuration_update(const E2AP_PDU_t* pdu)
 
   // E2 Node Component Configuration Update List
   const E2nodeConfigurationUpdate_IEs_t* conf_update_ie = out->protocolIEs.list.array[0]; 
-  assert(conf_update_ie->id == ProtocolIE_ID_id_E2nodeComponentConfigUpdate);	
-  assert(conf_update_ie->criticality == Criticality_ignore);
-  assert(conf_update_ie->value.present == E2nodeConfigurationUpdate_IEs__value_PR_E2nodeComponentConfigUpdate_List);
- 
+  assert(conf_update_ie->id == ProtocolIE_ID_id_TransactionID);
+  assert(conf_update_ie->criticality == Criticality_reject);
+  //assert(conf_update_ie->value.present == E2nodeConfigurationUpdate_IEs__value_PR_E2nodeComponentConfigUpdate_List);
 
-  const int sz = conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.count;
-  cu->comp_conf_update_list = calloc(sz, sizeof(e2_node_component_config_update_t)); 
-  cu->len_ccul = sz;
+  if (conf_update_ie->value.present == E2nodeConfigurationUpdate_IEs__value_PR_TransactionID) {
+    cu->trans_id = conf_update_ie->value.choice.TransactionID;
+  } else if (conf_update_ie->value.present == E2nodeConfigurationUpdate_IEs__value_PR_E2nodeComponentConfigUpdate_List) {
 
-  for(int i = 0; i < sz; ++i){
-    //const E2nodeComponentConfigUpdate_ItemIEs_t* n = (const E2nodeComponentConfigUpdate_ItemIEs_t*) conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.array[i];
-    // const E2nodeComponentConfigUpdate_Item_t* src = &n->value.choice.E2nodeComponentConfigUpdate_Item;
-     assert(0 != 0 && "Not implemented");
-//    cu->comp_conf_update_list[i] = copy_e2_node_component_conf_update(src);
+    const int sz = conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.count;
+    cu->comp_conf_update_list = calloc(sz, sizeof(e2_node_component_config_update_t));
+    cu->len_ccul = sz;
+
+    for(int i = 0; i < sz; ++i){
+      //const E2nodeComponentConfigUpdate_ItemIEs_t* n = (const E2nodeComponentConfigUpdate_ItemIEs_t*) conf_update_ie->value.choice.E2nodeComponentConfigUpdate_List.list.array[i];
+      // const E2nodeComponentConfigUpdate_Item_t* src = &n->value.choice.E2nodeComponentConfigUpdate_Item;
+       assert(0 != 0 && "Not implemented");
+  //    cu->comp_conf_update_list[i] = copy_e2_node_component_conf_update(src);
+    }
   }
   return ret;
 }
@@ -2380,7 +2354,7 @@ e2ap_msg_t e2ap_dec_e42_setup_request(const struct E2AP_PDU* pdu)
     assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
     dst->rev = src->ranFunctionRevision;
 
-    dst->def = copy_ostring_to_ba(src->ranFunctionDefinition); 
+    dst->defn = copy_ostring_to_ba(src->ranFunctionDefinition);
     dst->oid = copy_ostring_to_ba(src->ranFunctionOID);
   }
 
@@ -2426,7 +2400,7 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
     assert(conn_list->id == ProtocolIE_ID_id_E2nodesConnected);
     assert(conn_list->criticality == Criticality_reject);
     assert(conn_list->value.present == E42setupResponseIEs__value_PR_E2nodeConnected_List);
-    assert(conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.count == 2 && "Need the Global E2 Node ID and the RAN functions" );
+    assert(conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.count == 3 && "Need the Global E2 Node ID, the Component Configuration Addition list and the RAN functions" );
 
     // Global E2 Node ID. Mandatory
     E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
@@ -2443,16 +2417,10 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       GlobalE2node_gNB_ID_t *e2gnb = src->value.choice.GlobalE2node_ID.choice.gNB;
       assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
       PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, dst->id.plmn.mcc, dst->id.plmn.mnc, dst->id.plmn.mnc_digit_len);
-      //BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, dst->id.nb_id);
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
-
       if (e2gnb->gNB_CU_UP_ID) {
-        // This is an abuse but the standard does not define how to
-        // differentiate between ngran_gNB_CU and ngran_gNB
-        // Here we do not know if it is a real CUUP or a CU. Assuming CU
-        // dst->id.type = e2ap_ngran_gNB_CUUP;
-        dst->id.type = e2ap_ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CUUP;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
@@ -2474,9 +2442,47 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, dst->id.nb_id.nb_id);
     }
 
-    E2nodeConnected_ItemIEs_t const* src_ran = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[1];
+    // Component Configuration Addition
+    // E2 Node Component Configuration Addition List
+    // Mandatory
+    // [1 - 256] uint8_t. should be fine
+    E2nodeConnected_ItemIEs_t const* src_cca = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[1];
+    assert(src_cca->id == ProtocolIE_ID_id_E2nodeComponentConfigAddition);
+    assert(src_cca->criticality == Criticality_reject);
+    assert(src_cca->value.present == E2nodeConnected_ItemIEs__value_PR_E2nodeComponentConfigAddition_List);
+    assert(src_cca->value.choice.E2nodeComponentConfigAddition_List.list.count > 0 && src_cca->value.choice.E2nodeComponentConfigAddition_List.list.count < 256);
 
-    assert(src_ran->id ==   ProtocolIE_ID_id_RANfunctionsAdded);
+    dst->len_cca = src_cca->value.choice.E2nodeComponentConfigAddition_List.list.count;
+    dst->cca = calloc(dst->len_cca, sizeof(e2ap_node_component_config_add_t));
+    assert(dst->cca != NULL && "memory exhausted");
+
+    E2nodeComponentConfigAddition_ItemIEs_t** arr_cca = (E2nodeComponentConfigAddition_ItemIEs_t**)src_cca->value.choice.E2nodeComponentConfigAddition_List.list.array;
+    for(size_t i = 0; i < dst->len_cca; ++i){
+        assert(arr_cca[i]->id == ProtocolIE_ID_id_E2nodeComponentConfigAddition_Item);
+        assert(arr_cca[i]->criticality == Criticality_reject);
+        assert(arr_cca[i]->value.present == E2nodeComponentConfigAddition_ItemIEs__value_PR_E2nodeComponentConfigAddition_Item);
+        dst->cca[i] = e2ap_dec_node_component_conf_addition(arr_cca[i]);
+    }
+
+    // Abuse of the standard/interpretation. Since CUCP and CU do not have a flag, assume that
+    // CU = NGAP + F1AP
+    // CUCP = NGAP + F1AP + E1AP
+    if(dst->id.type == e2ap_ngran_gNB){
+      if(dst->len_cca == 2){
+        assert(dst->cca[0].e2_node_comp_interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE
+            && dst->cca[1].e2_node_comp_interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE);
+        dst->id.type = e2ap_ngran_gNB_CU;
+      } else if(dst->len_cca == 3){
+        assert(dst->cca[0].e2_node_comp_interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE
+            && dst->cca[1].e2_node_comp_interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE
+            && dst->cca[2].e2_node_comp_interface_type == E1_E2AP_NODE_COMP_INTERFACE_TYPE);
+        dst->id.type = e2ap_ngran_gNB_CUCP;
+      }
+    }
+
+    // RAN functions
+    E2nodeConnected_ItemIEs_t const* src_ran = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[2];
+    assert(src_ran->id == ProtocolIE_ID_id_RANfunctionsAdded);
     assert(src_ran->criticality == Criticality_reject);
     assert(src_ran->value.present == E2nodeConnected_ItemIEs__value_PR_RANfunctions_List);
 
@@ -2498,9 +2504,11 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
       dst_ie->rev = src->ranFunctionRevision;
 
-      dst_ie->def = copy_ostring_to_ba(src->ranFunctionDefinition); 
+      dst_ie->defn = copy_ostring_to_ba(src->ranFunctionDefinition);
       dst_ie->oid = copy_ostring_to_ba(src->ranFunctionOID);
     }
+
+
   }
   return ret;
 }
@@ -2586,7 +2594,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
     assert(conn_list->id == ProtocolIE_ID_id_E2nodesConnected);
     assert(conn_list->criticality == Criticality_reject);
     assert(conn_list->value.present == E42setupResponseIEs__value_PR_E2nodeConnected_List);
-    assert(conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.count == 2 && "Need the Global E2 Node ID and the RAN functions" );
+    assert(conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.count == 3 && "Need the Global E2 Node ID, the Component Configuration Addition list and the RAN functions" );
 
     // Global E2 Node ID. Mandatory
     E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
@@ -2603,7 +2611,6 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       GlobalE2node_gNB_ID_t *e2gnb = src->value.choice.GlobalE2node_ID.choice.gNB;
       assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
       PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, dst->id.plmn.mcc, dst->id.plmn.mnc, dst->id.plmn.mnc_digit_len);
-      // BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, dst->id.nb_id);
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
       if (e2gnb->gNB_CU_UP_ID) {
@@ -2629,9 +2636,47 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, dst->id.nb_id.nb_id);
     }
 
-    E2nodeConnected_ItemIEs_t const* src_ran = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[1];
+    // Component Configuration Addition
+    // E2 Node Component Configuration Addition List
+    // Mandatory
+    // [1 - 256] uint8_t. should be fine
+    E2nodeConnected_ItemIEs_t const* src_cca = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[1];
+    assert(src_cca->id == ProtocolIE_ID_id_E2nodeComponentConfigAddition);
+    assert(src_cca->criticality == Criticality_reject);
+    assert(src_cca->value.present == E2nodeConnected_ItemIEs__value_PR_E2nodeComponentConfigAddition_List);
+    assert(src_cca->value.choice.E2nodeComponentConfigAddition_List.list.count > 0 && src_cca->value.choice.E2nodeComponentConfigAddition_List.list.count < 256);
 
-    assert(src_ran->id ==   ProtocolIE_ID_id_RANfunctionsAdded);
+    dst->len_cca = src_cca->value.choice.E2nodeComponentConfigAddition_List.list.count;
+    dst->cca = calloc(dst->len_cca, sizeof(e2ap_node_component_config_add_t));
+    assert(dst->cca != NULL && "memory exhausted");
+
+    E2nodeComponentConfigAddition_ItemIEs_t** arr_cca = (E2nodeComponentConfigAddition_ItemIEs_t**)src_cca->value.choice.E2nodeComponentConfigAddition_List.list.array;
+    for(size_t i = 0; i < dst->len_cca; ++i){
+      assert(arr_cca[i]->id == ProtocolIE_ID_id_E2nodeComponentConfigAddition_Item);
+      assert(arr_cca[i]->criticality == Criticality_reject);
+      assert(arr_cca[i]->value.present == E2nodeComponentConfigAddition_ItemIEs__value_PR_E2nodeComponentConfigAddition_Item);
+      dst->cca[i] = e2ap_dec_node_component_conf_addition(arr_cca[i]);
+    }
+
+    // Abuse of the standard/interpretation. Since CUCP and CU do not have a flag, assume that
+    // CU = NGAP + F1AP
+    // CUCP = NGAP + F1AP + E1AP
+    if(dst->id.type == e2ap_ngran_gNB){
+      if(dst->len_cca == 2){
+        assert(dst->cca[0].e2_node_comp_interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE
+               && dst->cca[1].e2_node_comp_interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE);
+        dst->id.type = e2ap_ngran_gNB_CU;
+      } else if(dst->len_cca == 3){
+        assert(dst->cca[0].e2_node_comp_interface_type == NG_E2AP_NODE_COMP_INTERFACE_TYPE
+               && dst->cca[1].e2_node_comp_interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE
+               && dst->cca[2].e2_node_comp_interface_type == E1_E2AP_NODE_COMP_INTERFACE_TYPE);
+        dst->id.type = e2ap_ngran_gNB_CUCP;
+      }
+    }
+
+    // RAN functions
+    E2nodeConnected_ItemIEs_t const* src_ran = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[2];
+    assert(src_ran->id == ProtocolIE_ID_id_RANfunctionsAdded);
     assert(src_ran->criticality == Criticality_reject);
     assert(src_ran->value.present == E2nodeConnected_ItemIEs__value_PR_RANfunctions_List);
 
@@ -2653,7 +2698,7 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
       dst_ie->rev = src->ranFunctionRevision;
 
-      dst_ie->def = copy_ostring_to_ba(src->ranFunctionDefinition);
+      dst_ie->defn = copy_ostring_to_ba(src->ranFunctionDefinition);
       dst_ie->oid = copy_ostring_to_ba(src->ranFunctionOID);
     }
   }
@@ -2801,6 +2846,10 @@ E2AP_PDU_t* e2ap_create_pdu(const uint8_t* buffer, int buffer_len)
   //printf("rval.code = %d\n", rval.code);
   //fprintf(stdout, "length of data %ld\n", rval.consumed);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGEND_BASIC_PER syntax?");
+
+  //xer_fprint_e2ap_v2_03(stdout, &asn_DEF_E2AP_PDU, pdu);
+  //fflush(stdout);
+
   return pdu;
 }
 
@@ -2813,7 +2862,7 @@ e2ap_msg_t e2ap_msg_dec_asn(e2ap_asn_t* asn, byte_array_t ba)
   //printf("Decoding message type = %d \n", msg_type);
   assert(asn->dec_msg[msg_type] != NULL);
   e2ap_msg_t msg = asn->dec_msg[msg_type](pdu);
-//  xer_fprint(stdout, &asn_DEF_E2AP_PDU, pdu);
+//  xer_fprint_e2ap_v2_03(stdout, &asn_DEF_E2AP_PDU, pdu);
 //  fflush(stdout);
   ASN_STRUCT_FREE(asn_DEF_E2AP_PDU,pdu);
   return msg; 

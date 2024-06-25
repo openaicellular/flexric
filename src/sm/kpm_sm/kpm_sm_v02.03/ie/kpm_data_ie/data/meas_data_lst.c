@@ -23,6 +23,21 @@ meas_record_lst_t cp_meas_record_lst(meas_record_lst_t const* src)
   return dst;
 }
 
+static
+bool eq_incomplete_flag(enum_value_e const* m0,enum_value_e const* m1)
+{
+  if(m0 == m1)
+    return true;
+
+  if(m0 == NULL || m1 == NULL)
+    return false;
+
+  if(*m0 != *m1)
+    return false;
+
+  return true;
+}
+
 bool eq_meas_data_lst(meas_data_lst_t const* m0, meas_data_lst_t const* m1)
 {
     assert(m0 != NULL);
@@ -60,10 +75,8 @@ bool eq_meas_data_lst(meas_data_lst_t const* m0, meas_data_lst_t const* m1)
       
     }
 
-
-    if ((m0->incomplete_flag != NULL || m1->incomplete_flag != NULL) && *m0->incomplete_flag != *m1->incomplete_flag)
+    if(eq_incomplete_flag(m0->incomplete_flag, m1->incomplete_flag) == false)
       return false;
-
 
     return true;
 }

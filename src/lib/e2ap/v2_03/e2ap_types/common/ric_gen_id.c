@@ -23,6 +23,7 @@
 #include "ric_gen_id.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 bool eq_ric_gen_id(const ric_gen_id_t* m0, const  ric_gen_id_t* m1)
 {

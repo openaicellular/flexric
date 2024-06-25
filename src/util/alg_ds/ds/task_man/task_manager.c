@@ -134,6 +134,7 @@ void* seq_ring_at(seq_ring_t* r, uint32_t pos)
   return r->array + mask(r->cap, r->tail + pos)*r->elt_size;
 }
 
+/*
 static inline
 int32_t seq_ring_dist(seq_ring_t* r, void* first, void* last)
 {
@@ -155,6 +156,7 @@ bool seq_ring_equal(void* it_1,void* it_2)
 {
   return (uint8_t*)it_1 == (uint8_t*)it_2;  
 }
+*/
 
 typedef void (*seq_free_func)(void*);
 
@@ -494,7 +496,7 @@ void* worker_thread(void* arg)
   int const num_it = 3*(man->len_thr + idx); 
 
   not_q_t* q_arr = (not_q_t*)man->q_arr;
-  ret_try_t ret; 
+  ret_try_t ret = {.success = false};
   for(;;){
     for(int i = idx; i < num_it; ++i){
       ret = try_pop_not_q(&q_arr[i%len]);
@@ -567,6 +569,7 @@ void free_task_manager(task_manager_t* man, void (*clean)(void*))
 void async_task_manager(task_manager_t* man, task_t t)
 {
   assert(man != NULL);
+  assert(man->len_thr > 0);
   assert(t.func != NULL);
   //assert(t.args != NULL);
 

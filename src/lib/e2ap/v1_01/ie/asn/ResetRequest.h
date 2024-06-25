@@ -21,7 +21,7 @@ extern "C" {
 
 /* ResetRequest */
 typedef struct ResetRequest {
-	ProtocolIE_Container_1491P25_t	 protocolIEs;
+	ProtocolIE_Container_1492P25_t	 protocolIEs;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.

@@ -49,16 +49,14 @@ void mir_dummy_lock_guard_const();
      if (rc != 0){ \
         fprintf(stdout, "Error while locking, possibly the lock is already locked: %s\n", strerror(rc)); \
         fflush(stdout); \
-        assert(0!=0); \
-        exit(-1); \
+        assert(0 != 0); \
      } \
   } while(0); \
    defer( { int rc = pthread_mutex_unlock(X); \
          if(rc != 0){ \
           fprintf(stdout, "Error while unlocking: %s\n", strerror(rc) ); \
           fflush(stdout); \
-          assert(0!=0); \
-          exit(-1); \
+          assert(0 != 0); \
          } \
          }); \
 

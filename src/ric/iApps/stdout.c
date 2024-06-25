@@ -88,9 +88,7 @@ void init_fp(void)
   atexit(close_fp);
 }
 
-uint64_t count_max = 100;
-uint64_t count_mac = 0;
-uint64_t aggr_tstamp_mac = 0;
+
 static
 void print_mac_stats(mac_ind_msg_t const* msg )
 {
@@ -99,14 +97,8 @@ void print_mac_stats(mac_ind_msg_t const* msg )
   pthread_once(&init_fp_once, init_fp);
   assert(fp != NULL);
 
-  int64_t now = time_now_us();
-  count_mac += 1;
-  aggr_tstamp_mac += now - msg->tstamp;
-  if (count_mac == count_max) {
-    // printf("Time diff at iApp (MAC SM) = %ld \n", now - msg->tstamp);
-    count_mac = 0;
-    aggr_tstamp_mac = 0;
-  }
+  //int64_t now = time_now_us();
+  //printf("Time diff at iApp = %ld \n", now - msg->tstamp);
 
   for(uint32_t i = 0; i < msg->len_ue_stats; ++i){
     char stats[1024] = {0};

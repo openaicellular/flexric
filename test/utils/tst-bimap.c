@@ -48,7 +48,8 @@ int main(){
     .action_id = 0
   };
   bi_map_insert(&ind_event, &timer_id, sizeof(timer_id), &ev, sizeof(ind_event_t));
-  ind_event_t *ev_ext = bi_map_extract_left(&ind_event, &timer_id, sizeof(timer_id));
+  void (*free_fd)(void*) = NULL;
+  ind_event_t *ev_ext = bi_map_extract_left(&ind_event, &timer_id, sizeof(timer_id), free_fd);
   if (memcmp(ev_ext, &ev, sizeof(ev))){
     printf("got ric_id=(%d, %d, %d), sm=%p, action_id =%d. Expected all zeros\n", 
             ev_ext->ric_id.ran_func_id,

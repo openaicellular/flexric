@@ -38,7 +38,7 @@ gtp_ind_data_t cp;
 ////
 
 static
-void read_gtp_RAN(void* read)
+bool read_gtp_RAN(void* read)
 {
   assert(read != NULL);
 
@@ -47,6 +47,7 @@ void read_gtp_RAN(void* read)
   fill_gtp_ind_data(gtp);
   cp.hdr = cp_gtp_ind_hdr(&gtp->hdr);
   cp.msg = cp_gtp_ind_msg(&gtp->msg);
+  return true;
 }
 
 /////////////////////////////
@@ -70,8 +71,10 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
 
   char sub[] = "2_ms";
   sm_subs_data_t data = ric->proc.on_subscription(ric, &sub);
-  subscribe_timer_t t = ag->proc.on_subscription(ag, &data); 
-  assert(t.ms == 2);
+  
+  sm_ag_if_ans_subs_t const subs = ag->proc.on_subscription(ag, &data); 
+  assert(subs.type == PERIODIC_SUBSCRIPTION_FLRC);
+  assert(subs.per.t.ms == 2);
 
   free_sm_subs_data(&data);
 }
@@ -83,21 +86,21 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   assert(ag != NULL);
   assert(ric != NULL);
 
-  sm_ind_data_t sm_data = ag->proc.on_indication(ag, NULL);
-  if(sm_data.call_process_id != NULL){
-    assert(sm_data.len_cpid != 0);
+  exp_ind_data_t exp = ag->proc.on_indication(ag, NULL);
+  assert(exp.has_value == true);
+  if(exp.data.call_process_id != NULL){
+    assert(exp.data.len_cpid != 0);
   }
-  if(sm_data.ind_hdr != NULL){
-    assert(sm_data.len_hdr != 0);
+  if(exp.data.ind_hdr != NULL){
+    assert(exp.data.len_hdr != 0);
   }
-  if(sm_data.ind_msg != NULL){
-    assert(sm_data.len_msg != 0);
+  if(exp.data.ind_msg != NULL){
+    assert(exp.data.len_msg != 0);
   }
 
-  sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &sm_data);
+  sm_ag_if_rd_ind_t msg = ric->proc.on_indication(ric, &exp.data);
 
   assert(msg.type == GTP_STATS_V0);
-
 
   gtp_ind_data_t* data = &msg.gtp;
 
@@ -112,7 +115,7 @@ void check_indication(sm_agent_t* ag, sm_ric_t* ric)
   free_gtp_ind_hdr(&data->hdr);
   free_gtp_ind_msg(&data->msg);
 
-  free_sm_ind_data(&sm_data); 
+  free_exp_ind_data(&exp); 
 }
 
 int main()

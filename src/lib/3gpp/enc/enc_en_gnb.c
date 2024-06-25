@@ -1,12 +1,9 @@
 #include <assert.h>
 
-#include "../../../sm/rc_sm/ie/asn/asn_constant.h"
-#include "../../../sm/rc_sm/ie/asn/asn_SEQUENCE_OF.h"
-#include "../../../sm/rc_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-Item.h"
-#include "../../../sm/rc_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-List.h"
-
+#include "enc_asn.h"
 #include "enc_en_gnb.h"
 #include "enc_global_enb_id.h"
+
 
 UEID_EN_GNB_t* enc_en_gNB_UE_asn(const en_gnb_e2sm_t * en_gnb)
 {

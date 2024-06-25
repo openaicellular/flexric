@@ -68,12 +68,23 @@ void stop_iapp_api(void)
   assert(rc == 0);
 }
 
-void add_e2_node_iapp_api(global_e2_node_id_t* id, size_t len, ran_function_t const ran_func[len])
+
+#ifdef E2AP_V1
+void add_e2_node_iapp_api_v1(global_e2_node_id_t* id, size_t len, ran_function_t const ran_func[len])
 {
   assert(iapp != NULL);
   assert(len > 0 && "E2 Node with no RAN functions??\n");
-  add_e2_node_iapp(iapp, id, len , ran_func );
+  add_e2_node_iapp_v1(iapp, id, len , ran_func);
 }
+#else
+void add_e2_node_iapp_api(global_e2_node_id_t* id, size_t len, ran_function_t const ran_func[len], size_t len_cca, e2ap_node_component_config_add_t const* cca)
+{
+  assert(iapp != NULL);
+  assert(len > 0 && "E2 Node with no RAN functions??\n");
+  add_e2_node_iapp(iapp, id, len , ran_func, len_cca, cca);
+}
+#endif
+
 
 void rm_e2_node_iapp_api(global_e2_node_id_t* id)
 {

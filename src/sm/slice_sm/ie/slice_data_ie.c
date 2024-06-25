@@ -84,7 +84,8 @@ void free_slice_param(slice_params_t* param)
     if(param->u.edf.len_over > 0 ){
       assert(param->u.edf.over != NULL);
       free(param->u.edf.over);
-    }
+    } else if(param->u.edf.over != NULL)
+      assert(0!=0 && "Bug! param->u.edf.len_over == 0 and param->u.edf.over != NULL");
   } else {
     assert("Unknown slice param");
   }
@@ -99,25 +100,21 @@ void free_ul_dl_slice_conf(ul_dl_slice_conf_t* conf)
     free(conf->sched_name); 
   }
 
-  if(conf->len_slices > 0){
-    assert(conf->slices != NULL);  
-   
-    for(size_t i = 0; i < conf->len_slices; ++i){
+  for(size_t i = 0; i < conf->len_slices; ++i){
 
-      fr_slice_t* slice = &conf->slices[i];
-      if(slice->len_label > 0){
-        assert(slice->label != NULL);
-        free(slice->label);
-      } 
-
-      if(slice->len_sched > 0){
-        assert(slice->sched != NULL);
-        free(slice->sched);
-      }
-      free_slice_param(&slice->params);
+    fr_slice_t* slice = &conf->slices[i];
+    if(slice->len_label > 0){
+      assert(slice->label != NULL);
+      free(slice->label);
     }
-    free(conf->slices);
+
+    if(slice->len_sched > 0){
+      assert(slice->sched != NULL);
+      free(slice->sched);
+    }
+    free_slice_param(&slice->params);
   }
+  free(conf->slices);
 }
 
 static
@@ -314,9 +311,17 @@ bool eq_edf_slice(edf_slice_t const* m0, edf_slice_t const* m1)
   assert(m0 != NULL);
   assert(m1 != NULL);
 
+  if(m0->len_over != m1->len_over){
+    assert(0!=0);
+    return false;
+  }
+
+
   for(size_t i = 0; i < m0->len_over; ++i){
-    if(m0->over[i] != m1->over[i])
+    if(m0->over[i] != m1->over[i]){
+      assert(0!=0);
       return false;
+    }
   }
 
   return m0->deadline == m1->deadline
@@ -347,6 +352,7 @@ bool eq_slice_params(slice_params_t const* m0, slice_params_t const* m1)
     assert("Unknown type");
   }
 
+  assert(ret != false);
   return ret;
 }
 
@@ -372,6 +378,21 @@ bool eq_slice(fr_slice_t const* m0, fr_slice_t const* m1)
 }
 
 static
+bool eq_sched_name(const char* m0, const char* m1, size_t len)
+{
+  if(m0 == m1)
+    return true;
+
+  if(m0 == NULL || m1 == NULL)
+    return false;
+
+  if(memcmp(m0, m1, len) != 0)
+    return false;
+
+  return true;
+}
+
+static
 bool eq_ul_dl_slice_conf(ul_dl_slice_conf_t const* m0, ul_dl_slice_conf_t const* m1)
 {
   assert(m0 != NULL);
@@ -380,14 +401,15 @@ bool eq_ul_dl_slice_conf(ul_dl_slice_conf_t const* m0, ul_dl_slice_conf_t const*
   if(m0->len_sched_name != m1->len_sched_name)
     return false;
 
-  if(m0->len_slices != m1->len_slices)
+  if(eq_sched_name(m0->sched_name, m1->sched_name, m0->len_sched_name) == false)
     return false;
 
-  if(memcmp(m0->sched_name, m1->sched_name, m0->len_sched_name) != 0)
+  if(m0->len_slices != m1->len_slices)
     return false;
 
   for(size_t i = 0; i < m0->len_slices; ++i) {
     if(eq_slice(&m0->slices[i], &m1->slices[i] ) == false){
+      assert(0!=0);
       printf("eq slice returning false \n");
       return false;
     }
@@ -549,7 +571,6 @@ ul_dl_slice_conf_t cpy_ul_dl_slice_conf(ul_dl_slice_conf_t const* src)
   ul_dl_slice_conf_t dst = {0};
 
   dst.len_sched_name = src->len_sched_name;
-  dst.len_slices = src->len_slices;
 
   if(src->len_sched_name > 0){
     dst.sched_name = malloc(src->len_sched_name);
@@ -557,6 +578,7 @@ ul_dl_slice_conf_t cpy_ul_dl_slice_conf(ul_dl_slice_conf_t const* src)
     memcpy(dst.sched_name, src->sched_name, src->len_sched_name);
   }
 
+  dst.len_slices = src->len_slices;
   if (src->len_slices > 0) {
     dst.slices = calloc(src->len_slices, sizeof(fr_slice_t));
     assert(dst.slices != NULL && "Memory exhausted");
@@ -621,6 +643,7 @@ slice_ind_msg_t cp_slice_ind_msg(slice_ind_msg_t const* src)
   slice_ind_msg_t out = {0};
 
   out.slice_conf = cp_slice_conf(&src->slice_conf);
+
   out.ue_slice_conf = cp_ue_slice_conf(&src->ue_slice_conf);
   out.tstamp = src->tstamp;
 
@@ -867,7 +890,7 @@ void free_slice_func_def( slice_func_def_t* src)
     free(src->supported_alg);
 }
 
-slice_func_def_t cp_slice_func_def(slice_func_def_t* src)
+slice_func_def_t cp_slice_func_def(slice_func_def_t const* src)
 {
   assert(src != NULL);
 
@@ -883,7 +906,7 @@ slice_func_def_t cp_slice_func_def(slice_func_def_t* src)
   return ans;
 }
 
-bool eq_slice_func_def(slice_func_def_t* m0, slice_func_def_t* m1)
+bool eq_slice_func_def(slice_func_def_t const* m0, slice_func_def_t const* m1)
 {
   assert(m0 != NULL);
   assert(m1 != NULL);
@@ -915,10 +938,10 @@ slice_ind_data_t cp_slice_ind_data(slice_ind_data_t const* src)
 {
   assert(src != NULL);
 
-
   slice_ind_data_t dst = {0};
   dst.hdr = cp_slice_ind_hdr(&src->hdr);
   dst.msg = cp_slice_ind_msg(&src->msg);
+  //assert(dst.msg.slice_conf.dl.slices[0].params.u.edf.over[0] == 16);
 
   if(src->proc_id != NULL){
     dst.proc_id = malloc(sizeof(slice_call_proc_id_t));

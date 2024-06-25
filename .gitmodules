@@ -1,0 +1,4 @@
+[submodule "ci-scripts/common"]
+	path = ci-scripts/common
+	url = https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-common-ci.git
+	branch = develop

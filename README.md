@@ -4,7 +4,8 @@ This repository contains [O-RAN Alliance](https://www.o-ran.org/) compliant E2 n
 It implements O-RAN service models (KPM v2, KPM v3, and RC) and various customized service models (NG/GTP, PDCP, RLC, MAC, SLICE, TC) and a built-in emulation.
 Depending on the service model, different encoding schemes have been developed (ASN.1, flatbuffer, plain).
 The indication data received in the xApp uses SQLite3 or MySQL database to store the data for enabling offline processing applications
-(e.g., ML/AI). 
+(e.g., ML/AI).
+Moreover it supports E2AP v1.01/v2.03/v3.01 for all the SMs.
 
 If you want to know more about FlexRIC and its original architecture, you can find more details at: Robert Schmidt, Mikel Irazabal, and Navid Nikaein. 2021.
 FlexRIC: an SDK for next-generation SD-RANs. In Proceedings of the 17th International Conference on emerging Networking EXperiments and Technologies (CoNEXT
@@ -17,7 +18,7 @@ https://bit.ly/3uOXuCV
 
 ### 1.1 Install prerequisites
 
-- **A recent CMake (at least v3.15)**
+- **A recent CMake (at least v3.22)**
 
   On Ubuntu, you might want to use [this PPA](https://apt.kitware.com/) to install an up-to-date version.
 
@@ -97,7 +98,7 @@ https://bit.ly/3uOXuCV
 
   List of options in CmakeList:
   - `E2AP_VERSION=E2AP_V1/E2AP_V2/E2AP_V3` (E2AP_V2 by default)
-  - `KPM_VERSION=KPM_V2/KPM_V3` (KPM_V3 by default)
+  - `KPM_VERSION=KPM_V2_01/KPM_V2_03/KPM_V3_00` (KPM_V3 by default)
   - `XAPP_DB=SQLITE3_XAPP/MYSQL_XAPP/NONE_XAPP` (MYSQL_XAPP by default)
   - `XAPP_PYTHON_SWIG=ON/OFF` (ON by default)
   - `XAPP_GO_SWIG=ON/OFF` (OFF by default)
@@ -128,6 +129,15 @@ https://bit.ly/3uOXuCV
   cd sm/kpm_sm/kpm_sm_v03.00
   ./test_kpm_sm
   ```
+
+### 1.5 Docker (optional step)
+
+We build regularly FlexRIC using docker files for Ubuntu20 and Ubuntu22. You can find the Dockerfile at
+
+```bash
+cd test/docker/
+```
+
 ---
 
 ## 2. Usage
@@ -263,47 +273,35 @@ The default configuration assumes all the components are located in the same loc
 
 ### 2.3 Wireshark
 Configure the preference for the port number of E2AP protocol to be able see the E2 message between E2-emulator and nearRT-RIC.
+[to be completed, not yet updated]
 
----
-# [to be completed, not yet updated]
+At this point, FlexRIC is working correctly in your computer and you have already tested the multi-agent, multi-xApp and multi-language capabilities.
+
+The latency that you observe in your monitor xApp is the latency from the E2 Agent to the nearRT-RIC and xApp. In modern computers the latency should be less than 200 microseconds or 50x faster than the O-RAN specified minimum nearRT-RIC latency i.e., (10 ms - 1 sec) range.
+Therefore, FlexRIC is well suited for use cases with ultra low-latency requirements.
+Additionally, all the data received in the xApp is also written to /tmp/xapp_db in case that offline data processing is wanted (e.g., Machine
+Learning/Artificial Intelligence applications). You browse the data using e.g., sqlitebrowser.
+Please, check the example folder for other working xApp use cases.
 
 ## 3. Integration with RAN and example of deployment
 
-### 3.1 Integration with OpenAirInterface 4G/5G RAN
+### 3.1 Integration with OpenAirInterface 5G RAN
 
-We will use a specific branch provided in OAI repository. Below the commands to achieve that.
-```bash
-$ git clone https://gitlab.eurecom.fr/oai/openairinterface5g.git oai
-$ cd oai/
-$ git checkout develop
-$ source oaienv
-$ cd cmake_targets
-$ ./build_oai -i -I  #For OAI first time installation. it will install some dependencies
-# to test with USRP
-$ ./build_oai --gNB -c -C -w USRP --build-e2 --ninja
-# to test with 5G RF sim
-$ ./build_oai --gNB --nrUE -c -C -w SIMU --build-e2 --ninja
-```
+Follow the instructions https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair2/E2AP/README.md
 
-The compilation of OAI may take 10 minutes. Example configuration files using a B210 USRP are provided in flexric to facilitate the integration.
 
-### 3.2 Integration with srsRAN 4G RAN
+### 3.2 Integration with srsRAN 5G RAN
 
-Install srsRAN from source following [their](https://docs.srsran.com/en/latest/general/source/1_installation.html#installation-from-source) instructions.
+Follow the instructions https://docs.srsran.com/projects/project/en/latest/tutorials/source/flexric/source/index.html 
 
-We will use a patch provided in the flexric repository. Below the commands to do that:
-```bash
-cd path/to/srsran
-git checkout release_21_10
-git am path/to/flexric/multiRAT/srsran/srsenb.patch --whitespace=nowarn
-mkdir build && cmake .. && make -j8 
-cd srsenb/src/
-sudo ./srsenb
-```
+### 3.3 Integration with Keysight RICtest 
 
-### 3.3 (opt) Synchronize clock
+The nearRT-RIC has been successfully tested with Keysight's RICtest RAN emulator https://www.keysight.com/us/en/product/P8828S/rictest-ran-intelligent-controller-test-solutions.html, 
+as demonstrated at O-RAN PlugFest Fall 2023. Specifically, the nearRT-RIC with the xApp `flexric/examples/xApp/c/keysight/xapp_keysight_kpm_rc.c` were tested.
 
-Before running the various components (RAN/flexric), you probably want to align the machines' clock. At this aim, you can use `ptp4l` in all the machines
+### 3.4 (opt) Synchronize clock
+
+Before running the various components (RAN/nearRT-RIC/xApps), you probably want to align the machines' clock. For this aim, you can use `ptp4l` in all the machines
 involved (if you have for example deployed the various components on different hosts)
 
 ```bash
@@ -321,19 +319,15 @@ sudo phc2sys -m -s InterfaceName -w
 
 ![alt text](fig/3.png)
 
-### 3.4 Start the processes
+### 3.5 Start the processes
 
-* Start some eNodeB/gNodeB
+* Start some gNodeB
 
-  Below an example with 5G or 4G OAI gNodeB/eNodeB
+  Below an example with 5G OAI gNodeB
   ```bash
-  # eNB
-  $ cd oai/cmake_targets/ran_build/build
-  $ sudo ./lte-softmodem -O path/to/flexric/multiRAT/oai/enb.band7.tm1.25PRB.usrpb210.replay.conf
-
   # gNB
   $ cd oai/cmake_targets/ran_build/build
-  $ sudo ./nr-softmodem -O path/to/flexric/multiRAT/oai/gnb.sa.band78.fr1.106PRB.usrpb210.conf --sa -E --continuous-tx
+  $ sudo ./nr-softmodem -O ../../../targets/PROJECTS/GENERIC-NR-5GC/CONF/gnb.sa.band78.fr1.106PRB.usrpb210.conf --rfsim --sa -E
   ```
 
 * Start the nearRT-RIC
@@ -344,16 +338,51 @@ sudo phc2sys -m -s InterfaceName -w
 
 * Start different xApps
 
-  e.g, start the monitoring xApp with `build/examples/xApp/c/monitor/xapp_mac_rlc_pdcp_moni`. The monitoring sequence diagram is represented below: 
+  * start the KPM monitor xApp
+    At the moment, the following measurements are supported:
+    * "DRB.PdcpSduVolumeDL"
+    * "DRB.PdcpSduVolumeUL"
+    * "DRB.RlcSduDelayDl"
+    * "DRB.UEThpDl"
+    * "DRB.UEThpUl"
+    * "RRU.PrbTotDl"
+    * "RRU.PrbTotUl"
+    
+  ```bash
+  $ ./build/examples/xApp/c/monitor/xapp_kpm_moni
+  ```
+
+  * start the RC monitor xApp - aperiodic subscription support for "UE RRC State Change"
+  ```bash
+  $ ./build/examples/xApp/c/monitor/xapp_rc_moni
+  ```
+
+  * start the RC control xApp - RAN control function "QoS flow mapping configuration" support, i.e. creating a new DRB
+  ```bash
+  $ ./build/examples/xApp/c/kpm_rc/xapp_kpm_rc
+  ```
+
+  * start the (MAC + RLC + PDCP + GTP) monitor xApp
+  ```bash
+  $ ./build/examples/xApp/c/monitor/xapp_gtp_mac_rlc_pdcp_moni
+  ```
+  
+  The controlling sequence diagram is represented below:
 
   ![alt text](fig/4.png)
 
 
-  e.g, start the slicing control xApp via `$ python3 build/examples/xApp/python3/xapp_slice_moni_ctrl.py`. The controlling sequence diagram is represented below:
+## 4. Integration with other nearRT-RICs 
 
-  ![alt text](fig/5.png)
+### 4.1 O-RAN OSC nearRT-RIC
 
-## 4. Support/further resources
+FlexRIC's E2 Agent (and OAI RAN that is embedded on it) has also been successfully tested using O-RAN's OSC nearRT-RIC H Release as shown at https://openairinterface.org/news/openairinterface-will-showcase-3-demos-at-the-o-ran-f2f-meeting-in-phoenix/ and https://openairinterface.org/joint-osc-oai-workshop-end-to-end-open-source-reference-designs-for-o-ran/ 
+
+Follow OSC nearRT-RIC installation guide. The xApp can be found at https://github.com/mirazabal/kpm_rc-xapp. Please, note that we do not give support for the OSC nearRT-RIC.  
+
+Recorded presentation at Phoenix, October 2023 (4th minute): https://zoom.us/rec/play/N5mnAQUcEVRf8HN6qLYa4k7kjNq3bK4hQiYqHGv9KUoLfcR6GHiE-GvnmAudT6xccmZSbkxxYHRwTaxk.Zi7d8Sl1kQ6Sk1SH?canPlayFromShare=true&from=share_recording_detail&continueMode=true&componentName=rec-play&originRequestUrl=https%3A%2F%2Fzoom.us%2Frec%2Fshare%2FwiYXulPlAqIIDY_vLPQSGqYIj-e5Ef_UCxveMjrDNGgXLLvEcDF4v1cmVBe8imb4.WPi-DA_dfPDBQ0FH
+
+## 5. Support/further resources
 
 * Mailing list: if you need help or have some questions, you can subscribe to the mailing list `techs@mosaic-5g.io` that you can find at
   https://gitlab.eurecom.fr/mosaic5g/mosaic5g/-/wikis/mailing-lists. The emails are archived and available publicly. 
@@ -361,6 +390,10 @@ sudo phc2sys -m -s InterfaceName -w
 * [The Wiki space](https://gitlab.eurecom.fr/mosaic5g/flexric/-/wikis/home) contains tutorials and presentations
 * [Original FlexRIC paper ACM CoNEXT 2021](https://bit.ly/3uOXuCV)
 
-## 5. Roadmap
+## 6. OAM Project Group & Roadmap
+
+Check https://openairinterface.org/projects/oam-project-group/
+
+## 7. FlexRIC Milestone
 
 Check on https://gitlab.eurecom.fr/mosaic5g/flexric/-/milestones and in https://openairinterface.org/mosaic5g/

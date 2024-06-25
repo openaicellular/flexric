@@ -19,7 +19,7 @@ asn_TYPE_member_t asn_MBR_RICactions_ToBeSetup_List_1[] = {
 	{ ATF_POINTER, 0, 0,
 		(ASN_TAG_CLASS_UNIVERSAL | (16 << 2)),
 		0,
-		&asn_DEF_ProtocolIE_SingleContainer_1493P0,
+		&asn_DEF_ProtocolIE_SingleContainer_1494P0,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)

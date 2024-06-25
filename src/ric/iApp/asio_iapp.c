@@ -59,7 +59,6 @@ int init_epoll(void)
   const int flags = EPOLL_CLOEXEC; 
   const int efd = epoll_create1(flags);  
   assert(efd != -1);
-  printf("fd created with %d \n", efd );
   return efd;
 }
 

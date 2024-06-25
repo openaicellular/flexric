@@ -24,6 +24,7 @@
 #ifndef E42_SETUP_RESPONSE_H
 #define E42_SETUP_RESPONSE_H 
 
+#include "common/e2ap_node_component_config_add.h"
 #include "e2_node_connected.h"
 
 typedef struct e42_setup_response {

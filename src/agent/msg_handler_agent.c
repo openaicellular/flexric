@@ -30,6 +30,7 @@
 #ifdef PROXY_AGENT
 #include "proxy-agent/notif_e2_ran.h"
 #include "lib/correlation_events.h"
+#include "proxy-agent/proxy_agent.h"
 #endif
 
 #include <assert.h>
@@ -64,7 +65,7 @@ bool not_aperiodic_ind_event(int fd)
 }
 
 static
-void stop_ind_event(e2_agent_t* ag, ric_gen_id_t id)
+bool stop_ind_event(e2_agent_t* ag, ric_gen_id_t id)
 {
   assert(ag != NULL);
   ind_event_t tmp = {.ric_id = id, .sm = NULL, .action_id =0 };
@@ -73,21 +74,32 @@ void stop_ind_event(e2_agent_t* ag, ric_gen_id_t id)
   void* start_r = assoc_rb_tree_front(&ag->ind_event.right);
   void* end_r = assoc_rb_tree_end(&ag->ind_event.right);
   void* it_r = find_if_rb_tree(&ag->ind_event.right, start_r, end_r, &tmp, eq_ind_event);
+  if(it_r == end_r){
+    printf("[E2 AGENT]: RAN_FUNC_ID %d RIC_REQ_ID %d not found. Spuriously occurs when abruptly closing the xApp\n", id.ran_func_id, id.ric_req_id);
+    return false;;
+  }
+
   assert(it_r != end_r);
   ind_event_t* ind_ev = assoc_rb_tree_key(&ag->ind_event.right, it_r);
 
-  // These 3 lines need refactoring
+  // These 4 lines need refactoring
   if(ind_ev->sm->free_act_def != NULL)
     ind_ev->sm->free_act_def(ind_ev->sm, ind_ev->act_def);
   //
+  if(ind_ev->type == APERIODIC_SUBSCRIPTION_FLRC)
+    ind_ev->free_subs_aperiodic(id.ric_req_id);
 
-  int* fd = bi_map_extract_right(&ag->ind_event, &tmp, sizeof(tmp));
+
+  void (*free_ind_event)(void*) = NULL;
+  int* fd = bi_map_extract_right(&ag->ind_event, &tmp, sizeof(tmp), free_ind_event);
   assert(*fd > -1);
   //printf("fd value in stopping pending event = %d \n", *fd);
 
   if(not_aperiodic_ind_event(*fd))
     rm_fd_asio_agent(&ag->io, *fd);
   free(fd);
+
+  return true;;
 }
 
 void init_handle_msg_agent(size_t len, handle_msg_fp_agent (*handle_msg)[len])
@@ -169,26 +181,42 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   assert(ag != NULL);
   assert(msg != NULL);
   assert(msg->type == RIC_SUBSCRIPTION_REQUEST);
-  printf("[E2-AGENT]: RIC_SUBSCRIPTION_REQUEST rx\n");
 
   ric_subscription_request_t const* sr = &msg->u_msgs.ric_sub_req;
   assert(supported_ric_subscription_request(sr) == true);
 
+  printf("[E2 AGENT]: RIC_SUBSCRIPTION_REQUEST rx RAN_FUNC_ID %d RIC_REQ_ID %d\n", sr->ric_id.ran_func_id, sr->ric_id.ric_req_id);
+
   sm_subs_data_t data = generate_sm_subs_data(sr);
   uint16_t const ran_func_id = sr->ric_id.ran_func_id; 
   sm_agent_t* sm = sm_plugin_ag(&ag->plugin, ran_func_id);
+  
+  //subscribe_timer_t t = sm->proc.on_subscription(sm, &data);
+  //assert(t.ms > -2 && "Bug? 0 = create pipe value");
 
-  subscribe_timer_t t = sm->proc.on_subscription(sm, &data);
-  assert(t.ms > -2 && "Bug? 0 = create pipe value");
+  sm_ag_if_ans_subs_t const subs = sm->proc.on_subscription(sm, &data);
 
   #ifdef PROXY_AGENT
+  subscribe_timer_t const t = subs.per.t;
   printf("[E2-AGENT] asking RAN to create a subscription timer of %ld ms for sm %d.\n", t.ms, ran_func_id);
-  ind_event_t e2_ran_sub;
+  ind_event_t e2_ran_sub = {0};
   e2_ran_sub.action_id = sr->action[0].id;
   e2_ran_sub.ric_id = sr->ric_id;
   e2_ran_sub.sm = sm;
+  e2_ran_sub.type = subs.type;
   e2_ran_sub.act_def = t.act_def;
-  fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
+  if (subs.type == PERIODIC_SUBSCRIPTION_FLRC){
+    // Periodic indication message generated i.e., every 5 ms
+    assert(t.ms < 10001 && "Subscription for granularity larger than 10 seconds requested? ");
+    fwd_e2_ran_subscription_timer(ag->ran_if, e2_ran_sub, t.ms);
+  } else if (subs.type == APERIODIC_SUBSCRIPTION_FLRC){
+    e2_ran_sub.free_subs_aperiodic = subs.aper.free_aper_subs;
+    // Aperiodic indication generated i.e., the RAN will generate it via
+    // void async_event_agent_api(uint32_t ric_req_id, void* ind_data);
+    fwd_e2_ran_subscription_timer (ag->ran_if, e2_ran_sub, t.ms);
+  } else {
+    assert(0!=0 && "Unknown subscription timer value");
+  }
   // wait for a reply before generating subscription response
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   #else
@@ -198,28 +226,30 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   ev.action_id = sr->action[0].id;
   ev.ric_id = sr->ric_id;
   ev.sm = sm;
-  ev.act_def = t.act_def;
+  ev.type = subs.type;
+  printf("handle sub request ag: get type %d\n", ev.type);
 
-  if(t.ms > 0){
+  if(ev.type == PERIODIC_SUBSCRIPTION_FLRC){
+    subscribe_timer_t const t = subs.per.t;
+    ev.act_def = t.act_def;
     // Periodic indication message generated i.e., every 5 ms
     assert(t.ms < 10001 && "Subscription for granularity larger than 10 seconds requested? ");
     int fd_timer = create_timer_ms_asio_agent(&ag->io, t.ms, t.ms);
-
-    {
     lock_guard(&ag->mtx_ind_event);
     bi_map_insert(&ag->ind_event, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev));
-    }
-
-  } else if(t.ms == 0){
-    // Aperiodic indication generated i.e., the RAN will generate it via
+  } else if(ev.type == APERIODIC_SUBSCRIPTION_FLRC){
+    ev.free_subs_aperiodic = subs.aper.free_aper_subs;
+    // Aperiodic indication generated i.e., the RAN will generate it via 
     // void async_event_agent_api(uint32_t ric_req_id, void* ind_data);
-    lock_guard(&ag->mtx_ind_event);
     int fd = 0;
+    lock_guard(&ag->mtx_ind_event);
     bi_map_insert(&ag->ind_event, &fd, sizeof(int), &ev, sizeof(ev));
   } else {
     assert(0!=0 && "Unknown subscritpion timer value");
   }
 
+  printf("[E2-AGENT]: RIC_SUBSCRIPTION_REQUEST rx\n");
+  fflush(stdout);
   uint8_t const ric_act_id = sr->action[0].id;
   e2ap_msg_t ans = {.type = RIC_SUBSCRIPTION_RESPONSE, 
                     .u_msgs.ric_sub_resp = generate_subscription_response(&sr->ric_id, ric_act_id) };
@@ -232,16 +262,21 @@ e2ap_msg_t e2ap_handle_subscription_delete_request_agent(e2_agent_t* ag, const e
   assert(ag != NULL);
   assert(msg != NULL);
   assert(msg->type == RIC_SUBSCRIPTION_DELETE_REQUEST);
-  printf("[E2-AGENT]: RIC_SUBSCRIPTION_DELETE_REQUEST rx\n");
 
   const ric_subscription_delete_request_t* sdr = &msg->u_msgs.ric_sub_del_req;
+
+  printf("[E2-AGENT]: RIC_SUBSCRIPTION_DELETE_REQUEST rx RAN_FUNC_ID %d  RIC_REQ_ID %d  \n", sdr->ric_id.ran_func_id, sdr->ric_id.ric_req_id);
 
   #ifdef PROXY_AGENT
   fwd_e2_ran_remove_subscription_timer(ag->ran_if, sdr->ric_id);
   // fire and forget mechanism
   #endif
-  
+
   stop_ind_event(ag, sdr->ric_id);
+  //bool const found_ind_event = stop_ind_event(ag, sdr->ric_id);
+  //if(found_ind_event == false){
+  //  return ( e2ap_msg_t ){.type = NONE_E2_MSG_TYPE };
+  //}
 
   ric_subscription_delete_response_t sub_del = {.ric_id = sdr->ric_id };
 
@@ -293,17 +328,18 @@ e2ap_msg_t e2ap_handle_control_request_agent(e2_agent_t* ag, const e2ap_msg_t* m
   sm_agent_t* sm = sm_plugin_ag(&ag->plugin, ran_func_id);
 
 #ifdef PROXY_AGENT
-  (void)sm->proc.on_control(sm, &data);
+  sm_ctrl_out_data_t ctrl_ans = sm->proc.on_control(sm, &data);
+  defer({ free_sm_ctrl_out_data(&ctrl_ans); } );
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   // we will wait for a reply from the RAN if ever arrives
   pending_event_t ev = CONTROL_REQUEST_AGENT_PENDING_EVENT;
   long const wait_ms = 3000;
-  int fd_timer = create_timer_ms_asio_agent(&ag->io, wait_ms, wait_ms); 
-  lock_guard(&ag->pend_mtx);     
-  bi_map_insert(&ag->pending, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev)); 
+  int fd_timer = create_timer_ms_asio_agent(&ag->io, wait_ms, wait_ms);
+  lock_guard(&ag->pend_mtx);
+  bi_map_insert(&ag->pending, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev));
   correlation_event_t correlation_data = {.ric_id = ctrl_req->ric_id };
-  lock_guard(&ag->corr_mtx);  
-  bi_map_insert(&ag->correlation, &fd_timer, sizeof(fd_timer), &correlation_data, sizeof(correlation_data)); 
+  lock_guard(&ag->corr_mtx);
+  bi_map_insert(&ag->correlation, &fd_timer, sizeof(fd_timer), &correlation_data, sizeof(correlation_data));
 
 #else
   sm_ctrl_out_data_t ctrl_ans = sm->proc.on_control(sm, &data);
@@ -316,10 +352,10 @@ e2ap_msg_t e2ap_handle_control_request_agent(e2_agent_t* ag, const e2ap_msg_t* m
                                             .call_process_id = NULL,
 #ifdef E2AP_V1
                                             .status = RIC_CONTROL_STATUS_SUCCESS,
-#endif                                            
+#endif
                                             .control_outcome = ba_ctrl_ans } ;
 
-  printf("[E2-AGENT]: CONTROL ACKNOWLEDGE sent\n");
+  printf("[E2-AGENT]: CONTROL ACKNOWLEDGE tx\n");
   e2ap_msg_t ans = {.type = RIC_CONTROL_ACKNOWLEDGE};
   ans.u_msgs.ric_ctrl_ack = ric_ctrl_ack;
 #endif
@@ -340,17 +376,20 @@ static
 void stop_pending_event(e2_agent_t* ag, pending_event_t event)
 {
   assert(ag != NULL);
-  #ifdef PROXY_AGENT
+#ifdef PROXY_AGENT
   int rc = pthread_mutex_lock(&ag->pend_mtx);
-  assert(rc == 0);  
-  #endif
-  int* fd = bi_map_extract_right(&ag->pending, &event, sizeof(event));
-  #ifdef PROXY_AGENT
+  assert(rc == 0);
+#endif
+
+  void (*free_pending_event)(void*)=NULL;
+  int* fd = bi_map_extract_right(&ag->pending, &event, sizeof(event), free_pending_event);
+  assert(*fd > 0);
+
+#ifdef PROXY_AGENT
   rc = pthread_mutex_unlock(&ag->pend_mtx);
   assert(rc == 0);
-  #endif
-  assert(*fd > 0);
-  printf("[E2-AGENT]: stopping pending\n");
+#endif
+  //printf("[E2-AGENT]: stopping pending\n");
   //event = %d \n", *fd);
   rm_fd_asio_agent(&ag->io, *fd);
   free(fd);
@@ -362,7 +401,7 @@ e2ap_msg_t e2ap_handle_setup_response_agent(e2_agent_t* ag, const e2ap_msg_t* ms
   assert(ag != NULL);
   assert(msg != NULL);
   assert(msg->type == E2_SETUP_RESPONSE);
-  printf("[E2-AGENT]: E2 SETUP-RESPONSE received\n");
+  printf("[E2-AGENT]: E2 SETUP RESPONSE rx\n");
 
   // Stop the timer
   pending_event_t ev = SETUP_REQUEST_PENDING_EVENT;
@@ -381,7 +420,66 @@ e2ap_msg_t e2ap_handle_setup_failure_agent(e2_agent_t* ag, const e2ap_msg_t* msg
 {
   assert(ag != NULL);
   assert(msg != NULL);
-  assert(0!=0 && "Not implemented");
+  assert(msg->type == E2_SETUP_FAILURE);
+
+	char const* str[] = {
+   "CAUSE_NOTHING",	/* NO COMPONENTS PRESENT */
+	 "CAUSE_RICREQUEST",
+	 "CAUSE_RICSERVICE",
+	 "CAUSE_TRANSPORT",
+	 "CAUSE_PROTOCOL",
+	 "CAUSE_MISC"
+  };
+
+  const char* str2[6][11] = {
+    {
+      "CAUSE_NOTHING",
+    },
+    {
+      "CAUSE_RIC_RAN_FUNCTION_ID_INVALID",
+      "CAUSE_RIC_ACTION_NOT_SUPPORTED",
+      "CAUSE_RIC_EXCESSIVE_ACTIONS",
+      "CAUSE_RIC_DUPLICATE_ACTION",
+      "CAUSE_RIC_DUPLICATE_EVENT",
+      "CAUSE_RIC_FUNCTION_RESOURCE_LIMIT",
+      "CAUSE_RIC_REQUEST_ID_UNKNOWN",
+      "CAUSE_RIC_INCONSISTENT_ACTION_SUBSEQUENT_ACTION_SEQUENCE",
+      "CAUSE_RIC_CONTROL_MESSAGE_INVALID",
+      "CAUSE_RIC_CALL_PROCESS_ID_INVALID",
+      "CAUSE_RIC_UNSPECIFIED"
+    },
+    {
+      "CAUSE_RICSERVICE_FUNCTION_NOT_REQUIRED",
+      "CAUSE_RICSERVICE_EXCESSIVE_FUNCTIONS",
+      "CAUSE_RICSERVICE_RIC_RESOURCE_LIMIT"
+    },
+    {
+      "CAUSE_TRANSPORT_UNSPECIFIED",
+      "CAUSE_TRANSPORT_TRANSPORT_RESOURCE_UNAVAILABLE"
+    },
+    {
+      "CAUSE_PROTOCOL_TRANSFER_SYNTAX_ERROR",
+      "CAUSE_PROTOCOL_ABSTRACT_SYNTAX_ERROR_REJECT",
+      "CAUSE_PROTOCOL_ABSTRACT_SYNTAX_ERROR_IGNORE_AND_NOTIFY",
+      "CAUSE_PROTOCOL_MESSAGE_NOT_COMPATIBLE_WITH_RECEIVER_STATE",
+      "CAUSE_PROTOCOL_SEMANTIC_ERROR",
+      "CAUSE_PROTOCOL_ABSTRACT_SYNTAX_ERROR_FALSELY_CONSTRUCTED_MESSAGE",
+      "CAUSE_PROTOCOL_UNSPECIFIED"
+    },
+    {
+      "CAUSE_MISC_CONTROL_PROCESSING_OVERLOAD",
+      "CAUSE_MISC_HARDWARE_FAILURE",
+      "CAUSE_MISC_OM_INTERVENTION",
+      "CAUSE_MISC_UNSPECIFIED"
+    }
+  };
+
+  e2_setup_failure_t const* e2_stp_fail = &msg->u_msgs.e2_stp_fail;
+	int const present = e2_stp_fail->cause.present;
+  assert(present < 6);
+  int const idx = e2_stp_fail->cause.ricRequest;
+  assert(idx < 11);
+  printf("[E2-AGENT]: E2 SETUP FAILURE rx %s %s\n", str[present], str2[present][idx]);
 
   e2ap_msg_t ans = {.type = NONE_E2_MSG_TYPE};
   return ans; 

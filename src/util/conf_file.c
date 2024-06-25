@@ -41,6 +41,10 @@ bool valid_logl(int logl)
 
 
 }
+static
+bool valid_timer(int timer){
+    return false ? timer < 100 : true;
+}
 #endif
 /*
 static
@@ -306,31 +310,37 @@ void get_Sub_SM_List(fr_args_t* args, config_t cfg)
       args->sub_oran_sm[i].name = malloc(strlen(name) + 1);
       strcpy(args->sub_oran_sm[i].name, name);
       args->sub_oran_sm[i].time = time;
-//      printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args->sub_oran_sm[i].name, args->sub_oran_sm[i].time);
+      //printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args->sub_oran_sm[i].name, args->sub_oran_sm[i].time);
 
       args->sub_oran_sm[i].format = format;
       args->sub_oran_sm[i].ran_type = malloc(strlen(ran_type) + 1);
       strcpy(args->sub_oran_sm[i].ran_type, ran_type);
+      //printf("[LibConf]: ran type %s, format %d\n", args->sub_oran_sm[i].ran_type, format);
       int act_count = config_setting_length(actions_arr);
-      args->sub_oran_sm[i].act_len = act_count + 1; // for C xApp, save the latest value as NULL
-      args->sub_oran_sm[i].actions = malloc(args->sub_oran_sm[i].act_len * sizeof(char*));
-      // printf("[LibConf]: ran type %s, format %d\n", args->sub_oran_sm[i].ran_type, format);
+      args->sub_oran_sm[i].act_len = act_count;
+      args->sub_oran_sm[i].actions = malloc(args->sub_oran_sm[i].act_len * sizeof(act_name_id_t));
       for (int j = 0; j < args->sub_oran_sm[i].act_len; ++j) {
-        if (j == act_count) {
-          args->sub_oran_sm[i].actions[j] = NULL;
-          continue;
-        }
-
         config_setting_t *action_item = config_setting_get_elem(actions_arr, j);
-        const char *action_name;
-
-        if (!config_setting_lookup_string(action_item, "name", &action_name))
-          assert(0!=0 && "Error parsing action name in Sub_ORAN_SM_List in .conf");
-
-        args->sub_oran_sm[i].actions[j] = strdup(action_name);
-//        printf("%s, ", args->sub_oran_sm[i].actions[j]);
+        if (!strcasecmp(args->sub_oran_sm[i].name, "kpm")) {
+          const char *action_name;
+          if (!config_setting_lookup_string(action_item, "name", &action_name))
+            assert(0!=0 && "Error parsing action name in Sub_ORAN_SM_List in .conf");
+          args->sub_oran_sm[i].actions[j].name = strdup(action_name);
+          args->sub_oran_sm[i].actions[j].id = 0;
+          //printf("%s, ", args->sub_oran_sm[i].actions[j].name);
+        } else if (!strcasecmp(args->sub_oran_sm[i].name, "rc")) {
+          int32_t action_id;
+          if (!config_setting_lookup_int(action_item, "id", &action_id))
+            assert(0!=0 && "Error parsing action id in Sub_ORAN_SM_List in .conf");
+          args->sub_oran_sm[i].actions[j].id = action_id;
+          args->sub_oran_sm[i].actions[j].name = strdup("null");
+          //printf("%d, ", args->sub_oran_sm[i].actions[j].id);
+        } else {
+          assert(0!=0 && "Unknown name in Sub_ORAN_SM_List, note: we only support name = 'KPM' or  name = 'RC'\n");
+        }
       }
-//      printf("\n");
+      //printf("\n");
+
     }
   }
 }
@@ -398,21 +408,30 @@ void get_Proxy_Agent(fr_args_t* args, config_t cfg)
     const char *ip;
     int32_t port;
     int32_t logl;
+    int32_t timer;
 
     if (!config_setting_lookup_string(pa_settings, "ip", &ip) ||
         !config_setting_lookup_int(pa_settings, "port", &port) ||
-        !config_setting_lookup_int(pa_settings, "logl", &logl))
-      assert(0!=0 && "cannnot find ip, port, and logl in Proxy_Agent in .conf");
+        !config_setting_lookup_int(pa_settings, "logl", &logl) ||
+        !config_setting_lookup_int(pa_settings, "timer", &timer))
+      assert(0!=0 && "cannnot find ip, port, logl and timer in Proxy_Agent in .conf");
 
     args->proxy_ran_args.ip = malloc(strlen(ip) + 1);
     strcpy(args->proxy_ran_args.ip, ip);
     args->proxy_ran_args.port = port;
     args->proxy_ran_args.logl = logl;
+    args->proxy_ran_args.timer = timer;
     if (valid_logl(args->proxy_ran_args.logl) == false){
       printf("RAN loglevel invalid = %d. Check the config file\n", logl);
       printf("Allowed levels are a bitwose combination of\n");
       printf("LLL_ERR(%d), LLL_WARN(%d),LLL_NOTICE(%d), LLL_INFO(%d), LLL_DEBUG(%d), LLL_PARSER(%d), LLL_HEADER(%d), LLL_EXT(%d), LLL_CLIENT(%d), LLL_LATENCY(%d), LLL_USER(%d), LLL_THREAD(%d)\n", LLL_ERR, LLL_WARN, LLL_NOTICE, LLL_INFO, LLL_DEBUG, LLL_PARSER, LLL_HEADER, LLL_EXT, LLL_CLIENT, LLL_LATENCY, LLL_USER, LLL_THREAD);
       assert(0!=0);
+    }
+    if(valid_timer(args->proxy_ran_args.timer) == false){
+        printf("Timer invalid = %d. Check the config file\n", logl);
+        printf("Allow polling timer for web socket >= 100(ms)\n");
+        printf("Timer = %d ms\n", args->proxy_ran_args.timer);
+        assert(0 != 0);
     }
   }
 }
@@ -425,7 +444,7 @@ fr_args_t init_fr_args(int argc, char* argv[])
   fr_args_t args = {0};
   load_default_val(&args);
   if(argc > 1){
-    assert(argc < 6 && "Only -h -c flags supported");
+    assert(argc < 7 && "Only -h -c flags supported");
     assert(argv != NULL);
     parse_args(argc, argv, &args);
   }
@@ -480,9 +499,15 @@ fr_args_t init_fr_args(int argc, char* argv[])
     for (int32_t i = 0; i < args.sub_oran_sm_len; i++) {
       printf("[LibConf]: Sub_ORAN_SM Name: %s, Time: %d\n", args.sub_oran_sm[i].name, args.sub_oran_sm[i].time);
       printf("[LibConf]: format %d, RAN type %s, actions = ", args.sub_oran_sm[i].format,  args.sub_oran_sm[i].ran_type);
-      for (int32_t j = 0; j < args.sub_oran_sm[i].act_len - 1; j++)
-        printf("%s ", args.sub_oran_sm[i].actions[j]);
-      printf("\n");
+      if (!strcasecmp(args.sub_oran_sm[i].name, "kpm")) {
+        for (int32_t j = 0; j < args.sub_oran_sm[i].act_len; j++)
+          printf("%s ", args.sub_oran_sm[i].actions[j].name);
+        printf("\n");
+      } else if (!strcasecmp(args.sub_oran_sm[i].name, "rc")) {
+        for (int32_t j = 0; j < args.sub_oran_sm[i].act_len; j++)
+          printf("%d ", args.sub_oran_sm[i].actions[j].id);
+        printf("\n");
+      }
     }
 #if defined(SQLITE3_XAPP) ||  defined(MYSQL_XAPP)
     // xApp_DB
@@ -504,7 +529,7 @@ fr_args_t init_fr_args(int argc, char* argv[])
     printf("[LibConf]: E2_Port Port: %d\n", args.e2_port);
     // Proxy_Agent
     get_Proxy_Agent(&args, cfg);
-    printf("[LibConf]: Proxy_Agent ip: %s, port: %d, logl: %d\n", args.proxy_ran_args.ip, args.proxy_ran_args.port, args.proxy_ran_args.logl);
+    printf("[LibConf]: Proxy_Agent ip: %s, port: %d, logl: %d, timer: %d\n", args.proxy_ran_args.ip, args.proxy_ran_args.port, args.proxy_ran_args.logl, args.proxy_ran_args.timer);
   }
 #endif
   else {
@@ -543,8 +568,10 @@ void free_fr_args(fr_args_t* args)
   for (int32_t i = 0; i < args->sub_oran_sm_len; i++) {
     free(args->sub_oran_sm[i].name);
     free(args->sub_oran_sm[i].ran_type);
-    for (int32_t j = 0; j < args->sub_oran_sm[i].act_len; j++)
-      free(args->sub_oran_sm[i].actions[j]);
+    for (int32_t j = 0; j < args->sub_oran_sm[i].act_len; j++) {
+      free(args->sub_oran_sm[i].actions[j].name);
+    }
+    free(args->sub_oran_sm[i].actions);
   }
 
   free_db_params(&args->db_params);

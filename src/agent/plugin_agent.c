@@ -306,7 +306,7 @@ void load_plugin_ag(plugin_ag_t* p, const char* path)
   strncat(ptr, ptr_so_name , match - ptr_so_name);
   ptr += match - ptr_so_name;
   const char* suffix = "_sm_agent";
-  strncat(ptr,suffix, strlen(suffix));
+  strncat(ptr,suffix, 16);
 
   sm_agent_t* (*fp)(sm_io_ag_ran_t);
   fp = dlsym(handle, symbol_so);

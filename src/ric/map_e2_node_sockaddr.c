@@ -46,6 +46,7 @@ void free_global_e2_node(void* key, void* value)
   assert(value != NULL);
 
   global_e2_node_id_t* id = (global_e2_node_id_t*)value;
+  free_global_e2_node_id(id);
   free(id);
 }
 
@@ -107,8 +108,8 @@ void add_map_e2_node_sad(map_e2_node_sockaddr_t* m, global_e2_node_id_t const* i
   assert(it == end && "SCTP info already registered in the tree");
 #endif
 
-  // Need a copy as global_e2_node_id_t may have allocated memory in the heap that will be freed by caller 
-  global_e2_node_id_t id_cp = cp_global_e2_node_id(id); 
+  // Need a copy as global_e2_node_id_t may have allocated memory in the heap that will be freed by caller
+  global_e2_node_id_t id_cp = cp_global_e2_node_id(id);
   bi_map_insert(&m->map, &id_cp, sizeof(global_e2_node_id_t), s, sizeof(sctp_info_t));
 }
 
@@ -119,8 +120,7 @@ sctp_info_t* rm_map_e2_node_sad(map_e2_node_sockaddr_t* m, global_e2_node_id_t* 
 
   lock_guard(&m->mtx);
 
-
-  sctp_info_t* s = bi_map_extract_left(&m->map, id, sizeof(global_e2_node_id_t));
+  sctp_info_t* s = bi_map_extract_left(&m->map, id, sizeof(global_e2_node_id_t), free_global_e2_node_id_wrapper);
   return s;
 
 //  sctp_info_t* s = assoc_extract(&m->tree, id);
@@ -133,8 +133,8 @@ global_e2_node_id_t* rm_map_sad_e2_node(map_e2_node_sockaddr_t* m, sctp_info_t c
   assert(s != NULL);
 
   lock_guard(&m->mtx);
-
-  global_e2_node_id_t* id = bi_map_extract_right(&m->map, (sctp_info_t*) s, sizeof(sctp_info_t));
+  void (*free_sctp_info)(void*) = NULL;
+  global_e2_node_id_t* id = bi_map_extract_right(&m->map, (sctp_info_t*) s, sizeof(sctp_info_t), free_sctp_info);
   return id;
 }
 
@@ -155,7 +155,7 @@ sctp_info_t find_map_e2_node_sad(map_e2_node_sockaddr_t* m, global_e2_node_id_t 
 
   sctp_info_t* s = assoc_value(tree, it);  
 
-  printf("[NEAR-RIC]: nb_id %d port = %d  \n", id->nb_id.nb_id, s->addr.sin_port);
+  //printf("[NEAR-RIC]: nb_id %d port = %d  \n", id->nb_id.nb_id, s->addr.sin_port);
 
   return *s;
 }

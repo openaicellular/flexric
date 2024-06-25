@@ -36,7 +36,8 @@
 static
 void init_sctp_conn_client(e2ap_ep_xapp_t* ep, const char* addr, int port)
 {
-  int sock_fd = socket(AF_INET, SOCK_SEQPACKET, IPPROTO_SCTP);
+  
+  int sock_fd = socket(AF_INET, /*SOCK_STREAM*/ SOCK_SEQPACKET, IPPROTO_SCTP);
   assert(sock_fd != -1);
 
   struct sockaddr_in servaddr; 
@@ -54,6 +55,14 @@ void init_sctp_conn_client(e2ap_ep_xapp_t* ep, const char* addr, int port)
 
   const int no_delay = 1;
   setsockopt(sock_fd, IPPROTO_SCTP, SCTP_NODELAY, &no_delay, sizeof(no_delay));
+
+
+  // This is NOT working! 
+  struct linger lin = {0};
+  unsigned int len = sizeof(lin);
+  lin.l_onoff = 1;
+  lin.l_linger = 1000000;
+  setsockopt(sock_fd,SOL_SOCKET, SO_LINGER,&lin, len);
 
   ep->to = servaddr;
   *(int*)(&ep->base.port) = port; 
@@ -101,5 +110,6 @@ void e2ap_send_bytes_xapp(e2ap_ep_xapp_t* ep, byte_array_t ba)
 void e2ap_free_ep_xapp(e2ap_ep_xapp_t* ep)
 {
   assert(ep != NULL);
-  assert(0!=0 && "Not implememented!");
+
+  e2ap_ep_free(&ep->base);
 }

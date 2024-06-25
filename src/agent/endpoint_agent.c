@@ -5,7 +5,6 @@
  * The OpenAirInterface Software Alliance licenses this file to You under
  * the OAI Public License, Version 1.1  (the "License"); you may not use this file
  * except in compliance with the License.
- * You may obtain a copy of the License at
  *
  *      http://www.openairinterface.org/?page_id=698
  *
@@ -117,5 +116,6 @@ void e2ap_send_bytes_agent(e2ap_ep_ag_t* ep, byte_array_t ba)
 void e2ap_free_ep_agent(e2ap_ep_ag_t* ep)
 {
   assert(ep != NULL);
-  assert(0!=0 && "Not implemented!");
+  
+  e2ap_ep_free(&ep->base);
 }

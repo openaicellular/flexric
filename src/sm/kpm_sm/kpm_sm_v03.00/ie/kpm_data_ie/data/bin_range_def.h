@@ -47,6 +47,8 @@ void free_kpm_bin_range_def(bin_range_def_t* src);
 
 bool eq_kpm_bin_range_def(bin_range_def_t const * m0, bin_range_def_t const * m1);
 
+bool eq_kpm_bin_range_def_wrapper(void const * m0, void const * m1);
+
 #ifdef __cplusplus
 }
 #endif

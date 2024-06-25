@@ -19,8 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
-
 #include "pdcp_enc_plain.h"
 
 #include <assert.h>
@@ -34,7 +32,7 @@ byte_array_t pdcp_enc_event_trigger_plain(pdcp_event_trigger_t const* event_trig
   byte_array_t  ba = {0};
  
   ba.len = sizeof(event_trigger->ms);
-  ba.buf = malloc(ba.len);
+  ba.buf = calloc(ba.len, sizeof(uint8_t));
   assert(ba.buf != NULL && "Memory exhausted");
 
   memcpy(ba.buf, &event_trigger->ms, ba.len);
@@ -58,7 +56,7 @@ byte_array_t pdcp_enc_ind_hdr_plain(pdcp_ind_hdr_t const* ind_hdr)
   byte_array_t ba = {0};
 
   ba.len = sizeof(pdcp_ind_hdr_t);
-  ba.buf = malloc(sizeof(pdcp_ind_msg_t));
+  ba.buf = calloc(ba.len, sizeof(uint8_t));
   assert(ba.buf != NULL && "memory exhausted");
   memcpy(ba.buf, ind_hdr, sizeof(pdcp_ind_hdr_t));
 
@@ -112,12 +110,12 @@ byte_array_t pdcp_enc_ctrl_hdr_plain(pdcp_ctrl_hdr_t const* ctrl_hdr)
 {
   assert(ctrl_hdr != NULL);
   byte_array_t  ba = {0};
-  ba.buf = malloc(sizeof(pdcp_ind_msg_t)); 
+  ba.len = sizeof(pdcp_ctrl_hdr_t);
+  ba.buf = calloc(ba.len , sizeof(uint8_t)); 
   assert(ba.buf != NULL && "Memory exhausted");
 
-  memcpy(ba.buf, ctrl_hdr, sizeof(pdcp_ctrl_hdr_t));
+  memcpy(ba.buf, ctrl_hdr, ba.len);
 
-  ba.len = sizeof(pdcp_ctrl_hdr_t);
   return ba;
 }
 
@@ -126,24 +124,25 @@ byte_array_t pdcp_enc_ctrl_msg_plain(pdcp_ctrl_msg_t const* ctrl_msg)
   assert(ctrl_msg != NULL);
 
   byte_array_t  ba = {0};
-  ba.buf = malloc(sizeof(pdcp_ctrl_msg_t)); 
+  ba.len = sizeof(pdcp_ctrl_msg_t);
+  ba.buf = calloc(ba.len, sizeof(uint8_t)); 
   assert(ba.buf != NULL && "Memory exhausted");
 
-  memcpy(ba.buf, ctrl_msg, sizeof(pdcp_ctrl_msg_t));
+  memcpy(ba.buf, ctrl_msg, ba.len);
 
-  ba.len = sizeof(pdcp_ctrl_hdr_t);
   return ba;
 }
 
 byte_array_t pdcp_enc_ctrl_out_plain(pdcp_ctrl_out_t const* ctrl_out) 
 {
-  assert(ctrl_out != NULL );
+  assert(ctrl_out != NULL);
   byte_array_t  ba = {0};
-  ba.buf = malloc(sizeof(pdcp_ctrl_out_t  ) );
+
+  ba.len = sizeof(pdcp_ctrl_out_t);
+  ba.buf = calloc(ba.len, sizeof(uint8_t) );
   assert(ba.buf != NULL && "Memory exhausted");
 
-  memcpy(ba.buf, ctrl_out, sizeof(pdcp_ctrl_out_t));
-  ba.len = sizeof(pdcp_ctrl_out_t);
+  memcpy(ba.buf, ctrl_out,ba.len);
 
   return ba;
 }

@@ -1,0 +1,142 @@
+#/*
+# * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+# * contributor license agreements.  See the NOTICE file distributed with
+# * this work for additional information regarding copyright ownership.
+# * The OpenAirInterface Software Alliance licenses this file to You under
+# * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+# * except in compliance with the License.
+# * You may obtain a copy of the License at
+# *
+# *      http://www.openairinterface.org/?page_id=698
+# *
+# * Unless required by applicable law or agreed to in writing, software
+# * distributed under the License is distributed on an "AS IS" BASIS,
+# * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# * See the License for the specific language governing permissions and
+# * limitations under the License.
+# *-------------------------------------------------------------------------------
+# * For more information about the OpenAirInterface (OAI) Software Alliance:
+# *      contact@openairinterface.org
+# */
+#
+#---------------------------------------------------------------------
+#
+# Dockerfile for the Open-Air-Interface AMF service
+#   Valid for Ubuntu-22.04 (jammy)
+#
+#---------------------------------------------------------------------
+# BUILDER IMAGE
+#---------------------------------------------------------------------
+ARG BASE_IMAGE=ubuntu:jammy
+
+FROM $BASE_IMAGE AS oai-flexric-base
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Paris
+
+#install developers pkg/repo
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes \
+       build-essential \
+       libsctp-dev \
+       git \
+       wget \
+       tar \
+       m4 \
+       automake \
+       libtool \
+       python3 \
+       cmake \
+       cmake-curses-gui \
+       bison \
+       flex \
+       gdb \
+       libpcre2-dev \
+       python3-dev \
+       python3-pip \
+       gcc-12 && \
+    apt-get clean
+
+RUN git clone https://github.com/swig/swig.git && \
+    cd swig && \
+    git checkout release-4.1 && \
+    ./autogen.sh && \
+    ./configure --prefix=/usr/ && \
+    make -j8 && \
+    make install && \
+    ldconfig
+
+FROM oai-flexric-base as oai-flexric-builder
+WORKDIR /flexric
+
+COPY . .
+
+RUN mkdir build && \
+    cd build && \
+    cmake -DCMAKE_C_COMPILER=gcc-12 .. && \
+    make -j8 && \
+    make install && \
+    echo "--- Check shared objects dependencies for executable nearRT-RIC ---" && \
+    ldd /flexric/build/examples/ric/nearRT-RIC && \
+    echo "--- Check shared objects dependencies for xApp shared library ---" && \
+    ldd /flexric/build/src/xApp/libe42_xapp_shared.so
+
+#---------------------------------------------------------------------
+# TARGET IMAGE
+#---------------------------------------------------------------------
+
+FROM $BASE_IMAGE AS oai-flexric
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Paris
+
+#install developers pkg/repo
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes \
+       psmisc \
+       gpg \
+       wget \
+       libsctp1 \
+       python3 \
+       python3-pip && \
+    apt-get autoremove -y && \
+    apt-get autoclean -y
+
+WORKDIR /
+
+COPY --from=oai-flexric-builder \
+    /usr/local/lib/flexric/libmac_sm.so \
+    /usr/local/lib/flexric/libkpm_sm.so \
+    /usr/local/lib/flexric/librlc_sm.so \
+    /usr/local/lib/flexric/libslice_sm.so \
+    /usr/local/lib/flexric/libtc_sm.so \
+    /usr/local/lib/flexric/libgtp_sm.so \
+    /usr/local/lib/flexric/libpdcp_sm.so \
+    /usr/local/lib/flexric/librc_sm.so \
+    /usr/local/lib/flexric/
+
+COPY --from=oai-flexric-builder \
+    /flexric/build/src/xApp/libe42_xapp_shared.so \
+    /flexric/build/src/xApp/
+
+COPY --from=oai-flexric-builder \
+    /flexric/build/examples/ric/nearRT-RIC /usr/local/bin/nearRT-RIC
+
+## Copy xApps
+COPY --from=oai-flexric-builder \
+    /flexric/build/examples/xApp /usr/local/flexric/xApp
+
+RUN ldconfig && \
+    echo "--- Check shared objects dependencies for executable nearRT-RIC ---" && \
+    ldd /usr/local/bin/nearRT-RIC && \
+    echo "--- Check shared objects dependencies for xApp shared library ---" && \
+    ldd /flexric/build/src/xApp/libe42_xapp_shared.so && \
+    echo "--- Check shared objects dependencies for flexric shared libraries ---" && \
+    ldd /usr/local/lib/flexric/*.so
+
+## E2
+EXPOSE 36421/sctp
+## E42
+EXPOSE 36422/sctp
+
+CMD ["stdbuf", "-o0", "nearRT-RIC"]

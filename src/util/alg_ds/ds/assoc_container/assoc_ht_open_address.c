@@ -33,7 +33,7 @@ SOFTWARE.
 #include <string.h>
 
 static 
-const int MIN_SIZE_HT = 16;
+const uint32_t MIN_SIZE_HT = 16;
 
 typedef struct{
   const void* key;
@@ -47,6 +47,7 @@ typedef struct hentry_s{
   bool has_value;
 } hentry_t;
 
+/*
 static inline
 uint32_t hash_func(const void* key_v)
 {
@@ -54,6 +55,7 @@ uint32_t hash_func(const void* key_v)
   static const uint32_t seed = 42;
   return murmur3_32((uint8_t*)key, sizeof(uint32_t), seed);
 }
+*/
 
 static
 uint32_t find_idx(assoc_ht_open_t* htab, const void* key, uint32_t hash)
@@ -75,6 +77,7 @@ uint32_t find_idx(assoc_ht_open_t* htab, const void* key, uint32_t hash)
   } while(start_idx != idx);
 
   assert(0!=0 && "Impossible code path. There must be a free entry.");
+  return 0;
 }
 
 static
@@ -116,7 +119,7 @@ void expand_or_shrink_if_neccesary(assoc_ht_open_t* htab)
   assert(htab->num_dirty * 2 <= htab->cap);
 }
 
-void assoc_ht_open_init(assoc_ht_open_t* htab, size_t key_sz, key_eq_func_fp  key_eq, free_func_ht_open_fp free_func)
+void assoc_ht_open_init(assoc_ht_open_t* htab, size_t key_sz, key_eq_func_fp  key_eq, free_func_ht_open_fp free_func, hash_func_ht_open_fp hash_func)
 {
   assert(htab != NULL);
   assert(key_sz > 0);
@@ -129,6 +132,7 @@ void assoc_ht_open_init(assoc_ht_open_t* htab, size_t key_sz, key_eq_func_fp  ke
   htab->key_sz = key_sz;
   htab->key_eq = key_eq;
   htab->free_func = free_func;
+  htab->hash_func = hash_func;
 }
 
 void assoc_ht_open_free(assoc_ht_open_t* htab)
@@ -140,7 +144,10 @@ void assoc_ht_open_free(assoc_ht_open_t* htab)
         assert(htab->arr[i].is_dirty);
         if(htab->free_func != NULL)
           htab->free_func((void*)htab->arr[i].kv.key, htab->arr[i].kv.value);
+
+        free((void*)htab->arr[i].kv.key);
       }
+
     }
   free(htab->arr);
 }
@@ -155,7 +162,7 @@ void assoc_ht_open_insert(assoc_ht_open_t* htab, void const* key, size_t key_sz,
   expand_or_shrink_if_neccesary(htab);
   assert(htab->num_dirty * 2 <= htab->cap);
 
-  const uint32_t hash = hash_func(key);
+  const uint32_t hash = htab->hash_func(key);
   const uint32_t idx = find_idx(htab, key, hash);
   assert(idx < htab->cap); 
 
@@ -185,7 +192,7 @@ void assoc_ht_open_insert(assoc_ht_open_t* htab, void const* key, size_t key_sz,
 static
 hentry_t* find_entry(assoc_ht_open_t* htab, const void* key)
 {
-  const uint32_t hash = hash_func(key);
+  const uint32_t hash = htab->hash_func(key);
   const uint32_t start_idx = hash % htab->cap;
   uint32_t idx = start_idx;
 
@@ -205,6 +212,7 @@ hentry_t* find_entry(assoc_ht_open_t* htab, const void* key)
   } while(idx != start_idx);
 
   assert(0!=0 && "Impossible code path. There must be a free entry.");
+  return NULL;
 }
 
 void remove_value_htab(assoc_ht_open_t* htab, const void* key)
@@ -229,6 +237,10 @@ void remove_value_htab(assoc_ht_open_t* htab, const void* key)
 void* assoc_ht_open_extract(assoc_ht_open_t* ht, void* key)
 {
   assert(0!=0 && "Not implemented");
+
+  assert(ht != NULL);
+  assert(key != NULL);
+
   return NULL;
 };
 
@@ -238,6 +250,10 @@ void* assoc_ht_open_extract(assoc_ht_open_t* ht, void* key)
 void* assoc_ht_open_key(assoc_ht_open_t* ht, void* it)
 {
   assert(0!=0 && "Not implemented in the hash table");
+
+  assert(ht != NULL);
+  assert(it != NULL);
+
   return NULL;
 }
 
@@ -262,18 +278,25 @@ size_t assoc_ht_open_size(assoc_ht_open_t* htab)
 void* assoc_ht_open_front(assoc_ht_open_t const* ht)
 {
   assert(0!=0 && "Do not use a hash table for iterating");
+  assert(ht != NULL);
   return NULL;
 }
 
 void* assoc_ht_open_next(assoc_ht_open_t const* ht, void* it)
 {
   assert(0!=0 && "Do not use a hash table for iterating");
+  assert(ht != NULL);
+  assert(it != NULL);
+
   return NULL;
 }
 
 void* assoc_ht_open_end(assoc_ht_open_t const* ht)
 {
   assert(0!=0 && "Do not use a hash table for iterating");
+  assert(ht != NULL);
+
+
   return NULL;
 }
 

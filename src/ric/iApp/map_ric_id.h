@@ -23,15 +23,12 @@
 #define MAP_RIC_ID_H 
 
 #include "../../util/alg_ds/ds/assoc_container/assoc_generic.h"
-#include "../../lib/e2ap/e2ap_global_node_id_wrapper.h"
+
+#include "e2_node_ric_id.h"
 
 #include "xapp_ric_id.h"
 #include <pthread.h>
 
-typedef struct{
-  global_e2_node_id_t e2_node_id;
-  uint16_t ric_req_id;
-} e2_node_ric_req_t;
 
 typedef struct
 {
@@ -47,13 +44,18 @@ void init_map_ric_id(map_ric_id_t* map);
 
 void free_map_ric_id( map_ric_id_t* map);
 
-void add_map_ric_id(map_ric_id_t* map, e2_node_ric_req_t* node, xapp_ric_id_t* x);
+void add_map_ric_id(map_ric_id_t* map, e2_node_ric_id_t* node, xapp_ric_id_t* x);
 
-void rm_map_ric_id(map_ric_id_t* map, e2_node_ric_req_t* node); // uint16_t ric_req_id);
+void rm_map_ric_id(map_ric_id_t* map, xapp_ric_id_t const* ric_id);
 
-xapp_ric_id_t find_xapp_map_ric_id(map_ric_id_t* map, uint16_t ric_req_id);
+//void rm_map_ric_id(map_ric_id_t* map, e2_node_ric_req_t* node); // uint16_t ric_req_id);
 
-e2_node_ric_req_t find_ric_req_map_ric_id(map_ric_id_t* map, xapp_ric_id_t* x);
+xapp_ric_id_xpct_t find_xapp_map_ric_id(map_ric_id_t* map, uint16_t ric_req_id);
+
+e2_node_ric_id_t find_ric_req_map_ric_id(map_ric_id_t* map, xapp_ric_id_t* x);
+
+// array of e2_node_ric_id_t
+seq_arr_t find_all_subs_map_ric_id(map_ric_id_t* map, uint16_t xapp_id);
 
 #endif
 

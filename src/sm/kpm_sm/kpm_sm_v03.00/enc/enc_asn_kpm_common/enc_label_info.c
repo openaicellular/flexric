@@ -26,10 +26,21 @@ LabelInfoItem_t * kpm_enc_label_info_asn(const label_info_lst_t * label_info)
     }
 
     if (label_info->sliceID != NULL) {
-      assert(false && "not implemented");
+      label_info_asn->measLabel.sliceID = calloc(1, sizeof(*label_info_asn->measLabel.sliceID));
+      label_info_asn->measLabel.sliceID->sST.size = 1;
+      label_info_asn->measLabel.sliceID->sST.buf = calloc(label_info_asn->measLabel.sliceID->sST.size, sizeof(uint8_t));
+      *label_info_asn->measLabel.sliceID->sST.buf = label_info->sliceID->sST;
+
+      if(label_info->sliceID->sD != NULL){
+        label_info_asn->measLabel.sliceID->sD = calloc(1, sizeof(*label_info_asn->measLabel.sliceID));
+        label_info_asn->measLabel.sliceID->sD->size = 3;
+        label_info_asn->measLabel.sliceID->sD->buf = calloc(label_info_asn->measLabel.sliceID->sD->size, sizeof(uint8_t));
+        INT24_TO_BUFFER(*label_info->sliceID->sD, label_info_asn->measLabel.sliceID->sD->buf);
+      }
     }
     if (label_info->fiveQI != NULL) {
-      assert(false && "not implemented");
+      label_info_asn->measLabel.fiveQI = calloc(1, sizeof(*label_info_asn->measLabel.fiveQI));
+      *label_info_asn->measLabel.fiveQI = *label_info->fiveQI;
     }
     if (label_info->qFI != NULL) {
       assert(false && "not implemented");
