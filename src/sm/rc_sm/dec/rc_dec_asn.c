@@ -3447,7 +3447,7 @@ seq_ctrl_style_t dec_ran_func_ctrl_it(RANFunctionDefinition_Control_Item_t const
 
   // RIC Call Process ID Format Type
   // Optional
-  assert(src->ric_CallProcessIDFormat_Type == NULL && "Not implemented");
+  // assert(src->ric_CallProcessIDFormat_Type == NULL && "Not implemented");
 
   // RIC Control Outcome Format Type
   // Mandatory
