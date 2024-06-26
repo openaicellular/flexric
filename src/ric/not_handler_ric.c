@@ -28,7 +28,7 @@ void notification_handle_ric(near_ric_t* ric, sctp_msg_t const* msg)
   assert(msg->notif->sn_header.sn_type == SCTP_SHUTDOWN_EVENT && "Only shutdown event supported");
 
   global_e2_node_id_t* id = e2ap_rm_sock_addr_ric(&ric->ep, &msg->info);
-  defer( { free(id); } );
+  defer( { free_global_e2_node_id(id);  free(id); } );
 
   {
   lock_guard(&ric->conn_e2_nodes_mtx);

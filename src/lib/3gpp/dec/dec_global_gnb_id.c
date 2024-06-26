@@ -1,7 +1,6 @@
 #include <assert.h>
 
 #include "../../../util/conversions.h"
-
 #include "dec_global_gnb_id.h"
 
 global_gnb_id_t dec_global_gnb_id_asn(const GlobalGNB_ID_t * global_gnb_id_asn)

@@ -17,7 +17,7 @@ meas_bin_range_info_lst_t kpm_dec_meas_bin_range_item(const DistMeasurementBinRa
   case MeasurementType_PR_measName:
   {
       meas_bin_range_item.meas_type.type = NAME_MEAS_TYPE;
-      meas_bin_range_item.meas_type.name.buf = calloc(meas_bin_range_item_asn->measType.choice.measName.size + 1, sizeof(char));
+      meas_bin_range_item.meas_type.name.buf = calloc(meas_bin_range_item_asn->measType.choice.measName.size + 1, sizeof(uint8_t));
       assert(meas_bin_range_item.meas_type.name.buf != NULL && "Memory exhausted");
       memcpy(meas_bin_range_item.meas_type.name.buf, meas_bin_range_item_asn->measType.choice.measName.buf, meas_bin_range_item_asn->measType.choice.measName.size);
       meas_bin_range_item.meas_type.name.len = meas_bin_range_item_asn->measType.choice.measName.size;

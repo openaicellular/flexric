@@ -27,7 +27,7 @@ if(SM_ENCODING_RLC STREQUAL "PLAIN")
 
   # Shared
   add_library(rlc_sm SHARED ${SM_ENCODING_RLC_SRC_PLAIN} )
-  target_compile_options(rlc_sm PRIVATE -fvisibility=hidden)
+  target_compile_options(rlc_sm PRIVATE -fPIC -fvisibility=hidden)
 
   # Static
   add_library(rlc_sm_static STATIC ${SM_ENCODING_RLC_SRC_PLAIN}) 

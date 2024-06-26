@@ -32,6 +32,14 @@ e2_node_connected_t cp_e2_node_connected(const e2_node_connected_t* src)
 
   dst.id = cp_global_e2_node_id(&src->id);
 
+  // [1-256]
+  assert(src->len_cca > 0);
+  dst.cca = calloc(src->len_cca, sizeof(e2ap_node_component_config_add_t));
+  assert(dst.cca != NULL && "Memory exhausted");
+  for(size_t i = 0; i < dst.len_cca; ++i){
+    dst.cca[i] = cp_e2ap_node_component_config_add(&src->cca[i]);
+  }
+
   dst.len_rf = src->len_rf;
   if(dst.len_rf > 0){
     dst.ack_rf = calloc(dst.len_rf, sizeof(ran_function_t));
@@ -50,11 +58,16 @@ void free_e2_node_connected(e2_node_connected_t* src)
 
   free_global_e2_node_id(&src->id);
 
+  assert(src->len_cca > 0);
+  for(size_t i = 0; i < src->len_cca; ++i){
+     free_e2ap_node_component_config_add(&src->cca[i]);
+  }
+  free(src->cca);
+
   for(size_t i = 0; i < src->len_rf; ++i){
     ran_function_t* rf = &src->ack_rf[i]; 
     free_ran_function(rf);
   }
-
   free(src->ack_rf);
 }
 
@@ -72,6 +85,15 @@ bool eq_e2_node_connected(const e2_node_connected_t* m0, const e2_node_connected
   if( eq_global_e2_node_id(&m0->id, &m1->id) == false)
     return false;
 
+  // [1 - 255 ]
+  assert(m0->len_cca > 0 && m1->len_cca > 0);
+  if(m0->len_cca != m1->len_cca)
+    return false;
+  for(size_t i = 0; i < m0->len_cca; ++i){
+    if(eq_e2ap_node_component_config_add(&m0->cca[i], &m1->cca[i]) == false)
+      return false;
+  }
+
   if(m0->len_rf != m1->len_rf)
     return false;
 
@@ -82,5 +104,4 @@ bool eq_e2_node_connected(const e2_node_connected_t* m0, const e2_node_connected
 
   return true;
 }
-
 

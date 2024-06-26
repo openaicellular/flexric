@@ -819,8 +819,10 @@ bool eq_rc_sub_data(rc_sub_data_t const* m0, rc_sub_data_t const* m1)
     return false;
 
   for(size_t i = 0; i < m0->sz_ad; ++i){
-    if(eq_e2sm_rc_action_def(&m0->ad[i], &m1->ad[i]) == false)
+    if(eq_e2sm_rc_action_def(&m0->ad[i], &m1->ad[i]) == false){
+      assert(0 != 0 && "debug");
       return false;
+    }
   }
 
   return true;
@@ -944,6 +946,7 @@ rc_ctrl_req_data_t cp_rc_ctrl_req_data(rc_ctrl_req_data_t const* src)
   dst.hdr = cp_e2sm_rc_ctrl_hdr(&src->hdr);
   dst.msg = cp_e2sm_rc_ctrl_msg(&src->msg);
 
+  assert( eq_rc_ctrl_req_data(src, &dst) == true);
   return dst;
 }
 

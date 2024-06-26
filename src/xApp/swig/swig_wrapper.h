@@ -12,6 +12,8 @@
 #include "../../lib/e2ap/e2ap_plmn_wrapper.h"
 #include "../../lib/e2ap/e2ap_ran_function_wrapper.h"
 #include "../../lib/3gpp/ie/e2ap_gnb_id.h"
+#include "../e2_node_arr_xapp.h"
+#include "../e2_node_connected_xapp.h"
 
 #include "../../sm/mac_sm/ie/mac_data_ie.h"
 #include "../../sm/rlc_sm/ie/rlc_data_ie.h"
@@ -26,11 +28,11 @@
 #define MAX_NUM_CUST_SM 6
 #define MAX_NUM_ORAN_SM 8 // consider diff ran type
 
-struct RanFunction{
-  byte_array_t def;
+struct swig_ran_function_t {
+  byte_array_t defn;
   uint16_t id;
   uint16_t rev;
-  // TODO: std::vector<byte_array_t> oid; // optional
+  byte_array_t oid; // optional
 };
 
 struct swig_global_e2_node_id_t {
@@ -42,7 +44,7 @@ struct swig_global_e2_node_id_t {
 
 struct E2Node {
   swig_global_e2_node_id_t id;
-  std::vector<RanFunction> ran_func;
+  std::vector<swig_ran_function_t> ran_func;
 };
 
 typedef struct {
@@ -52,11 +54,16 @@ typedef struct {
 
 typedef struct {
   std::string name;
+  int32_t id;
+} swig_act_name_id_t;
+
+typedef struct {
+  std::string name;
   int32_t time;
   int32_t format;
   std::string ran_type;
   int32_t act_len;
-  std::vector<std::string> actions;
+  std::vector<swig_act_name_id_t> actions;
 } swig_sub_oran_sm_t;
 
 struct swig_fr_args_t {

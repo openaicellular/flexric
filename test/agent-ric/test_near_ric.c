@@ -47,88 +47,102 @@ static
 void read_e2_setup_kpm(void* data)
 {
   assert(data != NULL);
-  kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)data;
-  kpm->ran_func_def = fill_rnd_kpm_ran_func_def();
+  //kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)data;
 }
 
 static
 void read_e2_setup_rc(void* data)
 {
   assert(data != NULL);
-  rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
-  rc->ran_func_def = fill_rc_ran_func_def(); 
+  //rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
 }
 
 static
-void read_ind_mac(void* ind)
+bool read_ind_mac(void* ind)
 {
   assert(ind != NULL);
   mac_ind_data_t* mac = (mac_ind_data_t*)ind;
   fill_mac_ind_data(mac);
+  return true;
 }
 
 static
-void read_ind_rlc(void* ind)
+bool read_ind_rlc(void* ind)
 {
   assert(ind != NULL);
   rlc_ind_data_t* rlc = (rlc_ind_data_t*)ind;
   fill_rlc_ind_data(rlc);
+  return true;
 }
 
 static
-void read_ind_pdcp(void* ind)
+bool read_ind_pdcp(void* ind)
 {
   assert(ind != NULL);
   pdcp_ind_data_t* pdcp = (pdcp_ind_data_t*)ind;
   fill_pdcp_ind_data(pdcp);
+  return true;
 }
 
 static
-void read_ind_slice(void* ind)
+bool read_ind_slice(void* ind)
 {
   assert(ind != NULL);
   slice_ind_data_t* slice = (slice_ind_data_t*)ind;
   fill_slice_ind_data(slice);
+  return true;
 }
 
 static
-void read_ind_gtp(void* ind)
+bool read_ind_gtp(void* ind)
 {
   assert(ind != NULL);
   gtp_ind_data_t* gtp = (gtp_ind_data_t*)ind;
   fill_gtp_ind_data(gtp);
+  return true;
 }
 
 static
-void read_ind_tc(void* ind)
+bool read_ind_tc(void* ind)
 {
   assert(ind != NULL);
   tc_ind_data_t* tc = (tc_ind_data_t*)ind;
   fill_tc_ind_data(tc);
+  return true;
 }
 
 static
-void read_ind_kpm(void* ind)
+bool read_ind_kpm(void* ind)
 {
   assert(ind != NULL);
   kpm_ind_data_t* kpm = (kpm_ind_data_t*)ind;
   kpm->hdr = fill_rnd_kpm_ind_hdr();
   kpm->msg = fill_rnd_kpm_ind_msg();
+  return true;
 }
 
 static
-void read_ind_rc(void* ind)
+bool read_ind_rc(void* ind)
 {
   assert(ind != NULL);
   assert(0!=0 && "The logic in RAN Ctrl SM for indication is different!"); 
+  return true;
 }
 
-#if defined(E2AP_V2) || defined(E2AP_V3)
+#ifdef E2AP_V1
+#elif defined(E2AP_V2) || defined(E2AP_V3)
 static
-void read_e2_setup_ran(void* data)
+void read_e2_setup_ran(void* data, const e2ap_ngran_node_t node_type)
 {
   assert(data != NULL);
-  *((e2ap_node_component_config_add_t*)(data)) = fill_e2ap_node_component_config_add();
+  assert(node_type >=0 && node_type <= 10 && "Unknown E2 node type");
+
+  arr_node_component_config_add_t* dst = (arr_node_component_config_add_t*)data;
+  dst->len_cca = 1;
+  dst->cca = calloc(1, sizeof(e2ap_node_component_config_add_t));
+  assert(dst->cca != NULL);
+  // NGAP
+  dst->cca[0] = fill_ngap_e2ap_node_component_config_add();
 }
 #endif
 
@@ -149,19 +163,28 @@ sm_ag_if_ans_t write_ctrl_rc(void const* ctrl)
 }
 
 static
+uint32_t sta_ric_id;
+
+static
+void free_aperiodic_subscription(uint32_t ric_req_id)
+{
+  assert(ric_req_id == sta_ric_id);
+  (void)ric_req_id;
+}
+
+static
 void* emulate_rrc_msg(void* ptr)
 {
-  uint32_t* ric_id = (uint32_t*)ptr; 
+  (void)ptr;
   for(size_t i = 0; i < 5; ++i){
-    usleep(rand()%50000);
+    usleep(rand()%5000);
     rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t)); 
     assert(d != NULL && "Memory exhausted");
     *d = fill_rnd_rc_ind_data();
-    async_event_agent_api(*ric_id, d);
-    printf("Event for RIC Req ID %u generated\n", *ric_id);
+    async_event_agent_api(sta_ric_id, d);
+    printf("Event for RIC Req ID %u generated\n", sta_ric_id);
   }
 
-  free(ptr);
   return NULL;
 }
 
@@ -171,14 +194,14 @@ sm_ag_if_ans_t write_subs_rc(void const* data)
   assert(data != NULL);
   wr_rc_sub_data_t const* wr_rc = (wr_rc_sub_data_t const*)data; 
 
-  uint32_t* ptr = malloc(sizeof(uint32_t));
-  assert(ptr != NULL);
-  *ptr = wr_rc->ric_req_id;
+  sta_ric_id = wr_rc->ric_req_id;
 
-  int rc = pthread_create(&t, NULL, emulate_rrc_msg, ptr);
+  int rc = pthread_create(&t, NULL, emulate_rrc_msg, NULL);
   assert(rc == 0);
 
-  sm_ag_if_ans_t ans = {0};
+  sm_ag_if_ans_t ans = {.type = SUBS_OUTCOME_SM_AG_IF_ANS_V0};
+  ans.subs_out.type = APERIODIC_SUBSCRIPTION_FLRC;
+  ans.subs_out.aper.free_aper_subs = free_aperiodic_subscription;
   return ans;
 }
 
@@ -188,10 +211,10 @@ sm_io_ag_ran_t init_sm_io_ag_ran(void)
   sm_io_ag_ran_t dst = {0};
 
   // READ: Indication
-  dst.read_ind_tbl[MAC_STATS_V0 ] =  read_ind_mac;
-  dst.read_ind_tbl[RLC_STATS_V0] =   read_ind_rlc;
-  dst.read_ind_tbl[PDCP_STATS_V0] =   read_ind_pdcp;
-  dst.read_ind_tbl[SLICE_STATS_V0] =   read_ind_slice;
+  dst.read_ind_tbl[MAC_STATS_V0 ] = read_ind_mac;
+  dst.read_ind_tbl[RLC_STATS_V0] =  read_ind_rlc;
+  dst.read_ind_tbl[PDCP_STATS_V0] =  read_ind_pdcp;
+  dst.read_ind_tbl[SLICE_STATS_V0] = read_ind_slice;
   dst.read_ind_tbl[TC_STATS_V0] =   read_ind_tc;
   dst.read_ind_tbl[GTP_STATS_V0] =   read_ind_gtp;
   dst.read_ind_tbl[KPM_STATS_V3_0] =   read_ind_kpm;
@@ -228,13 +251,13 @@ int main(int argc, char *argv[])
 
   fr_args_t args = init_fr_args(argc, argv);
   defer({ free_fr_args(&args); });
-  // Parse arguments
-  init_agent_api( mcc, mnc, mnc_digit_len, nb_id, cu_du_id, ran_type, io, &args);
-  sleep(1);
 
   // Init the RIC
   init_near_ric_api(&args);
-  sleep(3);
+
+  // Parse arguments
+  init_agent_api( mcc, mnc, mnc_digit_len, nb_id, cu_du_id, ran_type, io, &args);
+  sleep(1);
 
   e2_nodes_api_t e2_nodes = e2_nodes_near_ric_api();
   assert(e2_nodes.len > 0 && "No E2 Nodes connected");

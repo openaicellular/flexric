@@ -45,9 +45,9 @@
 
 #ifdef E2AP_V1
 #define NUM_HANDLE_MSG 32 // 31 + E42-UPDATE-E2-NODE
-#elif E2AP_V2 
+#elif E2AP_V2
 #define NUM_HANDLE_MSG 35 // 34 + E42-UPDATE-E2-NODE
-#elif E2AP_V3 
+#elif E2AP_V3
 #define NUM_HANDLE_MSG 44 // 43 + E42-UPDATE-E2-NODE
 #else
 static_assert(0!=0, "Unknown E2AP version");
@@ -89,7 +89,11 @@ void start_e42_iapp(e42_iapp_t* iapp);
 
 void free_e42_iapp(e42_iapp_t* iapp);
 
-void add_e2_node_iapp(e42_iapp_t* i, global_e2_node_id_t* id, size_t len, ran_function_t const ran_func[len]);
+#ifdef E2AP_V1
+void add_e2_node_iapp_v1(e42_iapp_t* i, global_e2_node_id_t* id, size_t len, ran_function_t const ran_func[len]);
+#else
+void add_e2_node_iapp(e42_iapp_t* i, global_e2_node_id_t* id, size_t len, ran_function_t const ran_func[len], size_t len_cca, e2ap_node_component_config_add_t const* cca);
+#endif
 
 void rm_e2_node_iapp(e42_iapp_t* i, global_e2_node_id_t* id);
 

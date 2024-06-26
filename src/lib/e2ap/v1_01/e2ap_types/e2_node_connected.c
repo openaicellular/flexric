@@ -32,6 +32,7 @@ e2_node_connected_t cp_e2_node_connected(const e2_node_connected_t* src)
 
   dst.id = cp_global_e2_node_id(&src->id);
 
+
   dst.len_rf = src->len_rf;
   if(dst.len_rf > 0){
     dst.ack_rf = calloc(dst.len_rf, sizeof(ran_function_t));

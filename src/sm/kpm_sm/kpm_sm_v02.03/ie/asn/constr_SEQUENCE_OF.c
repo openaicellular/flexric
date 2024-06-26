@@ -30,8 +30,10 @@ asn_TYPE_operation_t asn_OP_SEQUENCE_OF = {
     0,
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 #if !defined(ASN_DISABLE_JER_SUPPORT)
+    SEQUENCE_OF_decode_jer,
     SEQUENCE_OF_encode_jer,
 #else
+    0,
     0,
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 #if !defined(ASN_DISABLE_OER_SUPPORT)

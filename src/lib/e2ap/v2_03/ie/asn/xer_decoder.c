@@ -179,7 +179,7 @@ xer_check_tag(const void *buf_ptr, int size, const char *need_tag) {
 #define	RETURN(_code)	do {					\
 		rval.code = _code;				\
 		rval.consumed = consumed_myself;		\
-		if(rval.code != RC_OK)  {      \
+		if(rval.code != RC_OK) {      \
       ASN_DEBUG("Failed with %d", rval.code); \
     }                          \
     return rval;					\

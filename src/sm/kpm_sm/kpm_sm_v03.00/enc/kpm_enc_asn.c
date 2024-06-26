@@ -1,9 +1,3 @@
-  /*
-  * XXX-optimization: understand where do they come these values below for memory allocation of the byte arrays.
-  * A tuning of those values would probably benefit this implementation
-  * XXX-implementation, cfr: https://gitlab.eurecom.fr/mosaic5g/flexric/-/blob/rrc-sm/src/sm/rrc_sm/enc/rrc_enc_asn.c
-  */
-
 #include "../ie/asn/asn_constant.h"
 
 #include "../ie/asn/E2SM-KPM-EventTriggerDefinition.h"
@@ -39,6 +33,50 @@
 #include <stdbool.h>
 
 
+typedef enum{
+  E2SM_KPM_EVENT_TRIGGER_DEFINITION_ENUM = 0,
+  E2SM_KPM_ACTION_DEFINITION_ENUM,
+  E2SM_KPM_INDICATION_HEADER_ENUM,
+  E2SM_KPM_INDICATION_MESSAGE_ENUM,
+  E2SM_KPM_RAN_FUNCTION_DESCRIPTION_ENUM,
+} e2sm_kpm_e;
+
+static
+byte_array_t encode(void* pdu, e2sm_kpm_e e)
+{
+  //xer_fprint(stderr, &asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu);
+  //xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
+  //xer_fprint(stderr, &, pdu);
+  //fflush(stdout);
+
+  // XXX-tuning: 
+  // below bytearray sizing needs to be reviewed and made dynamic. It looks too small for the general case of action definition.
+  byte_array_t ba = {.buf = malloc(16*1024), .len = 16*1024};
+  const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
+  asn_enc_rval_t er = {0};
+  if(e == E2SM_KPM_EVENT_TRIGGER_DEFINITION_ENUM)
+    er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu, ba.buf, ba.len);
+  else if(e == E2SM_KPM_ACTION_DEFINITION_ENUM){
+    er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_ActionDefinition, pdu, ba.buf, ba.len);
+    //xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
+  }
+  else if(e == E2SM_KPM_INDICATION_HEADER_ENUM)
+    er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_IndicationHeader, pdu, ba.buf, ba.len);
+  else if(e == E2SM_KPM_INDICATION_MESSAGE_ENUM)
+    er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_IndicationMessage, pdu, ba.buf, ba.len);
+  else if(e == E2SM_KPM_RAN_FUNCTION_DESCRIPTION_ENUM)
+    er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_RANfunction_Description, pdu, ba.buf, ba.len);
+  else
+    assert(0!=0 && "Unknown KPM_ENUM");
+
+
+  assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
+  ba.len = er.encoded;
+
+  return ba;
+}
+
+
 /* Encoding Event Trigger IE
  * Direction of the message: RIC --> E2 Node
  */
@@ -62,12 +100,7 @@ byte_array_t kpm_enc_event_trigger_asn(kpm_event_trigger_def_t const* event_trig
           }
   }
   
-  byte_array_t ba = {.buf = malloc(2048), .len = 2048}; 
-  const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
-  asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu, ba.buf, ba.len);
-  assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
-  ba.len = er.encoded;
-
+  byte_array_t ba = encode(pdu, E2SM_KPM_EVENT_TRIGGER_DEFINITION_ENUM);
 
   ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu);
 
@@ -81,45 +114,43 @@ byte_array_t kpm_enc_action_def_asn(kpm_act_def_t const* action_def)
 {
   assert(action_def != NULL);
 
-  E2SM_KPM_ActionDefinition_t *pdu = calloc(1, sizeof(E2SM_KPM_ActionDefinition_t));
-  
-  assert (pdu != NULL && "Memory exhausted");
+  E2SM_KPM_ActionDefinition_t pdu = {0};
 
-  pdu->ric_Style_Type = (long)action_def->type + 1;
+  pdu.ric_Style_Type = (long)action_def->type + 1;
  
   /* Action Definition Formats */
   switch (action_def->type) 
   {
     case FORMAT_1_ACTION_DEFINITION:
     {
-      pdu->actionDefinition_formats.present = E2SM_KPM_ActionDefinition__actionDefinition_formats_PR_actionDefinition_Format1;
-      pdu->actionDefinition_formats.choice.actionDefinition_Format1 = calloc(1, sizeof(E2SM_KPM_ActionDefinition_Format1_t));
-      assert (pdu->actionDefinition_formats.choice.actionDefinition_Format1 != NULL && "Memory exhausted");
-      *pdu->actionDefinition_formats.choice.actionDefinition_Format1 = kpm_enc_action_def_frm_1_asn(&action_def->frm_1);
+      pdu.actionDefinition_formats.present = E2SM_KPM_ActionDefinition__actionDefinition_formats_PR_actionDefinition_Format1;
+      pdu.actionDefinition_formats.choice.actionDefinition_Format1 = calloc(1, sizeof(E2SM_KPM_ActionDefinition_Format1_t));
+      assert(pdu.actionDefinition_formats.choice.actionDefinition_Format1 != NULL && "Memory exhausted");
+      *pdu.actionDefinition_formats.choice.actionDefinition_Format1 = kpm_enc_action_def_frm_1_asn(&action_def->frm_1);
       break;
     }
     case FORMAT_2_ACTION_DEFINITION:
     {
-      pdu->actionDefinition_formats.present = E2SM_KPM_ActionDefinition__actionDefinition_formats_PR_actionDefinition_Format2;
-      pdu->actionDefinition_formats.choice.actionDefinition_Format2 = kpm_enc_action_def_frm_2_asn(&action_def->frm_2);
+      pdu.actionDefinition_formats.present = E2SM_KPM_ActionDefinition__actionDefinition_formats_PR_actionDefinition_Format2;
+      pdu.actionDefinition_formats.choice.actionDefinition_Format2 = kpm_enc_action_def_frm_2_asn(&action_def->frm_2);
       break;
     }
     case FORMAT_3_ACTION_DEFINITION:
     {
-      pdu->actionDefinition_formats.present = E2SM_KPM_ActionDefinition__actionDefinition_formats_PR_actionDefinition_Format3;
-      pdu->actionDefinition_formats.choice.actionDefinition_Format3 = kpm_enc_action_def_frm_3_asn(&action_def->frm_3);
+      pdu.actionDefinition_formats.present = E2SM_KPM_ActionDefinition__actionDefinition_formats_PR_actionDefinition_Format3;
+      pdu.actionDefinition_formats.choice.actionDefinition_Format3 = kpm_enc_action_def_frm_3_asn(&action_def->frm_3);
       break;
     }
     case FORMAT_4_ACTION_DEFINITION:
     {
-      pdu->actionDefinition_formats.present = E2SM_KPM_ActionDefinition__actionDefinition_formats_PR_actionDefinition_Format4;
-      pdu->actionDefinition_formats.choice.actionDefinition_Format4 = kpm_enc_action_def_frm_4_asn(&action_def->frm_4);
+      pdu.actionDefinition_formats.present = E2SM_KPM_ActionDefinition__actionDefinition_formats_PR_actionDefinition_Format4;
+      pdu.actionDefinition_formats.choice.actionDefinition_Format4 = kpm_enc_action_def_frm_4_asn(&action_def->frm_4);
       break;
     }
     case FORMAT_5_ACTION_DEFINITION:
     {
-      pdu->actionDefinition_formats.present = E2SM_KPM_ActionDefinition__actionDefinition_formats_PR_actionDefinition_Format5;
-      pdu->actionDefinition_formats.choice.actionDefinition_Format5 = kpm_enc_action_def_frm_5_asn(&action_def->frm_5);
+      pdu.actionDefinition_formats.present = E2SM_KPM_ActionDefinition__actionDefinition_formats_PR_actionDefinition_Format5;
+      pdu.actionDefinition_formats.choice.actionDefinition_Format5 = kpm_enc_action_def_frm_5_asn(&action_def->frm_5);
       break;
     }
     default:
@@ -128,22 +159,9 @@ byte_array_t kpm_enc_action_def_asn(kpm_act_def_t const* action_def)
     }
   }
 
-//  xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
-//  fflush(stdout);
+  byte_array_t const ba = encode(&pdu, E2SM_KPM_ACTION_DEFINITION_ENUM);
 
-  /* XXX-tuning: 
-   * below bytearray sizing needs to be reviewed and made dynamic. It looks too small for the general case of action definition.
-   */
-
-  // FIXME Create one function for encoding common to all the methods.
-  byte_array_t ba = {.buf = malloc(2048), .len = 2048}; 
-  const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
-  asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_ActionDefinition, pdu, ba.buf, ba.len);
-  assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
-  ba.len = er.encoded;
-
-
-  ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_ActionDefinition, pdu);
+  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2SM_KPM_ActionDefinition, &pdu);
 
   return ba;
 }
@@ -155,29 +173,33 @@ byte_array_t kpm_enc_action_def_asn(kpm_act_def_t const* action_def)
 byte_array_t kpm_enc_ind_hdr_asn(kpm_ind_hdr_t const* ind_hdr)
 {
   assert(ind_hdr != NULL);
-  E2SM_KPM_IndicationHeader_t *pdu = calloc(1,sizeof(E2SM_KPM_IndicationHeader_t));
-  assert( pdu !=NULL && "Memory exhausted" );
+  E2SM_KPM_IndicationHeader_t pdu = {0};
+ // calloc(1,sizeof(E2SM_KPM_IndicationHeader_t));
+ // assert( pdu !=NULL && "Memory exhausted" );
 
 
   switch (ind_hdr->type)
   {
   case FORMAT_1_INDICATION_HEADER:
-    pdu->indicationHeader_formats.present = E2SM_KPM_IndicationHeader__indicationHeader_formats_PR_indicationHeader_Format1;
-    pdu->indicationHeader_formats.choice.indicationHeader_Format1 = kpm_enc_ind_hdr_frm_1_asn(&ind_hdr->kpm_ric_ind_hdr_format_1);
+    pdu.indicationHeader_formats.present = E2SM_KPM_IndicationHeader__indicationHeader_formats_PR_indicationHeader_Format1;
+    pdu.indicationHeader_formats.choice.indicationHeader_Format1 = kpm_enc_ind_hdr_frm_1_asn(&ind_hdr->kpm_ric_ind_hdr_format_1);
     break;
   
   default:
     assert(false && "Non valid KPM RIC Indication Header Format");
   }
-  
+
+  byte_array_t const ba = encode(&pdu, E2SM_KPM_INDICATION_HEADER_ENUM);
+
+  /*
   byte_array_t  ba = {.buf = malloc(2048), .len = 2048};
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_IndicationHeader, pdu, ba.buf, ba.len);
   assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
   ba.len = er.encoded;
-
-
-  ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_IndicationHeader, pdu);
+*/
+  
+  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2SM_KPM_IndicationHeader, &pdu);
 
   return ba;
 }
@@ -192,26 +214,27 @@ byte_array_t kpm_enc_ind_msg_asn(kpm_ind_msg_t const* ind_msg)
 {
   assert(ind_msg != NULL);
   
-  E2SM_KPM_IndicationMessage_t *pdu = calloc(1, sizeof(E2SM_KPM_IndicationMessage_t));
-  assert( pdu !=NULL && "Memory exhausted" );
+  E2SM_KPM_IndicationMessage_t pdu = {0};
+  //calloc(1, sizeof(E2SM_KPM_IndicationMessage_t));
+  //assert( pdu !=NULL && "Memory exhausted" );
 
   switch (ind_msg->type)
   {
   case FORMAT_1_INDICATION_MESSAGE:
-    pdu->indicationMessage_formats.present = E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format1;
-    pdu->indicationMessage_formats.choice.indicationMessage_Format1 = calloc(1, sizeof(E2SM_KPM_IndicationMessage_Format1_t));
-    assert(pdu->indicationMessage_formats.choice.indicationMessage_Format1 != NULL && "Memory exhausted");
-    *pdu->indicationMessage_formats.choice.indicationMessage_Format1 = kpm_enc_ind_msg_frm_1_asn(&ind_msg->frm_1);
+    pdu.indicationMessage_formats.present = E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format1;
+    pdu.indicationMessage_formats.choice.indicationMessage_Format1 = calloc(1, sizeof(E2SM_KPM_IndicationMessage_Format1_t));
+    assert(pdu.indicationMessage_formats.choice.indicationMessage_Format1 != NULL && "Memory exhausted");
+    *pdu.indicationMessage_formats.choice.indicationMessage_Format1 = kpm_enc_ind_msg_frm_1_asn(&ind_msg->frm_1);
     break;
   
   case FORMAT_2_INDICATION_MESSAGE:
-    pdu->indicationMessage_formats.present = E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format2;
-    pdu->indicationMessage_formats.choice.indicationMessage_Format2 = kpm_enc_ind_msg_frm_2_asn(&ind_msg->frm_2);
+    pdu.indicationMessage_formats.present = E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format2;
+    pdu.indicationMessage_formats.choice.indicationMessage_Format2 = kpm_enc_ind_msg_frm_2_asn(&ind_msg->frm_2);
     break;
 
   case FORMAT_3_INDICATION_MESSAGE:
-    pdu->indicationMessage_formats.present = E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format3;
-    pdu->indicationMessage_formats.choice.indicationMessage_Format3 = kpm_enc_ind_msg_frm_3_asn(&ind_msg->frm_3);
+    pdu.indicationMessage_formats.present = E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format3;
+    pdu.indicationMessage_formats.choice.indicationMessage_Format3 = kpm_enc_ind_msg_frm_3_asn(&ind_msg->frm_3);
     break;
 
   default:
@@ -219,17 +242,20 @@ byte_array_t kpm_enc_ind_msg_asn(kpm_ind_msg_t const* ind_msg)
   }
 
 
-//  xer_fprint(stderr, &asn_DEF_E2SM_KPM_IndicationMessage, pdu);
-//  fflush(stdout);
+  //xer_fprint(stderr, &asn_DEF_E2SM_KPM_IndicationMessage, pdu);
+  //fflush(stdout);
 
-  byte_array_t  ba = {.buf = malloc(2048), .len = 2048};
+  byte_array_t const ba = encode(&pdu, E2SM_KPM_INDICATION_MESSAGE_ENUM);
+
+  /*
+  {.buf = malloc(2048), .len = 2048};
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_IndicationMessage, pdu, ba.buf, ba.len);
   assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
   ba.len = er.encoded;
+*/
 
-
-  ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_IndicationMessage, pdu);
+  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2SM_KPM_IndicationMessage, &pdu);
 
   return ba;
 }
@@ -243,46 +269,40 @@ byte_array_t kpm_enc_func_def_asn(kpm_ran_function_def_t const* func_def)
 {
   assert(func_def != NULL);
   
-  E2SM_KPM_RANfunction_Description_t *pdu = calloc(1, sizeof(E2SM_KPM_RANfunction_Description_t));
-  assert( pdu !=NULL && "Memory exhausted" );
+  E2SM_KPM_RANfunction_Description_t pdu = {0};
+  //calloc(1, sizeof(E2SM_KPM_RANfunction_Description_t));
+  //assert( pdu !=NULL && "Memory exhausted" );
   
 
   //  RAN Function Name
-  int ret = OCTET_STRING_fromBuf(&pdu->ranFunction_Name.ranFunction_Description, 
+  int ret = OCTET_STRING_fromBuf(&pdu.ranFunction_Name.ranFunction_Description, 
                               (char *)func_def->name.description.buf, 
                               func_def->name.description.len);
   assert(ret == 0);
   
-  ret = OCTET_STRING_fromBuf(&pdu->ranFunction_Name.ranFunction_E2SM_OID, 
+  ret = OCTET_STRING_fromBuf(&pdu.ranFunction_Name.ranFunction_E2SM_OID, 
                               (char *)func_def->name.oid.buf, 
                               func_def->name.oid.len);
   assert(ret == 0);
   
-  ret = OCTET_STRING_fromBuf(&pdu->ranFunction_Name.ranFunction_ShortName, 
+  ret = OCTET_STRING_fromBuf(&pdu.ranFunction_Name.ranFunction_ShortName, 
                               (char *)func_def->name.name.buf, 
                               func_def->name.name.len);
   assert(ret == 0);
   
   if (func_def->name.instance != NULL)
   {
-    pdu->ranFunction_Name.ranFunction_Instance = malloc(sizeof(*pdu->ranFunction_Name.ranFunction_Instance));
-    assert(pdu->ranFunction_Name.ranFunction_Instance != NULL && "Memory exhausted");
-    pdu->ranFunction_Name.ranFunction_Instance = func_def->name.instance;
+    pdu.ranFunction_Name.ranFunction_Instance = calloc(1, sizeof(*pdu.ranFunction_Name.ranFunction_Instance));
+    assert(pdu.ranFunction_Name.ranFunction_Instance != NULL && "Memory exhausted");
+    *pdu.ranFunction_Name.ranFunction_Instance = *func_def->name.instance;
   }
-  else
-  {
-    pdu->ranFunction_Name.ranFunction_Instance = NULL;
-  }
-  
-
 
   //  RIC Event Trigger Style Item
-  if (func_def->ric_event_trigger_style_list != NULL || func_def->sz_ric_event_trigger_style_list != 0)
-  {
-    assert(func_def->sz_ric_event_trigger_style_list >= 1 && func_def->sz_ric_event_trigger_style_list <= maxnoofRICStyles);
+  if (func_def->ric_event_trigger_style_list != NULL) {
+    assert(func_def->sz_ric_event_trigger_style_list <= maxnoofRICStyles);
 
-    pdu->ric_EventTriggerStyle_List = calloc(func_def->sz_ric_event_trigger_style_list, sizeof(*pdu->ric_EventTriggerStyle_List));
-    assert(pdu->ric_EventTriggerStyle_List != NULL && "Memory exhausted");
+    pdu.ric_EventTriggerStyle_List = calloc(func_def->sz_ric_event_trigger_style_list, sizeof(*pdu.ric_EventTriggerStyle_List));
+    assert(pdu.ric_EventTriggerStyle_List != NULL && "Memory exhausted");
 
     for (size_t i = 0; i<func_def->sz_ric_event_trigger_style_list; i++)
     {
@@ -311,21 +331,20 @@ byte_array_t kpm_enc_func_def_asn(kpm_ran_function_def_t const* func_def)
         assert(false && "Unknown RIC Event Trigger Style Type");
       }
 
-      int rc1 = ASN_SEQUENCE_ADD(&pdu->ric_EventTriggerStyle_List->list, event_item);
+      int rc1 = ASN_SEQUENCE_ADD(&pdu.ric_EventTriggerStyle_List->list, event_item);
       assert(rc1 == 0);
     }
   }
 
-
-
-
   // RIC Report Style Item
-  if (func_def->ric_report_style_list != NULL || func_def->sz_ric_report_style_list != 0)
+  if (func_def->ric_report_style_list != NULL)
   {
-    assert(func_def->sz_ric_report_style_list >= 1 && func_def->sz_ric_report_style_list <= maxnoofRICStyles);
+    assert(func_def->sz_ric_report_style_list <= maxnoofRICStyles);
 
-    pdu->ric_ReportStyle_List = calloc(func_def->sz_ric_report_style_list, sizeof(*pdu->ric_ReportStyle_List));
-    assert(pdu->ric_ReportStyle_List != NULL && "Memory exhausted");
+    if(func_def->sz_ric_report_style_list > 0){
+    pdu.ric_ReportStyle_List = calloc(func_def->sz_ric_report_style_list, sizeof(*pdu.ric_ReportStyle_List));
+    assert(pdu.ric_ReportStyle_List != NULL && "Memory exhausted");
+    }
 
     for (size_t i = 0; i<func_def->sz_ric_report_style_list; i++)
     {
@@ -415,7 +434,7 @@ byte_array_t kpm_enc_func_def_asn(kpm_ran_function_def_t const* func_def)
         {
           meas_item->measID = calloc(1, sizeof(MeasurementTypeID_t));
           assert(meas_item->measID != NULL && "Memory exhausted");
-          memcpy(meas_item->measID, func_def->ric_report_style_list[i].meas_info_for_action_lst[j].id, 2);
+          *meas_item->measID = *func_def->ric_report_style_list[i].meas_info_for_action_lst[j].id;
         }
 
         // Bin Range Definition
@@ -427,25 +446,26 @@ byte_array_t kpm_enc_func_def_asn(kpm_ran_function_def_t const* func_def)
         assert(rc1 == 0);
       }
 
-
-
-      int rc1 = ASN_SEQUENCE_ADD(&pdu->ric_ReportStyle_List->list, report_item);
+      int rc1 = ASN_SEQUENCE_ADD(&pdu.ric_ReportStyle_List->list, report_item);
       assert(rc1 == 0);
     }
   }
 
 
-//  xer_fprint(stderr, &asn_DEF_E2SM_KPM_RANfunction_Description, pdu);
-//  fflush(stdout);
+  byte_array_t const ba = encode(&pdu, E2SM_KPM_RAN_FUNCTION_DESCRIPTION_ENUM);
 
+  /*
   byte_array_t  ba = {.buf = malloc(2048), .len = 2048};
   assert(ba.buf != NULL && "Memory exhausted");
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_RANfunction_Description, pdu, ba.buf, ba.len);
   assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
   ba.len = er.encoded;
-
   ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_RANfunction_Description, pdu);
+  */
+
+  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2SM_KPM_RANfunction_Description, &pdu);
 
   return ba;
 }
+

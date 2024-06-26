@@ -54,7 +54,7 @@ kpm_event_trigger_def_t kpm_dec_event_trigger_asn(size_t len, uint8_t const ev_t
   const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2SM_KPM_EventTriggerDefinition, (void**)&pdu, ev_tr, len);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGNED_BASIC_PER syntax?");
 
-  // xer_fprint(stderr, &asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu);
+  //xer_fprint(stderr, &asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu);
 
   kpm_event_trigger_def_t ret = {0};
 
@@ -92,7 +92,7 @@ kpm_act_def_t kpm_dec_action_def_asn(size_t len, uint8_t const action_def[len])
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGNED_BASIC_PER syntax?");
   // note that constraints checking on data extracted is already performed by asn_decode()
 
-  // xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
+   // xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
 
   
   switch (pdu->actionDefinition_formats.present)
@@ -245,11 +245,10 @@ kpm_ran_function_def_t kpm_dec_func_def_asn(size_t len, uint8_t const func_def[l
   assert(ret.name.name.buf != NULL && "Memory exhausted");
   memcpy(ret.name.name.buf, pdu->ranFunction_Name.ranFunction_ShortName.buf, ret.name.name.len);
   
-  if (pdu->ranFunction_Name.ranFunction_Instance != NULL)
-  {
+  if (pdu->ranFunction_Name.ranFunction_Instance != NULL) {
     ret.name.instance = calloc(1, sizeof(*ret.name.instance));
     assert(ret.name.instance != NULL && "Memory exhausted");
-    ret.name.instance = pdu->ranFunction_Name.ranFunction_Instance;
+    *ret.name.instance = *pdu->ranFunction_Name.ranFunction_Instance;
   }
   else
   {
@@ -390,11 +389,10 @@ kpm_ran_function_def_t kpm_dec_func_def_asn(size_t len, uint8_t const func_def[l
         memcpy(ret.ric_report_style_list[i].meas_info_for_action_lst[j].name.buf, meas_item->measName.buf, ret.ric_report_style_list[i].meas_info_for_action_lst[j].name.len);
 
         // Measurement Type ID
-        if (meas_item->measID != NULL)
-        {
+        if (meas_item->measID != NULL) {
           ret.ric_report_style_list[i].meas_info_for_action_lst[j].id = calloc(1, sizeof(uint16_t));
           assert(ret.ric_report_style_list[i].meas_info_for_action_lst[j].id != NULL && "Memory exhausted");
-          memcpy(ret.ric_report_style_list[i].meas_info_for_action_lst[j].id, meas_item->measID, 2);
+          *ret.ric_report_style_list[i].meas_info_for_action_lst[j].id = *meas_item->measID;
         }
 
         // Bin Range Definition

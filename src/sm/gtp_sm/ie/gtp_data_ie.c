@@ -145,9 +145,9 @@ gtp_ind_msg_t cp_gtp_ind_msg(gtp_ind_msg_t const* src)
   if(cp.len > 0){
     cp.ngut = calloc(cp.len, sizeof(gtp_ngu_t_stats_t));
     assert(cp.ngut != NULL && "memory exhausted");
-  }
 
-  memcpy(cp.ngut, src->ngut, sizeof(gtp_ngu_t_stats_t)*cp.len);
+    memcpy(cp.ngut, src->ngut, sizeof(gtp_ngu_t_stats_t)*cp.len);
+  }
 
   return cp;
 }
@@ -311,11 +311,10 @@ bool eq_gtp_ctrl_out(gtp_ctrl_out_t* m0, gtp_ctrl_out_t* m1)
 void free_gtp_func_def( gtp_func_def_t* src)
 {
   assert(src != NULL);
-
-  assert(0!=0 && "Not implemented" ); 
+  free(src->buf);
 }
 
-gtp_func_def_t cp_gtp_func_def(gtp_func_def_t* src)
+gtp_func_def_t cp_gtp_func_def(gtp_func_def_t const* src)
 {
   assert(src != NULL);
 
@@ -324,7 +323,7 @@ gtp_func_def_t cp_gtp_func_def(gtp_func_def_t* src)
   return ret;
 }
 
-bool eq_gtp_func_def(gtp_func_def_t* m0, gtp_func_def_t* m1)
+bool eq_gtp_func_def(gtp_func_def_t const* m0, gtp_func_def_t const* m1)
 {
   assert(m0 != NULL);
   assert(m1 != NULL);

@@ -260,10 +260,11 @@ void free_plugin_ag(plugin_ag_t* p)
   // Thread management
   p->flag_shutdown = true;
 
-  int rc = shutdown(p->sockfd, SHUT_RDWR);
-  if(rc != 0){
-    printf("Closing the agent socket: %s \n", strerror(errno));
-  }
+  //int rc = shutdown(p->sockfd, SHUT_RDWR);
+  //if(rc != 0){
+  //  printf("Closing the agent socket: %s \n", strerror(errno));
+  //}
+  
   //assert(rc == 0);
 //  rc = pthread_join(p->thread_rx, NULL);
 //  assert(rc == 0);

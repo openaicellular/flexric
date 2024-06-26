@@ -21,7 +21,7 @@ meas_info_format_3_lst_t * kpm_dec_meas_info_cond_asn(const MeasurementCondList_
         case MeasurementType_PR_measName:
         {
             meas_info_cond[i].meas_type.type = NAME_MEAS_TYPE;
-            meas_info_cond[i].meas_type.name.buf = calloc(meas_type_asn->choice.measName.size + 1, sizeof(char));
+            meas_info_cond[i].meas_type.name.buf = calloc(meas_type_asn->choice.measName.size + 1, sizeof(uint8_t));
             assert(meas_info_cond[i].meas_type.name.buf != NULL && "Memory exhausted");
             memcpy(meas_info_cond[i].meas_type.name.buf, meas_type_asn->choice.measName.buf, meas_type_asn->choice.measName.size);
             meas_info_cond[i].meas_type.name.len = meas_type_asn->choice.measName.size;

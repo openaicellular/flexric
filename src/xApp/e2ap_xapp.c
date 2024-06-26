@@ -61,7 +61,6 @@ void e2ap_free_control_request_xapp(e2ap_xapp_t* ap, ric_control_request_t* ctrl
   e2ap_free_control_request(ctrl_req);
 }
 
-
 e2ap_msg_t e2ap_msg_dec_xapp(e2ap_xapp_t* ap, byte_array_t ba)
 {
   assert(ap != NULL);
@@ -115,7 +114,6 @@ byte_array_t e2ap_enc_e42_setup_request_xapp(e2ap_xapp_t* ap, e42_setup_request_
   return e2ap_enc_e42_setup_request_gen(&ap->base.type, sr);
 }
 
-
 byte_array_t e2ap_enc_e42_subscription_request_xapp(e2ap_xapp_t* ap, e42_ric_subscription_request_t* sr)
 {
   assert(ap != NULL);
@@ -130,15 +128,12 @@ byte_array_t e2ap_enc_ric_subscription_delete_xapp(e2ap_xapp_t* ap, ric_subscrip
   return e2ap_enc_subscription_delete_request_gen(&ap->base.type, sdr);
 }
 
-
 byte_array_t e2ap_enc_e42_ric_subscription_delete_xapp(e2ap_xapp_t* ap, e42_ric_subscription_delete_request_t* sdr)
 {
   assert(ap != NULL);
   assert(sdr != NULL);
   return e2ap_enc_e42_subscription_delete_request_gen(&ap->base.type, sdr);
 }
-
-
 
 byte_array_t e2ap_enc_e42_control_request_xapp(e2ap_xapp_t* ap, e42_ric_control_request_t* cr)
 {

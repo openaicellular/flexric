@@ -38,7 +38,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-
 static
 ric_indication_t generate_aindication(e2_agent_t* ag, sm_ind_data_t* data, aind_event_t* ai_ev)
 {
@@ -269,12 +268,19 @@ bool ind_event(e2_agent_t* ag, int fd, ind_event_t** i_ev)
 }
 
 static inline
-bool aind_event(e2_agent_t* ag, int fd, aind_event_t* ai_ev)
+bool aind_event(e2_agent_t* ag, int fd, arr_aind_event_t* dst)
 {
   if(fd != ag->io.pipe.r)
     return false;
 
-  pop_tsq(&ag->aind, ai_ev, sizeof(aind_event_t));
+  const size_t sz = size_tsq(&ag->aind);
+  assert(sz > 0 && "Aperiodic Event detected but the queue is empty!");
+  dst->len = sz;
+  dst->arr = calloc(sz, sizeof(aind_event_t));
+  assert(dst->arr != NULL && "Memory exhausted");
+
+  for(size_t i = 0; i < sz; ++i)
+    pop_tsq(&ag->aind, &dst->arr[i], sizeof(aind_event_t));
 
   return true;
 }
@@ -310,12 +316,24 @@ bool pend_event(e2_agent_t* ag, int fd, pending_event_t** p_ev)
 }
 
 static
-void consume_fd(int fd)
+void consume_fd_sync(int fd)
 {
   assert(fd > 0);
   uint64_t read_buf = 0;
   ssize_t const bytes = read(fd,&read_buf, sizeof(read_buf));
+  //assert(bytes == -1);
   assert(bytes <= (ssize_t)sizeof(read_buf));
+}
+
+static
+int consume_fd_async(int fd)
+{
+  assert(fd > 0);
+  uint32_t read_buf = 0;
+  ssize_t const bytes = read(fd,&read_buf, sizeof(read_buf));
+  //assert(bytes == 4);
+  //printf("Consumed %u \n", read_buf);
+  return bytes;
 }
 
 static
@@ -389,20 +407,32 @@ void e2_event_loop_agent(e2_agent_t* ag)
         }
       case APERIODIC_INDICATION_EVENT:
         {
-          sm_agent_t const* sm = e.ai_ev.sm;
-          void* ind_data = e.ai_ev.ind_data;
-          sm_ind_data_t data = sm->proc.on_indication(sm, ind_data); // , &e.i_ev->ric_id);
+          arr_aind_event_t* aind = &e.ai_ev;
+          assert(aind->len > 0 && aind->arr != NULL);
+          defer({ free(aind->arr); });
+          for(size_t i = 0; i < aind->len; ++i){
 
-          ric_indication_t ind = generate_aindication(ag, &data, &e.ai_ev);
-          defer({ e2ap_free_indication(&ind); } );
+            sm_agent_t const* sm = aind->arr[i].sm;
+            void* ind_data = aind->arr[i].ind_data;
+            exp_ind_data_t exp = sm->proc.on_indication(sm, ind_data); // , &e.i_ev->ric_id);
+            // Condition not matched e.g., No UE matches condition
+            if(exp.has_value == false) {
+              int rc = consume_fd_async(ag->io.pipe.r);
+              assert(rc != 1 && "No bytes in the pipe but message in the queue! ");
+              continue;
+            }
 
-          byte_array_t ba = e2ap_enc_indication_ag(&ag->ap, &ind);
-          defer({ free_byte_array(ba); } );
+            ric_indication_t ind = generate_aindication(ag, &exp.data, &aind->arr[i]);
+            defer({ e2ap_free_indication(&ind); } );
 
-          e2ap_send_bytes_agent(&ag->ep, ba);
+            byte_array_t ba = e2ap_enc_indication_ag(&ag->ap, &ind);
+            defer({ free_byte_array(ba); } );
 
-          consume_fd(ag->io.pipe.r);
+            e2ap_send_bytes_agent(&ag->ep, ba);
 
+            int rc = consume_fd_async(ag->io.pipe.r);
+            assert(rc != 1 && "No bytes in the pipe but message in the queue! ");
+          }
           break;
         }
       case INDICATION_EVENT:
@@ -410,16 +440,21 @@ void e2_event_loop_agent(e2_agent_t* ag)
           #ifdef PROXY_AGENT
           if (get_IndTimer_sts() == false){
             // we are not ready yet on RAN interface. Wait a bit
-            consume_fd(e.fd);
+            consume_fd_sync(e.fd);
             break;
           }
           #endif
 
           sm_agent_t const* sm = e.i_ev->sm;
-          void* act_def = e.i_ev->act_def;
-          sm_ind_data_t data = sm->proc.on_indication(sm, act_def); // , &e.i_ev->ric_id);
-
-          ric_indication_t ind = generate_indication(ag, &data, e.i_ev);
+          void* act_def = e.i_ev->act_def; 
+          exp_ind_data_t exp = sm->proc.on_indication(sm, act_def); // , &e.i_ev->ric_id);
+          // Condition not matched e.g., No UE matches condition
+          if(exp.has_value == false){
+            printf("[E2 AGENT]: Condition not matched e.g., No UE matches condition. Emulator triggers this condition for testing, but not the RAN \n");
+            consume_fd_sync(e.fd);
+            break;
+          }
+          ric_indication_t ind = generate_indication(ag, &exp.data, e.i_ev);
           defer({ e2ap_free_indication(&ind); } );
 
           byte_array_t ba = e2ap_enc_indication_ag(&ag->ap, &ind); 
@@ -427,60 +462,36 @@ void e2_event_loop_agent(e2_agent_t* ag)
 
           e2ap_send_bytes_agent(&ag->ep, ba);
 
-          consume_fd(e.fd);
+          consume_fd_sync(e.fd);
 
           break;
         }
       case PENDING_EVENT:
         {
+          assert(*e.p_ev == SETUP_REQUEST_PENDING_EVENT && "Unforeseen pending event happened!" );
+
+          // Resend the setup request message
           #ifdef PROXY_AGENT
-          if (*e.p_ev == SETUP_REQUEST_PENDING_EVENT)
-          {
-            consume_fd(e.fd);
-            printf("Sending E2 Setup request from ran id %d. Timeout of 3 seconds.\n", ag->global_e2_node_id.nb_id.nb_id);
-            e2_setup_request_t sr = generate_setup_request_from_ran(ag, ag->global_e2_node_id);
-            defer({ e2ap_free_setup_request(&sr);  } );
-            byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr);
-            defer({free_byte_array(ba); } );
-            e2ap_send_bytes_agent(&ag->ep, ba);
-          }
-          else if (*e.p_ev == CONTROL_REQUEST_AGENT_PENDING_EVENT)
-          {
-              /* TODO: here you should actually send back the reply to RIC on failure getting an ack from
-              * CTRL request to the RAN interface (i.e. RAN is disconnected)
-              */
-              printf("timeout on CTRL request not implemented yet ! timeout discarded. Maybe nearRT ric crashed\n");
-              assert (0!=0);
-          } else{
-              assert(0!=0 && "Unforeseen pending event happened!" );
-          }
+          e2_setup_request_t sr = generate_setup_request_from_ran(ag, ag->global_e2_node_id);
           #else
-          if (*e.p_ev == SETUP_REQUEST_PENDING_EVENT)
-          {
-
-            printf("timeout on E2 Setup request: sending again E2 setup\n");
-
-            // Resend the setup request message
-            e2_setup_request_t sr = gen_setup_request(&ag->ap.version.type, ag);
-            defer({ e2ap_free_setup_request(&sr); } );
-
-            printf("[E2AP] Resending Setup Request after timeout\n");
-            byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr);
-            defer({ free_byte_array(ba); } );
-
-            e2ap_send_bytes_agent(&ag->ep, ba);
-
-            consume_fd(e.fd);
-            } else {
-              assert(0!=0 && "Unforeseen pending event happened!" );
-            }
+          e2_setup_request_t sr = gen_setup_request(&ag->ap.version.type, ag);
           #endif
+          defer({ e2ap_free_setup_request(&sr); } );
+
+          printf("[E2 AGENT]: E2 SETUP REQUEST timeout. Resending again (tx) \n");
+          byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr); 
+          defer({ free_byte_array(ba); } ); 
+
+          e2ap_send_bytes_agent(&ag->ep, ba);
+
+          consume_fd_sync(e.fd);
 
           break;
         }
       case SCTP_CONNECTION_SHUTDOWN_EVENT: 
         {
           notification_handle_ag(ag, &e.msg);
+          free_sctp_msg(&e.msg);
           break;
         }
       case CHECK_STOP_TOKEN_EVENT:
@@ -494,6 +505,7 @@ void e2_event_loop_agent(e2_agent_t* ag)
         }
     }
   }
+
 
   printf("ag->agent_stopped = true \n");
   ag->agent_stopped = true;
@@ -555,7 +567,7 @@ void e2_start_agent(e2_agent_t* ag)
   e2_setup_request_t sr = gen_setup_request(&ag->ap.version.type, ag);
   defer({ e2ap_free_setup_request(&sr);  } );
 
-  printf("[E2-AGENT]: Sending setup request\n");
+  printf("[E2-AGENT]: E2 SETUP-REQUEST tx \n");
   byte_array_t ba = e2ap_enc_setup_request_ag(&ag->ap, &sr); 
   defer({free_byte_array(ba); } );
 
@@ -571,7 +583,6 @@ void e2_start_agent(e2_agent_t* ag)
   // Send the message
   e2ap_send_bytes_agent(&ag->ep, ba);
 #endif
-
   e2_event_loop_agent(ag);
 }
 
@@ -591,6 +602,8 @@ void e2_free_agent(e2_agent_t* ag)
   free_tsq(&ag->aind, NULL);
 
   free_global_e2_node_id(&ag->global_e2_node_id);
+
+  e2ap_free_ep_agent(&ag->ep);
 
 #ifdef PROXY_AGENT
   free_correlation_data(ag);
@@ -649,7 +662,7 @@ void e2_async_event_agent(e2_agent_t* ag, uint32_t ric_req_id, void* ind_data)
   int const num_char = 32;
   char str[num_char];
   memset(str, '\0', num_char);
-  rc = snprintf(str, num_char ,"%u\n", ric_req_id );
+  rc = snprintf(str, num_char ,"%u", ric_req_id );
   assert(rc > 0 && rc < num_char -1);
 
   rc = write(ag->io.pipe.w, str, rc);

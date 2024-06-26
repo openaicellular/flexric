@@ -29,13 +29,8 @@ void free_e2_node_arr(e2_node_arr_t* xapp)
   assert(xapp != NULL);
 
   for(size_t i = 0; i < xapp->len; ++i){
-    for(size_t j = 0; j < xapp->n[i].len_rf; ++j){
-      free_ran_function(&xapp->n[i].ack_rf[j]);
-    }
-    if(xapp->n[i].len_rf > 0)
-      free(xapp->n[i].ack_rf);
-
-    free_global_e2_node_id(&xapp->n[i].id);
+    e2_node_connected_t* n = &xapp->n[i]; 
+    free_e2_node_connected(n);
   }
  
   if(xapp->len > 0){

@@ -8,7 +8,7 @@ else()
   message(FATAL_ERROR "E2AP unknown version")
 endif()
 
-
+enable_testing()
 
 
 

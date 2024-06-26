@@ -99,6 +99,7 @@ typedef struct e42_xapp_s
   db_xapp_t db;
   #endif
 
+  pthread_mutex_t conn_mtx;
   atomic_bool connected;
   atomic_bool stopped;
   atomic_bool stop_token;
@@ -113,7 +114,7 @@ void start_e42_xapp(e42_xapp_t* xapp);
 
 void free_e42_xapp(e42_xapp_t* xapp);
 
-e2_node_arr_t e2_nodes_xapp(e42_xapp_t* xapp);
+e2_node_arr_xapp_t e2_nodes_xapp(e42_xapp_t* xapp);
 
 size_t e2_nodes_len_xapp(e42_xapp_t* xapp);
 

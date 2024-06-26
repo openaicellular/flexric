@@ -37,8 +37,10 @@ asn_TYPE_operation_t asn_OP_INTEGER = {
     0,
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 #if !defined(ASN_DISABLE_JER_SUPPORT)
+    INTEGER_decode_jer,
     INTEGER_encode_jer,
 #else
+    0,
     0,
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -360,13 +362,9 @@ asn_imax2INTEGER(INTEGER_t *st, intmax_t value) {
 		}
 		break;
 	}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
-  /* Copy the integer body */
-  for(bp = buf, pend1 += add; p != pend1; p += add)
-    *bp++ = *p;
-#pragma GCC diagnostic pop
-
+	/* Copy the integer body */
+	for(bp = buf, pend1 += add; p != pend1; p += add)
+		*bp++ = *p;
 
 	if(st->buf) FREEMEM(st->buf);
 	st->buf = buf;

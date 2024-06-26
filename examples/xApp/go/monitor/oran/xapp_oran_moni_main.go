@@ -80,7 +80,8 @@ func main() {
             actions := smInfo.GetActions()
             var actionSlice []string
             for a := 0; a < int(actions.Size()); a++ {
-                actName := actions.Get(a)
+                act_name_id := actions.Get(a)
+                actName := act_name_id.GetName()
                 actionSlice = append(actionSlice, actName)
             }
             // fmt.Println("Actions:", actionSlice)

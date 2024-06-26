@@ -20,8 +20,24 @@ label_info_lst_t cp_label_info(label_info_lst_t const *src)
     *dst.plmn_id = cp_e2sm_plmn( src->plmn_id);
   }
 
-  assert(src->sliceID == NULL && "Not implemented");
-  assert(src->fiveQI == NULL && "Not implemented");
+  if (src->fiveQI != NULL) {
+    dst.fiveQI = calloc(1, sizeof(uint8_t));
+    assert(dst.fiveQI != NULL && "Memory exhausted");
+    *dst.fiveQI = *src->fiveQI;
+  }
+
+  if (src->sliceID != NULL) {
+    dst.sliceID = calloc(1, sizeof(s_nssai_e2sm_t));
+    assert(dst.sliceID != NULL && "Memory exhausted");
+    memcpy(&dst.sliceID->sST, &src->sliceID->sST, 1);
+
+    if(src->sliceID->sD != NULL) {
+      dst.sliceID->sD = calloc(1, sizeof(uint32_t));
+      assert(dst.sliceID->sD != NULL && "Memory exhausted");
+      memcpy(dst.sliceID->sD, src->sliceID->sD, 3);
+    }
+  }
+
   assert(src->qFI == NULL && "Not implemented");
   assert(src->qCI == NULL && "Not implemented");
   assert(src->qCImax == NULL && "Not implemented");
@@ -60,12 +76,13 @@ void free_label_info(label_info_lst_t *l)
     free(l->noLabel);
   if (l->plmn_id)
     free(l->plmn_id);
- 
+
   if (l->sliceID != NULL) {
-    assert(false && "not implemented");
+    free_s_nssai_e2sm(l->sliceID);
+    free(l->sliceID);
   }
 	if (l->fiveQI != NULL) {
-    assert(false && "not implemented");
+    free(l->fiveQI);
   }
 	if (l->qFI != NULL) {
     assert(false && "not implemented");
@@ -139,11 +156,15 @@ bool eq_label_info(const label_info_lst_t *l1, const label_info_lst_t *l2)
   if (eq_e2sm_plmn(l1->plmn_id, l2->plmn_id) != true)
     return false;
 
-  assert(l1->sliceID == NULL && "Not implemented");
-  assert(l2->sliceID == NULL && "Not implemented");
+  if (eq_s_nssai_e2sm(l1->sliceID, l2->sliceID) != true)
+    return false;
 
-  assert(l1->fiveQI == NULL && "Not implemented");
-  assert(l2->fiveQI == NULL && "Not implemented");
+  if(l1->fiveQI != NULL || l2->fiveQI != NULL){
+    if(l1->fiveQI == NULL || l2->fiveQI == NULL)
+      return false;
+    if(*l1->fiveQI != *l2->fiveQI)
+      return false;
+  }
 
   assert(l1->qFI == NULL && "Not implemented");
   assert(l2->qFI == NULL && "Not implemented");

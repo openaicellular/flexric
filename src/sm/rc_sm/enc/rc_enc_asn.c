@@ -85,6 +85,13 @@
 #include "../ie/asn/RANParameter-ValueType-Choice-List.h"
 #include "../ie/asn/RANParameter-LIST.h"
 
+#include "../ie/asn/RANParameter-Definition.h"
+#include "../ie/asn/RANParameter-Definition-Choice.h"
+#include "../ie/asn/RANParameter-Definition-Choice-LIST.h"
+#include "../ie/asn/RANParameter-Definition-Choice-LIST-Item.h"
+#include "../ie/asn/RANParameter-Definition-Choice-STRUCTURE.h"
+#include "../ie/asn/RANParameter-Definition-Choice-STRUCTURE-Item.h"
+
 #include "../ie/asn/E2SM-RC-IndicationHeader.h"
 #include "../ie/asn/E2SM-RC-IndicationHeader-Format1.h"
 #include "../ie/asn/E2SM-RC-IndicationHeader-Format2.h"
@@ -920,7 +927,91 @@ E2SM_RC_ActionDefinition_Format1_Item_t* cp_rc_act_def_frmt_1_it(param_report_de
   // RAN Parameter Definition
   // Optional
   // 9.3.51
-  assert(src->ran_param_def == NULL && "Not implemented");
+  if(src->ran_param_def != NULL)
+  {
+    dst->ranParameter_Definition = calloc(1, sizeof(RANParameter_Definition_t));
+    assert(dst->ranParameter_Definition != NULL && "Memory exhausted");
+
+    dst->ranParameter_Definition->ranParameter_Definition_Choice = calloc(1, sizeof(RANParameter_Definition_Choice_t));
+    assert(dst->ranParameter_Definition->ranParameter_Definition_Choice != NULL && "Memory exhausted");
+
+    switch (src->ran_param_def->type)
+    {
+    case LIST_RAN_PARAMETER_TYPE:
+      dst->ranParameter_Definition->ranParameter_Definition_Choice->present = RANParameter_Definition_Choice_PR_choiceLIST;
+      dst->ranParameter_Definition->ranParameter_Definition_Choice->choice.choiceLIST = calloc(1, sizeof(RANParameter_Definition_Choice_LIST_t));
+      assert(dst->ranParameter_Definition->ranParameter_Definition_Choice->choice.choiceLIST != NULL && "Memory exhausted");
+
+
+      for(size_t i = 0; i < src->ran_param_def->lst->sz_ran_param; i++)
+      {
+        RANParameter_Definition_Choice_LIST_Item_t* list_item = calloc(1, sizeof(RANParameter_Definition_Choice_LIST_Item_t));
+        assert(list_item != NULL && "Memory exhausted");
+
+        // RAN Parameter ID
+        // Mandatory
+        // 9.3.8
+        // [1 - 4294967295]
+        list_item->ranParameter_ID = src->ran_param_def->lst->ran_param[i].ran_param_id;
+
+        // RAN Parameter Name
+        // Mandatory
+        // 9.3.9
+        const size_t len = src->ran_param_def->lst->ran_param[i].ran_param_name.len;
+        int ret = OCTET_STRING_fromBuf(&list_item->ranParameter_name, (char *)(src->ran_param_def->lst->ran_param[i].ran_param_name.buf), len);
+        assert(ret == 0);
+
+        // RAN Parameter Definition
+        // Optional
+        // 9.3.51
+        assert(src->ran_param_def->lst->ran_param[i].ran_param_def == NULL && "Not implemented");
+
+        int rc = ASN_SEQUENCE_ADD(&dst->ranParameter_Definition->ranParameter_Definition_Choice->choice.choiceLIST->ranParameter_List.list, list_item);
+        assert(rc == 0);
+      }
+      
+      break;
+
+    case STRUCTURE_RAN_PARAMETER_TYPE:
+      dst->ranParameter_Definition->ranParameter_Definition_Choice->present = RANParameter_Definition_Choice_PR_choiceSTRUCTURE;
+      dst->ranParameter_Definition->ranParameter_Definition_Choice->choice.choiceSTRUCTURE = calloc(1, sizeof(RANParameter_Definition_Choice_STRUCTURE_t));
+      assert(dst->ranParameter_Definition->ranParameter_Definition_Choice->choice.choiceSTRUCTURE != NULL && "Memory exhausted");
+
+
+      for(size_t i = 0; i < src->ran_param_def->strct->sz_ran_param; i++)
+      {
+        RANParameter_Definition_Choice_STRUCTURE_Item_t* list_item = calloc(1, sizeof(RANParameter_Definition_Choice_STRUCTURE_Item_t));
+        assert(list_item != NULL && "Memory exhausted");
+
+        // RAN Parameter ID
+        // Mandatory
+        // 9.3.8
+        // [1 - 4294967295]
+        list_item->ranParameter_ID = src->ran_param_def->strct->ran_param[i].ran_param_id;
+
+        // RAN Parameter Name
+        // Mandatory
+        // 9.3.9
+        const size_t len = src->ran_param_def->strct->ran_param[i].ran_param_name.len;
+        int ret = OCTET_STRING_fromBuf(&list_item->ranParameter_name, (char *)(src->ran_param_def->strct->ran_param[i].ran_param_name.buf), len);
+        assert(ret == 0);
+
+        // RAN Parameter Definition
+        // Optional
+        // 9.3.51
+        assert(src->ran_param_def->strct->ran_param[i].ran_param_def == NULL && "Not implemented");
+
+        int rc = ASN_SEQUENCE_ADD(&dst->ranParameter_Definition->ranParameter_Definition_Choice->choice.choiceSTRUCTURE->ranParameter_STRUCTURE.list, list_item);
+        assert(rc == 0);
+      }
+
+      break;
+    
+    default:
+      assert(false && "Unknown RAN Parameter Type");
+    }
+    
+  }
 
   return dst;
 }
@@ -1406,17 +1497,18 @@ E2SM_RC_IndicationHeader_Format1_t* cp_ind_hdr_frmt_1(e2sm_rc_ind_hdr_frmt_1_t c
 
   E2SM_RC_IndicationHeader_Format1_t* dst = calloc(1, sizeof(E2SM_RC_IndicationHeader_Format1_t));
   assert(dst != NULL && "Memory exhausted");
-
-  assert(src->ev_trigger_id !=NULL && "Optional but not much sense to not fill it"); 
-  dst->ric_eventTriggerCondition_ID = calloc(1, sizeof(RIC_EventTriggerCondition_ID_t)) ;
-  assert(dst->ric_eventTriggerCondition_ID != NULL && "Memory exhauested");
-
+    
   // Event Trigger Condition ID
   // Optional
   // 9.3.21
   // [1 - 65535]
-  assert(*src->ev_trigger_id > 0);
-  *dst->ric_eventTriggerCondition_ID = *src->ev_trigger_id;
+  if(src->ev_trigger_id != NULL) {
+    dst->ric_eventTriggerCondition_ID = calloc(1, sizeof(RIC_EventTriggerCondition_ID_t)) ;
+    assert(dst->ric_eventTriggerCondition_ID != NULL && "Memory exhauested");
+
+    assert(*src->ev_trigger_id > 0);
+    *dst->ric_eventTriggerCondition_ID = *src->ev_trigger_id;
+  }
 
   return dst;
 }

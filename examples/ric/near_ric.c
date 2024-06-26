@@ -57,8 +57,7 @@ pthread_once_t once = PTHREAD_ONCE_INIT;
 static
 void sig_handler(int sig_num)
 {
-
-  printf("\nEnding the near-RIC with signal number = %d\n", sig_num);
+  printf("\n[NEAR-RIC]: Abruptly ending with signal number = %d\n", sig_num);
   // For the impatient, do not break my code
   pthread_once(&once, stop_and_exit);
 }

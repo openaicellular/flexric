@@ -105,11 +105,15 @@ std::vector<swig_sub_oran_sm_t> get_oran_sm_conf()
     tmp.ran_type = global_swig_args.sub_oran_sm[i].ran_type;
     tmp.act_len = global_swig_args.sub_oran_sm[i].act_len;
     for (int j = 0; j < tmp.act_len; j++) {
-      tmp.actions.push_back(global_swig_args.sub_oran_sm[i].actions[j]);
+      swig_act_name_id_t act;
+      act.name = global_swig_args.sub_oran_sm[i].actions[j].name;
+      act.id =  global_swig_args.sub_oran_sm[i].actions[j].id;
+      tmp.actions.push_back(act);
     }
 //    printf("[SWIG]: getting action definition from the saving configuration:\n");
 //    for (int32_t j = 0; j < tmp.act_len; ++j) {
-//      std::cout << tmp.actions[j] << std::endl;
+//      std::cout << "Name"  << tmp.actions[j].name << std::endl;
+//      std::cout << "ID " << tmp.actions[j].id << std::endl;
 //    }
     ret.push_back(tmp);
   }
@@ -188,13 +192,17 @@ void init(std::vector<std::string>& argv)
     global_swig_args.sub_oran_sm[i].time = args.sub_oran_sm[i].time;
     global_swig_args.sub_oran_sm[i].format = args.sub_oran_sm[i].format;
     global_swig_args.sub_oran_sm[i].ran_type = args.sub_oran_sm[i].ran_type;
-    global_swig_args.sub_oran_sm[i].act_len = args.sub_oran_sm[i].act_len - 1;
+    global_swig_args.sub_oran_sm[i].act_len = args.sub_oran_sm[i].act_len;
     for (int32_t j = 0; j < global_swig_args.sub_oran_sm[i].act_len; ++j) {
-      global_swig_args.sub_oran_sm[i].actions.push_back(args.sub_oran_sm[i].actions[j]);
+      swig_act_name_id_t tmp_act;
+      tmp_act.name = args.sub_oran_sm[i].actions[j].name;
+      tmp_act.id = args.sub_oran_sm[i].actions[j].id;
+      global_swig_args.sub_oran_sm[i].actions.push_back(tmp_act);
     }
 //    printf("[SWIG]: generating action definition from the list of required measurement data:\n");
 //    for (int32_t j = 0; j < global_swig_args.sub_oran_sm[i].act_len; ++j) {
-//      std::cout << global_swig_args.sub_oran_sm[i].actions[j] << std::endl;
+//      std::cout << "Name " << global_swig_args.sub_oran_sm[i].actions[j].name << std::endl;
+//      std::cout << "ID " << global_swig_args.sub_oran_sm[i].actions[j].id << std::endl;
 //    }
   }
 
@@ -218,7 +226,7 @@ bool try_stop()
 
 std::vector<E2Node> conn_e2_nodes(void)
 {
-  e2_node_arr_t arr = e2_nodes_xapp_api();
+  e2_node_arr_xapp_t arr = e2_nodes_xapp_api();
 
   std::vector<E2Node> x;
 
@@ -226,7 +234,7 @@ std::vector<E2Node> conn_e2_nodes(void)
 
     E2Node tmp;
 
-    e2_node_connected_t const* src = &arr.n[i];
+    e2_node_connected_xapp_t const* src = &arr.n[i];
 
     tmp.id.type = src->id.type;
     tmp.id.plmn.mcc = src->id.plmn.mcc;
@@ -241,17 +249,24 @@ std::vector<E2Node> conn_e2_nodes(void)
       }
     }
 
-    std::vector<RanFunction> ran_func;//(src->len_rf);
+    std::vector<swig_ran_function_t> ran_func;//(src->len_rf);
 
     for(size_t j = 0; j < src->len_rf; ++j){
-      ran_function_t rf = cp_ran_function(&src->ack_rf[j]);
+      sm_ran_function_t* rf = &src->rf[j];
+      // not support cp_sm_ran_function_def in cp_sm_ran_function
+      // we copy the info manually
+      // tmp_ran.defn = cp_sm_ran_function_def(&rf->defn);
 
-      RanFunction tmp_ran;
+      swig_ran_function_t tmp_ran;
 
-      tmp_ran.id = rf.id;
-      tmp_ran.rev = rf.rev;
-      tmp_ran.def = rf.def;
-      // TODO: oid
+      tmp_ran.id = rf->id;
+      tmp_ran.rev = rf->rev;
+      // TODO: need to define the ran function definition for each sm in swig
+      // tmp_ran.defn = copy_byte_array(rf.defn);
+      #if defined(E2AP_V2) || defined (E2AP_V3)
+        tmp_ran.oid = copy_byte_array(rf->oid);
+      #endif
+      //TODO: oid for E2AP V1 is optional
 
       ran_func.push_back(tmp_ran);// [j] = rf;
     }
@@ -259,7 +274,7 @@ std::vector<E2Node> conn_e2_nodes(void)
     x.push_back(tmp);//[i] = tmp;
   }
 
-  free_e2_node_arr(&arr);
+  free_e2_node_arr_xapp(&arr);
 
   return x;
 }
@@ -1009,11 +1024,11 @@ meas_info_format_1_lst_t gen_meas_info_format_1_lst(const char* action)
 }
 
 static
-kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
+kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action, uint32_t period_ms)
 {
   kpm_act_def_format_1_t dst;
 
-  dst.gran_period_ms = 1000;
+  dst.gran_period_ms = period_ms;
 
   // [1, 65535]
   size_t count = 0;
@@ -1029,15 +1044,16 @@ kpm_act_def_format_1_t gen_act_def_frmt_1(const char** action)
   }
 
   dst.cell_global_id = NULL;
+#if defined KPM_V2_03 || defined KPM_V3_00
   dst.meas_bin_range_info_lst_len = 0;
   dst.meas_bin_info_lst = NULL;
-
+#endif
 
   return dst;
 }
 
 static
-kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
+kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action, uint32_t period_ms)
 {
   kpm_act_def_format_4_t dst;
 
@@ -1047,40 +1063,41 @@ kpm_act_def_format_4_t gen_act_def_frmt_4(const char** action)
   dst.matching_cond_lst = static_cast<matching_condition_format_4_lst_t*>(calloc(dst.matching_cond_lst_len, sizeof(matching_condition_format_4_lst_t)));
   assert(dst.matching_cond_lst != NULL && "Memory exhausted");
 
-  // Filter connected UEs by S-NSSAI criteria
-  dst.matching_cond_lst[0].test_info_lst.test_cond_type = S_NSSAI_TEST_COND_TYPE;
-  dst.matching_cond_lst[0].test_info_lst.S_NSSAI = TRUE_TEST_COND_TYPE;
+  // Hack. Subscribe to all UEs with CQI greater than 0 to get a list of all available UEs in the RAN
+  test_info_lst_t* test_info_lst = &dst.matching_cond_lst[0].test_info_lst;
+  test_info_lst->test_cond_type = S_NSSAI_TEST_COND_TYPE;
+  test_info_lst->S_NSSAI = TRUE_TEST_COND_TYPE;
 
-  dst.matching_cond_lst[0].test_info_lst.test_cond = static_cast<test_cond_e*>(calloc(1, sizeof(test_cond_e)));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond = EQUAL_TEST_COND;
+  test_cond_e* test_cond = static_cast<test_cond_e*>(calloc(1, sizeof(test_cond_e)));
+  assert(test_cond != NULL && "Memory exhausted");
+  *test_cond = EQUAL_TEST_COND;
+  test_info_lst->test_cond = test_cond;
 
-  dst.matching_cond_lst[0].test_info_lst.test_cond_value = static_cast<test_cond_value_e*>(calloc(1, sizeof(test_cond_value_e)));
-  assert(dst.matching_cond_lst[0].test_info_lst.test_cond_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.test_cond_value =  INTEGER_TEST_COND_VALUE;
-  dst.matching_cond_lst[0].test_info_lst.int_value = static_cast<int64_t*>(malloc(sizeof(int64_t)));
-  assert(dst.matching_cond_lst[0].test_info_lst.int_value != NULL && "Memory exhausted");
-  *dst.matching_cond_lst[0].test_info_lst.int_value = 1;
-
-  printf("[xApp]: Filter UEs by S-NSSAI criteria where SST = %lu\n", *dst.matching_cond_lst[0].test_info_lst.int_value);
+  test_cond_value_t* test_cond_value = static_cast<test_cond_value_t*>(calloc(1, sizeof(test_cond_value_t)));
+  assert(test_cond_value != NULL && "Memory exhausted");
+  test_cond_value->type = INTEGER_TEST_COND_VALUE;
+  test_cond_value->int_value = static_cast<int64_t*>(malloc(sizeof(int64_t)));
+  assert(test_cond_value->int_value != NULL && "Memory exhausted");
+  *test_cond_value->int_value = 1;
+  test_info_lst->test_cond_value = test_cond_value;
 
   // Action definition Format 1
-  dst.action_def_format_1 = gen_act_def_frmt_1(action);  // 8.2.1.2.1
+  dst.action_def_format_1 = gen_act_def_frmt_1(action, period_ms);  // 8.2.1.2.1
 
   return dst;
 }
 
 static
-kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm)
+kpm_act_def_t gen_act_def(const char** act, format_action_def_e act_frm, uint32_t period_ms)
 {
   kpm_act_def_t dst;
 
   if (act_frm == FORMAT_1_ACTION_DEFINITION) {
     dst.type = FORMAT_1_ACTION_DEFINITION;
-    dst.frm_1 = gen_act_def_frmt_1(act);
+    dst.frm_1 = gen_act_def_frmt_1(act, period_ms);
   } else if (act_frm == FORMAT_4_ACTION_DEFINITION) {
     dst.type = FORMAT_4_ACTION_DEFINITION;
-    dst.frm_4 = gen_act_def_frmt_4(act);
+    dst.frm_4 = gen_act_def_frmt_4(act, period_ms);
   } else {
     assert(0!=0 && "not support action definition type");
   }
@@ -1135,7 +1152,7 @@ int report_kpm_sm(swig_global_e2_node_id_t* id, Interval inter_arg, std::vector<
 
   format_action_def_e act_type = FORMAT_4_ACTION_DEFINITION; // act_def.type
 
-  *kpm_sub.ad = gen_act_def(const_cast<const char**>(c_action), act_type);
+  *kpm_sub.ad = gen_act_def(const_cast<const char**>(c_action), act_type, period_ms);
   // TODO: need to fix, initialize kpm_sub with 0 value
 
 //  switch (id.type)

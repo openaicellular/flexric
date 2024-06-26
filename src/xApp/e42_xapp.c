@@ -128,7 +128,7 @@ void read_xapp(sm_ag_if_rd_t* data)
 
   assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 || e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
   if(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0 ){
-    e2ap->kpm.ran_func_def = fill_rnd_kpm_ran_func_def(); 
+    e2ap->kpm.ran_func_def = fill_rnd_kpm_ran_func_def();
   } else if(e2ap->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0 ){
     e2ap->rc.ran_func_def = fill_rc_ran_func_def();
   } else {
@@ -138,22 +138,23 @@ void read_xapp(sm_ag_if_rd_t* data)
 }
 */
 
+// Not needed when using E42
 static
 void read_kpm_e2setup_xapp(void* data)
 {
   assert(data != NULL);
-  kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(data);
-  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
-
+  //kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(data);
+  //kpm->ran_func_def = fill_rnd_kpm_ran_func_def();
 }
 
+// Not needed when using E42
 static
 void read_rc_e2_setup_xapp(void* data)
 {
   assert(data != NULL);
 //  assert(data->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
-  rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
-  rc->ran_func_def = fill_rc_ran_func_def();
+//  rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
+//  rc->ran_func_def = fill_rc_ran_func_def();
 }
 
 static
@@ -215,6 +216,11 @@ e42_xapp_t* init_e42_xapp(fr_args_t const* args)
     printf("[xApp]: do not initial database\n");
   }
 #endif
+
+  const pthread_mutexattr_t *attr = NULL;
+  int rc = pthread_mutex_init(&xapp->conn_mtx , attr);
+  assert(rc == 0);
+
   xapp->connected = false;
   xapp->stop_token = false;
   xapp->stopped = false;
@@ -236,8 +242,9 @@ void e2_event_loop_xapp(e42_xapp_t* xapp)
   assert(xapp != NULL);
   while (xapp->stop_token == false) {
     int fd = event_asio_xapp(&xapp->io);
-    if(fd == -1) continue; // no event happened. Just for checking the stop_token condition
-
+    if(fd == -1){ // no event happened. Just for checking the stop_token condition
+          continue;
+    }
     async_event_xapp_t const e = find_event_type(xapp,fd);
 
     assert(e.type != UNKNOWN_EVENT && "Unknown event triggered ");
@@ -303,9 +310,14 @@ void free_e42_xapp(e42_xapp_t* xapp)
   assert(xapp != NULL);
 
   xapp->stop_token = true;
+  asm volatile("": : :"memory");
+
   while(xapp->stopped == false){
     usleep(1000);
   }
+  asm volatile("": : :"memory");
+
+  e2ap_free_ep_xapp(&xapp->ep);
 
   free_reg_e2_node(&xapp->e2_nodes); 
 
@@ -326,13 +338,16 @@ void free_e42_xapp(e42_xapp_t* xapp)
   }
 #endif
 
+  int rc = pthread_mutex_destroy(&xapp->conn_mtx);
+  assert(rc == 0);
+
   free(xapp);
 }
 
-e2_node_arr_t e2_nodes_xapp(e42_xapp_t* xapp)
+e2_node_arr_xapp_t e2_nodes_xapp(e42_xapp_t* xapp)
 {
   assert(xapp != NULL);
-  e2_node_arr_t ans = generate_e2_node_arr(&xapp->e2_nodes); 
+  e2_node_arr_xapp_t ans = generate_e2_node_arr_xapp(&xapp->e2_nodes, &xapp->plugin_ric);
   return ans;
 }
 
@@ -384,7 +399,6 @@ bool valid_ran_func_id(uint16_t ran_func_id)\
   return false;
 }
 
-
 static
 ric_gen_id_t generate_ric_gen_id(e42_xapp_t* xapp, act_proc_val_e type, uint16_t ran_func_id, global_e2_node_id_t const* id, sm_cb cb)
 {
@@ -393,13 +407,12 @@ ric_gen_id_t generate_ric_gen_id(e42_xapp_t* xapp, act_proc_val_e type, uint16_t
 
   ric_gen_id_t ric_req = {.ric_inst_id = 0, .ran_func_id = ran_func_id };
   uint32_t const req_id = add_act_proc(&xapp->act_proc, type, ric_req, id, cb); 
-  printf("Generated of req_id = %d \n", req_id);
+  //printf("Generated of req_id = %d \n", req_id);
   assert(req_id < 1 << 16 && "Overflow detected");
   ric_req.ric_req_id = req_id;
 
   return ric_req;
 }
-
 
 sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t rf_id , void* data, sm_cb cb)
 {
@@ -416,10 +429,9 @@ sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uin
   cond_wait_sync_ui(&xapp->sync, xapp->sync.wait_ms);
 
   // Answer arrived
-  printf("[xApp]: Successfully SUBSCRIBED to ran function = %d \n", rf_id);
+  printf("[xApp]: Successfully subscribed to RAN_FUNC_ID %d \n", rf_id);
 
   // The RIC_SUBSCRIPTION_PROCEDURE is still active
-
   sm_ans_xapp_t ans = {0};
   ans.success = true;
   ans.u.handle = ric_id.ric_req_id;
@@ -441,7 +453,6 @@ void send_ric_subscription_delete(e42_xapp_t* xapp, ric_gen_id_t ric_id)
   xapp->handle_msg[E42_RIC_SUBSCRIPTION_DELETE_REQUEST](xapp, &msg );
 }
 
-
 void rm_report_sm_sync_xapp(e42_xapp_t* xapp, int ric_req_id)
 {
   assert(xapp != NULL);
@@ -461,12 +472,11 @@ void rm_report_sm_sync_xapp(e42_xapp_t* xapp, int ric_req_id)
   cond_wait_sync_ui(&xapp->sync,xapp->sync.wait_ms);
 
   // Answer arrived
-  printf("[xApp]: Successfully received SUBSCRIPTION-DELETE-RESPONSE \n");
+  //printf("[xApp]: Successfully received SUBSCRIPTION-DELETE-RESPONSE \n");
 
   // Remove the active procedure  
   rm_act_proc(&xapp->act_proc, ric_req_id ); 
 }
-
 
 static
 void send_control_request(e42_xapp_t* xapp, global_e2_node_id_t* id, ric_gen_id_t ric_req, void* ctrl_msg)
@@ -516,7 +526,7 @@ sm_ans_xapp_t control_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, ui
   // Remove the active procedure, control request  
   rm_act_proc(&xapp->act_proc, ric_id.ric_req_id ); 
  
-  sm_ans_xapp_t const ans = {0};
+  sm_ans_xapp_t const ans = {.success = true};
   return ans;
 }
 

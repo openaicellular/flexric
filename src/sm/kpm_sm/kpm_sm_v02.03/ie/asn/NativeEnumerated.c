@@ -41,8 +41,10 @@ asn_TYPE_operation_t asn_OP_NativeEnumerated = {
     0,
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 #if !defined(ASN_DISABLE_JER_SUPPORT)
+    NativeEnumerated_decode_jer,
     NativeEnumerated_encode_jer,
 #else
+    0,
     0,
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 #if !defined(ASN_DISABLE_OER_SUPPORT)

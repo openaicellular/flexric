@@ -395,6 +395,8 @@ void create_kpm_table(sqlite3* db) {
                              "e2node_mnc_digit_len INT,"
                              "e2node_nb_id INT,"
                              "e2node_cu_du_id TEXT,"
+                             "ue_len INT,"
+                             "ue_idx INT,"
                              "ric_ind_format INT,"
                              "ue_id_e2sm_type TEXT,"
                              "guami_plmn_id_mcc INT,"
@@ -1306,7 +1308,7 @@ void to_sql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             "%d,"    //plmn_id_mnc
                             "%d,"    //plmn_id_mnc_digit_len
                             "%d,"    //sliceID_sST
-                            "'%s',"  //sliceID_sD
+                            "%d,"  //sliceID_sD
                             "%d,"    //fiveQI
                             "%d,"    //qFI
                             "%d,"    //qCI
@@ -1398,7 +1400,7 @@ void to_sql_string_kpm_meas_info(global_e2_node_id_t const* id,
                             "%d,"    //plmn_id_mnc
                             "%d,"    //plmn_id_mnc_digit_len
                             "%d,"    //sliceID_sST
-                            "'%s',"  //sliceID_sD
+                            "%d,"  //sliceID_sD
                             "%d,"    //fiveQI
                             "%d,"    //qFI
                             "%d,"    //qCI
@@ -1635,6 +1637,8 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                                   ue_id_e2sm_t const ue_id_e2sm,
                                   format_ind_msg_e const ric_ind_frmt,
                                   ue_id_e2sm_e const ue_id_e2sm_type,
+                                  size_t const ue_len,
+                                  size_t const ue_idx,
                                   uint64_t const timestamp,
                                   char* out,
                                   size_t out_len)
@@ -1661,6 +1665,8 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             "%d,"    //mnc_digit_len
                             "%d,"    //nb_id
                             "'%s',"  //cu_du_id
+                            "%ld,"   //ue_len
+                            "%ld,"   //ue_idx
                             "%d,"    //format
                             "'%s',"  //ue_id_e2sm_type
                             "%d,"    //guami_plmn_id_mcc
@@ -1691,6 +1697,8 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_len
+                            ,ue_idx
                             ,ric_ind_frmt + 1
                             ,"GNB_UE_ID_E2SM"
                             ,gnb.guami.plmn_id.mcc
@@ -1725,6 +1733,8 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             "%d,"    //mnc_digit_len
                             "%d,"    //nb_id
                             "'%s',"  //cu_du_id
+                            "%ld,"   //ue_len
+                            "%ld,"   //ue_idx
                             "%d,"    //format
                             "'%s',"  //ue_id_e2sm_type
                             "%d,"    //guami_plmn_id_mcc
@@ -1754,7 +1764,10 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             ,id->plmn.mnc
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
-                            ,id->cu_du_id ? c_cu_du_id : c_null, ric_ind_frmt + 1
+                            ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_len
+                            ,ue_idx
+                            ,ric_ind_frmt + 1
                             ,"GNB_DU_UE_ID_E2SM"
                             ,-1
                             ,-1
@@ -1788,6 +1801,8 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             "%d,"    //mnc_digit_len
                             "%d,"    //nb_id
                             "'%s',"  //cu_du_id
+                            "%ld,"   //ue_len
+                            "%ld,"   //ue_idx
                             "%d,"    //format
                             "'%s',"  //ue_id_e2sm_type
                             "%d,"    //guami_plmn_id_mcc
@@ -1818,6 +1833,8 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_len
+                            ,ue_idx
                             ,ric_ind_frmt + 1
                             ,"GNB_CU_UP_UE_ID_E2SM"
                             ,-1
@@ -1852,6 +1869,8 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             "%d,"    //mnc_digit_len
                             "%d,"    //nb_id
                             "'%s',"  //cu_du_id
+                            "%ld,"   //ue_len
+                            "%ld,"   //ue_idx
                             "%d,"    //format
                             "'%s',"  //ue_id_e2sm_type
                             "%d,"    //guami_plmn_id_mcc
@@ -1882,6 +1901,8 @@ void to_sql_string_kpm_ue_id_e2sm(global_e2_node_id_t const* id,
                             ,id->plmn.mnc_digit_len
                             ,id->nb_id.nb_id
                             ,id->cu_du_id ? c_cu_du_id : c_null
+                            ,ue_len
+                            ,ue_idx
                             ,ric_ind_frmt + 1
                             ,"ENB_UE_ID_E2SM"
                             ,enb.gummei.plmn_id.mcc
@@ -2107,7 +2128,7 @@ void write_kpm_frm3_stats(sqlite3* db,
     ue_id_e2sm_t ue_id_e2sm = msg->meas_report_per_ue[i].ue_meas_report_lst;
     if (ue_id_e2sm.type == GNB_UE_ID_E2SM || ue_id_e2sm.type == GNB_DU_UE_ID_E2SM || ue_id_e2sm.type == GNB_CU_UP_UE_ID_E2SM || ue_id_e2sm.type == ENB_UE_ID_E2SM) {
       memset(buffer, 0, sizeof(buffer));
-      to_sql_string_kpm_ue_id_e2sm(id, ue_id_e2sm, ric_ind_frmt, ue_id_e2sm.type, timestamp, buffer, 512);
+      to_sql_string_kpm_ue_id_e2sm(id, ue_id_e2sm, ric_ind_frmt, ue_id_e2sm.type, msg->ue_meas_report_lst_len, i, timestamp, buffer, 512);
       insert_db(db, buffer);
     } else {
       printf("not supported ue_id_e2sm type\n");
@@ -2175,7 +2196,6 @@ void init_db_sqlite3(sqlite3** db, db_params_t const* db_params)
   int const rc = sqlite3_open(db_filename, db);
   assert(rc != SQLITE_CANTOPEN && "SQLITE3 cannot open the directory. Does it already exist?");
   assert(rc == SQLITE_OK && "Error while creating the DB at /tmp/db_xapp");
-
 
   // Optimizations. Write Ahead Logging
   char* err_msg = NULL;

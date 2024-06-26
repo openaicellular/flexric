@@ -1,5 +1,5 @@
-#ifndef TEST_INFORMATION_LIST_KPM_V3_H
-#define TEST_INFORMATION_LIST_KPM_V3_H
+#ifndef TEST_INFORMATION_LIST_KPM_V2_01_H
+#define TEST_INFORMATION_LIST_KPM_V2_01_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,6 +9,7 @@ extern "C" {
 #include <stdlib.h>
 
 #include "../../../../../../util/byte_array.h"
+
 
 typedef enum {
     GBR_TEST_COND_TYPE,
@@ -22,12 +23,16 @@ typedef enum {
     fiveQI_TEST_COND_TYPE,
     QCI_TEST_COND_TYPE,
     S_NSSAI_TEST_COND_TYPE,
-    END_TEST_COND_TYPE_KPM_V2
+
+    END_TEST_COND_TYPE_KPM_V2_01
+
 } test_cond_type_e;
 
 typedef enum {
     TRUE_TEST_COND_TYPE,
-    END_COND_TYPE_KPM_V2
+
+    END_COND_TYPE_KPM_V2_01
+
 } cond_type_e;
 
 typedef enum {
@@ -56,9 +61,29 @@ typedef enum {
 
 } test_cond_value_e;
 
+typedef struct{
+  test_cond_value_e type;  /* 8.3.23, OPTIONAL */
+  union {
+    int64_t * int_value;
+    int64_t * enum_value;
+    bool * bool_value;
+    byte_array_t * bit_string_value; // enc/dec of this bit_string to be created
+    byte_array_t * octet_string_value;
+    byte_array_t * printable_string_value;
+    double* real_value; 
+  };
+} test_cond_value_t;
+
+void free_test_cond_value(test_cond_value_t* src);
+
+bool eq_test_cond_value(const test_cond_value_t* m0, const test_cond_value_t* m1);
+
+test_cond_value_t cp_test_cond_value(const test_cond_value_t* src);
+
 
 // 8.3.22   Test Condition Information
 typedef struct {
+    
     test_cond_type_e test_cond_type;
     union {
         cond_type_e GBR;
@@ -73,18 +98,11 @@ typedef struct {
         cond_type_e QCI;
         cond_type_e S_NSSAI;
     };
-    
+   
+    // BUG in the standard. Mandatory ASN optional english
     test_cond_e *test_cond;  /* OPTIONAL */
-    test_cond_value_e *test_cond_value;  /* 8.3.23, OPTIONAL */
-    union {
-        int64_t * int_value;
-        int64_t * enum_value;
-        bool * bool_value;
-        byte_array_t * bit_string_value; // enc/dec of this bit_string to be created
-        byte_array_t * octet_string_value;
-        byte_array_t * printable_string_value;
-        double * real_value_value;
-    };
+
+    test_cond_value_t *test_cond_value;  /* 8.3.23, OPTIONAL */
 
 } test_info_lst_t;
 

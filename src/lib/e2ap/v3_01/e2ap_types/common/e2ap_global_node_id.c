@@ -45,8 +45,9 @@ bool eq_global_e2_node_id(const global_e2_node_id_t* m0, const global_e2_node_id
 
   // This is an abuse but the standard does not define how to
   // differentiate between ngran_gNB_CU and ngran_gNB
+  // We interpret that a CU and CUCP are gnb + e2ap_node_component_config_add_t;
   if (E2AP_NODE_IS_CU(m0->type) || E2AP_NODE_IS_CUUP(m0->type) || E2AP_NODE_IS_DU(m0->type)) {
-    assert(m0->cu_du_id != NULL && m1->cu_du_id != NULL );
+    assert(m0->cu_du_id != NULL && m1->cu_du_id != NULL ); 
     if(*m0->cu_du_id != *m1->cu_du_id)
       return false;
   }
@@ -76,6 +77,12 @@ void free_global_e2_node_id(global_e2_node_id_t* src)
 {
   if (src->cu_du_id != NULL)
     free (src->cu_du_id);
+}
+
+void free_global_e2_node_id_wrapper(void* src)
+{
+  assert(src != NULL);
+  free_global_e2_node_id(src);
 }
 
 bool eq_global_e2_node_id_wrapper(const void* m0_v, const void* m1_v)

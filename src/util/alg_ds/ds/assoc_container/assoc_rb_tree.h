@@ -63,6 +63,8 @@ void assoc_rb_tree_init(assoc_rb_tree_t* tree, size_t key_sz, int (*comp)(const 
 
 void assoc_rb_tree_free(assoc_rb_tree_t* tree);
 
+void assoc_rb_tree_free_it(assoc_rb_tree_t* tree, void* it);
+
 // Modifiers
 // The tree is responsible for freeing the void* key and value memory later
 void assoc_rb_tree_insert(assoc_rb_tree_t* tree, void const* key, size_t key_sz, void* value);

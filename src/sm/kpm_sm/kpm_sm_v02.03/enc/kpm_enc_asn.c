@@ -51,13 +51,15 @@ byte_array_t encode(void* pdu, e2sm_kpm_e e)
 
   // XXX-tuning: 
   // below bytearray sizing needs to be reviewed and made dynamic. It looks too small for the general case of action definition.
-  byte_array_t ba = {.buf = malloc(2048), .len = 2048}; 
+  byte_array_t ba = {.buf = malloc(16*1024), .len = 16*1024};
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
   asn_enc_rval_t er = {0};
   if(e == E2SM_KPM_EVENT_TRIGGER_DEFINITION_ENUM)
     er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_EventTriggerDefinition, pdu, ba.buf, ba.len);
-  else if(e == E2SM_KPM_ACTION_DEFINITION_ENUM)
+  else if(e == E2SM_KPM_ACTION_DEFINITION_ENUM){
     er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_ActionDefinition, pdu, ba.buf, ba.len);
+    //xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
+  }
   else if(e == E2SM_KPM_INDICATION_HEADER_ENUM)
     er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_IndicationHeader, pdu, ba.buf, ba.len);
   else if(e == E2SM_KPM_INDICATION_MESSAGE_ENUM)
@@ -78,8 +80,8 @@ byte_array_t encode(void* pdu, e2sm_kpm_e e)
 /* Encoding Event Trigger IE
  * Direction of the message: RIC --> E2 Node
  */
-byte_array_t kpm_enc_event_trigger_asn(kpm_event_trigger_def_t const* event_trigger) 
-{
+byte_array_t kpm_enc_event_trigger_asn(kpm_event_trigger_def_t const* event_trigger) {
+
   assert(event_trigger != NULL);
 
   E2SM_KPM_EventTriggerDefinition_t *pdu = calloc(1, sizeof(E2SM_KPM_EventTriggerDefinition_t));
@@ -88,14 +90,14 @@ byte_array_t kpm_enc_event_trigger_asn(kpm_event_trigger_def_t const* event_trig
 
   switch (event_trigger->type)
   {
-    case FORMAT_1_RIC_EVENT_TRIGGER:{
-                                      pdu->eventDefinition_formats.present = E2SM_KPM_EventTriggerDefinition__eventDefinition_formats_PR_eventDefinition_Format1;
-                                      pdu->eventDefinition_formats.choice.eventDefinition_Format1 = kpm_enc_event_trigger_def_frm_1_asn(&event_trigger->kpm_ric_event_trigger_format_1);
-                                      break;
-                                    }
-    default:{
-              assert("Non valid KPM RIC Event Trigger Format");
-            }
+  case FORMAT_1_RIC_EVENT_TRIGGER:{
+    pdu->eventDefinition_formats.present = E2SM_KPM_EventTriggerDefinition__eventDefinition_formats_PR_eventDefinition_Format1;
+    pdu->eventDefinition_formats.choice.eventDefinition_Format1 = kpm_enc_event_trigger_def_frm_1_asn(&event_trigger->kpm_ric_event_trigger_format_1);
+    break;
+                                  }
+  default:{
+    assert("Non valid KPM RIC Event Trigger Format");
+          }
   }
   
   byte_array_t ba = encode(pdu, E2SM_KPM_EVENT_TRIGGER_DEFINITION_ENUM);
@@ -113,8 +115,6 @@ byte_array_t kpm_enc_action_def_asn(kpm_act_def_t const* action_def)
   assert(action_def != NULL);
 
   E2SM_KPM_ActionDefinition_t pdu = {0};
-  //calloc(1, sizeof(E2SM_KPM_ActionDefinition_t));
-  //assert (pdu != NULL && "Memory exhausted");
 
   pdu.ric_Style_Type = (long)action_def->type + 1;
  
@@ -161,18 +161,6 @@ byte_array_t kpm_enc_action_def_asn(kpm_act_def_t const* action_def)
 
   byte_array_t const ba = encode(&pdu, E2SM_KPM_ACTION_DEFINITION_ENUM);
 
-  /*
-  //xer_fprint(stderr, &asn_DEF_E2SM_KPM_ActionDefinition, pdu);
-  //fflush(stdout);
-
-  // FIXME Create one function for encoding common to all the methods.
-  byte_array_t ba = {.buf = malloc(2048), .len = 2048}; 
-  const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
-  asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_ActionDefinition, pdu, ba.buf, ba.len);
-  assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
-  ba.len = er.encoded;
-*/
- 
   ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2SM_KPM_ActionDefinition, &pdu);
 
   return ba;
@@ -305,19 +293,14 @@ byte_array_t kpm_enc_func_def_asn(kpm_ran_function_def_t const* func_def)
   {
     pdu.ranFunction_Name.ranFunction_Instance = calloc(1, sizeof(*pdu.ranFunction_Name.ranFunction_Instance));
     assert(pdu.ranFunction_Name.ranFunction_Instance != NULL && "Memory exhausted");
-    pdu.ranFunction_Name.ranFunction_Instance = func_def->name.instance;
+    *pdu.ranFunction_Name.ranFunction_Instance = *func_def->name.instance;
   }
-  else
-  {
-    pdu.ranFunction_Name.ranFunction_Instance = NULL;
-  }
-  
+
 
 
   //  RIC Event Trigger Style Item
-  if (func_def->ric_event_trigger_style_list != NULL || func_def->sz_ric_event_trigger_style_list != 0)
-  {
-    assert(func_def->sz_ric_event_trigger_style_list >= 1 && func_def->sz_ric_event_trigger_style_list <= maxnoofRICStyles);
+  if (func_def->ric_event_trigger_style_list != NULL) {
+    assert(func_def->sz_ric_event_trigger_style_list <= maxnoofRICStyles);
 
     pdu.ric_EventTriggerStyle_List = calloc(func_def->sz_ric_event_trigger_style_list, sizeof(*pdu.ric_EventTriggerStyle_List));
     assert(pdu.ric_EventTriggerStyle_List != NULL && "Memory exhausted");
@@ -355,13 +338,14 @@ byte_array_t kpm_enc_func_def_asn(kpm_ran_function_def_t const* func_def)
   }
 
   // RIC Report Style Item
-  if (func_def->ric_report_style_list != NULL || func_def->sz_ric_report_style_list != 0)
+  if (func_def->ric_report_style_list != NULL)
   {
-    assert(func_def->sz_ric_report_style_list >= 1 && func_def->sz_ric_report_style_list <= maxnoofRICStyles);
+    assert(func_def->sz_ric_report_style_list <= maxnoofRICStyles);
 
+    if(func_def->sz_ric_report_style_list > 0){
     pdu.ric_ReportStyle_List = calloc(func_def->sz_ric_report_style_list, sizeof(*pdu.ric_ReportStyle_List));
     assert(pdu.ric_ReportStyle_List != NULL && "Memory exhausted");
-
+    }
     for (size_t i = 0; i<func_def->sz_ric_report_style_list; i++)
     {
       RIC_ReportStyle_Item_t * report_item = calloc(1, sizeof(RIC_ReportStyle_Item_t));
@@ -446,11 +430,10 @@ byte_array_t kpm_enc_func_def_asn(kpm_ran_function_def_t const* func_def)
         assert(ret == 0);
 
         // Measurement Type ID
-        if (func_def->ric_report_style_list[i].meas_info_for_action_lst[j].id != NULL)
-        {
+        if (func_def->ric_report_style_list[i].meas_info_for_action_lst[j].id != NULL) {
           meas_item->measID = calloc(1, sizeof(MeasurementTypeID_t));
           assert(meas_item->measID != NULL && "Memory exhausted");
-          memcpy(meas_item->measID, func_def->ric_report_style_list[i].meas_info_for_action_lst[j].id, 2);
+          *meas_item->measID = *func_def->ric_report_style_list[i].meas_info_for_action_lst[j].id;
         }
 
         // Bin Range Definition

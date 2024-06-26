@@ -58,6 +58,8 @@
 static inline
 byte_array_t copy_ostring_to_ba(OCTET_STRING_t src)
 {
+  assert(src.size > 0 && src.buf != NULL);
+
   byte_array_t dst = { .len = src.size};
   dst.buf = malloc(src.size);
   memcpy(dst.buf, src.buf, src.size);
@@ -67,6 +69,8 @@ byte_array_t copy_ostring_to_ba(OCTET_STRING_t src)
 static inline
 byte_array_t copy_bs_to_ba(BIT_STRING_t src)
 {
+  assert(src.size > 0 && src.buf != NULL);
+
   byte_array_t dst = { .len = src.size};
   dst.buf = malloc(src.size);
   memcpy(dst.buf, src.buf, src.size);
@@ -77,15 +81,16 @@ byte_array_t copy_bs_to_ba(BIT_STRING_t src)
 static inline
 ran_function_t copy_ran_function(const RANfunction_Item_t* src)
 {
-  ran_function_t dst;
-  memset(&dst, 0, sizeof(ran_function_t));
+  ran_function_t dst = {0};
   dst.id = src->ranFunctionID;
   dst.rev = src->ranFunctionRevision;
-  dst.def = copy_ostring_to_ba(src->ranFunctionDefinition);
+  dst.defn = copy_ostring_to_ba(src->ranFunctionDefinition);
   if(src->ranFunctionOID != NULL){
     dst.oid = calloc(1, sizeof(byte_array_t));
+    assert(dst.oid != NULL && "Memory exhausted");
     *dst.oid = copy_ostring_to_ba(*src->ranFunctionOID);
   }
+
   return dst;
 }
 
@@ -192,8 +197,7 @@ e2_node_component_config_update_t copy_e2_node_component_conf_update(const E2nod
 static inline
 cause_t copy_cause(Cause_t src)
 {
-  cause_t dst;
-  memset(&dst, 0, sizeof(cause_t));
+  cause_t dst = {0};
   switch(src.present) {
     case Cause_PR_NOTHING: {
                              assert(0 != 0 && "Not Implemented!");
@@ -260,7 +264,6 @@ e2ap_msg_t e2ap_dec_subscription_request(const E2AP_PDU_t* pdu)
   assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICsubscriptionRequest);
 
   ric_subscription_request_t* sr = &ret.u_msgs.ric_sub_req;
-
 
   const RICsubscriptionRequest_t* out = &pdu->choice.initiatingMessage->value.choice.RICsubscriptionRequest;
 
@@ -370,7 +373,7 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
   E42RICsubscriptionRequest_IEs_t* node_src = out->protocolIEs.list.array[1];
 
   global_e2_node_id_t* id = &e42_sr->id;
-  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+  // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
   assert(node_src->id == ProtocolIE_ID_id_GlobalE2node_ID);
   assert(node_src->criticality == Criticality_reject);
   assert(node_src->value.present == E42RICsubscriptionRequest_IEs__value_PR_GlobalE2node_ID);
@@ -381,14 +384,10 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
     assert(e2gnb->global_gNB_ID.gnb_id.present == GNB_ID_Choice_PR_gnb_ID);
     PLMNID_TO_MCC_MNC(&e2gnb->global_gNB_ID.plmn_id, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
-    //BIT_STRING_TO_MACRO_GNB_ID(&e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID, id->nb_id);
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      // This is an abuse but the standard does not define how to
-      // differentiate between ngran_gNB_CU and ngran_gNB
-      // id->type = e2ap_ngran_gNB_CUUP;
-      id->type = e2ap_ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CUUP;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id  != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
@@ -406,7 +405,7 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     GlobalE2node_eNB_ID_t *e2enb = node_src->value.choice.GlobalE2node_ID.choice.eNB;
     assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
     PLMNID_TO_MCC_MNC(&e2enb->global_eNB_ID.pLMN_Identity, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
-    // ToDo: unused bits
+    // ToDo: consider unused bits
     BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, id->nb_id.nb_id);
   }
 
@@ -465,7 +464,7 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     if(src->ricActionDefinition != NULL){
       dst->definition = calloc(1, sizeof(byte_array_t));
       *dst->definition = copy_ostring_to_ba(*src->ricActionDefinition);
-    }
+    } 
     // RIC Subsequent Action. Optional
     if(src->ricSubsequentAction != NULL){
       dst->subseq_action = calloc(1, sizeof(ric_subsequent_action_t));
@@ -515,6 +514,7 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
   sr->ric_id.ran_func_id = ran_func->value.choice.RANfunctionID;
 
   // RIC Action Admitted List
+  // [1-16]
   const RICsubscriptionResponse_IEs_t* act_adm_list = out->protocolIEs.list.array[2];
 
   assert(act_adm_list->id == ProtocolIE_ID_id_RICactions_Admitted);
@@ -530,7 +530,8 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
     const RICaction_Admitted_ItemIEs_t *ai = (const RICaction_Admitted_ItemIEs_t *)act_adm_list->value.choice.RICaction_Admitted_List.list.array[i];
 
     assert(ai->id == ProtocolIE_ID_id_RICaction_Admitted_Item);
-    assert(ai->criticality == Criticality_reject);
+    // Check ASN definition to see the ignore
+    // assert(ai->criticality == Criticality_ignore);
     assert(ai->value.present == RICaction_Admitted_ItemIEs__value_PR_RICaction_Admitted_Item);
 
     ric_action_admitted_t* dst = &sr->admitted[i];
@@ -555,7 +556,7 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
     assert(nai->id == ProtocolIE_ID_id_RICaction_NotAdmitted_Item);
     assert(nai->criticality == Criticality_reject);
     assert(nai->value.present == RICaction_NotAdmitted_ItemIEs__value_PR_RICaction_NotAdmitted_Item);
-    ric_action_not_admitted_t* dst = &sr->not_admitted[i];
+    ric_action_not_admitted_t* dst = &sr->not_admitted[i];  
     const RICaction_NotAdmitted_Item_t* src = &nai->value.choice.RICaction_NotAdmitted_Item;
     dst->ric_act_id = src->ricActionID;
     // Cause. Mandatory
@@ -601,7 +602,6 @@ e2ap_msg_t e2ap_dec_subscription_response(const E2AP_PDU_t* pdu)
                }
     }
   }
-
   return ret;
 }
 
@@ -655,7 +655,7 @@ e2ap_msg_t e2ap_dec_subscription_failure(const E2AP_PDU_t* pdu)
     dst->cause = copy_cause(src->cause);
   }
 
- // Criticality Diagnosis. Optional
+  // Criticality Diagnosis. Optional
   if(out->protocolIEs.list.count > 3){
     const RICsubscriptionFailure_IEs_t* crit_diag = out->protocolIEs.list.array[3];
     assert(crit_diag->id == ProtocolIE_ID_id_CriticalityDiagnostics);
@@ -796,8 +796,8 @@ e2ap_msg_t e2ap_dec_indication(const E2AP_PDU_t* pdu)
 
   assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
   assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_RICindication);
-  assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
-  assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICindication);
+  //assert(pdu->choice.initiatingMessage->criticality == Criticality_ignore);
+  //assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICindication);
 
   const RICindication_t* out = &pdu->choice.initiatingMessage->value.choice.RICindication;
 
@@ -843,7 +843,8 @@ e2ap_msg_t e2ap_dec_indication(const E2AP_PDU_t* pdu)
       //RIC indication SN. Optional
       assert(ric_ind->criticality == Criticality_reject);
       assert(ric_ind->value.present == RICindication_IEs__value_PR_RICindicationSN);
-      ind->sn =  malloc(sizeof(uint16_t));
+      assert(ind->sn == NULL);
+      ind->sn = malloc(sizeof(uint16_t));
       assert(ric_ind->value.choice.RICindicationSN < MAX_RIC_INDICATION_SN );
       *ind->sn = ric_ind->value.choice.RICindicationSN;
     } else if (id == ProtocolIE_ID_id_RICindicationType){
@@ -857,16 +858,19 @@ e2ap_msg_t e2ap_dec_indication(const E2AP_PDU_t* pdu)
       assert(ric_ind->id == ProtocolIE_ID_id_RICindicationHeader);
       assert(ric_ind->criticality == Criticality_reject);
       assert(ric_ind->value.present == RICindication_IEs__value_PR_RICindicationHeader);
+      assert(ind->hdr.len == 0 && ind->hdr.buf == NULL);
       ind->hdr = copy_ostring_to_ba(ric_ind->value.choice.RICindicationHeader);
     } else if (id == ProtocolIE_ID_id_RICindicationMessage){
       // RIC indication message. Mandatory
       assert(ric_ind->criticality == Criticality_reject);
       assert(ric_ind->value.present == RICindication_IEs__value_PR_RICindicationMessage);
+      assert(ind->msg.len == 0 && ind->msg.buf == NULL);
       ind->msg = copy_ostring_to_ba(ric_ind->value.choice.RICindicationMessage);
     } else { // if (id == ProtocolIE_ID_id_RICcallProcessID)
       // RIC call process id. Optional
       assert(ric_ind->criticality == Criticality_reject);
       assert(ric_ind->value.present == RICindication_IEs__value_PR_RICcallProcessID);
+      assert(ind->call_process_id == NULL);
       ind->call_process_id = malloc(sizeof(byte_array_t));
       *ind->call_process_id = copy_ostring_to_ba(ric_ind->value.choice.RICcallProcessID);
     }
@@ -931,6 +935,7 @@ e2ap_msg_t e2ap_dec_control_request(const E2AP_PDU_t* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == RICcontrolRequest_IEs__value_PR_RICcallProcessID);
+      assert(ctrl->call_process_id == NULL);
       ctrl->call_process_id = malloc(sizeof(*ctrl->call_process_id));
       assert(ctrl->call_process_id);
       *ctrl->call_process_id = copy_ostring_to_ba(ric_ctrl->value.choice.RICcallProcessID);
@@ -940,6 +945,7 @@ e2ap_msg_t e2ap_dec_control_request(const E2AP_PDU_t* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == RICcontrolRequest_IEs__value_PR_RICcontrolHeader);
+      assert(ctrl->hdr.len == 0 && ctrl->hdr.buf == NULL);
       ctrl->hdr = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolHeader);
     } else if (id == ProtocolIE_ID_id_RICcontrolMessage) {
       // RIC Control Message. Mandatory
@@ -947,6 +953,7 @@ e2ap_msg_t e2ap_dec_control_request(const E2AP_PDU_t* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == RICcontrolRequest_IEs__value_PR_RICcontrolMessage);
+      assert(ctrl->msg.len == 0 && ctrl->msg.buf == NULL);
       ctrl->msg = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolMessage);
     } else { // if (id == ProtocolIE_ID_id_RICcontrolAckRequest)
       // RIC Control Ack Request. Optional
@@ -954,6 +961,7 @@ e2ap_msg_t e2ap_dec_control_request(const E2AP_PDU_t* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == RICcontrolRequest_IEs__value_PR_RICcontrolAckRequest);
+      assert(ctrl->ack_req == NULL);
       ctrl->ack_req = malloc(sizeof(*ctrl->ack_req));
       assert(ctrl->ack_req);
       assert(ric_ctrl->value.choice.RICcontrolAckRequest < 3);
@@ -998,7 +1006,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
   E42RICcontrolRequest_IEs_t* node_src = out->protocolIEs.list.array[1];
 
   global_e2_node_id_t* id = &e42_ctrl->id;
-  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+  // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
   assert(node_src->id == ProtocolIE_ID_id_GlobalE2node_ID);
   assert(node_src->criticality == Criticality_reject);
   assert(node_src->value.present == E42RICcontrolRequest_IEs__value_PR_GlobalE2node_ID);
@@ -1013,10 +1021,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     id->nb_id= cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      // This is an abuse but the standard does not define how to
-      // differentiate between ngran_gNB_CU and ngran_gNB
-      // id->type = e2ap_ngran_gNB_CUUP;
-      id->type = e2ap_ngran_gNB_CU;
+      id->type = e2ap_ngran_gNB_CUUP;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
@@ -1034,7 +1039,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     GlobalE2node_eNB_ID_t *e2enb = node_src->value.choice.GlobalE2node_ID.choice.eNB;
     assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
     PLMNID_TO_MCC_MNC(&e2enb->global_eNB_ID.pLMN_Identity, id->plmn.mcc, id->plmn.mnc, id->plmn.mnc_digit_len);
-    // ToDo: unused bits
+    // ToDo: consider the unused bits
     BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, id->nb_id.nb_id);
   }
 
@@ -1075,8 +1080,9 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcallProcessID);
+      assert(ctrl->call_process_id == NULL);
       ctrl->call_process_id = malloc(sizeof(*ctrl->call_process_id));
-      assert(ctrl->call_process_id);
+      assert(ctrl->call_process_id != NULL && "Memory exhausted");
       *ctrl->call_process_id = copy_ostring_to_ba(ric_ctrl->value.choice.RICcallProcessID);
     } else if (id == ProtocolIE_ID_id_RICcontrolHeader) {
       // RIC Control Header. Mandatory
@@ -1084,6 +1090,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolHeader);
+      assert(ctrl->hdr.len == 0 && ctrl->hdr.buf == NULL);
       ctrl->hdr = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolHeader);
     } else if (id == ProtocolIE_ID_id_RICcontrolMessage) {
       // RIC Control Message. Mandatory
@@ -1091,6 +1098,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolMessage);
+      assert(ctrl->msg.len == 0 && ctrl->msg.buf == NULL);
       ctrl->msg = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolMessage);
     } else { // if (id == ProtocolIE_ID_id_RICcontrolAckRequest)
       // RIC Control Ack Request. Optional
@@ -1098,6 +1106,7 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
       // interoperatibility for the moment
       //assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == E42RICcontrolRequest_IEs__value_PR_RICcontrolAckRequest);
+      assert(ctrl->ack_req == NULL);
       ctrl->ack_req = malloc(sizeof(*ctrl->ack_req));
       assert(ctrl->ack_req);
       assert(ric_ctrl->value.choice.RICcontrolAckRequest < 3);
@@ -1164,7 +1173,9 @@ e2ap_msg_t e2ap_dec_control_ack(const E2AP_PDU_t* pdu)
     } else { // id == ProtocolIE_ID_id_RICcontrolOutcome
       assert(ric_ctrl->criticality == Criticality_reject);
       assert(ric_ctrl->value.present == RICcontrolAcknowledge_IEs__value_PR_RICcontrolOutcome);
+      assert(ctrl->control_outcome == NULL);
       ctrl->control_outcome = malloc(sizeof(byte_array_t));
+      assert(ctrl->control_outcome != NULL && "Memory exhausted");
       *ctrl->control_outcome = copy_ostring_to_ba(ric_ctrl->value.choice.RICcontrolOutcome);
     }
     elm +=1;
@@ -1219,15 +1230,17 @@ e2ap_msg_t e2ap_dec_control_failure(const E2AP_PDU_t* pdu)
       *cf->call_process_id = copy_ostring_to_ba(cf_ie->value.choice.RICcallProcessID);
     } else if (cf_ie->id == ProtocolIE_ID_id_Cause){
       //Cause. Mandatory
-      assert(cf_ie->criticality == Criticality_reject);
+      assert(cf_ie->criticality == Criticality_ignore);
       assert(cf_ie->value.present == RICcontrolFailure_IEs__value_PR_Cause);
       cf->cause = copy_cause(cf_ie->value.choice.Cause);
-    } else { //if (cf_ie->id ==  ProtocolIE_ID_id_RICcontrolOutcome)
+    } else if (cf_ie->id ==  ProtocolIE_ID_id_RICcontrolOutcome){
       //RIC Control Outcome. Optional
       assert(cf_ie->criticality == Criticality_reject);
       assert(cf_ie->value.present == RICcontrolFailure_IEs__value_PR_RICcontrolOutcome);
       cf->control_outcome = calloc(1, sizeof(byte_array_t));
       *cf->control_outcome = copy_ostring_to_ba(cf_ie->value.choice.RICcontrolOutcome);
+    } else { // if cf_ie->id ==   ProtocolIE_ID_id_CriticalityDiagnostics)
+      assert(0 !=0 && "Not implemented");
     }
     elm += 1;
   }
@@ -1291,7 +1304,6 @@ e2ap_msg_t e2ap_dec_error_indication(const E2AP_PDU_t* pdu)
   return ret;
 }
 
-
 // E2 -> RIC
 e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
 {
@@ -1309,7 +1321,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
 
   E2setupRequestIEs_t* setup_rid = out->protocolIEs.list.array[0];
 
-  // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+  // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
   assert(setup_rid->id == ProtocolIE_ID_id_GlobalE2node_ID);
   assert(setup_rid->criticality == Criticality_reject);
   assert(setup_rid->value.present == E2setupRequestIEs__value_PR_GlobalE2node_ID);
@@ -1324,10 +1336,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     sr->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-      // This is an abuse but the standard does not define how to
-      // differentiate between ngran_gNB_CU and ngran_gNB
-      // sr->id.type = e2ap_ngran_gNB_CUUP;
-      sr->id.type = e2ap_ngran_gNB_CU;
+      sr->id.type = e2ap_ngran_gNB_CUUP;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
       asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, sr->id.cu_du_id);
@@ -1345,7 +1354,7 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
     GlobalE2node_eNB_ID_t *e2enb = setup_rid->value.choice.GlobalE2node_ID.choice.eNB;
     assert(e2enb->global_eNB_ID.eNB_ID.present == ENB_ID_PR_macro_eNB_ID);
     PLMNID_TO_MCC_MNC(&e2enb->global_eNB_ID.pLMN_Identity, sr->id.plmn.mcc, sr->id.plmn.mnc, sr->id.plmn.mnc_digit_len);
-    // ToDo: Consider unused bits
+    // ToDo: Take care of unused bits
     BIT_STRING_TO_MACRO_ENB_ID(&e2enb->global_eNB_ID.eNB_ID.choice.macro_eNB_ID, sr->id.nb_id.nb_id);
   }
 
@@ -1364,8 +1373,10 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
 
       assert(ran_list->value.choice.RANfunctions_List.list.count < MAX_NUM_RAN_FUNC_ID);
       sr->len_rf = ran_list->value.choice.RANfunctions_List.list.count;
-
+      assert(sr->ran_func_item == NULL);
       sr->ran_func_item = calloc(sr->len_rf, sizeof(ran_function_t));
+      assert(sr->ran_func_item != NULL && "Memory exhausted");
+
       RANfunction_ItemIEs_t** arr = (RANfunction_ItemIEs_t**)ran_list->value.choice.RANfunctions_List.list.array;
       for(size_t i =0; i < sr->len_rf; ++i){
         ran_function_t* dst = &sr->ran_func_item[i];
@@ -1377,12 +1388,14 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
         assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
         dst->rev = src->ranFunctionRevision;
 
-        dst->def = copy_ostring_to_ba(src->ranFunctionDefinition);
+        dst->defn = copy_ostring_to_ba(src->ranFunctionDefinition);
 
         if(src->ranFunctionOID != NULL){
-          dst->oid = malloc(sizeof(byte_array_t));
+          dst->oid = calloc(1, sizeof(byte_array_t));
+          assert(dst->oid != NULL && "Memory exhausted");
           *dst->oid = copy_ostring_to_ba(*src->ranFunctionOID);
         }
+
       }
     } else { //if(proto_id == ProtocolIE_ID_id_E2nodeComponentConfigUpdate)
       const E2setupRequestIEs_t* comp_update = out->protocolIEs.list.array[elm_id];
@@ -1552,7 +1565,7 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
 
       assert(ran_func->value.choice.RANfunctionsID_List.list.count < MAX_NUM_RAN_FUNC_ID);
       sr->len_acc = ran_func->value.choice.RANfunctionsID_List.list.count;
-
+      assert(sr->accepted == NULL);
       sr->accepted = calloc(sr->len_acc, sizeof(accepted_ran_function_t));
       const RANfunctionID_ItemIEs_t** arr = (const RANfunctionID_ItemIEs_t**)ran_func->value.choice.RANfunctionsID_List.list.array;
       for(size_t i =0; i < sr->len_acc; ++i){
@@ -1571,7 +1584,10 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
       assert(ran_rej->value.present == E2setupResponseIEs__value_PR_RANfunctionsIDcause_List);
 
       sr->len_rej = ran_rej->value.choice.RANfunctionsID_List.list.count;
-      sr->rejected = calloc( sr->len_rej, sizeof(rejected_ran_function_t));
+      assert(sr->rejected == NULL);
+      sr->rejected = calloc(sr->len_rej, sizeof(rejected_ran_function_t));
+      assert(sr->rejected != NULL && "Memory exhausted");
+
       RANfunctionIDcause_ItemIEs_t** arr = (RANfunctionIDcause_ItemIEs_t**)ran_rej->value.choice.RANfunctionsID_List.list.array;
       for(size_t i =0; i < sr->len_rej; ++i){
         assert(arr[i]->id == ProtocolIE_ID_id_RANfunctionID_Item);
@@ -1629,19 +1645,19 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
     } else { // ProtocolIE_ID_id_E2nodeComponentConfigUpdateAck
 
       const E2setupResponseIEs_t* comp_conf = out->protocolIEs.list.array[elm_id];
-      assert(comp_conf->id == ProtocolIE_ID_id_E2nodeComponentConfigUpdateAck);
-      assert(comp_conf->criticality == Criticality_reject);
-      assert(comp_conf->value.present == E2setupResponseIEs__value_PR_E2nodeComponentConfigUpdateAck_List);
+      assert(comp_conf->id == ProtocolIE_ID_id_E2nodeComponentConfigUpdateAck); 
+      assert(comp_conf->criticality == Criticality_reject); 
+      assert(comp_conf->value.present == E2setupResponseIEs__value_PR_E2nodeComponentConfigUpdateAck_List); 
 
-      sr->len_ccual = comp_conf->value.choice.E2nodeComponentConfigUpdateAck_List.list.count;
+      sr->len_ccual = comp_conf->value.choice.E2nodeComponentConfigUpdateAck_List.list.count; 
       sr->comp_conf_update_ack_list = calloc(sr->len_ccual, sizeof(e2_node_component_config_update_t));
-      E2nodeComponentConfigUpdateAck_ItemIEs_t** arr = (E2nodeComponentConfigUpdateAck_ItemIEs_t**)comp_conf->value.choice.E2nodeComponentConfigUpdateAck_List.list.array;
+      E2nodeComponentConfigUpdateAck_ItemIEs_t** arr = (E2nodeComponentConfigUpdateAck_ItemIEs_t**)comp_conf->value.choice.E2nodeComponentConfigUpdateAck_List.list.array; 
       for (size_t i = 0; i < sr->len_ccual; ++i) {
         assert(0!=0 && "Not implemented!");
 
-        assert(arr[i]->id == ProtocolIE_ID_id_RANfunctionID_Item);
+        assert(arr[i]->id == ProtocolIE_ID_id_RANfunctionID_Item); 
         assert(arr[i]->criticality == Criticality_ignore);
-        assert(arr[i]->value.present == E2nodeComponentConfigUpdateAck_ItemIEs__value_PR_E2nodeComponentConfigUpdateAck_Item);
+        assert(arr[i]->value.present == E2nodeComponentConfigUpdateAck_ItemIEs__value_PR_E2nodeComponentConfigUpdateAck_Item); 
 
       }
       elm_id -=1;
@@ -1678,7 +1694,8 @@ e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
 
   // Cause. Mandatory
   const E2setupFailureIEs_t* cause = out->protocolIEs.list.array[0];
-  assert(cause->id  == ProtocolIE_ID_id_E2connectionSetupFailed);
+
+  assert(cause->id  == ProtocolIE_ID_id_Cause	); //  ProtocolIE_ID_id_E2connectionSetupFailed);
   assert(cause->criticality == Criticality_ignore);
   assert(cause->value.present == E2setupFailureIEs__value_PR_Cause);
   sf->cause = copy_cause(cause->value.choice.Cause);
@@ -1694,20 +1711,24 @@ e2ap_msg_t e2ap_dec_setup_failure(const E2AP_PDU_t* pdu)
 
     if(src->value.present == E2setupFailureIEs__value_PR_TimeToWait){
       //Time To Wait. Optional
-      assert(src->id == ProtocolIE_ID_id_TimeToWait);
+      assert(src->id == ProtocolIE_ID_id_TimeToWait); 
       assert(src->criticality == Criticality_ignore);
+      assert(sf->time_to_wait_ms == NULL);
       sf->time_to_wait_ms = calloc(1,sizeof(uint32_t));
+      assert(sf->time_to_wait_ms != NULL && "Memory exhausted");
       *sf->time_to_wait_ms = src->value.choice.TimeToWait;
     } else if (src->value.present == E2setupFailureIEs__value_PR_CriticalityDiagnostics){
       //Criticality Diagnostics. Optional
-      assert(src->id == ProtocolIE_ID_id_CriticalityDiagnostics);
+      assert(src->id == ProtocolIE_ID_id_CriticalityDiagnostics); 
       assert(src->criticality == Criticality_ignore);
       assert(0!=0 && "Not implemented");
-    } else { //if (src->value.present ==  E2setupFailureIEs__value_PR_TNLinformation)
+    } else { //if (src->value.present ==  E2setupFailureIEs__value_PR_TNLinformation) 
       //Transport Layer Information. Optional
-      assert(src->id == ProtocolIE_ID_id_TNLinformation);
+      assert(src->id == ProtocolIE_ID_id_TNLinformation); 
       assert(src->criticality == Criticality_ignore);
+      assert(sf->tl_info == NULL);
       sf->tl_info = calloc(1, sizeof(transport_layer_information_t));
+      assert(sf->tl_info != NULL && "Memory exhausted");
       sf->tl_info->address = copy_bs_to_ba(src->value.choice.TNLinformation.tnlAddress);
       if(src->value.choice.TNLinformation.tnlPort != NULL){
         sf->tl_info->port = calloc(1, sizeof(byte_array_t));
@@ -1821,7 +1842,7 @@ e2ap_msg_t e2ap_dec_service_update(const E2AP_PDU_t* pdu)
   assert(ran_del->criticality == Criticality_reject);
   assert(ran_del->value.present == RICserviceUpdate_IEs__value_PR_RANfunctionsID_List);
   const int sz_del = ran_del->value.choice.RANfunctions_List.list.count;
-  su->deleted  = calloc(sz_del, sizeof(ran_function_t));
+  su->deleted  = calloc(sz_del, sizeof(e2ap_ran_function_id_rev_t));
   su->len_deleted = sz_del;
   for(int i = 0; i < sz_del; ++i){
     const RANfunction_ItemIEs_t* r = (const RANfunction_ItemIEs_t*)ran_del->value.choice.RANfunctions_List.list.array[i];
@@ -1906,7 +1927,7 @@ e2ap_msg_t e2ap_dec_service_update_ack(const E2AP_PDU_t* pdu)
   assert(pdu->present == E2AP_PDU_PR_unsuccessfulOutcome);
   assert(pdu->choice.unsuccessfulOutcome->procedureCode == ProcedureCode_id_RICserviceUpdate);
   assert(pdu->choice.unsuccessfulOutcome->criticality == Criticality_reject);
-  assert(pdu->choice.unsuccessfulOutcome->value.present == UnsuccessfulOutcome__value_PR_RICserviceUpdateFailure);
+  assert(pdu->choice.unsuccessfulOutcome->value.present == UnsuccessfulOutcome__value_PR_RICserviceUpdateFailure); 
 
   const RICserviceUpdateFailure_t* out = &pdu->choice.unsuccessfulOutcome->value.choice.RICserviceUpdateFailure;
 
@@ -1958,17 +1979,17 @@ e2ap_msg_t e2ap_dec_service_query(const E2AP_PDU_t* pdu)
   ric_service_query_t* sq = &ret.u_msgs.ric_serv_query;
   // Message Type. Mandatory
   assert(pdu->present == E2AP_PDU_PR_initiatingMessage);
-  assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_RICserviceQuery);
+  assert(pdu->choice.initiatingMessage->procedureCode == ProcedureCode_id_RICserviceQuery); 
   assert(pdu->choice.initiatingMessage->criticality == Criticality_reject);
-  assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICserviceQuery);
+  assert(pdu->choice.initiatingMessage->value.present == InitiatingMessage__value_PR_RICserviceQuery); 
 
-  const RICserviceQuery_t* out = &pdu->choice.initiatingMessage->value.choice.RICserviceQuery;
+  const RICserviceQuery_t* out = &pdu->choice.initiatingMessage->value.choice.RICserviceQuery; 
 
   // List of RAN Functions Accepted. Mandatory
   const RICserviceQuery_IEs_t* serv_query_ie = out->protocolIEs.list.array[0];
-  assert(serv_query_ie->id == ProtocolIE_ID_id_RANfunctionsAccepted);
+  assert(serv_query_ie->id == ProtocolIE_ID_id_RANfunctionsAccepted); 
   assert(serv_query_ie->criticality == Criticality_ignore);
-  assert(serv_query_ie->value.present == RICserviceQuery_IEs__value_PR_RANfunctionsID_List);
+  assert(serv_query_ie->value.present == RICserviceQuery_IEs__value_PR_RANfunctionsID_List); 
 
   const int sz = serv_query_ie->value.choice.RANfunctionsID_List.list.count;
   sq->accepted = calloc(sz, sizeof(e2ap_ran_function_id_rev_t));
@@ -2108,10 +2129,10 @@ e2ap_msg_t e2ap_dec_e42_setup_request(const struct E2AP_PDU* pdu)
     assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
     dst->rev = src->ranFunctionRevision;
 
-    dst->def = copy_ostring_to_ba(src->ranFunctionDefinition);
-
+    dst->defn = copy_ostring_to_ba(src->ranFunctionDefinition);
     if(src->ranFunctionOID != NULL){
-      dst->oid = malloc(sizeof(byte_array_t));
+      dst->oid = calloc(1, sizeof(byte_array_t));
+      assert(dst->oid != NULL && "Memory exhausted");
       *dst->oid = copy_ostring_to_ba(*src->ranFunctionOID);
     }
   }
@@ -2164,7 +2185,7 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
     E2nodeConnected_ItemIEs_t const* src = conn_list->value.choice.E2nodeConnected_List.protocolIEs.list.array[0];
 
     e2_node_connected_t* dst = &sr->nodes[i];
-    // Only e2ap_ngran_gNB, e2ap_ngran_gNB_CUUP, e2ap_ngran_gNB_DU and e2ap_ngran_eNB supported
+    // Only ngran_gNB, ngran_gNB_CU, ngran_gNB_DU and ngran_eNB supported
     assert(src->id == ProtocolIE_ID_id_GlobalE2node_ID);
     assert(src->criticality == Criticality_reject);
     assert(src->value.present == E2nodeConnected_ItemIEs__value_PR_GlobalE2node_ID);
@@ -2179,10 +2200,7 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
       if (e2gnb->gNB_CU_UP_ID) {
-        // This is an abuse but the standard does not define how to
-        // differentiate between ngran_gNB_CU and ngran_gNB
-        // dst->id.type = e2ap_ngran_gNB_CUUP;
-        dst->id.type = e2ap_ngran_gNB_CU;
+        dst->id.type = e2ap_ngran_gNB_CUUP;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
         asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
@@ -2228,10 +2246,11 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
       dst_ie->rev = src->ranFunctionRevision;
 
-      dst_ie->def = copy_ostring_to_ba(src->ranFunctionDefinition);
+      dst_ie->defn = copy_ostring_to_ba(src->ranFunctionDefinition);
 
       if(src->ranFunctionOID != NULL){
-        dst_ie->oid = malloc(sizeof(byte_array_t));
+        dst_ie->oid = calloc(1, sizeof(byte_array_t));
+        assert(dst_ie->oid != NULL && "Memory exhausted");
         *dst_ie->oid = copy_ostring_to_ba(*src->ranFunctionOID);
       }
     }
@@ -2387,10 +2406,11 @@ e2ap_msg_t e2ap_dec_e42_update_e2_node(const struct E2AP_PDU* pdu)
       assert(src->ranFunctionRevision > -1 && src->ranFunctionRevision <= MAX_RAN_FUNC_REV);
       dst_ie->rev = src->ranFunctionRevision;
 
-      dst_ie->def = copy_ostring_to_ba(src->ranFunctionDefinition);
+      dst_ie->defn = copy_ostring_to_ba(src->ranFunctionDefinition);
 
       if(src->ranFunctionOID != NULL){
-        dst_ie->oid = malloc(sizeof(byte_array_t));
+        dst_ie->oid = calloc(1, sizeof(byte_array_t));
+        assert(dst_ie->oid != NULL && "Memory exhausted");
         *dst_ie->oid = copy_ostring_to_ba(*src->ranFunctionOID);
       }
     }
@@ -2539,6 +2559,10 @@ E2AP_PDU_t* e2ap_create_pdu(const uint8_t* buffer, int buffer_len)
   //printf("rval.code = %d\n", rval.code);
   //fprintf(stdout, "length of data %ld\n", rval.consumed);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGEND_BASIC_PER syntax?");
+
+  //xer_fprint_e2ap_v1_01(stdout, &asn_DEF_E2AP_PDU, pdu);
+  //fflush(stdout);
+
   return pdu;
 }
 
@@ -2551,7 +2575,7 @@ e2ap_msg_t e2ap_msg_dec_asn(e2ap_asn_t* asn, byte_array_t ba)
   //printf("Decoding message type = %d \n", msg_type);
   assert(asn->dec_msg[msg_type] != NULL);
   e2ap_msg_t msg = asn->dec_msg[msg_type](pdu);
-//  xer_fprint(stdout, &asn_DEF_E2AP_PDU, pdu);
+//  xer_fprint_e2ap_v1_01(stdout, &asn_DEF_E2AP_PDU, pdu);
 //  fflush(stdout);
   ASN_STRUCT_FREE(asn_DEF_E2AP_PDU,pdu);
   return msg; 

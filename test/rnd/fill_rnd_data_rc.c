@@ -21,6 +21,7 @@
 
 #include "fill_rnd_data_rc.h"
 
+#include "../../src/sm/rc_sm/rc_sm_id.h"
 #include "../../src/sm/rc_sm/ie/ir/ran_param_struct.h"
 #include "../../src/sm/rc_sm/ie/ir/ran_param_list.h"
 
@@ -181,7 +182,7 @@ e2sm_rc_ev_trg_frmt_2_t fill_rnd_rc_event_trigger_frmt_2(void)
   //  Mandatory
   //  9.3.15
   //  INTEGER (1.. 65535, …)
-  dst.call_proc_type_id = rand();
+  dst.call_proc_type_id = (rand()% 65535) + 1;
 
   // Call Breakpoint ID
   // Mandatory
@@ -364,12 +365,35 @@ static
 lst_ran_param_t fill_rnd_lst_ran_param(void)
 {
   lst_ran_param_t dst = {0};
+  // Bug in the standard. RAN Parameter List 9.3.13
+  // has a mandatory ie RAN Parameter ID 9.3.8
+  // and a mandatory ie RAN Parameter Structure 9.3.12
+  // However, the ASN
+  // RANParameter-LIST ::= SEQUENCE {
+  // list-of-ranParameter  SEQUENCE (SIZE(1..maxnoofItemsinList)) OF RANParameter-STRUCTURE,
+  // ..
+  // }
+  //
+  // Misses RAN Parameter ID and only has RAN Parameter Structure
 
   // RAN Parameter ID
   // Mandatory
   // 9.3.8
   //1.. 4294967295
-  dst.ran_param_id = rand() + 1;
+  // Let's ignore the english written standard and believe the ASN.1 is the correct
+  //  uint32_t ran_param_id;
+
+  // RAN Parameter Structure
+  // Mandatory
+  // 9.3.12
+  //ran_param_struct_t ran_param_struct;
+
+
+  // RAN Parameter ID
+  // Mandatory
+  // 9.3.8
+  //1.. 4294967295
+  //dst.ran_param_id = (rand() % 4096) + 1;
 
   // RAN Parameter Structure
   // Mandatory
@@ -655,12 +679,79 @@ param_report_def_t fill_rnd_param_report_def(void)
   // Mandatory
   // 9.3.8
   // [1 - 4294967295]
-  dst.ran_param_id = rand() + 1; 
+  dst.ran_param_id = (rand() %  4294967295) + 1;
 
   // RAN Parameter Definition
   // Optional
   // 9.3.51
-  dst.ran_param_def = NULL; 
+  dst.ran_param_def = calloc(1, sizeof(ran_param_def_t));
+  assert(dst.ran_param_def != NULL && "Memory exhausyted");
+
+  dst.ran_param_def->type = rand()%END_RAN_PARAMETER_DEF_TYPE;
+
+  switch (dst.ran_param_def->type)
+  {
+  case LIST_RAN_PARAMETER_DEF_TYPE:
+    dst.ran_param_def->lst = calloc(1, sizeof(ran_param_type_t));
+    assert(dst.ran_param_def->lst != NULL && "Memory exhausyted");
+
+    dst.ran_param_def->lst->sz_ran_param = 10; // (rand()% 65535) + 1;
+    dst.ran_param_def->lst->ran_param = calloc(dst.ran_param_def->lst->sz_ran_param, sizeof(ran_param_lst_struct_t));
+    assert(dst.ran_param_def->lst->ran_param != NULL && "Memory exhausyted");
+
+    for (size_t i = 0; i < dst.ran_param_def->lst->sz_ran_param; i++)
+    {
+      // RAN Parameter ID
+      // Mandatory
+      // 9.3.8
+      dst.ran_param_def->lst->ran_param[i].ran_param_id = rand() + 1;
+
+      // RAN Parameter Name
+      // Mandatory
+      // 9.3.9
+      const char name[] = "RAN Parameter Name";
+      dst.ran_param_def->lst->ran_param[i].ran_param_name = cp_str_to_ba(name);
+
+      // RAN Parameter Definition
+      // Optional
+      // 9.3.51
+      dst.ran_param_def->lst->ran_param[i].ran_param_def = NULL;
+    }
+
+    break;
+
+  case STRUCTURE_RAN_PARAMETER_DEF_TYPE:
+    dst.ran_param_def->strct = calloc(1, sizeof(ran_param_type_t));
+    assert(dst.ran_param_def->strct != NULL && "Memory exhausyted");
+
+    dst.ran_param_def->strct->sz_ran_param = 10; // (rand()% 65535) + 1;
+    dst.ran_param_def->strct->ran_param = calloc(dst.ran_param_def->strct->sz_ran_param, sizeof(ran_param_lst_struct_t));
+    assert(dst.ran_param_def->strct->ran_param != NULL && "Memory exhausyted");
+
+    for (size_t i = 0; i < dst.ran_param_def->strct->sz_ran_param; i++)
+    {
+      // RAN Parameter ID
+      // Mandatory
+      // 9.3.8
+      dst.ran_param_def->strct->ran_param[i].ran_param_id = (rand() % 4294967295) + 1;
+
+      // RAN Parameter Name
+      // Mandatory
+      // 9.3.9
+      const char name[] = "RAN Parameter Name";
+      dst.ran_param_def->strct->ran_param[i].ran_param_name = cp_str_to_ba(name);
+
+      // RAN Parameter Definition
+      // Optional
+      // 9.3.51
+      dst.ran_param_def->strct->ran_param[i].ran_param_def = NULL;
+    }
+
+    break;
+
+  default:
+    assert(false && "Unknown RAN Parameter Type");
+  }
 
   return dst;
 }
@@ -685,7 +776,7 @@ e2sm_rc_act_def_frmt_1_t fill_rnd_rc_action_def_frmt_1(void)
   return dst;
 }
 
-static
+static _Atomic
 int recursion_fill_rnd_ran_param_val_type = 0;
 
 static
@@ -693,7 +784,7 @@ ran_param_val_type_t fill_rnd_ran_param_val_type()
 {
   ran_param_val_type_t dst = {0}; 
 
-  dst.type =  STRUCTURE_RAN_PARAMETER_VAL_TYPE; //rand() % END_RAN_PARAMETER_VAL_TYPE;
+  dst.type = rand() % END_RAN_PARAMETER_VAL_TYPE; //  STRUCTURE_RAN_PARAMETER_VAL_TYPE; //
 
   recursion_fill_rnd_ran_param_val_type += 1; 
   if(recursion_fill_rnd_ran_param_val_type > 4){
@@ -733,7 +824,7 @@ seq_ran_param_t fill_rnd_seq_ran_param(void)
   //Mandatory
   //9.3.8
   // [1 - 4294967295]
-  dst.ran_param_id = (rand()% 4098) +1 ;
+  dst.ran_param_id = (rand()% 4096) +1 ;
 
   // RAN Parameter Value Type
   // 9.3.11
@@ -868,7 +959,7 @@ ran_param_ins_ind_t fill_rnd_ran_param_ins_ind(void)
   // Mandatory
   // 9.3.8
   // [1.. 429496729 ]
-  dst.ran_param_id = rand() + 1; 
+  dst.ran_param_id = (rand() %  4294967295) + 1;
 
   // RAN Parameter Definition
   // Optional
@@ -990,7 +1081,6 @@ e2sm_rc_action_def_t fill_rnd_rc_action_def(void)
   return dst;
 }
 
-static
 e2sm_rc_ind_hdr_frmt_1_t fill_rnd_rc_ind_hdr_frmt_1(void)
 {
   e2sm_rc_ind_hdr_frmt_1_t dst = {0};
@@ -1559,7 +1649,6 @@ seq_ue_id_t fill_rnd_seq_ue_id(void)
   return dst;
 }
 
-static
 e2sm_rc_ind_msg_frmt_2_t fill_rnd_ind_msg_frmt_2(void)
 {
   e2sm_rc_ind_msg_frmt_2_t dst = {0}; 
@@ -1758,7 +1847,7 @@ ran_param_req_t fill_rnd_ran_param_req(void)
   // Mandatory
   // 9.3.8
   // 1 4294967295,
-  dst.ran_param_id = rand() + 1;
+  dst.ran_param_id = (rand() %  4294967295) + 1;
 
   // RAN Parameter Value Type
   // Mandatory
@@ -1848,7 +1937,7 @@ e2sm_rc_ind_msg_t fill_rnd_rc_ind_msg(void)
   
   dst.format = rand()% END_E2SM_RC_IND_MSG;
 
-  if( dst.format == FORMAT_1_E2SM_RC_IND_MSG){
+  if(dst.format == FORMAT_1_E2SM_RC_IND_MSG){
     dst.frmt_1 = fill_rnd_ind_msg_frmt_1();
   } else if(dst.format == FORMAT_2_E2SM_RC_IND_MSG){
     dst.frmt_2 = fill_rnd_ind_msg_frmt_2();
@@ -1889,7 +1978,7 @@ e2sm_rc_cpid_t fill_rnd_rc_cpid(void)
   // Mandatory
   // 9.3.18
   // [ 1 - 4294967295]
-  dst.ric_cpid = rand() + 1; 
+  dst.ric_cpid = (rand()% 4294967295) + 1;
 
   return dst;
 }
@@ -2296,8 +2385,9 @@ ran_function_name_t fill_rc_ran_func_name(void)
     //enterprise(1) 53148 e2(1)
     // version1 (1) e2sm(2) e2sm-RC-
     // IEs (3)
-    const char oid[] = "1.3.6.1.4.1.53148.1.1.2.3"; 
-    dst.oid = cp_str_to_ba(oid);
+    dst.oid.buf = calloc(strlen(SM_RAN_CTRL_OID) + 1, sizeof(uint8_t));
+    memcpy(dst.oid.buf, SM_RAN_CTRL_OID, strlen(SM_RAN_CTRL_OID));
+    dst.oid.len = strlen(SM_RAN_CTRL_OID);
 
     // RAN Function Description
     // Mandatory
@@ -2311,8 +2401,9 @@ ran_function_name_t fill_rc_ran_func_name(void)
     //- Execution of policies that may result in change of
     //RAN control behavior 
 
-    const char description[] = "RAN Control"; 
-    dst.description = cp_str_to_ba(description);
+    dst.description.buf = calloc(strlen(SM_RAN_CTRL_DESCRIPTION) + 1, sizeof(uint8_t));
+    memcpy(dst.description.buf, SM_RAN_CTRL_DESCRIPTION, strlen(SM_RAN_CTRL_DESCRIPTION));
+    dst.description.len = strlen(SM_RAN_CTRL_DESCRIPTION);
 
     // RAN Function Instance
     // Optional

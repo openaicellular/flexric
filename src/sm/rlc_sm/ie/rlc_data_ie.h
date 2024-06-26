@@ -31,6 +31,7 @@ extern "C" {
  */
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 //////////////////////////////////////
@@ -99,6 +100,7 @@ typedef struct {
   uint32_t txpdu_status_bytes; /* aggregated amount of tx status bytes  (only applicable to RLC AM) */
   uint32_t txbuf_occ_bytes;    /* (IMPLEMENTED) transmitting bytes currently in buffer */
   uint32_t txbuf_occ_pkts;     /* TODO: current tx buffer occupancy in terms of number of packets (average: NOT IMPLEMENTED) */
+
   /* txbuf_wd_ms: the time window for which the txbuf  occupancy value is obtained - NOT IMPLEMENTED */
 
   /* RX */
@@ -118,6 +120,7 @@ typedef struct {
   uint32_t rxbuf_occ_bytes;    /* (IMPLEMENTED) received bytes currently in buffer */
   uint32_t rxbuf_occ_pkts;     /* TODO: current rx buffer occupancy in terms of number of packets (average: NOT IMPLEMENTED) */
 
+
   /* SDU stats */
   /* TX */
   uint32_t txsdu_pkts;         /* number of SDUs delivered */
@@ -130,6 +133,7 @@ typedef struct {
    */
   double txsdu_avg_time_to_tx; /* (100ms-windowed) per-packet sojourn (SDU to PDU) in microseconds */
   uint32_t txsdu_wt_us;        /* HOL delay of the current radio bearer, in microseconds */
+
 
   /* RX */
   uint32_t rxsdu_pkts;         /* number of SDUs received */
@@ -234,14 +238,15 @@ bool eq_rlc_ctrl_out(rlc_ctrl_out_t* m0, rlc_ctrl_out_t* m1);
 /////////////////////////////////////
 
 typedef struct {
-  uint32_t dummy;
+  uint8_t* buf;
+  size_t len;
 } rlc_func_def_t;
 
 void free_rlc_func_def( rlc_func_def_t* src); 
 
-rlc_func_def_t cp_rlc_func_def(rlc_func_def_t* src);
+rlc_func_def_t cp_rlc_func_def(rlc_func_def_t const* src);
 
-bool eq_rlc_func_def(rlc_func_def_t* m0, rlc_func_def_t* m1);
+bool eq_rlc_func_def(rlc_func_def_t const* m0, rlc_func_def_t const* m1);
 
 /////////////////////////////////////////////////
 //////////////////////////////////////////////////

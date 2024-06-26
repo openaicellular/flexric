@@ -79,76 +79,76 @@ test_info_lst_t kpm_dec_test_info_asn(const TestCondInfo_t * test_info_asn)
         break;
     }
 
-  if (test_info_asn->testExpr != NULL) {
-    test_info.test_cond = calloc(1, sizeof(test_cond_e));
-    assert(test_info.test_cond != NULL && "Memory exhausted");
+    // Optional from KPM V2.02 onwards. Mandatory before
+    if(test_info_asn->testExpr != NULL){
+      test_info.test_cond = calloc(1, sizeof(test_cond_e));
+      assert(test_info.test_cond != NULL && "Memory exhausted");
 
-    if(*test_info_asn->testExpr == TestCond_Expression_equal){
-      *test_info.test_cond = EQUAL_TEST_COND;
-    } else if(*test_info_asn->testExpr == TestCond_Expression_greaterthan){
-      *test_info.test_cond = GREATERTHAN_TEST_COND;
-    } else if(*test_info_asn->testExpr == TestCond_Expression_lessthan){
-      *test_info.test_cond = LESSTHAN_TEST_COND;
-    } else if(*test_info_asn->testExpr == TestCond_Expression_contains){
-      *test_info.test_cond = CONTAINS_TEST_COND;
-    } else if(*test_info_asn->testExpr ==TestCond_Expression_present){
-      *test_info.test_cond = PRESENT_TEST_COND;
-    } else {
-      assert(0 != 0 && "Unknown test condition enum type");
+      if(*test_info_asn->testExpr == TestCond_Expression_equal){
+        *test_info.test_cond = EQUAL_TEST_COND;
+      } else if(*test_info_asn->testExpr == TestCond_Expression_greaterthan){
+        *test_info.test_cond = GREATERTHAN_TEST_COND;
+      } else if(*test_info_asn->testExpr == TestCond_Expression_lessthan){
+        *test_info.test_cond = LESSTHAN_TEST_COND;
+      } else if(*test_info_asn->testExpr == TestCond_Expression_contains){
+        *test_info.test_cond = CONTAINS_TEST_COND;
+      } else if(*test_info_asn->testExpr ==TestCond_Expression_present){
+        *test_info.test_cond = PRESENT_TEST_COND;
+      } else {
+        assert(0 != 0 && "Unknown test condition enum type");
+      }
     }
-  }
 
-  if (test_info_asn->testValue != NULL) {
-
-    test_info.test_cond_value = calloc(1, sizeof(test_cond_value_e));
+    // Optional from KPM V2.02 onwards. Mandatory before
+    if (test_info_asn->testValue != NULL){
+    test_info.test_cond_value = calloc(1, sizeof(test_cond_value_t));
     assert(test_info.test_cond_value != NULL && "Memory exhausted");
 
     if(test_info_asn->testValue->present == TestCond_Value_PR_valueInt){
-      *test_info.test_cond_value = INTEGER_TEST_COND_VALUE;
-      test_info.int_value = calloc(1, sizeof(int64_t));
-      assert(test_info.int_value != NULL && "Memory exhausted");
-      *test_info.int_value = test_info_asn->testValue->choice.valueInt; 
+      test_info.test_cond_value->type = INTEGER_TEST_COND_VALUE;
+      test_info.test_cond_value->int_value = calloc(1, sizeof(int64_t));
+      assert(test_info.test_cond_value->int_value != NULL && "Memory exhausted");
+      *test_info.test_cond_value->int_value = test_info_asn->testValue->choice.valueInt; 
+
     } else if(test_info_asn->testValue->present == TestCond_Value_PR_valueEnum ){
-      *test_info.test_cond_value = ENUMERATED_TEST_COND_VALUE;
-      test_info.enum_value = calloc(1, sizeof(int64_t));
-      assert(test_info.enum_value != NULL && "Memory exhausted");
-      *test_info.enum_value = test_info_asn->testValue->choice.valueEnum; 
+      test_info.test_cond_value->type = ENUMERATED_TEST_COND_VALUE;
+      test_info.test_cond_value->enum_value = calloc(1, sizeof(int64_t));
+      assert(test_info.test_cond_value->enum_value != NULL && "Memory exhausted");
+      *test_info.test_cond_value->enum_value = test_info_asn->testValue->choice.valueEnum; 
 
     } else if(test_info_asn->testValue->present ==  TestCond_Value_PR_valueBool){
-      *test_info.test_cond_value = BOOLEAN_TEST_COND_VALUE;
-      test_info.bool_value = calloc(1, sizeof(bool));
-      assert(test_info.bool_value != NULL && "Memory exhausted");
-      *test_info.bool_value = test_info_asn->testValue->choice.valueBool; 
+      test_info.test_cond_value->type = BOOLEAN_TEST_COND_VALUE;
+      test_info.test_cond_value->bool_value = calloc(1, sizeof(bool));
+      assert(test_info.test_cond_value->bool_value != NULL && "Memory exhausted");
+      *test_info.test_cond_value->bool_value = test_info_asn->testValue->choice.valueBool; 
 
-    } else if(test_info_asn->testValue->present ==  TestCond_Value_PR_valueBitS ){
-      *test_info.test_cond_value = BIT_STRING_TEST_COND_VALUE;
+    } else if(test_info_asn->testValue->present == TestCond_Value_PR_valueBitS ){
+      test_info.test_cond_value->type = BIT_STRING_TEST_COND_VALUE;
       assert(0 != 0 && "Not implemented");
       //test_info.= calloc(1, sizeof());
       //assert(test_info.!= NULL && "Memory exhausted");
       //*test_info.= test_info_asn->testValue->choice.; 
     } else if(test_info_asn->testValue->present ==  TestCond_Value_PR_valueOctS){
-      *test_info.test_cond_value = OCTET_STRING_TEST_COND_VALUE;
-      test_info.octet_string_value = calloc(1, sizeof(byte_array_t));
-      assert(test_info.octet_string_value != NULL && "Memory exhausted");
-      *test_info.octet_string_value = copy_ostring_to_ba(test_info_asn->testValue->choice.valueOctS); 
+      test_info.test_cond_value->type = OCTET_STRING_TEST_COND_VALUE;
+      test_info.test_cond_value->octet_string_value = calloc(1, sizeof(byte_array_t));
+      assert(test_info.test_cond_value->octet_string_value != NULL && "Memory exhausted");
+      *test_info.test_cond_value->octet_string_value = copy_ostring_to_ba(test_info_asn->testValue->choice.valueOctS); 
 
     } else if(test_info_asn->testValue->present == TestCond_Value_PR_valuePrtS){
-      *test_info.test_cond_value = PRINTABLE_STRING_TEST_COND_VALUE;
-      test_info.printable_string_value = calloc(1, sizeof(byte_array_t));
-      assert(test_info.printable_string_value != NULL && "Memory exhausted");
-      *test_info.printable_string_value =  copy_ostring_to_ba(test_info_asn->testValue->choice.valuePrtS); 
-
-    } else if(test_info_asn->testValue->present ==  TestCond_Value_PR_valueReal){
-      *test_info.test_cond_value = REAL_TEST_COND_VALUE;
-      test_info.real_value_value = calloc(1, sizeof(double));
-      assert(test_info.real_value_value != NULL && "Memory exhausted");
-      *test_info.real_value_value = test_info_asn->testValue->choice.valueReal; 
+      test_info.test_cond_value->type = PRINTABLE_STRING_TEST_COND_VALUE;
+      test_info.test_cond_value->printable_string_value = calloc(1, sizeof(byte_array_t));
+      assert(test_info.test_cond_value->printable_string_value != NULL && "Memory exhausted");
+      *test_info.test_cond_value->printable_string_value = copy_ostring_to_ba(test_info_asn->testValue->choice.valuePrtS); 
+  } else if(test_info_asn->testValue->present == TestCond_Value_PR_valueReal){
+      test_info.test_cond_value->type = REAL_TEST_COND_VALUE;
+      test_info.test_cond_value->real_value = calloc(1, sizeof(double));
+      assert(test_info.test_cond_value->real_value != NULL && "Memory exhausted");
+      *test_info.test_cond_value->real_value = test_info_asn->testValue->choice.valueReal; 
 
     } else {
       assert(0!=0 && "Unknown type");
     } 
-
-  }
+    }
 
   return test_info;
 }

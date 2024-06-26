@@ -26,7 +26,7 @@ if(SM_ENCODING_PDCP STREQUAL "PLAIN")
 
   # Shared
   add_library(pdcp_sm SHARED ${SM_ENCODING_PDCP_SRC_PLAIN} )
-  target_compile_options(pdcp_sm PRIVATE -fvisibility=hidden)
+  target_compile_options(pdcp_sm PRIVATE -fPIC -fvisibility=hidden)
 
   # Static
   add_library(pdcp_sm_static STATIC ${SM_ENCODING_PDCP_SRC_PLAIN} )

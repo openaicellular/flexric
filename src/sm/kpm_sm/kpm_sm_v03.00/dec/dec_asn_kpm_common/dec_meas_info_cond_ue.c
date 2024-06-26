@@ -28,7 +28,7 @@ meas_info_cond_ue_lst_t* kpm_dec_meas_info_cond_ue_asn(const MeasurementCondUEid
         {
         case MeasurementType_PR_measName:
             meas_cond_ue[i].meas_type.type = NAME_MEAS_TYPE;
-            meas_cond_ue[i].meas_type.name.buf = calloc(meas_cond_ue_asn.list.array[i]->measType.choice.measName.size + 1, sizeof(char));
+            meas_cond_ue[i].meas_type.name.buf = calloc(meas_cond_ue_asn.list.array[i]->measType.choice.measName.size + 1, sizeof(uint8_t));
             assert(meas_cond_ue[i].meas_type.name.buf != NULL && "Memory exhausted");
             memcpy(meas_cond_ue[i].meas_type.name.buf, meas_cond_ue_asn.list.array[i]->measType.choice.measName.buf, meas_cond_ue_asn.list.array[i]->measType.choice.measName.size);
             meas_cond_ue[i].meas_type.name.len = meas_cond_ue_asn.list.array[i]->measType.choice.measName.size;

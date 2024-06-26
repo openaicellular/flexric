@@ -27,6 +27,7 @@
 #include <stdbool.h>
 
 typedef struct {
+  uint8_t trans_id;
   e2_node_component_config_update_t* comp_conf_update_list;
   size_t len_ccul;
 } e2_node_configuration_update_t;

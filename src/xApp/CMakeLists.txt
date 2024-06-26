@@ -1,5 +1,5 @@
 add_subdirectory(db)
-if (XAPP_PYTHON_SWIG OR XAPP_GO_SWIG)
+if(XAPP_MULTILANGUAGE)
   add_subdirectory(swig)
 endif()
 
@@ -11,16 +11,14 @@ else()
   message(FATAL_ERROR "Unknown type")
 endif()
 
-if(KPM_VERSION STREQUAL "KPM_V2")
-    set(KPM_VERSION_SRC
-            ../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie.c
-            )
-elseif(KPM_VERSION STREQUAL "KPM_V3")
-    set(KPM_VERSION_SRC
-            ../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.c
-            )
+if(KPM_VERSION STREQUAL "KPM_V2_01")
+  set(KPM_VERSION_SRC ../sm/kpm_sm/kpm_sm_v02.01/ie/kpm_data_ie.c)
+elseif(KPM_VERSION STREQUAL "KPM_V2_03")
+  set(KPM_VERSION_SRC ../sm/kpm_sm/kpm_sm_v02.03/ie/kpm_data_ie.c)
+elseif(KPM_VERSION STREQUAL "KPM_V3_00")
+  set(KPM_VERSION_SRC ../sm/kpm_sm/kpm_sm_v03.00/ie/kpm_data_ie.c)
 else()
-    message(FATAL_ERROR "Unknown KPM version")
+  message(FATAL_ERROR "Unknown KPM version")
 endif()
 
 if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
@@ -38,6 +36,12 @@ if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
             sync_ui.c
             act_proc.c
             msg_dispatcher_xapp.c
+
+            e2_node_arr_xapp.c
+            e2_node_connected_xapp.c
+            sm_ran_function.c
+            sm_ran_function_def.c
+
             ../sm/agent_if/read/sm_ag_if_rd.c
 
             $<TARGET_OBJECTS:e2_conv_obj>
@@ -54,10 +58,12 @@ if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
             $<TARGET_OBJECTS:pending_events_obj>
             $<TARGET_OBJECTS:e42_xapp_db_obj>
 
+            $<TARGET_OBJECTS:sm_common_ie_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+
             # KPM SM
             ${KPM_VERSION_SRC}
             ../../test/rnd/fill_rnd_data_kpm.c
-            #$<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
             $<TARGET_OBJECTS:kpm_ric_info_common_obj>
             $<TARGET_OBJECTS:kpm_ric_info_obj>
 
@@ -65,16 +71,6 @@ if(NOT (XAPP_DB STREQUAL "NONE_XAPP"))
             ../sm/rc_sm/ie/rc_data_ie.c
             ../../test/rnd/fill_rnd_data_rc.c
             $<TARGET_OBJECTS:e2sm_rc_ir_obj>
-            $<TARGET_OBJECTS:e2sm_common_ie_obj>
-            $<TARGET_OBJECTS:3gpp_common_ie_obj>
-            $<TARGET_OBJECTS:sm_common_ie_obj>
-            $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-            $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-            $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
-            $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-            $<TARGET_OBJECTS:sm_common_enc_asn_obj>
-            $<TARGET_OBJECTS:sm_common_ie_obj>
-
 
             ../util/e2ap_ngran_type.c
             ../sm/mac_sm/ie/mac_data_ie.c
@@ -99,7 +95,13 @@ else()
             sync_ui.c
             act_proc.c
             msg_dispatcher_xapp.c
+            e2_node_arr_xapp.c
+            e2_node_connected_xapp.c
+            sm_ran_function.c
+            sm_ran_function_def.c
+
             ../sm/agent_if/read/sm_ag_if_rd.c
+
             $<TARGET_OBJECTS:e2_conv_obj>
             $<TARGET_OBJECTS:e2ap_ep_obj>
             $<TARGET_OBJECTS:e2ap_ap_obj>
@@ -113,10 +115,12 @@ else()
             $<TARGET_OBJECTS:e2ap_types_obj>
             $<TARGET_OBJECTS:pending_events_obj>
 
+            $<TARGET_OBJECTS:sm_common_ie_obj>
+            $<TARGET_OBJECTS:3gpp_derived_ie_obj>
+
             # KPM SM
             ${KPM_VERSION_SRC}
             ../../test/rnd/fill_rnd_data_kpm.c
-            #$<TARGET_OBJECTS:e2sm_kpm_asn1_obj>
             $<TARGET_OBJECTS:kpm_ric_info_common_obj>
             $<TARGET_OBJECTS:kpm_ric_info_obj>
 
@@ -124,16 +128,6 @@ else()
             ../sm/rc_sm/ie/rc_data_ie.c
             ../../test/rnd/fill_rnd_data_rc.c
             $<TARGET_OBJECTS:e2sm_rc_ir_obj>
-            $<TARGET_OBJECTS:e2sm_common_ie_obj>
-            $<TARGET_OBJECTS:3gpp_common_ie_obj>
-            $<TARGET_OBJECTS:sm_common_ie_obj>
-            $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-            $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-            $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
-            $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-            $<TARGET_OBJECTS:sm_common_enc_asn_obj>
-            $<TARGET_OBJECTS:sm_common_ie_obj>
-
 
             ../util/e2ap_ngran_type.c
             ../sm/mac_sm/ie/mac_data_ie.c
@@ -185,7 +179,7 @@ elseif(E2AP_ENCODING STREQUAL "FLATBUFFERS" )
 
 endif()
 
-target_compile_definitions(e42_xapp PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB}  ${KPM_VERSION})
+target_compile_definitions(e42_xapp PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB} ${KPM_VERSION})
 target_compile_definitions(e42_xapp_shared PUBLIC ${E2AP_ENCODING} ${E2AP_VERSION} ${XAPP_DB}  ${KPM_VERSION})
 
 

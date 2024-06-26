@@ -39,12 +39,13 @@ if(SM_ENCODING_KPM STREQUAL "ASN")
     $<TARGET_OBJECTS:kpm_dec_ie_asn_obj>
     $<TARGET_OBJECTS:kpm_enc_common_asn_obj>
     $<TARGET_OBJECTS:kpm_enc_ie_asn_obj>
+    $<TARGET_OBJECTS:3gpp_common_ie_obj_kpm>
     $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-    $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-    $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
+    $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj_kpm>
+    $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj_kpm>
     $<TARGET_OBJECTS:sm_common_ie_obj>
-    $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-    $<TARGET_OBJECTS:sm_common_enc_asn_obj>
+    $<TARGET_OBJECTS:sm_common_dec_asn_obj_kpm>
+    $<TARGET_OBJECTS:sm_common_enc_asn_obj_kpm>
     )
 
   # Shared library

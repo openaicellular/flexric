@@ -26,6 +26,7 @@
 #include "common/e2ap_global_node_id.h"
 #include "common/e2ap_ran_function.h"
 
+
 #include <stdbool.h>
 
 typedef struct{

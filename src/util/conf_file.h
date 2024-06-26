@@ -13,12 +13,18 @@ typedef struct {
 } sub_cust_sm_t;
 
 typedef struct {
+// TODO: add enum for type name and id
+    char* name;
+    int32_t id;
+} act_name_id_t;
+
+typedef struct {
     char* name;
     int32_t time;
     int32_t format;
     char* ran_type;
     int32_t act_len;
-    char** actions;
+    act_name_id_t* actions;
 } sub_oran_sm_t;
 
 typedef struct{
@@ -34,6 +40,7 @@ typedef struct {
     char* ip;
     int32_t port;
     int32_t logl;
+    int32_t timer;
 } proxy_ran_args_t;
 
 typedef struct {

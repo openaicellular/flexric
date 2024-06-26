@@ -6,8 +6,8 @@
 extern "C" {
 #endif
 
-#include "../../../sm/rc_sm/ie/asn/UEID-NG-ENB.h"
 #include "../ie/ng_enb.h"
+#include "dec_asn.h"
 
 ng_enb_e2sm_t dec_ng_eNB_UE_asn(const UEID_NG_ENB_t * ng_enb_asn);
 

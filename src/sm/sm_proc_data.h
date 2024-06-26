@@ -35,8 +35,8 @@
 // or
 ////////////////////////////////////
 // E2AP_V3
-// 7 ORAN E2AP procedures 
-// defined in ORAN-WG3.E2SM-v03.00.00  
+// 7 ORAN E2AP procedures
+// defined in ORAN-WG3.E2SM-v03.00.00
 ///////////////////////////////////
 
 
@@ -68,6 +68,14 @@ typedef struct{
 
 void free_sm_ind_data(sm_ind_data_t*);
 
+// Expected, similar to std::expected
+typedef struct{
+ sm_ind_data_t data;
+ bool has_value;
+} exp_ind_data_t;
+
+void free_exp_ind_data( exp_ind_data_t*);
+
 //////
 //
 /////
@@ -94,7 +102,7 @@ typedef struct{
   size_t len_rfd;
 } sm_e2_setup_data_t;
 
-void free_sm_e2_setup(sm_e2_setup_data_t*); 
+void free_sm_e2_setup(sm_e2_setup_data_t*);
 
 typedef struct{
   uint8_t* ran_fun_def;
@@ -105,7 +113,7 @@ void free_sm_ric_service_update(sm_ric_service_update_data_t*);
 
 #ifdef E2AP_V3
 
-typedef struct{ 
+typedef struct{
   uint8_t* query_hdr;
   size_t len_hdr;
 
@@ -113,19 +121,19 @@ typedef struct{
   size_t len_msg;
 } sm_ric_query_data_t;
 
-void free_sm_ric_query_data(sm_ric_query_data_t*);  
+void free_sm_ric_query_data(sm_ric_query_data_t*);
 
 typedef struct{
   uint8_t* query_out;
   size_t len_out;
-} sm_ric_query_out_data_t; 
+} sm_ric_query_out_data_t;
 
-void free_sm_ric_query_out_data(sm_ric_query_out_data_t*);  
+void free_sm_ric_query_out_data(sm_ric_query_out_data_t*);
 
 typedef struct{
   uint8_t* mod;
   size_t len;
-} sm_sub_mod_data_t; 
+} sm_sub_mod_data_t;
 
 void free_sm_sub_mod_data(sm_sub_mod_data_t*);
 

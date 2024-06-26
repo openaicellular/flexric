@@ -21,7 +21,7 @@ typedef enum {
 typedef struct{
   enum_value_e  	      *noLabel;			/* OPTIONAL */
   e2sm_plmn_t          *plmn_id;   		/* OPTIONAL */
-  S_NSSAI_t       	  *sliceID;			/* OPTIONAL */
+  s_nssai_e2sm_t        *sliceID;			/* OPTIONAL */
   uint8_t            	  *fiveQI;			/* OPTIONAL */
   uint8_t               *qFI;				/* OPTIONAL, INTEGER (0..63, …) */
   uint8_t        	      *qCI;	    		/* OPTIONAL */

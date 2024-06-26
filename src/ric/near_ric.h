@@ -40,9 +40,9 @@ e* For more information about the OpenAirInterface (OAI) Software Alliance:
 
 #ifdef E2AP_V1
 #define NUM_HANDLE_MSG 32 // 31 + E42-UPDATE-E2-NODE
-#elif E2AP_V2 
+#elif E2AP_V2
 #define NUM_HANDLE_MSG 35 // 34 + E42-UPDATE-E2-NODE
-#elif E2AP_V3 
+#elif E2AP_V3
 #define NUM_HANDLE_MSG 44 // 43 + E42-UPDATE-E2-NODE
 #else
 static_assert(0!=0, "Unknown E2AP version");
@@ -123,6 +123,6 @@ void fwd_ric_subscription_request_delete(near_ric_t* ric, global_e2_node_id_t co
 
 uint16_t fwd_ric_control_request(near_ric_t* ric, global_e2_node_id_t const* id, ric_control_request_t const* cr,  void (*f)(e2ap_msg_t const* msg));
 
-#undef NUM_HANDLE_MSG  
+#undef NUM_HANDLE_MSG
 
 #endif
