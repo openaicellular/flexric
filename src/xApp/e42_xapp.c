@@ -450,6 +450,31 @@ sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uin
   return ans;
 }
 
+sm_ans_xapp_t insert_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t rf_id , void* data, sm_cb cb)
+{
+  assert(xapp != NULL);
+  assert(id != NULL);
+
+  // Generate and registry the ric_req_id
+  ric_gen_id_t ric_id = generate_ric_gen_id(xapp, RIC_SUBSCRIPTION_PROCEDURE_ACTIVE , rf_id, id, cb);
+
+  // Send message 
+  send_subscription_request(xapp, id, ric_id, data);
+
+  // Wait for the answer (it will arrive in the event loop)
+  cond_wait_sync_ui(&xapp->sync, xapp->sync.wait_ms);
+
+  // Answer arrived
+  printf("[xApp]: Successfully subscribed to RAN_FUNC_ID %d \n", rf_id);
+
+  // The RIC_SUBSCRIPTION_PROCEDURE is still active
+  sm_ans_xapp_t ans = {0};
+  ans.success = true;
+  ans.u.handle = ric_id.ric_req_id;
+
+  return ans;
+}
+
 static
 void send_ric_subscription_delete(e42_xapp_t* xapp, ric_gen_id_t ric_id)
 {
@@ -465,6 +490,31 @@ void send_ric_subscription_delete(e42_xapp_t* xapp, ric_gen_id_t ric_id)
 }
 
 void rm_report_sm_sync_xapp(e42_xapp_t* xapp, int ric_req_id)
+{
+  assert(xapp != NULL);
+  assert(ric_req_id  > -1 && ric_req_id < 1 << 16);
+
+  act_proc_ans_t ans = find_act_proc(&xapp->act_proc, ric_req_id);
+  if(ans.ok == false){
+    printf("%s \n", ans.error); 
+    assert(0!=0 && "ric_req_id not registered");
+    exit(-1);
+  }
+
+  // Send message
+  send_ric_subscription_delete(xapp, ans.val.id);
+
+  // Wait for the answer (it will arrive in the event loop)
+  cond_wait_sync_ui(&xapp->sync,xapp->sync.wait_ms);
+
+  // Answer arrived
+  //printf("[xApp]: Successfully received SUBSCRIPTION-DELETE-RESPONSE \n");
+
+  // Remove the active procedure  
+  rm_act_proc(&xapp->act_proc, ric_req_id ); 
+}
+
+void rm_insert_sm_sync_xapp(e42_xapp_t* xapp, int ric_req_id)
 {
   assert(xapp != NULL);
   assert(ric_req_id  > -1 && ric_req_id < 1 << 16);

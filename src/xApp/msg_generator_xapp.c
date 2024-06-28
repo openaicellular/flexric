@@ -42,7 +42,8 @@ ric_subscription_request_t generate_subscription_request(ric_gen_id_t ric_id , s
   assert(sr.action != NULL && "Memory exhausted");
 
   sr.action[0].id = 0;
-  sr.action[0].type = RIC_ACT_REPORT;
+  // sr.action[0].type = RIC_ACT_REPORT;
+  sr.action[0].type = RIC_ACT_INSERT;
   if(data.action_def != NULL){
     sr.action[0].definition = malloc(sizeof(byte_array_t));
     assert(sr.action[0].definition != NULL && "Memory exhausted");

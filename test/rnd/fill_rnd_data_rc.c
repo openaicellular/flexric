@@ -1531,7 +1531,6 @@ ue_id_e2sm_t fill_rnd_ue_id(void)
 
 
 
-static
 e2sm_rc_ind_hdr_frmt_2_t fill_rnd_rc_ind_hdr_frmt_2(void)
 {
   e2sm_rc_ind_hdr_frmt_2_t dst = {0}; 
@@ -1603,7 +1602,7 @@ e2sm_rc_ind_hdr_t fill_rnd_rc_ind_hdr(void)
   return dst;
 }
 
-static
+// static
 e2sm_rc_ind_msg_frmt_1_t fill_rnd_ind_msg_frmt_1(void)
 {
   e2sm_rc_ind_msg_frmt_1_t dst = {0}; 
@@ -1817,7 +1816,6 @@ e2sm_rc_ind_msg_frmt_4_t fill_rnd_ind_msg_frmt_4(void)
   return dst;
 }
 
-static    
 e2sm_rc_ind_msg_frmt_5_t fill_rnd_ind_msg_frmt_5(void)
 {
   e2sm_rc_ind_msg_frmt_5_t dst = {0}; 

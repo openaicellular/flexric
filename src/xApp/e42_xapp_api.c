@@ -165,6 +165,19 @@ sm_ans_xapp_t report_sm_xapp_api(global_e2_node_id_t* id, uint32_t rf_id, void* 
   return report_sm_sync_xapp(xapp, id, rf_id, data, handler);
 }
 
+// returns a handle
+sm_ans_xapp_t insert_sm_xapp_api(global_e2_node_id_t* id, uint32_t rf_id, void* data, sm_cb handler)
+{
+  assert(xapp != NULL);
+  assert(id != NULL);
+  assert(data != NULL);
+
+  assert(valid_global_e2_node(id, &xapp->e2_nodes) == true);
+  assert(valid_sm_id(id, rf_id)  == true);
+
+  return insert_sm_sync_xapp(xapp, id, rf_id, data, handler);
+}
+
 // remove the handle previously returned
 void rm_report_sm_xapp_api(int const handle)
 {
@@ -173,6 +186,16 @@ void rm_report_sm_xapp_api(int const handle)
 
   //printf("Remove handle number = %d \n", handle);
   rm_report_sm_sync_xapp(xapp, handle);
+}
+
+// remove the handle previously returned
+void rm_insert_sm_xapp_api(int const handle)
+{
+  assert(xapp != NULL);
+  assert(handle > -1);
+
+  //printf("Remove handle number = %d \n", handle);
+  rm_insert_sm_sync_xapp(xapp, handle);
 }
 
 sm_ans_xapp_t control_sm_xapp_api(global_e2_node_id_t* id, uint32_t ran_func_id, void* wr)

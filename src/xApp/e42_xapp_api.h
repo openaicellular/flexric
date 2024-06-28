@@ -66,9 +66,11 @@ typedef enum{
 
 // Returns a handle
 sm_ans_xapp_t report_sm_xapp_api(global_e2_node_id_t* id, uint32_t rf_id, void* data, sm_cb handler);
+sm_ans_xapp_t insert_sm_xapp_api(global_e2_node_id_t* id, uint32_t rf_id, void* data, sm_cb handler);
 
 // Remove the handle previously returned
 void rm_report_sm_xapp_api(int const handle);
+void rm_insert_sm_xapp_api(int const handle);
 
 // Send control message
 // return void but sm_ag_if_ans_ctrl_t should be returned. Add it in the future if needed

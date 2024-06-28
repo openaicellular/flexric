@@ -1,8 +1,184 @@
+add_subdirectory(asn1c)
+
+set(SM_3GPP_COMMON_IE_ASN_SRCS
+../../../../src/sm/rc_sm/ie/asn/AMFPointer.c
+../../../../src/sm/rc_sm/ie/asn/AMFRegionID.c
+../../../../src/sm/rc_sm/ie/asn/AMFSetID.c
+../../../../src/sm/rc_sm/ie/asn/AMF-UE-NGAP-ID.c
+../../../../src/sm/rc_sm/ie/asn/ANY_aper.c
+../../../../src/sm/rc_sm/ie/asn/ANY.c
+../../../../src/sm/rc_sm/ie/asn/ANY_xer.c
+../../../../src/sm/rc_sm/ie/asn/aper_decoder.c
+../../../../src/sm/rc_sm/ie/asn/aper_encoder.c
+../../../../src/sm/rc_sm/ie/asn/aper_opentype.c
+../../../../src/sm/rc_sm/ie/asn/aper_support.c
+../../../../src/sm/rc_sm/ie/asn/asn_application.c
+../../../../src/sm/rc_sm/ie/asn/asn_bit_data.c
+../../../../src/sm/rc_sm/ie/asn/asn_codecs_prim.c
+../../../../src/sm/rc_sm/ie/asn/asn_codecs_prim_xer.c
+../../../../src/sm/rc_sm/ie/asn/asn_internal.c
+../../../../src/sm/rc_sm/ie/asn/asn_random_fill.c
+../../../../src/sm/rc_sm/ie/asn/asn_SEQUENCE_OF.c
+../../../../src/sm/rc_sm/ie/asn/asn_SET_OF.c
+../../../../src/sm/rc_sm/ie/asn/ber_tlv_length.c
+../../../../src/sm/rc_sm/ie/asn/ber_tlv_tag.c
+../../../../src/sm/rc_sm/ie/asn/BIT_STRING.c
+../../../../src/sm/rc_sm/ie/asn/BIT_STRING_print.c
+../../../../src/sm/rc_sm/ie/asn/BIT_STRING_rfill.c
+../../../../src/sm/rc_sm/ie/asn/BIT_STRING_xer.c
+../../../../src/sm/rc_sm/ie/asn/BOOLEAN_aper.c
+../../../../src/sm/rc_sm/ie/asn/BOOLEAN.c
+../../../../src/sm/rc_sm/ie/asn/BOOLEAN_print.c
+../../../../src/sm/rc_sm/ie/asn/BOOLEAN_rfill.c
+../../../../src/sm/rc_sm/ie/asn/BOOLEAN_xer.c
+../../../../src/sm/rc_sm/ie/asn/constraints.c
+../../../../src/sm/rc_sm/ie/asn/constr_CHOICE_aper.c
+../../../../src/sm/rc_sm/ie/asn/constr_CHOICE.c
+../../../../src/sm/rc_sm/ie/asn/constr_CHOICE_print.c
+../../../../src/sm/rc_sm/ie/asn/constr_CHOICE_rfill.c
+../../../../src/sm/rc_sm/ie/asn/constr_CHOICE_xer.c
+../../../../src/sm/rc_sm/ie/asn/constr_SEQUENCE_aper.c
+../../../../src/sm/rc_sm/ie/asn/constr_SEQUENCE.c
+../../../../src/sm/rc_sm/ie/asn/constr_SEQUENCE_OF_aper.c
+../../../../src/sm/rc_sm/ie/asn/constr_SEQUENCE_OF.c
+../../../../src/sm/rc_sm/ie/asn/constr_SEQUENCE_OF_xer.c
+../../../../src/sm/rc_sm/ie/asn/constr_SEQUENCE_print.c
+../../../../src/sm/rc_sm/ie/asn/constr_SEQUENCE_rfill.c
+../../../../src/sm/rc_sm/ie/asn/constr_SEQUENCE_xer.c
+../../../../src/sm/rc_sm/ie/asn/constr_SET_OF_aper.c
+../../../../src/sm/rc_sm/ie/asn/constr_SET_OF.c
+../../../../src/sm/rc_sm/ie/asn/constr_SET_OF_print.c
+../../../../src/sm/rc_sm/ie/asn/constr_SET_OF_rfill.c
+../../../../src/sm/rc_sm/ie/asn/constr_SET_OF_xer.c
+../../../../src/sm/rc_sm/ie/asn/constr_TYPE.c
+../../../../src/sm/rc_sm/ie/asn/CoreCPID.c
+../../../../src/sm/rc_sm/ie/asn/ENB-ID.c
+../../../../src/sm/rc_sm/ie/asn/ENB-UE-X2AP-ID.c
+../../../../src/sm/rc_sm/ie/asn/ENB-UE-X2AP-ID-Extension.c
+../../../../src/sm/rc_sm/ie/asn/EN-GNB-ID.c
+../../../../src/sm/rc_sm/ie/asn/ENUMERATED_aper.c
+../../../../src/sm/rc_sm/ie/asn/ENUMERATED.c
+../../../../src/sm/rc_sm/ie/asn/E-UTRA-ARFCN.c
+../../../../src/sm/rc_sm/ie/asn/EUTRACellIdentity.c
+../../../../src/sm/rc_sm/ie/asn/EUTRA-CGI.c
+../../../../src/sm/rc_sm/ie/asn/E-UTRA-PCI.c
+../../../../src/sm/rc_sm/ie/asn/E-UTRA-TAC.c
+../../../../src/sm/rc_sm/ie/asn/EXTERNAL.c
+../../../../src/sm/rc_sm/ie/asn/FiveGS-TAC.c
+../../../../src/sm/rc_sm/ie/asn/FiveQI.c
+../../../../src/sm/rc_sm/ie/asn/FreqBandNrItem.c
+../../../../src/sm/rc_sm/ie/asn/GlobalENB-ID.c
+../../../../src/sm/rc_sm/ie/asn/GlobalenGNB-ID.c
+../../../../src/sm/rc_sm/ie/asn/GlobalGNB-ID.c
+../../../../src/sm/rc_sm/ie/asn/GlobalNgENB-ID.c
+../../../../src/sm/rc_sm/ie/asn/GlobalNGRANNodeID.c
+../../../../src/sm/rc_sm/ie/asn/GNB-CU-CP-UE-E1AP-ID.c
+../../../../src/sm/rc_sm/ie/asn/GNB-CU-UE-F1AP-ID.c
+../../../../src/sm/rc_sm/ie/asn/GNB-CU-UP-ID.c
+../../../../src/sm/rc_sm/ie/asn/GNB-DU-ID.c
+../../../../src/sm/rc_sm/ie/asn/GNB-ID.c
+../../../../src/sm/rc_sm/ie/asn/GraphicString.c
+../../../../src/sm/rc_sm/ie/asn/GroupID.c
+../../../../src/sm/rc_sm/ie/asn/GUAMI.c
+../../../../src/sm/rc_sm/ie/asn/GUMMEI.c
+../../../../src/sm/rc_sm/ie/asn/IndexToRFSP.c
+../../../../src/sm/rc_sm/ie/asn/INTEGER_aper.c
+../../../../src/sm/rc_sm/ie/asn/INTEGER.c
+../../../../src/sm/rc_sm/ie/asn/INTEGER_print.c
+../../../../src/sm/rc_sm/ie/asn/INTEGER_rfill.c
+../../../../src/sm/rc_sm/ie/asn/INTEGER_xer.c
+../../../../src/sm/rc_sm/ie/asn/InterfaceID-E1.c
+../../../../src/sm/rc_sm/ie/asn/InterfaceIdentifier.c
+../../../../src/sm/rc_sm/ie/asn/InterfaceID-F1.c
+../../../../src/sm/rc_sm/ie/asn/InterfaceID-NG.c
+../../../../src/sm/rc_sm/ie/asn/InterfaceID-S1.c
+../../../../src/sm/rc_sm/ie/asn/InterfaceID-W1.c
+../../../../src/sm/rc_sm/ie/asn/InterfaceID-X2.c
+../../../../src/sm/rc_sm/ie/asn/InterfaceID-Xn.c
+../../../../src/sm/rc_sm/ie/asn/Interface-MessageID.c
+../../../../src/sm/rc_sm/ie/asn/InterfaceType.c
+../../../../src/sm/rc_sm/ie/asn/LogicalOR.c
+../../../../src/sm/rc_sm/ie/asn/MessageType-Choice.c
+../../../../src/sm/rc_sm/ie/asn/MessageType-Choice-NI.c
+../../../../src/sm/rc_sm/ie/asn/MessageType-Choice-RRC.c
+../../../../src/sm/rc_sm/ie/asn/MME-Code.c
+../../../../src/sm/rc_sm/ie/asn/MME-Group-ID.c
+../../../../src/sm/rc_sm/ie/asn/MME-UE-S1AP-ID.c
+../../../../src/sm/rc_sm/ie/asn/NativeEnumerated_aper.c
+../../../../src/sm/rc_sm/ie/asn/NativeEnumerated.c
+../../../../src/sm/rc_sm/ie/asn/NativeEnumerated_xer.c
+../../../../src/sm/rc_sm/ie/asn/NativeInteger_aper.c
+../../../../src/sm/rc_sm/ie/asn/NativeInteger.c
+../../../../src/sm/rc_sm/ie/asn/NativeInteger_print.c
+../../../../src/sm/rc_sm/ie/asn/NativeInteger_rfill.c
+../../../../src/sm/rc_sm/ie/asn/NativeInteger_xer.c
+../../../../src/sm/rc_sm/ie/asn/NativeReal_aper.c
+../../../../src/sm/rc_sm/ie/asn/NativeReal.c
+../../../../src/sm/rc_sm/ie/asn/NativeReal_print.c
+../../../../src/sm/rc_sm/ie/asn/NativeReal_rfill.c
+../../../../src/sm/rc_sm/ie/asn/NativeReal_xer.c
+../../../../src/sm/rc_sm/ie/asn/NGENB-CU-UE-W1AP-ID.c
+../../../../src/sm/rc_sm/ie/asn/NGENB-DU-ID.c
+../../../../src/sm/rc_sm/ie/asn/NgENB-ID.c
+../../../../src/sm/rc_sm/ie/asn/NG-RANnodeUEXnAPID.c
+../../../../src/sm/rc_sm/ie/asn/NR-ARFCN.c
+../../../../src/sm/rc_sm/ie/asn/ObjectDescriptor.c
+../../../../src/sm/rc_sm/ie/asn/OBJECT_IDENTIFIER.c
+../../../../src/sm/rc_sm/ie/asn/OBJECT_IDENTIFIER_print.c
+../../../../src/sm/rc_sm/ie/asn/OBJECT_IDENTIFIER_rfill.c
+../../../../src/sm/rc_sm/ie/asn/OBJECT_IDENTIFIER_xer.c
+../../../../src/sm/rc_sm/ie/asn/OCTET_STRING_aper.c
+../../../../src/sm/rc_sm/ie/asn/OCTET_STRING.c
+../../../../src/sm/rc_sm/ie/asn/OCTET_STRING_print.c
+../../../../src/sm/rc_sm/ie/asn/OCTET_STRING_rfill.c
+../../../../src/sm/rc_sm/ie/asn/OCTET_STRING_xer.c
+../../../../src/sm/rc_sm/ie/asn/OPEN_TYPE_aper.c
+../../../../src/sm/rc_sm/ie/asn/OPEN_TYPE.c
+../../../../src/sm/rc_sm/ie/asn/OPEN_TYPE_xer.c
+../../../../src/sm/rc_sm/ie/asn/per_decoder.c
+../../../../src/sm/rc_sm/ie/asn/per_encoder.c
+../../../../src/sm/rc_sm/ie/asn/per_opentype.c
+../../../../src/sm/rc_sm/ie/asn/per_support.c
+../../../../src/sm/rc_sm/ie/asn/PLMNIdentity.c
+../../../../src/sm/rc_sm/ie/asn/PrintableString.c
+../../../../src/sm/rc_sm/ie/asn/QCI.c
+../../../../src/sm/rc_sm/ie/asn/RANUEID.c
+../../../../src/sm/rc_sm/ie/asn/REAL_aper.c
+../../../../src/sm/rc_sm/ie/asn/REAL.c
+../../../../src/sm/rc_sm/ie/asn/REAL_print.c
+../../../../src/sm/rc_sm/ie/asn/REAL_rfill.c
+../../../../src/sm/rc_sm/ie/asn/REAL_xer.c
+../../../../src/sm/rc_sm/ie/asn/RRCclass-LTE.c
+../../../../src/sm/rc_sm/ie/asn/RRCclass-NR.c
+../../../../src/sm/rc_sm/ie/asn/RRC-MessageID.c
+../../../../src/sm/rc_sm/ie/asn/RRC-State.c
+../../../../src/sm/rc_sm/ie/asn/SD.c
+../../../../src/sm/rc_sm/ie/asn/S-NSSAI.c
+../../../../src/sm/rc_sm/ie/asn/SST.c
+../../../../src/sm/rc_sm/ie/asn/SubscriberProfileIDforRFP.c
+../../../../src/sm/rc_sm/ie/asn/SupportedSULBandList.c
+../../../../src/sm/rc_sm/ie/asn/SupportedSULFreqBandItem.c
+../../../../src/sm/rc_sm/ie/asn/UEID.c
+../../../../src/sm/rc_sm/ie/asn/UEID-ENB.c
+../../../../src/sm/rc_sm/ie/asn/UEID-EN-GNB.c
+../../../../src/sm/rc_sm/ie/asn/UEID-GNB.c
+../../../../src/sm/rc_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-Item.c
+../../../../src/sm/rc_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-List.c
+../../../../src/sm/rc_sm/ie/asn/UEID-GNB-CU-CP-F1AP-ID-Item.c
+../../../../src/sm/rc_sm/ie/asn/UEID-GNB-CU-F1AP-ID-List.c
+../../../../src/sm/rc_sm/ie/asn/UEID-GNB-CU-UP.c
+../../../../src/sm/rc_sm/ie/asn/UEID-GNB-DU.c
+../../../../src/sm/rc_sm/ie/asn/UEID-NG-ENB.c
+../../../../src/sm/rc_sm/ie/asn/UEID-NG-ENB-DU.c
+../../../../src/sm/rc_sm/ie/asn/xer_decoder.c
+../../../../src/sm/rc_sm/ie/asn/xer_encoder.c
+../../../../src/sm/rc_sm/ie/asn/xer_support.c
+)
+
 add_executable(xapp_kpm_moni 
-		xapp_kpm_moni.c
+        xapp_kpm_moni.c
                 ../../../../src/util/alg_ds/alg/defer.c
               )
-
  target_link_libraries(xapp_kpm_moni
                       PUBLIC
                       e42_xapp
@@ -12,10 +188,9 @@ add_executable(xapp_kpm_moni
                       )
 
 add_executable(xapp_gtp_mac_rlc_pdcp_moni 
-		xapp_gtp_mac_rlc_pdcp_moni.c
+        xapp_gtp_mac_rlc_pdcp_moni.c
                 ../../../../src/util/alg_ds/alg/defer.c
               )
-
  target_link_libraries(xapp_gtp_mac_rlc_pdcp_moni
                       PUBLIC
                       e42_xapp
@@ -25,12 +200,43 @@ add_executable(xapp_gtp_mac_rlc_pdcp_moni
                       )
 
 add_executable(xapp_rc_moni 
-               xapp_rc_moni.c
                ../../../../src/util/alg_ds/alg/defer.c
+        #        ../../../../src/lib/sm/dec/dec_ue_id.c
+        #        ${SM_3GPP_COMMON_IE_ASN_SRCS}
+               xapp_rc_moni.c
               )
-                  
+# target_link_libraries(xapp_rc_moni PRIVATE asn1_nr_rrc)
+# target_include_directories(xapp_rc_moni PRIVATE "../../../../src/sm/rc_sm/ie/asn")
+target_compile_options(xapp_rc_moni PRIVATE "-DASN_DISABLE_OER_SUPPORT" "-DASN_DISABLE_JER_SUPPORT")
+target_compile_options(xapp_rc_moni PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC  -fvisibility=hidden)
+target_link_libraries(xapp_rc_moni PRIVATE m) # this belongs to SM_3GPP_COMMON_IE_ASN_SRCS
 target_link_libraries(xapp_rc_moni
                      PUBLIC
+                     asn1_nr_rrc
+                     asn1_nr_rrc_hdrs
+                     3gpp_derived_ie_dec_asn_obj_kpm
+                     e42_xapp
+                     -pthread
+                     -lsctp
+                     -ldl
+                     )
+
+add_executable(xapp_mobi_ctrl 
+               ../../../../src/util/alg_ds/alg/defer.c
+                ../../../../src/lib/sm/dec/dec_ue_id.c
+                ${SM_3GPP_COMMON_IE_ASN_SRCS}
+               xapp_mobi_ctrl.c
+              )
+# target_link_libraries(xapp_mobi_ctrl PRIVATE asn1_nr_rrc)
+target_include_directories(xapp_mobi_ctrl PRIVATE "../../../../src/sm/rc_sm/ie/asn")
+target_compile_options(xapp_mobi_ctrl PRIVATE "-DASN_DISABLE_OER_SUPPORT" "-DASN_DISABLE_JER_SUPPORT")
+target_compile_options(xapp_mobi_ctrl PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC  -fvisibility=hidden)
+target_link_libraries(xapp_mobi_ctrl PRIVATE m) # this belongs to SM_3GPP_COMMON_IE_ASN_SRCS
+target_link_libraries(xapp_mobi_ctrl
+                     PUBLIC
+                     # asn1_nr_rrc
+                     # asn1_nr_rrc_hdrs
+                     3gpp_derived_ie_dec_asn_obj_kpm
                      e42_xapp
                      -pthread
                      -lsctp

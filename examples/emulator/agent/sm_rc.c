@@ -17,7 +17,6 @@ void free_rc_sm(void)
   // No allocation needed
 }
 
-
 typedef enum {
   RRC_STATE_CHANGED_TO_E2SM_RC_RAN_PARAM_ID = 202,   // 8.2.4  RAN Parameters for Report Service Style 4
 
@@ -294,6 +293,101 @@ void fill_rc_control(ran_func_def_ctrl_t* ctrl)
   ctrl_style->sz_ran_param_ctrl_out = 0;
   ctrl_style->ran_param_ctrl_out = NULL;
 }
+
+static
+seq_ins_ind_t fill_rc_ins_ind(void)
+{
+  seq_ins_ind_t ins_ind = {0};
+
+  // Insert Indication ID
+  // Mandatory
+  // 9.3.16
+  // [1-65535]
+  ins_ind.id=1; // INSERT Service Style 3, Indication Handover Control Request, 7.5.4.1
+
+  // Insert Indication Name
+  // Mandatory
+  // 9.3.17
+  // [1-150]
+  const char ins_ind_name[] = "Handover Control request";
+  ins_ind.name=cp_str_to_ba(ins_ind_name);
+
+  // Sequence of Insert Indications
+  // [0-65535]
+  ins_ind.sz_seq_ins_ind = 1;
+  ins_ind.seq_ins_ind = calloc(ins_ind.sz_seq_ins_ind, sizeof(seq_ran_param_3_t));
+  assert(ins_ind.seq_ins_ind != NULL && "Memory exhausted");
+  ins_ind.seq_ins_ind[0].id = 1;
+  const char ran_param_name[] = "Target Primary Cell ID";
+  ins_ind.seq_ins_ind[0].name = cp_str_to_ba(ran_param_name);
+
+  return ins_ind;
+}
+
+static
+void fill_rc_insert(ran_func_def_insert_t* insert)
+{
+  // Sequence of INSERT styles
+  // [1 - 63]
+  insert->sz_seq_ins_sty = 1;
+  insert->seq_ins_sty = calloc(insert->sz_seq_ins_sty, sizeof(seq_ins_sty_t));
+  assert(insert->seq_ins_sty != NULL && "Memory exhausted");
+
+  seq_ins_sty_t* insert_style = &insert->seq_ins_sty[0];
+
+  // RIC Insert Style Type
+  // Mandatory
+  // 9.3.3
+  // 6.2.2.2.
+  // INTEGER
+  insert_style->style_type = 3;
+
+  // RIC Insert Style Name
+  // Mandatory
+  // 9.3.4
+  // 6.2.2.3.
+  // [1-150]
+  const char insert_name[] = "Connected Mode Mobility Control Request";
+  insert_style->name = cp_str_to_ba(insert_name);
+
+  // Supported RIC Event Trigger Style Type
+  // Mandatory
+  // 9.3.3
+  // 6.2.2.2.
+  insert_style->ev_trig_style_type = FORMAT_2_E2SM_RC_EV_TRIGGER_FORMAT;
+
+  // RIC Action Definition Format Type
+  // Mandatory
+  // 9.3.5
+  // 6.2.2.4.
+  insert_style->act_def_frmt_type = FORMAT_3_E2SM_RC_ACT_DEF;
+
+  // Sequence of Insert Indications
+  // [0-65535]
+  insert_style->sz_seq_ins_ind = 1;
+  insert_style->seq_ins_ind = calloc(insert_style->sz_seq_ins_ind, sizeof(seq_ins_ind_t));
+  assert(insert_style->seq_ins_ind != NULL && "Memory exhausted");
+  insert_style->seq_ins_ind[0] = fill_rc_ins_ind();
+
+
+  // RIC Indication Header Format Type
+  // Mandatoyr
+  // 9.3.5
+  // 6.2.2.4.
+  insert_style->ind_hdr_frmt_type = FORMAT_2_E2SM_RC_IND_HDR;
+
+  // RIC Indication Message Format Type
+  // Mandatory
+  // 9.3.5
+  // 6.2.2.4.
+  insert_style->ind_msg_frmt_type = FORMAT_5_E2SM_RC_IND_MSG;
+
+  // RIC Call Process ID Format Type
+  // Mandatory
+  // 9.3.5
+  // 6.2.2.4.
+  insert_style->call_proc_id_type = 1; // RIC Call Process ID IE Format 1
+}
 #endif
 
 static
@@ -326,7 +420,10 @@ e2sm_rc_func_def_t fill_rc_ran_def(void)
   // RAN Function Definition for INSERT
   // Optional
   // 9.2.2.4
-  def.insert = NULL;
+  // def.insert = NULL;
+  def.insert = calloc(1, sizeof(ran_func_def_insert_t));
+  assert(def.insert != NULL && "Memory exhausted");
+  fill_rc_insert(def.insert);
 
   // RAN Function Definition for POLICY
   // Optional
@@ -411,14 +508,137 @@ static
 void* emulate_rrc_msg(void* ptr)
 {
   (void)ptr; 
-  for(size_t i = 0; i < 5; ++i){
+  for(size_t i = 0; i < 3; ++i){
     usleep(rand()%4000);
     rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t)); 
     assert(d != NULL && "Memory exhausted");
     d->hdr.format = FORMAT_1_E2SM_RC_IND_HDR;
     d->hdr.frmt_1 = fill_rnd_rc_ind_hdr_frmt_1();
     d->msg.format = FORMAT_2_E2SM_RC_IND_MSG;
+    d->msg.frmt_1 = fill_rnd_ind_msg_frmt_1();
     d->msg.frmt_2 = fill_rnd_ind_msg_frmt_2();
+
+    async_event_agent_api(sta_ric_id, d);
+    printf("Event for RIC Req ID %u generated\n", sta_ric_id);
+  }
+
+  return NULL;
+}
+
+typedef enum {
+    Target_Primary_CELL_ID_8_4_4_1 = 1,
+    CHOICE_Target_CELL_8_4_4_1 = 2,
+    NR_CELL_8_4_4_1 = 3,
+    NR_CGI_8_4_4_1 = 4,
+    E_UTRA_CELL_8_4_4_1 = 5,
+    E_UTRA_CGI_8_4_4_1 = 6,
+    LIST_of_PDU_sessions_for_handover_8_4_4_1 = 7,
+    PDU_session_Item_for_handover_8_4_4_1 = 8,
+    PDU_Session_ID_8_4_4_1 = 9,
+    List_of_QoS_flows_in_the_PDU_session_8_4_4_1 = 10,
+    QoS_flow_item_8_4_4_1 = 11,
+    QoS_Flow_Identifier_8_4_4_1 = 12,
+    List_of_DRBs_for_handover_8_4_4_1 = 13,
+    DRB_item_for_handover_8_4_4_1 = 14,
+    DRB_ID_8_4_4_1 = 15,
+    List_of_QoS_flows_in_the_DRB_8_4_4_1 = 16,
+    QoS_flow_Item_8_4_4_1 = 17,
+    QoS_flow_Identifier_8_4_4_1 = 18,
+    List_of_Secondary_cells_to_be_setup_8_4_4_1 = 19,
+    Secondary_cell_Item_to_be_setup_8_4_4_1 = 20,
+    Secondary_cell_8_4_4_1 = 21,
+} handover_control_param_id_e;
+
+e2sm_rc_ind_msg_frmt_5_t fill_handover_control_ind_msg_frmt_5(void)
+{
+  // 8.4.4.1
+    // Target Primary Cell ID, STRUCTURE (len 1)
+    // >CHOICE Target Cell, STRUCTURE (len 2)
+    // >>NR Cell, STRUCTURE (len 1)
+    // >>>NR CGI, ELEMENT (len 1)
+    // >>E-UTRA Cell, STRUCTURE (len 1)
+    // >>>E-UTRA CGI, ELEMENT (len 1)
+  e2sm_rc_ind_msg_frmt_5_t dst = {0}; 
+
+  // List of RAN parameters requested
+  // [0-65535]
+  dst.sz_seq_ran_param = 1;
+
+  if(dst.sz_seq_ran_param > 0){
+    dst.seq_ran_param = calloc(dst.sz_seq_ran_param, sizeof(seq_ran_param_t));
+    assert(dst.seq_ran_param != NULL && "memory exhausted");
+  }
+  
+  for(size_t i = 0; i < dst.sz_seq_ran_param; ++i){
+    dst.seq_ran_param[i].ran_param_id = Target_Primary_CELL_ID_8_4_4_1;
+    dst.seq_ran_param[i].ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+    dst.seq_ran_param[i].ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
+    assert(dst.seq_ran_param[i].ran_param_val.strct != NULL && "Memory exhausted" );
+    dst.seq_ran_param[i].ran_param_val.strct->sz_ran_param_struct = 1;
+    dst.seq_ran_param[i].ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
+    assert(dst.seq_ran_param[i].ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted" );
+    // CHOICE Target Cell, Structure
+    seq_ran_param_t* Choice_target_cell_struct = dst.seq_ran_param[i].ran_param_val.strct->ran_param_struct;
+    Choice_target_cell_struct->ran_param_id = CHOICE_Target_CELL_8_4_4_1;
+    Choice_target_cell_struct->ran_param_val.type=STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+    Choice_target_cell_struct->ran_param_val.strct = calloc(1,sizeof(ran_param_struct_t));
+    assert(Choice_target_cell_struct->ran_param_val.strct != NULL && "Memory exhausted");
+    Choice_target_cell_struct->ran_param_val.strct->sz_ran_param_struct = 1;
+    Choice_target_cell_struct->ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
+    assert(Choice_target_cell_struct->ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted" );
+    // NR Cell, Structure
+    seq_ran_param_t* NR_Cell_struct = Choice_target_cell_struct->ran_param_val.strct->ran_param_struct;
+    NR_Cell_struct->ran_param_id=NR_CELL_8_4_4_1;
+    NR_Cell_struct->ran_param_val.type=STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+    NR_Cell_struct->ran_param_val.strct=calloc(1,sizeof(ran_param_struct_t));
+    assert(NR_Cell_struct->ran_param_val.strct != NULL && "Memory exhausted");
+    NR_Cell_struct->ran_param_val.strct->sz_ran_param_struct = 1;
+    NR_Cell_struct->ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
+    assert(NR_Cell_struct->ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted" );
+    // NR CGI, ELEMENT
+    seq_ran_param_t* NR_CGI_element = NR_Cell_struct->ran_param_val.strct->ran_param_struct;
+    NR_CGI_element->ran_param_id=NR_CGI_8_4_4_1;
+    NR_CGI_element->ran_param_val.type=ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+    NR_CGI_element->ran_param_val.flag_false=calloc(1, sizeof(ran_parameter_value_t));
+    assert(NR_CGI_element->ran_param_val.flag_false != NULL && "Memory exhausted");
+    NR_CGI_element->ran_param_val.flag_false->type=BIT_STRING_RAN_PARAMETER_VALUE;
+    NR_CGI_element->ran_param_val.flag_false->bit_str_ran=cp_str_to_ba("42424242");
+
+    // // E-UTRA Cell, Structure
+    // seq_ran_param_t* E_UTRA_Cell_struct = Choice_target_cell_struct->ran_param_val.strct->ran_param_struct;
+    // E_UTRA_Cell_struct->ran_param_id=E_UTRA_CELL_8_4_4_1;
+    // E_UTRA_Cell_struct->ran_param_val.type=STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+    // E_UTRA_Cell_struct->ran_param_val.strct=calloc(1,sizeof(ran_param_struct_t));
+    // assert(E_UTRA_Cell_struct->ran_param_val.strct != NULL && "Memory exhausted");
+    // E_UTRA_Cell_struct->ran_param_val.strct->sz_ran_param_struct = 1;
+    // E_UTRA_Cell_struct->ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
+    // assert(E_UTRA_Cell_struct->ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted" );
+    // // E-UTRA CGI, ELEMENT
+    // seq_ran_param_t* E_UTRA_CGI_element = E_UTRA_Cell_struct->ran_param_val.strct->ran_param_struct;
+    // E_UTRA_CGI_element->ran_param_id=E_UTRA_CGI_8_4_4_1;
+    // E_UTRA_CGI_element->ran_param_val.type=ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+    // E_UTRA_CGI_element->ran_param_val.flag_false=calloc(1, sizeof(ran_parameter_value_t));
+    // assert(E_UTRA_CGI_element->ran_param_val.flag_false != NULL && "Memory exhausted");
+    // E_UTRA_CGI_element->ran_param_val.flag_false->type=BIT_STRING_RAN_PARAMETER_VALUE;
+    // E_UTRA_CGI_element->ran_param_val.flag_false->bit_str_ran=cp_str_to_ba("42424242");
+  }
+
+  return dst;
+}
+
+static
+void* emulate_ins_ind(void* ptr)
+{
+  (void)ptr; 
+  for(size_t i = 0; i < 1; ++i){
+    usleep(rand()%4000);
+    rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t)); 
+    assert(d != NULL && "Memory exhausted");
+    d->hdr.format = FORMAT_2_E2SM_RC_IND_HDR;
+    d->hdr.frmt_2 = fill_rnd_rc_ind_hdr_frmt_2();
+    d->msg.format = FORMAT_5_E2SM_RC_IND_MSG;
+    d->msg.frmt_5 = fill_handover_control_ind_msg_frmt_5();
+    // d->msg.frmt_5 = fill_rnd_ind_msg_frmt_5();
 
     async_event_agent_api(sta_ric_id, d);
     printf("Event for RIC Req ID %u generated\n", sta_ric_id);
@@ -439,7 +659,7 @@ sm_ag_if_ans_t write_subs_rc_sm(void const* src)
 
   sta_ric_id = wr_rc->ric_req_id;
 
-  int rc = pthread_create(&t_ran_ctrl, NULL, emulate_rrc_msg, NULL);
+  int rc = pthread_create(&t_ran_ctrl, NULL, emulate_ins_ind, NULL);
   assert(rc == 0);
 
   sm_ag_if_ans_t ans = {.type = SUBS_OUTCOME_SM_AG_IF_ANS_V0};

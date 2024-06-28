@@ -133,7 +133,7 @@ bool supported_ric_subscription_request(ric_subscription_request_t const* sr)
 {
   assert(sr != NULL);
   assert(sr->len_action == 1 && "Only one action supported" );
-  assert(sr->action->type == RIC_ACT_REPORT && "Only report supported" );
+  assert(sr->action->type != RIC_ACT_POLICY && "Only report and insert are supported" );
   return true;
 }
 

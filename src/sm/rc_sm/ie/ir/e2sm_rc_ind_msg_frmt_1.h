@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #include "seq_ran_param.h"
-#include "seq_ue_id.h"
 
 //9.2.1.4.1
 typedef struct{
@@ -14,8 +13,6 @@ typedef struct{
   //  [1 - 65535]
   size_t sz_seq_ran_param;
   seq_ran_param_t* seq_ran_param;
-  size_t sz_seq_ue_id;
-  seq_ue_id_t* seq_ue_id;
 
 } e2sm_rc_ind_msg_frmt_1_t;
 

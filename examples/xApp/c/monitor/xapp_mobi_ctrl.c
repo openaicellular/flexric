@@ -20,10 +20,13 @@
  */
 
 #include "../../../../src/xApp/e42_xapp_api.h"
+#include "../../../../src/sm/rc_sm/ie/ir/ran_param_struct.h"
+#include "../../../../src/sm/rc_sm/ie/ir/ran_param_list.h"
 #include "../../../../src/util/alg_ds/alg/defer.h"
 #include "../../../../src/util/time_now_us.h"
 #include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "../../../../src/lib/sm/dec/dec_ue_id.h"
+#include "../../../../src/sm/rc_sm/rc_sm_id.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -33,9 +36,9 @@
 #include <pthread.h>
 
 // #include "OCTET_STRING.h"
-#include "NR_UL-DCCH-Message.h"
-#include "NR_MeasurementReport.h"
-#include "NR_MeasurementReport-IEs.h"
+// #include "NR_UL-DCCH-Message.h"
+// #include "NR_MeasurementReport.h"
+// #include "NR_MeasurementReport-IEs.h"
 // #include "NR_MeasResults.h"
 // #include "NR_MeasResultListNR.h.h"
 // #include "NR_MeasResultServMO.h"
@@ -53,20 +56,40 @@ typedef enum {
 static
 pthread_mutex_t mtx;
 
-// Print integer value
 static
-void log_int_ran_param_value_rrc_state(int64_t value)
-{
-  if (value == RRC_CONNECTED_RRC_STATE_E2SM_RC) {
-    printf("RAN Parameter Value = RRC_Connected\n");
-  } else if (value == RRC_INACTIVE_RRC_STATE_E2SM_RC) {
-    printf("RAN Parameter Value = RRC_Inactive\n");
-  } else if (value == RRC_IDLE_RRC_STATE_E2SM_RC) {
-    printf("RAN Parameter Value = RRC_Idle\n");
-  } else {
-    printf("Wrong RAN Parameter Value for RRC State!\n");
-  }
-}
+ue_id_e2sm_t ue_id_for_HO = {0};
+
+typedef enum{
+    Handover_Control_7_6_4_1 = 1,
+    Conditional_Handover_Control_7_6_4_1 = 2,
+    DAPS_Handover_Control_7_6_4_1 = 3,
+} rc_ctrl_service_style_3_act_id_e;
+
+typedef enum {
+    Target_Primary_Cell_ID_8_4_4_1 = 1,
+    Target_Cell_8_4_4_1 = 2,
+    NR_Cell_8_4_4_1 = 3,
+    NR_CGI_8_4_4_1 = 4,
+    E_UTRA_Cell_8_4_4_1 = 5,
+    E_UTRA_CGI_8_4_4_1 = 6,
+    List_of_PDU_sessions_for_handover_8_4_4_1 = 7,
+    PDU_session_Item_for_handover_8_4_4_1 = 8,
+    PDU_Session_ID_8_4_4_1 = 9,
+    List_of_QoS_flows_in_the_PDU_session_8_4_4_1 = 10,
+    QoS_flow_Item_13_8_4_4_1 = 11,
+    QoS_Flow_Identifier_8_4_4_1 = 12,
+    List_of_DRBs_for_handover_8_4_4_1 = 13,
+    DRB_item_for_handover_8_4_4_1 = 14,
+    DRB_ID_8_4_4_1 = 15,
+    List_of_QoS_flows_in_the_DRB_8_4_4_1 = 16,
+    QoS_flow_Item_18_8_4_4_1 = 17,
+    QoS_flow_Identifier_8_4_4_1 = 18,
+    List_of_Secondary_cells_to_be_setup_8_4_4_1 = 19,
+    Secondary_cell_Item_to_be_setup_8_4_4_1 = 20,
+    Secondary_cell_ID_8_4_4_1 = 21,
+} handover_control_id_e;
+
+// ======================================= REPORT SERVICE ============================================
 
 //Print Octet String value
 static
@@ -75,51 +98,47 @@ void log_octet_str_ran_param_value(byte_array_t octet_str, uint32_t id)
   switch (id) {
     case RRC_MESSAGE_E2SM_RC_RAN_PARAM_ID_REPORT_1:
       printf("\nDecode and print RRC Message!\n");
-      NR_UL_DCCH_Message_t *msg = NULL;
-      asn_dec_rval_t dec_rval = uper_decode(NULL, &asn_DEF_NR_UL_DCCH_Message,
-                                        (void **)&msg, octet_str.buf, octet_str.len, 0, 0);
-      assert(dec_rval.code == RC_OK);
-      xer_fprint(stdout, &asn_DEF_NR_UL_DCCH_Message, msg);
-      // look inside the message
-      if (msg->message.present == NR_UL_DCCH_MessageType_PR_c1 && msg->message.choice.c1->present == NR_UL_DCCH_MessageType__c1_PR_measurementReport){
-        NR_MeasurementReport_t *measurementReport = msg->message.choice.c1->choice.measurementReport;
+    //   NR_UL_DCCH_Message_t *msg = NULL;
+    //   asn_dec_rval_t dec_rval = uper_decode(NULL, &asn_DEF_NR_UL_DCCH_Message,
+    //                                     (void **)&msg, octet_str.buf, octet_str.len, 0, 0);
+    //   assert(dec_rval.code == RC_OK);
+    //   xer_fprint(stdout, &asn_DEF_NR_UL_DCCH_Message, msg);
+    //   // look inside the message
+    //   if (msg->message.present == NR_UL_DCCH_MessageType_PR_c1 && msg->message.choice.c1->present == NR_UL_DCCH_MessageType__c1_PR_measurementReport){
+    //     NR_MeasurementReport_t *measurementReport = msg->message.choice.c1->choice.measurementReport;
 
-        if(measurementReport->criticalExtensions.present == NR_MeasurementReport__criticalExtensions_PR_measurementReport){
-          NR_MeasurementReport_IEs_t *ies = measurementReport->criticalExtensions.choice.measurementReport;
+    //     if(measurementReport->criticalExtensions.present == NR_MeasurementReport__criticalExtensions_PR_measurementReport){
+    //       NR_MeasurementReport_IEs_t *ies = measurementReport->criticalExtensions.choice.measurementReport;
           
-          if (ies->measResults.measResultServingMOList.list.count > 0 && ies->measResults.measResultServingMOList.list.array[0]->measResultServingCell.measResult.cellResults.resultsSSB_Cell != NULL) {
-            NR_MeasQuantityResults_t* meas_results = ies->measResults.measResultServingMOList.list.array[0]->measResultServingCell.measResult.cellResults.resultsSSB_Cell;
-            if (meas_results->rsrp != NULL) {
-              printf("RSRP Value: %ld\n", *(meas_results->rsrp));
-            }
-          } else {
-            printf("Measurement Results or SSB Cell Results are NULL\n");
-          }
+    //       if (ies->measResults.measResultServingMOList.list.count > 0 && ies->measResults.measResultServingMOList.list.array[0]->measResultServingCell.measResult.cellResults.resultsSSB_Cell != NULL) {
+    //         NR_MeasQuantityResults_t* meas_results = ies->measResults.measResultServingMOList.list.array[0]->measResultServingCell.measResult.cellResults.resultsSSB_Cell;
+    //         if (meas_results->rsrp != NULL) {
+    //           printf("RSRP Value: %ld\n", *(meas_results->rsrp));
+    //         }
+    //       } else {
+    //         printf("Measurement Results or SSB Cell Results are NULL\n");
+    //       }
 
-          // Read out the measurement results for the neighboring cells
-          if(ies->measResults.measResultNeighCells!=NULL && ies->measResults.measResultNeighCells->choice.measResultListNR!=NULL){
-            printf(
-                "There is a measurement list of Neighboring Cells of length %d\n",
-                ies->measResults.measResultNeighCells->choice.measResultListNR->list.count);
-          }
-        }
-      }
-      ASN_STRUCT_FREE(asn_DEF_NR_UL_DCCH_Message, msg);
+    //       // Read out the measurement results for the neighboring cells
+    //       if(ies->measResults.measResultNeighCells!=NULL && ies->measResults.measResultNeighCells->choice.measResultListNR!=NULL){
+    //         printf(
+    //             "There is a measurement list of Neighboring Cells of length %d\n",
+    //             ies->measResults.measResultNeighCells->choice.measResultListNR->list.count);
+    //       }
+    //     }
+    //   }
+    //   ASN_STRUCT_FREE(asn_DEF_NR_UL_DCCH_Message, msg);
 
       break;
 
-    case UE_ID_E2SM_RC_RAN_PARAM_ID_REPORT_1:
-      // printf("\nDecode UE ID!\n");
-      // ue_id_e2sm_t *dec_ue_id_data = NULL;
-      // const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
-      // const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_UEID, (void **)&dec_ue_id_data, octet_str.buf, octet_str.len);
-      // assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGNED_BASIC_PER syntax?");
-      // printf("\nDecoded AMF UE NGAP ID = %ld\n", dec_ue_id_data->gnb.amf_ue_ngap_id);
-      // printf("Decoded MCC = %d\n", dec_ue_id_data->gnb.guami.plmn_id.mcc);
-      // printf("Decoded MNC = %d\n", dec_ue_id_data->gnb.guami.plmn_id.mnc);
-      // printf("Decoded AMF Region ID = %d\n", dec_ue_id_data->gnb.guami.amf_region_id);
-      // printf(">>> Decoded successfully!\n");
-      // break;
+    case UE_ID_E2SM_RC_RAN_PARAM_ID_REPORT_1: {
+      ue_id_e2sm_t *dec_ue_id_data = NULL;
+      const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
+      const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_UEID, (void **)&dec_ue_id_data, octet_str.buf, octet_str.len);
+      assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGNED_BASIC_PER syntax?");
+      ue_id_for_HO = *dec_ue_id_data;   //update UE ID to be Handed over from RIC REPORT
+      break;
+    }  
 
     default:
       printf("Only decoding for RRC Message and UE ID are supported!\n");
@@ -132,16 +151,12 @@ void log_element_ran_param_value(ran_parameter_value_t* param_value, uint32_t id
   assert(param_value != NULL);
 
   switch (param_value->type) {
-    case INTEGER_RAN_PARAMETER_VALUE:
-      log_int_ran_param_value_rrc_state(param_value->int_ran);
-      break;
-
     case OCTET_STRING_RAN_PARAMETER_VALUE:
       log_octet_str_ran_param_value(param_value->octet_str_ran, id);
       break;
 
     default:
-      printf("Add corresponding print function for the RAN Parameter Value (other than Integer and Octet string)\n");
+      printf("Add corresponding print function for the RAN Parameter Value (other than Octet string)\n");
   }
 }
 
@@ -159,37 +174,6 @@ void log_ran_param_name_frmt_1(uint32_t id)
 
     default:
       printf("Add corresponding RAN Parameter ID for REPORT Service Style 1\n");
-  }
-}
-
-static
-void log_ran_param_name_frmt_2(uint32_t id)
-{
-  switch (id) {
-    case RRC_STATE_CHANGED_TO_E2SM_RC_RAN_PARAM_ID:
-      printf("RAN Parameter Name = RRC State Changed To\n");
-      break;
-
-    default:
-      printf("Add corresponding RAN Parameter ID for REPORT Service Style 4\n");
-  }
-}
-
-static
-void log_gnb_id_e2sm(gnb_e2sm_t* gnb)
-{
-  assert(gnb != NULL);
-
-  if (gnb->gnb_cu_ue_f1ap_lst != NULL) {
-    for (size_t j = 0; j < gnb->gnb_cu_ue_f1ap_lst_len; j++) {
-      printf("UE ID type = gNB-CU, gnb_cu_ue_f1ap = %u\n", gnb->gnb_cu_ue_f1ap_lst[j]);
-    }
-  } else if (gnb->gnb_cu_cp_ue_e1ap_lst != NULL) {
-    for (size_t j = 0; j < gnb->gnb_cu_cp_ue_e1ap_lst_len; j++) {
-      printf("UE ID type = gNB-CU-CP, gnb_cu_cp_ue_e1ap = %u\n", gnb->gnb_cu_cp_ue_e1ap_lst[j]);
-    }
-  } else {
-    printf("UE ID type = gNB, amf_ue_ngap_id = %lu\n", gnb->amf_ue_ngap_id);
   }
 }
 
@@ -230,61 +214,12 @@ void log_ind_msg_frmt_1(const e2sm_rc_ind_msg_t* msg)
   }
 }
 
-static
-void log_ind_msg_frmt_2(const e2sm_rc_ind_msg_t* msg)
-{
-  const e2sm_rc_ind_msg_frmt_2_t* ind_msg_frmt_2 = &msg->frmt_2;
-
-  static int counter = 1;
-  {
-    lock_guard(&mtx);
-
-    printf("\n%7d RC Indication Message\n", counter);
-
-    for (size_t i = 0; i < ind_msg_frmt_2->sz_seq_ue_id; i++) {
-      seq_ue_id_t* const ue_id_item = &ind_msg_frmt_2->seq_ue_id[i];
-
-      switch (ue_id_item->ue_id.type) {
-        case GNB_UE_ID_E2SM:
-          log_gnb_id_e2sm(&ue_id_item->ue_id.gnb);
-          break;
-
-        default:
-          assert(false && "E2 Node Type not yet added\n");
-      }
-
-      // List parameters
-      for (size_t j = 0; j < ue_id_item->sz_seq_ran_param; j++) {
-        seq_ran_param_t* const ran_param_item = &ue_id_item->seq_ran_param[j];
-
-        log_ran_param_name_frmt_2(ran_param_item->ran_param_id);
-        printf("RAN Parameter ID is: %d\n", ran_param_item->ran_param_id);
-
-        switch (ran_param_item->ran_param_val.type) {
-          case ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE:
-            log_element_ran_param_value(ran_param_item->ran_param_val.flag_false, ran_param_item->ran_param_id);
-            break;
-
-          case ELEMENT_KEY_FLAG_TRUE_RAN_PARAMETER_VAL_TYPE:
-            log_element_ran_param_value(ran_param_item->ran_param_val.flag_true, ran_param_item->ran_param_id);
-            break;
-
-          default:
-            printf("Add corresponding function for the RAN Parameter Value Type (other than element)\n");
-        }
-      }
-    }
-
-    counter++;
-  }
-}
-
 typedef void (*log_ind_msg_data)(const e2sm_rc_ind_msg_t* msg);
 
 static
 log_ind_msg_data rc_msg[END_E2SM_RC_IND_MSG] = {
   log_ind_msg_frmt_1,
-  log_ind_msg_frmt_2,
+  NULL,
   NULL,
   NULL,
   NULL,
@@ -299,66 +234,6 @@ void sm_cb_rc(sm_ag_if_rd_t const* rd)
   // log properly INDICATION formats
   const e2sm_rc_ind_msg_format_e type = rd->ind.rc.ind.msg.format;
   rc_msg[type](&rd->ind.rc.ind.msg);
-}
-
-static
-rrc_state_lst_t fill_rrc_state_change(void)
-{
-  rrc_state_lst_t rrc_state_lst = {0};
-
-  rrc_state_lst.sz_rrc_state = 1;
-  rrc_state_lst.state_chng_to = calloc(rrc_state_lst.sz_rrc_state, sizeof(rrc_state_t));
-  assert(rrc_state_lst.state_chng_to != NULL && "Memory exhausted");
-
-  // 9.3.37
-  rrc_state_lst.state_chng_to[0].state_chngd_to = ANY_RRC_STATE_E2SM_RC;
-
-  // 9.3.25
-  // Logical OR
-  rrc_state_lst.state_chng_to[0].log_or = NULL;
-
-  return rrc_state_lst;
-}
-
-static
-ue_info_chng_t fill_ue_info_chng(ue_info_chng_trigger_type_e const trigger_type)
-{
-  ue_info_chng_t ue_info_chng = {0};
-
-  //  Event Trigger Condition ID
-  //  Mandatory
-  //  9.3.21
-  ue_info_chng.ev_trig_cond_id = 1; // this parameter contains rnd value, but must be matched in ind hdr
-  /* For each information change configured, Event Trigger Condition ID is assigned
-  so that E2 Node can reply to Near-RT RIC in the RIC INDICATION message to inform
-  which event(s) are the cause for triggering. */
-
-  // CHOICE Trigger Type
-  ue_info_chng.type = trigger_type;
-
-  switch (trigger_type) {
-    case RRC_STATE_UE_INFO_CHNG_TRIGGER_TYPE: {
-      // RRC State
-      // 9.3.37
-      ue_info_chng.rrc_state = fill_rrc_state_change();
-      break;
-    }
-
-    default:
-      assert(false && "Add requested Trigger Type. At the moment, only RRC State supported");
-  }
-
-  // Associated UE Info
-  // Optional
-  // 9.3.26
-  ue_info_chng.assoc_ue_info = NULL;
-
-  // Logical OR
-  // Optional
-  // 9.3.25
-  ue_info_chng.log_or = NULL;
-
-  return ue_info_chng;
 }
 
 static
@@ -594,40 +469,6 @@ rc_sub_data_t gen_rc_sub_msg(ran_func_def_report_t const* ran_func)
         // Fill Action Definition
         rc_sub.ad[0].frmt_1.param_report_def[j] = fill_param_report(ran_param_id, ran_param_def);
       }      
-    } else if (cmp_str_ba("UE Information", ran_func->seq_report_sty[i].name) == 0) {  // as defined in section 7.4.5, formats used for SUBSCRIPTION msg are known
-      size_t const sz_2 = ran_func->seq_report_sty[i].sz_seq_ran_param;
-      printf("REPORT Format 4! Number of RAN Parameters is %ld\n", sz_2);
-
-      // Generate Event Trigger
-      rc_sub.et.format = ran_func->seq_report_sty[i].ev_trig_type;
-      assert(rc_sub.et.format == FORMAT_4_E2SM_RC_EV_TRIGGER_FORMAT && "Event Trigger Format received not valid");
-      rc_sub.et.frmt_4.sz_ue_info_chng = sz_2;
-      rc_sub.et.frmt_4.ue_info_chng = calloc(sz_2, sizeof(ue_info_chng_t));
-      assert(rc_sub.et.frmt_4.ue_info_chng != NULL && "Memory exhausted");
-
-      // Generate Action Definition
-      rc_sub.sz_ad = 1;
-      rc_sub.ad = calloc(rc_sub.sz_ad, sizeof(e2sm_rc_action_def_t));
-      assert(rc_sub.ad != NULL && "Memory exhausted");
-      rc_sub.ad[0].ric_style_type = 4; // REPORT Service Style 4: UE Information
-      rc_sub.ad[0].format = ran_func->seq_report_sty[i].act_frmt_type;
-      assert(rc_sub.ad[0].format == FORMAT_1_E2SM_RC_ACT_DEF && "Action Definition Format received not valid");
-      rc_sub.ad[0].frmt_1.sz_param_report_def = sz_2;
-      rc_sub.ad[0].frmt_1.param_report_def = calloc(sz_2, sizeof(param_report_def_t));
-      assert(rc_sub.ad[0].frmt_1.param_report_def != NULL && "Memory exhausted");
-
-      // Fill RAN Parameter Info
-      for (size_t j = 0; j < sz_2; j++) {
-        assert(cmp_str_ba("RRC State Changed To", ran_func->seq_report_sty[i].ran_param[j].name) == 0 && "Add requested RAN Parameter. At the moment, only RRC State supported");
-
-        ue_info_chng_trigger_type_e const trigger_type = RRC_STATE_UE_INFO_CHNG_TRIGGER_TYPE;
-        uint32_t const ran_param_id = ran_func->seq_report_sty[i].ran_param[j].id;
-        ran_param_def_t const* ran_param_def = ran_func->seq_report_sty[i].ran_param[j].def;
-        // Fill Event Trigger
-        rc_sub.et.frmt_4.ue_info_chng[j] = fill_ue_info_chng(trigger_type);
-        // Fill Action Definition
-        rc_sub.ad[0].frmt_1.param_report_def[j] = fill_param_report(ran_param_id, ran_param_def);
-      }
     } else {
       assert(false && "Add requested REPORT Style. At the moment, only \"UE Information\" and \"Message Copy\" are supported");
     }
@@ -655,6 +496,117 @@ size_t find_sm_idx(sm_ran_function_t* rf, size_t sz, bool (*f)(sm_ran_function_t
 
   assert(0 != 0 && "SM ID could not be found in the RAN Function List");
 }
+
+// ======================================= CONTROL SERVICE ============================================
+
+static
+e2sm_rc_ctrl_hdr_frmt_1_t gen_rc_ctrl_hdr_frmt_1(ue_id_e2sm_t ue_id, uint32_t ric_style_type, uint16_t ctrl_act_id)
+{
+  e2sm_rc_ctrl_hdr_frmt_1_t dst = {0};
+
+  // 6.2.2.6
+  dst.ue_id = cp_ue_id_e2sm(&ue_id);
+
+  dst.ric_style_type = ric_style_type;
+  dst.ctrl_act_id = ctrl_act_id;
+
+  return dst;
+}
+
+static
+e2sm_rc_ctrl_hdr_t gen_rc_ctrl_hdr(e2sm_rc_ctrl_hdr_e hdr_frmt, ue_id_e2sm_t ue_id, uint32_t ric_style_type, uint16_t ctrl_act_id)
+{
+  e2sm_rc_ctrl_hdr_t dst = {0};
+
+  if (hdr_frmt == FORMAT_1_E2SM_RC_CTRL_HDR) {
+    dst.format = FORMAT_1_E2SM_RC_CTRL_HDR;
+    dst.frmt_1 = gen_rc_ctrl_hdr_frmt_1(ue_id, ric_style_type, ctrl_act_id);
+  } else {
+    assert(0!=0 && "not implemented the fill func for this ctrl hdr frmt");
+  }
+
+  return dst;
+}
+
+static
+void gen_nr_cell_id(seq_ran_param_t* NR_Cell)
+{
+  NR_Cell->ran_param_id = NR_Cell_8_4_4_1;
+  NR_Cell->ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+  NR_Cell->ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
+  assert(NR_Cell->ran_param_val.strct != NULL && "Memory exhausted");
+  NR_Cell->ran_param_val.strct->sz_ran_param_struct = 1;
+  NR_Cell->ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
+  assert(NR_Cell->ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
+
+  seq_ran_param_t* NR_CGI = &NR_Cell->ran_param_val.strct->ran_param_struct[0];
+  NR_CGI->ran_param_id = NR_CGI_8_4_4_1;
+  NR_CGI->ran_param_val.type = ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE;
+  NR_CGI->ran_param_val.flag_false = calloc(1, sizeof(ran_parameter_value_t));
+  assert(NR_CGI->ran_param_val.flag_false != NULL && "Memory exhausted");
+  NR_CGI->ran_param_val.flag_false->type = OCTET_STRING_RAN_PARAMETER_VALUE;
+  // In 3GPP 38.423, NR CGI = PLMN Identity (OCTET STRING) + NR Cell Identity (BIT STRING)
+  // Not sure which data type is for NR CGI
+
+}
+
+static
+void gen_target_primary_cell_id(seq_ran_param_t* Target_Primary_Cell_ID)
+{
+  Target_Primary_Cell_ID->ran_param_id = Target_Primary_Cell_ID_8_4_4_1;
+  Target_Primary_Cell_ID->ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+  Target_Primary_Cell_ID->ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
+  assert(Target_Primary_Cell_ID->ran_param_val.strct != NULL && "Memory exhausted");
+  Target_Primary_Cell_ID->ran_param_val.strct->sz_ran_param_struct = 1;
+  Target_Primary_Cell_ID->ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
+  assert(Target_Primary_Cell_ID->ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
+
+  seq_ran_param_t* Target_Cell = &Target_Primary_Cell_ID->ran_param_val.strct->ran_param_struct[0];
+  Target_Cell->ran_param_id = Target_Cell_8_4_4_1;
+  Target_Cell->ran_param_val.type = STRUCTURE_RAN_PARAMETER_VAL_TYPE;
+  Target_Cell->ran_param_val.strct = calloc(1, sizeof(ran_param_struct_t));
+  assert(Target_Cell->ran_param_val.strct != NULL && "Memory exhausted");
+  Target_Cell->ran_param_val.strct->sz_ran_param_struct = 1;
+  Target_Cell->ran_param_val.strct->ran_param_struct = calloc(1, sizeof(seq_ran_param_t));
+  assert(Target_Cell->ran_param_val.strct->ran_param_struct != NULL && "Memory exhausted");
+
+  gen_nr_cell_id(&Target_Cell->ran_param_val.strct->ran_param_struct[0]);
+
+  return;
+}
+
+static
+e2sm_rc_ctrl_msg_frmt_1_t gen_rc_ctrl_msg_frmt_1_handover_control(void)
+{
+  e2sm_rc_ctrl_msg_frmt_1_t dst = {0};
+
+  // 8.4.4.1
+
+  // Target Primary Cell ID, STRUCTURE
+  dst.sz_ran_param = 1;
+  dst.ran_param = calloc(1, sizeof(seq_ran_param_t));
+  assert(dst.ran_param != NULL && "Memory exhausted");
+  gen_target_primary_cell_id(&dst.ran_param[0]);
+
+  return dst;
+}
+
+static
+e2sm_rc_ctrl_msg_t gen_rc_ctrl_msg(e2sm_rc_ctrl_msg_e msg_frmt)
+{
+  e2sm_rc_ctrl_msg_t dst = {0};
+
+  if (msg_frmt == FORMAT_1_E2SM_RC_CTRL_MSG) {
+    dst.format = msg_frmt;
+    dst.frmt_1 = gen_rc_ctrl_msg_frmt_1_handover_control();
+  } else {
+    assert(0!=0 && "not implemented the fill func for this ctrl msg frmt");
+  }
+
+  return dst;
+}
+
+// =====================================================================================================
 
 volatile sig_atomic_t keep_running = true; // Flag to control loop execution
 
@@ -694,6 +646,13 @@ int main(int argc, char* argv[])
   ////////////
   int const RC_ran_function = 3;
 
+  // RC Control
+  // CONTROL Service Style 3: Connected Mode Mobility Control
+  // Action ID 1: Handover Control
+  // E2SM-RC Control Header Format 1
+  // E2SM-RC Control Message Format 1
+  rc_ctrl_req_data_t rc_ctrl = {0};
+
   for (int i = 0; i < nodes.len; i++) {
     e2_node_connected_xapp_t* n = &nodes.n[i];
 
@@ -706,9 +665,14 @@ int main(int argc, char* argv[])
 
       hndl[i] = report_sm_xapp_api(&n->id, RC_ran_function, &rc_sub, sm_cb_rc);
       assert(hndl[i].success == true);
-
       free_rc_sub_data(&rc_sub);
     }
+
+    rc_ctrl.hdr = gen_rc_ctrl_hdr(FORMAT_1_E2SM_RC_CTRL_HDR, ue_id_for_HO, 3, Handover_Control_7_6_4_1);
+    rc_ctrl.msg = gen_rc_ctrl_msg(FORMAT_1_E2SM_RC_CTRL_MSG);
+    control_sm_xapp_api(&nodes.n[i].id, SM_RC_ID, &rc_ctrl);
+    free_rc_ctrl_req_data(&rc_ctrl);
+
   }
   ////////////
   // END RC
