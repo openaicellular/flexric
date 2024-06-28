@@ -29,9 +29,9 @@ typedef enum Criticality {
 typedef long	 Criticality_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_Criticality_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_Criticality;
-extern const asn_INTEGER_specifics_t asn_SPC_Criticality_specs_1;
+extern asn_per_constraints_t asn_PER_type_Criticality_constr_1_e2ap_v1_01;
+extern asn_TYPE_descriptor_t asn_DEF_Criticality_e2ap_v1_01;
+extern const asn_INTEGER_specifics_t asn_SPC_Criticality_specs_1_e2ap_v1_01;
 asn_struct_free_f Criticality_free;
 asn_struct_print_f Criticality_print;
 asn_constr_check_f Criticality_constraint;

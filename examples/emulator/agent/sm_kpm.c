@@ -3,6 +3,7 @@
 #include "../../../src/util/time_now_us.h"
 #include "../../../src/util/alg_ds/alg/murmur_hash_32.h"
 #include "../../../src/util/alg_ds/ds/assoc_container/assoc_generic.h"
+#include "../../../src/util/e.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -283,14 +284,16 @@ int dummy_cnt = 0;
 // Dummy function. It emulates a function where the UE fullfills (or not)
 // the condition
 static
-bool ue_fullfills_predicate(test_cond_e cond, int64_t value)
+bool ue_fullfills_predicate(test_cond_e cond, test_cond_value_t value)
 {
   assert(cond == EQUAL_TEST_COND 
       || cond == GREATERTHAN_TEST_COND 
       || cond == CONTAINS_TEST_COND
       || cond == PRESENT_TEST_COND
       );
-  assert(value > -1 && "Assuming this for testing");
+
+  assert(value.type == OCTET_STRING_TEST_COND_VALUE && "Only for testing");
+  assert(value.octet_string_value->buf[0] > -1 && "Assuming this for testing");
 
   dummy_cnt++; 
   if(dummy_cnt > 32 && dummy_cnt < 4*32){
@@ -311,7 +314,7 @@ seq_arr_t emulate_ues_fullfilling_pred(test_info_lst_t const*  info)
   seq_init(&dst, sizeof(ue_id_e2sm_t)); // 
 
   for(size_t i = 0; i < num_ues; ++i){
-    bool const select_ue = ue_fullfills_predicate(*info->test_cond, *info->test_cond_value->int_value );
+    bool const select_ue = ue_fullfills_predicate(*info->test_cond, *info->test_cond_value);
     if(select_ue){
       ue_id_e2sm_t ue = fill_rnd_ue_id_data();
       seq_push_back(&dst, &ue, sizeof(ue_id_e2sm_t));
@@ -417,7 +420,6 @@ seq_arr_t match_s_nssai_test_cond_type(test_info_lst_t const* info)
 {
   assert(info != NULL);
   assert(info->test_cond_type == S_NSSAI_TEST_COND_TYPE);
-  assert(info->test_cond_value->type == INTEGER_TEST_COND_VALUE);
 
   return emulate_ues_fullfilling_pred(info);
 }
@@ -555,7 +557,7 @@ bool read_kpm_sm(void* data)
     kpm_ind_msg_format_3_t info = subscription_info(&match_ues, &frm_4->action_def_format_1); 
 
     // Header
-    kpm->ind.hdr.type =  FORMAT_1_INDICATION_HEADER;
+    kpm->ind.hdr.type = FORMAT_1_INDICATION_HEADER;
     kpm->ind.hdr.kpm_ric_ind_hdr_format_1 = fill_rnd_kpm_ind_hdr_frm_1();
     // Message 
     // 7.8 Supported RIC Styles and E2SM IE Formats
@@ -571,13 +573,122 @@ bool read_kpm_sm(void* data)
   return true;
 }
 
+#if defined KPM_V2_03 || defined KPM_V3_00 
+static
+ric_report_style_item_t fill_kpm_report_style_4(void)
+{
+  ric_report_style_item_t dst = {0}; 
+
+  // 8.3.3
+  dst.report_style_type = STYLE_4_RIC_SERVICE_REPORT; 
+  
+  // 8.3.4
+  const char style_name[] = "Dummy style name"; 
+  dst.report_style_name = cp_str_to_ba(style_name);
+  
+  // 8.3.5
+  dst.act_def_format_type = FORMAT_4_ACTION_DEFINITION;
+
+
+#ifdef NGRAN_GNB
+  // 3GPP TS 28.552
+  const char* kpm_meas[] = {
+    "DRB.PdcpSduVolumeDL", 
+    "DRB.PdcpSduVolumeUL", 
+    "DRB.RlcSduDelayDl", 
+    "DRB.UEThpDl", 
+    "DRB.UEThpUl", 
+    "RRU.PrbTotDl", 
+    "RRU.PrbTotUl",
+  };
+#elif defined NGRAN_GNB_CU 
+  const char* kpm_meas[] = {
+    "DRB.PdcpSduVolumeDL", 
+    "DRB.PdcpSduVolumeUL", 
+  };
+#elif defined NGRAN_GNB_DU   
+  const char* kpm_meas[] = {
+    "DRB.RlcSduDelayDl", 
+    "DRB.UEThpDl", 
+    "DRB.UEThpUl", 
+    "RRU.PrbTotDl", 
+    "RRU.PrbTotUl",
+  };
+#elif defined NGRAN_ENB 
+  const char* kpm_meas[] = {
+    "DRB.PdcpSduVolumeDL", 
+    "DRB.PdcpSduVolumeUL", 
+    "RRU.PrbTotDl", 
+    "RRU.PrbTotUl",
+  };
+#else
+  _Static_assert(0!=0, "Unknown node type");
+#endif 
+
+  const size_t sz = sizeof(kpm_meas) / sizeof(char *);
+  // [1, 65535]
+  dst.meas_info_for_action_lst_len = sz;
+  dst.meas_info_for_action_lst = ecalloc(sz, sizeof(meas_info_for_action_lst_t));
+
+  for(size_t i = 0; i < sz; ++i){
+    dst.meas_info_for_action_lst[i].name = cp_str_to_ba(kpm_meas[i]); 
+  } 
+
+  // 8.3.5
+  dst.ind_hdr_format_type = FORMAT_1_INDICATION_HEADER;
+  dst.ind_msg_format_type = FORMAT_3_INDICATION_MESSAGE;
+
+  return dst;
+}
+#endif
+
+static
+ric_event_trigger_style_item_t fill_kpm_ev_tr_style(void)
+{
+  ric_event_trigger_style_item_t ev_tr_item = {0};
+
+  ev_tr_item.style_type = STYLE_1_RIC_EVENT_TRIGGER;
+  const char ev_style_name[] = "Periodic Report";
+  ev_tr_item.style_name = cp_str_to_ba(ev_style_name);
+  ev_tr_item.format_type = FORMAT_1_RIC_EVENT_TRIGGER;
+
+  return ev_tr_item;
+}
+
+static
+kpm_ran_function_def_t fill_kpm_ran_func_def(void)
+{
+  kpm_ran_function_def_t dst = {0}; 
+ 
+  // RAN Function name is already filled by the kpm_sm_agent.c
+
+  // Sequence of Event Trigger styles
+  size_t const sz_ev_tr = 1;
+  dst.sz_ric_event_trigger_style_list = sz_ev_tr;
+  dst.ric_event_trigger_style_list = ecalloc(sz_ev_tr, sizeof(ric_event_trigger_style_item_t));
+  
+  dst.ric_event_trigger_style_list[0] = fill_kpm_ev_tr_style();
+
+  // Sequence of Report styles
+#if defined KPM_V2_03 || defined KPM_V3_00
+  size_t const sz_report = 1;
+  dst.sz_ric_report_style_list = sz_report;
+  dst.ric_report_style_list = ecalloc(sz_report, sizeof(ric_report_style_item_t )); 
+
+  dst.ric_report_style_list[0] = fill_kpm_report_style_4();
+#endif
+
+  return dst;
+}
+
+
 void read_kpm_setup_sm(void* e2ap)
 {
   assert(e2ap != NULL);
-//  assert(e2ap->type == KPM_V3_0_AGENT_IF_E2_SETUP_ANS_V0);
 
   kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(e2ap);
-  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
+  // Let's fill the RAN Function Definition with currently supported measurements
+  kpm->ran_func_def = fill_kpm_ran_func_def(); 
 }
 
 sm_ag_if_ans_t write_ctrl_kpm_sm(void const* src)

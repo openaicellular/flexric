@@ -32,9 +32,9 @@ typedef struct ResetRequest {
 } ResetRequest_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_ResetRequest;
-extern asn_SEQUENCE_specifics_t asn_SPC_ResetRequest_specs_1;
-extern asn_TYPE_member_t asn_MBR_ResetRequest_1[1];
+extern asn_TYPE_descriptor_t asn_DEF_ResetRequest_e2ap_v2_03;
+extern asn_SEQUENCE_specifics_t asn_SPC_ResetRequest_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_ResetRequest_1_e2ap_v2_03[1];
 
 #ifdef __cplusplus
 }

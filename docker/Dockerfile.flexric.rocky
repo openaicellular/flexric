@@ -1,0 +1,153 @@
+#/*
+# * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+# * contributor license agreements.  See the NOTICE file distributed with
+# * this work for additional information regarding copyright ownership.
+# * The OpenAirInterface Software Alliance licenses this file to You under
+# * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+# * except in compliance with the License.
+# * You may obtain a copy of the License at
+# *
+# *      http://www.openairinterface.org/?page_id=698
+# *
+# * Unless required by applicable law or agreed to in writing, software
+# * distributed under the License is distributed on an "AS IS" BASIS,
+# * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# * See the License for the specific language governing permissions and
+# * limitations under the License.
+# *-------------------------------------------------------------------------------
+# * For more information about the OpenAirInterface (OAI) Software Alliance:
+# *      contact@openairinterface.org
+# */
+#
+#---------------------------------------------------------------------
+#
+# Dockerfile for the Open-Air-Interface FlexRIC service
+#   Valid for Rocky Linux 9.+
+#
+#---------------------------------------------------------------------
+# BUILDER IMAGE
+#---------------------------------------------------------------------
+FROM docker.io/rockylinux:9 AS oai-flexric-base
+ENV TZ=Europe/Paris
+
+#install developers pkg/repo
+RUN dnf install 'dnf-command(config-manager)' -y && \
+    dnf install epel-release -y && crb enable && \
+    dnf update -y && \
+    # here just to display the current version
+    cat /etc/os-release && \
+    dnf install -y \
+       lksctp-tools-devel \
+       git \
+       bash \
+       wget \
+       tar \
+       m4 \
+       automake \
+       libtool \
+       python3 \
+       make \
+       cmake \
+       cmake-gui \
+       bison \
+       flex \
+       gdb \
+       pcre2-devel \
+       python3-devel \
+       python3-pip \
+       gcc-toolset-12-gcc \
+       gcc-toolset-12-gcc-c++ \
+       ninja-build && \
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/local-lib.conf && \
+    echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local-lib.conf
+
+RUN git clone https://github.com/swig/swig.git && \
+    cd swig && \
+    git checkout release-4.1 && \
+    scl enable gcc-toolset-12 "\
+    ./autogen.sh && \
+    ./configure --prefix=/usr/ && \
+    make -j8 && \
+    make install" && \
+    ldconfig
+
+FROM oai-flexric-base as oai-flexric-builder
+WORKDIR /flexric
+
+COPY . .
+
+RUN mkdir build && \
+    cd build && \
+    scl enable gcc-toolset-12 "\
+    cmake -GNinja -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_C_FLAGS_RELEASE='-O3' \
+          -DCMAKE_CXX_FLAGS_RELEASE='-O3' .. && \
+    ninja && \
+    ninja install" && \
+    echo "--- Check shared objects dependencies for executable nearRT-RIC ---" && \
+    ldd /flexric/build/examples/ric/nearRT-RIC && \
+    echo "--- Check shared objects dependencies for xApp shared library ---" && \
+    ldd /flexric/build/src/xApp/libe42_xapp_shared.so
+
+#---------------------------------------------------------------------
+# TARGET IMAGE
+#---------------------------------------------------------------------
+
+FROM docker.io/rockylinux:9-minimal AS oai-flexric
+ENV TZ=Europe/Paris
+
+#install developers pkg/repo
+RUN microdnf update -y && \
+    microdnf install -y \
+       tzdata \
+       psmisc \
+       gpg \
+       wget \
+       lksctp-tools \
+       python3 \
+       python3-pip && \
+    microdnf clean all -y && \
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/local-lib.conf && \
+    echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local-lib.conf
+
+WORKDIR /usr/local/lib64/flexric/
+
+COPY --from=oai-flexric-builder \
+    /usr/local/lib64/flexric/libmac_sm.so \
+    /usr/local/lib64/flexric/libkpm_sm.so \
+    /usr/local/lib64/flexric/librlc_sm.so \
+    /usr/local/lib64/flexric/libslice_sm.so \
+    /usr/local/lib64/flexric/libtc_sm.so \
+    /usr/local/lib64/flexric/libgtp_sm.so \
+    /usr/local/lib64/flexric/libpdcp_sm.so \
+    /usr/local/lib64/flexric/librc_sm.so \
+    /usr/local/lib64/flexric/
+
+WORKDIR /flexric/build/src/xApp/
+COPY --from=oai-flexric-builder \
+    /flexric/build/src/xApp/libe42_xapp_shared.so \
+    /flexric/build/src/xApp/
+
+COPY --from=oai-flexric-builder \
+    /flexric/build/examples/ric/nearRT-RIC /usr/local/bin/nearRT-RIC
+
+## Copy xApps
+WORKDIR /usr/local/flexric
+COPY --from=oai-flexric-builder \
+    /flexric/build/examples/xApp /usr/local/flexric/xApp
+
+RUN ldconfig && \
+    echo "--- Check shared objects dependencies for executable nearRT-RIC ---" && \
+    ldd /usr/local/bin/nearRT-RIC && \
+    echo "--- Check shared objects dependencies for xApp shared library ---" && \
+    ldd /flexric/build/src/xApp/libe42_xapp_shared.so && \
+    echo "--- Check shared objects dependencies for flexric shared libraries ---" && \
+    ldd /usr/local/lib64/flexric/*.so
+
+WORKDIR /
+## E2
+EXPOSE 36421/sctp
+## E42
+EXPOSE 36422/sctp
+
+CMD ["stdbuf", "-o0", "nearRT-RIC"]

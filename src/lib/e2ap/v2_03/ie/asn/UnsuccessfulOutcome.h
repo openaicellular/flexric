@@ -106,9 +106,9 @@ typedef struct UnsuccessfulOutcome {
 } UnsuccessfulOutcome_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_UnsuccessfulOutcome;
-extern asn_SEQUENCE_specifics_t asn_SPC_UnsuccessfulOutcome_specs_1;
-extern asn_TYPE_member_t asn_MBR_UnsuccessfulOutcome_1[3];
+extern asn_TYPE_descriptor_t asn_DEF_UnsuccessfulOutcome_e2ap_v2_03;
+extern asn_SEQUENCE_specifics_t asn_SPC_UnsuccessfulOutcome_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_UnsuccessfulOutcome_1_e2ap_v2_03[3];
 
 #ifdef __cplusplus
 }

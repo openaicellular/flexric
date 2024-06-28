@@ -6,24 +6,24 @@
 #include <asn_internal.h>
 #include <constr_SET_OF.h>
 
-asn_TYPE_operation_t asn_OP_SET_OF = {
-    SET_OF_free,
+asn_TYPE_operation_t asn_OP_SET_OF_e2ap_v1_01 = {
+    SET_OF_free_e2ap_v1_01,
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-    SET_OF_print,
+    SET_OF_print_e2ap_v1_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
-    SET_OF_compare,
+    SET_OF_compare_e2ap_v1_01,
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-    SET_OF_decode_ber,
-    SET_OF_encode_der,
+    SET_OF_decode_ber_e2ap_v1_01,
+    SET_OF_encode_der_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-    SET_OF_decode_xer,
-    SET_OF_encode_xer,
+    SET_OF_decode_xer_e2ap_v1_01,
+    SET_OF_encode_xer_e2ap_v1_01,
 #else
     0,
     0,
@@ -41,21 +41,21 @@ asn_TYPE_operation_t asn_OP_SET_OF = {
     0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-    SET_OF_decode_uper,
-    SET_OF_encode_uper,
+    SET_OF_decode_uper_e2ap_v1_01,
+    SET_OF_encode_uper_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-    SET_OF_decode_aper,
-    SET_OF_encode_aper,
+    SET_OF_decode_aper_e2ap_v1_01,
+    SET_OF_encode_aper_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-    SET_OF_random_fill,
+    SET_OF_random_fill_e2ap_v1_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
@@ -125,7 +125,7 @@ static int _el_buf_cmp(const void *ap, const void *bp) {
 }
 
 void
-SET_OF__encode_sorted_free(struct _el_buffer *el_buf, size_t count) {
+SET_OF__encode_sorted_e2ap_v1_01_free(struct _el_buffer *el_buf, size_t count) {
     size_t i;
 
     for(i = 0; i < count; i++) {
@@ -136,7 +136,7 @@ SET_OF__encode_sorted_free(struct _el_buffer *el_buf, size_t count) {
 }
 
 struct _el_buffer *
-SET_OF__encode_sorted(const asn_TYPE_member_t *elm,
+SET_OF__encode_sorted_e2ap_v1_01(const asn_TYPE_member_t *elm,
                       const asn_anonymous_set_ *list,
                       enum SET_OF__encode_method method) {
     struct _el_buffer *encoded_els;
@@ -164,13 +164,13 @@ SET_OF__encode_sorted(const asn_TYPE_member_t *elm,
         switch(method) {
 #if !defined(ASN_DISABLE_BER_SUPPORT)
         case SOES_DER:
-            erval = elm->type->op->der_encoder(elm->type, memb_ptr, 0, elm->tag,
+            erval = elm->type->op->der_encode_e2ap_v1_01r(elm->type, memb_ptr, 0, elm->tag,
                                                _el_addbytes, encoding_el);
             break;
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
         case SOES_CUPER:
-            erval = uper_encode(elm->type,
+            erval = uper_encode_e2ap_v1_01(elm->type,
                                 elm->encoding_constraints.per_constraints,
                                 memb_ptr, _el_addbytes, encoding_el);
             if(erval.encoded != -1) {
@@ -182,7 +182,7 @@ SET_OF__encode_sorted(const asn_TYPE_member_t *elm,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
         case SOES_CAPER:
-            erval = aper_encode(elm->type,
+            erval = aper_encode_e2ap_v1_01(elm->type,
                                 elm->encoding_constraints.per_constraints,
                                 memb_ptr, _el_addbytes, encoding_el);
             if(erval.encoded != -1) {
@@ -208,13 +208,13 @@ SET_OF__encode_sorted(const asn_TYPE_member_t *elm,
 
         return encoded_els;
     } else {
-        SET_OF__encode_sorted_free(encoded_els, edx);
+        SET_OF__encode_sorted_e2ap_v1_01_free(encoded_els, edx);
         return NULL;
     }
 }
 
 void
-SET_OF_free(const asn_TYPE_descriptor_t *td, void *ptr,
+SET_OF_free_e2ap_v1_01(const asn_TYPE_descriptor_t *td, void *ptr,
             enum asn_struct_free_method method) {
     if(td && ptr) {
 		const asn_SET_OF_specifics_t *specs;
@@ -234,7 +234,7 @@ SET_OF_free(const asn_TYPE_descriptor_t *td, void *ptr,
 		}
 		list->count = 0;	/* No meaningful elements left */
 
-		asn_set_empty(list);	/* Remove (list->array) */
+		asn_set_empty_e2ap_v1_01(list);	/* Remove (list->array) */
 
 		specs = (const asn_SET_OF_specifics_t *)td->specifics;
 		ctx = (asn_struct_ctx_t *)((char *)ptr + specs->ctx_offset);
@@ -257,7 +257,7 @@ SET_OF_free(const asn_TYPE_descriptor_t *td, void *ptr,
 }
 
 int
-SET_OF_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
+SET_OF_constraint_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                   asn_app_constraint_failed_f *ctfailcb, void *app_key) {
     const asn_TYPE_member_t *elm = td->elements;
 	asn_constr_check_f *constr;
@@ -305,7 +305,7 @@ SET_OF__compare_cb(const void *aptr, const void *bptr) {
 }
 
 int
-SET_OF_compare(const asn_TYPE_descriptor_t *td, const void *aptr,
+SET_OF_compare_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *aptr,
                const void *bptr) {
     const asn_anonymous_set_ *a = _A_CSET_FROM_VOID(aptr);
     const asn_anonymous_set_ *b = _A_CSET_FROM_VOID(bptr);

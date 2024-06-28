@@ -8,8 +8,8 @@
 #include <BIT_STRING.h>  /* for .bits_unused member */
 
 asn_enc_rval_t
-OCTET_STRING_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr,
-                        int ilevel, enum jer_encoder_flags_e flags,
+OCTET_STRING_encode_jer_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
+                        int ilevel, enum jer_encode_e2ap_v3_01r_flags_e flags,
                         asn_app_consume_bytes_f *cb, void *app_key) {
     const char * const h2c = "0123456789ABCDEF";
     const OCTET_STRING_t *st = (const OCTET_STRING_t *)sptr;
@@ -103,8 +103,8 @@ static const struct OCTET_STRING__jer_escape_table_s {
 };
 
 asn_enc_rval_t
-OCTET_STRING_encode_jer_utf8(const asn_TYPE_descriptor_t *td, const void *sptr,
-                             int ilevel, enum jer_encoder_flags_e flags,
+OCTET_STRING_encode_jer_e2ap_v3_01_utf8(const asn_TYPE_descriptor_t *td, const void *sptr,
+                             int ilevel, enum jer_encode_e2ap_v3_01r_flags_e flags,
                              asn_app_consume_bytes_f *cb, void *app_key) {
     const OCTET_STRING_t *st = (const OCTET_STRING_t *)sptr;
     asn_enc_rval_t er = { 0, 0, 0 };

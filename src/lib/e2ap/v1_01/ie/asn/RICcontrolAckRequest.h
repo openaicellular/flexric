@@ -32,9 +32,9 @@ typedef enum RICcontrolAckRequest {
 typedef long	 RICcontrolAckRequest_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_RICcontrolAckRequest_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_RICcontrolAckRequest;
-extern const asn_INTEGER_specifics_t asn_SPC_RICcontrolAckRequest_specs_1;
+extern asn_per_constraints_t asn_PER_type_RICcontrolAckRequest_constr_1_e2ap_v1_01;
+extern asn_TYPE_descriptor_t asn_DEF_RICcontrolAckRequest_e2ap_v1_01;
+extern const asn_INTEGER_specifics_t asn_SPC_RICcontrolAckRequest_specs_1_e2ap_v1_01;
 asn_struct_free_f RICcontrolAckRequest_free;
 asn_struct_print_f RICcontrolAckRequest_print;
 asn_constr_check_f RICcontrolAckRequest_constraint;

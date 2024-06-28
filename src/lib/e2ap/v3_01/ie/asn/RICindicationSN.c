@@ -8,7 +8,7 @@
 #include "RICindicationSN.h"
 
 int
-RICindicationSN_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
+RICindicationSN_constraint_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
 			asn_app_constraint_failed_f *ctfailcb, void *app_key) {
 	long value;
 	
@@ -37,33 +37,33 @@ RICindicationSN_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
  * so here we adjust the DEF accordingly.
  */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_RICindicationSN_constr_1 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_RICindicationSN_constr_1_e2ap_v3_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED,	 16,  16,  0,  65535 }	/* (0..65535) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-static const ber_tlv_tag_t asn_DEF_RICindicationSN_tags_1[] = {
+static const ber_tlv_tag_t asn_DEF_RICindication_e2ap_v3_01SN_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (2 << 2))
 };
-asn_TYPE_descriptor_t asn_DEF_RICindicationSN = {
+asn_TYPE_descriptor_t asn_DEF_RICindication_e2ap_v3_01SN = {
 	"RICindicationSN",
 	"RICindicationSN",
-	&asn_OP_NativeInteger,
-	asn_DEF_RICindicationSN_tags_1,
-	sizeof(asn_DEF_RICindicationSN_tags_1)
-		/sizeof(asn_DEF_RICindicationSN_tags_1[0]), /* 1 */
-	asn_DEF_RICindicationSN_tags_1,	/* Same as above */
-	sizeof(asn_DEF_RICindicationSN_tags_1)
-		/sizeof(asn_DEF_RICindicationSN_tags_1[0]), /* 1 */
+	&asn_OP_NativeInteger_e2ap_v3_01,
+	asn_DEF_RICindication_e2ap_v3_01SN_tags_1,
+	sizeof(asn_DEF_RICindication_e2ap_v3_01SN_tags_1)
+		/sizeof(asn_DEF_RICindication_e2ap_v3_01SN_tags_1[0]), /* 1 */
+	asn_DEF_RICindication_e2ap_v3_01SN_tags_1,	/* Same as above */
+	sizeof(asn_DEF_RICindication_e2ap_v3_01SN_tags_1)
+		/sizeof(asn_DEF_RICindication_e2ap_v3_01SN_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_RICindicationSN_constr_1,
+		&asn_PER_type_RICindicationSN_constr_1_e2ap_v3_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		RICindicationSN_constraint
+		RICindicationSN_constraint_e2ap_v3_01
 	},
 	0, 0,	/* No members */
 	0	/* No specifics */

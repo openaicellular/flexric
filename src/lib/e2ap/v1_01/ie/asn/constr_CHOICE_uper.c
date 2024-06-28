@@ -8,7 +8,7 @@
 #include <uper_opentype.h>
 
 asn_dec_rval_t
-CHOICE_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
+CHOICE_decode_uper_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                    const asn_TYPE_descriptor_t *td,
                    const asn_per_constraints_t *constraints, void **sptr,
                    asn_per_data_t *pd) {
@@ -53,7 +53,7 @@ CHOICE_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
     } else {
         if(specs->ext_start == -1)
             ASN__DECODE_FAILED;
-        value = uper_get_nsnnwn(pd);
+        value = uper_get_nsnnwn_e2ap_v1_01(pd);
         if(value < 0) ASN__DECODE_STARVED;
         value += specs->ext_start;
         if((unsigned)value >= td->elements_count)
@@ -68,7 +68,7 @@ CHOICE_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
     }
 
     /* Set presence to be able to free it later */
-    _set_present_idx(st, specs->pres_offset, specs->pres_size, value + 1);
+    _set_present_idx_e2ap_v1_01(st, specs->pres_offset, specs->pres_size, value + 1);
 
     elm = &td->elements[value];
     if(elm->flags & ATF_POINTER) {
@@ -81,11 +81,11 @@ CHOICE_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
     ASN_DEBUG("Discovered CHOICE %s encodes %s", td->name, elm->name);
 
     if(ct && ct->range_bits >= 0) {
-        rv = elm->type->op->uper_decoder(opt_codec_ctx, elm->type,
+        rv = elm->type->op->uper_decode_e2ap_v1_01r(opt_codec_ctx, elm->type,
                                          elm->encoding_constraints.per_constraints,
                                          memb_ptr2, pd);
     } else {
-        rv = uper_open_type_get(opt_codec_ctx, elm->type,
+        rv = uper_open_type_get_e2ap_v1_01(opt_codec_ctx, elm->type,
                                 elm->encoding_constraints.per_constraints,
                                 memb_ptr2, pd);
     }
@@ -97,7 +97,7 @@ CHOICE_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-CHOICE_encode_uper(const asn_TYPE_descriptor_t *td,
+CHOICE_encode_uper_e2ap_v1_01(const asn_TYPE_descriptor_t *td,
                    const asn_per_constraints_t *constraints, const void *sptr,
                    asn_per_outp_t *po) {
     const asn_CHOICE_specifics_t *specs = (const asn_CHOICE_specifics_t *)td->specifics;
@@ -116,7 +116,7 @@ CHOICE_encode_uper(const asn_TYPE_descriptor_t *td,
         ct = &td->encoding_constraints.per_constraints->value;
     else ct = 0;
 
-    present = _fetch_present_idx(sptr, specs->pres_offset, specs->pres_size);
+    present = _fetch_present_idx_e2ap_v1_01(sptr, specs->pres_offset, specs->pres_size);
 
     /*
      * If the structure was not initialized properly, it cannot be encoded:
@@ -174,14 +174,14 @@ CHOICE_encode_uper(const asn_TYPE_descriptor_t *td,
         if(per_put_few_bits(po, present_enc, ct->range_bits))
             ASN__ENCODE_FAILED;
 
-        return elm->type->op->uper_encoder(
+        return elm->type->op->uper_encode_e2ap_v1_01r(
             elm->type, elm->encoding_constraints.per_constraints, memb_ptr, po);
     } else {
         asn_enc_rval_t rval = {0,0,0};
         if(specs->ext_start == -1) ASN__ENCODE_FAILED;
-        if(uper_put_nsnnwn(po, present_enc - specs->ext_start))
+        if(uper_put_nsnnwn_e2ap_v1_01(po, present_enc - specs->ext_start))
             ASN__ENCODE_FAILED;
-        if(uper_open_type_put(elm->type,
+        if(uper_open_type_put_e2ap_v1_01(elm->type,
                               elm->encoding_constraints.per_constraints,
                               memb_ptr, po))
             ASN__ENCODE_FAILED;

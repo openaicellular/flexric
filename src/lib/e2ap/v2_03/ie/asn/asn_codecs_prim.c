@@ -6,7 +6,7 @@
 #include <asn_codecs_prim.h>
 
 void
-ASN__PRIMITIVE_TYPE_free(const asn_TYPE_descriptor_t *td, void *sptr,
+ASN__PRIMITIVE_TYPE_free_e2ap_v2_03(const asn_TYPE_descriptor_t *td, void *sptr,
                          enum asn_struct_free_method method) {
     ASN__PRIMITIVE_TYPE_t *st = (ASN__PRIMITIVE_TYPE_t *)sptr;
 

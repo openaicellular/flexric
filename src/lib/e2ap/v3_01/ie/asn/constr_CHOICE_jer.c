@@ -27,8 +27,8 @@
     } while(0)
 
 asn_enc_rval_t
-CHOICE_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
-                  enum jer_encoder_flags_e flags, asn_app_consume_bytes_f *cb,
+CHOICE_encode_jer_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
+                  enum jer_encode_e2ap_v3_01r_flags_e flags, asn_app_consume_bytes_f *cb,
                   void *app_key) {
     const asn_CHOICE_specifics_t *specs =
         (const asn_CHOICE_specifics_t *)td->specifics;
@@ -41,7 +41,7 @@ CHOICE_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
     /*
      * Figure out which CHOICE element is encoded.
      */
-    present = _fetch_present_idx(sptr, specs->pres_offset,specs->pres_size);
+    present = _fetch_present_idx_e2ap_v3_01(sptr, specs->pres_offset,specs->pres_size);
 
     if(present == 0 || present > td->elements_count) {
         ASN__ENCODE_FAILED;
@@ -64,7 +64,7 @@ CHOICE_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
 
         ASN__CALLBACK3("{\n\"", 3, mname, mlen, "\": ", 2);
 
-        tmper = elm->type->op->jer_encoder(elm->type, memb_ptr,
+        tmper = elm->type->op->jer_encode_e2ap_v3_01r(elm->type, memb_ptr,
                                            ilevel + 1, flags, cb, app_key);
         if(tmper.encoded == -1) return tmper;
         er.encoded += tmper.encoded;

@@ -29,44 +29,44 @@ static const int _PrintableString_code2value[74] = {
 /*
  * PrintableString basic type description.
  */
-static const ber_tlv_tag_t asn_DEF_PrintableString_tags[] = {
+static const ber_tlv_tag_t asn_DEF_PrintableString_e2ap_v1_01_tags[] = {
     (ASN_TAG_CLASS_UNIVERSAL | (19 << 2)),  /* [UNIVERSAL 19] IMPLICIT ...*/
     (ASN_TAG_CLASS_UNIVERSAL | (4 << 2))    /* ... OCTET STRING */
 };
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static int asn_DEF_PrintableString_v2c(unsigned int value) {
+static int asn_DEF_PrintableString_e2ap_v1_01_v2c(unsigned int value) {
     return _PrintableString_alphabet[value > 255 ? 0 : value] - 1;
 }
-static int asn_DEF_PrintableString_c2v(unsigned int code) {
+static int asn_DEF_PrintableString_e2ap_v1_01_c2v(unsigned int code) {
     if(code < 74)
         return _PrintableString_code2value[code];
     return -1;
 }
-static asn_per_constraints_t asn_DEF_PrintableString_per_constraints = {
+static asn_per_constraints_t asn_DEF_PrintableString_e2ap_v1_01_per_constraints = {
     { APC_CONSTRAINED, 4, 4, 0x20, 0x39 },   /* Value */
     { APC_SEMI_CONSTRAINED, -1, -1, 0, 0 },  /* Size */
-    asn_DEF_PrintableString_v2c,
-    asn_DEF_PrintableString_c2v
+    asn_DEF_PrintableString_e2ap_v1_01_v2c,
+    asn_DEF_PrintableString_e2ap_v1_01_c2v
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-asn_TYPE_operation_t asn_OP_PrintableString = {
-    OCTET_STRING_free,
+asn_TYPE_operation_t asn_OP_PrintableString_e2ap_v1_01 = {
+    OCTET_STRING_free_e2ap_v1_01,
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-    OCTET_STRING_print_utf8,  /* ASCII subset */
+    OCTET_STRING_print_e2ap_v1_01_utf8,  /* ASCII subset */
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
-    OCTET_STRING_compare,
+    OCTET_STRING_compare_e2ap_v1_01,
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-    OCTET_STRING_decode_ber,  /* Implemented in terms of OCTET STRING */
-    OCTET_STRING_encode_der,
+    OCTET_STRING_decode_ber_e2ap_v1_01,  /* Implemented in terms of OCTET STRING */
+    OCTET_STRING_encode_der_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-    OCTET_STRING_decode_xer_utf8,
-    OCTET_STRING_encode_xer_utf8,
+    OCTET_STRING_decode_xer_utf8_e2ap_v1_01,
+    OCTET_STRING_encode_xer_e2ap_v1_01_utf8,
 #else
     0,
     0,
@@ -84,51 +84,51 @@ asn_TYPE_operation_t asn_OP_PrintableString = {
     0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-    OCTET_STRING_decode_uper,
-    OCTET_STRING_encode_uper,
+    OCTET_STRING_decode_uper_e2ap_v1_01,
+    OCTET_STRING_encode_uper_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-    OCTET_STRING_decode_aper,
-    OCTET_STRING_encode_aper,
+    OCTET_STRING_decode_aper_e2ap_v1_01,
+    OCTET_STRING_encode_aper_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-    OCTET_STRING_random_fill,
+    OCTET_STRING_random_fill_e2ap_v1_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
     0  /* Use generic outmost tag fetcher */
 };
-asn_TYPE_descriptor_t asn_DEF_PrintableString = {
+asn_TYPE_descriptor_t asn_DEF_PrintableString_e2ap_v1_01 = {
     "PrintableString",
     "PrintableString",
-    &asn_OP_PrintableString,
-    asn_DEF_PrintableString_tags,
-    sizeof(asn_DEF_PrintableString_tags)
-      / sizeof(asn_DEF_PrintableString_tags[0]) - 1,
-    asn_DEF_PrintableString_tags,
-    sizeof(asn_DEF_PrintableString_tags)
-      / sizeof(asn_DEF_PrintableString_tags[0]),
+    &asn_OP_PrintableString_e2ap_v1_01,
+    asn_DEF_PrintableString_e2ap_v1_01_tags,
+    sizeof(asn_DEF_PrintableString_e2ap_v1_01_tags)
+      / sizeof(asn_DEF_PrintableString_e2ap_v1_01_tags[0]) - 1,
+    asn_DEF_PrintableString_e2ap_v1_01_tags,
+    sizeof(asn_DEF_PrintableString_e2ap_v1_01_tags)
+      / sizeof(asn_DEF_PrintableString_e2ap_v1_01_tags[0]),
     {
 #if !defined(ASN_DISABLE_OER_SUPPORT)
         0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-        &asn_DEF_PrintableString_per_constraints,
+        &asn_DEF_PrintableString_e2ap_v1_01_per_constraints,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-        PrintableString_constraint
+        PrintableString_constraint_e2ap_v1_01
     },
     0, 0,  /* No members */
     0  /* No specifics */
 };
 
 int
-PrintableString_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
+PrintableString_constraint_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                            asn_app_constraint_failed_f *ctfailcb,
                            void *app_key) {
     const PrintableString_t *st = (const PrintableString_t *)sptr;

@@ -157,7 +157,7 @@ void create_pdcp_bearer_table(sqlite3* db)
   // ToDo: PRIMARY KEY UNIQUE
   char* sql_pdcp = "DROP TABLE IF EXISTS PDCP_bearer;"
   "CREATE TABLE PDCP_bearer(tstamp INT CHECK(tstamp > 0)," 
-                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                       "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node <= 10),"
                        "mcc INT,"
                        "mnc INT,"
                        "mnc_digit_len INT,"
@@ -244,7 +244,7 @@ void create_gtp_table(sqlite3* db)
   // ToDo: PRIMARY KEY UNIQUE
   char* sql_gtp = "DROP TABLE IF EXISTS GTP_NGUT;"
   "CREATE TABLE GTP_NGUT(tstamp INT CHECK(tstamp > 0)," 
-                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node < 9),"
+                            "ngran_node INT CHECK(ngran_node >= 0 AND ngran_node <= 10),"
                             "mcc INT,"
                             "mnc INT,"
                             "mnc_digit_len INT,"

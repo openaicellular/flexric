@@ -89,6 +89,6 @@ target_include_directories(e2sm_rc_ir_obj
                            "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
                            )
 
-                         #target_compile_options(e2sm_rc_asn1_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter)
+target_compile_options(e2sm_rc_ir_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter  -fPIC -fvisibility=hidden )
 
 

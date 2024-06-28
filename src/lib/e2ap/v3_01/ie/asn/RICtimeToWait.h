@@ -46,9 +46,9 @@ typedef enum RICtimeToWait {
 typedef long	 RICtimeToWait_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_RICtimeToWait_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_RICtimeToWait;
-extern const asn_INTEGER_specifics_t asn_SPC_RICtimeToWait_specs_1;
+extern asn_per_constraints_t asn_PER_type_RICtimeToWait_constr_1_e2ap_v3_01;
+extern asn_TYPE_descriptor_t asn_DEF_RICtimeToWait_e2ap_v3_01;
+extern const asn_INTEGER_specifics_t asn_SPC_RICtimeToWait_specs_1_e2ap_v3_01;
 asn_struct_free_f RICtimeToWait_free;
 asn_struct_print_f RICtimeToWait_print;
 asn_constr_check_f RICtimeToWait_constraint;

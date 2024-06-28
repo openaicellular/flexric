@@ -29,9 +29,9 @@ typedef enum Presence {
 typedef long	 Presence_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_Presence_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_Presence;
-extern const asn_INTEGER_specifics_t asn_SPC_Presence_specs_1;
+extern asn_per_constraints_t asn_PER_type_Presence_constr_1_e2ap_v3_01;
+extern asn_TYPE_descriptor_t asn_DEF_Presence_e2ap_v3_01;
+extern const asn_INTEGER_specifics_t asn_SPC_Presence_specs_1_e2ap_v3_01;
 asn_struct_free_f Presence_free;
 asn_struct_print_f Presence_print;
 asn_constr_check_f Presence_constraint;

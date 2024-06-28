@@ -31,12 +31,7 @@ set(E2_AGENT_SRC
             $<TARGET_OBJECTS:e2ap_msg_free_obj>
             $<TARGET_OBJECTS:e2_ngran_obj>
             $<TARGET_OBJECTS:3gpp_derived_ie_obj>
-            $<TARGET_OBJECTS:3gpp_derived_ie_dec_asn_obj>
-            $<TARGET_OBJECTS:3gpp_derived_ie_enc_asn_obj>
-            $<TARGET_OBJECTS:sm_common_ie_obj>
-            $<TARGET_OBJECTS:sm_common_dec_asn_obj>
-            $<TARGET_OBJECTS:sm_common_enc_asn_obj>
-            $<TARGET_OBJECTS:e2sm_common_ie_obj>
+            #$<TARGET_OBJECTS:sm_common_ie_obj>
   )
 
 if(E2AP_ENCODING STREQUAL "ASN")
@@ -65,12 +60,10 @@ endif()
 if(${BUILDING_LIBRARY} STREQUAL "DYNAMIC" )
   target_link_libraries(e2_agent  
                        PUBLIC  
-                       -pthread 
-                       -lsctp 
                        -ldl 
                        ) 
-
 endif()
 
-target_compile_definitions(e2_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION} )
+target_link_libraries(e2_agent PRIVATE -pthread -lsctp -ldl) 
+target_compile_definitions(e2_agent PRIVATE ${E2AP_ENCODING} ${E2AP_VERSION} ${KPM_VERSION})
 

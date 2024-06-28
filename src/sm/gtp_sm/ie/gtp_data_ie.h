@@ -31,6 +31,7 @@ extern "C" {
  */
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 //////////////////////////////////////
@@ -183,14 +184,15 @@ bool eq_gtp_ctrl_out(gtp_ctrl_out_t* m0, gtp_ctrl_out_t* m1);
 /////////////////////////////////////
 
 typedef struct {
-  uint32_t dummy;
+  uint8_t* buf;
+  size_t len;
 } gtp_func_def_t;
 
-void free_gtp_func_def( gtp_func_def_t* src); 
+void free_gtp_func_def(gtp_func_def_t* src); 
 
-gtp_func_def_t cp_gtp_func_def(gtp_func_def_t* src);
+gtp_func_def_t cp_gtp_func_def(gtp_func_def_t const* src);
 
-bool eq_gtp_func_def(gtp_func_def_t* m0, gtp_func_def_t* m1);
+bool eq_gtp_func_def(gtp_func_def_t const* m0, gtp_func_def_t const* m1);
 
 /////////////////////////////////////////////////
 //////////////////////////////////////////////////

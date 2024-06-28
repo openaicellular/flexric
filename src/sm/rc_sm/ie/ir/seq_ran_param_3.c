@@ -1,6 +1,7 @@
 #include "seq_ran_param_3.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 void free_seq_ran_param_3(seq_ran_param_3_t* src)
 {
@@ -22,7 +23,10 @@ void free_seq_ran_param_3(seq_ran_param_3_t* src)
   // RAN Parameter Definition
   // Optional
   // 9.3.51
-  assert(src->def == NULL && "Not implemented"); 
+  if(src->def != NULL) {
+    free_ran_param_def(src->def);
+    free(src->def);
+  }
 
 }
 

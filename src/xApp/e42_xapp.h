@@ -110,7 +110,7 @@ void start_e42_xapp(e42_xapp_t* xapp);
 
 void free_e42_xapp(e42_xapp_t* xapp);
 
-e2_node_arr_t e2_nodes_xapp(e42_xapp_t* xapp);
+e2_node_arr_xapp_t e2_nodes_xapp(e42_xapp_t* xapp);
 
 size_t not_dispatch_msg(e42_xapp_t* xapp);
 

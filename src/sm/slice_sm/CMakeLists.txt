@@ -26,7 +26,7 @@ if(SM_ENCODING_SLICE STREQUAL "PLAIN")
 
   # Shared 
   add_library(slice_sm SHARED ${SM_ENCODING_SLICE_SRC_PLAIN})
-  target_compile_options(slice_sm PRIVATE -fvisibility=hidden)
+  target_compile_options(slice_sm PRIVATE -fPIC -fvisibility=hidden)
 
   # Static
   add_library(slice_sm_static STATIC ${SM_ENCODING_SLICE_SRC_PLAIN})

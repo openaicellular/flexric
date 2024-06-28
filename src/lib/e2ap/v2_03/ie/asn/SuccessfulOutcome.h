@@ -108,9 +108,9 @@ typedef struct SuccessfulOutcome {
 } SuccessfulOutcome_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_SuccessfulOutcome;
-extern asn_SEQUENCE_specifics_t asn_SPC_SuccessfulOutcome_specs_1;
-extern asn_TYPE_member_t asn_MBR_SuccessfulOutcome_1[3];
+extern asn_TYPE_descriptor_t asn_DEF_SuccessfulOutcome_e2ap_v2_03;
+extern asn_SEQUENCE_specifics_t asn_SPC_SuccessfulOutcome_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_SuccessfulOutcome_1_e2ap_v2_03[3];
 
 #ifdef __cplusplus
 }

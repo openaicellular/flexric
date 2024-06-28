@@ -7,7 +7,7 @@
 #include <errno.h>
 
 ssize_t
-ber_fetch_tag(const void *ptr, size_t size, ber_tlv_tag_t *tag_r) {
+ber_fetch_tag_e2ap_v1_01(const void *ptr, size_t size, ber_tlv_tag_t *tag_r) {
 	ber_tlv_tag_t val;
 	ber_tlv_tag_t tclass;
 	size_t skipped;
@@ -59,11 +59,11 @@ ber_fetch_tag(const void *ptr, size_t size, ber_tlv_tag_t *tag_r) {
 
 
 ssize_t
-ber_tlv_tag_fwrite(ber_tlv_tag_t tag, FILE *f) {
+ber_tlv_tag_fwrite_e2ap_v1_01(ber_tlv_tag_t tag, FILE *f) {
 	char buf[sizeof("[APPLICATION ]") + 32];
 	ssize_t ret;
 
-	ret = ber_tlv_tag_snprint(tag, buf, sizeof(buf));
+	ret = ber_tlv_tag_snprint_e2ap_v1_01(tag, buf, sizeof(buf));
 	if(ret >= (ssize_t)sizeof(buf) || ret < 2) {
 		errno = EPERM;
 		return -1;
@@ -73,7 +73,7 @@ ber_tlv_tag_fwrite(ber_tlv_tag_t tag, FILE *f) {
 }
 
 ssize_t
-ber_tlv_tag_snprint(ber_tlv_tag_t tag, char *buf, size_t size) {
+ber_tlv_tag_snprint_e2ap_v1_01(ber_tlv_tag_t tag, char *buf, size_t size) {
 	const char *type = 0;
 	int ret;
 
@@ -91,17 +91,17 @@ ber_tlv_tag_snprint(ber_tlv_tag_t tag, char *buf, size_t size) {
 }
 
 char *
-ber_tlv_tag_string(ber_tlv_tag_t tag) {
+ber_tlv_tag_string_e2ap_v1_01(ber_tlv_tag_t tag) {
 	static char buf[sizeof("[APPLICATION ]") + 32];
 
-	(void)ber_tlv_tag_snprint(tag, buf, sizeof(buf));
+	(void)ber_tlv_tag_snprint_e2ap_v1_01(tag, buf, sizeof(buf));
 
 	return buf;
 }
 
 
 size_t
-ber_tlv_tag_serialize(ber_tlv_tag_t tag, void *bufp, size_t size) {
+ber_tlv_tag_serialize_e2ap_v1_01(ber_tlv_tag_t tag, void *bufp, size_t size) {
 	int tclass = BER_TAG_CLASS(tag);
 	ber_tlv_tag_t tval = BER_TAG_VALUE(tag);
 	uint8_t *buf = (uint8_t *)bufp;

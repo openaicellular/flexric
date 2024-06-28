@@ -10,32 +10,32 @@
 /*
  * OCTET STRING basic type description.
  */
-static const ber_tlv_tag_t asn_DEF_OCTET_STRING_tags[] = {
+static const ber_tlv_tag_t asn_DEF_OCTET_STRING_e2ap_v1_01_tags[] = {
     (ASN_TAG_CLASS_UNIVERSAL | (4 << 2))
 };
-asn_OCTET_STRING_specifics_t asn_SPC_OCTET_STRING_specs = {
+asn_OCTET_STRING_specifics_t asn_SPC_OCTET_STRING_specs_e2ap_v1_01 = {
     sizeof(OCTET_STRING_t),
     offsetof(OCTET_STRING_t, _asn_ctx),
     ASN_OSUBV_STR
 };
-asn_TYPE_operation_t asn_OP_OCTET_STRING = {
-    OCTET_STRING_free,
+asn_TYPE_operation_t asn_OP_OCTET_STRING_e2ap_v1_01 = {
+    OCTET_STRING_free_e2ap_v1_01,
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-    OCTET_STRING_print,  /* OCTET STRING generally means a non-ascii sequence */
+    OCTET_STRING_print_e2ap_v1_01,  /* OCTET STRING generally means a non-ascii sequence */
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
-    OCTET_STRING_compare,
+    OCTET_STRING_compare_e2ap_v1_01,
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-    OCTET_STRING_decode_ber,
-    OCTET_STRING_encode_der,
+    OCTET_STRING_decode_ber_e2ap_v1_01,
+    OCTET_STRING_encode_der_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-    OCTET_STRING_decode_xer_hex,
-    OCTET_STRING_encode_xer,
+    OCTET_STRING_decode_xer_hex_e2ap_v1_01,
+    OCTET_STRING_encode_xer_e2ap_v1_01,
 #else
     0,
     0,
@@ -53,36 +53,36 @@ asn_TYPE_operation_t asn_OP_OCTET_STRING = {
     0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-    OCTET_STRING_decode_uper,  /* Unaligned PER decoder */
-    OCTET_STRING_encode_uper,  /* Unaligned PER encoder */
+    OCTET_STRING_decode_uper_e2ap_v1_01,  /* Unaligned PER decoder */
+    OCTET_STRING_encode_uper_e2ap_v1_01,  /* Unaligned PER encoder */
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-    OCTET_STRING_decode_aper,  /* Aligned PER decoder */
-    OCTET_STRING_encode_aper,  /* Aligned PER encoder */
+    OCTET_STRING_decode_aper_e2ap_v1_01,  /* Aligned PER decoder */
+    OCTET_STRING_encode_aper_e2ap_v1_01,  /* Aligned PER encoder */
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-    OCTET_STRING_random_fill,
+    OCTET_STRING_random_fill_e2ap_v1_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
     0  /* Use generic outmost tag fetcher */
 };
-asn_TYPE_descriptor_t asn_DEF_OCTET_STRING = {
+asn_TYPE_descriptor_t asn_DEF_OCTET_STRING_e2ap_v1_01 = {
     "OCTET STRING",  /* Canonical name */
     "OCTET_STRING",  /* XML tag name */
-    &asn_OP_OCTET_STRING,
-    asn_DEF_OCTET_STRING_tags,
-    sizeof(asn_DEF_OCTET_STRING_tags)
-        / sizeof(asn_DEF_OCTET_STRING_tags[0]),
-    asn_DEF_OCTET_STRING_tags,	/* Same as above */
-    sizeof(asn_DEF_OCTET_STRING_tags)
-        / sizeof(asn_DEF_OCTET_STRING_tags[0]),
+    &asn_OP_OCTET_STRING_e2ap_v1_01,
+    asn_DEF_OCTET_STRING_e2ap_v1_01_tags,
+    sizeof(asn_DEF_OCTET_STRING_e2ap_v1_01_tags)
+        / sizeof(asn_DEF_OCTET_STRING_e2ap_v1_01_tags[0]),
+    asn_DEF_OCTET_STRING_e2ap_v1_01_tags,	/* Same as above */
+    sizeof(asn_DEF_OCTET_STRING_e2ap_v1_01_tags)
+        / sizeof(asn_DEF_OCTET_STRING_e2ap_v1_01_tags[0]),
     {
 #if !defined(ASN_DISABLE_OER_SUPPORT)
         0,
@@ -90,14 +90,14 @@ asn_TYPE_descriptor_t asn_DEF_OCTET_STRING = {
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
         0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-        asn_generic_no_constraint
+        asn_generic_no_constraint_e2ap_v1_01
     },
     0, 0,  /* No members */
-    &asn_SPC_OCTET_STRING_specs
+    &asn_SPC_OCTET_STRING_specs_e2ap_v1_01
 };
 
 void
-OCTET_STRING_free(const asn_TYPE_descriptor_t *td, void *sptr,
+OCTET_STRING_free_e2ap_v1_01(const asn_TYPE_descriptor_t *td, void *sptr,
                   enum asn_struct_free_method method) {
 	OCTET_STRING_t *st = (OCTET_STRING_t *)sptr;
 
@@ -117,7 +117,7 @@ OCTET_STRING_free(const asn_TYPE_descriptor_t *td, void *sptr,
 
     specs = td->specifics
             ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-            : &asn_SPC_OCTET_STRING_specs;
+            : &asn_SPC_OCTET_STRING_specs_e2ap_v1_01;
     ctx = (asn_struct_ctx_t *)((char *)st + specs->ctx_offset);
 
     /*
@@ -155,7 +155,7 @@ OCTET_STRING_free(const asn_TYPE_descriptor_t *td, void *sptr,
  * Conversion routines.
  */
 int
-OCTET_STRING_fromBuf(OCTET_STRING_t *st, const char *str, int len) {
+OCTET_STRING_fromBuf_e2ap_v1_01(OCTET_STRING_t *st, const char *str, int len) {
 	void *buf;
 
 	if(st == 0 || (str == 0 && len)) {
@@ -192,15 +192,15 @@ OCTET_STRING_fromBuf(OCTET_STRING_t *st, const char *str, int len) {
 }
 
 OCTET_STRING_t *
-OCTET_STRING_new_fromBuf(const asn_TYPE_descriptor_t *td, const char *str,
+OCTET_STRING_new_fromBuf_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const char *str,
                          int len) {
     const asn_OCTET_STRING_specifics_t *specs =
         td->specifics ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-                      : &asn_SPC_OCTET_STRING_specs;
+                      : &asn_SPC_OCTET_STRING_specs_e2ap_v1_01;
     OCTET_STRING_t *st;
 
 	st = (OCTET_STRING_t *)CALLOC(1, specs->struct_size);
-	if(st && str && OCTET_STRING_fromBuf(st, str, len)) {
+	if(st && str && OCTET_STRING_fromBuf_e2ap_v1_01(st, str, len)) {
 		FREEMEM(st);
 		st = NULL;
 	}
@@ -213,7 +213,7 @@ OCTET_STRING_new_fromBuf(const asn_TYPE_descriptor_t *td, const char *str,
  * and if it is the same return -1 for the smallest string.
  */
 int
-OCTET_STRING_compare(const asn_TYPE_descriptor_t *td, const void *aptr,
+OCTET_STRING_compare_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *aptr,
                      const void *bptr) {
     const asn_OCTET_STRING_specifics_t *specs = td->specifics;
     const OCTET_STRING_t *a = aptr;
@@ -249,7 +249,7 @@ OCTET_STRING_compare(const asn_TYPE_descriptor_t *td, const void *aptr,
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
 int
-OCTET_STRING_per_get_characters(asn_per_data_t *po, uint8_t *buf,
+OCTET_STRING_per_get_characters_e2ap_v1_01(asn_per_data_t *po, uint8_t *buf,
                                 size_t units, unsigned int bpc, unsigned int unit_bits,
                                 long lb, long ub, const asn_per_constraints_t *pc) {
     uint8_t *end = buf + units * bpc;
@@ -313,7 +313,7 @@ OCTET_STRING_per_get_characters(asn_per_data_t *po, uint8_t *buf,
 }
 
 int
-OCTET_STRING_per_put_characters(asn_per_outp_t *po, const uint8_t *buf,
+OCTET_STRING_per_put_characters_e2ap_v1_01(asn_per_outp_t *po, const uint8_t *buf,
                                 size_t units, unsigned int bpc, unsigned int unit_bits,
                                 long lb, long ub, const asn_per_constraints_t *pc) {
     const uint8_t *end = buf + units * bpc;

@@ -48,10 +48,10 @@ typedef struct GlobalNG_RANNode_ID {
 } GlobalNG_RANNode_ID_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_GlobalNG_RANNode_ID;
-extern asn_CHOICE_specifics_t asn_SPC_GlobalNG_RANNode_ID_specs_1;
-extern asn_TYPE_member_t asn_MBR_GlobalNG_RANNode_ID_1[2];
-extern asn_per_constraints_t asn_PER_type_GlobalNG_RANNode_ID_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_GlobalNG_RANNode_ID_e2ap_v3_01;
+extern asn_CHOICE_specifics_t asn_SPC_GlobalNG_RANNode_ID_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_GlobalNG_RANNode_ID_1_e2ap_v3_01[2];
+extern asn_per_constraints_t asn_PER_type_GlobalNG_RANNode_ID_constr_1_e2ap_v3_01;
 
 #ifdef __cplusplus
 }

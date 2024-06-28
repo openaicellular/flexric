@@ -69,7 +69,7 @@ typedef void (per_type_encoder_f)(void);
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
 #include <asn_random_fill.h>  /* Random structures support */
 #else
-typedef void (asn_random_fill_f)(void);
+typedef void (asn_random_fill_e2ap_v2_03_f)(void);
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
 
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -151,7 +151,7 @@ typedef ber_tlv_tag_t (asn_outmost_tag_f)(
 		const struct asn_TYPE_descriptor_s *type_descriptor,
 		const void *struct_ptr, int tag_mode, ber_tlv_tag_t tag);
 /* The instance of the above function type; used internally. */
-asn_outmost_tag_f asn_TYPE_outmost_tag;
+asn_outmost_tag_f asn_TYPE_outmost_tag_e2ap_v2_03;
 
 /*
  * Fetch the desired type of the Open Type based on the
@@ -173,18 +173,18 @@ typedef struct asn_TYPE_operation_s {
     asn_struct_free_f *free_struct;     /* Free the structure */
     asn_struct_print_f *print_struct;   /* Human readable output */
     asn_struct_compare_f *compare_struct; /* Compare two structures */
-    ber_type_decoder_f *ber_decoder;      /* Generic BER decoder */
-    der_type_encoder_f *der_encoder;      /* Canonical DER encoder */
-    xer_type_decoder_f *xer_decoder;      /* Generic XER decoder */
-    xer_type_encoder_f *xer_encoder;      /* [Canonical] XER encoder */
+    ber_type_decoder_f *ber_decode_e2ap_v2_03r;      /* Generic BER decoder */
+    der_type_encoder_f *der_encode_e2ap_v2_03r;      /* Canonical DER encoder */
+    xer_type_decoder_f *xer_decode_e2ap_v2_03r;      /* Generic XER decoder */
+    xer_type_encoder_f *xer_encode_e2ap_v2_03r;      /* [Canonical] XER encoder */
     jer_type_encoder_f *jer_encoder;      /* Generic JER encoder */
     oer_type_decoder_f *oer_decoder;      /* Generic OER decoder */
     oer_type_encoder_f *oer_encoder;      /* Canonical OER encoder */
-    per_type_decoder_f *uper_decoder;     /* Unaligned PER decoder */
-    per_type_encoder_f *uper_encoder;     /* Unaligned PER encoder */
-    per_type_decoder_f *aper_decoder;     /* Aligned PER decoder */
-    per_type_encoder_f *aper_encoder;     /* Aligned PER encoder */
-    asn_random_fill_f *random_fill;       /* Initialize with a random value */
+    per_type_decoder_f *uper_decode_e2ap_v2_03r;     /* Unaligned PER decoder */
+    per_type_encoder_f *uper_encode_e2ap_v2_03r;     /* Unaligned PER encoder */
+    per_type_decoder_f *aper_decode_e2ap_v2_03r;     /* Aligned PER decoder */
+    per_type_encoder_f *aper_encode_e2ap_v2_03r;     /* Aligned PER encoder */
+    asn_random_fill_e2ap_v2_03_f *random_fill;       /* Initialize with a random value */
     asn_outmost_tag_f *outmost_tag;       /* <optional, internal> */
 } asn_TYPE_operation_t;
 
@@ -282,9 +282,9 @@ typedef struct asn_TYPE_tag2member_s {
  * RETURN VALUES:
  * 	 0: The structure is printed.
  * 	-1: Problem dumping the structure.
- * (See also xer_fprint() in xer_encoder.h)
+ * (See also xer_fprint_e2ap_v2_03() in xer_encode_e2ap_v2_03r.h)
  */
-int asn_fprint(FILE *stream, /* Destination stream descriptor */
+int asn_fprint_e2ap_v2_03(FILE *stream, /* Destination stream descriptor */
                const asn_TYPE_descriptor_t *td, /* ASN.1 type descriptor */
                const void *struct_ptr);         /* Structure to be printed */
 

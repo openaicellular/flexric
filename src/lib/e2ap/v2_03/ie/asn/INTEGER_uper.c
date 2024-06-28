@@ -7,7 +7,7 @@
 #include <INTEGER.h>
 
 asn_dec_rval_t
-INTEGER_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
+INTEGER_decode_uper_e2ap_v2_03(const asn_codec_ctx_t *opt_codec_ctx,
                     const asn_TYPE_descriptor_t *td,
                     const asn_per_constraints_t *constraints, void **sptr,
                     asn_per_data_t *pd) {
@@ -60,25 +60,25 @@ INTEGER_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
 
             if(specs && specs->field_unsigned) {
                 uintmax_t uvalue = 0;
-                if(uper_get_constrained_whole_number(pd,
+                if(uper_get_constrained_whole_number_e2ap_v2_03(pd,
                     &uvalue, ct->range_bits))
                     ASN__DECODE_STARVED;
                 ASN_DEBUG("Got value %lu + low %ld",
                     uvalue, ct->lower_bound);
                 uvalue += ct->lower_bound;
-                if(asn_umax2INTEGER(st, uvalue))
+                if(asn_umax2INTEGER_e2ap_v2_03(st, uvalue))
                     ASN__DECODE_FAILED;
             } else {
                 uintmax_t uvalue = 0;
                 intmax_t svalue;
-                if(uper_get_constrained_whole_number(pd,
+                if(uper_get_constrained_whole_number_e2ap_v2_03(pd,
                     &uvalue, ct->range_bits))
                     ASN__DECODE_STARVED;
                 ASN_DEBUG("Got value %lu + low %ld",
                 uvalue, ct->lower_bound);
-                if(per_imax_range_unrebase(uvalue, ct->lower_bound,
+                if(per_imax_range_unrebase_e2ap_v2_03(uvalue, ct->lower_bound,
                                            ct->upper_bound, &svalue)
-                   || asn_imax2INTEGER(st, svalue)) {
+                   || asn_imax2INTEGER_e2ap_v2_03(st, svalue)) {
                     ASN__DECODE_FAILED;
                 }
             }
@@ -95,7 +95,7 @@ INTEGER_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
         int ret = 0;
 
         /* Get the PER length */
-        len = uper_get_length(pd, -1, 0, &repeat);
+        len = uper_get_length_e2ap_v2_03(pd, -1, 0, &repeat);
         if(len < 0) ASN__DECODE_STARVED;
 
         p = REALLOC(st->buf, st->size + len + 1);
@@ -114,9 +114,9 @@ INTEGER_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
          * TODO: replace by in-place arithmetic.
          */
         long value = 0;
-        if(asn_INTEGER2long(st, &value))
+        if(asn_INTEGER2long_e2ap_v2_03(st, &value))
             ASN__DECODE_FAILED;
-        if(asn_imax2INTEGER(st, value + ct->lower_bound))
+        if(asn_imax2INTEGER_e2ap_v2_03(st, value + ct->lower_bound))
             ASN__DECODE_FAILED;
     }
 
@@ -124,7 +124,7 @@ INTEGER_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-INTEGER_encode_uper(const asn_TYPE_descriptor_t *td,
+INTEGER_encode_uper_e2ap_v2_03(const asn_TYPE_descriptor_t *td,
                     const asn_per_constraints_t *constraints, const void *sptr,
                     asn_per_outp_t *po) {
     const asn_INTEGER_specifics_t *specs =
@@ -149,7 +149,7 @@ INTEGER_encode_uper(const asn_TYPE_descriptor_t *td,
     if(ct) {
         int inext = 0;
         if(specs && specs->field_unsigned) {
-            if(asn_INTEGER2umax(st, &value.u))
+            if(asn_INTEGER2umax_e2ap_v2_03(st, &value.u))
                 ASN__ENCODE_FAILED;
             /* Check proper range */
             if(ct->flags & APC_SEMI_CONSTRAINED) {
@@ -165,7 +165,7 @@ INTEGER_encode_uper(const asn_TYPE_descriptor_t *td,
                       ct->lower_bound, ct->upper_bound,
                       inext ? "ext" : "fix");
         } else {
-            if(asn_INTEGER2imax(st, &value.s))
+            if(asn_INTEGER2imax_e2ap_v2_03(st, &value.s))
                 ASN__ENCODE_FAILED;
             /* Check proper range */
             if(ct->flags & APC_SEMI_CONSTRAINED) {
@@ -204,13 +204,13 @@ INTEGER_encode_uper(const asn_TYPE_descriptor_t *td,
             }
             v = value.u - (uintmax_t)ct->lower_bound;
         } else {
-            if(per_imax_range_rebase(value.s, ct->lower_bound, ct->upper_bound, &v)) {
+            if(per_imax_range_rebase_e2ap_v2_03(value.s, ct->lower_bound, ct->upper_bound, &v)) {
                 ASN__ENCODE_FAILED;
             }
         }
         ASN_DEBUG("Encoding integer %lu with range %d bits",
                   v, ct->range_bits);
-        if(uper_put_constrained_whole_number_u(po, v, ct->range_bits))
+        if(uper_put_constrained_whole_number_u_e2ap_v2_03(po, v, ct->range_bits))
             ASN__ENCODE_FAILED;
         ASN__ENCODED_OK(er);
     }
@@ -223,13 +223,13 @@ INTEGER_encode_uper(const asn_TYPE_descriptor_t *td,
 
     for(buf = st->buf, end = st->buf + st->size; buf < end;) {
         int need_eom = 0;
-        ssize_t mayEncode = uper_put_length(po, end - buf, &need_eom);
+        ssize_t mayEncode = uper_put_length_e2ap_v2_03(po, end - buf, &need_eom);
         if(mayEncode < 0)
             ASN__ENCODE_FAILED;
         if(per_put_many_bits(po, buf, 8 * mayEncode))
             ASN__ENCODE_FAILED;
         buf += mayEncode;
-        if(need_eom && uper_put_length(po, 0, 0)) ASN__ENCODE_FAILED;
+        if(need_eom && uper_put_length_e2ap_v2_03(po, 0, 0)) ASN__ENCODE_FAILED;
     }
 
     ASN__ENCODED_OK(er);

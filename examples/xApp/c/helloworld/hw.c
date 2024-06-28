@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
   init_xapp_api(&args);
   sleep(1);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
 
   assert(nodes.len > 0);
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
     printf("E2 node %ld supported RAN function's IDs:", i);
     for (size_t j = 0; j < nodes.n[i].len_rf; j++)
-      printf(", %d", nodes.n[i].ack_rf[j].id);
+      printf(", %d", nodes.n[i].rf[j].id);
     printf("\n");
   }
 

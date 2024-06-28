@@ -39,31 +39,31 @@ memb_gnb_ID_constraint_1(const asn_TYPE_descriptor_t *td, const void *sptr,
 }
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static asn_per_constraints_t asn_PER_memb_gnb_ID_constr_2 CC_NOTUSED = {
+static asn_per_constraints_t asn_PER_memb_gnb_ID_constr_2_e2ap_v3_01 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 4,  4,  22,  32 }	/* (SIZE(22..32)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_GNB_ID_Choice_constr_1 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_GNB_ID_Choice_constr_1_e2ap_v3_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED | APC_EXTENSIBLE,  0,  0,  0,  0 }	/* (0..0,...) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-asn_TYPE_member_t asn_MBR_GNB_ID_Choice_1[] = {
+asn_TYPE_member_t asn_MBR_GNB_ID_Choice_1_e2ap_v3_01[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct GNB_ID_Choice, choice.gnb_ID),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_BIT_STRING,
+		&asn_DEF_BIT_STRING_e2ap_v3_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 			0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-			&asn_PER_memb_gnb_ID_constr_2,
+			&asn_PER_memb_gnb_ID_constr_2_e2ap_v3_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 			memb_gnb_ID_constraint_1
 		},
@@ -71,23 +71,23 @@ asn_TYPE_member_t asn_MBR_GNB_ID_Choice_1[] = {
 		"gnb-ID"
 		},
 };
-static const asn_TYPE_tag2member_t asn_MAP_GNB_ID_Choice_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_GNB_ID_Choice_tag2el_1_e2ap_v3_01[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 } /* gnb-ID */
 };
-asn_CHOICE_specifics_t asn_SPC_GNB_ID_Choice_specs_1 = {
+asn_CHOICE_specifics_t asn_SPC_GNB_ID_Choice_specs_1_e2ap_v3_01 = {
 	sizeof(struct GNB_ID_Choice),
 	offsetof(struct GNB_ID_Choice, _asn_ctx),
 	offsetof(struct GNB_ID_Choice, present),
 	sizeof(((struct GNB_ID_Choice *)0)->present),
-	asn_MAP_GNB_ID_Choice_tag2el_1,
+	asn_MAP_GNB_ID_Choice_tag2el_1_e2ap_v3_01,
 	1,	/* Count of tags in the map */
 	0, 0,
 	1	/* Extensions start */
 };
-asn_TYPE_descriptor_t asn_DEF_GNB_ID_Choice = {
+asn_TYPE_descriptor_t asn_DEF_GNB_ID_Choice_e2ap_v3_01 = {
 	"GNB-ID-Choice",
 	"GNB-ID-Choice",
-	&asn_OP_CHOICE,
+	&asn_OP_CHOICE_e2ap_v3_01,
 	0,	/* No effective tags (pointer) */
 	0,	/* No effective tags (count) */
 	0,	/* No tags (pointer) */
@@ -97,12 +97,12 @@ asn_TYPE_descriptor_t asn_DEF_GNB_ID_Choice = {
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_GNB_ID_Choice_constr_1,
+		&asn_PER_type_GNB_ID_Choice_constr_1_e2ap_v3_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		CHOICE_constraint
+		CHOICE_constraint_e2ap_v3_01
 	},
-	asn_MBR_GNB_ID_Choice_1,
+	asn_MBR_GNB_ID_Choice_1_e2ap_v3_01,
 	1,	/* Elements count */
-	&asn_SPC_GNB_ID_Choice_specs_1	/* Additional specs */
+	&asn_SPC_GNB_ID_Choice_specs_1_e2ap_v3_01	/* Additional specs */
 };
 

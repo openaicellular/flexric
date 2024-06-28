@@ -79,7 +79,7 @@ _charclass[256] = {
 /*
  * Parser itself
  */
-ssize_t pxml_parse(int *stateContext, const void *xmlbuf, size_t size, pxml_callback_f *cb, void *key) {
+ssize_t pxml_parse_e2ap_v1_01(int *stateContext, const void *xmlbuf, size_t size, pxml_callback_f *cb, void *key) {
 	pstate_e state = (pstate_e)*stateContext;
 	const char *chunk_start = (const char *)xmlbuf;
 	const char *p = chunk_start;

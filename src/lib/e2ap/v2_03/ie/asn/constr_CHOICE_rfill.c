@@ -6,15 +6,15 @@
 #include <asn_internal.h>
 #include <constr_CHOICE.h>
 
-asn_random_fill_result_t
-CHOICE_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
+asn_random_fill_e2ap_v2_03_result_t
+CHOICE_random_fill_e2ap_v2_03(const asn_TYPE_descriptor_t *td, void **sptr,
                    const asn_encoding_constraints_t *constr,
                    size_t max_length) {
     const asn_CHOICE_specifics_t *specs =
         (const asn_CHOICE_specifics_t *)td->specifics;
-    asn_random_fill_result_t res;
-    asn_random_fill_result_t result_failed = {ARFILL_FAILED, 0};
-    asn_random_fill_result_t result_skipped = {ARFILL_SKIPPED, 0};
+    asn_random_fill_e2ap_v2_03_result_t res;
+    asn_random_fill_e2ap_v2_03_result_t result_failed = {ARFILL_FAILED, 0};
+    asn_random_fill_e2ap_v2_03_result_t result_skipped = {ARFILL_SKIPPED, 0};
     const asn_TYPE_member_t *elm;
     unsigned present;
     void *memb_ptr;    /* Pointer to the member */
@@ -32,7 +32,7 @@ CHOICE_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
         }
     }
 
-    present = asn_random_between(1, td->elements_count);
+    present = asn_random_between_e2ap_v2_03(1, td->elements_count);
     elm = &td->elements[present - 1];
 
     if(elm->flags & ATF_POINTER) {
@@ -45,7 +45,7 @@ CHOICE_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
 
     res = elm->type->op->random_fill(elm->type, memb_ptr2,
                                     &elm->encoding_constraints, max_length);
-    _set_present_idx(st, specs->pres_offset, specs->pres_size, present);
+    _set_present_idx_e2ap_v2_03(st, specs->pres_offset, specs->pres_size, present);
     if(res.code == ARFILL_OK) {
         *sptr = st;
     } else {

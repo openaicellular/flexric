@@ -1,6 +1,9 @@
 FlexRIC supports O-RAN RC SM v1.03.
 
-At the moment, OAI RAN supports the RAN control function "QoS flow mapping configuration", i.e. creating a new DRB.
+At the moment, OAI RAN supports:
+* `xapp_kpm_rc` - RAN control function "QoS flow mapping configuration", i.e. creating a new DRB;
+* `xapp_rc_moni` - aperiodic subscription for "UE RRC State Change".
+
 We have showcased this feature at O-RAN meetings:
 1. OAI RAN + FlexRIC demo - Osaka, June 2023: 
    - 55th minute: https://zoom.us/rec/play/1JdMqJPufSsZna09aLgauwmEo-CgKYFyxKPoEIxweJ4FCDvsTjmeUFzjfSTZJn8w9-MxTG1Bb0gG3GN_.orz4ka7mAZV4o6J8?canPlayFromShare=true&from=share_recording_detail&continueMode=true&componentName=rec-play&originRequestUrl=https%3A%2F%2Fzoom.us%2Frec%2Fshare%2F-Q87TBaTxMPII0SOBA44scg7NexCM1XwhY1X2iGIeGbDHc0kIA-_n1X-I3kJDMc.4fBtTHqeXJUHMHnG&autoplay=true&startTime=1687252602000

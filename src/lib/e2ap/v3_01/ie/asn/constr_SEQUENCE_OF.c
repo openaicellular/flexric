@@ -7,30 +7,30 @@
 #include <constr_SEQUENCE_OF.h>
 #include <asn_SEQUENCE_OF.h>
 
-asn_TYPE_operation_t asn_OP_SEQUENCE_OF = {
+asn_TYPE_operation_t asn_OP_SEQUENCE_e2ap_v3_01_OF = {
     SEQUENCE_OF_free,
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
     SEQUENCE_OF_print,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
-    SEQUENCE_OF_compare,
+    SEQUENCE_OF_compare_e2ap_v3_01,
 #if !defined(ASN_DISABLE_BER_SUPPORT)
     SEQUENCE_OF_decode_ber,
-    SEQUENCE_OF_encode_der,
+    SEQUENCE_OF_encode_der_e2ap_v3_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 #if !defined(ASN_DISABLE_XER_SUPPORT)
     SEQUENCE_OF_decode_xer,
-    SEQUENCE_OF_encode_xer,
+    SEQUENCE_OF_encode_xer_e2ap_v3_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 #if !defined(ASN_DISABLE_JER_SUPPORT)
-    SEQUENCE_OF_encode_jer,
+    SEQUENCE_OF_encode_jer_e2ap_v3_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
@@ -43,14 +43,14 @@ asn_TYPE_operation_t asn_OP_SEQUENCE_OF = {
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
     SEQUENCE_OF_decode_uper,  /* Same as SET OF decoder */
-    SEQUENCE_OF_encode_uper,
+    SEQUENCE_OF_encode_uper_e2ap_v3_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
     SEQUENCE_OF_decode_aper,
-    SEQUENCE_OF_encode_aper,
+    SEQUENCE_OF_encode_aper_e2ap_v3_01,
 #else
     0,
     0,
@@ -64,7 +64,7 @@ asn_TYPE_operation_t asn_OP_SEQUENCE_OF = {
 };
 
 int
-SEQUENCE_OF_compare(const asn_TYPE_descriptor_t *td, const void *aptr,
+SEQUENCE_OF_compare_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *aptr,
                const void *bptr) {
     const asn_anonymous_sequence_ *a = _A_CSEQUENCE_FROM_VOID(aptr);
     const asn_anonymous_sequence_ *b = _A_CSEQUENCE_FROM_VOID(bptr);

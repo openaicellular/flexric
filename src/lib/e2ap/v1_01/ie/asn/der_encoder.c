@@ -12,7 +12,7 @@ static ssize_t der_write_TL(ber_tlv_tag_t tag, ber_tlv_len_t len,
  * The DER encoder of any type.
  */
 asn_enc_rval_t
-der_encode(const asn_TYPE_descriptor_t *type_descriptor, const void *struct_ptr,
+der_encode_e2ap_v1_01(const asn_TYPE_descriptor_t *type_descriptor, const void *struct_ptr,
            asn_app_consume_bytes_f *consume_bytes, void *app_key) {
     ASN_DEBUG("DER encoder invoked for %s",
 		type_descriptor->name);
@@ -20,13 +20,13 @@ der_encode(const asn_TYPE_descriptor_t *type_descriptor, const void *struct_ptr,
 	/*
 	 * Invoke type-specific encoder.
 	 */
-    return type_descriptor->op->der_encoder(
+    return type_descriptor->op->der_encode_e2ap_v1_01r(
         type_descriptor, struct_ptr, /* Pointer to the destination structure */
         0, 0, consume_bytes, app_key);
 }
 
 /*
- * Argument type and callback necessary for der_encode_to_buffer().
+ * Argument type and callback necessary for der_encode_e2ap_v1_01_to_buffer().
  */
 typedef struct enc_to_buf_arg {
 	void *buffer;
@@ -46,10 +46,10 @@ static int encode_to_buffer_cb(const void *buffer, size_t size, void *key) {
 }
 
 /*
- * A variant of the der_encode() which encodes the data into the provided buffer
+ * A variant of the der_encode_e2ap_v1_01() which encodes the data into the provided buffer
  */
 asn_enc_rval_t
-der_encode_to_buffer(const asn_TYPE_descriptor_t *type_descriptor,
+der_encode_e2ap_v1_01_to_buffer(const asn_TYPE_descriptor_t *type_descriptor,
                      const void *struct_ptr, void *buffer, size_t buffer_size) {
     enc_to_buf_arg arg;
 	asn_enc_rval_t ec;
@@ -57,7 +57,7 @@ der_encode_to_buffer(const asn_TYPE_descriptor_t *type_descriptor,
 	arg.buffer = buffer;
 	arg.left = buffer_size;
 
-	ec = type_descriptor->op->der_encoder(type_descriptor,
+	ec = type_descriptor->op->der_encode_e2ap_v1_01r(type_descriptor,
 		struct_ptr,	/* Pointer to the destination structure */
 		0, 0, encode_to_buffer_cb, &arg);
 	if(ec.encoded != -1) {
@@ -72,7 +72,7 @@ der_encode_to_buffer(const asn_TYPE_descriptor_t *type_descriptor,
  * Write out leading TL[v] sequence according to the type definition.
  */
 ssize_t
-der_write_tags(const asn_TYPE_descriptor_t *sd, size_t struct_length,
+der_write_tags_e2ap_v1_01(const asn_TYPE_descriptor_t *sd, size_t struct_length,
                int tag_mode, int last_tag_form,
                ber_tlv_tag_t tag, /* EXPLICIT or IMPLICIT tag */
                asn_app_consume_bytes_f *cb, void *app_key) {
@@ -87,7 +87,7 @@ der_write_tags(const asn_TYPE_descriptor_t *sd, size_t struct_length,
 
     ASN_DEBUG("Writing tags (%s, tm=%d, tc=%d, tag=%s, mtc=%d)",
 		sd->name, tag_mode, sd->tags_count,
-		ber_tlv_tag_string(tag),
+		ber_tlv_tag_string_e2ap_v1_01(tag),
 		tag_mode
 			?(sd->tags_count+1
 				-((tag_mode == -1) && sd->tags_count))
@@ -101,7 +101,7 @@ der_write_tags(const asn_TYPE_descriptor_t *sd, size_t struct_length,
 
 	if(tag_mode) {
 		/*
-		 * Instead of doing shaman dance like we do in ber_check_tags(),
+		 * Instead of doing shaman dance like we do in ber_check_tags_e2ap_v1_01(),
 		 * allocate a small array on the stack
 		 * and initialize it appropriately.
 		 */
@@ -169,12 +169,12 @@ der_write_TL(ber_tlv_tag_t tag, ber_tlv_len_t len,
 	ssize_t tmp;
 
 	/* Serialize tag (T from TLV) into possibly zero-length buffer */
-	tmp = ber_tlv_tag_serialize(tag, buf, buf_size);
+	tmp = ber_tlv_tag_serialize_e2ap_v1_01(tag, buf, buf_size);
 	if(tmp == -1 || tmp > (ssize_t)sizeof(buf)) return -1;
 	size += tmp;
 
 	/* Serialize length (L from TLV) into possibly zero-length buffer */
-	tmp = der_tlv_length_serialize(len, buf+size, buf_size?buf_size-size:0);
+	tmp = der_tlv_length_serialize_e2ap_v1_01(len, buf+size, buf_size?buf_size-size:0);
 	if(tmp == -1) return -1;
 	size += tmp;
 

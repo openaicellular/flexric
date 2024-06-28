@@ -149,12 +149,17 @@ static
 sm_ag_if_rd_e2setup_t ric_on_e2_setup_mac_sm_ric(sm_ric_t const* sm_ric, sm_e2_setup_data_t const* setup)
 {
   assert(sm_ric != NULL); 
-  assert(setup == NULL); 
-//  sm_mac_ric_t* sm = (sm_mac_ric_t*)sm_ric;  
+  assert(setup != NULL); 
 
-  assert(0!=0 && "Not implemented");
+  sm_ag_if_rd_e2setup_t dst = {.type = MAC_AGENT_IF_E2_SETUP_ANS_V0 }; 
+  
+  dst.mac.func_def.len = setup->len_rfd;
+  if(dst.mac.func_def.len > 0){
+    dst.mac.func_def.buf = calloc(dst.mac.func_def.len, sizeof(uint8_t));
+    assert(dst.mac.func_def.buf != NULL && "Memory exhausted");
+    memcpy(dst.mac.func_def.buf, setup->ran_fun_def, setup->len_rfd);
+  }
 
-  sm_ag_if_rd_e2setup_t dst = {0}; 
   return dst;
 }
 

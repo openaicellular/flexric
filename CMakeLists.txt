@@ -5,7 +5,7 @@ project(Flexric VERSION 0.0.1 LANGUAGES C)
 set(CMAKE_C_STANDARD 11)
 
 ###
-### Reduce compile time 
+### Reduce compile time
 ###
 
 # use ccache if available
@@ -47,12 +47,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
-if($default_build_type STREQUAL "Release")
-   add_compile_options("-O3;-march=native;-flto")
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  add_compile_options("-march=native;-flto")
+elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  add_compile_options("-D_FORTIFY_SOURCE=3")
 endif()
 
 ########
-### SANITIZER 
+### SANITIZER
 ########
 
 #https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110157
@@ -74,7 +76,7 @@ endif()
 
 
 ########
-### Compiler 
+### Compiler
 ########
 
 
@@ -82,11 +84,11 @@ if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
   # using Clang
   add_compile_options("-fblocks;")
   add_link_options("-lBlocksRuntime;")
-  
+
   if(${SANITIZER} STREQUAL "ADDRESS")
     message(FATAL_ERROR "ASan not supported by CLANG as FlexRIC uses blocks e.g., defer. Use gcc or unselect the sanitizer")
-  endif() 
-  
+  endif()
+
   # using GCC
 elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
   # sudo update-alternatives --config gcc
@@ -119,7 +121,7 @@ if(CPP_CHECK)
 endif()
 
 ########
-### Clang Tidy 
+### Clang Tidy
 #######
 option(Clang_Tidy "Clang Tidy" OFF)
 if(Clang_Tidy)
@@ -127,14 +129,14 @@ if(Clang_Tidy)
 endif()
 
 ########
-### NUM_THREADS 
+### NUM_THREADS
 ########
 set(NUM_THREADS_RIC "2" CACHE STRING "Number of threads in the RIC's task manager")
 
 
 
 ########
-### xApp 
+### xApp
 ########
 set(XAPP_DB "SQLITE3_XAPP" CACHE STRING "xApp DB")
 set_property(CACHE XAPP_DB PROPERTY STRINGS "SQLITE3_XAPP" "NONE_XAPP")
@@ -143,7 +145,7 @@ message(STATUS "Selected xApp DB : ${XAPP_DB}")
 set(XAPP_DB_DIR "/tmp/" CACHE STRING "The xApp DB write directory")
 if(NOT XAPP_DB_DIR  MATCHES "/$")
   message(FATAL_ERROR "xApp directory path needs to terminate in one / char")
-endif() 
+endif()
 
 if(NOT EXISTS ${XAPP_DB_DIR})
   message(FATAL_ERROR "Selected XAPP_DB_DIR does not exist. Please create it or change path")
@@ -155,7 +157,7 @@ option(XAPP_MULTILANGUAGE "xApp Multilanguage" ON)
 message(STATUS "xApp multilanguage support e.g., python : ${XAPP_MULTILANGUAGE}")
 
 ########
-### Coverage 
+### Coverage
 ########
 
 option(CODE_COVERAGE "Code coverage" OFF)
@@ -168,7 +170,7 @@ if(CODE_COVERAGE)
 endif()
 
 ########
-### Profiler 
+### Profiler
 ########
 
 option(CODE_PROFILER "Code Profiler" OFF)
@@ -197,7 +199,7 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(BUILDING_LIBRARY STREQUAL "STATIC")
-  add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-Warray-bounds;-Wempty-body;") #-fopt-info
+  add_compile_options("-W;-Wall;-Wextra;-g;-Wno-unused-result;-Warray-bounds;-Wempty-body;-fstack-protector-strong;-fstack-clash-protection;-D_GLIBCXX_ASSERTIONS") #-fopt-info -fhardened
 elseif(BUILDING_LIBRARY STREQUAL "DYNAMIC")
   # -fPIC flag
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -208,7 +210,7 @@ endif()
 
 
 #######
-## E2AP encoding and versioning 
+## E2AP encoding and versioning
 #######
 
 set(E2AP_ENCODING "ASN" CACHE STRING "The E2AP encoding to use")
@@ -220,32 +222,35 @@ set_property(CACHE E2AP_VERSION PROPERTY STRINGS "E2AP_V1" "E2AP_V2" "E2AP_V3")
 message(STATUS "Selected E2AP_VERSION: ${E2AP_VERSION}")
 
 if(E2AP_VERSION STREQUAL "E2AP_V1")
-  add_library(e2ap_ran_func_obj OBJECT 
+  add_library(e2ap_ran_func_obj OBJECT
               src/lib/e2ap/v1_01/e2ap_types/common/e2ap_ran_function.c )
-  add_library(e2ap_plmn_obj OBJECT 
+  add_library(e2ap_plmn_obj OBJECT
               src/lib/e2ap/v1_01/e2ap_types/common/e2ap_plmn.c )
-  add_library(e2ap_global_node_id_obj OBJECT 
+  add_library(e2ap_global_node_id_obj OBJECT
               src/lib/e2ap/v1_01/e2ap_types/common/e2ap_global_node_id.c )
 elseif(E2AP_VERSION STREQUAL "E2AP_V2")
-  add_library(e2ap_ran_func_obj OBJECT 
+  add_library(e2ap_ran_func_obj OBJECT
               src/lib/e2ap/v2_03/e2ap_types/common/e2ap_ran_function.c )
-  add_library(e2ap_plmn_obj OBJECT 
+  add_library(e2ap_plmn_obj OBJECT
               src/lib/e2ap/v2_03/e2ap_types/common/e2ap_plmn.c )
-  add_library(e2ap_global_node_id_obj OBJECT 
+  add_library(e2ap_global_node_id_obj OBJECT
               src/lib/e2ap/v2_03/e2ap_types/common/e2ap_global_node_id.c )
 elseif(E2AP_VERSION STREQUAL "E2AP_V3")
-  add_library(e2ap_ran_func_obj OBJECT 
+  add_library(e2ap_ran_func_obj OBJECT
               src/lib/e2ap/v3_01/e2ap_types/common/e2ap_ran_function.c )
-  add_library(e2ap_plmn_obj OBJECT 
+  add_library(e2ap_plmn_obj OBJECT
               src/lib/e2ap/v3_01/e2ap_types/common/e2ap_plmn.c )
-  add_library(e2ap_global_node_id_obj OBJECT 
+  add_library(e2ap_global_node_id_obj OBJECT
               src/lib/e2ap/v3_01/e2ap_types/common/e2ap_global_node_id.c )
 else()
   message(FATAL_ERROR "E2AP Unknown version selected")
 endif()
 
+target_compile_options(e2ap_ran_func_obj PRIVATE -fPIC -fvisibility=hidden)
+
+
 #######
-## Service Models 
+## Service Models
 #######
 
 add_definitions(-DSERVICE_MODEL_DIR_PATH="${SM_DIR_PATH}/")
@@ -290,7 +295,7 @@ set_property(CACHE SM_ENCODING_GTP PROPERTY STRINGS "PLAIN")
 message(STATUS "Selected GTP SM_ENCODING: ${SM_ENCODING_GTP}")
 
 ########
-### Flatbuffer 
+### Flatbuffer
 ########
 set(FlatCC_INCLUDE_DIR "" CACHE STRING "The Flatbuffers include directory")
 set(FlatCC_LIB_DIR "" CACHE STRING "The Flatbuffers lib directory")
@@ -298,7 +303,7 @@ set(FlatCC_LIB_DIR "" CACHE STRING "The Flatbuffers lib directory")
 if(E2AP_ENCODING STREQUAL "FLATBUFFERS")
   find_library(FlatCC
     NAMES flatccrt_d
-    HINTS ${FlatCC_LIB_DIR} 
+    HINTS ${FlatCC_LIB_DIR}
     #"~/workspace/flatcc/lib/"
     )
 endif()
@@ -345,7 +350,7 @@ install(TARGETS rc_sm DESTINATION ${CMAKE_INSTALL_LIBDIR}/flexric)
 install(FILES flexric.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
 
 ###
-# CTest 
+# CTest
 ###
 
 set(CTEST_PARALLEL_LEVEL 4)

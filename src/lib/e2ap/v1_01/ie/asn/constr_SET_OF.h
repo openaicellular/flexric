@@ -26,24 +26,24 @@ typedef struct asn_SET_OF_specifics_s {
 /*
  * A set specialized functions dealing with the SET OF type.
  */
-asn_struct_free_f SET_OF_free;
+asn_struct_free_f SET_OF_free_e2ap_v1_01;
 
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-asn_struct_print_f SET_OF_print;
+asn_struct_print_f SET_OF_print_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
 
-asn_struct_compare_f SET_OF_compare;
+asn_struct_compare_f SET_OF_compare_e2ap_v1_01;
 
-asn_constr_check_f SET_OF_constraint;
+asn_constr_check_f SET_OF_constraint_e2ap_v1_01;
 
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-ber_type_decoder_f SET_OF_decode_ber;
-der_type_encoder_f SET_OF_encode_der;
+ber_type_decoder_f SET_OF_decode_ber_e2ap_v1_01;
+der_type_encoder_f SET_OF_encode_der_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-xer_type_decoder_f SET_OF_decode_xer;
-xer_type_encoder_f SET_OF_encode_xer;
+xer_type_decoder_f SET_OF_decode_xer_e2ap_v1_01;
+xer_type_encoder_f SET_OF_encode_xer_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
@@ -56,19 +56,19 @@ oer_type_encoder_f SET_OF_encode_oer;
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-per_type_decoder_f SET_OF_decode_uper;
-per_type_encoder_f SET_OF_encode_uper;
+per_type_decoder_f SET_OF_decode_uper_e2ap_v1_01;
+per_type_encoder_f SET_OF_encode_uper_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-per_type_decoder_f SET_OF_decode_aper;
-per_type_encoder_f SET_OF_encode_aper;
+per_type_decoder_f SET_OF_decode_aper_e2ap_v1_01;
+per_type_encoder_f SET_OF_encode_aper_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-asn_random_fill_f SET_OF_random_fill;
+asn_random_fill_e2ap_v1_01_f SET_OF_random_fill_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
 
-extern asn_TYPE_operation_t asn_OP_SET_OF;
+extern asn_TYPE_operation_t asn_OP_SET_OF_e2ap_v1_01;
 
 /*
  * Internally visible buffer holding a single encoded element.
@@ -86,12 +86,12 @@ enum SET_OF__encode_method {
     SOES_CAPER  /* Canonical Aligned Packed Encoding Rules */
 };
 
-struct _el_buffer * SET_OF__encode_sorted(
+struct _el_buffer * SET_OF__encode_sorted_e2ap_v1_01(
         const asn_TYPE_member_t *elm,
         const asn_anonymous_set_ *list,
         enum SET_OF__encode_method method);
 
-void SET_OF__encode_sorted_free(
+void SET_OF__encode_sorted_e2ap_v1_01_free(
         struct _el_buffer *el_buf,
         size_t count);
 

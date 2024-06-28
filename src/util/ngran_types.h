@@ -44,7 +44,9 @@ typedef enum {
   ngran_gNB_DU    = 7,
   ngran_eNB_MBMS_STA  = 8,
   ngran_gNB_CUCP  = 9,
-  ngran_gNB_CUUP  = 10
+  ngran_gNB_CUUP  = 10,
+
+  END_NGRAN_NODE_TYPE
 } ngran_node_t;
 
 char* get_ngran_name(ngran_node_t n);

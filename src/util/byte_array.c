@@ -74,4 +74,38 @@ byte_array_t cp_str_to_ba(const char* str)
   return dst;
 }
 
+char* cp_ba_to_str(const byte_array_t ba)
+{
+  assert(ba.len > 0);
 
+  const size_t sz = ba.len;
+  char* str = calloc(sz+1, sizeof(char));
+  assert(str != NULL && "Memory exhausted");
+
+  memcpy(str, ba.buf, sz);
+  str[sz] = '\0';
+
+  return str;
+}
+
+int cmp_str_ba(char const* str, byte_array_t ba)
+{
+  assert(str != NULL);
+  assert(ba.len > 0);
+
+  size_t pos = 0;
+  while(str[pos] != '\0' && pos < ba.len){
+    if(str[pos] < ba.buf[pos])
+      return -1;
+    else if(str[pos] > ba.buf[pos])
+      return 1;
+    pos++;
+  }
+
+  if(pos != ba.len)
+    return -1;
+  else if(str[pos] != '\0')
+    return 1;
+
+  return 0;
+}

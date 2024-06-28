@@ -11,19 +11,19 @@
 extern "C" {
 #endif
 
-asn_dec_rval_t uper_open_type_get(const asn_codec_ctx_t *opt_codec_ctx,
+asn_dec_rval_t uper_open_type_get_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                                   const asn_TYPE_descriptor_t *td,
                                   const asn_per_constraints_t *constraints,
                                   void **sptr, asn_per_data_t *pd);
 
-int uper_open_type_skip(const asn_codec_ctx_t *opt_codec_ctx,
+int uper_open_type_skip_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                         asn_per_data_t *pd);
 
 /*
  * X.691 (2015/08), #11.2
  * Returns -1 if error is encountered. 0 if all OK.
  */
-int uper_open_type_put(const asn_TYPE_descriptor_t *td,
+int uper_open_type_put_e2ap_v1_01(const asn_TYPE_descriptor_t *td,
                        const asn_per_constraints_t *constraints,
                        const void *sptr, asn_per_outp_t *po);
 

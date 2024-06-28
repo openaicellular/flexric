@@ -17,17 +17,17 @@ struct asn_TYPE_descriptor_s;	/* Forward declaration */
  * The DER encoder of any type. May be invoked by the application.
  * Produces DER- and BER-compliant encoding. (DER is a subset of BER).
  *
- * NOTE: Use the ber_decode() function (ber_decoder.h) to decode data
- * produced by der_encode().
+ * NOTE: Use the ber_decode_e2ap_v3_01() function (ber_decode_e2ap_v3_01r.h) to decode data
+ * produced by der_encode_e2ap_v3_01().
  */
-asn_enc_rval_t der_encode(const struct asn_TYPE_descriptor_s *type_descriptor,
+asn_enc_rval_t der_encode_e2ap_v3_01(const struct asn_TYPE_descriptor_s *type_descriptor,
                           const void *struct_ptr, /* Structure to be encoded */
                           asn_app_consume_bytes_f *consume_bytes_cb,
                           void *app_key /* Arbitrary callback argument */
 );
 
-/* A variant of der_encode() which encodes data into the pre-allocated buffer */
-asn_enc_rval_t der_encode_to_buffer(
+/* A variant of der_encode_e2ap_v3_01() which encodes data into the pre-allocated buffer */
+asn_enc_rval_t der_encode_e2ap_v3_01_to_buffer(
     const struct asn_TYPE_descriptor_s *type_descriptor,
     const void *struct_ptr, /* Structure to be encoded */
     void *buffer,           /* Pre-allocated buffer */
@@ -53,7 +53,7 @@ typedef asn_enc_rval_t(der_type_encoder_f)(
 /*
  * Write out leading TL[v] sequence according to the type definition.
  */
-ssize_t der_write_tags(const struct asn_TYPE_descriptor_s *type_descriptor,
+ssize_t der_write_tags_e2ap_v3_01(const struct asn_TYPE_descriptor_s *type_descriptor,
                        size_t struct_length,
                        int tag_mode,      /* {-1,0,1}: IMPLICIT, no, EXPLICIT */
                        int last_tag_form, /* {0,!0}: prim, constructed */

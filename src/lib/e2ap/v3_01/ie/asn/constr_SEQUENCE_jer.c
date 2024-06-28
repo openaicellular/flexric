@@ -7,8 +7,8 @@
 #include <constr_SEQUENCE.h>
 #include <OPEN_TYPE.h>
 
-asn_enc_rval_t SEQUENCE_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr,
-                    int ilevel, enum jer_encoder_flags_e flags,
+asn_enc_rval_t SEQUENCE_encode_jer_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
+                    int ilevel, enum jer_encode_e2ap_v3_01r_flags_e flags,
                     asn_app_consume_bytes_f *cb, void *app_key) {
     asn_enc_rval_t er = {0,0,0};
     int xcan = 0;
@@ -61,7 +61,7 @@ asn_enc_rval_t SEQUENCE_encode_jer(const asn_TYPE_descriptor_t *td, const void *
         ASN__CALLBACK3("\"", 1, mname, mlen, "\": ", 3);
 
         /* Print the member itself */
-        tmper = elm->type->op->jer_encoder(elm->type, memb_ptr, ilevel + 1,
+        tmper = elm->type->op->jer_encode_e2ap_v3_01r(elm->type, memb_ptr, ilevel + 1,
                                            flags, cb, app_key);
         if(tmp_def_val) {
             ASN_STRUCT_FREE(*tmp_def_val_td, tmp_def_val);

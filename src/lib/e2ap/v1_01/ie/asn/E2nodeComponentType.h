@@ -35,9 +35,9 @@ typedef enum E2nodeComponentType {
 typedef long	 E2nodeComponentType_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_E2nodeComponentType_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentType;
-extern const asn_INTEGER_specifics_t asn_SPC_E2nodeComponentType_specs_1;
+extern asn_per_constraints_t asn_PER_type_E2nodeComponentType_constr_1_e2ap_v1_01;
+extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentType_e2ap_v1_01;
+extern const asn_INTEGER_specifics_t asn_SPC_E2nodeComponentType_specs_1_e2ap_v1_01;
 asn_struct_free_f E2nodeComponentType_free;
 asn_struct_print_f E2nodeComponentType_print;
 asn_constr_check_f E2nodeComponentType_constraint;

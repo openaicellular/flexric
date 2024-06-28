@@ -19,27 +19,27 @@
 extern "C" {
 #endif
 
-extern asn_TYPE_descriptor_t asn_DEF_NativeInteger;
-extern asn_TYPE_operation_t asn_OP_NativeInteger;
+extern asn_TYPE_descriptor_t asn_DEF_NativeInteger_e2ap_v1_01;
+extern asn_TYPE_operation_t asn_OP_NativeInteger_e2ap_v1_01;
 
-asn_struct_free_f NativeInteger_free;
+asn_struct_free_f NativeInteger_free_e2ap_v1_01;
 
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-asn_struct_print_f NativeInteger_print;
+asn_struct_print_f NativeInteger_print_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
 
-asn_struct_compare_f NativeInteger_compare;
+asn_struct_compare_f NativeInteger_compare_e2ap_v1_01;
 
-#define NativeInteger_constraint asn_generic_no_constraint
+#define NativeInteger_constraint asn_generic_no_constraint_e2ap_v1_01
 
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-ber_type_decoder_f NativeInteger_decode_ber;
-der_type_encoder_f NativeInteger_encode_der;
+ber_type_decoder_f NativeInteger_decode_ber_e2ap_v1_01;
+der_type_encoder_f NativeInteger_encode_der_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-xer_type_decoder_f NativeInteger_decode_xer;
-xer_type_encoder_f NativeInteger_encode_xer;
+xer_type_decoder_f NativeInteger_decode_xer_e2ap_v1_01;
+xer_type_encoder_f NativeInteger_encode_xer_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
@@ -52,16 +52,16 @@ oer_type_encoder_f NativeInteger_encode_oer;
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-per_type_decoder_f NativeInteger_decode_uper;
-per_type_encoder_f NativeInteger_encode_uper;
+per_type_decoder_f NativeInteger_decode_uper_e2ap_v1_01;
+per_type_encoder_f NativeInteger_encode_uper_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-per_type_decoder_f NativeInteger_decode_aper;
-per_type_encoder_f NativeInteger_encode_aper;
+per_type_decoder_f NativeInteger_decode_aper_e2ap_v1_01;
+per_type_encoder_f NativeInteger_encode_aper_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-asn_random_fill_f NativeInteger_random_fill;
+asn_random_fill_e2ap_v1_01_f NativeInteger_random_fill_e2ap_v1_01;
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
 
 #ifdef __cplusplus

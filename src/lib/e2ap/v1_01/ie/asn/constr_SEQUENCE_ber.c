@@ -113,7 +113,7 @@ _t2e_cmp(const void *ap, const void *bp) {
  * The decoder of the SEQUENCE type.
  */
 asn_dec_rval_t
-SEQUENCE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
+SEQUENCE_decode_ber_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                     const asn_TYPE_descriptor_t *td, void **struct_ptr,
                     const void *ptr, size_t size, int tag_mode) {
     /*
@@ -162,7 +162,7 @@ SEQUENCE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
          * perfectly fits our expectations.
          */
 
-        rval = ber_check_tags(opt_codec_ctx, td, ctx, ptr, size,
+        rval = ber_check_tags_e2ap_v1_01(opt_codec_ctx, td, ctx, ptr, size,
                               tag_mode, 1, &ctx->left, 0);
         if(rval.code != RC_OK) {
             ASN_DEBUG("%s tagging check failed: %d",
@@ -229,11 +229,11 @@ SEQUENCE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
             /*
              * Fetch the T from TLV.
              */
-            tag_len = ber_fetch_tag(ptr, LEFT, &tlv_tag);
+            tag_len = ber_fetch_tag_e2ap_v1_01(ptr, LEFT, &tlv_tag);
             ASN_DEBUG("Current tag in %s SEQUENCE for element %" ASN_PRI_SIZE " "
                       "(%s) is %s encoded in %d bytes, of frame %ld",
                       td->name, edx, elements[edx].name,
-                      ber_tlv_tag_string(tlv_tag), (int)tag_len, (long)LEFT);
+                      ber_tlv_tag_string_e2ap_v1_01(tlv_tag), (int)tag_len, (long)LEFT);
             switch(tag_len) {
             case 0: if(!SIZE_VIOLATION) RETURN(RC_WMORE);
                 /* Fall through */
@@ -347,9 +347,9 @@ SEQUENCE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
                 if(!IN_EXTENSION_GROUP(specs,
                     edx + elements[edx].optional)) {
                     ASN_DEBUG("Unexpected tag %s (at %" ASN_PRI_SIZE ")",
-                              ber_tlv_tag_string(tlv_tag), edx);
+                              ber_tlv_tag_string_e2ap_v1_01(tlv_tag), edx);
                     ASN_DEBUG("Expected tag %s (%s)%s",
-                              ber_tlv_tag_string(elements[edx].tag),
+                              ber_tlv_tag_string_e2ap_v1_01(elements[edx].tag),
                               elements[edx].name,
                               elements[edx].optional ?" or alternatives":"");
                     RETURN(RC_FAIL);
@@ -359,8 +359,8 @@ SEQUENCE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
                     edx += elements[edx].optional;
 
                     ASN_DEBUG("Skipping unexpected %s (at %" ASN_PRI_SIZE ")",
-                              ber_tlv_tag_string(tlv_tag), edx);
-                    skip = ber_skip_length(opt_codec_ctx,
+                              ber_tlv_tag_string_e2ap_v1_01(tlv_tag), edx);
+                    skip = ber_skip_length_e2ap_v1_01(opt_codec_ctx,
                                            BER_TLV_CONSTRUCTED(ptr),
                                            (const char *)ptr + tag_len,
                                            LEFT - tag_len);
@@ -406,9 +406,9 @@ SEQUENCE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
              * Invoke the member fetch routine according to member's type
              */
             if(elements[edx].flags & ATF_OPEN_TYPE) {
-                rval = OPEN_TYPE_ber_get(opt_codec_ctx, td, st, &elements[edx], ptr, LEFT);
+                rval = OPEN_TYPE_ber_get_e2ap_v1_01(opt_codec_ctx, td, st, &elements[edx], ptr, LEFT);
             } else {
-                rval = elements[edx].type->op->ber_decoder(opt_codec_ctx,
+                rval = elements[edx].type->op->ber_decode_e2ap_v1_01r(opt_codec_ctx,
                                                            elements[edx].type,
                                                            memb_ptr2, ptr, LEFT,
                                                            elements[edx].tag_mode);
@@ -450,7 +450,7 @@ SEQUENCE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
         while(ctx->left) {
             ssize_t tl, ll;
 
-            tl = ber_fetch_tag(ptr, LEFT, &tlv_tag);
+            tl = ber_fetch_tag_e2ap_v1_01(ptr, LEFT, &tlv_tag);
             switch(tl) {
             case 0: if(!SIZE_VIOLATION) RETURN(RC_WMORE);
                 /* Fall through */
@@ -483,11 +483,11 @@ SEQUENCE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
                           "of a non-extensible type "
                           "%s (SEQUENCE): %s",
                           td->name,
-                          ber_tlv_tag_string(tlv_tag));
+                          ber_tlv_tag_string_e2ap_v1_01(tlv_tag));
                 RETURN(RC_FAIL);
             }
 
-            ll = ber_skip_length(opt_codec_ctx,
+            ll = ber_skip_length_e2ap_v1_01(opt_codec_ctx,
                                  BER_TLV_CONSTRUCTED(ptr),
                                  (const char *)ptr + tl, LEFT - tl);
             switch(ll) {
@@ -510,7 +510,7 @@ SEQUENCE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
  * The DER encoder of the SEQUENCE type.
  */
 asn_enc_rval_t
-SEQUENCE_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
+SEQUENCE_encode_der_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                     int tag_mode, ber_tlv_tag_t tag,
                     asn_app_consume_bytes_f *cb, void *app_key) {
     size_t computed_size = 0;
@@ -550,7 +550,7 @@ SEQUENCE_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
         if(elm->default_value_cmp && elm->default_value_cmp(*memb_ptr2) == 0)
             continue;
 
-        erval = elm->type->op->der_encoder(elm->type, *memb_ptr2,
+        erval = elm->type->op->der_encode_e2ap_v1_01r(elm->type, *memb_ptr2,
                                            elm->tag_mode, elm->tag,
                                            0, 0);
         if(erval.encoded == -1)
@@ -563,7 +563,7 @@ SEQUENCE_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
     /*
      * Encode the TLV for the sequence itself.
      */
-    ret = der_write_tags(td, computed_size, tag_mode, 1, tag, cb, app_key);
+    ret = der_write_tags_e2ap_v1_01(td, computed_size, tag_mode, 1, tag, cb, app_key);
     ASN_DEBUG("Wrote tags: %ld (+%ld)", (long)ret, (long)computed_size);
     if(ret == -1)
         ASN__ENCODE_FAILED;
@@ -593,7 +593,7 @@ SEQUENCE_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
         if(elm->default_value_cmp && elm->default_value_cmp(*memb_ptr2) == 0)
             continue;
 
-        tmperval = elm->type->op->der_encoder(elm->type, *memb_ptr2,
+        tmperval = elm->type->op->der_encode_e2ap_v1_01r(elm->type, *memb_ptr2,
                                               elm->tag_mode, elm->tag, cb, app_key);
         if(tmperval.encoded == -1)
             return tmperval;

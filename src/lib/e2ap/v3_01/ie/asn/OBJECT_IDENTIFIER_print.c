@@ -7,7 +7,7 @@
 #include <OBJECT_IDENTIFIER.h>
 
 int
-OBJECT_IDENTIFIER_print(const asn_TYPE_descriptor_t *td, const void *sptr,
+OBJECT_IDENTIFIER_print_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                         int ilevel, asn_app_consume_bytes_f *cb,
                         void *app_key) {
     const OBJECT_IDENTIFIER_t *st = (const OBJECT_IDENTIFIER_t *)sptr;
@@ -22,7 +22,7 @@ OBJECT_IDENTIFIER_print(const asn_TYPE_descriptor_t *td, const void *sptr,
     if(cb("{ ", 2, app_key) < 0)
         return -1;
 
-    if(OBJECT_IDENTIFIER__dump_body(st, cb, app_key) < 0) {
+    if(OBJECT_IDENTIFIER__dump_body_e2ap_v3_01(st, cb, app_key) < 0) {
         return -1;
     }
 

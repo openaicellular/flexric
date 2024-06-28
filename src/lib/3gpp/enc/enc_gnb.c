@@ -1,18 +1,74 @@
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
 
 #include "../../../util/conversions.h"
-#include "../../../sm/rc_sm/ie/asn/asn_constant.h"
-#include "../../../sm/rc_sm/ie/asn/asn_SEQUENCE_OF.h"
-#include "../../../sm/rc_sm/ie/asn/UEID-GNB-CU-CP-F1AP-ID-Item.h"
-#include "../../../sm/rc_sm/ie/asn/UEID-GNB-CU-F1AP-ID-List.h"
-#include "../../../sm/rc_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-Item.h"
-#include "../../../sm/rc_sm/ie/asn/UEID-GNB-CU-CP-E1AP-ID-List.h"
-
+#include "enc_asn.h"
 #include "enc_global_gnb_id.h"
 #include "enc_global_ng_ran.h"
-
 #include "enc_gnb.h"
+
+// Copied from the generated asn1c code to avoid dependencies
+static
+int asn_imax2INTEGER_static(INTEGER_t *st, intmax_t value) {
+	uint8_t *buf, *bp;
+	uint8_t *p;
+	uint8_t *pstart;
+	uint8_t *pend1;
+	int littleEndian = 1;	/* Run-time detection */
+	int add;
+
+	if(!st) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	buf = (uint8_t *)(long *)MALLOC(sizeof(value));
+	if(!buf) return -1;
+
+	if(*(char *)&littleEndian) {
+		pstart = (uint8_t *)&value + sizeof(value) - 1;
+		pend1 = (uint8_t *)&value;
+		add = -1;
+	} else {
+		pstart = (uint8_t *)&value;
+		pend1 = pstart + sizeof(value) - 1;
+		add = 1;
+	}
+
+	/*
+	 * If the contents octet consists of more than one octet,
+	 * then bits of the first octet and bit 8 of the second octet:
+	 * a) shall not all be ones; and
+	 * b) shall not all be zero.
+	 */
+	for(p = pstart; p != pend1; p += add) {
+		switch(*p) {
+		case 0x00: if((*(p+add) & 0x80) == 0)
+				continue;
+			break;
+		case 0xff: if((*(p+add) & 0x80))
+				continue;
+			break;
+		}
+		break;
+	}
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+	/* Copy the integer body */
+	for(pstart = p, bp = buf, pend1 += add; p != pend1; p += add)
+		*bp++ = *p;
+#pragma GCC diagnostic pop
+
+	if(st->buf) FREEMEM(st->buf);
+	st->buf = buf;
+	st->size = bp - buf;
+
+	return 0;
+}
+
+
 
 
 UEID_GNB_t* enc_gNB_UE_asn(const gnb_e2sm_t* gnb)
@@ -31,7 +87,7 @@ UEID_GNB_t* enc_gNB_UE_asn(const gnb_e2sm_t* gnb)
 
   //memcpy(gnb_asn->amf_UE_NGAP_ID.buf, &gnb->amf_ue_ngap_id, 5);
   //gnb_asn->amf_UE_NGAP_ID.size = 5;
-  asn_ulong2INTEGER(&gnb_asn->amf_UE_NGAP_ID, gnb->amf_ue_ngap_id);
+  asn_imax2INTEGER_static(&gnb_asn->amf_UE_NGAP_ID, gnb->amf_ue_ngap_id);
 
   // GUAMI
   MCC_MNC_TO_PLMNID(gnb->guami.plmn_id.mcc, gnb->guami.plmn_id.mnc, gnb->guami.plmn_id.mnc_digit_len, &gnb_asn->guami.pLMNIdentity);

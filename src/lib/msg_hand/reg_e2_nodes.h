@@ -22,9 +22,11 @@
 #ifndef REGISTERED_E2_NODES_H
 #define REGISTERED_E2_NODES_H 
 
+#include "../../ric/plugin_ric.h"
 #include "../../util/alg_ds/ds/assoc_container/assoc_generic.h"
 #include "../e2ap/e2_node_connected_wrapper.h"
 #include "e2_node_arr.h"
+#include "../../xApp/e2_node_arr_xapp.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -63,7 +65,9 @@ size_t sz_reg_e2_node(reg_e2_nodes_t* n);
 
 assoc_rb_tree_t cp_reg_e2_node(reg_e2_nodes_t* n); 
 
-e2_node_arr_t generate_e2_node_arr(reg_e2_nodes_t* n); 
+e2_node_arr_t generate_e2_node_arr(reg_e2_nodes_t* n);
+
+e2_node_arr_xapp_t generate_e2_node_arr_xapp(reg_e2_nodes_t* n, plugin_ric_t const* plg_ric);
 
 #endif
 

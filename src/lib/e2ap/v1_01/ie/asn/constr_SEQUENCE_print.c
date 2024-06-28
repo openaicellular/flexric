@@ -7,7 +7,7 @@
 #include <constr_SEQUENCE.h>
 
 int
-SEQUENCE_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
+SEQUENCE_print_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
                asn_app_consume_bytes_f *cb, void *app_key) {
     size_t edx;
     int ret;

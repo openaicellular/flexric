@@ -77,10 +77,13 @@ bool stop_ind_event(e2_agent_t* ag, ric_gen_id_t id)
   assert(it_r != end_r);
   ind_event_t* ind_ev = assoc_rb_tree_key(&ag->ind_event.right, it_r);
 
-  // These 3 lines need refactoring
+  // These 4 lines need refactoring
   if(ind_ev->sm->free_act_def != NULL)
     ind_ev->sm->free_act_def(ind_ev->sm, ind_ev->act_def);
   //
+  if(ind_ev->type == APERIODIC_SUBSCRIPTION_FLRC)
+    ind_ev->free_subs_aperiodic(id.ric_req_id);
+
 
   void (*free_ind_event)(void*) = NULL;
   int* fd = bi_map_extract_right(&ag->ind_event, &tmp, sizeof(tmp), free_ind_event);
@@ -181,23 +184,28 @@ e2ap_msg_t e2ap_handle_subscription_request_agent(e2_agent_t* ag, const e2ap_msg
   uint16_t const ran_func_id = sr->ric_id.ran_func_id; 
   sm_agent_t* sm = sm_plugin_ag(&ag->plugin, ran_func_id);
   
-  subscribe_timer_t t = sm->proc.on_subscription(sm, &data);
-  assert(t.ms > -2 && "Bug? 0 = create pipe value"); 
+  //subscribe_timer_t t = sm->proc.on_subscription(sm, &data);
+  //assert(t.ms > -2 && "Bug? 0 = create pipe value"); 
+  
+  sm_ag_if_ans_subs_t const subs = sm->proc.on_subscription(sm, &data);
 
   // Register the indication event
   ind_event_t ev = {0};
   ev.action_id = sr->action[0].id;
   ev.ric_id = sr->ric_id;
   ev.sm = sm;
-  ev.act_def = t.act_def;
+  ev.type = subs.type; 
 
-  if(t.ms > 0){
+  if(ev.type == PERIODIC_SUBSCRIPTION_FLRC){
+    subscribe_timer_t const t = subs.per.t; 
+    ev.act_def = t.act_def;
     // Periodic indication message generated i.e., every 5 ms
     assert(t.ms < 10001 && "Subscription for granularity larger than 10 seconds requested? ");
     int fd_timer = create_timer_ms_asio_agent(&ag->io, t.ms, t.ms); 
     lock_guard(&ag->mtx_ind_event);
     bi_map_insert(&ag->ind_event, &fd_timer, sizeof(fd_timer), &ev, sizeof(ev));
-  } else if(t.ms == 0){
+  } else if(ev.type == APERIODIC_SUBSCRIPTION_FLRC){
+    ev.free_subs_aperiodic = subs.aper.free_aper_subs;
     // Aperiodic indication generated i.e., the RAN will generate it via 
     // void async_event_agent_api(uint32_t ric_req_id, void* ind_data);
     int fd = 0;

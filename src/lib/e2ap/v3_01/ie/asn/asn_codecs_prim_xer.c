@@ -23,7 +23,7 @@ struct xdp_arg_s {
  * be supplied with such tags to parse them as needed.
  */
 static int
-xer_decode__unexpected_tag(void *key, const void *chunk_buf, size_t chunk_size) {
+xer_decode_e2ap_v3_01__unexpected_tag(void *key, const void *chunk_buf, size_t chunk_size) {
     struct xdp_arg_s *arg = (struct xdp_arg_s *)key;
     enum xer_pbd_rval bret;
 
@@ -58,13 +58,13 @@ xer_decode__unexpected_tag(void *key, const void *chunk_buf, size_t chunk_size) 
 }
 
 static ssize_t
-xer_decode__primitive_body(void *key, const void *chunk_buf, size_t chunk_size, int have_more) {
+xer_decode_e2ap_v3_01__primitive_body(void *key, const void *chunk_buf, size_t chunk_size, int have_more) {
     struct xdp_arg_s *arg = (struct xdp_arg_s *)key;
     enum xer_pbd_rval bret;
     size_t lead_wsp_size;
 
     if(arg->decoded_something) {
-        if(xer_whitespace_span(chunk_buf, chunk_size) == chunk_size) {
+        if(xer_whitespace_span_e2ap_v3_01(chunk_buf, chunk_size) == chunk_size) {
             /*
              * Example:
              * "<INTEGER>123<!--/--> </INTEGER>"
@@ -91,7 +91,7 @@ xer_decode__primitive_body(void *key, const void *chunk_buf, size_t chunk_size, 
         return -1;
     }
 
-    lead_wsp_size = xer_whitespace_span(chunk_buf, chunk_size);
+    lead_wsp_size = xer_whitespace_span_e2ap_v3_01(chunk_buf, chunk_size);
     chunk_buf   = (chunk_buf == NULL)? NULL : ((const char *)chunk_buf + lead_wsp_size);
     chunk_size -= lead_wsp_size;
 
@@ -115,7 +115,7 @@ xer_decode__primitive_body(void *key, const void *chunk_buf, size_t chunk_size, 
 }
 
 asn_dec_rval_t
-xer_decode_primitive(const asn_codec_ctx_t *opt_codec_ctx,
+xer_decode_e2ap_v3_01_primitive(const asn_codec_ctx_t *opt_codec_ctx,
                      const asn_TYPE_descriptor_t *td, void **sptr,
                      size_t struct_size, const char *opt_mname,
                      const void *buf_ptr, size_t size,
@@ -140,10 +140,10 @@ xer_decode_primitive(const asn_codec_ctx_t *opt_codec_ctx,
     s_arg.decoded_something = 0;
     s_arg.want_more = 0;
 
-    rc = xer_decode_general(opt_codec_ctx, &s_ctx, &s_arg,
+    rc = xer_decode_e2ap_v3_01_general(opt_codec_ctx, &s_ctx, &s_arg,
                             xml_tag, buf_ptr, size,
-                            xer_decode__unexpected_tag,
-                            xer_decode__primitive_body);
+                            xer_decode_e2ap_v3_01__unexpected_tag,
+                            xer_decode_e2ap_v3_01__primitive_body);
     switch(rc.code) {
     case RC_OK:
         if(!s_arg.decoded_something) {

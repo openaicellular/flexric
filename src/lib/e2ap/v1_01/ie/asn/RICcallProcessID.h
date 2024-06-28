@@ -22,7 +22,7 @@ extern "C" {
 typedef OCTET_STRING_t	 RICcallProcessID_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICcallProcessID;
+extern asn_TYPE_descriptor_t asn_DEF_RICcallProcessID_e2ap_v1_01;
 asn_struct_free_f RICcallProcessID_free;
 asn_struct_print_f RICcallProcessID_print;
 asn_constr_check_f RICcallProcessID_constraint;

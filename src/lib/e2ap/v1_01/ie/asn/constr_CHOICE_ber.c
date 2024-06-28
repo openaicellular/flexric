@@ -94,7 +94,7 @@ _search4tag(const void *ap, const void *bp) {
  * The decoder of the CHOICE type.
  */
 asn_dec_rval_t
-CHOICE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
+CHOICE_decode_ber_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                   const asn_TYPE_descriptor_t *td, void **struct_ptr,
                   const void *ptr, size_t size, int tag_mode) {
     /*
@@ -145,7 +145,7 @@ CHOICE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
          */
 
         if(tag_mode || td->tags_count) {
-            rval = ber_check_tags(opt_codec_ctx, td, ctx, ptr, size,
+            rval = ber_check_tags_e2ap_v1_01(opt_codec_ctx, td, ctx, ptr, size,
                                   tag_mode, -1, &ctx->left, 0);
             if(rval.code != RC_OK) {
                 ASN_DEBUG("%s tagging check failed: %d",
@@ -172,7 +172,7 @@ CHOICE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
         /*
          * Fetch the T from TLV.
          */
-        tag_len = ber_fetch_tag(ptr, LEFT, &tlv_tag);
+        tag_len = ber_fetch_tag_e2ap_v1_01(ptr, LEFT, &tlv_tag);
         ASN_DEBUG("In %s CHOICE tag length %d", td->name, (int)tag_len);
         switch(tag_len) {
         case 0: if(!SIZE_VIOLATION) RETURN(RC_WMORE);
@@ -198,16 +198,16 @@ CHOICE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
             } else if(specs->ext_start == -1) {
                 ASN_DEBUG("Unexpected tag %s "
                           "in non-extensible CHOICE %s",
-                          ber_tlv_tag_string(tlv_tag), td->name);
+                          ber_tlv_tag_string_e2ap_v1_01(tlv_tag), td->name);
                 RETURN(RC_FAIL);
             } else {
                 /* Skip this tag */
                 ssize_t skip;
 
                 ASN_DEBUG("Skipping unknown tag %s",
-                          ber_tlv_tag_string(tlv_tag));
+                          ber_tlv_tag_string_e2ap_v1_01(tlv_tag));
 
-                skip = ber_skip_length(opt_codec_ctx,
+                skip = ber_skip_length_e2ap_v1_01(opt_codec_ctx,
                                        BER_TLV_CONSTRUCTED(ptr),
                                        (const char *)ptr + tag_len,
                                        LEFT - tag_len);
@@ -252,12 +252,12 @@ CHOICE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
                 memb_ptr2 = &memb_ptr;
             }
             /* Set presence to be able to free it properly at any time */
-            _set_present_idx(st, specs->pres_offset,
+            _set_present_idx_e2ap_v1_01(st, specs->pres_offset,
                              specs->pres_size, ctx->step + 1);
             /*
              * Invoke the member fetch routine according to member's type
              */
-            rval = elm->type->op->ber_decoder(opt_codec_ctx, elm->type,
+            rval = elm->type->op->ber_decode_e2ap_v1_01r(opt_codec_ctx, elm->type,
                                               memb_ptr2, ptr, LEFT,
                                               elm->tag_mode);
             switch(rval.code) {
@@ -310,7 +310,7 @@ CHOICE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
         while(ctx->left < 0) {
             ssize_t tl;
 
-            tl = ber_fetch_tag(ptr, LEFT, &tlv_tag);
+            tl = ber_fetch_tag_e2ap_v1_01(ptr, LEFT, &tlv_tag);
             switch(tl) {
             case 0: if(!SIZE_VIOLATION) RETURN(RC_WMORE);
                 /* Fall through */
@@ -353,7 +353,7 @@ CHOICE_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-CHOICE_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
+CHOICE_encode_der_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                   int tag_mode, ber_tlv_tag_t tag, asn_app_consume_bytes_f *cb,
                   void *app_key) {
     const asn_CHOICE_specifics_t *specs = (const asn_CHOICE_specifics_t *)td->specifics;
@@ -368,7 +368,7 @@ CHOICE_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
     ASN_DEBUG("%s %s as CHOICE",
               cb ? "Encoding" : "Estimating", td->name);
 
-    present = _fetch_present_idx(sptr,
+    present = _fetch_present_idx_e2ap_v1_01(sptr,
         specs->pres_offset, specs->pres_size);
 
     /*
@@ -415,14 +415,14 @@ CHOICE_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
         ssize_t ret;
 
         /* Encode member with its tag */
-        erval = elm->type->op->der_encoder(elm->type, memb_ptr,
+        erval = elm->type->op->der_encode_e2ap_v1_01r(elm->type, memb_ptr,
                                            elm->tag_mode,
                                            elm->tag, 0, 0);
         if(erval.encoded == -1)
             return erval;
 
         /* Encode CHOICE with parent or my own tag */
-        ret = der_write_tags(td, erval.encoded, tag_mode, 1, tag,
+        ret = der_write_tags_e2ap_v1_01(td, erval.encoded, tag_mode, 1, tag,
                              cb, app_key);
         if(ret == -1)
             ASN__ENCODE_FAILED;
@@ -432,7 +432,7 @@ CHOICE_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
     /*
      * Encode the single underlying member.
      */
-    erval = elm->type->op->der_encoder(elm->type, memb_ptr,
+    erval = elm->type->op->der_encode_e2ap_v1_01r(elm->type, memb_ptr,
                                        elm->tag_mode, elm->tag,
                                        cb, app_key);
     if(erval.encoded == -1)

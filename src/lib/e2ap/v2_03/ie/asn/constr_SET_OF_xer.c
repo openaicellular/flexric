@@ -30,7 +30,7 @@
  * Decode the XER (XML) data.
  */
 asn_dec_rval_t
-SET_OF_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
+SET_OF_decode_xer_e2ap_v2_03(const asn_codec_ctx_t *opt_codec_ctx,
                   const asn_TYPE_descriptor_t *td, void **struct_ptr,
                   const char *opt_mname, const void *buf_ptr, size_t size) {
     /*
@@ -80,7 +80,7 @@ SET_OF_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
     for(; ctx->phase <= 2;) {
         pxer_chunk_type_e ch_type;  /* XER chunk type */
         ssize_t ch_size;            /* Chunk size */
-        xer_check_tag_e tcv;        /* Tag check value */
+        xer_check_tag_e2ap_v2_03_e tcv;        /* Tag check value */
 
         /*
          * Go inside the inner member of a set.
@@ -90,7 +90,7 @@ SET_OF_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
 
             /* Invoke the inner type decoder, m.b. multiple times */
             ASN_DEBUG("XER/SET OF element [%s]", elm_tag);
-            tmprval = element->type->op->xer_decoder(opt_codec_ctx,
+            tmprval = element->type->op->xer_decode_e2ap_v2_03r(opt_codec_ctx,
                                                      element->type,
                                                      &ctx->ptr, elm_tag,
                                                      buf_ptr, size);
@@ -112,7 +112,7 @@ SET_OF_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
         /*
          * Get the next part of the XML stream.
          */
-        ch_size = xer_next_token(&ctx->context,
+        ch_size = xer_next_token_e2ap_v2_03(&ctx->context,
                                  buf_ptr, size, &ch_type);
         if(ch_size == -1) {
             RETURN(RC_FAIL);
@@ -129,7 +129,7 @@ SET_OF_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
             }
         }
 
-        tcv = xer_check_tag(buf_ptr, ch_size, xml_tag);
+        tcv = xer_check_tag_e2ap_v2_03(buf_ptr, ch_size, xml_tag);
         ASN_DEBUG("XER/SET OF: tcv = %d, ph=%d t=%s",
                   tcv, ctx->phase, xml_tag);
         switch(tcv) {
@@ -183,7 +183,7 @@ typedef struct xer_tmp_enc_s {
 } xer_tmp_enc_t;
 
 static int
-SET_OF_encode_xer_callback(const void *buffer, size_t size, void *key) {
+SET_OF_encode_xer_e2ap_v2_03_callback(const void *buffer, size_t size, void *key) {
     xer_tmp_enc_t *t = (xer_tmp_enc_t *)key;
     if(t->offset + size >= t->size) {
         size_t newsize = (t->size << 2) + size;
@@ -215,8 +215,8 @@ SET_OF_xer_order(const void *aptr, const void *bptr) {
 }
 
 asn_enc_rval_t
-SET_OF_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
-                  enum xer_encoder_flags_e flags, asn_app_consume_bytes_f *cb,
+SET_OF_encode_xer_e2ap_v2_03(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
+                  enum xer_encode_e2ap_v2_03r_flags_e flags, asn_app_consume_bytes_f *cb,
                   void *app_key) {
     asn_enc_rval_t er = {0,0,0};
     const asn_SET_OF_specifics_t *specs = (const asn_SET_OF_specifics_t *)td->specifics;
@@ -237,7 +237,7 @@ SET_OF_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
     if(xcan) {
         encs = (xer_tmp_enc_t *)MALLOC(list->count * sizeof(encs[0]));
         if(!encs) ASN__ENCODE_FAILED;
-        cb = SET_OF_encode_xer_callback;
+        cb = SET_OF_encode_xer_e2ap_v2_03_callback;
     }
 
     er.encoded = 0;
@@ -261,7 +261,7 @@ SET_OF_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
 
         if(!xcan && specs->as_XMLValueList == 1)
             ASN__TEXT_INDENT(1, ilevel + 1);
-        tmper = elm->type->op->xer_encoder(elm->type, memb_ptr,
+        tmper = elm->type->op->xer_encode_e2ap_v2_03r(elm->type, memb_ptr,
                                            ilevel + (specs->as_XMLValueList != 2),
                                            flags, cb, app_key);
         if(tmper.encoded == -1) return tmper;

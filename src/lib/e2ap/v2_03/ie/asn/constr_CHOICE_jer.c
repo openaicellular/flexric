@@ -41,7 +41,7 @@ CHOICE_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
     /*
      * Figure out which CHOICE element is encoded.
      */
-    present = _fetch_present_idx(sptr, specs->pres_offset,specs->pres_size);
+    present = _fetch_present_idx_e2ap_v2_03(sptr, specs->pres_offset,specs->pres_size);
 
     if(present == 0 || present > td->elements_count) {
         ASN__ENCODE_FAILED;

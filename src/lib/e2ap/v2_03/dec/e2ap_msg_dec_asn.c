@@ -139,21 +139,21 @@ e2ap_node_comp_id_t e2ap_dec_node_component_id(e2ap_node_comp_interface_type_e i
       assert(interface_type == E1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeE1 != NULL);
       dst.type = E1_E2AP_NODE_COMP_INTERFACE_TYPE; 
-      asn_INTEGER2ulong(&cid->choice.e2nodeComponentInterfaceTypeE1->gNB_CU_CP_ID, &dst.e1_gnb_cu_up_id);
+      asn_INTEGER2ulong_e2ap_v2_03(&cid->choice.e2nodeComponentInterfaceTypeE1->gNB_CU_CP_ID, &dst.e1_gnb_cu_up_id);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeF1:
       assert(interface_type == F1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeF1 != NULL);
 
       dst.type = F1_E2AP_NODE_COMP_INTERFACE_TYPE;
-      asn_INTEGER2ulong(&cid->choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, &dst.f1_gnb_du_id);
+      asn_INTEGER2ulong_e2ap_v2_03(&cid->choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, &dst.f1_gnb_du_id);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeW1:
       assert(interface_type == W1_E2AP_NODE_COMP_INTERFACE_TYPE);
       assert(cid->choice.e2nodeComponentInterfaceTypeW1 != NULL);
 
       dst.type = W1_E2AP_NODE_COMP_INTERFACE_TYPE; 
-      asn_INTEGER2ulong(&cid->choice.e2nodeComponentInterfaceTypeW1->ng_eNB_DU_ID, &dst.w1_ng_enb_du_id);
+      asn_INTEGER2ulong_e2ap_v2_03(&cid->choice.e2nodeComponentInterfaceTypeW1->ng_eNB_DU_ID, &dst.w1_ng_enb_du_id);
       break;
     case E2nodeComponentID_PR_e2nodeComponentInterfaceTypeS1:
       assert(interface_type == S1_E2AP_NODE_COMP_INTERFACE_TYPE);
@@ -488,6 +488,8 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
   assert(node_src->value.present == E42RICsubscriptionRequest_IEs__value_PR_GlobalE2node_ID);
   if (node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB) {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_gNB);
+    // This is an abuse but the standard does not define how to 
+    // differentiate between ngran_gNB_CU, ngran_gNB_CUCP and ngran_gNB
     id->type = ngran_gNB;
 
     GlobalE2node_gNB_ID_t *e2gnb = node_src->value.choice.GlobalE2node_ID.choice.gNB;
@@ -496,20 +498,16 @@ e2ap_msg_t e2ap_dec_e42_subscription_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-  // This is an abuse but the standard does not define how to 
-  // differentiate between ngran_gNB_CU and ngran_gNB
-  // Here we do not know if it is a real CUUP or a CU. Assuming CU
-      //id->type = ngran_gNB_CUUP;
-      id->type = ngran_gNB_CU;
+      id->type = ngran_gNB_CUUP;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id  != NULL && "memory exhausted");
-      asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
+      asn_INTEGER2ulong_e2ap_v2_03(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
     }
     else if (e2gnb->gNB_DU_ID) {
       id->type = ngran_gNB_DU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
-      asn_INTEGER2ulong(e2gnb->gNB_DU_ID, id->cu_du_id);
+      asn_INTEGER2ulong_e2ap_v2_03(e2gnb->gNB_DU_ID, id->cu_du_id);
     }
   } else {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
@@ -1129,20 +1127,16 @@ e2ap_msg_t e2ap_dec_e42_control_request(const struct E2AP_PDU* pdu)
     id->nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
     if (e2gnb->gNB_CU_UP_ID) {
-  // This is an abuse but the standard does not define how to 
-  // differentiate between ngran_gNB_CU and ngran_gNB
-  // Here we do not know if it is a real CUUP or a CU. Assuming CU
-      //id->type = ngran_gNB_CUUP;
-      id->type = ngran_gNB_CU;
+      id->type = ngran_gNB_CUUP;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
-      asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
+      asn_INTEGER2ulong_e2ap_v2_03(e2gnb->gNB_CU_UP_ID, id->cu_du_id);
     }
     else if (e2gnb->gNB_DU_ID) {
       id->type = ngran_gNB_DU;
       id->cu_du_id = calloc(1, sizeof(uint64_t));
       assert(id->cu_du_id != NULL && "memory exhausted");
-      asn_INTEGER2ulong(e2gnb->gNB_DU_ID, id->cu_du_id);
+      asn_INTEGER2ulong_e2ap_v2_03(e2gnb->gNB_DU_ID, id->cu_du_id);
     }
   } else {
     assert(node_src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
@@ -1464,13 +1458,13 @@ e2ap_msg_t e2ap_dec_setup_request(const E2AP_PDU_t* pdu)
       sr->id.type = ngran_gNB_CUUP;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
-      asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, sr->id.cu_du_id);
+      asn_INTEGER2ulong_e2ap_v2_03(e2gnb->gNB_CU_UP_ID, sr->id.cu_du_id);
     }
     else if (e2gnb->gNB_DU_ID) {
       sr->id.type = ngran_gNB_DU;
       sr->id.cu_du_id = calloc(1, sizeof(uint64_t));
       assert(sr->id.cu_du_id != NULL && "memory exhausted");
-      asn_INTEGER2ulong(e2gnb->gNB_DU_ID, sr->id.cu_du_id);
+      asn_INTEGER2ulong_e2ap_v2_03(e2gnb->gNB_DU_ID, sr->id.cu_du_id);
     }
   } else {
     assert(setup_rid->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
@@ -1755,7 +1749,7 @@ e2ap_msg_t e2ap_dec_setup_response_success(const E2AP_PDU_t* pdu)
 
           assert(src->e2nodeComponentID.present == E2nodeComponentID_PR_e2nodeComponentInterfaceTypeF1);
 
-          asn_INTEGER2ulong(&src->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, &dst->e2_node_comp_id.f1_gnb_du_id);
+          asn_INTEGER2ulong_e2ap_v2_03(&src->e2nodeComponentID.choice.e2nodeComponentInterfaceTypeF1->gNB_DU_ID, &dst->e2_node_comp_id.f1_gnb_du_id);
 
           dst->e2_node_comp_conf_ack.outcome = SUCCESS_E2AP_NODE_COMP_CONF_ACK;	 
           assert(src->e2nodeComponentConfigurationAck.failureCause == NULL && "not implemented");
@@ -2424,20 +2418,16 @@ e2ap_msg_t e2ap_dec_e42_setup_response(const struct E2AP_PDU* pdu)
       dst->id.nb_id = cp_bit_string_to_gnb_id(e2gnb->global_gNB_ID.gnb_id.choice.gnb_ID);
 
       if (e2gnb->gNB_CU_UP_ID) {
-        // This is an abuse but the standard does not define how to 
-        // differentiate between ngran_gNB_CU and ngran_gNB
-        // Here we do not know if it is a real CUUP or a CU. Assuming CU
-        //dst->id.type = ngran_gNB_CUUP;
         dst->id.type = ngran_gNB_CUUP;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
-        asn_INTEGER2ulong(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
+        asn_INTEGER2ulong_e2ap_v2_03(e2gnb->gNB_CU_UP_ID, dst->id.cu_du_id);
       }
       else if (e2gnb->gNB_DU_ID) {
         dst->id.type = ngran_gNB_DU;
         dst->id.cu_du_id = calloc(1, sizeof(uint64_t));
         assert(dst->id.cu_du_id != NULL && "memory exhausted");
-        asn_INTEGER2ulong(e2gnb->gNB_DU_ID, dst->id.cu_du_id);
+        asn_INTEGER2ulong_e2ap_v2_03(e2gnb->gNB_DU_ID, dst->id.cu_du_id);
       }
     } else {
       assert(src->value.choice.GlobalE2node_ID.present == GlobalE2node_ID_PR_eNB);
@@ -2698,12 +2688,12 @@ E2AP_PDU_t* e2ap_create_pdu(const uint8_t* buffer, int buffer_len)
 
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
-  const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2AP_PDU, (void**)&pdu, buffer, buffer_len);
+  const asn_dec_rval_t rval = asn_decode_e2ap_v2_03(NULL, syntax, &asn_DEF_E2AP_PDU_e2ap_v2_03, (void**)&pdu, buffer, buffer_len);
   //printf("rval.code = %d\n", rval.code);
   //fprintf(stdout, "length of data %ld\n", rval.consumed);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGEND_BASIC_PER syntax?");
 
-  //xer_fprint(stdout, &asn_DEF_E2AP_PDU, pdu);
+  //xer_fprint_e2ap_v2_03(stdout, &asn_DEF_E2AP_PDU_e2ap_v2_03, pdu);
   //fflush(stdout);
 
   return pdu;
@@ -2718,9 +2708,9 @@ e2ap_msg_t e2ap_msg_dec_asn(e2ap_asn_t* asn, byte_array_t ba)
   //printf("Decoding message type = %d \n", msg_type);
   assert(asn->dec_msg[msg_type] != NULL);
   e2ap_msg_t msg = asn->dec_msg[msg_type](pdu);
-//  xer_fprint(stdout, &asn_DEF_E2AP_PDU, pdu);
+//  xer_fprint_e2ap_v2_03(stdout, &asn_DEF_E2AP_PDU_e2ap_v2_03, pdu);
 //  fflush(stdout);
-  ASN_STRUCT_FREE(asn_DEF_E2AP_PDU,pdu);
+  ASN_STRUCT_FREE(asn_DEF_E2AP_PDU_e2ap_v2_03,pdu);
   return msg; 
 }
 

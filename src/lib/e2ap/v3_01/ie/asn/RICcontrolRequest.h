@@ -32,9 +32,9 @@ typedef struct RICcontrolRequest {
 } RICcontrolRequest_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICcontrolRequest;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICcontrolRequest_specs_1;
-extern asn_TYPE_member_t asn_MBR_RICcontrolRequest_1[1];
+extern asn_TYPE_descriptor_t asn_DEF_RICcontrolRequest_e2ap_v3_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_RICcontrolRequest_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_RICcontrolRequest_1_e2ap_v3_01[1];
 
 #ifdef __cplusplus
 }

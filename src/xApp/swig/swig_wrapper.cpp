@@ -64,7 +64,7 @@ bool try_stop()
 
 std::vector<E2Node> conn_e2_nodes(void)
 {
-  e2_node_arr_t arr = e2_nodes_xapp_api();
+  e2_node_arr_xapp_t arr = e2_nodes_xapp_api();
 
   std::vector<E2Node> x; //(arr.len);
 
@@ -72,20 +72,20 @@ std::vector<E2Node> conn_e2_nodes(void)
 
     E2Node tmp;
 
-    e2_node_connected_t const* src = &arr.n[i];
+    e2_node_connected_xapp_t const* src = &arr.n[i];
     tmp.id = cp_global_e2_node_id(&src->id); 
 
     std::vector<ran_function_t> ran_func;//(src->len_rf);
 
     for(size_t j = 0; j < src->len_rf; ++j){
-      ran_function_t rf = cp_ran_function(&src->ack_rf[j]);
+      ran_function_t rf = {.id = src->rf[i].id, .rev = src->rf[i].rev }; //cp_ran_function(&src->ack_rf[j]);
       ran_func.push_back(rf);// [j] = rf;
     }
     tmp.ran_func = ran_func;
     x.push_back(tmp);//[i] = tmp;
   }
 
-  free_e2_node_arr(&arr);
+  free_e2_node_arr_xapp(&arr);
 
   return x;
 }

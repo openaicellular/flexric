@@ -32,9 +32,9 @@ typedef struct E2nodeConfigurationUpdateFailure {
 } E2nodeConfigurationUpdateFailure_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2nodeConfigurationUpdateFailure;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConfigurationUpdateFailure_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2nodeConfigurationUpdateFailure_1[1];
+extern asn_TYPE_descriptor_t asn_DEF_E2nodeConfigurationUpdate_e2ap_v2_03Failure;
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeConfigurationUpdateFailure_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_E2nodeConfigurationUpdateFailure_1_e2ap_v2_03[1];
 
 #ifdef __cplusplus
 }

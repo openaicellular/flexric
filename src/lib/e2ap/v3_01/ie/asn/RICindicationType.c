@@ -12,54 +12,54 @@
  * so here we adjust the DEF accordingly.
  */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_RICindicationType_constr_1 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_RICindicationType_constr_1_e2ap_v3_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED | APC_EXTENSIBLE,  1,  1,  0,  1 }	/* (0..1,...) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-static const asn_INTEGER_enum_map_t asn_MAP_RICindicationType_value2enum_1[] = {
+static const asn_INTEGER_enum_map_t asn_MAP_RICindicationType_value2enum_1_e2ap_v3_01[] = {
 	{ 0,	6,	"report" },
 	{ 1,	6,	"insert" }
 	/* This list is extensible */
 };
-static const unsigned int asn_MAP_RICindicationType_enum2value_1[] = {
+static const unsigned int asn_MAP_RICindicationType_enum2value_1_e2ap_v3_01[] = {
 	1,	/* insert(1) */
 	0	/* report(0) */
 	/* This list is extensible */
 };
-const asn_INTEGER_specifics_t asn_SPC_RICindicationType_specs_1 = {
-	asn_MAP_RICindicationType_value2enum_1,	/* "tag" => N; sorted by tag */
-	asn_MAP_RICindicationType_enum2value_1,	/* N => "tag"; sorted by N */
+const asn_INTEGER_specifics_t asn_SPC_RICindicationType_specs_1_e2ap_v3_01 = {
+	asn_MAP_RICindicationType_value2enum_1_e2ap_v3_01,	/* "tag" => N; sorted by tag */
+	asn_MAP_RICindicationType_enum2value_1_e2ap_v3_01,	/* N => "tag"; sorted by N */
 	2,	/* Number of elements in the maps */
 	3,	/* Extensions before this member */
 	1,	/* Strict enumeration */
 	0,	/* Native long size */
 	0
 };
-static const ber_tlv_tag_t asn_DEF_RICindicationType_tags_1[] = {
+static const ber_tlv_tag_t asn_DEF_RICindication_e2ap_v3_01Type_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (10 << 2))
 };
-asn_TYPE_descriptor_t asn_DEF_RICindicationType = {
+asn_TYPE_descriptor_t asn_DEF_RICindication_e2ap_v3_01Type = {
 	"RICindicationType",
 	"RICindicationType",
-	&asn_OP_NativeEnumerated,
-	asn_DEF_RICindicationType_tags_1,
-	sizeof(asn_DEF_RICindicationType_tags_1)
-		/sizeof(asn_DEF_RICindicationType_tags_1[0]), /* 1 */
-	asn_DEF_RICindicationType_tags_1,	/* Same as above */
-	sizeof(asn_DEF_RICindicationType_tags_1)
-		/sizeof(asn_DEF_RICindicationType_tags_1[0]), /* 1 */
+	&asn_OP_NativeEnumerated_e2ap_v3_01,
+	asn_DEF_RICindication_e2ap_v3_01Type_tags_1,
+	sizeof(asn_DEF_RICindication_e2ap_v3_01Type_tags_1)
+		/sizeof(asn_DEF_RICindication_e2ap_v3_01Type_tags_1[0]), /* 1 */
+	asn_DEF_RICindication_e2ap_v3_01Type_tags_1,	/* Same as above */
+	sizeof(asn_DEF_RICindication_e2ap_v3_01Type_tags_1)
+		/sizeof(asn_DEF_RICindication_e2ap_v3_01Type_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_RICindicationType_constr_1,
+		&asn_PER_type_RICindicationType_constr_1_e2ap_v3_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		NativeEnumerated_constraint
 	},
 	0, 0,	/* Defined elsewhere */
-	&asn_SPC_RICindicationType_specs_1	/* Additional specs */
+	&asn_SPC_RICindicationType_specs_1_e2ap_v3_01	/* Additional specs */
 };
 

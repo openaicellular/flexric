@@ -12,13 +12,13 @@
  * so here we adjust the DEF accordingly.
  */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_E2nodeComponentType_constr_1 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_E2nodeComponentType_constr_1_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED | APC_EXTENSIBLE,  3,  3,  0,  5 }	/* (0..5,...) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-static const asn_INTEGER_enum_map_t asn_MAP_E2nodeComponentType_value2enum_1[] = {
+static const asn_INTEGER_enum_map_t asn_MAP_E2nodeComponentType_value2enum_1_e2ap_v1_01[] = {
 	{ 0,	3,	"gNB" },
 	{ 1,	9,	"gNB-CU-UP" },
 	{ 2,	6,	"gNB-DU" },
@@ -27,7 +27,7 @@ static const asn_INTEGER_enum_map_t asn_MAP_E2nodeComponentType_value2enum_1[] =
 	{ 5,	6,	"ng-eNB" }
 	/* This list is extensible */
 };
-static const unsigned int asn_MAP_E2nodeComponentType_enum2value_1[] = {
+static const unsigned int asn_MAP_E2nodeComponentType_enum2value_1_e2ap_v1_01[] = {
 	4,	/* eNB(4) */
 	3,	/* en-gNB(3) */
 	0,	/* gNB(0) */
@@ -36,38 +36,38 @@ static const unsigned int asn_MAP_E2nodeComponentType_enum2value_1[] = {
 	5	/* ng-eNB(5) */
 	/* This list is extensible */
 };
-const asn_INTEGER_specifics_t asn_SPC_E2nodeComponentType_specs_1 = {
-	asn_MAP_E2nodeComponentType_value2enum_1,	/* "tag" => N; sorted by tag */
-	asn_MAP_E2nodeComponentType_enum2value_1,	/* N => "tag"; sorted by N */
+const asn_INTEGER_specifics_t asn_SPC_E2nodeComponentType_specs_1_e2ap_v1_01 = {
+	asn_MAP_E2nodeComponentType_value2enum_1_e2ap_v1_01,	/* "tag" => N; sorted by tag */
+	asn_MAP_E2nodeComponentType_enum2value_1_e2ap_v1_01,	/* N => "tag"; sorted by N */
 	6,	/* Number of elements in the maps */
 	7,	/* Extensions before this member */
 	1,	/* Strict enumeration */
 	0,	/* Native long size */
 	0
 };
-static const ber_tlv_tag_t asn_DEF_E2nodeComponentType_tags_1[] = {
+static const ber_tlv_tag_t asn_DEF_E2nodeComponentType_e2ap_v1_01_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (10 << 2))
 };
-asn_TYPE_descriptor_t asn_DEF_E2nodeComponentType = {
+asn_TYPE_descriptor_t asn_DEF_E2nodeComponentType_e2ap_v1_01 = {
 	"E2nodeComponentType",
 	"E2nodeComponentType",
-	&asn_OP_NativeEnumerated,
-	asn_DEF_E2nodeComponentType_tags_1,
-	sizeof(asn_DEF_E2nodeComponentType_tags_1)
-		/sizeof(asn_DEF_E2nodeComponentType_tags_1[0]), /* 1 */
-	asn_DEF_E2nodeComponentType_tags_1,	/* Same as above */
-	sizeof(asn_DEF_E2nodeComponentType_tags_1)
-		/sizeof(asn_DEF_E2nodeComponentType_tags_1[0]), /* 1 */
+	&asn_OP_NativeEnumerated_e2ap_v1_01,
+	asn_DEF_E2nodeComponentType_e2ap_v1_01_tags_1,
+	sizeof(asn_DEF_E2nodeComponentType_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_E2nodeComponentType_e2ap_v1_01_tags_1[0]), /* 1 */
+	asn_DEF_E2nodeComponentType_e2ap_v1_01_tags_1,	/* Same as above */
+	sizeof(asn_DEF_E2nodeComponentType_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_E2nodeComponentType_e2ap_v1_01_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_E2nodeComponentType_constr_1,
+		&asn_PER_type_E2nodeComponentType_constr_1_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		NativeEnumerated_constraint
 	},
 	0, 0,	/* Defined elsewhere */
-	&asn_SPC_E2nodeComponentType_specs_1	/* Additional specs */
+	&asn_SPC_E2nodeComponentType_specs_1_e2ap_v1_01	/* Additional specs */
 };
 

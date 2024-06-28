@@ -29,9 +29,9 @@ typedef enum TriggeringMessage {
 typedef long	 TriggeringMessage_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_TriggeringMessage_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_TriggeringMessage;
-extern const asn_INTEGER_specifics_t asn_SPC_TriggeringMessage_specs_1;
+extern asn_per_constraints_t asn_PER_type_TriggeringMessage_constr_1_e2ap_v2_03;
+extern asn_TYPE_descriptor_t asn_DEF_TriggeringMessage_e2ap_v2_03;
+extern const asn_INTEGER_specifics_t asn_SPC_TriggeringMessage_specs_1_e2ap_v2_03;
 asn_struct_free_f TriggeringMessage_free;
 asn_struct_print_f TriggeringMessage_print;
 asn_constr_check_f TriggeringMessage_constraint;

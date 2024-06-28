@@ -30,7 +30,7 @@
  * Decode the XER (XML) data.
  */
 asn_dec_rval_t
-CHOICE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
+CHOICE_decode_xer_e2ap_v2_03(const asn_codec_ctx_t *opt_codec_ctx,
                   const asn_TYPE_descriptor_t *td, void **struct_ptr,
                   const char *opt_mname, const void *buf_ptr, size_t size) {
     /*
@@ -76,7 +76,7 @@ CHOICE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
     for(edx = ctx->step; ctx->phase <= 4;) {
         pxer_chunk_type_e ch_type;  /* XER chunk type */
         ssize_t ch_size;            /* Chunk size */
-        xer_check_tag_e tcv;        /* Tag check value */
+        xer_check_tag_e2ap_v2_03_e tcv;        /* Tag check value */
         asn_TYPE_member_t *elm;
 
         /*
@@ -100,19 +100,19 @@ CHOICE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
             }
 
             /* Start/Continue decoding the inner member */
-            tmprval = elm->type->op->xer_decoder(opt_codec_ctx,
+            tmprval = elm->type->op->xer_decode_e2ap_v2_03r(opt_codec_ctx,
                                                  elm->type, memb_ptr2,
                                                  elm->name,
                                                  buf_ptr, size);
             XER_ADVANCE(tmprval.consumed);
             ASN_DEBUG("XER/CHOICE: itdf: [%s] code=%d",
                       elm->type->name, tmprval.code);
-            old_present = _fetch_present_idx(st,
+            old_present = _fetch_present_idx_e2ap_v2_03(st,
                                              specs->pres_offset,
                                              specs->pres_size);
             assert(old_present == 0 || old_present == edx + 1);
             /* Record what we've got */
-            _set_present_idx(st,
+            _set_present_idx_e2ap_v2_03(st,
                              specs->pres_offset,
                              specs->pres_size, edx + 1);
             if(tmprval.code != RC_OK)
@@ -130,7 +130,7 @@ CHOICE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
         /*
          * Get the next part of the XML stream.
          */
-        ch_size = xer_next_token(&ctx->context, buf_ptr, size, &ch_type);
+        ch_size = xer_next_token_e2ap_v2_03(&ctx->context, buf_ptr, size, &ch_type);
         if(ch_size == -1) {
             RETURN(RC_FAIL);
         } else {
@@ -146,7 +146,7 @@ CHOICE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
             }
         }
 
-        tcv = xer_check_tag(buf_ptr, ch_size, xml_tag);
+        tcv = xer_check_tag_e2ap_v2_03(buf_ptr, ch_size, xml_tag);
         ASN_DEBUG("XER/CHOICE checked [%c%c%c%c] vs [%s], tcv=%d",
                   ch_size>0?((const uint8_t *)buf_ptr)[0]:'?',
                   ch_size>1?((const uint8_t *)buf_ptr)[1]:'?',
@@ -158,7 +158,7 @@ CHOICE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
         if(ctx->phase == 4) {
             ASN_DEBUG("skip_unknown(%d, %ld)",
                       tcv, (long)ctx->left);
-            switch(xer_skip_unknown(tcv, &ctx->left)) {
+            switch(xer_skip_unknown_e2ap_v2_03(tcv, &ctx->left)) {
             case -1:
                 ctx->phase = 5;
                 RETURN(RC_FAIL);
@@ -201,7 +201,7 @@ CHOICE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
              */
             for(edx = 0; edx < td->elements_count; edx++) {
                 elm = &td->elements[edx];
-                tcv = xer_check_tag(buf_ptr,ch_size,elm->name);
+                tcv = xer_check_tag_e2ap_v2_03(buf_ptr,ch_size,elm->name);
                 switch(tcv) {
                 case XCT_BOTH:
                 case XCT_OPENING:
@@ -262,8 +262,8 @@ CHOICE_decode_xer(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-CHOICE_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
-                  enum xer_encoder_flags_e flags, asn_app_consume_bytes_f *cb,
+CHOICE_encode_xer_e2ap_v2_03(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
+                  enum xer_encode_e2ap_v2_03r_flags_e flags, asn_app_consume_bytes_f *cb,
                   void *app_key) {
     const asn_CHOICE_specifics_t *specs =
         (const asn_CHOICE_specifics_t *)td->specifics;
@@ -276,7 +276,7 @@ CHOICE_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
     /*
      * Figure out which CHOICE element is encoded.
      */
-    present = _fetch_present_idx(sptr, specs->pres_offset,specs->pres_size);
+    present = _fetch_present_idx_e2ap_v2_03(sptr, specs->pres_offset,specs->pres_size);
 
     if(present == 0 || present > td->elements_count) {
         ASN__ENCODE_FAILED;
@@ -300,7 +300,7 @@ CHOICE_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
         if(!(flags & XER_F_CANONICAL)) ASN__TEXT_INDENT(1, ilevel);
         ASN__CALLBACK3("<", 1, mname, mlen, ">", 1);
 
-        tmper = elm->type->op->xer_encoder(elm->type, memb_ptr,
+        tmper = elm->type->op->xer_encode_e2ap_v2_03r(elm->type, memb_ptr,
                                            ilevel + 1, flags, cb, app_key);
         if(tmper.encoded == -1) return tmper;
         er.encoded += tmper.encoded;

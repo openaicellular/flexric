@@ -98,7 +98,7 @@ bool try_stop_xapp_api(void)
   return true;
 }
 
-e2_node_arr_t e2_nodes_xapp_api(void)
+e2_node_arr_xapp_t e2_nodes_xapp_api(void)
 {
   assert(xapp != NULL);
   

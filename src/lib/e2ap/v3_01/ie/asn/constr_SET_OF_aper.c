@@ -7,7 +7,7 @@
 #include <constr_SET_OF.h>
 
 asn_enc_rval_t
-SET_OF_encode_aper(const asn_TYPE_descriptor_t *td,
+SET_OF_encode_aper_e2ap_v3_01(const asn_TYPE_descriptor_t *td,
                    const asn_per_constraints_t *constraints, const void *sptr,
                    asn_per_outp_t *po) {
     const asn_anonymous_set_ *list;
@@ -54,7 +54,7 @@ SET_OF_encode_aper(const asn_TYPE_descriptor_t *td,
                             ct->effective_bits))
             ASN__ENCODE_FAILED;*/
 
-        if (aper_put_length(po, ct->lower_bound, ct->upper_bound, list->count - ct->lower_bound, 0) < 0) {
+        if (aper_put_length_e2ap_v3_01(po, ct->lower_bound, ct->upper_bound, list->count - ct->lower_bound, 0) < 0) {
             ASN__ENCODE_FAILED;
         }
     }
@@ -63,7 +63,7 @@ SET_OF_encode_aper(const asn_TYPE_descriptor_t *td,
      * Canonical PER #22.1 mandates dynamic sorting of the SET OF elements
      * according to their encodings. Build an array of the encoded elements.
      */
-    encoded_els = SET_OF__encode_sorted(elm, list, SOES_CAPER);
+    encoded_els = SET_OF__encode_sorted_e2ap_v3_01(elm, list, SOES_CAPER);
 
     for(seq = 0; seq < list->count;) {
         ssize_t may_encode;
@@ -72,28 +72,28 @@ SET_OF_encode_aper(const asn_TYPE_descriptor_t *td,
             may_encode = list->count;
         } else {
             may_encode =
-                aper_put_length(po, -1, -1, list->count - seq, &need_eom);
+                aper_put_length_e2ap_v3_01(po, -1, -1, list->count - seq, &need_eom);
             if(may_encode < 0) ASN__ENCODE_FAILED;
         }
 
         while(may_encode--) {
             const struct _el_buffer *el = &encoded_els[seq++];
-            if(asn_put_many_bits(po, el->buf,
+            if(asn_put_many_bits_e2ap_v3_01(po, el->buf,
                                  (8 * el->length) - el->bits_unused) < 0) {
                 break;
             }
         }
-        if(need_eom && (aper_put_length(po, -1, -1, 0, NULL) < 0))
+        if(need_eom && (aper_put_length_e2ap_v3_01(po, -1, -1, 0, NULL) < 0))
             ASN__ENCODE_FAILED;  /* End of Message length */
     }
 
-    SET_OF__encode_sorted_free(encoded_els, list->count);
+    SET_OF__encode_sorted_e2ap_v3_01_free(encoded_els, list->count);
 
     ASN__ENCODED_OK(er);
 }
 
 asn_dec_rval_t
-SET_OF_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
+SET_OF_decode_aper_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
                    const asn_TYPE_descriptor_t *td,
                    const asn_per_constraints_t *constraints, void **sptr, asn_per_data_t *pd) {
     asn_dec_rval_t rv = {RC_OK, 0};
@@ -131,7 +131,7 @@ SET_OF_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 
     if(ct && ct->effective_bits >= 0) {
         /* X.691, #19.5: No length determinant */
-        nelems = aper_get_nsnnwn(pd, ct->upper_bound - ct->lower_bound + 1);
+        nelems = aper_get_nsnnwn_e2ap_v3_01(pd, ct->upper_bound - ct->lower_bound + 1);
         ASN_DEBUG("Preparing to fetch %ld+%lld elements from %s",
                   (long)nelems, (long long int)ct->lower_bound, td->name);
         if(nelems < 0)  ASN__DECODE_STARVED;
@@ -144,10 +144,10 @@ SET_OF_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         int i;
         if(nelems < 0) {
             if (ct)
-                nelems = aper_get_length(pd, ct->lower_bound, ct->upper_bound,
+                nelems = aper_get_length_e2ap_v3_01(pd, ct->lower_bound, ct->upper_bound,
                                          ct->effective_bits, &repeat);
             else
-                nelems = aper_get_length(pd, -1, -1, -1, &repeat);
+                nelems = aper_get_length_e2ap_v3_01(pd, -1, -1, -1, &repeat);
             ASN_DEBUG("Got to decode %d elements (eff %d)",
                       (int)nelems, (int)(ct ? ct->effective_bits : -1));
             if(nelems < 0) ASN__DECODE_STARVED;
@@ -156,7 +156,7 @@ SET_OF_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         for(i = 0; i < nelems; i++) {
             void *ptr = 0;
             ASN_DEBUG("SET OF %s decoding", elm->type->name);
-            rv = elm->type->op->aper_decoder(opt_codec_ctx, elm->type,
+            rv = elm->type->op->aper_decode_e2ap_v3_01r(opt_codec_ctx, elm->type,
                                              elm->encoding_constraints.per_constraints, &ptr, pd);
             ASN_DEBUG("%s SET OF %s decoded %d, %p",
                       td->name, elm->type->name, rv.code, ptr);
@@ -175,7 +175,7 @@ SET_OF_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
             return rv;
         }
 
-        nelems = -1;  /* Allow uper_get_length() */
+        nelems = -1;  /* Allow uper_get_length_e2ap_v3_01() */
     } while(repeat);
 
     ASN_DEBUG("Decoded %s as SET OF", td->name);

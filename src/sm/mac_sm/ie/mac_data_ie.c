@@ -38,7 +38,7 @@ void free_mac_event_trigger(mac_event_trigger_t* src)
   assert(0!=0 && "Not implemented" ); 
 }
 
-mac_event_trigger_t cp_mac_event_trigger( mac_event_trigger_t* src)
+mac_event_trigger_t cp_mac_event_trigger( mac_event_trigger_t const* src)
 {
   assert(src != NULL);
   assert(0!=0 && "Not implemented" ); 
@@ -47,7 +47,7 @@ mac_event_trigger_t cp_mac_event_trigger( mac_event_trigger_t* src)
   return et;
 }
 
-bool eq_mac_event_trigger(mac_event_trigger_t* m0, mac_event_trigger_t* m1)
+bool eq_mac_event_trigger(mac_event_trigger_t const* m0, mac_event_trigger_t const* m1)
 {
   assert(m0 != NULL);
   assert(m1 != NULL);
@@ -399,29 +399,39 @@ bool eq_mac_ctrl_out(mac_ctrl_out_t* m0, mac_ctrl_out_t* m1)
 // RAN Function Definition 
 /////////////////////////////////////
 
-void free_mac_func_def( mac_func_def_t* src)
+void free_mac_func_def(mac_func_def_t* src)
+{
+  assert(src != NULL);
+  free(src->buf);
+}
+
+mac_func_def_t cp_mac_func_def(mac_func_def_t const* src)
 {
   assert(src != NULL);
 
-  assert(0!=0 && "Not implemented" ); 
+  mac_func_def_t dst = {.len = src->len};
+  if(src->len > 0){
+    dst.buf = calloc(dst.len, sizeof(uint8_t)); 
+    assert(dst.buf != NULL && "memory exhausted");
+    memcpy(dst.buf, src->buf, dst.len);
+  }
+
+  return dst;
 }
 
-mac_func_def_t cp_mac_func_def(mac_func_def_t* src)
+bool eq_mac_func_def(mac_func_def_t const* m0, mac_func_def_t const* m1)
 {
-  assert(src != NULL);
+  if(m0 == m1)
+    return true;
 
-  assert(0!=0 && "Not implemented" ); 
-  mac_func_def_t ret = {0};
-  return ret;
-}
+  if(m0 == NULL || m1 == NULL)
+    return false;
 
-bool eq_mac_func_def(mac_func_def_t* m0, mac_func_def_t* m1)
-{
-  assert(m0 != NULL);
-  assert(m1 != NULL);
+  if(m0->len != m1->len)
+    return false;
 
-  assert(0!=0 && "Not implemented" ); 
-  return true;
+  int rc = memcmp(m0, m1, m0->len);
+  return rc == 0;
 }
 
 ///////////////

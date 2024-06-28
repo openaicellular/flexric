@@ -31,9 +31,9 @@ typedef enum CauseTransport {
 typedef long	 CauseTransport_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_CauseTransport_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_CauseTransport;
-extern const asn_INTEGER_specifics_t asn_SPC_CauseTransport_specs_1;
+extern asn_per_constraints_t asn_PER_type_CauseTransport_constr_1_e2ap_v1_01;
+extern asn_TYPE_descriptor_t asn_DEF_Cause_e2ap_v1_01Transport;
+extern const asn_INTEGER_specifics_t asn_SPC_CauseTransport_specs_1_e2ap_v1_01;
 asn_struct_free_f CauseTransport_free;
 asn_struct_print_f CauseTransport_print;
 asn_constr_check_f CauseTransport_constraint;

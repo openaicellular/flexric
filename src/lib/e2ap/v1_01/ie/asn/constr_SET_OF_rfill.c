@@ -6,15 +6,15 @@
 #include <asn_internal.h>
 #include <constr_SET_OF.h>
 
-asn_random_fill_result_t
-SET_OF_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
+asn_random_fill_e2ap_v1_01_result_t
+SET_OF_random_fill_e2ap_v1_01(const asn_TYPE_descriptor_t *td, void **sptr,
                    const asn_encoding_constraints_t *constraints,
                    size_t max_length) {
     const asn_SET_OF_specifics_t *specs =
         (const asn_SET_OF_specifics_t *)td->specifics;
-    asn_random_fill_result_t res_ok = {ARFILL_OK, 0};
-    asn_random_fill_result_t result_failed = {ARFILL_FAILED, 0};
-    asn_random_fill_result_t result_skipped = {ARFILL_SKIPPED, 0};
+    asn_random_fill_e2ap_v1_01_result_t res_ok = {ARFILL_OK, 0};
+    asn_random_fill_e2ap_v1_01_result_t result_failed = {ARFILL_FAILED, 0};
+    asn_random_fill_e2ap_v1_01_result_t result_skipped = {ARFILL_SKIPPED, 0};
     const asn_TYPE_member_t *elm = td->elements;
     void *st = *sptr;
     long max_elements = 5;
@@ -31,7 +31,7 @@ SET_OF_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
         }
     }
 
-    switch(asn_random_between(0, 6)) {
+    switch(asn_random_between_e2ap_v1_01(0, 6)) {
     case 0: max_elements = 0; break;
     case 1: max_elements = 1; break;
     case 2: max_elements = 5; break;
@@ -61,14 +61,14 @@ SET_OF_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 
     /* Bias towards edges of allowed space */
-    switch(asn_random_between(-1, 4)) {
+    switch(asn_random_between_e2ap_v1_01(-1, 4)) {
     default:
     case -1:
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
         /* Prepare lengths somewhat outside of constrained range. */
         if(constraints->per_constraints
            && (constraints->per_constraints->size.flags & APC_EXTENSIBLE)) {
-            switch(asn_random_between(0, 5)) {
+            switch(asn_random_between_e2ap_v1_01(0, 5)) {
             default:
             case 0:
                 rnd_len = 0;
@@ -81,7 +81,7 @@ SET_OF_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
                 }
                 break;
             case 2:
-                rnd_len = asn_random_between(0, slb);
+                rnd_len = asn_random_between_e2ap_v1_01(0, slb);
                 break;
             case 3:
                 if(sub < (ssize_t)max_length) {
@@ -92,7 +92,7 @@ SET_OF_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
                 break;
             case 4:
                 if(sub < (ssize_t)max_length) {
-                    rnd_len = asn_random_between(sub + 1, max_length);
+                    rnd_len = asn_random_between_e2ap_v1_01(sub + 1, max_length);
                 } else {
                     rnd_len = max_length;
                 }
@@ -106,32 +106,32 @@ SET_OF_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
         /* Fall through */
     case 0:
-        rnd_len = asn_random_between(slb, sub);
+        rnd_len = asn_random_between_e2ap_v1_01(slb, sub);
         break;
     case 1:
         if(slb < sub) {
-            rnd_len = asn_random_between(slb + 1, sub);
+            rnd_len = asn_random_between_e2ap_v1_01(slb + 1, sub);
             break;
         }
         /* Fall through */
     case 2:
-        rnd_len = asn_random_between(slb, slb);
+        rnd_len = asn_random_between_e2ap_v1_01(slb, slb);
         break;
     case 3:
         if(slb < sub) {
-            rnd_len = asn_random_between(slb, sub - 1);
+            rnd_len = asn_random_between_e2ap_v1_01(slb, sub - 1);
             break;
         }
         /* Fall through */
     case 4:
-        rnd_len = asn_random_between(sub, sub);
+        rnd_len = asn_random_between_e2ap_v1_01(sub, sub);
         break;
     }
 
     for(; rnd_len > 0; rnd_len--) {
         asn_anonymous_set_ *list = _A_SET_FROM_VOID(st);
         void *ptr = 0;
-        asn_random_fill_result_t tmpres = elm->type->op->random_fill(
+        asn_random_fill_e2ap_v1_01_result_t tmpres = elm->type->op->random_fill(
             elm->type, &ptr, &elm->encoding_constraints,
             (max_length > res_ok.length ? max_length - res_ok.length : 0)
                 / rnd_len);

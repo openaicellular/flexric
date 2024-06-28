@@ -13,27 +13,27 @@ extern "C" {
 
 typedef OCTET_STRING_t GraphicString_t;	/* Implemented via OCTET STRING */
 
-extern asn_TYPE_descriptor_t asn_DEF_GraphicString;
-extern asn_TYPE_operation_t asn_OP_GraphicString;
+extern asn_TYPE_descriptor_t asn_DEF_GraphicString_e2ap_v1_01;
+extern asn_TYPE_operation_t asn_OP_GraphicString_e2ap_v1_01;
 
-#define GraphicString_free OCTET_STRING_free
+#define GraphicString_free OCTET_STRING_free_e2ap_v1_01
 
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-#define GraphicString_print OCTET_STRING_print
+#define GraphicString_print OCTET_STRING_print_e2ap_v1_01
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
 
-#define GraphicString_compare OCTET_STRING_compare
+#define GraphicString_compare OCTET_STRING_compare_e2ap_v1_01
 
-#define GraphicString_constraint asn_generic_unknown_constraint
+#define GraphicString_constraint asn_generic_unknown_constraint_e2ap_v1_01
 
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-#define GraphicString_decode_ber OCTET_STRING_decode_ber
-#define GraphicString_encode_der OCTET_STRING_encode_der
+#define GraphicString_decode_ber OCTET_STRING_decode_ber_e2ap_v1_01
+#define GraphicString_encode_der OCTET_STRING_encode_der_e2ap_v1_01
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-#define GraphicString_decode_xer OCTET_STRING_decode_xer_hex
-#define GraphicString_encode_xer OCTET_STRING_encode_xer
+#define GraphicString_decode_xer OCTET_STRING_decode_xer_hex_e2ap_v1_01
+#define GraphicString_encode_xer OCTET_STRING_encode_xer_e2ap_v1_01
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
@@ -41,12 +41,12 @@ extern asn_TYPE_operation_t asn_OP_GraphicString;
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-#define GraphicString_decode_uper OCTET_STRING_decode_uper
-#define GraphicString_encode_uper OCTET_STRING_encode_uper
+#define GraphicString_decode_uper OCTET_STRING_decode_uper_e2ap_v1_01
+#define GraphicString_encode_uper OCTET_STRING_encode_uper_e2ap_v1_01
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-#define GraphicString_decode_aper OCTET_STRING_decode_aper
-#define GraphicString_encode_aper OCTET_STRING_encode_aper
+#define GraphicString_decode_aper OCTET_STRING_decode_aper_e2ap_v1_01
+#define GraphicString_encode_aper OCTET_STRING_encode_aper_e2ap_v1_01
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 
 #ifdef __cplusplus

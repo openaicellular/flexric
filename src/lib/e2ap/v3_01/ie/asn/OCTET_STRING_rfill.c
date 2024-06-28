@@ -12,7 +12,7 @@
 static uint32_t
 OCTET_STRING__random_char(unsigned long lb, unsigned long ub) {
     assert(lb <= ub);
-    switch(asn_random_between(0, 16)) {
+    switch(asn_random_between_e2ap_v3_01(0, 16)) {
     case 0:
         if(lb < ub) return lb + 1;
         /* Fall through */
@@ -24,20 +24,20 @@ OCTET_STRING__random_char(unsigned long lb, unsigned long ub) {
     case 3:
         return ub;
     default:
-        return asn_random_between(lb, ub);
+        return asn_random_between_e2ap_v3_01(lb, ub);
     }
 }
 
-asn_random_fill_result_t
-OCTET_STRING_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
+asn_random_fill_e2ap_v3_01_result_t
+OCTET_STRING_random_fill_e2ap_v3_01(const asn_TYPE_descriptor_t *td, void **sptr,
                          const asn_encoding_constraints_t *constraints,
                          size_t max_length) {
     const asn_OCTET_STRING_specifics_t *specs = td->specifics
         ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-        : &asn_SPC_OCTET_STRING_specs;
-    asn_random_fill_result_t result_ok = {ARFILL_OK, 1};
-    asn_random_fill_result_t result_failed = {ARFILL_FAILED, 0};
-    asn_random_fill_result_t result_skipped = {ARFILL_SKIPPED, 0};
+        : &asn_SPC_OCTET_STRING_specs_e2ap_v3_01;
+    asn_random_fill_e2ap_v3_01_result_t result_ok = {ARFILL_OK, 1};
+    asn_random_fill_e2ap_v3_01_result_t result_failed = {ARFILL_FAILED, 0};
+    asn_random_fill_e2ap_v3_01_result_t result_skipped = {ARFILL_SKIPPED, 0};
     unsigned int unit_bytes = 1;
     unsigned long clb = 0;  /* Lower bound on char */
     unsigned long cub = 255;  /* Higher bound on char value */
@@ -90,7 +90,7 @@ OCTET_STRING_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 
     rnd_len =
-        OCTET_STRING_random_length_constrained(td, constraints, max_length);
+        OCTET_STRING_random_length_constrained_e2ap_v3_01(td, constraints, max_length);
 
     buf = CALLOC(unit_bytes, rnd_len + 1);
     if(!buf) return result_failed;
@@ -143,7 +143,7 @@ OCTET_STRING_random_fill(const asn_TYPE_descriptor_t *td, void **sptr,
 }
 
 size_t
-OCTET_STRING_random_length_constrained(
+OCTET_STRING_random_length_constrained_e2ap_v3_01(
     const asn_TYPE_descriptor_t *td,
     const asn_encoding_constraints_t *constraints, size_t max_length) {
     const unsigned lengths[] = {0,     1,     2,     3,     4,     8,
@@ -152,7 +152,7 @@ OCTET_STRING_random_length_constrained(
     size_t rnd_len;
 
     /* Figure out how far we should go */
-    rnd_len = lengths[asn_random_between(
+    rnd_len = lengths[asn_random_between_e2ap_v3_01(
         0, sizeof(lengths) / sizeof(lengths[0]) - 1)];
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
@@ -168,7 +168,7 @@ OCTET_STRING_random_length_constrained(
                 return pc->lower_bound;
             }
             if(pc->flags & APC_EXTENSIBLE) {
-                switch(asn_random_between(0, 5)) {
+                switch(asn_random_between_e2ap_v3_01(0, 5)) {
                 case 0:
                     if(pc->lower_bound > 0) {
                         rnd_len = pc->lower_bound - 1;
@@ -185,15 +185,15 @@ OCTET_STRING_random_length_constrained(
                     }
                     /* Fall through */
                 default:
-                    rnd_len = asn_random_between(pc->lower_bound,
+                    rnd_len = asn_random_between_e2ap_v3_01(pc->lower_bound,
                                                  suggested_upper_bound);
                 }
             } else {
                 rnd_len =
-                    asn_random_between(pc->lower_bound, suggested_upper_bound);
+                    asn_random_between_e2ap_v3_01(pc->lower_bound, suggested_upper_bound);
             }
         } else {
-            rnd_len = asn_random_between(0, max_length);
+            rnd_len = asn_random_between_e2ap_v3_01(0, max_length);
         }
     } else {
 #else
@@ -201,7 +201,7 @@ OCTET_STRING_random_length_constrained(
     {
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
         if(rnd_len > max_length) {
-            rnd_len = asn_random_between(0, max_length);
+            rnd_len = asn_random_between_e2ap_v3_01(0, max_length);
         }
     }
 

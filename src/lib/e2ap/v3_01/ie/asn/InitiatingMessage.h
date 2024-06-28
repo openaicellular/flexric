@@ -131,9 +131,9 @@ typedef struct InitiatingMessage {
 } InitiatingMessage_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_InitiatingMessage;
-extern asn_SEQUENCE_specifics_t asn_SPC_InitiatingMessage_specs_1;
-extern asn_TYPE_member_t asn_MBR_InitiatingMessage_1[3];
+extern asn_TYPE_descriptor_t asn_DEF_InitiatingMessage_e2ap_v3_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_InitiatingMessage_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_InitiatingMessage_1_e2ap_v3_01[3];
 
 #ifdef __cplusplus
 }

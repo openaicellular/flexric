@@ -7,7 +7,7 @@
 #include <NativeEnumerated.h>
 
 asn_dec_rval_t
-NativeEnumerated_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
+NativeEnumerated_decode_uper_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
                              const asn_TYPE_descriptor_t *td,
                              const asn_per_constraints_t *constraints,
                              void **sptr, asn_per_data_t *pd) {
@@ -50,7 +50,7 @@ NativeEnumerated_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
         /*
          * X.691, #10.6: normally small non-negative whole number;
          */
-        value = uper_get_nsnnwn(pd);
+        value = uper_get_nsnnwn_e2ap_v3_01(pd);
         if(value < 0) ASN__DECODE_STARVED;
         value += specs->extension - 1;
         if(value >= specs->map_count)
@@ -64,7 +64,7 @@ NativeEnumerated_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-NativeEnumerated_encode_uper(const asn_TYPE_descriptor_t *td,
+NativeEnumerated_encode_uper_e2ap_v3_01(const asn_TYPE_descriptor_t *td,
                              const asn_per_constraints_t *constraints,
                              const void *sptr, asn_per_outp_t *po) {
     const asn_INTEGER_specifics_t *specs =
@@ -92,7 +92,7 @@ NativeEnumerated_encode_uper(const asn_TYPE_descriptor_t *td,
 
     key.nat_value = native;
     kf = bsearch(&key, specs->value2enum, specs->map_count,
-        sizeof(key), NativeEnumerated__compar_value2enum);
+        sizeof(key), NativeEnumerated__compar_value2enum_e2ap_v3_01);
     if(!kf) {
         ASN_DEBUG("No element corresponds to %ld", native);
         ASN__ENCODE_FAILED;
@@ -128,7 +128,7 @@ NativeEnumerated_encode_uper(const asn_TYPE_descriptor_t *td,
     ASN_DEBUG("value = %ld, ext = %d, inext = %d, res = %ld",
         value, specs->extension, inext,
         value - (inext ? (specs->extension - 1) : 0));
-    if(uper_put_nsnnwn(po, value - (inext ? (specs->extension - 1) : 0)))
+    if(uper_put_nsnnwn_e2ap_v3_01(po, value - (inext ? (specs->extension - 1) : 0)))
         ASN__ENCODE_FAILED;
 
     ASN__ENCODED_OK(er);

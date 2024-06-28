@@ -10,17 +10,17 @@
 #include "GlobalgNB-ID.h"
 #include "GlobalngeNB-ID.h"
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_GlobalNG_RANNode_ID_constr_1 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_GlobalNG_RANNode_ID_constr_1_e2ap_v3_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED | APC_EXTENSIBLE,  1,  1,  0,  1 }	/* (0..1,...) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-asn_TYPE_member_t asn_MBR_GlobalNG_RANNode_ID_1[] = {
+asn_TYPE_member_t asn_MBR_GlobalNG_RANNode_ID_1_e2ap_v3_01[] = {
 	{ ATF_POINTER, 0, offsetof(struct GlobalNG_RANNode_ID, choice.gNB),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_GlobalgNB_ID,
+		&asn_DEF_GlobalgNB_ID_e2ap_v3_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -37,7 +37,7 @@ asn_TYPE_member_t asn_MBR_GlobalNG_RANNode_ID_1[] = {
 	{ ATF_POINTER, 0, offsetof(struct GlobalNG_RANNode_ID, choice.ng_eNB),
 		(ASN_TAG_CLASS_CONTEXT | (1 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_GlobalngeNB_ID,
+		&asn_DEF_GlobalngeNB_ID_e2ap_v3_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -52,24 +52,24 @@ asn_TYPE_member_t asn_MBR_GlobalNG_RANNode_ID_1[] = {
 		"ng-eNB"
 		},
 };
-static const asn_TYPE_tag2member_t asn_MAP_GlobalNG_RANNode_ID_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_GlobalNG_RANNode_ID_tag2el_1_e2ap_v3_01[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 }, /* gNB */
     { (ASN_TAG_CLASS_CONTEXT | (1 << 2)), 1, 0, 0 } /* ng-eNB */
 };
-asn_CHOICE_specifics_t asn_SPC_GlobalNG_RANNode_ID_specs_1 = {
+asn_CHOICE_specifics_t asn_SPC_GlobalNG_RANNode_ID_specs_1_e2ap_v3_01 = {
 	sizeof(struct GlobalNG_RANNode_ID),
 	offsetof(struct GlobalNG_RANNode_ID, _asn_ctx),
 	offsetof(struct GlobalNG_RANNode_ID, present),
 	sizeof(((struct GlobalNG_RANNode_ID *)0)->present),
-	asn_MAP_GlobalNG_RANNode_ID_tag2el_1,
+	asn_MAP_GlobalNG_RANNode_ID_tag2el_1_e2ap_v3_01,
 	2,	/* Count of tags in the map */
 	0, 0,
 	2	/* Extensions start */
 };
-asn_TYPE_descriptor_t asn_DEF_GlobalNG_RANNode_ID = {
+asn_TYPE_descriptor_t asn_DEF_GlobalNG_RANNode_ID_e2ap_v3_01 = {
 	"GlobalNG-RANNode-ID",
 	"GlobalNG-RANNode-ID",
-	&asn_OP_CHOICE,
+	&asn_OP_CHOICE_e2ap_v3_01,
 	0,	/* No effective tags (pointer) */
 	0,	/* No effective tags (count) */
 	0,	/* No tags (pointer) */
@@ -79,12 +79,12 @@ asn_TYPE_descriptor_t asn_DEF_GlobalNG_RANNode_ID = {
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_GlobalNG_RANNode_ID_constr_1,
+		&asn_PER_type_GlobalNG_RANNode_ID_constr_1_e2ap_v3_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		CHOICE_constraint
+		CHOICE_constraint_e2ap_v3_01
 	},
-	asn_MBR_GlobalNG_RANNode_ID_1,
+	asn_MBR_GlobalNG_RANNode_ID_1_e2ap_v3_01,
 	2,	/* Elements count */
-	&asn_SPC_GlobalNG_RANNode_ID_specs_1	/* Additional specs */
+	&asn_SPC_GlobalNG_RANNode_ID_specs_1_e2ap_v3_01	/* Additional specs */
 };
 

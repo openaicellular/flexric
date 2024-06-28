@@ -22,11 +22,11 @@ extern "C" {
 typedef long	 RICactionID_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_RICactionID_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_RICactionID;
+extern asn_per_constraints_t asn_PER_type_RICactionID_constr_1_e2ap_v1_01;
+extern asn_TYPE_descriptor_t asn_DEF_RICactionID_e2ap_v1_01;
 asn_struct_free_f RICactionID_free;
 asn_struct_print_f RICactionID_print;
-asn_constr_check_f RICactionID_constraint;
+asn_constr_check_f RICactionID_constraint_e2ap_v1_01;
 ber_type_decoder_f RICactionID_decode_ber;
 der_type_encoder_f RICactionID_encode_der;
 xer_type_decoder_f RICactionID_decode_xer;

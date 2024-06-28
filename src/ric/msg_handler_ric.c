@@ -312,8 +312,12 @@ void publish_ind_msg(near_ric_t* ric,  uint16_t ran_func_id, sm_ag_if_rd_ind_t* 
   char* ran_type = get_ngran_name(req->id.type);
 
 #if defined(E2AP_V2) || defined(E2AP_V3)
-  if(req->id.type == ngran_gNB && req->len_cca == 2)
+  if(req->id.type == ngran_gNB && req->len_cca == 2){
     ran_type = "ngran_gNB_CU";
+  }
+  else if (req->id.type == ngran_gNB && req->len_cca == 3) {
+    ran_type = "ngran_gNB_CUCP";
+  }
 #endif
 
   if (NODE_IS_MONOLITHIC(req->id.type))

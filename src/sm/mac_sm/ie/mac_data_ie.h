@@ -34,6 +34,7 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 //////////////////////////////////////
 // RIC Event Trigger Definition
@@ -45,9 +46,9 @@ typedef struct {
 
 void free_mac_event_trigger(mac_event_trigger_t* src); 
 
-mac_event_trigger_t cp_mac_event_trigger( mac_event_trigger_t* src);
+mac_event_trigger_t cp_mac_event_trigger( mac_event_trigger_t const* src);
 
-bool eq_mac_event_trigger(mac_event_trigger_t* m0, mac_event_trigger_t* m1);
+bool eq_mac_event_trigger(mac_event_trigger_t const* m0, mac_event_trigger_t const* m1);
 
 
 
@@ -215,14 +216,15 @@ bool eq_mac_ctrl_out(mac_ctrl_out_t* m0, mac_ctrl_out_t* m1);
 /////////////////////////////////////
 
 typedef struct {
-  uint32_t dummy;
+  size_t len;
+  uint8_t* buf;
 } mac_func_def_t;
 
-void free_mac_func_def( mac_func_def_t* src); 
+void free_mac_func_def(mac_func_def_t* src); 
 
-mac_func_def_t cp_mac_func_def(mac_func_def_t* src);
+mac_func_def_t cp_mac_func_def(mac_func_def_t const* src);
 
-bool eq_mac_func_def(mac_func_def_t* m0, mac_func_def_t* m1);
+bool eq_mac_func_def(mac_func_def_t const* m0, mac_func_def_t const* m1);
 
 
 /////////////////////////////////////////////////

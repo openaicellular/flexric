@@ -34,9 +34,9 @@ typedef struct RANfunctionIDcause_Item {
 } RANfunctionIDcause_Item_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RANfunctionIDcause_Item;
-extern asn_SEQUENCE_specifics_t asn_SPC_RANfunctionIDcause_Item_specs_1;
-extern asn_TYPE_member_t asn_MBR_RANfunctionIDcause_Item_1[2];
+extern asn_TYPE_descriptor_t asn_DEF_RANfunctionID_e2ap_v3_01cause_Item;
+extern asn_SEQUENCE_specifics_t asn_SPC_RANfunctionIDcause_Item_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_RANfunctionIDcause_Item_1_e2ap_v3_01[2];
 
 #ifdef __cplusplus
 }

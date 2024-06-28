@@ -34,9 +34,9 @@ void try_encode( E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
   uint8_t buffer[2048];
-  xer_fprint(stderr, &asn_DEF_E2AP_PDU, pdu);
+  xer_fprint_e2ap_v1_01(stderr, &asn_DEF_E2AP_PDU_e2ap_v1_01, pdu);
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER; // ATS_BASIC_XER; // ATS_ALIGNED_BASIC_PER;
-  asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2AP_PDU, pdu, buffer, 2048);
+  asn_enc_rval_t er = asn_encode_e2ap_v1_01_to_buffer(NULL, syntax, &asn_DEF_E2AP_PDU_e2ap_v1_01, pdu, buffer, 2048);
   fprintf(stdout, "er encoded is %ld\n", er.encoded);
   fflush(stdout);
   assert(er.encoded < 2048);
@@ -51,7 +51,7 @@ static
 void free_pdu(E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
-  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2AP_PDU,pdu);
+  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2AP_PDU_e2ap_v1_01,pdu);
   free(pdu);
 }
 
@@ -729,7 +729,7 @@ E2AP_PDU_t* e2ap_create_pdu(const uint8_t* buffer, int buffer_len)
 
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
-  const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2AP_PDU, (void**)&pdu, buffer, buffer_len);
+  const asn_dec_rval_t rval = asn_decode_e2ap_v1_01(NULL, syntax, &asn_DEF_E2AP_PDU_e2ap_v1_01, (void**)&pdu, buffer, buffer_len);
   //printf("rval.code = %d\n", rval.code);
   //fprintf(stdout, "length of data %ld\n", rval.consumed);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGEND_BASIC_PER syntax?");

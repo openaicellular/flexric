@@ -31,7 +31,7 @@ static const uint16_t SM_KPM_ID = 2;
 static const uint16_t SM_KPM_REV = 2; 
 
 // O-RAN.WG3.E2SM-KPM-v02.02, $7.2
-#define SM_KPM_STR "ORAN-E2SM-KPM-v02.03" 
+#define SM_KPM_STR "ORAN-E2SM-KPM"
 
 #define SM_KPM_DESCRIPTION "KPM Monitor"
 

@@ -7,7 +7,7 @@
 #include <constr_CHOICE.h>
 
 int
-CHOICE_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
+CHOICE_print_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
              asn_app_consume_bytes_f *cb, void *app_key) {
     const asn_CHOICE_specifics_t *specs = (const asn_CHOICE_specifics_t *)td->specifics;
     unsigned present;
@@ -17,7 +17,7 @@ CHOICE_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
     /*
      * Figure out which CHOICE element is encoded.
      */
-    present = _fetch_present_idx(sptr, specs->pres_offset,specs->pres_size);
+    present = _fetch_present_idx_e2ap_v1_01(sptr, specs->pres_offset,specs->pres_size);
 
     /*
      * Print that element.

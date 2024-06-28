@@ -79,29 +79,29 @@ enum asn_transfer_syntax {
  * This is similar to snprintf(3) contract which might return values
  * greater than the buffer size.
  */
-asn_enc_rval_t asn_encode_to_buffer(
+asn_enc_rval_t asn_encode_e2ap_v3_01_to_buffer(
     const asn_codec_ctx_t *opt_codec_parameters, /* See asn_codecs.h */
     enum asn_transfer_syntax,
     const struct asn_TYPE_descriptor_s *type_to_encode,
     const void *structure_to_encode, void *buffer, size_t buffer_size);
 
 /*
- * A variant of asn_encode_to_buffer() with automatically allocated buffer.
+ * A variant of asn_encode_e2ap_v3_01_to_buffer() with automatically allocated buffer.
  * RETURN VALUES:
  * On success, returns a newly allocated (.buffer) containing the whole message.
  * The message size is returned in (.result.encoded).
  * On failure:
  *  (.buffer) is NULL,
- *  (.result.encoded) as in asn_encode_to_buffer(),
- *  The errno codes as in asn_encode_to_buffer(), plus the following:
+ *  (.result.encoded) as in asn_encode_e2ap_v3_01_to_buffer(),
+ *  The errno codes as in asn_encode_e2ap_v3_01_to_buffer(), plus the following:
  *      ENOMEM: Memory allocation failed due to system or internal limits.
  * The user is responsible for freeing the (.buffer).
  */
-typedef struct asn_encode_to_new_buffer_result_s {
+typedef struct asn_encode_e2ap_v3_01_to_new_buffer_result_s {
     void *buffer;   /* NULL if failed to encode. */
     asn_enc_rval_t result;
-} asn_encode_to_new_buffer_result_t;
-asn_encode_to_new_buffer_result_t asn_encode_to_new_buffer(
+} asn_encode_e2ap_v3_01_to_new_buffer_result_t;
+asn_encode_e2ap_v3_01_to_new_buffer_result_t asn_encode_e2ap_v3_01_to_new_buffer(
     const asn_codec_ctx_t *opt_codec_parameters, /* See asn_codecs.h */
     enum asn_transfer_syntax,
     const struct asn_TYPE_descriptor_s *type_to_encode,
@@ -130,7 +130,7 @@ typedef int(asn_app_consume_bytes_f)(const void *buffer, size_t size,
  *      EBADF:  The structure has invalid form or content constraint failed.
  *      EIO:    The (callback) has returned negative value during encoding.
  */
-asn_enc_rval_t asn_encode(
+asn_enc_rval_t asn_encode_e2ap_v3_01(
     const asn_codec_ctx_t *opt_codec_parameters, /* See asn_codecs.h */
     enum asn_transfer_syntax,
     const struct asn_TYPE_descriptor_s *type_to_encode,
@@ -141,7 +141,7 @@ asn_enc_rval_t asn_encode(
 /*
  * A generic decoder for any supported transfer syntax.
  */
-asn_dec_rval_t asn_decode(
+asn_dec_rval_t asn_decode_e2ap_v3_01(
     const asn_codec_ctx_t *opt_codec_parameters, enum asn_transfer_syntax,
     const struct asn_TYPE_descriptor_s *type_to_decode,
     void **structure_ptr, /* Pointer to a target structure's pointer */

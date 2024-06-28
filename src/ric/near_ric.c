@@ -47,24 +47,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/*
-static inline
-void free_sm_ric(void* key, void* value)
-{
-  assert(key != NULL);
-  assert(value != NULL);
-
-  sm_ric_t* sm = (sm_ric_t*)value;
-
-  void* handle = sm->handle;
-  sm->free_sm(sm);
-
-  if(handle != NULL)
-      dlclose(handle);
-}
-*/
-
-
 static inline
 void free_fd(void* key, void* value)
 {
@@ -378,6 +360,7 @@ async_event_arr_t next_asio_event_ric(near_ric_t* ric)
   // Early return
   if(fd_read.len == -1){
     arr.ev[0].type = CHECK_STOP_TOKEN_EVENT; 
+    arr.ev[0].fd = 0;
     arr.len = 1;
     return arr;
   } 
@@ -385,6 +368,7 @@ async_event_arr_t next_asio_event_ric(near_ric_t* ric)
   arr.len = fd_read.len;
   for(int i = 0; i < arr.len; ++i){
     async_event_t* dst = &arr.ev[i]; 
+    dst->fd = fd_read.fd[i];
     if (net_pkt(&ric->ep.base, fd_read.fd[i]) == true){
       dst->msg = e2ap_recv_msg_ric(&ric->ep);
       if(dst->msg.type == SCTP_MSG_NOTIFICATION ){

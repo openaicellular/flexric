@@ -17,7 +17,7 @@
     } while(0)
 
 int
-ANY_fromType_aper(ANY_t *st, asn_TYPE_descriptor_t *td, void *sptr) {
+ANY_fromType_e2ap_v3_01_aper(ANY_t *st, asn_TYPE_descriptor_t *td, void *sptr) {
     uint8_t *buffer = NULL;
     ssize_t erval;
 
@@ -32,7 +32,7 @@ ANY_fromType_aper(ANY_t *st, asn_TYPE_descriptor_t *td, void *sptr) {
         return 0;
     }
 
-    erval = aper_encode_to_new_buffer(td, td->encoding_constraints.per_constraints, sptr, (void**)&buffer);
+    erval = aper_encode_e2ap_v3_01_to_new_buffer(td, td->encoding_constraints.per_constraints, sptr, (void**)&buffer);
 
     if(erval == -1) {
         if(buffer) FREEMEM(buffer);
@@ -48,7 +48,7 @@ ANY_fromType_aper(ANY_t *st, asn_TYPE_descriptor_t *td, void *sptr) {
 }
 
 ANY_t *
-ANY_new_fromType_aper(asn_TYPE_descriptor_t *td, void *sptr) {
+ANY_new_fromType_e2ap_v3_01_aper(asn_TYPE_descriptor_t *td, void *sptr) {
     ANY_t tmp;
     ANY_t *st;
 
@@ -59,7 +59,7 @@ ANY_new_fromType_aper(asn_TYPE_descriptor_t *td, void *sptr) {
 
     memset(&tmp, 0, sizeof(tmp));
 
-    if(ANY_fromType_aper(&tmp, td, sptr)) return 0;
+    if(ANY_fromType_e2ap_v3_01_aper(&tmp, td, sptr)) return 0;
 
     st = (ANY_t *)CALLOC(1, sizeof(ANY_t));
     if(st) {
@@ -72,7 +72,7 @@ ANY_new_fromType_aper(asn_TYPE_descriptor_t *td, void *sptr) {
 }
 
 int
-ANY_to_type_aper(ANY_t *st, asn_TYPE_descriptor_t *td, void **struct_ptr) {
+ANY_to_type_e2ap_v3_01_aper(ANY_t *st, asn_TYPE_descriptor_t *td, void **struct_ptr) {
     asn_dec_rval_t rval;
     void *newst = 0;
 
@@ -87,7 +87,7 @@ ANY_to_type_aper(ANY_t *st, asn_TYPE_descriptor_t *td, void **struct_ptr) {
         return 0;
     }
 
-    rval = aper_decode(0, td, (void **)&newst, st->buf, st->size, 0, 0);
+    rval = aper_decode_e2ap_v3_01(0, td, (void **)&newst, st->buf, st->size, 0, 0);
     if(rval.code == RC_OK) {
         *struct_ptr = newst;
         return 0;
@@ -99,13 +99,13 @@ ANY_to_type_aper(ANY_t *st, asn_TYPE_descriptor_t *td, void **struct_ptr) {
 }
 
 asn_dec_rval_t
-ANY_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
+ANY_decode_aper_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
                 const asn_TYPE_descriptor_t *td,
                 const asn_per_constraints_t *constraints, void **sptr,
                 asn_per_data_t *pd) {
     const asn_OCTET_STRING_specifics_t *specs =
         td->specifics ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-                      : &asn_SPC_ANY_specs;
+                      : &asn_SPC_ANY_specs_e2ap_v3_01;
     size_t consumed_myself = 0;
     int repeat;
     ANY_t *st = (ANY_t *)*sptr;
@@ -132,7 +132,7 @@ ANY_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         int ret;
 
         /* Get the PER length */
-        raw_len = aper_get_length(pd, -1, -1, 0, &repeat);
+        raw_len = aper_get_length_e2ap_v3_01(pd, -1, -1, 0, &repeat);
         if(raw_len < 0) RETURN(RC_WMORE);
         if(raw_len == 0 && st->buf) break;
 
@@ -156,7 +156,7 @@ ANY_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-ANY_encode_aper(const asn_TYPE_descriptor_t *td,
+ANY_encode_aper_e2ap_v3_01(const asn_TYPE_descriptor_t *td,
                 const asn_per_constraints_t *constraints, const void *sptr,
                 asn_per_outp_t *po) {
     const ANY_t *st = (const ANY_t *)sptr;
@@ -173,7 +173,7 @@ ANY_encode_aper(const asn_TYPE_descriptor_t *td,
     size = st->size;
     do {
         int need_eom = 0;
-        ssize_t may_save = aper_put_length(po, -1, -1, size, &need_eom);
+        ssize_t may_save = aper_put_length_e2ap_v3_01(po, -1, -1, size, &need_eom);
         if(may_save < 0) ASN__ENCODE_FAILED;
 
         ret = per_put_many_bits(po, buf, may_save * 8);
@@ -182,7 +182,7 @@ ANY_encode_aper(const asn_TYPE_descriptor_t *td,
         buf += may_save;
         size -= may_save;
         assert(!(may_save & 0x07) || !size);
-        if(need_eom && aper_put_length(po, -1, -1, 0, NULL))
+        if(need_eom && aper_put_length_e2ap_v3_01(po, -1, -1, 0, NULL))
             ASN__ENCODE_FAILED; /* End of Message length */
     } while(size);
 

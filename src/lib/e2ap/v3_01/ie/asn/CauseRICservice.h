@@ -32,9 +32,9 @@ typedef enum CauseRICservice {
 typedef long	 CauseRICservice_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_CauseRICservice_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_CauseRICservice;
-extern const asn_INTEGER_specifics_t asn_SPC_CauseRICservice_specs_1;
+extern asn_per_constraints_t asn_PER_type_CauseRICservice_constr_1_e2ap_v3_01;
+extern asn_TYPE_descriptor_t asn_DEF_Cause_e2ap_v3_01RICservice;
+extern const asn_INTEGER_specifics_t asn_SPC_CauseRICservice_specs_1_e2ap_v3_01;
 asn_struct_free_f CauseRICservice_free;
 asn_struct_print_f CauseRICservice_print;
 asn_constr_check_f CauseRICservice_constraint;

@@ -7,11 +7,11 @@
 
 #include "E2RemovalRequest.h"
 
-asn_TYPE_member_t asn_MBR_E2RemovalRequest_1[] = {
+asn_TYPE_member_t asn_MBR_E2RemovalRequest_1_e2ap_v2_03[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct E2RemovalRequest, protocolIEs),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_ProtocolIE_Container_2148P33,
+		&asn_DEF_ProtocolIE_Container_2148P3_e2ap_v2_033,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -26,30 +26,30 @@ asn_TYPE_member_t asn_MBR_E2RemovalRequest_1[] = {
 		"protocolIEs"
 		},
 };
-static const ber_tlv_tag_t asn_DEF_E2RemovalRequest_tags_1[] = {
+static const ber_tlv_tag_t asn_DEF_E2RemovalRequest_e2ap_v2_03_tags_1_e2ap_v2_03[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-static const asn_TYPE_tag2member_t asn_MAP_E2RemovalRequest_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_E2RemovalRequest_tag2el_1_e2ap_v2_03[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 } /* protocolIEs */
 };
-asn_SEQUENCE_specifics_t asn_SPC_E2RemovalRequest_specs_1 = {
+asn_SEQUENCE_specifics_t asn_SPC_E2RemovalRequest_specs_1_e2ap_v2_03 = {
 	sizeof(struct E2RemovalRequest),
 	offsetof(struct E2RemovalRequest, _asn_ctx),
-	asn_MAP_E2RemovalRequest_tag2el_1,
+	asn_MAP_E2RemovalRequest_tag2el_1_e2ap_v2_03,
 	1,	/* Count of tags in the map */
 	0, 0, 0,	/* Optional elements (not needed) */
 	1,	/* First extension addition */
 };
-asn_TYPE_descriptor_t asn_DEF_E2RemovalRequest = {
+asn_TYPE_descriptor_t asn_DEF_E2RemovalRequest_e2ap_v2_03 = {
 	"E2RemovalRequest",
 	"E2RemovalRequest",
-	&asn_OP_SEQUENCE,
-	asn_DEF_E2RemovalRequest_tags_1,
-	sizeof(asn_DEF_E2RemovalRequest_tags_1)
-		/sizeof(asn_DEF_E2RemovalRequest_tags_1[0]), /* 1 */
-	asn_DEF_E2RemovalRequest_tags_1,	/* Same as above */
-	sizeof(asn_DEF_E2RemovalRequest_tags_1)
-		/sizeof(asn_DEF_E2RemovalRequest_tags_1[0]), /* 1 */
+	&asn_OP_SEQUENCE_e2ap_v2_03,
+	asn_DEF_E2RemovalRequest_e2ap_v2_03_tags_1_e2ap_v2_03,
+	sizeof(asn_DEF_E2RemovalRequest_e2ap_v2_03_tags_1_e2ap_v2_03)
+		/sizeof(asn_DEF_E2RemovalRequest_e2ap_v2_03_tags_1_e2ap_v2_03[0]), /* 1 */
+	asn_DEF_E2RemovalRequest_e2ap_v2_03_tags_1_e2ap_v2_03,	/* Same as above */
+	sizeof(asn_DEF_E2RemovalRequest_e2ap_v2_03_tags_1_e2ap_v2_03)
+		/sizeof(asn_DEF_E2RemovalRequest_e2ap_v2_03_tags_1_e2ap_v2_03[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
@@ -57,10 +57,10 @@ asn_TYPE_descriptor_t asn_DEF_E2RemovalRequest = {
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		SEQUENCE_constraint
+		SEQUENCE_constraint_e2ap_v2_03
 	},
-	asn_MBR_E2RemovalRequest_1,
+	asn_MBR_E2RemovalRequest_1_e2ap_v2_03,
 	1,	/* Elements count */
-	&asn_SPC_E2RemovalRequest_specs_1	/* Additional specs */
+	&asn_SPC_E2RemovalRequest_specs_1_e2ap_v2_03	/* Additional specs */
 };
 

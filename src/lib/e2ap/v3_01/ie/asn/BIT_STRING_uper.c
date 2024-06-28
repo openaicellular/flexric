@@ -15,17 +15,17 @@
         return tmprval;                     \
     } while(0)
 
-static asn_per_constraint_t asn_DEF_BIT_STRING_constraint_size = {
+static asn_per_constraint_t asn_DEF_BIT_STRING_e2ap_v3_01_constraint_size = {
     APC_SEMI_CONSTRAINED, -1, -1, 0, 0};
 
 asn_dec_rval_t
-BIT_STRING_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
+BIT_STRING_decode_uper_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
                        const asn_TYPE_descriptor_t *td,
                        const asn_per_constraints_t *constraints, void **sptr,
                        asn_per_data_t *pd) {
     const asn_OCTET_STRING_specifics_t *specs = td->specifics
         ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-        : &asn_SPC_BIT_STRING_specs;
+        : &asn_SPC_BIT_STRING_specs_e2ap_v3_01;
     const asn_per_constraints_t *pc =
         constraints ? constraints : td->encoding_constraints.per_constraints;
     const asn_per_constraint_t *csiz;
@@ -39,7 +39,7 @@ BIT_STRING_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
     if(pc) {
         csiz = &pc->size;
     } else {
-        csiz = &asn_DEF_BIT_STRING_constraint_size;
+        csiz = &asn_DEF_BIT_STRING_e2ap_v3_01_constraint_size;
     }
 
     if(specs->subvariant != ASN_OSUBV_BIT) {
@@ -63,7 +63,7 @@ BIT_STRING_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
         int inext = per_get_few_bits(pd, 1);
         if(inext < 0) RETURN(RC_WMORE);
         if(inext) {
-            csiz = &asn_DEF_BIT_STRING_constraint_size;
+            csiz = &asn_DEF_BIT_STRING_e2ap_v3_01_constraint_size;
         }
     }
 
@@ -97,7 +97,7 @@ BIT_STRING_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
         int ret;
 
         /* Get the PER length */
-        raw_len = uper_get_length(pd, csiz->effective_bits, csiz->lower_bound,
+        raw_len = uper_get_length_e2ap_v3_01(pd, csiz->effective_bits, csiz->lower_bound,
                                   &repeat);
         if(raw_len < 0) RETURN(RC_WMORE);
         if(raw_len == 0 && st->buf) break;
@@ -123,12 +123,12 @@ BIT_STRING_decode_uper(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-BIT_STRING_encode_uper(const asn_TYPE_descriptor_t *td,
+BIT_STRING_encode_uper_e2ap_v3_01(const asn_TYPE_descriptor_t *td,
                        const asn_per_constraints_t *constraints,
                        const void *sptr, asn_per_outp_t *po) {
     const asn_OCTET_STRING_specifics_t *specs =
         td->specifics ? (const asn_OCTET_STRING_specifics_t *)td->specifics
-                      : &asn_SPC_BIT_STRING_specs;
+                      : &asn_SPC_BIT_STRING_specs_e2ap_v3_01;
     const asn_per_constraints_t *pc =
         constraints ? constraints : td->encoding_constraints.per_constraints;
     const asn_per_constraint_t *csiz;
@@ -154,12 +154,12 @@ BIT_STRING_encode_uper(const asn_TYPE_descriptor_t *td,
     if(pc) {
         csiz = &pc->size;
     } else {
-        csiz = &asn_DEF_BIT_STRING_constraint_size;
+        csiz = &asn_DEF_BIT_STRING_e2ap_v3_01_constraint_size;
     }
     ct_extensible = csiz->flags & APC_EXTENSIBLE;
 
     /* Figure out the size without the trailing bits */
-    st = BIT_STRING__compactify(st, &compact_bstr);
+    st = BIT_STRING__compactify_e2ap_v3_01(st, &compact_bstr);
     size_in_bits = 8 * st->size - st->bits_unused;
 
     ASN_DEBUG(
@@ -173,7 +173,7 @@ BIT_STRING_encode_uper(const asn_TYPE_descriptor_t *td,
     if(csiz->effective_bits >= 0) {
         if((ssize_t)size_in_bits > csiz->upper_bound) {
             if(ct_extensible) {
-                csiz = &asn_DEF_BIT_STRING_constraint_size;
+                csiz = &asn_DEF_BIT_STRING_e2ap_v3_01_constraint_size;
                 inext = 1;
             } else {
                 ASN__ENCODE_FAILED;
@@ -225,7 +225,7 @@ BIT_STRING_encode_uper(const asn_TYPE_descriptor_t *td,
     buf = st->buf;
     do {
         int need_eom = 0;
-        ssize_t maySave = uper_put_length(po, size_in_bits, &need_eom);
+        ssize_t maySave = uper_put_length_e2ap_v3_01(po, size_in_bits, &need_eom);
         if(maySave < 0) ASN__ENCODE_FAILED;
 
         ASN_DEBUG("Encoding %" ASN_PRI_SSIZE " of %" ASN_PRI_SIZE "", maySave, size_in_bits);
@@ -236,7 +236,7 @@ BIT_STRING_encode_uper(const asn_TYPE_descriptor_t *td,
         buf += maySave >> 3;
         size_in_bits -= maySave;
         assert(!(maySave & 0x07) || !size_in_bits);
-        if(need_eom && uper_put_length(po, 0, 0))
+        if(need_eom && uper_put_length_e2ap_v3_01(po, 0, 0))
             ASN__ENCODE_FAILED; /* End of Message length */
     } while(size_in_bits);
 

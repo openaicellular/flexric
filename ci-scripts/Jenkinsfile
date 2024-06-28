@@ -1,0 +1,363 @@
+#!/bin/groovy
+/*
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
+
+//-------------------------------------------------------------------------------
+
+// Location of the CN executor node
+// Its main purpose is the Ubuntu Build
+ubuntuNode = params.UbuntuBuildNode
+ubuntuBuildResource = params.UbuntuBuildResource
+
+// Location of the RHEL CN executor
+rhelNode = params.RhelBuildNode
+rhelResource = params.RhelBuildResource
+rhelOcCredentials = params.RhelOcCredentials
+
+// Tags/Branches to use
+def flexric_tag = "develop"
+def flexric_branch = "dev"
+
+// Merge Request Link
+gitlabMergeRequestLink = ''
+
+// Docker Hub account to push to
+DH_Account = "oaisoftwarealliance"
+
+// Private Local Registry URL
+PrivateRegistryURL = 'selfix.sboai.cs.eurecom.fr'
+
+//-------------------------------------------------------------------------------
+// Pipeline start
+pipeline {
+  agent {
+    label ubuntuNode
+  }
+  options {
+    disableConcurrentBuilds()
+    timestamps()
+    ansiColor('xterm')
+    gitLabConnection('OAI GitLab')
+    // Minimal checks
+    gitlabBuilds(builds: [
+      "Build Ubuntu FLEXRIC Image",
+      "Build RHEL FLEXRIC Image"
+    ])
+  }
+
+  stages {
+    stage ('Verify Parameters') {
+      steps {
+        script {
+          echo '\u2705 \u001B[32mVerify Parameters\u001B[0m'
+
+          JOB_TIMESTAMP = sh returnStdout: true, script: 'date --utc --rfc-3339=seconds | sed -e "s#+00:00##"'
+          JOB_TIMESTAMP = JOB_TIMESTAMP.trim()
+
+          if (params.DockerHubCredentials == null) {
+            echo '\u26D4 \u001B[31mNo Credentials to push to DockerHub!\u001B[0m'
+            error "Stopping pipeline!"
+          }
+          if (params.RhelOcCredentials == null) {
+            echo '\u26D4 \u001B[31mNo Credentials to connect to Openshift!\u001B[0m'
+            error "Stopping pipeline!"
+          }
+        }
+      }
+    }
+    stage ('Prepare Source Code') {
+      steps {
+        script {
+          if ("MERGE".equals(env.gitlabActionType)) {
+            gitlabMergeRequestLink = sh returnStdout: true, script: "curl --silent 'https://gitlab.eurecom.fr/api/v4/projects/mosaic5g%2Fflexric/merge_requests/${env.gitlabMergeRequestIid}' | jq .web_url | sed 's#\"##g'"
+            gitlabMergeRequestLink = gitlabMergeRequestLink.trim()
+
+            shortenShaOne     = sh returnStdout: true, script: 'git log -1 --pretty=format:"%h" --abbrev=8 ' + env.gitlabMergeRequestLastCommit
+            shortenShaOne     = shortenShaOne.trim()
+            flexric_tag       = 'ci-tmp-pr-' + env.gitlabMergeRequestIid + '-' + shortenShaOne
+            flexric_branch    = env.gitlabSourceBranch
+
+            echo "========= THIS IS A MERGE REQUEST =========="
+            echo "MR ID       is ${env.gitlabMergeRequestIid}"
+            echo "MR LINK     is ${gitlabMergeRequestLink}"
+            echo "MR TITLE    is ${env.gitlabMergeRequestTitle}"
+            echo "MR TAG      is ${flexric_tag}"
+          } else {
+            shortenShaOne = sh returnStdout: true, script: 'git log -1 --pretty=format:"%h" --abbrev=8 ' + env.GIT_COMMIT
+            shortenShaOne = shortenShaOne.trim()
+            flexric_tag       = 'develop-' + shortenShaOne
+            flexric_branch    = env.GIT_COMMIT
+
+            echo "======== THIS IS A PUSH REQUEST ========"
+            echo "Git Branch      is ${GIT_BRANCH}"
+            echo "Git Commit      is ${GIT_COMMIT}"
+            echo "CI develop TAG  is ${flexric_tag}"
+          }
+          prepareWorkspaceMergeCase()
+        }
+      }
+      post {
+        failure {
+          script {
+            def message = "OAI " + JOB_NAME + " build (" + BUILD_ID + "): Merge Conflicts -- Cannot perform CI"
+            addGitLabMRComment comment: message
+            currentBuild.result = 'FAILURE'
+          }
+        }
+      }
+    }
+    stage('Build Core Network Function') {
+      parallel {
+        stage ('Build Ubuntu FLEXRIC Image') {
+          steps {
+            // Now it is only locked during this build stage and not for the whole pipeline
+            lock(ubuntuBuildResource) {
+              script {
+                gitlabCommitStatus(name: "Build Ubuntu FLEXRIC Image") {
+                  sh "docker image rm oai-flexric:${flexric_tag} || true"
+                  sh "docker image prune --force"
+                  if ("PUSH".equals(env.gitlabActionType)) {
+                    dockerBuildOptions = '--no-cache '
+                  }
+                  if ("MERGE".equals(env.gitlabActionType)) {
+                    dockerBuildOptions = ''
+                  }
+                  sh "docker buildx build ${dockerBuildOptions} --target oai-flexric --tag oai-flexric:${flexric_tag} --file docker/Dockerfile.flexric.ubuntu . > archives/flexric_ubuntu_image_build.log 2>&1"
+                  sh "docker image ls | egrep --color=never 'flexric|REPOSITORY' >> archives/flexric_ubuntu_image_build.log"
+                  // Pushing to local private registry for testing purpose
+                  sh "docker login -u oaicicd -p oaicicd ${PrivateRegistryURL}"
+                  sh "docker image tag oai-flexric:${flexric_tag} ${PrivateRegistryURL}/oai-flexric:${flexric_tag}"
+                  sh "docker push ${PrivateRegistryURL}/oai-flexric:${flexric_tag}"
+                  // Remove all images locally
+                  sh "docker rmi oai-flexric:${flexric_tag} ${PrivateRegistryURL}/oai-flexric:${flexric_tag}"
+                  sh "docker logout ${PrivateRegistryURL}"
+                }
+              }
+            }
+          }
+          post {
+            success {
+              sh "echo 'OAI-FLEXRIC UBUNTU IMAGE BUILD: OK' >> archives/flexric_ubuntu_image_build.log"
+            }
+            unsuccessful {
+              sh "echo 'OAI-FLEXRIC UBUNTU IMAGE BUILD: KO' >> archives/flexric_ubuntu_image_build.log"
+            }
+          }
+        }
+        stage ('Build RHEL FLEXRIC Image') {
+          agent { label rhelNode }
+          steps {
+            lock (rhelResource) {
+              script {
+                gitlabCommitStatus(name: "Build RHEL FLEXRIC Image") {
+                  // It's a different agent from main one.
+                  prepareWorkspaceMergeCase()
+                  withCredentials([
+                    [$class: 'UsernamePasswordMultiBinding', credentialsId: "${rhelOcCredentials}", usernameVariable: 'OC_Username', passwordVariable: 'OC_Password']
+                  ]) {
+                    sh "oc login -u ${OC_Username} -p ${OC_Password}"
+                  }
+                  sh "oc delete istag oai-flexric:${flexric_tag} || true"
+                  // Copy the RHEL Host certificates for building
+                  sh "./ci-scripts/common/python/recreate_entitlement.py"
+                  // Building
+                  sh "oc delete -f openshift/build-config.yaml || true"
+                  sh "sed -i -e 's@oai-flexric:latest@oai-flexric:${flexric_tag}@g' openshift/build-config.yaml"
+                  sh "oc create -f openshift/build-config.yaml"
+                  sh 'oc start-build flexric-build-cfg  --from-dir=./ --exclude=""'
+                  // need python to wait for pod flexric-build-cfg-1-build to be Completed or Error
+                  // it fails if it detects error or timeout at 20 minutes
+                  sh "./ci-scripts/common/python/check_build_pod_status.py --pod-name flexric-build-cfg-1-build --log-file archives/flexric_rhel_image_build.log"
+                  sh "oc describe istag oai-flexric:${flexric_tag} | grep 'Image Size:' >> archives/flexric_rhel_image_build.log"
+                }
+              }
+            }
+          }
+          post {
+            success {
+              sh "echo 'OAI-FLEXRIC RHEL IMAGE BUILD: OK' >> archives/flexric_rhel_image_build.log"
+            }
+            unsuccessful {
+              sh "echo 'OAI-FLEXRIC RHEL IMAGE BUILD: KO' >> archives/flexric_rhel_image_build.log"
+            }
+            cleanup {
+              script {
+                sh "oc delete build flexric-build-cfg-1 || true"
+                sh "oc logout || true"
+                stash allowEmpty: true, includes: 'archives/flexric_rhel_image_build.log', name: 'rhelBuildLog'
+              }
+            }
+          }
+        }
+      }
+      post {
+        always {
+          script {
+            unstash 'rhelBuildLog'
+          }
+        }
+      }
+    }
+
+    stage ('Running CTests') {
+      steps {
+        lock(ubuntuBuildResource) {
+          script {
+            gitlabCommitStatus(name: "Running CTests") {
+              sh "docker image rm oai-flexric-ctest:${flexric_tag} || true"
+              sh "docker buildx build --target oai-flexric-builder --tag oai-flexric-ctest:${flexric_tag} --file ci-scripts/Dockerfile.ctest . > archives/flexric_ctests.log 2>&1"
+            }
+          }
+        }
+      }
+      post {
+        cleanup {
+          script {
+            sh "docker image rm oai-flexric-ctest:${flexric_tag} || true"
+          }
+        }
+      }
+    }
+
+    stage ('Full Stack Testing') {
+      parallel {
+        stage ('Flexric-OAI-RAN-5G') {
+          steps {
+            script {
+              gitlabCommitStatus(name: "Flexric-OAI-RAN-5G-Integration") {
+                if ("MERGE".equals(env.gitlabActionType)) {
+                  MR_NUMBER = 'flexric-' + env.gitlabMergeRequestIid
+                } else {
+                  MR_NUMBER = 'flexric-dev'
+                }
+                localStatus = build job: 'OAI-FLEXRIC-RAN-Integration-Test',
+                  parameters: [
+                    string(name: 'Flexric_Tag', value: String.valueOf(flexric_tag)),
+                    string(name: 'eNB_MR', value: String.valueOf(MR_NUMBER))
+                  ], propagate: false
+                localResult = localStatus.getResult()
+
+                if (localStatus.resultIsBetterOrEqualTo('SUCCESS')) {
+                  echo "OAI-FLEXRIC-RAN-Integration-Test is OK"
+                } else {
+                  error "OAI-FLEXRIC-RAN-Integration-Test is KO"
+                }
+              }
+            }
+          }
+          post {
+            always {
+              script {
+                copyArtifacts(projectName: 'OAI-FLEXRIC-RAN-Integration-Test',
+                              filter: 'test_results-OAI-FLEXRIC-RAN-Integration-Test.html',
+                              selector: lastCompleted())
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // We are only publishing the Ubuntu image to Docker-Hub
+    // For Post-Merge events.
+    // Temporary Images from Merge-Request Runs are kept in local private registry
+    stage ('Pushing Image to Official Registry') {
+      steps {
+        lock(ubuntuBuildResource) {
+          script {
+            // Only in case of push to target branch!
+            if ("PUSH".equals(env.gitlabActionType)) {
+              withCredentials([
+                [$class: 'UsernamePasswordMultiBinding', credentialsId: "${params.DockerHubCredentials}", usernameVariable: 'DH_Username', passwordVariable: 'DH_Password']
+              ]) {
+                sh "echo ${DH_Password} | docker login --username ${DH_Username} --password-stdin"
+              }
+              sh "docker login -u oaicicd -p oaicicd ${PrivateRegistryURL}"
+              sh "docker pull ${PrivateRegistryURL}/oai-flexric:${flexric_tag}"
+              sh "docker image tag ${PrivateRegistryURL}/oai-flexric:${flexric_tag} ${DH_Account}/oai-flexric:develop"
+              sh "docker push ${DH_Account}/oai-flexric:develop"
+              sh "docker rmi ${DH_Account}/oai-flexric:develop ${PrivateRegistryURL}/oai-flexric:${flexric_tag}"
+              sh "docker logout ${PrivateRegistryURL}"
+              sh "docker logout"
+            }
+          }
+        }
+      }
+    }
+  }
+  post {
+    success {
+      script {
+        if ("MERGE".equals(env.gitlabActionType)) {
+          def message = "OAI " + JOB_NAME + " build (" + BUILD_ID + "): passed (" + BUILD_URL + ")"
+          echo "This is a MERGE event"
+          addGitLabMRComment comment: message
+        }
+      }
+    }
+    unsuccessful {
+      script {
+        if ("MERGE".equals(env.gitlabActionType)) {
+          def message = "OAI " + JOB_NAME + " build (" + BUILD_ID + "): failed (" + BUILD_URL + ")"
+          echo "This is a MERGE event"
+          addGitLabMRComment comment: message
+        }
+      }
+    }
+    cleanup {
+      script {
+        // Zipping all archived log files
+        sh "zip -r -qq docker_logs.zip archives"
+        if (fileExists('docker_logs.zip')) {
+          archiveArtifacts artifacts: 'docker_logs.zip'
+        }
+
+        // Generating the HTML report(s)
+        if ("MERGE".equals(env.gitlabActionType)) {
+          sh "./ci-scripts/generateHtmlReport.py --job-name ${JOB_NAME} --build-id ${BUILD_ID} --build-url ${BUILD_URL} --git-url ${GIT_URL} --git-src-branch ${env.gitlabSourceBranch} --git-src-commit ${env.gitlabMergeRequestLastCommit} --git-merge-request --git-dst-branch ${env.gitlabTargetBranch} --git-dst-commit ${GIT_COMMIT}"
+        } else {
+          sh "./ci-scripts/generateHtmlReport.py --job-name ${JOB_NAME} --build-id ${BUILD_ID} --build-url ${BUILD_URL} --git-url ${GIT_URL} --git-src-branch ${GIT_BRANCH} --git-src-commit ${GIT_COMMIT}"
+        }
+        listOfFiles = sh returnStdout: true, script: 'ls test_results*.html'
+        String[] htmlFiles = listOfFiles.split("\\n")
+        for (htmlFile in htmlFiles) {
+          if ("MERGE".equals(env.gitlabActionType)) {
+            sh "sed -i -e 's#TEMPLATE_MERGE_REQUEST_LINK#${gitlabMergeRequestLink}#g' ${htmlFile}"
+            sh "sed -i -e 's#TEMPLATE_MERGE_REQUEST_TEMPLATE#${env.gitlabMergeRequestTitle}#' ${htmlFile}"
+          }
+          sh "sed -i -e 's#TEMPLATE_TIME#${JOB_TIMESTAMP}#' ${htmlFile}"
+          archiveArtifacts artifacts: htmlFile
+        }
+      }
+    }
+  }
+}
+
+def prepareWorkspaceMergeCase () {
+  sh "git clean -x -d -f > /dev/null 2>&1"
+  sh "git submodule foreach --recursive 'git clean -x -d -ff' > /dev/null 2>&1"
+  sh "git submodule deinit --force --all > /dev/null 2>&1"
+  if ("MERGE".equals(env.gitlabActionType)) {
+    sh "./ci-scripts/doGitLabMerge.sh --src-branch ${env.gitlabSourceBranch} --src-commit ${env.gitlabMergeRequestLastCommit} --target-branch ${env.gitlabTargetBranch} --target-commit ${GIT_COMMIT}"
+  }
+  sh "git submodule update --init --recursive"
+  sh "mkdir -p archives"
+}

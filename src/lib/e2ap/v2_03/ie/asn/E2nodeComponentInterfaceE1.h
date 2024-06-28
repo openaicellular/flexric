@@ -32,9 +32,9 @@ typedef struct E2nodeComponentInterfaceE1 {
 } E2nodeComponentInterfaceE1_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentInterfaceE1;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeComponentInterfaceE1_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2nodeComponentInterfaceE1_1[1];
+extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentInterfaceE1_e2ap_v2_03;
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeComponentInterfaceE1_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_E2nodeComponentInterfaceE1_1_e2ap_v2_03[1];
 
 #ifdef __cplusplus
 }

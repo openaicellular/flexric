@@ -60,6 +60,7 @@ SWIG_ADD_LIBRARY(xapp_sdk LANGUAGE ${XAPP_LANG} SOURCES
                                                  $<TARGET_OBJECTS:e2ap_ran_func_obj>
                                                  $<TARGET_OBJECTS:e2ap_plmn_obj>
                                                  $<TARGET_OBJECTS:e2ap_global_node_id_obj>
+                                                 $<TARGET_OBJECTS:3gpp_derived_ie_obj>
                                                  #../../sm/kpm_sm_v03.00/ie/kpm_data_ie.c
                                                  ../../sm/mac_sm/ie/mac_data_ie.c 
                                                  ../../sm/rlc_sm/ie/rlc_data_ie.c

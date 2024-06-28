@@ -8,7 +8,7 @@
 #include <asn_SEQUENCE_OF.h>
 
 asn_enc_rval_t
-SEQUENCE_OF_encode_aper(const asn_TYPE_descriptor_t *td,
+SEQUENCE_OF_encode_aper_e2ap_v3_01(const asn_TYPE_descriptor_t *td,
                         const asn_per_constraints_t *constraints,
                         const void *sptr, asn_per_outp_t *po) {
     const asn_anonymous_sequence_ *list;
@@ -55,7 +55,7 @@ SEQUENCE_OF_encode_aper(const asn_TYPE_descriptor_t *td,
 */
         if (ct->lower_bound == ct->upper_bound && ct->upper_bound < 65536) {
             /* No length determinant */
-    } else if (aper_put_length(po, ct->lower_bound, ct->upper_bound, list->count - ct->lower_bound, 0) < 0)
+    } else if (aper_put_length_e2ap_v3_01(po, ct->lower_bound, ct->upper_bound, list->count - ct->lower_bound, 0) < 0)
             ASN__ENCODE_FAILED;
     }
 
@@ -66,21 +66,21 @@ SEQUENCE_OF_encode_aper(const asn_TYPE_descriptor_t *td,
         if(ct && ct->effective_bits >= 0) {
             mayEncode = list->count;
         } else {
-            mayEncode = aper_put_length(po, -1, -1, list->count - seq, &need_eom);
+            mayEncode = aper_put_length_e2ap_v3_01(po, -1, -1, list->count - seq, &need_eom);
             if(mayEncode < 0) ASN__ENCODE_FAILED;
         }
 
         while(mayEncode--) {
             void *memb_ptr = list->array[seq++];
             if(!memb_ptr) ASN__ENCODE_FAILED;
-            er = elm->type->op->aper_encoder(elm->type,
+            er = elm->type->op->aper_encode_e2ap_v3_01r(elm->type,
                                              elm->encoding_constraints.per_constraints,
                                              memb_ptr, po);
             if(er.encoded == -1)
                 ASN__ENCODE_FAILED;
         }
 
-        if(need_eom && (aper_put_length(po, -1, -1, 0, NULL) < 0))
+        if(need_eom && (aper_put_length_e2ap_v3_01(po, -1, -1, 0, NULL) < 0))
             ASN__ENCODE_FAILED;  /* End of Message length */
     }
 

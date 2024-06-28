@@ -32,9 +32,9 @@ typedef enum RICcontrolStatus {
 typedef long	 RICcontrolStatus_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_RICcontrolStatus_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_RICcontrolStatus;
-extern const asn_INTEGER_specifics_t asn_SPC_RICcontrolStatus_specs_1;
+extern asn_per_constraints_t asn_PER_type_RICcontrolStatus_constr_1_e2ap_v1_01;
+extern asn_TYPE_descriptor_t asn_DEF_RICcontrolStatus_e2ap_v1_01;
+extern const asn_INTEGER_specifics_t asn_SPC_RICcontrolStatus_specs_1_e2ap_v1_01;
 asn_struct_free_f RICcontrolStatus_free;
 asn_struct_print_f RICcontrolStatus_print;
 asn_constr_check_f RICcontrolStatus_constraint;

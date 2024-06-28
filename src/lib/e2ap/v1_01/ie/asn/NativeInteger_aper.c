@@ -7,7 +7,7 @@
 #include <NativeInteger.h>
 
 asn_dec_rval_t
-NativeInteger_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
+NativeInteger_decode_aper_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                           const asn_TYPE_descriptor_t *td,
                           const asn_per_constraints_t *constraints, void **sptr, asn_per_data_t *pd) {
 
@@ -26,24 +26,24 @@ NativeInteger_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
     }
 
     memset(&tmpint, 0, sizeof tmpint);
-    rval = INTEGER_decode_aper(opt_codec_ctx, td, constraints,
+    rval = INTEGER_decode_aper_e2ap_v1_01(opt_codec_ctx, td, constraints,
                                &tmpintptr, pd);
     if(rval.code == RC_OK) {
         if((specs&&specs->field_unsigned)
-                ? asn_INTEGER2ulong(&tmpint, (unsigned long *)native)
-                : asn_INTEGER2long(&tmpint, native))
+                ? asn_INTEGER2ulong_e2ap_v1_01(&tmpint, (unsigned long *)native)
+                : asn_INTEGER2long_e2ap_v1_01(&tmpint, native))
             rval.code = RC_FAIL;
         else
             ASN_DEBUG("NativeInteger %s got value %ld",
                       td->name, *native);
     }
-    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_INTEGER, &tmpint);
+    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_INTEGER_e2ap_v1_01, &tmpint);
 
     return rval;
 }
 
 asn_enc_rval_t
-NativeInteger_encode_aper(const asn_TYPE_descriptor_t *td,
+NativeInteger_encode_aper_e2ap_v1_01(const asn_TYPE_descriptor_t *td,
                           const asn_per_constraints_t *constraints,
                           const void *sptr, asn_per_outp_t *po) {
 
@@ -60,10 +60,10 @@ NativeInteger_encode_aper(const asn_TYPE_descriptor_t *td,
 
     memset(&tmpint, 0, sizeof(tmpint));
     if((specs&&specs->field_unsigned)
-            ? asn_ulong2INTEGER(&tmpint, (unsigned long)native)
-            : asn_long2INTEGER(&tmpint, native))
+            ? asn_ulong2INTEGER_e2ap_v1_01(&tmpint, (unsigned long)native)
+            : asn_long2INTEGER_e2ap_v1_01(&tmpint, native))
         ASN__ENCODE_FAILED;
-    er = INTEGER_encode_aper(td, constraints, &tmpint, po);
-    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_INTEGER, &tmpint);
+    er = INTEGER_encode_aper_e2ap_v1_01(td, constraints, &tmpint, po);
+    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_INTEGER_e2ap_v1_01, &tmpint);
     return er;
 }

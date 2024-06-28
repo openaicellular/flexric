@@ -13,27 +13,27 @@
 /*
  * OBJECT IDENTIFIER basic type description.
  */
-static const ber_tlv_tag_t asn_DEF_OBJECT_IDENTIFIER_tags[] = {
+static const ber_tlv_tag_t asn_DEF_OBJECT_IDENTIFIER_e2ap_v1_01_tags[] = {
     (ASN_TAG_CLASS_UNIVERSAL | (6 << 2))
 };
-asn_TYPE_operation_t asn_OP_OBJECT_IDENTIFIER = {
-    ASN__PRIMITIVE_TYPE_free,
+asn_TYPE_operation_t asn_OP_OBJECT_IDENTIFIER_e2ap_v1_01 = {
+    ASN__PRIMITIVE_TYPE_free_e2ap_v1_01,
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-    OBJECT_IDENTIFIER_print,
+    OBJECT_IDENTIFIER_print_e2ap_v1_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
-    OCTET_STRING_compare,   /* Implemented in terms of a string comparison */
+    OCTET_STRING_compare_e2ap_v1_01,   /* Implemented in terms of a string comparison */
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-    ber_decode_primitive,
-    der_encode_primitive,
+    ber_decode_e2ap_v1_01_primitive,
+    der_encode_e2ap_v1_01_primitive,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-    OBJECT_IDENTIFIER_decode_xer,
-    OBJECT_IDENTIFIER_encode_xer,
+    OBJECT_IDENTIFIER_decode_xer_e2ap_v1_01,
+    OBJECT_IDENTIFIER_encode_xer_e2ap_v1_01,
 #else
     0,
     0,
@@ -51,36 +51,36 @@ asn_TYPE_operation_t asn_OP_OBJECT_IDENTIFIER = {
     0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-    OCTET_STRING_decode_uper,
-    OCTET_STRING_encode_uper,
+    OCTET_STRING_decode_uper_e2ap_v1_01,
+    OCTET_STRING_encode_uper_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-    OCTET_STRING_decode_aper,
-    OCTET_STRING_encode_aper,
+    OCTET_STRING_decode_aper_e2ap_v1_01,
+    OCTET_STRING_encode_aper_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-    OBJECT_IDENTIFIER_random_fill,
+    OBJECT_IDENTIFIER_random_fill_e2ap_v1_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
     0  /* Use generic outmost tag fetcher */
 };
-asn_TYPE_descriptor_t asn_DEF_OBJECT_IDENTIFIER = {
+asn_TYPE_descriptor_t asn_DEF_OBJECT_IDENTIFIER_e2ap_v1_01 = {
     "OBJECT IDENTIFIER",
     "OBJECT_IDENTIFIER",
-    &asn_OP_OBJECT_IDENTIFIER,
-    asn_DEF_OBJECT_IDENTIFIER_tags,
-    sizeof(asn_DEF_OBJECT_IDENTIFIER_tags)
-        / sizeof(asn_DEF_OBJECT_IDENTIFIER_tags[0]),
-    asn_DEF_OBJECT_IDENTIFIER_tags,  /* Same as above */
-    sizeof(asn_DEF_OBJECT_IDENTIFIER_tags)
-        / sizeof(asn_DEF_OBJECT_IDENTIFIER_tags[0]),
+    &asn_OP_OBJECT_IDENTIFIER_e2ap_v1_01,
+    asn_DEF_OBJECT_IDENTIFIER_e2ap_v1_01_tags,
+    sizeof(asn_DEF_OBJECT_IDENTIFIER_e2ap_v1_01_tags)
+        / sizeof(asn_DEF_OBJECT_IDENTIFIER_e2ap_v1_01_tags[0]),
+    asn_DEF_OBJECT_IDENTIFIER_e2ap_v1_01_tags,  /* Same as above */
+    sizeof(asn_DEF_OBJECT_IDENTIFIER_e2ap_v1_01_tags)
+        / sizeof(asn_DEF_OBJECT_IDENTIFIER_e2ap_v1_01_tags[0]),
     {
 #if !defined(ASN_DISABLE_OER_SUPPORT)
         0,
@@ -88,14 +88,14 @@ asn_TYPE_descriptor_t asn_DEF_OBJECT_IDENTIFIER = {
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
         0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-        OBJECT_IDENTIFIER_constraint
+        OBJECT_IDENTIFIER_constraint_e2ap_v1_01
     },
     0, 0,  /* No members */
     0  /* No specifics */
 };
 
 int
-OBJECT_IDENTIFIER_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
+OBJECT_IDENTIFIER_constraint_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                              asn_app_constraint_failed_f *ctfailcb,
                              void *app_key) {
     const OBJECT_IDENTIFIER_t *st = (const OBJECT_IDENTIFIER_t *)sptr;
@@ -123,7 +123,7 @@ OBJECT_IDENTIFIER_get_first_arcs(const uint8_t *arcbuf, size_t arcbuf_len,
                                  asn_oid_arc_t *arc0, asn_oid_arc_t *arc1) {
     asn_oid_arc_t value;
 
-    ssize_t rd = OBJECT_IDENTIFIER_get_single_arc(arcbuf, arcbuf_len, &value);
+    ssize_t rd = OBJECT_IDENTIFIER_get_single_arc_e2ap_v1_01(arcbuf, arcbuf_len, &value);
     if(rd <= 0) return rd;
 
     if(value >= 80) {
@@ -141,7 +141,7 @@ OBJECT_IDENTIFIER_get_first_arcs(const uint8_t *arcbuf, size_t arcbuf_len,
 }
 
 ssize_t
-OBJECT_IDENTIFIER_get_single_arc(const uint8_t *arcbuf, size_t arcbuf_len,
+OBJECT_IDENTIFIER_get_single_arc_e2ap_v1_01(const uint8_t *arcbuf, size_t arcbuf_len,
                                  asn_oid_arc_t *ret_value) {
     const uint8_t *b = arcbuf;
     const uint8_t *arcend = arcbuf + arcbuf_len; /* End of arc */
@@ -179,7 +179,7 @@ OBJECT_IDENTIFIER_get_single_arc(const uint8_t *arcbuf, size_t arcbuf_len,
 }
 
 ssize_t
-OBJECT_IDENTIFIER__dump_body(const OBJECT_IDENTIFIER_t *st,
+OBJECT_IDENTIFIER__dump_body_e2ap_v1_01(const OBJECT_IDENTIFIER_t *st,
                              asn_app_consume_bytes_f *cb, void *app_key) {
     char scratch[32];
     asn_oid_arc_t arc0 = 0;
@@ -204,7 +204,7 @@ OBJECT_IDENTIFIER__dump_body(const OBJECT_IDENTIFIER_t *st,
 
     for(off = rd; ; ) {
         asn_oid_arc_t arc;
-        rd = OBJECT_IDENTIFIER_get_single_arc(st->buf + off, st->size - off,
+        rd = OBJECT_IDENTIFIER_get_single_arc_e2ap_v1_01(st->buf + off, st->size - off,
                                               &arc);
         if(rd < 0) {
             return -1;
@@ -232,7 +232,7 @@ OBJECT_IDENTIFIER__dump_body(const OBJECT_IDENTIFIER_t *st,
 }
 
 ssize_t
-OBJECT_IDENTIFIER_get_arcs(const OBJECT_IDENTIFIER_t *st, asn_oid_arc_t *arcs,
+OBJECT_IDENTIFIER_get_arcs_e2ap_v1_01(const OBJECT_IDENTIFIER_t *st, asn_oid_arc_t *arcs,
                            size_t arc_slots) {
     asn_oid_arc_t arc0 = 0;
     asn_oid_arc_t arc1 = 0;
@@ -264,7 +264,7 @@ OBJECT_IDENTIFIER_get_arcs(const OBJECT_IDENTIFIER_t *st, asn_oid_arc_t *arcs,
 
     for(off = rd; ; ) {
         asn_oid_arc_t arc;
-        rd = OBJECT_IDENTIFIER_get_single_arc(st->buf + off, st->size - off,
+        rd = OBJECT_IDENTIFIER_get_single_arc_e2ap_v1_01(st->buf + off, st->size - off,
                                               &arc);
         if(rd < 0) {
             return -1;
@@ -292,7 +292,7 @@ OBJECT_IDENTIFIER_get_arcs(const OBJECT_IDENTIFIER_t *st, asn_oid_arc_t *arcs,
  * Save the single value as an object identifier arc.
  */
 ssize_t
-OBJECT_IDENTIFIER_set_single_arc(uint8_t *arcbuf, size_t arcbuf_len,
+OBJECT_IDENTIFIER_set_single_arc_e2ap_v1_01(uint8_t *arcbuf, size_t arcbuf_len,
                                  asn_oid_arc_t value) {
     /*
 	 * The following conditions must hold:
@@ -324,7 +324,7 @@ OBJECT_IDENTIFIER_set_single_arc(uint8_t *arcbuf, size_t arcbuf_len,
 }
 
 int
-OBJECT_IDENTIFIER_set_arcs(OBJECT_IDENTIFIER_t *st, const asn_oid_arc_t *arcs,
+OBJECT_IDENTIFIER_set_arcs_e2ap_v1_01(OBJECT_IDENTIFIER_t *st, const asn_oid_arc_t *arcs,
                            size_t arc_slots) {
     uint8_t *buf;
     uint8_t *bp;
@@ -379,7 +379,7 @@ OBJECT_IDENTIFIER_set_arcs(OBJECT_IDENTIFIER_t *st, const asn_oid_arc_t *arcs,
         return -1;
     }
 
-    wrote = OBJECT_IDENTIFIER_set_single_arc(bp, size, arc0 * 40 + arc1);
+    wrote = OBJECT_IDENTIFIER_set_single_arc_e2ap_v1_01(bp, size, arc0 * 40 + arc1);
     if(wrote <= 0) {
         FREEMEM(buf);
         return -1;
@@ -389,7 +389,7 @@ OBJECT_IDENTIFIER_set_arcs(OBJECT_IDENTIFIER_t *st, const asn_oid_arc_t *arcs,
     size -= wrote;
 
     for(i = 2; i < arc_slots; i++) {
-		wrote = OBJECT_IDENTIFIER_set_single_arc(bp, size, arcs[i]);
+		wrote = OBJECT_IDENTIFIER_set_single_arc_e2ap_v1_01(bp, size, arcs[i]);
         if(wrote <= 0) {
             FREEMEM(buf);
             return -1;
@@ -412,7 +412,7 @@ OBJECT_IDENTIFIER_set_arcs(OBJECT_IDENTIFIER_t *st, const asn_oid_arc_t *arcs,
 }
 
 ssize_t
-OBJECT_IDENTIFIER_parse_arcs(const char *oid_text, ssize_t oid_txt_length,
+OBJECT_IDENTIFIER_parse_arcs_e2ap_v1_01(const char *oid_text, ssize_t oid_txt_length,
                              asn_oid_arc_t *arcs, size_t arcs_count,
                              const char **opt_oid_text_end) {
     size_t num_arcs = 0;
@@ -437,7 +437,7 @@ OBJECT_IDENTIFIER_parse_arcs(const char *oid_text, ssize_t oid_txt_length,
     do {                                                          \
         const char *endp = oid_end;                               \
         unsigned long value;                                      \
-        switch(asn_strtoul_lim(oid_text, &endp, &value)) {        \
+        switch(asn_strtoul_lim_e2ap_v1_01(oid_text, &endp, &value)) {        \
         case ASN_STRTOX_EXTRA_DATA:                               \
         case ASN_STRTOX_OK:                                       \
             if(value <= ASN_OID_ARC_MAX) {                        \

@@ -50,24 +50,24 @@ static
 void read_e2_setup_kpm(void* data)
 {
   assert(data != NULL);
-  kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)data;
-  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
+  //kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)data;
 }
 
 static
 void read_e2_setup_rc(void* data)
 {
   assert(data != NULL);
-  rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
-  rc->ran_func_def = fill_rc_ran_func_def(); 
+  //rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
 }
 
 #ifdef E2AP_V1
 #elif defined(E2AP_V2) || defined(E2AP_V3)
 static
-void read_e2_setup_ran(void* data)
+void read_e2_setup_ran(void* data, const ngran_node_t node_type)
 {
   assert(data != NULL);
+  assert(node_type >=0 && node_type <= 10 && "Unknown E2 node type");
+  
   arr_node_component_config_add_t* dst = (arr_node_component_config_add_t*)data;
   dst->len_cca = 1;
   dst->cca = calloc(1, sizeof(e2ap_node_component_config_add_t));
@@ -190,19 +190,28 @@ sm_ag_if_ans_t write_ctrl_rc(void const* ctrl)
 }
 
 static
+uint32_t sta_ric_id;
+
+static
+void free_aperiodic_subscription(uint32_t ric_req_id)
+{
+  assert(ric_req_id == sta_ric_id); 
+  (void)ric_req_id;
+}
+
+static
 void* emulate_rrc_msg(void* ptr)
 {
-  uint32_t* ric_id = (uint32_t*)ptr; 
+  (void)ptr;
   for(size_t i = 0; i < 1000; ++i){
     usleep(rand()%50);
     rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t)); 
     assert(d != NULL && "Memory exhausted");
     *d = fill_rnd_rc_ind_data();
-    async_event_agent_api(*ric_id, d);
-    printf("Event for RIC Req ID %u generated\n", *ric_id);
+    async_event_agent_api(sta_ric_id, d);
+    printf("Event for RIC Req ID %u generated\n", sta_ric_id);
   }
 
-  free(ptr);
   return NULL;
 }
 
@@ -215,14 +224,14 @@ sm_ag_if_ans_t write_subs_rc(void const* data)
   assert(data != NULL);
   wr_rc_sub_data_t const* wr_rc = (wr_rc_sub_data_t const*)data; 
 
-  uint32_t* ptr = malloc(sizeof(uint32_t));
-  assert(ptr != NULL);
-  *ptr = wr_rc->ric_req_id;
+  sta_ric_id = wr_rc->ric_req_id;
 
-  int rc = pthread_create(&t, NULL, emulate_rrc_msg, ptr);
+  int rc = pthread_create(&t, NULL, emulate_rrc_msg, NULL);
   assert(rc == 0);
 
-  sm_ag_if_ans_t ans = {0};
+  sm_ag_if_ans_t ans = {.type = SUBS_OUTCOME_SM_AG_IF_ANS_V0};
+  ans.subs_out.type = APERIODIC_SUBSCRIPTION_FLRC;
+  ans.subs_out.aper.free_aper_subs = free_aperiodic_subscription;
   return ans;
 }
 
@@ -411,16 +420,16 @@ int main(int argc, char *argv[])
   //Init the xApp
   init_xapp_api(&args);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
 
   assert(nodes.len > 0);
 
   printf("Connected E2 nodes = %d\n", nodes.len );
 
-  e2_node_connected_t* n = &nodes.n[0];
+  e2_node_connected_xapp_t* n = &nodes.n[0];
   for(size_t i = 0; i < n->len_rf; ++i)
-    printf("Registered ran func id = %d \n ", n->ack_rf[i].id );
+    printf("Registered ran func id = %d \n ", n->rf[i].id );
 
   const char* period = "5_ms";
   // returns a handle

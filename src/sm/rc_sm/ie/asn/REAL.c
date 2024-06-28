@@ -77,8 +77,10 @@ asn_TYPE_operation_t asn_OP_REAL = {
     0,
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 #if !defined(ASN_DISABLE_JER_SUPPORT)
+    REAL_decode_jer,
     REAL_encode_jer,
 #else
+	0,
     0,
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 #if !defined(ASN_DISABLE_OER_SUPPORT)

@@ -145,10 +145,18 @@ static
 sm_ag_if_rd_e2setup_t ric_on_e2_setup_rlc_sm_ric(sm_ric_t const* sm_ric, sm_e2_setup_data_t const* setup)
 {
   assert(sm_ric != NULL); 
-  assert(setup == NULL); 
-//  sm_rlc_ric_t* sm = (sm_rlc_ric_t*)sm_ric;  
+  assert(setup != NULL); 
 
-  assert(0!=0 && "Not implemented");
+  sm_ag_if_rd_e2setup_t dst = {.type = RLC_AGENT_IF_E2_SETUP_ANS_V0}; 
+
+  dst.rlc.func_def.len = setup->len_rfd;
+  if(dst.rlc.func_def.len > 0){
+    dst.rlc.func_def.buf = calloc(dst.rlc.func_def.len, sizeof(uint8_t));
+    assert(dst.rlc.func_def.buf != NULL && "Memory exhausted");
+    memcpy(dst.rlc.func_def.buf, setup->ran_fun_def, setup->len_rfd);
+  }
+
+  return dst;
 }
 
 

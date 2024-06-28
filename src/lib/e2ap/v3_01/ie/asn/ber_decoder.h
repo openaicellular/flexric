@@ -19,10 +19,10 @@ struct asn_codec_ctx_s;		/* Forward declaration */
  * This function may be invoked directly from the application.
  * Decodes BER, DER and CER data (DER and CER are different subsets of BER).
  *
- * NOTE: Use the der_encode() function (der_encoder.h) to produce encoding
- * which is compliant with ber_decode().
+ * NOTE: Use the der_encode_e2ap_v3_01() function (der_encode_e2ap_v3_01r.h) to produce encoding
+ * which is compliant with ber_decode_e2ap_v3_01().
  */
-asn_dec_rval_t ber_decode(
+asn_dec_rval_t ber_decode_e2ap_v3_01(
     const struct asn_codec_ctx_s *opt_codec_ctx,
     const struct asn_TYPE_descriptor_s *type_descriptor,
     void **struct_ptr,  /* Pointer to a target structure's pointer */
@@ -49,7 +49,7 @@ typedef asn_dec_rval_t(ber_type_decoder_f)(
  * "end of content" sequences. The number may only be negative if the
  * head->last_tag_form is non-zero.
  */
-asn_dec_rval_t ber_check_tags(
+asn_dec_rval_t ber_check_tags_e2ap_v3_01(
     const struct asn_codec_ctx_s *opt_codec_ctx, /* codec options */
     const struct asn_TYPE_descriptor_s *type_descriptor,
     asn_struct_ctx_t *opt_ctx, /* saved decoding context */

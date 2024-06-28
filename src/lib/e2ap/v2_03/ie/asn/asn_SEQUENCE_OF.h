@@ -25,8 +25,8 @@ extern "C" {
  * Implementation of the SEQUENCE OF structure.
  */
 
-#define	asn_sequence_add	asn_set_add
-#define	asn_sequence_empty	asn_set_empty
+#define	asn_sequence_add	asn_set_add_e2ap_v2_03
+#define	asn_sequence_empty	asn_set_empty_e2ap_v2_03
 
 /*
  * Delete the element from the set by its number (base 0).
@@ -35,7 +35,7 @@ extern "C" {
  * If _do_free is given AND the (*free) is initialized, the element
  * will be freed using the custom (*free) function as well.
  */
-void asn_sequence_del(void *asn_sequence_of_x, int number, int _do_free);
+void asn_sequence_del_e2ap_v2_03(void *asn_sequence_of_x, int number, int _do_free);
 
 /*
  * Cope with different conversions requirements to/from void in C and C++.

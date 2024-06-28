@@ -24,9 +24,11 @@ Below is the list of features available in this version divided per component an
 | TC   | N    | N      | Y                 | Y | Y  | N              | N |
 | GTP  | N    | N      | Y                 | Y | Y  | N              | N |
 
+[[_TOC_]]
+
 ## 1. Installation
 
-1.1 Install prerequisites
+### 1.1 Install prerequisites
 
 - A *recent* CMake (at least v3.22). 
 
@@ -47,19 +49,23 @@ Below is the list of features available in this version divided per component an
   make install
   ```
 
+- GCC (gcc-10, gcc-12, or gcc-13)
+
+  gcc-11 is not currently supported.
+
 - Flatbuffer encoding(optional). 
   
   We also provide a flatbuffers encoding/decoding scheme as alternative to ASN.1. In case you want to use it, follow the
   instructions at https://github.com/dvidelabs/flatcc and provide the path for the lib and include when selecting it at `ccmake ..` from the build directory 
 
-1.2 Download the required dependencies. 
+### 1.2 Download the required dependencies. 
 
 Below an example of how to install it in ubuntu
 ```bash
 sudo apt install libsctp-dev python3.8 cmake-curses-gui libpcre2-dev python3-dev
 ```
 
-1.3 Clone the FlexRIC project, build and install it. 
+### 1.3 Clone the FlexRIC project, build and install it. 
 
 * Download the code
 
@@ -83,8 +89,14 @@ sudo apt install libsctp-dev python3.8 cmake-curses-gui libpcre2-dev python3-dev
   ```
 
 Note:
-  Supported E2AP versions: v1.01/v2.03/v3.01
-  Supported KPM SM versions: v2.01/v2.03/v3.00
+
+  Currently available versions:
+  |            |KPM v2.01|KPM v2.03|KPM v3.00|
+  |:-----------|:--------|:--------|:--------|
+  | E2AP v1.01 | Y       | Y       | Y       |
+  | E2AP v2.03 | Y       | Y       | Y       |
+  | E2AP v3.01 | Y       | Y       | Y       |
+
   By default, FlexRIC will build the nearRT-RIC with E2AP v2.03 and KPM v2.03. If you are interested in other available versions, please, execute this command:
   ```bash
   mkdir build && cd build && cmake .. -DE2AP_VERSION=<e2ap_version> -DKPM_VERSION=<kpm_version> && make -j8
@@ -99,77 +111,87 @@ Note:
   By default the service model libraries will be installed in the path `/usr/local/lib/flexric` while the
   configuration file in `/usr/local/etc/flexric`.
 
-  Note: Command `sudo make install` installs shared libraries that represent Service Models. Every time E2AP or/and KPM versions are modified, this command must be executed afterwards.
+  Note: Command `sudo make install` installs shared libraries that represent Service Models. Each time E2AP or/and KPM versions are modified, this command must be executed afterwards.
 
   Check that everything went fine running the tests:
   ```bash
-  ctest 
+  ctest -j8 --output-on-failure
   ```
  
-
-1.4 Test (optional step)
-
-There are some tests you can run. Precisely:
-* 3 nodes test. See directory `build/examples/xApp/c/monitor`. This test simulates an scenario with an E2 node, a nearRT-RIC and an xApp. Data is randomly filled. Example running in 3 terminals.
-```bash
-# terminal 1: start E2 Node agent
-./build/examples/emulator/agent/emu_agent_gnb
-# terminal 2: start nearRT-RIC
-./build/examples/ric/nearRT-RIC
-# terminal 3
-./build/examples/xApp/c/monitor/xapp_gtp_mac_rlc_pdcp_moni
-```
-
-1.5 Docker (optional step)
-
-We build regularly FlexRIC using docker files for Ubuntu20 and Ubuntu22. You can find the Dockerfile at 
-
-```bash
-cd test/docker/
-```
-
 ## 2. Usage/deployment
 
-Before starting the nearRT-RIC, check that the IP address where your nearRT-RIC will be listening is the desired one at `/usr/local/etc/flexric/flexric.conf`.
-Infact the default configuration assumes all the components are located in the same localhost. 
+### 2.1 Test with emulators
 
-Start the nearRT-RIC with:
-```bash
-$ ./build/examples/ric/nearRT-RIC
-```
+  * Start the nearRT-RIC
 
-Start one or multiple E2 node Agent emulators using default configuration
-```bash
-$ ./build/examples/emulator/agent/emu_agent_gnb_cu
-$ ./build/examples/emulator/agent/emu_agent_gnb_du
-```
-or a customized one, i.e.:
-```bash
-$ ./build/examples/emulator/agent/emu_agent_gnb_cu -c ~/flexric1.conf &
-$ ./build/examples/emulator/agent/emu_agent_gnb_du -c ~/flexric2.conf &
-```
-where, for example, flexric1.conf is: 
-```
-[NEAR-RIC]
-NEAR_RIC_IP = 127.0.0.1
+    ```bash
+    $ ./build/examples/ric/nearRT-RIC
+    ```
 
-[XAPP]
-DB_PATH = /tmp/
-DB_NAME = xapp_db1
-```
+  * Start E2 Node agents
 
-flexric2.conf is: 
+    * gNB-mono
+      ```bash
+      $ ./build/examples/emulator/agent/emu_agent_gnb
+      ```
+    * if CU/DU split is used, start the gNB as follows
+      ```bash
+      $ ./build/examples/emulator/agent/emu_agent_gnb_cu
+      $ ./build/examples/emulator/agent/emu_agent_gnb_du
+      ```
 
-```
-[NEAR-RIC]
-NEAR_RIC_IP = 127.0.0.1
+  * Start different xApps
 
-[XAPP]
-DB_PATH = /tmp/
-DB_NAME = xapp_db2
-```
+    * start the KPM monitor xApp - measurements stated in [2.1.1 E2SM-KPM](#211-e2sm-kpm)
+      ```bash
+      $ ./build/examples/xApp/c/monitor/xapp_kpm_moni
+      ```
 
-Next, you can fetch some statistics from the E2 Agents using python xApps via `$ python3 build/examples/xApp/python3/xapp_mac_rlc_pdcp_gtp_moni.py`, while in other window you can start a second xApp developed in c `$ ./build/examples/xApp/c/monitor/xapp_kpm_moni`
+    * start the RC monitor xApp - aperiodic subscription for "UE RRC State Change"
+      ```bash
+      $ ./build/examples/xApp/c/monitor/xapp_rc_moni
+      ```
+
+    * start the RC control xApp - RAN control function "QoS flow mapping configuration" (e.g. creating a new DRB)
+      ```bash
+      $ ./build/examples/xApp/c/kpm_rc/xapp_kpm_rc
+      ```
+
+    * start the (MAC + RLC + PDCP + GTP) monitor xApp
+      ```bash
+      $ ./build/examples/xApp/c/monitor/xapp_gtp_mac_rlc_pdcp_moni
+      ```
+
+  Please, notice that no real UE is connected. Therefore, random values within supported messages are filled.
+
+  Before starting the nearRT-RIC, check that the IP address where your nearRT-RIC will be listening is the desired one at `/usr/local/etc/flexric/flexric.conf`.
+  Infact the default configuration assumes all the components are located in the same localhost. 
+
+  Additionally, feel free to customize your own config files. Here is one example:
+  ```bash
+  $ ./build/examples/emulator/agent/emu_agent_gnb_cu -c ~/flexric1.conf &
+  $ ./build/examples/emulator/agent/emu_agent_gnb_du -c ~/flexric2.conf &
+  ```
+
+  where, flexric1.conf is: 
+  ```
+  [NEAR-RIC]
+  NEAR_RIC_IP = 127.0.0.1
+  [XAPP]
+  DB_PATH = /tmp/
+  DB_NAME = xapp_db1
+  ```
+
+  flexric2.conf is: 
+  ```
+  [NEAR-RIC]
+  NEAR_RIC_IP = 127.0.0.1
+  [XAPP]
+  DB_PATH = /tmp/
+  DB_NAME = xapp_db2
+  ```
+
+It is also interesting to mention, multiple xApps can be run in parallel.
 
 At this point, FlexRIC is working correctly in your computer and you have already tested the multi-agent, multi-xApp and multi-language capabilities. 
 
@@ -179,12 +201,22 @@ Additionally, all the data received in the xApp is also written to /tmp/xapp_db 
 Learning/Artificial Intelligence applications). You browse the data using e.g., sqlitebrowser. 
 Please, check the example folder for other working xApp use cases.
 
+### 2.2 Docker (optional step)
+
+  We build regularly FlexRIC using docker files for Ubuntu20 and Ubuntu22. You can find the Dockerfile at:
+  ```bash
+  cd test/docker/
+  ```
+
 ## 3. Integration with RAN and example of deployment
 
 ### 3.1 Integration with OpenAirInterface 5G RAN
 
 Follow the instructions https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/openair2/E2AP/README.md
 
+The sequence diagram is represented below:
+
+  ![alt text](fig/4.png)
 
 ### 3.2 Integration with srsRAN 5G RAN
 
@@ -214,29 +246,6 @@ sudo phc2sys -m -s InterfaceName -w
 ```
 
 ![alt text](fig/3.png)
-
-### 3.5 Start the processes
-
-* Start some gNodeB
-
-  Below an example with 5G OAI gNodeB
-  ```bash
-  # gNB
-  $ cd oai/cmake_targets/ran_build/build
-  $ sudo ./nr-softmodem -O ../../../targets/PROJECTS/GENERIC-NR-5GC/CONF/gnb.sa.band78.fr1.106PRB.usrpb210.conf --rfsim --sa -E
-  ```
-
-* Start the nearRT-RIC
-
-  ```bash
-  $ ./build/examples/ric/nearRT-RIC
-  ```
-
-* Start different xApps
-
-  e.g, start the kpm monitoring xApp via `$ ./build/examples/xApp/c/monitor/xapp_kpm_moni`. The controlling sequence diagram is represented below:
-
-  ![alt text](fig/4.png)
 
 
 ## 4. Integration with other nearRT-RICs 

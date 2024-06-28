@@ -22,7 +22,7 @@ extern "C" {
 typedef OCTET_STRING_t	 RICactionDefinition_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICactionDefinition;
+extern asn_TYPE_descriptor_t asn_DEF_RICactionDefinition_e2ap_v2_03;
 asn_struct_free_f RICactionDefinition_free;
 asn_struct_print_f RICactionDefinition_print;
 asn_constr_check_f RICactionDefinition_constraint;

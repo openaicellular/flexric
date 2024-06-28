@@ -7,8 +7,8 @@
 #include <INTEGER.h>
 
 asn_enc_rval_t
-INTEGER_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr,
-                   int ilevel, enum jer_encoder_flags_e flags,
+INTEGER_encode_jer_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
+                   int ilevel, enum jer_encode_e2ap_v3_01r_flags_e flags,
                    asn_app_consume_bytes_f *cb, void *app_key) {
     const INTEGER_t *st = (const INTEGER_t *)sptr;
     asn_enc_rval_t er = {0,0,0};
@@ -19,7 +19,7 @@ INTEGER_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr,
     if(!st || !st->buf)
         ASN__ENCODE_FAILED;
 
-    er.encoded = INTEGER__dump(td, st, cb, app_key, 1);
+    er.encoded = INTEGER__dump_e2ap_v3_01(td, st, cb, app_key, 1);
     if(er.encoded < 0) ASN__ENCODE_FAILED;
 
     ASN__ENCODED_OK(er);

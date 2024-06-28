@@ -16,7 +16,7 @@
      && (unsigned)(specs)->first_extension <= (memb_idx))
 
 asn_dec_rval_t
-SEQUENCE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
+SEQUENCE_decode_aper_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
                      const asn_TYPE_descriptor_t *td,
                      const asn_per_constraints_t *constraints, void **sptr, asn_per_data_t *pd) {
     const asn_SEQUENCE_specifics_t *specs = (const asn_SEQUENCE_specifics_t *)td->specifics;
@@ -130,14 +130,14 @@ SEQUENCE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         ASN_DEBUG("Decoding member \"%s\" in %s", elm->name, td->name);
 
         if(elm->flags & ATF_OPEN_TYPE) {
-            if (OPEN_TYPE_aper_is_unknown_type(td, st, elm)) {
-                rv = OPEN_TYPE_aper_unknown_type_discard_bytes(pd);
+            if (OPEN_TYPE_aper_is_unknown_type_e2ap_v1_01(td, st, elm)) {
+                rv = OPEN_TYPE_aper_unknown_type_discard_bytes_e2ap_v1_01(pd);
                 FREEMEM(opres);
                 return rv;
             }
-            rv = OPEN_TYPE_aper_get(opt_codec_ctx, td, st, elm, pd);
+            rv = OPEN_TYPE_aper_get_e2ap_v1_01(opt_codec_ctx, td, st, elm, pd);
         } else {
-            rv = elm->type->op->aper_decoder(opt_codec_ctx, elm->type,
+            rv = elm->type->op->aper_decode_e2ap_v1_01r(opt_codec_ctx, elm->type,
                                              elm->encoding_constraints.per_constraints,
                                              memb_ptr2, pd);
         }
@@ -160,7 +160,7 @@ SEQUENCE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
         uint8_t *epres;  /* Presence of extension members */
         asn_per_data_t epmd;
 
-        bmlength = aper_get_nslength(pd);
+        bmlength = aper_get_nslength_e2ap_v1_01(pd);
         if(bmlength < 0) ASN__DECODE_STARVED;
 
         ASN_DEBUG("Extensions %" ASN_PRI_SSIZE " present in %s", bmlength, td->name);
@@ -179,7 +179,7 @@ SEQUENCE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
                   td->name, bmlength, *epres);
 
         /* Deal with padding */
-        if (aper_get_align(pd) < 0)
+        if (aper_get_align_e2ap_v1_01(pd) < 0)
             ASN__DECODE_STARVED;
 
         /* Go over extensions and read them in */
@@ -209,7 +209,7 @@ SEQUENCE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
             }
 
             ASN_DEBUG("Decoding member %s in %s %p", elm->name, td->name, *memb_ptr2);
-            rv = aper_open_type_get(opt_codec_ctx, elm->type,
+            rv = aper_open_type_get_e2ap_v1_01(opt_codec_ctx, elm->type,
                                     elm->encoding_constraints.per_constraints,
                                     memb_ptr2, pd);
             if(rv.code != RC_OK) {
@@ -228,7 +228,7 @@ SEQUENCE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
             case 0:
                 continue;
             default:
-                if(aper_open_type_skip(opt_codec_ctx, pd)) {
+                if(aper_open_type_skip_e2ap_v1_01(opt_codec_ctx, pd)) {
                     FREEMEM(epres);
                     ASN__DECODE_STARVED;
                 }
@@ -311,7 +311,7 @@ SEQUENCE_handle_extensions_aper(const asn_TYPE_descriptor_t *td,
         if(po1 && per_put_few_bits(po1, present, 1))
             return -1;
         /* Encode as open type field */
-        if(po2 && present && aper_open_type_put(elm->type,
+        if(po2 && present && aper_open_type_put_e2ap_v1_01(elm->type,
                                                 elm->encoding_constraints.per_constraints,
                                                 *memb_ptr2, po2))
             return -1;
@@ -322,7 +322,7 @@ SEQUENCE_handle_extensions_aper(const asn_TYPE_descriptor_t *td,
 }
 
 asn_enc_rval_t
-SEQUENCE_encode_aper(const asn_TYPE_descriptor_t *td,
+SEQUENCE_encode_aper_e2ap_v1_01(const asn_TYPE_descriptor_t *td,
                      const asn_per_constraints_t *constraints,
                      const void *sptr, asn_per_outp_t *po) {
     const asn_SEQUENCE_specifics_t *specs
@@ -427,7 +427,7 @@ SEQUENCE_encode_aper(const asn_TYPE_descriptor_t *td,
             continue;
 
         ASN_DEBUG("Encoding %s->%s", td->name, elm->name);
-        er = elm->type->op->aper_encoder(elm->type,
+        er = elm->type->op->aper_encode_e2ap_v1_01r(elm->type,
                                          elm->encoding_constraints.per_constraints,
                                          *memb_ptr2, po);
         if(er.encoded == -1)
@@ -439,7 +439,7 @@ SEQUENCE_encode_aper(const asn_TYPE_descriptor_t *td,
 
     ASN_DEBUG("Length of %d bit-map", n_extensions);
     /* #18.8. Write down the presence bit-map length. */
-    if(aper_put_nslength(po, n_extensions))
+    if(aper_put_nslength_e2ap_v1_01(po, n_extensions))
         ASN__ENCODE_FAILED;
 
     ASN_DEBUG("Bit-map of %d elements", n_extensions);

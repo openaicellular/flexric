@@ -45,10 +45,10 @@ typedef struct E2nodeComponentConfigurationAck {
 } E2nodeComponentConfigurationAck_t;
 
 /* Implementation */
-/* extern asn_TYPE_descriptor_t asn_DEF_updateOutcome_2;	// (Use -fall-defs-global to expose) */
-extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentConfigurationAck;
-extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeComponentConfigurationAck_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2nodeComponentConfigurationAck_1[2];
+/* extern asn_TYPE_descriptor_t asn_DEF_updateOutcome_2_e2ap_v3_01;	// (Use -fall-defs-global to expose) */
+extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentConfiguration_e2ap_v3_01Ack;
+extern asn_SEQUENCE_specifics_t asn_SPC_E2nodeComponentConfigurationAck_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_E2nodeComponentConfigurationAck_1_e2ap_v3_01[2];
 
 #ifdef __cplusplus
 }

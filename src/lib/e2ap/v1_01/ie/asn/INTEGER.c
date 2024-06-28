@@ -11,27 +11,27 @@
 /*
  * INTEGER basic type description.
  */
-static const ber_tlv_tag_t asn_DEF_INTEGER_tags[] = {
+static const ber_tlv_tag_t asn_DEF_INTEGER_e2ap_v1_01_tags[] = {
     (ASN_TAG_CLASS_UNIVERSAL | (2 << 2))
 };
-asn_TYPE_operation_t asn_OP_INTEGER = {
+asn_TYPE_operation_t asn_OP_INTEGER_e2ap_v1_01 = {
     INTEGER_free,
 #if !defined(ASN_DISABLE_PRINT_SUPPORT)
-    INTEGER_print,
+    INTEGER_print_e2ap_v1_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_PRINT_SUPPORT) */
-    INTEGER_compare,
+    INTEGER_compare_e2ap_v1_01,
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-    ber_decode_primitive,
-    INTEGER_encode_der,
+    ber_decode_e2ap_v1_01_primitive,
+    INTEGER_encode_der_e2ap_v1_01,
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_BER_SUPPORT) */
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-    INTEGER_decode_xer,
-    INTEGER_encode_xer,
+    INTEGER_decode_xer_e2ap_v1_01,
+    INTEGER_encode_xer_e2ap_v1_01,
 #else
     0,
     0,
@@ -49,34 +49,34 @@ asn_TYPE_operation_t asn_OP_INTEGER = {
     0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-    INTEGER_decode_uper,  /* Unaligned PER decoder */
-    INTEGER_encode_uper,  /* Unaligned PER encoder */
+    INTEGER_decode_uper_e2ap_v1_01,  /* Unaligned PER decoder */
+    INTEGER_encode_uper_e2ap_v1_01,  /* Unaligned PER encoder */
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) */
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-    INTEGER_decode_aper,  /* Aligned PER decoder */
-    INTEGER_encode_aper,  /* Aligned PER encoder */
+    INTEGER_decode_aper_e2ap_v1_01,  /* Aligned PER decoder */
+    INTEGER_encode_aper_e2ap_v1_01,  /* Aligned PER encoder */
 #else
     0,
     0,
 #endif  /* !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_RFILL_SUPPORT)
-    INTEGER_random_fill,
+    INTEGER_random_fill_e2ap_v1_01,
 #else
     0,
 #endif  /* !defined(ASN_DISABLE_RFILL_SUPPORT) */
 0  /* Use generic outmost tag fetcher */
 };
-asn_TYPE_descriptor_t asn_DEF_INTEGER = {
+asn_TYPE_descriptor_t asn_DEF_INTEGER_e2ap_v1_01 = {
     "INTEGER",
     "INTEGER",
-    &asn_OP_INTEGER,
-    asn_DEF_INTEGER_tags,
-    sizeof(asn_DEF_INTEGER_tags) / sizeof(asn_DEF_INTEGER_tags[0]),
-    asn_DEF_INTEGER_tags,	/* Same as above */
-    sizeof(asn_DEF_INTEGER_tags) / sizeof(asn_DEF_INTEGER_tags[0]),
+    &asn_OP_INTEGER_e2ap_v1_01,
+    asn_DEF_INTEGER_e2ap_v1_01_tags,
+    sizeof(asn_DEF_INTEGER_e2ap_v1_01_tags) / sizeof(asn_DEF_INTEGER_e2ap_v1_01_tags[0]),
+    asn_DEF_INTEGER_e2ap_v1_01_tags,	/* Same as above */
+    sizeof(asn_DEF_INTEGER_e2ap_v1_01_tags) / sizeof(asn_DEF_INTEGER_e2ap_v1_01_tags[0]),
     {
 #if !defined(ASN_DISABLE_OER_SUPPORT)
         0,
@@ -84,7 +84,7 @@ asn_TYPE_descriptor_t asn_DEF_INTEGER = {
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
         0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-        asn_generic_no_constraint
+        asn_generic_no_constraint_e2ap_v1_01
     },
     0, 0,  /* No members */
     0  /* No specifics */
@@ -94,7 +94,7 @@ asn_TYPE_descriptor_t asn_DEF_INTEGER = {
  * INTEGER specific human-readable output.
  */
 ssize_t
-INTEGER__dump(const asn_TYPE_descriptor_t *td, const INTEGER_t *st, asn_app_consume_bytes_f *cb, void *app_key, int plainOrXER) {
+INTEGER__dump_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const INTEGER_t *st, asn_app_consume_bytes_f *cb, void *app_key, int plainOrXER) {
     const asn_INTEGER_specifics_t *specs =
         (const asn_INTEGER_specifics_t *)td->specifics;
 	char scratch[32];
@@ -106,21 +106,21 @@ INTEGER__dump(const asn_TYPE_descriptor_t *td, const INTEGER_t *st, asn_app_cons
 	int ret;
 
 	if(specs && specs->field_unsigned)
-		ret = asn_INTEGER2umax(st, (uintmax_t *)&value);
+		ret = asn_INTEGER2umax_e2ap_v1_01(st, (uintmax_t *)&value);
 	else
-		ret = asn_INTEGER2imax(st, &value);
+		ret = asn_INTEGER2imax_e2ap_v1_01(st, &value);
 
 	/* Simple case: the integer size is small */
 	if(ret == 0) {
 		const asn_INTEGER_enum_map_t *el;
 		el = (value >= 0 || !specs || !specs->field_unsigned)
-			? INTEGER_map_value2enum(specs, value) : 0;
+			? INTEGER_map_value2enum_e2ap_v1_01(specs, value) : 0;
 		if(el) {
 			if(plainOrXER == 0)
-				return asn__format_to_callback(cb, app_key,
+				return asn__format_to_callback_e2ap_v1_01(cb, app_key,
 					"%" ASN_PRIdMAX " (%s)", value, el->enum_name);
 			else
-				return asn__format_to_callback(cb, app_key,
+				return asn__format_to_callback_e2ap_v1_01(cb, app_key,
 					"<%s/>", el->enum_name);
 		} else if(plainOrXER && specs && specs->strict_enumeration) {
 			ASN_DEBUG("ASN.1 forbids dealing with "
@@ -128,7 +128,7 @@ INTEGER__dump(const asn_TYPE_descriptor_t *td, const INTEGER_t *st, asn_app_cons
 			errno = EPERM;
 			return -1;
 		} else {
-            return asn__format_to_callback(cb, app_key,
+            return asn__format_to_callback_e2ap_v1_01(cb, app_key,
                                            (specs && specs->field_unsigned)
                                                ? "%" ASN_PRIuMAX
                                                : "%" ASN_PRIdMAX,
@@ -178,7 +178,7 @@ INTEGER__compar_value2enum(const void *kp, const void *am) {
 }
 
 const asn_INTEGER_enum_map_t *
-INTEGER_map_value2enum(const asn_INTEGER_specifics_t *specs, long value) {
+INTEGER_map_value2enum_e2ap_v1_01(const asn_INTEGER_specifics_t *specs, long value) {
 	int count = specs ? specs->map_count : 0;
 	if(!count) return 0;
 	return (asn_INTEGER_enum_map_t *)bsearch(&value, specs->value2enum,
@@ -207,7 +207,7 @@ asn__integer_convert(const uint8_t *b, const uint8_t *end) {
 }
 
 int
-asn_INTEGER2imax(const INTEGER_t *iptr, intmax_t *lptr) {
+asn_INTEGER2imax_e2ap_v1_01(const INTEGER_t *iptr, intmax_t *lptr) {
 	uint8_t *b, *end;
 	size_t size;
 
@@ -259,7 +259,7 @@ asn_INTEGER2imax(const INTEGER_t *iptr, intmax_t *lptr) {
 
 /* FIXME: negative INTEGER values are silently interpreted as large unsigned ones. */
 int
-asn_INTEGER2umax(const INTEGER_t *iptr, uintmax_t *lptr) {
+asn_INTEGER2umax_e2ap_v1_01(const INTEGER_t *iptr, uintmax_t *lptr) {
 	uint8_t *b, *end;
 	uintmax_t value;
 	size_t size;
@@ -291,14 +291,14 @@ asn_INTEGER2umax(const INTEGER_t *iptr, uintmax_t *lptr) {
 }
 
 int
-asn_umax2INTEGER(INTEGER_t *st, uintmax_t value) {
+asn_umax2INTEGER_e2ap_v1_01(INTEGER_t *st, uintmax_t value) {
     uint8_t *buf;
     uint8_t *end;
     uint8_t *b;
     int shr;
 
     if(value <= ((~(uintmax_t)0) >> 1)) {
-        return asn_imax2INTEGER(st, value);
+        return asn_imax2INTEGER_e2ap_v1_01(st, value);
     }
 
     buf = (uint8_t *)MALLOC(1 + sizeof(value));
@@ -317,7 +317,7 @@ asn_umax2INTEGER(INTEGER_t *st, uintmax_t value) {
 }
 
 int
-asn_imax2INTEGER(INTEGER_t *st, intmax_t value) {
+asn_imax2INTEGER_e2ap_v1_01(INTEGER_t *st, intmax_t value) {
 	uint8_t *buf, *bp;
 	uint8_t *p;
 	uint8_t *pstart;
@@ -360,9 +360,13 @@ asn_imax2INTEGER(INTEGER_t *st, intmax_t value) {
 		}
 		break;
 	}
-	/* Copy the integer body */
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+  /* Copy the integer body */
 	for(bp = buf, pend1 += add; p != pend1; p += add)
 		*bp++ = *p;
+#pragma GCC diagnostic pop
 
 	if(st->buf) FREEMEM(st->buf);
 	st->buf = buf;
@@ -372,9 +376,9 @@ asn_imax2INTEGER(INTEGER_t *st, intmax_t value) {
 }
 
 int
-asn_INTEGER2long(const INTEGER_t *iptr, long *l) {
+asn_INTEGER2long_e2ap_v1_01(const INTEGER_t *iptr, long *l) {
     intmax_t v;
-    if(asn_INTEGER2imax(iptr, &v) == 0) {
+    if(asn_INTEGER2imax_e2ap_v1_01(iptr, &v) == 0) {
         if(v < LONG_MIN || v > LONG_MAX) {
             errno = ERANGE;
             return -1;
@@ -387,9 +391,9 @@ asn_INTEGER2long(const INTEGER_t *iptr, long *l) {
 }
 
 int
-asn_INTEGER2ulong(const INTEGER_t *iptr, unsigned long *l) {
+asn_INTEGER2ulong_e2ap_v1_01(const INTEGER_t *iptr, unsigned long *l) {
     uintmax_t v;
-    if(asn_INTEGER2umax(iptr, &v) == 0) {
+    if(asn_INTEGER2umax_e2ap_v1_01(iptr, &v) == 0) {
         if(v > ULONG_MAX) {
             errno = ERANGE;
             return -1;
@@ -402,25 +406,25 @@ asn_INTEGER2ulong(const INTEGER_t *iptr, unsigned long *l) {
 }
 
 int
-asn_long2INTEGER(INTEGER_t *st, long value) {
-    return asn_imax2INTEGER(st, value);
+asn_long2INTEGER_e2ap_v1_01(INTEGER_t *st, long value) {
+    return asn_imax2INTEGER_e2ap_v1_01(st, value);
 }
 
 int
-asn_ulong2INTEGER(INTEGER_t *st, unsigned long value) {
-    return asn_imax2INTEGER(st, value);
+asn_ulong2INTEGER_e2ap_v1_01(INTEGER_t *st, unsigned long value) {
+    return asn_imax2INTEGER_e2ap_v1_01(st, value);
 }
 
 
 int
-asn_uint642INTEGER(INTEGER_t *st, uint64_t value) {
+asn_uint642INTEGER_e2ap_v1_01(INTEGER_t *st, uint64_t value) {
 	uint8_t *buf;
 	uint8_t *end;
 	uint8_t *b;
 	int shr;
 
 	if(value <= INT64_MAX)
-		return asn_int642INTEGER(st, value);
+		return asn_int642INTEGER_e2ap_v1_01(st, value);
 
 	buf = (uint8_t *)MALLOC(1 + sizeof(value));
 	if(!buf) return -1;
@@ -438,7 +442,7 @@ asn_uint642INTEGER(INTEGER_t *st, uint64_t value) {
 }
 
 int
-asn_int642INTEGER(INTEGER_t *st, int64_t value) {
+asn_int642INTEGER_e2ap_v1_01(INTEGER_t *st, int64_t value) {
 	uint8_t *buf, *bp;
 	uint8_t *p;
 	uint8_t *pstart;
@@ -499,7 +503,7 @@ asn_int642INTEGER(INTEGER_t *st, int64_t value) {
  * WARNING: This behavior is different from the standard strtol/strtoimax(3).
  */
 enum asn_strtox_result_e
-asn_strtoimax_lim(const char *str, const char **end, intmax_t *intp) {
+asn_strtoimax_lim_e2ap_v1_01(const char *str, const char **end, intmax_t *intp) {
     int sign = 1;
     intmax_t value;
 
@@ -574,7 +578,7 @@ asn_strtoimax_lim(const char *str, const char **end, intmax_t *intp) {
  * WARNING: This behavior is different from the standard strtoul/strtoumax(3).
  */
 enum asn_strtox_result_e
-asn_strtoumax_lim(const char *str, const char **end, uintmax_t *uintp) {
+asn_strtoumax_lim_e2ap_v1_01(const char *str, const char **end, uintmax_t *uintp) {
     uintmax_t value;
 
     const uintmax_t asn1_uintmax_max = ((~(uintmax_t)0));
@@ -635,9 +639,9 @@ asn_strtoumax_lim(const char *str, const char **end, uintmax_t *uintp) {
 }
 
 enum asn_strtox_result_e
-asn_strtol_lim(const char *str, const char **end, long *lp) {
+asn_strtol_lim_e2ap_v1_01(const char *str, const char **end, long *lp) {
     intmax_t value;
-    switch(asn_strtoimax_lim(str, end, &value)) {
+    switch(asn_strtoimax_lim_e2ap_v1_01(str, end, &value)) {
     case ASN_STRTOX_ERROR_RANGE:
         return ASN_STRTOX_ERROR_RANGE;
     case ASN_STRTOX_ERROR_INVAL:
@@ -665,9 +669,9 @@ asn_strtol_lim(const char *str, const char **end, long *lp) {
 }
 
 enum asn_strtox_result_e
-asn_strtoul_lim(const char *str, const char **end, unsigned long *ulp) {
+asn_strtoul_lim_e2ap_v1_01(const char *str, const char **end, unsigned long *ulp) {
     uintmax_t value;
-    switch(asn_strtoumax_lim(str, end, &value)) {
+    switch(asn_strtoumax_lim_e2ap_v1_01(str, end, &value)) {
     case ASN_STRTOX_ERROR_RANGE:
         return ASN_STRTOX_ERROR_RANGE;
     case ASN_STRTOX_ERROR_INVAL:
@@ -695,7 +699,7 @@ asn_strtoul_lim(const char *str, const char **end, unsigned long *ulp) {
 }
 
 int
-INTEGER_compare(const asn_TYPE_descriptor_t *td, const void *aptr,
+INTEGER_compare_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *aptr,
                      const void *bptr) {
     const INTEGER_t *a = aptr;
     const INTEGER_t *b = bptr;

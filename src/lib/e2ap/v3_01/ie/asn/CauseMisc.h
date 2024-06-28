@@ -33,9 +33,9 @@ typedef enum CauseMisc {
 typedef long	 CauseMisc_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_CauseMisc_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_CauseMisc;
-extern const asn_INTEGER_specifics_t asn_SPC_CauseMisc_specs_1;
+extern asn_per_constraints_t asn_PER_type_CauseMisc_constr_1_e2ap_v3_01;
+extern asn_TYPE_descriptor_t asn_DEF_Cause_e2ap_v3_01Misc;
+extern const asn_INTEGER_specifics_t asn_SPC_CauseMisc_specs_1_e2ap_v3_01;
 asn_struct_free_f CauseMisc_free;
 asn_struct_print_f CauseMisc_print;
 asn_constr_check_f CauseMisc_constraint;

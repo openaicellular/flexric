@@ -34,9 +34,9 @@ typedef struct RICaction_NotAdmitted_Item {
 } RICaction_NotAdmitted_Item_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICaction_NotAdmitted_Item;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICaction_NotAdmitted_Item_specs_1;
-extern asn_TYPE_member_t asn_MBR_RICaction_NotAdmitted_Item_1[2];
+extern asn_TYPE_descriptor_t asn_DEF_RICaction_NotAdmitted_Item_e2ap_v2_03;
+extern asn_SEQUENCE_specifics_t asn_SPC_RICaction_NotAdmitted_Item_specs_1_e2ap_v2_03;
+extern asn_TYPE_member_t asn_MBR_RICaction_NotAdmitted_Item_1_e2ap_v2_03[2];
 
 #ifdef __cplusplus
 }

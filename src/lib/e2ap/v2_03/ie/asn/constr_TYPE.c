@@ -9,7 +9,7 @@
 /*
  * Version of the ASN.1 infrastructure shipped with compiler.
  */
-int get_asn1c_environment_version() { return ASN1C_ENVIRONMENT_VERSION; }
+int get_asn1c_environment_version_e2ap_v2_03() { return ASN1C_ENVIRONMENT_VERSION; }
 
 static asn_app_consume_bytes_f _print2fp;
 
@@ -17,7 +17,7 @@ static asn_app_consume_bytes_f _print2fp;
  * Return the outmost tag of the type.
  */
 ber_tlv_tag_t
-asn_TYPE_outmost_tag(const asn_TYPE_descriptor_t *type_descriptor,
+asn_TYPE_outmost_tag_e2ap_v2_03(const asn_TYPE_descriptor_t *type_descriptor,
 		const void *struct_ptr, int tag_mode, ber_tlv_tag_t tag) {
 
 	if(tag_mode)
@@ -33,7 +33,7 @@ asn_TYPE_outmost_tag(const asn_TYPE_descriptor_t *type_descriptor,
  * Print the target language's structure in human readable form.
  */
 int
-asn_fprint(FILE *stream, const asn_TYPE_descriptor_t *td,
+asn_fprint_e2ap_v2_03(FILE *stream, const asn_TYPE_descriptor_t *td,
            const void *struct_ptr) {
     if(!stream) stream = stdout;
     if(!td || !struct_ptr) {
@@ -70,8 +70,8 @@ _print2fp(const void *buffer, size_t size, void *app_key) {
  * Some compilers do not support variable args macros.
  * This function is a replacement of ASN_DEBUG() macro.
  */
-void CC_PRINTFLIKE(1, 2) ASN_DEBUG_f(const char *fmt, ...);
-void ASN_DEBUG_f(const char *fmt, ...) {
+void CC_PRINTFLIKE(1, 2) ASN_DEBUG_f_e2ap_v2_03(const char *fmt, ...);
+void ASN_DEBUG_f_e2ap_v2_03(const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);

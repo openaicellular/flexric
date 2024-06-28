@@ -8,8 +8,8 @@
 #include <asn_SEQUENCE_OF.h>
 
 asn_enc_rval_t
-SEQUENCE_OF_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr,
-                       int ilevel, enum xer_encoder_flags_e flags,
+SEQUENCE_OF_encode_xer_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
+                       int ilevel, enum xer_encode_e2ap_v1_01r_flags_e flags,
                        asn_app_consume_bytes_f *cb, void *app_key) {
     asn_enc_rval_t er = {0,0,0};
     const asn_SET_OF_specifics_t *specs = (const asn_SET_OF_specifics_t *)td->specifics;
@@ -36,7 +36,7 @@ SEQUENCE_OF_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr,
             ASN__CALLBACK3("<", 1, mname, mlen, ">", 1);
         }
 
-        tmper = elm->type->op->xer_encoder(elm->type, memb_ptr, ilevel + 1,
+        tmper = elm->type->op->xer_encode_e2ap_v1_01r(elm->type, memb_ptr, ilevel + 1,
                                            flags, cb, app_key);
         if(tmper.encoded == -1) return tmper;
         er.encoded += tmper.encoded;

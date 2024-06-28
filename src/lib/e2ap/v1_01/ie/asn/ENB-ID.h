@@ -48,10 +48,10 @@ typedef struct ENB_ID {
 } ENB_ID_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_ENB_ID;
-extern asn_CHOICE_specifics_t asn_SPC_ENB_ID_specs_1;
-extern asn_TYPE_member_t asn_MBR_ENB_ID_1[4];
-extern asn_per_constraints_t asn_PER_type_ENB_ID_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_ENB_ID_e2ap_v1_01;
+extern asn_CHOICE_specifics_t asn_SPC_ENB_ID_specs_1_e2ap_v1_01;
+extern asn_TYPE_member_t asn_MBR_ENB_ID_1_e2ap_v1_01[4];
+extern asn_per_constraints_t asn_PER_type_ENB_ID_constr_1_e2ap_v1_01;
 
 #ifdef __cplusplus
 }

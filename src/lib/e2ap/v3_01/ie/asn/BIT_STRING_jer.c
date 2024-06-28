@@ -7,8 +7,8 @@
 #include <BIT_STRING.h>
 
 asn_enc_rval_t
-BIT_STRING_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr,
-                      int ilevel, enum jer_encoder_flags_e flags,
+BIT_STRING_encode_jer_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
+                      int ilevel, enum jer_encode_e2ap_v3_01r_flags_e flags,
                       asn_app_consume_bytes_f *cb, void *app_key) {
     asn_enc_rval_t er = {0, 0, 0};
     const char * const h2c = "0123456789ABCDEF";

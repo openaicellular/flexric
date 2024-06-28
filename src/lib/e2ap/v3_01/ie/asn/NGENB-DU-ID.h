@@ -22,11 +22,11 @@ extern "C" {
 typedef INTEGER_t	 NGENB_DU_ID_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_NGENB_DU_ID_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_NGENB_DU_ID;
+extern asn_per_constraints_t asn_PER_type_NGENB_DU_ID_constr_1_e2ap_v3_01;
+extern asn_TYPE_descriptor_t asn_DEF_NGENB_DU_ID_e2ap_v3_01;
 asn_struct_free_f NGENB_DU_ID_free;
 asn_struct_print_f NGENB_DU_ID_print;
-asn_constr_check_f NGENB_DU_ID_constraint;
+asn_constr_check_f NGENB_DU_ID_constraint_e2ap_v3_01;
 ber_type_decoder_f NGENB_DU_ID_decode_ber;
 der_type_encoder_f NGENB_DU_ID_encode_der;
 xer_type_decoder_f NGENB_DU_ID_decode_xer;

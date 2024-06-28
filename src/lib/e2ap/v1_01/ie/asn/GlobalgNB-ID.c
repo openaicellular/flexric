@@ -7,11 +7,11 @@
 
 #include "GlobalgNB-ID.h"
 
-asn_TYPE_member_t asn_MBR_GlobalgNB_ID_1[] = {
+asn_TYPE_member_t asn_MBR_GlobalgNB_ID_1_e2ap_v1_01[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct GlobalgNB_ID, plmn_id),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_PLMN_Identity,
+		&asn_DEF_PLMN_Identity_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -28,7 +28,7 @@ asn_TYPE_member_t asn_MBR_GlobalgNB_ID_1[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct GlobalgNB_ID, gnb_id),
 		(ASN_TAG_CLASS_CONTEXT | (1 << 2)),
 		+1,	/* EXPLICIT tag at current level */
-		&asn_DEF_GNB_ID_Choice,
+		&asn_DEF_GNB_ID_Choice_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -43,31 +43,31 @@ asn_TYPE_member_t asn_MBR_GlobalgNB_ID_1[] = {
 		"gnb-id"
 		},
 };
-static const ber_tlv_tag_t asn_DEF_GlobalgNB_ID_tags_1[] = {
+static const ber_tlv_tag_t asn_DEF_GlobalgNB_ID_e2ap_v1_01_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-static const asn_TYPE_tag2member_t asn_MAP_GlobalgNB_ID_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_GlobalgNB_ID_tag2el_1_e2ap_v1_01[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 }, /* plmn-id */
     { (ASN_TAG_CLASS_CONTEXT | (1 << 2)), 1, 0, 0 } /* gnb-id */
 };
-asn_SEQUENCE_specifics_t asn_SPC_GlobalgNB_ID_specs_1 = {
+asn_SEQUENCE_specifics_t asn_SPC_GlobalgNB_ID_specs_1_e2ap_v1_01 = {
 	sizeof(struct GlobalgNB_ID),
 	offsetof(struct GlobalgNB_ID, _asn_ctx),
-	asn_MAP_GlobalgNB_ID_tag2el_1,
+	asn_MAP_GlobalgNB_ID_tag2el_1_e2ap_v1_01,
 	2,	/* Count of tags in the map */
 	0, 0, 0,	/* Optional elements (not needed) */
 	2,	/* First extension addition */
 };
-asn_TYPE_descriptor_t asn_DEF_GlobalgNB_ID = {
+asn_TYPE_descriptor_t asn_DEF_GlobalgNB_ID_e2ap_v1_01 = {
 	"GlobalgNB-ID",
 	"GlobalgNB-ID",
-	&asn_OP_SEQUENCE,
-	asn_DEF_GlobalgNB_ID_tags_1,
-	sizeof(asn_DEF_GlobalgNB_ID_tags_1)
-		/sizeof(asn_DEF_GlobalgNB_ID_tags_1[0]), /* 1 */
-	asn_DEF_GlobalgNB_ID_tags_1,	/* Same as above */
-	sizeof(asn_DEF_GlobalgNB_ID_tags_1)
-		/sizeof(asn_DEF_GlobalgNB_ID_tags_1[0]), /* 1 */
+	&asn_OP_SEQUENCE_e2ap_v1_01,
+	asn_DEF_GlobalgNB_ID_e2ap_v1_01_tags_1,
+	sizeof(asn_DEF_GlobalgNB_ID_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_GlobalgNB_ID_e2ap_v1_01_tags_1[0]), /* 1 */
+	asn_DEF_GlobalgNB_ID_e2ap_v1_01_tags_1,	/* Same as above */
+	sizeof(asn_DEF_GlobalgNB_ID_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_GlobalgNB_ID_e2ap_v1_01_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
@@ -75,10 +75,10 @@ asn_TYPE_descriptor_t asn_DEF_GlobalgNB_ID = {
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		SEQUENCE_constraint
+		SEQUENCE_constraint_e2ap_v1_01
 	},
-	asn_MBR_GlobalgNB_ID_1,
+	asn_MBR_GlobalgNB_ID_1_e2ap_v1_01,
 	2,	/* Elements count */
-	&asn_SPC_GlobalgNB_ID_specs_1	/* Additional specs */
+	&asn_SPC_GlobalgNB_ID_specs_1_e2ap_v1_01	/* Additional specs */
 };
 

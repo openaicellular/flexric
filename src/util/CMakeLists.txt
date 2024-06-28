@@ -43,7 +43,7 @@ add_library(e2_conv_obj OBJECT
                         conversions.c
                         )
 
-
+target_compile_options(e2_conv_obj PRIVATE -Wno-missing-field-initializers -Wno-unused-parameter -fPIC -fvisibility=hidden )
 
 
 add_library(e2_time_obj OBJECT 

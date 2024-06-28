@@ -36,9 +36,9 @@ typedef struct RICsubscription_withCause_Item {
 } RICsubscription_withCause_Item_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICsubscription_withCause_Item;
-extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscription_withCause_Item_specs_1;
-extern asn_TYPE_member_t asn_MBR_RICsubscription_withCause_Item_1[3];
+extern asn_TYPE_descriptor_t asn_DEF_RICsubscription_withCause_Item_e2ap_v3_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_RICsubscription_withCause_Item_specs_1_e2ap_v3_01;
+extern asn_TYPE_member_t asn_MBR_RICsubscription_withCause_Item_1_e2ap_v3_01[3];
 
 #ifdef __cplusplus
 }

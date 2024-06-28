@@ -157,13 +157,13 @@ static kpm_act_def_format_1_t fill_rnd_kpm_action_def_frm_1(void)
       } else {
       //  action_def_frm_1.meas_info_lst[i].label_info_lst[j].noLabel = malloc(sizeof(enum_value_e));
       //  *action_def_frm_1.meas_info_lst[i].label_info_lst[j].noLabel = TRUE_ENUM_VALUE;
-       action_def_frm_1.meas_info_lst[i].label_info_lst[j].fiveQI = calloc(1, sizeof(uint8_t));
-       assert(action_def_frm_1.meas_info_lst[i].label_info_lst[j].fiveQI != NULL && "Memory exhausted");
-       *action_def_frm_1.meas_info_lst[i].label_info_lst[j].fiveQI = (rand() % 256) + 1;
-      //  action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID = calloc(1, sizeof(s_nssai_e2sm_t));
-      //  action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID->sST = (rand() % 2^8) + 1;
-      //  action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID->sD = calloc(1, sizeof(uint32_t));
-      //  *action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID->sD = (rand() % 2^24) + 0;
+       //action_def_frm_1.meas_info_lst[i].label_info_lst[j].fiveQI = calloc(1, sizeof(uint8_t));
+       //assert(action_def_frm_1.meas_info_lst[i].label_info_lst[j].fiveQI != NULL && "Memory exhausted");
+       //*action_def_frm_1.meas_info_lst[i].label_info_lst[j].fiveQI = (rand() % 256) + 1;
+        action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID = calloc(1, sizeof(s_nssai_e2sm_t));
+        action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID->sST = (rand() % (1 << 8)) + 1;
+        action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID->sD = calloc(1, sizeof(uint32_t));
+        *action_def_frm_1.meas_info_lst[i].label_info_lst[j].sliceID->sD = 786432; //  (rand() % 2^24) + 0;
       }
     }
   }

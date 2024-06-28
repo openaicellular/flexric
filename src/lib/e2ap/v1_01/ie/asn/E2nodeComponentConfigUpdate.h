@@ -54,10 +54,10 @@ typedef struct E2nodeComponentConfigUpdate {
 } E2nodeComponentConfigUpdate_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentConfigUpdate;
-extern asn_CHOICE_specifics_t asn_SPC_E2nodeComponentConfigUpdate_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2nodeComponentConfigUpdate_1[4];
-extern asn_per_constraints_t asn_PER_type_E2nodeComponentConfigUpdate_constr_1;
+extern asn_TYPE_descriptor_t asn_DEF_E2nodeComponentConfigUpdate_e2ap_v1_01;
+extern asn_CHOICE_specifics_t asn_SPC_E2nodeComponentConfigUpdate_specs_1_e2ap_v1_01;
+extern asn_TYPE_member_t asn_MBR_E2nodeComponentConfigUpdate_1_e2ap_v1_01[4];
+extern asn_per_constraints_t asn_PER_type_E2nodeComponentConfigUpdate_constr_1_e2ap_v1_01;
 
 #ifdef __cplusplus
 }

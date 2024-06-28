@@ -8,11 +8,11 @@
 #include "RICaction-ToBeModifiedForModification-Item.h"
 
 #include "RICsubsequentAction.h"
-asn_TYPE_member_t asn_MBR_RICaction_ToBeModifiedForModification_Item_1[] = {
+asn_TYPE_member_t asn_MBR_RICaction_ToBeModifiedForModification_Item_1_e2ap_v3_01[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct RICaction_ToBeModifiedForModification_Item, ricActionID),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_RICactionID,
+		&asn_DEF_RICactionID_e2ap_v3_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -29,7 +29,7 @@ asn_TYPE_member_t asn_MBR_RICaction_ToBeModifiedForModification_Item_1[] = {
 	{ ATF_POINTER, 3, offsetof(struct RICaction_ToBeModifiedForModification_Item, ricActionDefinition),
 		(ASN_TAG_CLASS_CONTEXT | (1 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_RICactionDefinition,
+		&asn_DEF_RICactionDefinition_e2ap_v3_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -46,7 +46,7 @@ asn_TYPE_member_t asn_MBR_RICaction_ToBeModifiedForModification_Item_1[] = {
 	{ ATF_POINTER, 2, offsetof(struct RICaction_ToBeModifiedForModification_Item, ricActionExecutionOrder),
 		(ASN_TAG_CLASS_CONTEXT | (2 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_RICactionExecutionOrder,
+		&asn_DEF_RICactionExecutionOrder_e2ap_v3_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -63,7 +63,7 @@ asn_TYPE_member_t asn_MBR_RICaction_ToBeModifiedForModification_Item_1[] = {
 	{ ATF_POINTER, 1, offsetof(struct RICaction_ToBeModifiedForModification_Item, ricSubsequentAction),
 		(ASN_TAG_CLASS_CONTEXT | (3 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_RICsubsequentAction,
+		&asn_DEF_RICsubsequentAction_e2ap_v3_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
@@ -78,35 +78,35 @@ asn_TYPE_member_t asn_MBR_RICaction_ToBeModifiedForModification_Item_1[] = {
 		"ricSubsequentAction"
 		},
 };
-static const int asn_MAP_RICaction_ToBeModifiedForModification_Item_oms_1[] = { 1, 2, 3 };
-static const ber_tlv_tag_t asn_DEF_RICaction_ToBeModifiedForModification_Item_tags_1[] = {
+static const int asn_MAP_RICaction_ToBeModifiedForModification_Item_oms_1_e2ap_v3_01[] = { 1, 2, 3 };
+static const ber_tlv_tag_t asn_DEF_RICaction_ToBeModifiedForModification_Item_e2ap_v3_01_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-static const asn_TYPE_tag2member_t asn_MAP_RICaction_ToBeModifiedForModification_Item_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_RICaction_ToBeModifiedForModification_Item_tag2el_1_e2ap_v3_01[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 }, /* ricActionID */
     { (ASN_TAG_CLASS_CONTEXT | (1 << 2)), 1, 0, 0 }, /* ricActionDefinition */
     { (ASN_TAG_CLASS_CONTEXT | (2 << 2)), 2, 0, 0 }, /* ricActionExecutionOrder */
     { (ASN_TAG_CLASS_CONTEXT | (3 << 2)), 3, 0, 0 } /* ricSubsequentAction */
 };
-asn_SEQUENCE_specifics_t asn_SPC_RICaction_ToBeModifiedForModification_Item_specs_1 = {
+asn_SEQUENCE_specifics_t asn_SPC_RICaction_ToBeModifiedForModification_Item_specs_1_e2ap_v3_01 = {
 	sizeof(struct RICaction_ToBeModifiedForModification_Item),
 	offsetof(struct RICaction_ToBeModifiedForModification_Item, _asn_ctx),
-	asn_MAP_RICaction_ToBeModifiedForModification_Item_tag2el_1,
+	asn_MAP_RICaction_ToBeModifiedForModification_Item_tag2el_1_e2ap_v3_01,
 	4,	/* Count of tags in the map */
-	asn_MAP_RICaction_ToBeModifiedForModification_Item_oms_1,	/* Optional members */
+	asn_MAP_RICaction_ToBeModifiedForModification_Item_oms_1_e2ap_v3_01,	/* Optional members */
 	3, 0,	/* Root/Additions */
 	4,	/* First extension addition */
 };
-asn_TYPE_descriptor_t asn_DEF_RICaction_ToBeModifiedForModification_Item = {
+asn_TYPE_descriptor_t asn_DEF_RICaction_ToBeModifiedForModification_Item_e2ap_v3_01 = {
 	"RICaction-ToBeModifiedForModification-Item",
 	"RICaction-ToBeModifiedForModification-Item",
-	&asn_OP_SEQUENCE,
-	asn_DEF_RICaction_ToBeModifiedForModification_Item_tags_1,
-	sizeof(asn_DEF_RICaction_ToBeModifiedForModification_Item_tags_1)
-		/sizeof(asn_DEF_RICaction_ToBeModifiedForModification_Item_tags_1[0]), /* 1 */
-	asn_DEF_RICaction_ToBeModifiedForModification_Item_tags_1,	/* Same as above */
-	sizeof(asn_DEF_RICaction_ToBeModifiedForModification_Item_tags_1)
-		/sizeof(asn_DEF_RICaction_ToBeModifiedForModification_Item_tags_1[0]), /* 1 */
+	&asn_OP_SEQUENCE_e2ap_v3_01,
+	asn_DEF_RICaction_ToBeModifiedForModification_Item_e2ap_v3_01_tags_1,
+	sizeof(asn_DEF_RICaction_ToBeModifiedForModification_Item_e2ap_v3_01_tags_1)
+		/sizeof(asn_DEF_RICaction_ToBeModifiedForModification_Item_e2ap_v3_01_tags_1[0]), /* 1 */
+	asn_DEF_RICaction_ToBeModifiedForModification_Item_e2ap_v3_01_tags_1,	/* Same as above */
+	sizeof(asn_DEF_RICaction_ToBeModifiedForModification_Item_e2ap_v3_01_tags_1)
+		/sizeof(asn_DEF_RICaction_ToBeModifiedForModification_Item_e2ap_v3_01_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
@@ -114,10 +114,10 @@ asn_TYPE_descriptor_t asn_DEF_RICaction_ToBeModifiedForModification_Item = {
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		SEQUENCE_constraint
+		SEQUENCE_constraint_e2ap_v3_01
 	},
-	asn_MBR_RICaction_ToBeModifiedForModification_Item_1,
+	asn_MBR_RICaction_ToBeModifiedForModification_Item_1_e2ap_v3_01,
 	4,	/* Elements count */
-	&asn_SPC_RICaction_ToBeModifiedForModification_Item_specs_1	/* Additional specs */
+	&asn_SPC_RICaction_ToBeModifiedForModification_Item_specs_1_e2ap_v3_01	/* Additional specs */
 };
 

@@ -3,12 +3,12 @@
 #include <aper_decoder.h>
 
 asn_dec_rval_t
-aper_decode_complete(const asn_codec_ctx_t *opt_codec_ctx,
+aper_decode_e2ap_v1_01_complete(const asn_codec_ctx_t *opt_codec_ctx,
                      const asn_TYPE_descriptor_t *td, void **sptr,
                      const void *buffer, size_t size) {
 	asn_dec_rval_t rval;
 
-	rval = aper_decode(opt_codec_ctx, td, sptr, buffer, size, 0, 0);
+	rval = aper_decode_e2ap_v1_01(opt_codec_ctx, td, sptr, buffer, size, 0, 0);
 	if(rval.consumed) {
 		/*
 		 * We've always given 8-aligned data,
@@ -34,7 +34,7 @@ aper_decode_complete(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_dec_rval_t
-aper_decode(const asn_codec_ctx_t *opt_codec_ctx,
+aper_decode_e2ap_v1_01(const asn_codec_ctx_t *opt_codec_ctx,
             const asn_TYPE_descriptor_t *td, void **sptr, const void *buffer,
             size_t size, int skip_bits, int unused_bits) {
 	asn_codec_ctx_t s_codec_ctx;
@@ -73,9 +73,9 @@ aper_decode(const asn_codec_ctx_t *opt_codec_ctx,
 	/*
 	 * Invoke type-specific decoder.
 	 */
-	if(!td->op->aper_decoder)
+	if(!td->op->aper_decode_e2ap_v1_01r)
 		ASN__DECODE_FAILED;	/* PER is not compiled in */
-	rval = td->op->aper_decoder(opt_codec_ctx, td, 0, sptr, &pd);
+	rval = td->op->aper_decode_e2ap_v1_01r(opt_codec_ctx, td, 0, sptr, &pd);
 	if(rval.code == RC_OK) {
 		/* Return the number of consumed bits */
 		rval.consumed = ((pd.buffer - (const uint8_t *)buffer) << 3)

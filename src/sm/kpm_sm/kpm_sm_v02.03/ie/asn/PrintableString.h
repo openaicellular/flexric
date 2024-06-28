@@ -37,6 +37,7 @@ asn_constr_check_f PrintableString_constraint;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
+#define PrintableString_decode_jer OCTET_STRING_decode_jer_utf8
 #define PrintableString_encode_jer OCTET_STRING_encode_jer_utf8
 #endif  /* !defined(ASN_DISABLE_JER_SUPPORT) */
 

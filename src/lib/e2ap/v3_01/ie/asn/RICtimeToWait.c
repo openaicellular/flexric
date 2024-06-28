@@ -12,13 +12,13 @@
  * so here we adjust the DEF accordingly.
  */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_RICtimeToWait_constr_1 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_RICtimeToWait_constr_1_e2ap_v3_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED | APC_EXTENSIBLE,  5,  5,  0,  16 }	/* (0..16,...) */,
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-static const asn_INTEGER_enum_map_t asn_MAP_RICtimeToWait_value2enum_1[] = {
+static const asn_INTEGER_enum_map_t asn_MAP_RICtimeToWait_value2enum_1_e2ap_v3_01[] = {
 	{ 0,	4,	"w1ms" },
 	{ 1,	4,	"w2ms" },
 	{ 2,	4,	"w5ms" },
@@ -38,7 +38,7 @@ static const asn_INTEGER_enum_map_t asn_MAP_RICtimeToWait_value2enum_1[] = {
 	{ 16,	4,	"w60s" }
 	/* This list is extensible */
 };
-static const unsigned int asn_MAP_RICtimeToWait_enum2value_1[] = {
+static const unsigned int asn_MAP_RICtimeToWait_enum2value_1_e2ap_v3_01[] = {
 	8,	/* w100ms(8) */
 	3,	/* w10ms(3) */
 	14,	/* w10s(14) */
@@ -58,38 +58,38 @@ static const unsigned int asn_MAP_RICtimeToWait_enum2value_1[] = {
 	16	/* w60s(16) */
 	/* This list is extensible */
 };
-const asn_INTEGER_specifics_t asn_SPC_RICtimeToWait_specs_1 = {
-	asn_MAP_RICtimeToWait_value2enum_1,	/* "tag" => N; sorted by tag */
-	asn_MAP_RICtimeToWait_enum2value_1,	/* N => "tag"; sorted by N */
+const asn_INTEGER_specifics_t asn_SPC_RICtimeToWait_specs_1_e2ap_v3_01 = {
+	asn_MAP_RICtimeToWait_value2enum_1_e2ap_v3_01,	/* "tag" => N; sorted by tag */
+	asn_MAP_RICtimeToWait_enum2value_1_e2ap_v3_01,	/* N => "tag"; sorted by N */
 	17,	/* Number of elements in the maps */
 	18,	/* Extensions before this member */
 	1,	/* Strict enumeration */
 	0,	/* Native long size */
 	0
 };
-static const ber_tlv_tag_t asn_DEF_RICtimeToWait_tags_1[] = {
+static const ber_tlv_tag_t asn_DEF_RICtimeToWait_e2ap_v3_01_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (10 << 2))
 };
-asn_TYPE_descriptor_t asn_DEF_RICtimeToWait = {
+asn_TYPE_descriptor_t asn_DEF_RICtimeToWait_e2ap_v3_01 = {
 	"RICtimeToWait",
 	"RICtimeToWait",
-	&asn_OP_NativeEnumerated,
-	asn_DEF_RICtimeToWait_tags_1,
-	sizeof(asn_DEF_RICtimeToWait_tags_1)
-		/sizeof(asn_DEF_RICtimeToWait_tags_1[0]), /* 1 */
-	asn_DEF_RICtimeToWait_tags_1,	/* Same as above */
-	sizeof(asn_DEF_RICtimeToWait_tags_1)
-		/sizeof(asn_DEF_RICtimeToWait_tags_1[0]), /* 1 */
+	&asn_OP_NativeEnumerated_e2ap_v3_01,
+	asn_DEF_RICtimeToWait_e2ap_v3_01_tags_1,
+	sizeof(asn_DEF_RICtimeToWait_e2ap_v3_01_tags_1)
+		/sizeof(asn_DEF_RICtimeToWait_e2ap_v3_01_tags_1[0]), /* 1 */
+	asn_DEF_RICtimeToWait_e2ap_v3_01_tags_1,	/* Same as above */
+	sizeof(asn_DEF_RICtimeToWait_e2ap_v3_01_tags_1)
+		/sizeof(asn_DEF_RICtimeToWait_e2ap_v3_01_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_RICtimeToWait_constr_1,
+		&asn_PER_type_RICtimeToWait_constr_1_e2ap_v3_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 		NativeEnumerated_constraint
 	},
 	0, 0,	/* Defined elsewhere */
-	&asn_SPC_RICtimeToWait_specs_1	/* Additional specs */
+	&asn_SPC_RICtimeToWait_specs_1_e2ap_v3_01	/* Additional specs */
 };
 

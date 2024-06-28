@@ -72,7 +72,7 @@ E2AP_PDU_t* e2ap_create_pdu(const uint8_t* buffer, int buffer_len)
 
   E2AP_PDU_t* pdu = calloc(1, sizeof(E2AP_PDU_t));
   const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
-  const asn_dec_rval_t rval = asn_decode(NULL, syntax, &asn_DEF_E2AP_PDU, (void**)&pdu, buffer, buffer_len);
+  const asn_dec_rval_t rval = asn_decode_e2ap_v3_01(NULL, syntax, &asn_DEF_E2AP_PDU_e2ap_v3_01, (void**)&pdu, buffer, buffer_len);
   //printf("rval.code = %d\n", rval.code);
   //fprintf(stdout, "length of data %ld\n", rval.consumed);
   assert(rval.code == RC_OK && "Are you sending data in ATS_ALIGEND_BASIC_PER syntax?");
@@ -87,7 +87,7 @@ static
 void free_pdu(E2AP_PDU_t* pdu)
 {
   assert(pdu != NULL);
-  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2AP_PDU,pdu);
+  ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E2AP_PDU_e2ap_v3_01, pdu);
   free(pdu);
 }
 

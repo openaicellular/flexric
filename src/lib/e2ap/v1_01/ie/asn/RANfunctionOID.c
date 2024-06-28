@@ -40,7 +40,7 @@ static int check_permitted_alphabet_1(const void *sptr) {
 }
 
 int
-RANfunctionOID_constraint(const asn_TYPE_descriptor_t *td, const void *sptr,
+RANfunctionOID_constraint_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
 			asn_app_constraint_failed_f *ctfailcb, void *app_key) {
 	const PrintableString_t *st = (const PrintableString_t *)sptr;
 	size_t size;
@@ -81,34 +81,34 @@ static int asn_PER_MAP_RANfunctionOID_1_c2v(unsigned int code) {
  * so here we adjust the DEF accordingly.
  */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-asn_per_constraints_t asn_PER_type_RANfunctionOID_constr_1 CC_NOTUSED = {
+asn_per_constraints_t asn_PER_type_RANfunctionOID_constr_1_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_CONSTRAINED,	 7,  7,  32,  122 }	/* (32..122) */,
 	{ APC_CONSTRAINED | APC_EXTENSIBLE,  10,  10,  1,  1000 }	/* (SIZE(1..1000,...)) */,
 	asn_PER_MAP_RANfunctionOID_1_v2c,	/* Value to PER code map */
 	asn_PER_MAP_RANfunctionOID_1_c2v	/* PER code to value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-static const ber_tlv_tag_t asn_DEF_RANfunctionOID_tags_1[] = {
+static const ber_tlv_tag_t asn_DEF_RANfunctionOID_e2ap_v1_01_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (19 << 2))
 };
-asn_TYPE_descriptor_t asn_DEF_RANfunctionOID = {
+asn_TYPE_descriptor_t asn_DEF_RANfunctionOID_e2ap_v1_01 = {
 	"RANfunctionOID",
 	"RANfunctionOID",
-	&asn_OP_PrintableString,
-	asn_DEF_RANfunctionOID_tags_1,
-	sizeof(asn_DEF_RANfunctionOID_tags_1)
-		/sizeof(asn_DEF_RANfunctionOID_tags_1[0]), /* 1 */
-	asn_DEF_RANfunctionOID_tags_1,	/* Same as above */
-	sizeof(asn_DEF_RANfunctionOID_tags_1)
-		/sizeof(asn_DEF_RANfunctionOID_tags_1[0]), /* 1 */
+	&asn_OP_PrintableString_e2ap_v1_01,
+	asn_DEF_RANfunctionOID_e2ap_v1_01_tags_1,
+	sizeof(asn_DEF_RANfunctionOID_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_RANfunctionOID_e2ap_v1_01_tags_1[0]), /* 1 */
+	asn_DEF_RANfunctionOID_e2ap_v1_01_tags_1,	/* Same as above */
+	sizeof(asn_DEF_RANfunctionOID_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_RANfunctionOID_e2ap_v1_01_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-		&asn_PER_type_RANfunctionOID_constr_1,
+		&asn_PER_type_RANfunctionOID_constr_1_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		RANfunctionOID_constraint
+		RANfunctionOID_constraint_e2ap_v1_01
 	},
 	0, 0,	/* No members */
 	0	/* No specifics */

@@ -6,7 +6,7 @@
 #include <asn_application.h>
 #include <errno.h>
 
-static asn_enc_rval_t asn_encode_internal(const asn_codec_ctx_t *opt_codec_ctx,
+static asn_enc_rval_t asn_encode_e2ap_v3_01_internal(const asn_codec_ctx_t *opt_codec_ctx,
                                           enum asn_transfer_syntax syntax,
                                           const asn_TYPE_descriptor_t *td,
                                           const void *sptr,
@@ -130,7 +130,7 @@ callback_failure_catch_cb(const void *data, size_t size, void *keyp) {
 }
 
 asn_enc_rval_t
-asn_encode(const asn_codec_ctx_t *opt_codec_ctx,
+asn_encode_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
            enum asn_transfer_syntax syntax, const asn_TYPE_descriptor_t *td,
            const void *sptr, asn_app_consume_bytes_f *callback, void *callback_key) {
     struct callback_failure_catch_key cb_key;
@@ -145,7 +145,7 @@ asn_encode(const asn_codec_ctx_t *opt_codec_ctx,
     cb_key.callback_key = callback_key;
     cb_key.callback_failed = 0;
 
-    er = asn_encode_internal(opt_codec_ctx, syntax, td, sptr,
+    er = asn_encode_e2ap_v3_01_internal(opt_codec_ctx, syntax, td, sptr,
                              callback_failure_catch_cb, &cb_key);
     if(cb_key.callback_failed) {
         assert(er.encoded == -1);
@@ -157,7 +157,7 @@ asn_encode(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_enc_rval_t
-asn_encode_to_buffer(const asn_codec_ctx_t *opt_codec_ctx,
+asn_encode_e2ap_v3_01_to_buffer(const asn_codec_ctx_t *opt_codec_ctx,
                      enum asn_transfer_syntax syntax,
                      const asn_TYPE_descriptor_t *td, const void *sptr,
                      void *buffer, size_t buffer_size) {
@@ -173,11 +173,11 @@ asn_encode_to_buffer(const asn_codec_ctx_t *opt_codec_ctx,
     buf_key.buffer_size = buffer_size;
     buf_key.computed_size = 0;
 
-    er = asn_encode_internal(opt_codec_ctx, syntax, td, sptr,
+    er = asn_encode_e2ap_v3_01_internal(opt_codec_ctx, syntax, td, sptr,
                              overrun_encoder_cb, &buf_key);
 
     if(er.encoded >= 0 && (size_t)er.encoded != buf_key.computed_size) {
-        ASN_DEBUG("asn_encode() returned %" ASN_PRI_SSIZE
+        ASN_DEBUG("asn_encode_e2ap_v3_01() returned %" ASN_PRI_SSIZE
                   " yet produced %" ASN_PRI_SIZE " bytes",
                   er.encoded, buf_key.computed_size);
         assert(er.encoded < 0 || (size_t)er.encoded == buf_key.computed_size);
@@ -186,23 +186,23 @@ asn_encode_to_buffer(const asn_codec_ctx_t *opt_codec_ctx,
     return er;
 }
 
-asn_encode_to_new_buffer_result_t
-asn_encode_to_new_buffer(const asn_codec_ctx_t *opt_codec_ctx,
+asn_encode_e2ap_v3_01_to_new_buffer_result_t
+asn_encode_e2ap_v3_01_to_new_buffer(const asn_codec_ctx_t *opt_codec_ctx,
                          enum asn_transfer_syntax syntax,
                          const asn_TYPE_descriptor_t *td, const void *sptr) {
     struct dynamic_encoder_key buf_key;
-    asn_encode_to_new_buffer_result_t res;
+    asn_encode_e2ap_v3_01_to_new_buffer_result_t res;
 
     buf_key.buffer_size = 16;
     buf_key.buffer = MALLOC(buf_key.buffer_size);
     buf_key.computed_size = 0;
 
-    res.result = asn_encode_internal(opt_codec_ctx, syntax, td, sptr,
+    res.result = asn_encode_e2ap_v3_01_internal(opt_codec_ctx, syntax, td, sptr,
                                      dynamic_encoder_cb, &buf_key);
 
     if(res.result.encoded >= 0
        && (size_t)res.result.encoded != buf_key.computed_size) {
-        ASN_DEBUG("asn_encode() returned %" ASN_PRI_SSIZE
+        ASN_DEBUG("asn_encode_e2ap_v3_01() returned %" ASN_PRI_SSIZE
                   " yet produced %" ASN_PRI_SIZE " bytes",
                   res.result.encoded, buf_key.computed_size);
         assert(res.result.encoded < 0
@@ -221,13 +221,13 @@ asn_encode_to_new_buffer(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 static asn_enc_rval_t
-asn_encode_internal(const asn_codec_ctx_t *opt_codec_ctx,
+asn_encode_e2ap_v3_01_internal(const asn_codec_ctx_t *opt_codec_ctx,
                     enum asn_transfer_syntax syntax,
                     const asn_TYPE_descriptor_t *td, const void *sptr,
                     asn_app_consume_bytes_f *callback, void *callback_key) {
     asn_enc_rval_t er = {0,0,0};
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-    enum xer_encoder_flags_e xer_flags = XER_F_CANONICAL;
+    enum xer_encode_e2ap_v3_01r_flags_e xer_flags = XER_F_CANONICAL;
 #endif  /* !defined(ASN_DISABLE_XER_SUPPORT) */
 
     (void)opt_codec_ctx; /* Parameters are not checked on encode yet. */
@@ -272,10 +272,10 @@ asn_encode_internal(const asn_codec_ctx_t *opt_codec_ctx,
         /* BER is a superset of DER. */
         /* Fall through. */
     case ATS_DER:
-        if(td->op->der_encoder) {
-            er = der_encode(td, sptr, callback, callback_key);
+        if(td->op->der_encode_e2ap_v3_01r) {
+            er = der_encode_e2ap_v3_01(td, sptr, callback, callback_key);
             if(er.encoded == -1) {
-                if(er.failed_type && er.failed_type->op->der_encoder) {
+                if(er.failed_type && er.failed_type->op->der_encode_e2ap_v3_01r) {
                     errno = EBADF;   /* Structure has incorrect form. */
                 } else {
                     errno = ENOENT;  /* DER is not defined for this type. */
@@ -330,10 +330,10 @@ asn_encode_internal(const asn_codec_ctx_t *opt_codec_ctx,
         /* CANONICAL-UPER is a superset of BASIC-UPER. */
         /* Fall through. */
     case ATS_UNALIGNED_CANONICAL_PER:
-        if(td->op->uper_encoder) {
-            er = uper_encode(td, 0, sptr, callback, callback_key);
+        if(td->op->uper_encode_e2ap_v3_01r) {
+            er = uper_encode_e2ap_v3_01(td, 0, sptr, callback, callback_key);
             if(er.encoded == -1) {
-                if(er.failed_type && er.failed_type->op->uper_encoder) {
+                if(er.failed_type && er.failed_type->op->uper_encode_e2ap_v3_01r) {
                     errno = EBADF;   /* Structure has incorrect form. */
                 } else {
                     errno = ENOENT;  /* UPER is not defined for this type. */
@@ -368,10 +368,10 @@ asn_encode_internal(const asn_codec_ctx_t *opt_codec_ctx,
         /* CANONICAL-APER is a superset of BASIC-APER. */
         /* Fall through. */
     case ATS_ALIGNED_CANONICAL_PER:
-        if(td->op->aper_encoder) {
-            er = aper_encode(td, 0, sptr, callback, callback_key);
+        if(td->op->aper_encode_e2ap_v3_01r) {
+            er = aper_encode_e2ap_v3_01(td, 0, sptr, callback, callback_key);
             if(er.encoded == -1) {
-                if(er.failed_type && er.failed_type->op->aper_encoder) {
+                if(er.failed_type && er.failed_type->op->aper_encode_e2ap_v3_01r) {
                     errno = EBADF;   /* Structure has incorrect form. */
                 } else {
                     errno = ENOENT;  /* APER is not defined for this type. */
@@ -409,10 +409,10 @@ asn_encode_internal(const asn_codec_ctx_t *opt_codec_ctx,
         xer_flags |= XER_F_BASIC;
         /* Fall through. */
     case ATS_CANONICAL_XER:
-        if(td->op->xer_encoder) {
-            er = xer_encode(td, sptr, xer_flags, callback, callback_key);
+        if(td->op->xer_encode_e2ap_v3_01r) {
+            er = xer_encode_e2ap_v3_01(td, sptr, xer_flags, callback, callback_key);
             if(er.encoded == -1) {
-                if(er.failed_type && er.failed_type->op->xer_encoder) {
+                if(er.failed_type && er.failed_type->op->xer_encode_e2ap_v3_01r) {
                     errno = EBADF;   /* Structure has incorrect form. */
                 } else {
                     errno = ENOENT;  /* XER is not defined for this type. */
@@ -433,10 +433,10 @@ asn_encode_internal(const asn_codec_ctx_t *opt_codec_ctx,
 
 #if !defined(ASN_DISABLE_JER_SUPPORT)
     case ATS_JER:
-        if(td->op->jer_encoder) {
-            er = jer_encode(td, sptr, callback, callback_key);
+        if(td->op->jer_encode_e2ap_v3_01r) {
+            er = jer_encode_e2ap_v3_01(td, sptr, callback, callback_key);
             if(er.encoded == -1) {
-                if(er.failed_type && er.failed_type->op->jer_encoder) {
+                if(er.failed_type && er.failed_type->op->jer_encode_e2ap_v3_01r) {
                     errno = EBADF;   /* Structure has incorrect form. */
                 } else {
                     errno = ENOENT;  /* JER is not defined for this type. */
@@ -457,7 +457,7 @@ asn_encode_internal(const asn_codec_ctx_t *opt_codec_ctx,
 }
 
 asn_dec_rval_t
-asn_decode(const asn_codec_ctx_t *opt_codec_ctx,
+asn_decode_e2ap_v3_01(const asn_codec_ctx_t *opt_codec_ctx,
            enum asn_transfer_syntax syntax, const asn_TYPE_descriptor_t *td,
            void **sptr, const void *buffer, size_t size) {
     if(!td || !td->op || !sptr || (size && !buffer)) {
@@ -476,7 +476,7 @@ asn_decode(const asn_codec_ctx_t *opt_codec_ctx,
         if(!td->op->random_fill) {
             ASN__DECODE_FAILED;
         } else {
-            if(asn_random_fill(td, sptr, 16000) == 0) {
+            if(asn_random_fill_e2ap_v3_01(td, sptr, 16000) == 0) {
                 asn_dec_rval_t ret = {RC_OK, 0};
                 return ret;
             } else {
@@ -492,7 +492,7 @@ asn_decode(const asn_codec_ctx_t *opt_codec_ctx,
     case ATS_DER:
     case ATS_BER:
 #if !defined(ASN_DISABLE_BER_SUPPORT)
-        return ber_decode(opt_codec_ctx, td, sptr, buffer, size);
+        return ber_decode_e2ap_v3_01(opt_codec_ctx, td, sptr, buffer, size);
 #else
         errno = ENOENT;
         ASN__DECODE_FAILED;
@@ -510,7 +510,7 @@ asn_decode(const asn_codec_ctx_t *opt_codec_ctx,
     case ATS_UNALIGNED_BASIC_PER:
     case ATS_UNALIGNED_CANONICAL_PER:
 #if !defined(ASN_DISABLE_UPER_SUPPORT)
-        return uper_decode_complete(opt_codec_ctx, td, sptr, buffer, size);
+        return uper_decode_e2ap_v3_01_complete(opt_codec_ctx, td, sptr, buffer, size);
 #else
         errno = ENOENT;
         ASN__DECODE_FAILED;
@@ -519,7 +519,7 @@ asn_decode(const asn_codec_ctx_t *opt_codec_ctx,
     case ATS_ALIGNED_BASIC_PER:
     case ATS_ALIGNED_CANONICAL_PER:
 #if !defined(ASN_DISABLE_APER_SUPPORT)
-        return aper_decode_complete(opt_codec_ctx, td, sptr, buffer, size);
+        return aper_decode_e2ap_v3_01_complete(opt_codec_ctx, td, sptr, buffer, size);
 #else
         errno = ENOENT;
         ASN__DECODE_FAILED;
@@ -528,7 +528,7 @@ asn_decode(const asn_codec_ctx_t *opt_codec_ctx,
     case ATS_BASIC_XER:
     case ATS_CANONICAL_XER:
 #if !defined(ASN_DISABLE_XER_SUPPORT)
-        return xer_decode(opt_codec_ctx, td, sptr, buffer, size);
+        return xer_decode_e2ap_v3_01(opt_codec_ctx, td, sptr, buffer, size);
 #else
         errno = ENOENT;
         ASN__DECODE_FAILED;

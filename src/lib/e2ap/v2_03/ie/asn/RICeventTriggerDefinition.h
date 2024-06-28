@@ -22,7 +22,7 @@ extern "C" {
 typedef OCTET_STRING_t	 RICeventTriggerDefinition_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_RICeventTriggerDefinition;
+extern asn_TYPE_descriptor_t asn_DEF_RICeventTriggerDefinition_e2ap_v2_03;
 asn_struct_free_f RICeventTriggerDefinition_free;
 asn_struct_print_f RICeventTriggerDefinition_print;
 asn_constr_check_f RICeventTriggerDefinition_constraint;

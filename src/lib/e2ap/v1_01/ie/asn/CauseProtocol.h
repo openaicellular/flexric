@@ -36,9 +36,9 @@ typedef enum CauseProtocol {
 typedef long	 CauseProtocol_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_CauseProtocol_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_CauseProtocol;
-extern const asn_INTEGER_specifics_t asn_SPC_CauseProtocol_specs_1;
+extern asn_per_constraints_t asn_PER_type_CauseProtocol_constr_1_e2ap_v1_01;
+extern asn_TYPE_descriptor_t asn_DEF_Cause_e2ap_v1_01Protocol;
+extern const asn_INTEGER_specifics_t asn_SPC_CauseProtocol_specs_1_e2ap_v1_01;
 asn_struct_free_f CauseProtocol_free;
 asn_struct_print_f CauseProtocol_print;
 asn_constr_check_f CauseProtocol_constraint;

@@ -26,11 +26,10 @@
 extern "C" {
 #endif
 
-
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../lib/msg_hand/e2_node_arr.h"
+#include "e2_node_arr_xapp.h"
 #include "../sm/agent_if/write/sm_ag_if_wr.h"
 #include "../sm/agent_if/read/sm_ag_if_rd.h"
 #include "../util/conf_file.h"
@@ -40,7 +39,7 @@ void init_xapp_api(fr_args_t const*);
   
 bool try_stop_xapp_api(void);     
 
-e2_node_arr_t e2_nodes_xapp_api(void);
+e2_node_arr_xapp_t e2_nodes_xapp_api(void);
 
 typedef void (*sm_cb)(sm_ag_if_rd_t const*);
 

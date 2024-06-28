@@ -8,8 +8,8 @@
 
 
 asn_enc_rval_t
-OBJECT_IDENTIFIER_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr,
-                             int ilevel, enum jer_encoder_flags_e flags,
+OBJECT_IDENTIFIER_encode_jer_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr,
+                             int ilevel, enum jer_encode_e2ap_v3_01r_flags_e flags,
                              asn_app_consume_bytes_f *cb, void *app_key) {
     const OBJECT_IDENTIFIER_t *st = (const OBJECT_IDENTIFIER_t *)sptr;
     asn_enc_rval_t er = {0,0,0};
@@ -21,7 +21,7 @@ OBJECT_IDENTIFIER_encode_jer(const asn_TYPE_descriptor_t *td, const void *sptr,
         ASN__ENCODE_FAILED;
     }
 
-    er.encoded = OBJECT_IDENTIFIER__dump_body(st, cb, app_key);
+    er.encoded = OBJECT_IDENTIFIER__dump_body_e2ap_v3_01(st, cb, app_key);
     if(er.encoded < 0) ASN__ENCODE_FAILED;
 
     ASN__ENCODED_OK(er);

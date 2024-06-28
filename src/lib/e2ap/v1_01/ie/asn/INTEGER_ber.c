@@ -10,7 +10,7 @@
  * Encode INTEGER type using DER.
  */
 asn_enc_rval_t
-INTEGER_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
+INTEGER_encode_der_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr,
                    int tag_mode, ber_tlv_tag_t tag, asn_app_consume_bytes_f *cb,
                    void *app_key) {
     const INTEGER_t *st = (const INTEGER_t *)sptr;
@@ -66,7 +66,7 @@ INTEGER_encode_der(const asn_TYPE_descriptor_t *td, const void *sptr,
         }
     }
 
-    rval = der_encode_primitive(td, st, tag_mode, tag, cb, app_key);
+    rval = der_encode_e2ap_v1_01_primitive(td, st, tag_mode, tag, cb, app_key);
     if(rval.structure_ptr == &effective_integer) {
         rval.structure_ptr = sptr;
     }

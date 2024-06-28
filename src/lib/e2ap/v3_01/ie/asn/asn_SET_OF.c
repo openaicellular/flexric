@@ -10,7 +10,7 @@
  * Add another element into the set.
  */
 int
-asn_set_add(void *asn_set_of_x, void *ptr) {
+asn_set_add_e2ap_v3_01(void *asn_set_of_x, void *ptr) {
 	asn_anonymous_set_ *as = _A_SET_FROM_VOID(asn_set_of_x);
 
 	if(as == 0 || ptr == 0) {
@@ -40,7 +40,7 @@ asn_set_add(void *asn_set_of_x, void *ptr) {
 }
 
 void
-asn_set_del(void *asn_set_of_x, int number, int _do_free) {
+asn_set_del_e2ap_v3_01(void *asn_set_of_x, int number, int _do_free) {
 	asn_anonymous_set_ *as = _A_SET_FROM_VOID(asn_set_of_x);
 
 	if(as) {
@@ -68,7 +68,7 @@ asn_set_del(void *asn_set_of_x, int number, int _do_free) {
  * Free the contents of the set, do not free the set itself.
  */
 void
-asn_set_empty(void *asn_set_of_x) {
+asn_set_empty_e2ap_v3_01(void *asn_set_of_x) {
 	asn_anonymous_set_ *as = _A_SET_FROM_VOID(asn_set_of_x);
 
 	if(as) {

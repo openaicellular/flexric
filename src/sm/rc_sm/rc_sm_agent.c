@@ -48,66 +48,6 @@ typedef struct{
 
 /*
 static
-byte_array_t cp_str_to_ba(const char* str)
-{
-  assert(str != NULL);
-  
-  const size_t sz = strlen(str);
-
-  byte_array_t dst = {.len = sz};
-
-  dst.buf = calloc(sz,sizeof(uint8_t));
-  assert(dst.buf != NULL && "Memory exhausted");
-
-  memcpy(dst.buf, str, sz);
-
-  return dst;
-}
-static
-ran_function_name_t fill_rc_ran_func_name(void)
-{
-  ran_function_name_t dst = {0}; 
-
-    // RAN Function Short Name
-    // Mandatory
-    // PrintableString [1-150]
-    dst.name = cp_str_to_ba(SM_RAN_CTRL_SHORT_NAME);
-
-    // RAN Function Service Model OID
-    // Mandatory
-    // PrintableString [1-1000]
-    
-    //iso(1) identified-organization(3)
-    //dod(6) internet(1) private(4)
-    //enterprise(1) 53148 e2(1)
-    // version1 (1) e2sm(2) e2sm-RC-
-    // IEs (3)
-    dst.oid = cp_str_to_ba(SM_RAN_CTRL_OID);
-
-    // RAN Function Description
-    // Mandatory
-    // PrintableString [1- 150]
-    //RAN function RC “RAN Control” performs the following
-    //functionalities:
-    //- Exposure of RAN control and UE context related
-    //information.
-    //- Modification and initiation of RAN control related call
-    //processes and messages
-    //- Execution of policies that may result in change of
-    //RAN control behavior 
-
-    dst.description = cp_str_to_ba( SM_RAN_CTRL_DESCRIPTION);
-
-    // RAN Function Instance
-    // Optional
-    // INTEGER
-//    long* instance;	// OPTIONAL: it is suggested to be used when E2 Node declares
-//                                multiple RAN Function ID supporting the same  E2SM specification
-
-  return dst;
-}
-
-static
 e2sm_rc_func_def_t fill_rc_ran_func_def(sm_rc_agent_t const* sm)
 {
   assert(sm != NULL);
@@ -127,7 +67,7 @@ e2sm_rc_func_def_t fill_rc_ran_func_def(sm_rc_agent_t const* sm)
 // E2 Setup and RIC Service Update. 
 //
 static
-subscribe_timer_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
+sm_ag_if_ans_subs_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const sm_subs_data_t* data)
 {
   assert(sm_agent != NULL);
   sm_rc_agent_t* sm = (sm_rc_agent_t*)sm_agent;
@@ -151,11 +91,10 @@ subscribe_timer_t on_subscription_rc_sm_ag(sm_agent_t const* sm_agent, const sm_
 
   wr_rc.rc.ad[0] = rc_dec_action_def(&sm->enc, data->len_ad, data->action_def);
 
-  sm->base.io.write_subs(&wr_rc);
-
-  subscribe_timer_t timer = {.ms = 0};
-
-  return timer;
+ sm_ag_if_ans_t subs = sm->base.io.write_subs(&wr_rc);
+ assert(subs.type == SUBS_OUTCOME_SM_AG_IF_ANS_V0);
+ assert(subs.subs_out.type == APERIODIC_SUBSCRIPTION_FLRC);
+ return subs.subs_out;
 }
 
 static
@@ -221,6 +160,50 @@ sm_ctrl_out_data_t on_control_rc_sm_ag(sm_agent_t const* sm_agent, sm_ctrl_req_d
 }
 
 static
+ran_function_name_t fill_ran_func_name(void)
+{
+  ran_function_name_t dst = {0}; 
+
+    // RAN Function Short Name
+    // Mandatory
+    // PrintableString [1-150]
+    dst.name = cp_str_to_ba(SM_RAN_CTRL_SHORT_NAME);
+
+    // RAN Function Service Model OID
+    // Mandatory
+    // PrintableString [1-1000]
+    
+    //iso(1) identified-organization(3)
+    //dod(6) internet(1) private(4)
+    //enterprise(1) 53148 e2(1)
+    // version1 (1) e2sm(2) e2sm-RC-
+    // IEs (3)
+    dst.oid = cp_str_to_ba(SM_RAN_CTRL_OID);
+
+    // RAN Function Description
+    // Mandatory
+    // PrintableString [1- 150]
+    //RAN function RC “RAN Control” performs the following
+    //functionalities:
+    //- Exposure of RAN control and UE context related
+    //information.
+    //- Modification and initiation of RAN control related call
+    //processes and messages
+    //- Execution of policies that may result in change of
+    //RAN control behavior 
+
+    dst.description = cp_str_to_ba(SM_RAN_CTRL_DESCRIPTION);
+
+    // RAN Function Instance
+    // Optional
+    // INTEGER
+//    long* instance;	// OPTIONAL: it is suggested to be used when E2 Node declares
+//                                multiple RAN Function ID supporting the same  E2SM specification
+
+  return dst;
+}
+
+static
 sm_e2_setup_data_t on_e2_setup_rc_sm_ag(sm_agent_t const* sm_agent)
 {
   assert(sm_agent != NULL);
@@ -234,6 +217,7 @@ sm_e2_setup_data_t on_e2_setup_rc_sm_ag(sm_agent_t const* sm_agent)
   rc_e2_setup_t rc = {0};
   // Will call the function read_rc_setup_sm 
   sm->base.io.read_setup(&rc);
+  rc.ran_func_def.name = fill_ran_func_name();
 
   e2sm_rc_func_def_t* ran_func = &rc.ran_func_def; 
   defer({ free_e2sm_rc_func_def(ran_func); });
@@ -243,17 +227,7 @@ sm_e2_setup_data_t on_e2_setup_rc_sm_ag(sm_agent_t const* sm_agent)
   sm_e2_setup_data_t setup = {0}; 
   setup.len_rfd = ba.len;
   setup.ran_fun_def = ba.buf;
-/*
-  // RAN Function
-  setup.rf.def = cp_str_to_ba(SM_RAN_CTRL_SHORT_NAME);
-  setup.rf.id = SM_RC_ID;
-  setup.rf.rev = SM_RC_REV;
 
-  setup.rf.oid = calloc(1, sizeof(byte_array_t) );
-  assert(setup.rf.oid != NULL && "Memory exhausted");
-
-  *setup.rf.oid = cp_str_to_ba(SM_RAN_CTRL_OID);
-*/
   return setup;
 }
 

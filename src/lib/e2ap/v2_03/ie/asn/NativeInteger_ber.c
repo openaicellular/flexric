@@ -11,7 +11,7 @@
  * Decode INTEGER type.
  */
 asn_dec_rval_t
-NativeInteger_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
+NativeInteger_decode_ber_e2ap_v2_03(const asn_codec_ctx_t *opt_codec_ctx,
                          const asn_TYPE_descriptor_t *td, void **nint_ptr,
                          const void *buf_ptr, size_t size, int tag_mode) {
     const asn_INTEGER_specifics_t *specs =
@@ -38,7 +38,7 @@ NativeInteger_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
     /*
      * Check tags.
      */
-    rval = ber_check_tags(opt_codec_ctx, td, 0, buf_ptr, size,
+    rval = ber_check_tags_e2ap_v2_03(opt_codec_ctx, td, 0, buf_ptr, size,
                           tag_mode, 0, &length, 0);
     if(rval.code != RC_OK)
         return rval;
@@ -74,8 +74,8 @@ NativeInteger_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
         tmp.size = length;
 
         if((specs&&specs->field_unsigned)
-            ? asn_INTEGER2ulong(&tmp, (unsigned long *)&l) /* sic */
-            : asn_INTEGER2long(&tmp, &l)) {
+            ? asn_INTEGER2ulong_e2ap_v2_03(&tmp, (unsigned long *)&l) /* sic */
+            : asn_INTEGER2long_e2ap_v2_03(&tmp, &l)) {
             rval.code = RC_FAIL;
             rval.consumed = 0;
             return rval;
@@ -97,7 +97,7 @@ NativeInteger_decode_ber(const asn_codec_ctx_t *opt_codec_ctx,
  * Encode the NativeInteger using the standard INTEGER type DER encoder.
  */
 asn_enc_rval_t
-NativeInteger_encode_der(const asn_TYPE_descriptor_t *sd, const void *ptr,
+NativeInteger_encode_der_e2ap_v2_03(const asn_TYPE_descriptor_t *sd, const void *ptr,
                          int tag_mode, ber_tlv_tag_t tag,
                          asn_app_consume_bytes_f *cb, void *app_key) {
     unsigned long native = *(const unsigned long *)ptr; /* Disable sign ext. */
@@ -122,7 +122,7 @@ NativeInteger_encode_der(const asn_TYPE_descriptor_t *sd, const void *ptr,
 #endif  /* WORDS_BIGENDIAN */
 
     /* Encode fake INTEGER */
-    erval = INTEGER_encode_der(sd, &tmp, tag_mode, tag, cb, app_key);
+    erval = INTEGER_encode_der_e2ap_v2_03(sd, &tmp, tag_mode, tag, cb, app_key);
     if(erval.structure_ptr == &tmp) {
         erval.structure_ptr = ptr;
     }

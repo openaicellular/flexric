@@ -51,7 +51,7 @@ typedef struct E2AP_PDU {
 } E2AP_PDU_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_E2AP_PDU;
+extern asn_TYPE_descriptor_t asn_DEF_E2AP_PDU_e2ap_v1_01;
 
 #ifdef __cplusplus
 }

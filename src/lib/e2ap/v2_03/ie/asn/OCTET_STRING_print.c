@@ -7,7 +7,7 @@
 #include <OCTET_STRING.h>
 
 int
-OCTET_STRING_print(const asn_TYPE_descriptor_t *td, const void *sptr,
+OCTET_STRING_print_e2ap_v2_03(const asn_TYPE_descriptor_t *td, const void *sptr,
                    int ilevel, asn_app_consume_bytes_f *cb, void *app_key) {
     const char * const h2c = "0123456789ABCDEF";
     const OCTET_STRING_t *st = (const OCTET_STRING_t *)sptr;
@@ -49,7 +49,7 @@ OCTET_STRING_print(const asn_TYPE_descriptor_t *td, const void *sptr,
 }
 
 int
-OCTET_STRING_print_utf8(const asn_TYPE_descriptor_t *td, const void *sptr,
+OCTET_STRING_print_e2ap_v2_03_utf8(const asn_TYPE_descriptor_t *td, const void *sptr,
                         int ilevel, asn_app_consume_bytes_f *cb,
                         void *app_key) {
     const OCTET_STRING_t *st = (const OCTET_STRING_t *)sptr;

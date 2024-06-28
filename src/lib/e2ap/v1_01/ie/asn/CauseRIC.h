@@ -40,9 +40,9 @@ typedef enum CauseRIC {
 typedef long	 CauseRIC_t;
 
 /* Implementation */
-extern asn_per_constraints_t asn_PER_type_CauseRIC_constr_1;
-extern asn_TYPE_descriptor_t asn_DEF_CauseRIC;
-extern const asn_INTEGER_specifics_t asn_SPC_CauseRIC_specs_1;
+extern asn_per_constraints_t asn_PER_type_CauseRIC_constr_1_e2ap_v1_01;
+extern asn_TYPE_descriptor_t asn_DEF_Cause_e2ap_v1_01RIC;
+extern const asn_INTEGER_specifics_t asn_SPC_CauseRIC_specs_1_e2ap_v1_01;
 asn_struct_free_f CauseRIC_free;
 asn_struct_print_f CauseRIC_print;
 asn_constr_check_f CauseRIC_constraint;

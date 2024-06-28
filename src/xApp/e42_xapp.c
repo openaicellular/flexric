@@ -139,22 +139,23 @@ void read_xapp(sm_ag_if_rd_t* data)
 }
 */
 
+// Not needed when using E42
 static
 void read_kpm_e2setup_xapp(void* data)
 {
   assert(data != NULL);
-  kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(data);
-  kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
-
+  //kpm_e2_setup_t* kpm = (kpm_e2_setup_t*)(data);
+  //kpm->ran_func_def = fill_rnd_kpm_ran_func_def(); 
 }
 
+// Not needed when using E42
 static
 void read_rc_e2_setup_xapp(void* data)
 {
   assert(data != NULL);
 //  assert(data->type == RAN_CTRL_V1_3_AGENT_IF_E2_SETUP_ANS_V0);
-  rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
-  rc->ran_func_def = fill_rc_ran_func_def();
+//  rc_e2_setup_t* rc = (rc_e2_setup_t*)data;
+//  rc->ran_func_def = fill_rc_ran_func_def();
 }
 
 static
@@ -361,10 +362,10 @@ void free_e42_xapp(e42_xapp_t* xapp)
   free(xapp);
 }
 
-e2_node_arr_t e2_nodes_xapp(e42_xapp_t* xapp)
+e2_node_arr_xapp_t e2_nodes_xapp(e42_xapp_t* xapp)
 {
   assert(xapp != NULL);
-  e2_node_arr_t ans = generate_e2_node_arr(&xapp->e2_nodes); 
+  e2_node_arr_xapp_t ans = generate_e2_node_arr_xapp(&xapp->e2_nodes, &xapp->plugin_ric); 
   return ans;
 }
 
@@ -409,7 +410,6 @@ bool valid_ran_func_id(uint16_t ran_func_id)\
   return false;
 }
 
-
 static
 ric_gen_id_t generate_ric_gen_id(e42_xapp_t* xapp, act_proc_val_e type, uint16_t ran_func_id, global_e2_node_id_t const* id, sm_cb cb)
 {
@@ -424,7 +424,6 @@ ric_gen_id_t generate_ric_gen_id(e42_xapp_t* xapp, act_proc_val_e type, uint16_t
 
   return ric_req;
 }
-
 
 sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uint16_t rf_id , void* data, sm_cb cb)
 {
@@ -444,7 +443,6 @@ sm_ans_xapp_t report_sm_sync_xapp(e42_xapp_t* xapp, global_e2_node_id_t* id, uin
   printf("[xApp]: Successfully subscribed to RAN_FUNC_ID %d \n", rf_id);
 
   // The RIC_SUBSCRIPTION_PROCEDURE is still active
-
   sm_ans_xapp_t ans = {0};
   ans.success = true;
   ans.u.handle = ric_id.ric_req_id;

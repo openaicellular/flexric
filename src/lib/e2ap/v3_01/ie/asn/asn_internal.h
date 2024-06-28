@@ -32,7 +32,7 @@ extern "C" {
 
 /* Environment version might be used to avoid running with the old library */
 #define	ASN1C_ENVIRONMENT_VERSION	923	/* Compile-time version */
-int get_asn1c_environment_version(void);	/* Run-time version */
+int get_asn1c_environment_version_e2ap_v3_01(void);	/* Run-time version */
 
 #define	CALLOC(nmemb, size)	calloc(nmemb, size)
 #define	MALLOC(size)		malloc(size)
@@ -71,8 +71,8 @@ int asn_debug_indent;
 			__FILE__, __LINE__);		\
 	} while(0)
 #else	/* !C99 */
-void CC_PRINTFLIKE(1, 2) ASN_DEBUG_f(const char *fmt, ...);
-#define	ASN_DEBUG	ASN_DEBUG_f
+void CC_PRINTFLIKE(1, 2) ASN_DEBUG_f_e2ap_v3_01(const char *fmt, ...);
+#define	ASN_DEBUG	ASN_DEBUG_f_e2ap_v3_01
 #endif	/* C99 */
 #else	/* ASN_EMIT_DEBUG != 1 */
 #if __STDC_VERSION__ >= 199901L
@@ -92,7 +92,7 @@ static void CC_PRINTFLIKE(1, 2) ASN_DEBUG(const char *fmt, ...) { (void)fmt; }
  *  >0: Size of the data that got delivered to the callback.
  */
 ssize_t CC_PRINTFLIKE(3, 4)
-asn__format_to_callback(
+asn__format_to_callback_e2ap_v3_01(
     int (*callback)(const void *, size_t, void *key), void *key,
     const char *fmt, ...);
 

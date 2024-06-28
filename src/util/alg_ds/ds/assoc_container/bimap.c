@@ -169,7 +169,7 @@ bml_iter_t bi_map_next_left(bi_map_t* map, bml_iter_t it)
 bml_iter_t bi_map_end_left(bi_map_t* map)
 {
   assert(map != NULL);
-  bml_iter_t it = {.it = assoc_front(&map->left)};
+  bml_iter_t it = {.it = assoc_end(&map->left)};
   return it;
 }
 

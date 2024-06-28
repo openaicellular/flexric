@@ -232,8 +232,8 @@ int main(int argc, char *argv[])
   init_xapp_api(&args);
   sleep(1);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
 
   assert(nodes.len > 0);
   printf("Connected E2 nodes len = %d\n", nodes.len);
@@ -248,9 +248,9 @@ int main(int argc, char *argv[])
   }
 
   for(size_t i = 0; i < nodes.len; ++i) {
-    e2_node_connected_t *n = &nodes.n[i];
+    e2_node_connected_xapp_t *n = &nodes.n[i];
     for (size_t j = 0; j < n->len_rf; ++j)
-      printf("Registered ran func id = %d \n ", n->ack_rf[j].id);
+      printf("Registered ran func id = %d \n ", n->rf[j].id);
 
     slice_handle[i] = report_sm_xapp_api(&nodes.n[i].id, SM_SLICE_ID, (void*)inter_t, sm_cb_slice);
     assert(slice_handle[i].success == true);

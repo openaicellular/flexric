@@ -10,7 +10,7 @@
  * INTEGER specific human-readable output.
  */
 int
-INTEGER_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
+INTEGER_print_e2ap_v1_01(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
               asn_app_consume_bytes_f *cb, void *app_key) {
     const INTEGER_t *st = (const INTEGER_t *)sptr;
     ssize_t ret;
@@ -20,7 +20,7 @@ INTEGER_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
     if(!st || !st->buf)
         ret = cb("<absent>", 8, app_key);
     else
-        ret = INTEGER__dump(td, st, cb, app_key, 0);
+        ret = INTEGER__dump_e2ap_v1_01(td, st, cb, app_key, 0);
 
     return (ret < 0) ? -1 : 0;
 }

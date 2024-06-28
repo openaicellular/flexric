@@ -13,8 +13,8 @@ extern "C" {
 
 struct asn_TYPE_descriptor_s;	/* Forward declaration */
 
-/* Flags used by the xer_encode() and (*xer_type_encoder_f), defined below */
-enum xer_encoder_flags_e {
+/* Flags used by the xer_encode_e2ap_v3_01() and (*xer_type_encoder_f), defined below */
+enum xer_encode_e2ap_v3_01r_flags_e {
 	/* Mode of encoding */
 	XER_F_BASIC	= 0x01,	/* BASIC-XER (pretty-printing) */
 	XER_F_CANONICAL	= 0x02	/* Canonical XER (strict rules) */
@@ -24,9 +24,9 @@ enum xer_encoder_flags_e {
  * The XER encoder of any type. May be invoked by the application.
  * Produces CANONICAL-XER and BASIC-XER depending on the (xer_flags).
  */
-asn_enc_rval_t xer_encode(const struct asn_TYPE_descriptor_s *type_descriptor,
+asn_enc_rval_t xer_encode_e2ap_v3_01(const struct asn_TYPE_descriptor_s *type_descriptor,
                           const void *struct_ptr, /* Structure to be encoded */
-                          enum xer_encoder_flags_e xer_flags,
+                          enum xer_encode_e2ap_v3_01r_flags_e xer_flags,
                           asn_app_consume_bytes_f *consume_bytes_cb,
                           void *app_key /* Arbitrary callback argument */
 );
@@ -39,7 +39,7 @@ asn_enc_rval_t xer_encode(const struct asn_TYPE_descriptor_s *type_descriptor,
  * 	-1: Problem printing the structure.
  * WARNING: No sensible errno value is returned.
  */
-int xer_fprint(FILE *stream, const struct asn_TYPE_descriptor_s *td,
+int xer_fprint_e2ap_v3_01(FILE *stream, const struct asn_TYPE_descriptor_s *td,
                const void *struct_ptr);
 
 /*
@@ -60,7 +60,7 @@ enum xer_equivalence_e {
     XEQ_DECODE_FAILED,    /* Decode of the XER data failed */
     XEQ_ROUND_TRIP_FAILED /* Bad round-trip */
 };
-enum xer_equivalence_e xer_equivalent(
+enum xer_equivalence_e xer_equivalent_e2ap_v3_01(
     const struct asn_TYPE_descriptor_s *type_descriptor, const void *struct1,
     const void *struct2, FILE *opt_debug_stream);
 
@@ -71,7 +71,7 @@ typedef asn_enc_rval_t(xer_type_encoder_f)(
     const struct asn_TYPE_descriptor_s *type_descriptor,
     const void *struct_ptr, /* Structure to be encoded */
     int ilevel,             /* Level of indentation */
-    enum xer_encoder_flags_e xer_flags,
+    enum xer_encode_e2ap_v3_01r_flags_e xer_flags,
     asn_app_consume_bytes_f *consume_bytes_cb, /* Callback */
     void *app_key                              /* Arbitrary callback argument */
 );

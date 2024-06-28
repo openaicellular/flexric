@@ -89,8 +89,9 @@ void check_subscription(sm_agent_t* ag, sm_ric_t* ric)
   char sub[] = "2_ms";
   sm_subs_data_t data = ric->proc.on_subscription(ric, &sub);
 
-  subscribe_timer_t t = ag->proc.on_subscription(ag, &data); 
-  assert(t.ms == 2);
+  sm_ag_if_ans_subs_t const subs = ag->proc.on_subscription(ag, &data); 
+  assert(subs.type == PERIODIC_SUBSCRIPTION_FLRC);
+  assert(subs.per.t.ms == 2);
 
   free_sm_subs_data(&data);
 }

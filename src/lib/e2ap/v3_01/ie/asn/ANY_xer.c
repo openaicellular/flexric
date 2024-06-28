@@ -7,8 +7,8 @@
 #include <ANY.h>
 
 asn_enc_rval_t
-ANY_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
-               enum xer_encoder_flags_e flags, asn_app_consume_bytes_f *cb,
+ANY_encode_xer_e2ap_v3_01(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
+               enum xer_encode_e2ap_v3_01r_flags_e flags, asn_app_consume_bytes_f *cb,
                void *app_key) {
     if(flags & XER_F_CANONICAL) {
         /*
@@ -18,5 +18,5 @@ ANY_encode_xer(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
     }
 
     /* Dump as binary */
-    return OCTET_STRING_encode_xer(td, sptr, ilevel, flags, cb, app_key);
+    return OCTET_STRING_encode_xer_e2ap_v3_01(td, sptr, ilevel, flags, cb, app_key);
 }

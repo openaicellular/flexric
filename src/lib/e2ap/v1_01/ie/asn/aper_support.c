@@ -7,7 +7,7 @@
 #include <aper_support.h>
 
 int32_t
-aper_get_align(asn_per_data_t *pd) {
+aper_get_align_e2ap_v1_01(asn_per_data_t *pd) {
 
 	if(pd->nboff & 0x7) {
 		ASN_DEBUG("Aligning %ld bits", 8 - ((unsigned long)pd->nboff & 0x7));
@@ -17,7 +17,7 @@ aper_get_align(asn_per_data_t *pd) {
 }
 
 ssize_t
-aper_get_length(asn_per_data_t *pd, ssize_t lb, ssize_t ub,
+aper_get_length_e2ap_v1_01(asn_per_data_t *pd, ssize_t lb, ssize_t ub,
 		int ebits, int *repeat) {
 	int constrained = (lb >= 0) && (ub >= 0);
 	ssize_t value;
@@ -26,10 +26,10 @@ aper_get_length(asn_per_data_t *pd, ssize_t lb, ssize_t ub,
 
 	if (constrained && ub < 65536) {
 		int range = ub - lb + 1;
-		return aper_get_nsnnwn(pd, range);
+		return aper_get_nsnnwn_e2ap_v1_01(pd, range);
 	}
 
-	if (aper_get_align(pd) < 0)
+	if (aper_get_align_e2ap_v1_01(pd) < 0)
 		return -1;
 
 	if(ebits >= 0) return per_get_few_bits(pd, ebits);
@@ -51,7 +51,7 @@ aper_get_length(asn_per_data_t *pd, ssize_t lb, ssize_t ub,
 }
 
 ssize_t
-aper_get_nslength(asn_per_data_t *pd) {
+aper_get_nslength_e2ap_v1_01(asn_per_data_t *pd) {
 	ssize_t length;
 
 	ASN_DEBUG("Getting normally small length");
@@ -63,14 +63,14 @@ aper_get_nslength(asn_per_data_t *pd) {
 		return length;
 	} else {
 		int repeat;
-		length = aper_get_length(pd, -1, -1, -1, &repeat);
+		length = aper_get_length_e2ap_v1_01(pd, -1, -1, -1, &repeat);
 		if(length >= 0 && !repeat) return length;
 		return -1; /* Error, or do not support >16K extensions */
 	}
 }
 
 ssize_t
-aper_get_nsnnwn(asn_per_data_t *pd, int range) {
+aper_get_nsnnwn_e2ap_v1_01(asn_per_data_t *pd, int range) {
 	ssize_t value;
 	int bytes = 0;
 
@@ -103,7 +103,7 @@ aper_get_nsnnwn(asn_per_data_t *pd, int range) {
 		if (length == 0)
 			return per_get_few_bits(pd, 6);
 
-		if (aper_get_align(pd) < 0)
+		if (aper_get_align_e2ap_v1_01(pd) < 0)
 			return -1;
 
 		length = per_get_few_bits(pd, 8);
@@ -115,13 +115,13 @@ aper_get_nsnnwn(asn_per_data_t *pd, int range) {
 			return -1;
 		return value;
 	}
-	if (aper_get_align(pd) < 0)
+	if (aper_get_align_e2ap_v1_01(pd) < 0)
 		return -1;
 	value = per_get_few_bits(pd, 8 * bytes);
 	return value;
 }
 
-int aper_put_align(asn_per_outp_t *po) {
+int aper_put_align_e2ap_v1_01(asn_per_outp_t *po) {
 
 	if(po->nboff & 0x7) {
 		ASN_DEBUG("Aligning %ld bits", 8 - ((unsigned long)po->nboff & 0x7));
@@ -132,7 +132,7 @@ int aper_put_align(asn_per_outp_t *po) {
 }
 
 ssize_t
-aper_put_length(asn_per_outp_t *po, ssize_t lb, ssize_t ub, size_t n, int *need_eom) {
+aper_put_length_e2ap_v1_01(asn_per_outp_t *po, ssize_t lb, ssize_t ub, size_t n, int *need_eom) {
 	int constrained = (lb >= 0) && (ub >= 0);
 	int dummy = 0;
 	if(!need_eom) need_eom = &dummy;
@@ -145,10 +145,10 @@ aper_put_length(asn_per_outp_t *po, ssize_t lb, ssize_t ub, size_t n, int *need_
 	/* 11.9 X.691 Note 2 */
 	if (constrained && ub < 65536) {
 		int range = ub - lb + 1;
-		return aper_put_nsnnwn(po, range, n) ? -1 : (ssize_t)n;
+		return aper_put_nsnnwn_e2ap_v1_01(po, range, n) ? -1 : (ssize_t)n;
 	}
 
-	if (aper_put_align(po) < 0)
+	if (aper_put_align_e2ap_v1_01(po) < 0)
 		return -1;
 
 	if(n <= 127) { /* #11.9.3.6 */
@@ -172,14 +172,14 @@ aper_put_length(asn_per_outp_t *po, ssize_t lb, ssize_t ub, size_t n, int *need_
 
 
 int
-aper_put_nslength(asn_per_outp_t *po, size_t length) {
+aper_put_nslength_e2ap_v1_01(asn_per_outp_t *po, size_t length) {
 
 	if(length <= 64) {
 		/* #11.9.3.4 */
 		if(length == 0) return -1;
 		return per_put_few_bits(po, length-1, 7) ? -1 : 0;
 	} else {
-		if(aper_put_length(po, -1, -1, length, NULL) != (ssize_t)length) {
+		if(aper_put_length_e2ap_v1_01(po, -1, -1, length, NULL) != (ssize_t)length) {
 			/* This might happen in case of >16K extensions */
 			return -1;
 		}
@@ -189,7 +189,7 @@ aper_put_nslength(asn_per_outp_t *po, size_t length) {
 }
 
 int
-aper_put_nsnnwn(asn_per_outp_t *po, int range, int number) {
+aper_put_nsnnwn_e2ap_v1_01(asn_per_outp_t *po, int range, int number) {
 	int bytes;
 
 	ASN_DEBUG("aper put nsnnwn %d with range %d", number, range);
@@ -230,7 +230,7 @@ aper_put_nsnnwn(asn_per_outp_t *po, int range, int number) {
 		assert(i <= 4);
 		bytes = i;
 	}
-	if(aper_put_align(po) < 0) /* Aligning on octet */
+	if(aper_put_align_e2ap_v1_01(po) < 0) /* Aligning on octet */
 		return -1;
 /* 	if(per_put_few_bits(po, bytes, 8))
 		return -1;

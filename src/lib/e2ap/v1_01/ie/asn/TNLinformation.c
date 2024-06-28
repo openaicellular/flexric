@@ -70,31 +70,31 @@ memb_tnlPort_constraint_1(const asn_TYPE_descriptor_t *td, const void *sptr,
 }
 
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static asn_per_constraints_t asn_PER_memb_tnlAddress_constr_2 CC_NOTUSED = {
+static asn_per_constraints_t asn_PER_memb_tnlAddress_constr_2_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED | APC_EXTENSIBLE,  8,  8,  1,  160 }	/* (SIZE(1..160,...)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-static asn_per_constraints_t asn_PER_memb_tnlPort_constr_3 CC_NOTUSED = {
+static asn_per_constraints_t asn_PER_memb_tnlPort_constr_3_e2ap_v1_01 CC_NOTUSED = {
 	{ APC_UNCONSTRAINED,	-1, -1,  0,  0 },
 	{ APC_CONSTRAINED,	 0,  0,  16,  16 }	/* (SIZE(16..16)) */,
 	0, 0	/* No PER value map */
 };
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-asn_TYPE_member_t asn_MBR_TNLinformation_1[] = {
+asn_TYPE_member_t asn_MBR_TNLinformation_1_e2ap_v1_01[] = {
 	{ ATF_NOFLAGS, 0, offsetof(struct TNLinformation, tnlAddress),
 		(ASN_TAG_CLASS_CONTEXT | (0 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_BIT_STRING,
+		&asn_DEF_BIT_STRING_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 			0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-			&asn_PER_memb_tnlAddress_constr_2,
+			&asn_PER_memb_tnlAddress_constr_2_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 			memb_tnlAddress_constraint_1
 		},
@@ -104,14 +104,14 @@ asn_TYPE_member_t asn_MBR_TNLinformation_1[] = {
 	{ ATF_POINTER, 1, offsetof(struct TNLinformation, tnlPort),
 		(ASN_TAG_CLASS_CONTEXT | (1 << 2)),
 		-1,	/* IMPLICIT tag at current level */
-		&asn_DEF_BIT_STRING,
+		&asn_DEF_BIT_STRING_e2ap_v1_01,
 		0,
 		{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 			0,
 #endif  /* !defined(ASN_DISABLE_OER_SUPPORT) */
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
-			&asn_PER_memb_tnlPort_constr_3,
+			&asn_PER_memb_tnlPort_constr_3_e2ap_v1_01,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
 			memb_tnlPort_constraint_1
 		},
@@ -119,33 +119,33 @@ asn_TYPE_member_t asn_MBR_TNLinformation_1[] = {
 		"tnlPort"
 		},
 };
-static const int asn_MAP_TNLinformation_oms_1[] = { 1 };
-static const ber_tlv_tag_t asn_DEF_TNLinformation_tags_1[] = {
+static const int asn_MAP_TNLinformation_oms_1_e2ap_v1_01[] = { 1 };
+static const ber_tlv_tag_t asn_DEF_TNLinformation_e2ap_v1_01_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
 };
-static const asn_TYPE_tag2member_t asn_MAP_TNLinformation_tag2el_1[] = {
+static const asn_TYPE_tag2member_t asn_MAP_TNLinformation_tag2el_1_e2ap_v1_01[] = {
     { (ASN_TAG_CLASS_CONTEXT | (0 << 2)), 0, 0, 0 }, /* tnlAddress */
     { (ASN_TAG_CLASS_CONTEXT | (1 << 2)), 1, 0, 0 } /* tnlPort */
 };
-asn_SEQUENCE_specifics_t asn_SPC_TNLinformation_specs_1 = {
+asn_SEQUENCE_specifics_t asn_SPC_TNLinformation_specs_1_e2ap_v1_01 = {
 	sizeof(struct TNLinformation),
 	offsetof(struct TNLinformation, _asn_ctx),
-	asn_MAP_TNLinformation_tag2el_1,
+	asn_MAP_TNLinformation_tag2el_1_e2ap_v1_01,
 	2,	/* Count of tags in the map */
-	asn_MAP_TNLinformation_oms_1,	/* Optional members */
+	asn_MAP_TNLinformation_oms_1_e2ap_v1_01,	/* Optional members */
 	1, 0,	/* Root/Additions */
 	2,	/* First extension addition */
 };
-asn_TYPE_descriptor_t asn_DEF_TNLinformation = {
+asn_TYPE_descriptor_t asn_DEF_TNLinformation_e2ap_v1_01 = {
 	"TNLinformation",
 	"TNLinformation",
-	&asn_OP_SEQUENCE,
-	asn_DEF_TNLinformation_tags_1,
-	sizeof(asn_DEF_TNLinformation_tags_1)
-		/sizeof(asn_DEF_TNLinformation_tags_1[0]), /* 1 */
-	asn_DEF_TNLinformation_tags_1,	/* Same as above */
-	sizeof(asn_DEF_TNLinformation_tags_1)
-		/sizeof(asn_DEF_TNLinformation_tags_1[0]), /* 1 */
+	&asn_OP_SEQUENCE_e2ap_v1_01,
+	asn_DEF_TNLinformation_e2ap_v1_01_tags_1,
+	sizeof(asn_DEF_TNLinformation_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_TNLinformation_e2ap_v1_01_tags_1[0]), /* 1 */
+	asn_DEF_TNLinformation_e2ap_v1_01_tags_1,	/* Same as above */
+	sizeof(asn_DEF_TNLinformation_e2ap_v1_01_tags_1)
+		/sizeof(asn_DEF_TNLinformation_e2ap_v1_01_tags_1[0]), /* 1 */
 	{
 #if !defined(ASN_DISABLE_OER_SUPPORT)
 		0,
@@ -153,10 +153,10 @@ asn_TYPE_descriptor_t asn_DEF_TNLinformation = {
 #if !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT)
 		0,
 #endif  /* !defined(ASN_DISABLE_UPER_SUPPORT) || !defined(ASN_DISABLE_APER_SUPPORT) */
-		SEQUENCE_constraint
+		SEQUENCE_constraint_e2ap_v1_01
 	},
-	asn_MBR_TNLinformation_1,
+	asn_MBR_TNLinformation_1_e2ap_v1_01,
 	2,	/* Elements count */
-	&asn_SPC_TNLinformation_specs_1	/* Additional specs */
+	&asn_SPC_TNLinformation_specs_1_e2ap_v1_01	/* Additional specs */
 };
 

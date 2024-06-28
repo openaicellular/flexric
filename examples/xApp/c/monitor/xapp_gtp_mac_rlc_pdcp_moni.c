@@ -110,8 +110,8 @@ int main(int argc, char *argv[])
   init_xapp_api(&args);
   sleep(1);
 
-  e2_node_arr_t nodes = e2_nodes_xapp_api();
-  defer({ free_e2_node_arr(&nodes); });
+  e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
+  defer({ free_e2_node_arr_xapp(&nodes); });
 
   assert(nodes.len > 0);
 
@@ -143,14 +143,15 @@ int main(int argc, char *argv[])
   }
 
   for (int i = 0; i < nodes.len; i++) {
-    e2_node_connected_t* n = &nodes.n[i];
+    e2_node_connected_xapp_t* n = &nodes.n[i];
     for (size_t j = 0; j < n->len_rf; j++)
-      printf("Registered node %d ran func id = %d \n ", i, n->ack_rf[j].id);
+      printf("Registered node %d ran func id = %d \n ", i, n->rf[j].id);
 
     if(n->id.type == ngran_gNB || n->id.type == ngran_eNB){
-      mac_ctrl_req_data_t wr = {.hdr.dummy = 1, .msg.action = 42 };
-      sm_ans_xapp_t const a = control_sm_xapp_api(&nodes.n[i].id, 142, &wr);
-      assert(a.success == true);
+      // MAC Control is not yet implemented in OAI RAN
+      // mac_ctrl_req_data_t wr = {.hdr.dummy = 1, .msg.action = 42 };
+      // sm_ans_xapp_t const a = control_sm_xapp_api(&nodes.n[i].id, 142, &wr);
+      // assert(a.success == true);
 
       mac_handle[i] = report_sm_xapp_api(&nodes.n[i].id, 142, (void*)i_0, sm_cb_mac);
       assert(mac_handle[i].success == true);
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
       gtp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, 148, (void*)i_3, sm_cb_gtp);
       assert(gtp_handle[i].success == true);
 
-    } else if(n->id.type ==  ngran_gNB_CU ){
+    } else if(n->id.type ==  ngran_gNB_CU || n->id.type ==  ngran_gNB_CUUP){
       pdcp_handle[i] = report_sm_xapp_api(&nodes.n[i].id, 144, (void*)i_2, sm_cb_pdcp);
       assert(pdcp_handle[i].success == true);
 

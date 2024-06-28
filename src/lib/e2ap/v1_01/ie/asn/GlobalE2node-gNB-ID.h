@@ -36,9 +36,9 @@ typedef struct GlobalE2node_gNB_ID {
 } GlobalE2node_gNB_ID_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_GlobalE2node_gNB_ID;
-extern asn_SEQUENCE_specifics_t asn_SPC_GlobalE2node_gNB_ID_specs_1;
-extern asn_TYPE_member_t asn_MBR_GlobalE2node_gNB_ID_1[3];
+extern asn_TYPE_descriptor_t asn_DEF_GlobalE2node_gNB_ID_e2ap_v1_01;
+extern asn_SEQUENCE_specifics_t asn_SPC_GlobalE2node_gNB_ID_specs_1_e2ap_v1_01;
+extern asn_TYPE_member_t asn_MBR_GlobalE2node_gNB_ID_1_e2ap_v1_01[3];
 
 #ifdef __cplusplus
 }

@@ -55,7 +55,7 @@ typedef struct EXTERNAL {
 } EXTERNAL_t;
 
 /* Implementation */
-extern asn_TYPE_descriptor_t asn_DEF_EXTERNAL;
+extern asn_TYPE_descriptor_t asn_DEF_EXTERNAL_e2ap_v2_03;
 
 #ifdef __cplusplus
 }

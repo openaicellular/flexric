@@ -22,7 +22,7 @@ static int per_skip_bits(asn_per_data_t *pd, int skip_nbits);
  * #10.1, #10.2
  */
 int
-uper_open_type_put(const asn_TYPE_descriptor_t *td,
+uper_open_type_put_e2ap_v2_03(const asn_TYPE_descriptor_t *td,
                    const asn_per_constraints_t *constraints, const void *sptr,
                    asn_per_outp_t *po) {
     void *buf;
@@ -31,7 +31,7 @@ uper_open_type_put(const asn_TYPE_descriptor_t *td,
 
     ASN_DEBUG("Open type put %s ...", td->name);
 
-    size = uper_encode_to_new_buffer(td, constraints, sptr, &buf);
+    size = uper_encode_e2ap_v2_03_to_new_buffer(td, constraints, sptr, &buf);
     if(size <= 0) return -1;
 
     ASN_DEBUG("Open type put %s of length %" ASN_PRI_SSIZE " + overhead (1byte?)", td->name,
@@ -40,7 +40,7 @@ uper_open_type_put(const asn_TYPE_descriptor_t *td,
     bptr = buf;
     do {
         int need_eom = 0;
-        ssize_t may_save = uper_put_length(po, size, &need_eom);
+        ssize_t may_save = uper_put_length_e2ap_v2_03(po, size, &need_eom);
         ASN_DEBUG("Prepending length %" ASN_PRI_SSIZE
                   " to %s and allowing to save %" ASN_PRI_SSIZE,
                   size, td->name, may_save);
@@ -48,7 +48,7 @@ uper_open_type_put(const asn_TYPE_descriptor_t *td,
         if(per_put_many_bits(po, bptr, may_save * 8)) break;
         bptr = (char *)bptr + may_save;
         size -= may_save;
-        if(need_eom && uper_put_length(po, 0, 0)) {
+        if(need_eom && uper_put_length_e2ap_v2_03(po, 0, 0)) {
             FREEMEM(buf);
             return -1;
         }
@@ -61,7 +61,7 @@ uper_open_type_put(const asn_TYPE_descriptor_t *td,
 }
 
 static asn_dec_rval_t
-uper_open_type_get_simple(const asn_codec_ctx_t *ctx,
+uper_open_type_get_e2ap_v2_03_simple(const asn_codec_ctx_t *ctx,
                           const asn_TYPE_descriptor_t *td,
                           const asn_per_constraints_t *constraints, void **sptr,
                           asn_per_data_t *pd) {
@@ -79,7 +79,7 @@ uper_open_type_get_simple(const asn_codec_ctx_t *ctx,
 	ASN_DEBUG("Getting open type %s...", td->name);
 
 	do {
-		chunk_bytes = uper_get_length(pd, -1, 0, &repeat);
+		chunk_bytes = uper_get_length_e2ap_v2_03(pd, -1, 0, &repeat);
 		if(chunk_bytes < 0) {
 			FREEMEM(buf);
 			ASN__DECODE_STARVED;
@@ -109,7 +109,7 @@ uper_open_type_get_simple(const asn_codec_ctx_t *ctx,
 	spd.nbits = bufLen << 3;
 
 	ASN_DEBUG_INDENT_ADD(+4);
-	rv = td->op->uper_decoder(ctx, td, constraints, sptr, &spd);
+	rv = td->op->uper_decode_e2ap_v2_03r(ctx, td, constraints, sptr, &spd);
 	ASN_DEBUG_INDENT_ADD(-4);
 
 	if(rv.code == RC_OK) {
@@ -140,7 +140,7 @@ uper_open_type_get_simple(const asn_codec_ctx_t *ctx,
 }
 
 static asn_dec_rval_t CC_NOTUSED
-uper_open_type_get_complex(const asn_codec_ctx_t *ctx,
+uper_open_type_get_e2ap_v2_03_complex(const asn_codec_ctx_t *ctx,
                            const asn_TYPE_descriptor_t *td,
                            asn_per_constraints_t *constraints, void **sptr,
                            asn_per_data_t *pd) {
@@ -151,7 +151,7 @@ uper_open_type_get_complex(const asn_codec_ctx_t *ctx,
 	ASN__STACK_OVERFLOW_CHECK(ctx);
 
 	ASN_DEBUG("Getting open type %s from %s", td->name,
-		asn_bit_data_string(pd));
+		asn_bit_data_string_e2ap_v2_03(pd));
 	arg.oldpd = *pd;
 	arg.unclaimed = 0;
 	arg.ot_moved = 0;
@@ -162,7 +162,7 @@ uper_open_type_get_complex(const asn_codec_ctx_t *ctx,
 	pd->moved = 0;	/* This now counts the open type size in bits */
 
 	ASN_DEBUG_INDENT_ADD(+4);
-	rv = td->op->uper_decoder(ctx, td, constraints, sptr, pd);
+	rv = td->op->uper_decode_e2ap_v2_03r(ctx, td, constraints, sptr, pd);
 	ASN_DEBUG_INDENT_ADD(-4);
 
 #define	UPDRESTOREPD	do {						\
@@ -179,8 +179,8 @@ uper_open_type_get_complex(const asn_codec_ctx_t *ctx,
 	}
 
 	ASN_DEBUG("OpenType %s pd%s old%s unclaimed=%d, repeat=%d", td->name,
-		asn_bit_data_string(pd),
-		asn_bit_data_string(&arg.oldpd),
+		asn_bit_data_string_e2ap_v2_03(pd),
+		asn_bit_data_string_e2ap_v2_03(&arg.oldpd),
 		(int)arg.unclaimed, (int)arg.repeat);
 
 	padding = pd->moved % 8;
@@ -211,7 +211,7 @@ uper_open_type_get_complex(const asn_codec_ctx_t *ctx,
 	}
 	if(pd->nboff != pd->nbits) {
 		ASN_DEBUG("Open type %s overhead pd%s old%s", td->name,
-			asn_bit_data_string(pd), asn_bit_data_string(&arg.oldpd));
+			asn_bit_data_string_e2ap_v2_03(pd), asn_bit_data_string_e2ap_v2_03(&arg.oldpd));
 		if(1) {
 			UPDRESTOREPD;
 			ASN__DECODE_FAILED;
@@ -252,23 +252,23 @@ uper_open_type_get_complex(const asn_codec_ctx_t *ctx,
 
 
 asn_dec_rval_t
-uper_open_type_get(const asn_codec_ctx_t *ctx, const asn_TYPE_descriptor_t *td,
+uper_open_type_get_e2ap_v2_03(const asn_codec_ctx_t *ctx, const asn_TYPE_descriptor_t *td,
                    const asn_per_constraints_t *constraints, void **sptr,
                    asn_per_data_t *pd) {
-    return uper_open_type_get_simple(ctx, td, constraints, sptr, pd);
+    return uper_open_type_get_e2ap_v2_03_simple(ctx, td, constraints, sptr, pd);
 }
 
 int
-uper_open_type_skip(const asn_codec_ctx_t *ctx, asn_per_data_t *pd) {
+uper_open_type_skip_e2ap_v2_03(const asn_codec_ctx_t *ctx, asn_per_data_t *pd) {
 	asn_TYPE_descriptor_t s_td;
     asn_TYPE_operation_t s_op;
 	asn_dec_rval_t rv;
 
 	s_td.name = "<unknown extension>";
 	s_td.op = &s_op;
-    s_op.uper_decoder = uper_sot_suck;
+    s_op.uper_decode_e2ap_v2_03r = uper_sot_suck_e2ap_v2_03;
 
-	rv = uper_open_type_get(ctx, &s_td, 0, 0, pd);
+	rv = uper_open_type_get_e2ap_v2_03(ctx, &s_td, 0, 0, pd);
 	if(rv.code != RC_OK)
 		return -1;
 	else
@@ -318,7 +318,7 @@ uper_ugot_refill(asn_per_data_t *pd) {
 		return -1;
 	}
 
-	next_chunk_bytes = uper_get_length(oldpd, -1, 0, &arg->repeat);
+	next_chunk_bytes = uper_get_length_e2ap_v2_03(oldpd, -1, 0, &arg->repeat);
 	ASN_DEBUG("Open type LENGTH %ld bytes at off %ld, repeat %ld",
 		(long)next_chunk_bytes, (long)oldpd->moved, (long)arg->repeat);
 	if(next_chunk_bytes < 0) return -1;
@@ -345,7 +345,7 @@ uper_ugot_refill(asn_per_data_t *pd) {
 	pd->buffer = oldpd->buffer;
 	pd->nboff = oldpd->nboff;
 	ASN_DEBUG("Refilled pd%s old%s",
-		asn_bit_data_string(pd), asn_bit_data_string(oldpd));
+		asn_bit_data_string_e2ap_v2_03(pd), asn_bit_data_string_e2ap_v2_03(oldpd));
 	return 0;
 }
 
