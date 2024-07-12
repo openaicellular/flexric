@@ -29,6 +29,7 @@
 #include <signal.h>
 #include <time.h>
 #include <unistd.h>
+#include <limits.h>
 
 static
 uint64_t cnt_mac;
@@ -182,8 +183,7 @@ int main(int argc, char *argv[])
 
   }
 
-  sleep(10);
-
+  xapp_api_wait_end(INT_MAX);
 
   for(int i = 0; i < nodes.len; ++i){
     // Remove the handle previously returned
@@ -210,6 +210,3 @@ int main(int argc, char *argv[])
 
   printf("Test xApp run SUCCESSFULLY\n");
 }
-
-
-

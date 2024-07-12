@@ -30,6 +30,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <limits.h>
 
 static
 ue_id_e2sm_t ue_id;
@@ -599,7 +600,7 @@ int main(int argc, char* argv[])
   // END RC
   ////////////
 
-  sleep(5);
+  xapp_api_wait_end(INT_MAX);
 
   for (int i = 0; i < nodes.len; ++i) {
     // Remove the handle previously returned
