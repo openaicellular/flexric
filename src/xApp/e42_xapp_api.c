@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <limits.h>
 
 static
 e42_xapp_t* xapp = NULL;
@@ -42,16 +43,28 @@ e42_xapp_t* xapp = NULL;
 static
 pthread_t thrd_xapp;
 
+static
+atomic_bool stop_xapp = false;
+
+void xapp_api_unblock_wait(void)
+{
+  stop_xapp = true;
+}
+
+void xapp_api_wait_end(int timeout)
+{
+  while (!stop_xapp && (timeout == INT_MAX || timeout > 0)) {
+    sleep(1);
+    timeout--;
+  }
+}
 
 static
 void sig_handler(int sig_num)
 {
-  printf("\n[xApp]:Abruptly ending with signal number = %d\n", sig_num);
+  printf("\n[xApp]: Abruptly ending with signal number = %d\n", sig_num);
 
-  while(try_stop_xapp_api() == false)
-    usleep(1000);
-
-   exit(EXIT_FAILURE);
+  xapp_api_unblock_wait();
 }
 
 static inline
@@ -70,6 +83,7 @@ void init_xapp_api(fr_args_t const* args)
 
   // Signal handler
   signal(SIGINT, sig_handler);
+  signal(SIGTERM, sig_handler);
 
   xapp = init_e42_xapp(args);
 
@@ -94,7 +108,7 @@ bool try_stop_xapp_api(void)
 
   int const rc = pthread_join(thrd_xapp, NULL);
   assert(rc == 0);
-  printf("[xApp]: Sucessfully stopped \n");
+  printf("[xApp]: Successfully stopped \n");
   return true;
 }
 
