@@ -489,15 +489,14 @@ int main(int argc, char *argv[])
   sm_ans_xapp_t h_5 = report_sm_xapp_api(&nodes.n[0].id, SM_RC_ID, &rc_sub, sm_cb_rc);
   assert(h_5.success);
 
-  sleep(3);
-  
+  int xapp_timeout = 3;
+  xapp_api_wait_end(xapp_timeout);
+
   rm_report_sm_xapp_api(h_1.u.handle);
   rm_report_sm_xapp_api(h_2.u.handle);
   rm_report_sm_xapp_api(h_3.u.handle);
   rm_report_sm_xapp_api(h_4.u.handle);
   rm_report_sm_xapp_api(h_5.u.handle);
-
-  sleep(1);
 
   //Stop the xApp
   while(try_stop_xapp_api() == false)
@@ -514,4 +513,3 @@ int main(int argc, char *argv[])
 
   printf("Test communicating E2-Agent, Near-RIC and xApp run SUCCESSFULLY\n");
 }
-
