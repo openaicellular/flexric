@@ -89,6 +89,15 @@ endif()
 if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
   # using Clang
   add_compile_options("-fblocks;")
+  find_library(BLOCKS_RUNTIME_LIBRARY
+    NAMES BlocksRuntime
+    REQUIRED
+  )
+  if(NOT BLOCKS_RUNTIME_LIBRARY)
+    message(FATAL_ERROR "\nBlocksRuntime library not found.
+    Please run the following command to install it:
+    sudo apt-get install libblocksruntime-dev")
+  endif()
   add_link_options("-lBlocksRuntime;")
 
   if(${SANITIZER} STREQUAL "ADDRESS")
