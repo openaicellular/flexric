@@ -151,7 +151,7 @@ endif()
 
 message(STATUS "Selected xApp dir : ${XAPP_DB_DIR}")
 
-option(XAPP_MULTILANGUAGE "xApp Multilanguage" ON)
+option(XAPP_MULTILANGUAGE "xApp Multilanguage" OFF)
 message(STATUS "xApp multilanguage support e.g., python : ${XAPP_MULTILANGUAGE}")
 
 ########
