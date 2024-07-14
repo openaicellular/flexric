@@ -306,18 +306,6 @@ if(E2AP_ENCODING STREQUAL "FLATBUFFERS")
     )
 endif()
 
-###
-# set install options
-###
-set(NEAR_RIC_INSTALL "FALSE" CACHE STRING "NEAR real time RIC install selection")
-set_property(CACHE NEAR_RIC_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(EMU_AGENT_INSTALL "FALSE" CACHE STRING "emulator of E2 agent")
-set_property(CACHE EMU_AGENT_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(XAPP_C_INSTALL "FALSE" CACHE STRING "XAPP in C install selection")
-set_property(CACHE XAPP_C_INSTALL PROPERTY STRINGS "TRUE" "FALSE")
-set(UNIT_TEST "TRUE" CACHE STRING "build test cases")
-set_property(CACHE UNIT_TEST PROPERTY STRINGS "TRUE" "FALSE")
-
 include_directories(src)
 add_subdirectory(src)
 add_subdirectory(examples)
@@ -353,28 +341,6 @@ install(FILES flexric.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/flexric)
 
 set(CTEST_PARALLEL_LEVEL 4)
 enable_testing()
-
-###
-# Install Near real-time RIC
-###
-if (NEAR_RIC_INSTALL)
-  install(TARGETS nearRT-RIC DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif ()
-
-###
-# Install Emulator Agent
-###
-if (EMU_AGENT_INSTALL)
-  install(TARGETS emu_agent_gnb emu_agent_gnb_cu emu_agent_gnb_du emu_agent_enb DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif ()
-
-###
-# Install Emulator Agent
-###
-if (XAPP_C_INSTALL)
-  install(TARGETS xapp_mac_rlc_pdcp_moni xapp_slice_moni_ctrl xapp_kpm_moni xapp_gtp_moni xapp_hw DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif ()
-
 
 # make uninstall
 add_custom_target("uninstall" COMMENT "Uninstall installed files")
