@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(Flexric VERSION 0.0.1 LANGUAGES C)
+project(FLEXRIC VERSION 2.0.0 LANGUAGES C)
 
 if(CMAKE_C_COMPILER_VERSION MATCHES "^11.*")
   message(FATAL_ERROR "\nFlexRIC does not support gcc-11.
