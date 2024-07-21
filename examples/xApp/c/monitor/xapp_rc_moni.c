@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <pthread.h>
+#include <limits.h>
 
 typedef enum {
   RRC_STATE_CHANGED_TO_E2SM_RC_RAN_PARAM_ID = 202, // 8.2.4  RAN Parameters for Report Service Style 4
@@ -350,7 +351,7 @@ int main(int argc, char* argv[])
   // END RC
   ////////////
 
-  sleep(20);
+  xapp_api_wait_end(INT_MAX);
 
   for (int i = 0; i < nodes.len; ++i) {
     // Remove the handle previously returned

@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <pthread.h>
+#include <limits.h>
 
 static
 uint64_t const period_ms = 1000;
@@ -417,7 +418,7 @@ int main(int argc, char* argv[])
   // END KPM
   ////////////
 
-  sleep(10);
+  xapp_api_wait_end(INT_MAX);
 
   for (int i = 0; i < nodes.len; ++i) {
     // Remove the handle previously returned
