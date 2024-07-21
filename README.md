@@ -227,6 +227,16 @@ Follow the instructions https://docs.srsran.com/projects/project/en/latest/tutor
 The nearRT-RIC has been successfully tested with Keysight's RICtest RAN emulator https://www.keysight.com/us/en/product/P8828S/rictest-ran-intelligent-controller-test-solutions.html, 
 as demonstrated at O-RAN PlugFest Fall 2023. Specifically, the nearRT-RIC with the xApp `flexric/examples/xApp/c/keysight/xapp_keysight_kpm_rc.c` were tested.
 
+### 3.4  Integration with ns3-oran RAN Simulator
+
+Given the importance of obtaining an xApp testing environment relying on an open-source simulator, the Orange Innovation Egypt team integrates nearRT-RIC with [ns3-oran RAN simulator](https://openrangym.com/tutorials/ns-o-ran). The setup environment diagram is represented below: 
+
+![alt text](fig/6.png). 
+
+The simulator has been updated and enhanced to support E2AP v1.01, KPM v3 and pre-RC v1.01. This setup is tested with the xApp `/build/examples/xApp/c/kpm_rc/xapp_kpm_rc`with different scenarios. Follow the instruction to install ns-O-RAN-flexric https://github.com/Orange-OpenSource/ns-O-RAN-flexric/. The enhancement summary for each repo is presented in the diagram below: 
+
+![alt text](fig/7.png)
+
 ### 3.4 (opt) Synchronize clock
 
 Before running the various components (RAN/nearRT-RIC/xApps), you probably want to align the machines' clock. For this aim, you can use `ptp4l` in all the machines
