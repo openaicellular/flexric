@@ -233,7 +233,7 @@ Given the importance of obtaining an xApp testing environment relying on an open
 
 ![alt text](fig/6.png). 
 
-The simulator has been updated and enhanced to support E2AP v1.01, KPM v3 and RC v1.01. This setup is tested with the xApp `/build/examples/xApp/c/kpm_rc/xapp_kpm_rc` with 1 eNB and 4 gNBs in NSA scenario. The enhancement summary for each repo is presented in the diagram below: 
+The simulator has been updated and enhanced to support E2AP v1.01, KPM v3 and pre-RC v1.01. This setup is tested with the xApp `/build/examples/xApp/c/kpm_rc/xapp_kpm_rc`with different scenarios. Follow the instruction to install ns-O-RAN-flexric https://github.com/Orange-OpenSource/ns-O-RAN-flexric/. The enhancement summary for each repo is presented in the diagram below: 
 
 ![alt text](fig/7.png)
 
