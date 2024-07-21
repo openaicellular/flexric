@@ -22,6 +22,7 @@
 #include "fill_rnd_data_kpm.h"
 #include "../../src/sm/kpm_sm/kpm_sm_id_wrapper.h"
 #include "../../src/util/time_now_us.h"
+#include "../../src/util/byte_array.h"
 
 
 #include <assert.h>
@@ -1433,26 +1434,13 @@ kpm_ran_function_def_t fill_rnd_kpm_ran_func_def(void)
   kpm_ran_function_def_t ran_function = {0};
 
   // RAN Function Name
-  ran_function.name.description.buf = calloc(strlen(SM_KPM_DESCRIPTION) + 1, sizeof(uint8_t));
-  memcpy(ran_function.name.description.buf, SM_KPM_DESCRIPTION, strlen(SM_KPM_DESCRIPTION));
-  ran_function.name.description.len = strlen(SM_KPM_DESCRIPTION);
+  ran_function.name.description = cp_str_to_ba(SM_KPM_DESCRIPTION);
 
-  ran_function.name.name.buf = calloc(strlen(SM_KPM_STR) + 1, sizeof(uint8_t));
-  memcpy(ran_function.name.name.buf, SM_KPM_STR, strlen(SM_KPM_STR));
-  ran_function.name.name.len = strlen(SM_KPM_STR);
+  ran_function.name.name = cp_str_to_ba(SM_KPM_STR);
 
-  ran_function.name.oid.buf = calloc(strlen(SM_KPM_OID) + 1, sizeof(uint8_t));
-  memcpy(ran_function.name.oid.buf, SM_KPM_OID, strlen(SM_KPM_OID));
-  ran_function.name.oid.len = strlen(SM_KPM_OID);
+  ran_function.name.oid = cp_str_to_ba(SM_KPM_OID);
 
   ran_function.name.instance = NULL;
-
-  ran_function.sz_ric_event_trigger_style_list = 0;
-  ran_function.ric_event_trigger_style_list = NULL;
-
-  ran_function.sz_ric_report_style_list = 0;
-  ran_function.ric_report_style_list = NULL;
-
 
   // // RIC Event Trigger Style List
    ran_function.sz_ric_event_trigger_style_list = 3;  // (rand() % 63) + 0;

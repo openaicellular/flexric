@@ -20,4 +20,4 @@ target_compile_definitions(test_pdcp_sm PUBLIC ${SM_ENCODING_PDCP})
 target_link_libraries(test_pdcp_sm PUBLIC pdcp_sm_static -pthread)
 
 enable_testing()
-add_test(Unit_test_PDCP test_pdcp_sm)
+add_test(Unit_test_PDCP_SM test_pdcp_sm)

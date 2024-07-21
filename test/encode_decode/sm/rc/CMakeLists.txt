@@ -15,9 +15,8 @@ target_compile_options(test_enc_dec_rc_sm PRIVATE -Wno-missing-field-initializer
 
 target_compile_options(test_enc_dec_rc_sm  PRIVATE "-DASN_DISABLE_OER_SUPPORT -DPDU")
 
-  #####
-  ### CTest 
-  ####
-  enable_testing()
-  add_test(Unit_test_enc_dec_rc_sm test_enc_dec_rc_sm)
-
+#####
+### CTest 
+####
+enable_testing()
+add_test(Unit_test_enc_dec_RC_v1_03 test_enc_dec_rc_sm)

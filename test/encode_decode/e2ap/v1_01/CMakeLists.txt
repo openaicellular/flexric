@@ -35,7 +35,7 @@ if(E2AP_ENCODING STREQUAL "ASN")
   ### CTest 
   ####
   enable_testing()
-  add_test(Unit_test_e2ap_v1 test_e2ap_encode_asn)
+  add_test(Unit_test_enc_dec_E2AP_v1_01 test_e2ap_encode_asn)
 
 
 ###########################

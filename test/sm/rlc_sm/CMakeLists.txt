@@ -22,4 +22,4 @@ target_compile_definitions(test_rlc_sm PUBLIC ${SM_ENCODING_RLC})
 target_link_libraries(test_rlc_sm PUBLIC rlc_sm_static -pthread)
 
 enable_testing()
-add_test(Unit_test_RLC test_rlc_sm)
+add_test(Unit_test_RLC_SM test_rlc_sm)

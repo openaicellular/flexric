@@ -24,4 +24,4 @@ target_link_libraries(test_rc_sm PUBLIC rc_sm_static -pthread -lm)
 
 
 enable_testing()
-add_test(Unit_test_RC test_rc_sm)
+add_test(Unit_test_RC_v1_03 test_rc_sm)

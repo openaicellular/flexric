@@ -38,6 +38,7 @@ from common.python.generate_html import (
     generate_list_header,
     generate_list_footer,
     generate_list_row,
+    generate_subchapter,
 )
 
 from common.python.code_format_checker import (
@@ -58,35 +59,51 @@ def ctest_summary(args, reportName):
     cwd = os.getcwd()
     status = True
     chapterName = 'CTests Summary'
-    summary = ''
+    chapterSummary = ''
+    subChapterSummary = ''
+
     if os.path.isfile(f'{cwd}/archives/{reportName}'):
         status = True
         section_start_pattern = 'Test project /flexric/build'
         section_end_pattern = 'Total Test time'
         section_status = False
-        summary = generate_list_header()
+        chapterSummary = generate_list_header()
         with open(f'{cwd}/archives/{reportName}', 'r') as logfile:
             for line in logfile:
+                sanitizer = re.search('(Selected SANITIZER TYPE: [A-Z_]+)', line)
+                if sanitizer is not None:
+                    subChapterName = sanitizer.group(1)[25:] + ' sanitizer'
+                    subChapterSummary = generate_list_header()
+                e2ap_version = re.search('(Selected E2AP_VERSION: [A-Z0-9_]+)', line)
+                if e2ap_version is not None:
+                    subChapterName += ' & ' + e2ap_version.group(1)[23:]
+                kpm_version = re.search('(Selected KPM Version: [A-Z0-9_]+)', line)
+                if kpm_version is not None:
+                    subChapterName += ' & ' + kpm_version.group(1)[22:]
                 if re.search(section_start_pattern, line) is not None and not section_status:
                     section_status = True
                 if section_status and re.search(section_end_pattern, line) is not None:
                     section_status = False
+                    subChapterSummary += generate_list_footer()
+                    subchapter = generate_subchapter(subChapterName) + subChapterSummary
+                    chapterSummary += subchapter
                 if section_status:
-                    result = re.search('(Test *#[0-9]+: Unit_test_[A-Za-z0-9_]+) [\.]+', line)
+                    result = re.search('(Unit_test_[A-Za-z0-9_]+) [\.]+', line)
                     passed = re.search('Passed', line)
                     if result is not None and passed is not None:
-                        summary += generate_list_row(result.group(1), 'thumbs-up')
+                        subChapterSummary += generate_list_row(result.group(1)[10:], 'thumbs-up')
                     elif result is not None:
-                        summary += generate_list_row(result.group(1), 'thumbs-down')
-        summary += generate_list_footer()
+                        subChapterSummary += generate_list_row(result.group(1)[10:], 'remove')
+                        status = False
+        chapterSummary += generate_list_footer()
     else:
-        summary = generate_chapter(chapterName, 'CTests report file not found! Not run?', False)
-        return summary
+        chapterSummary = generate_chapter(chapterName, 'CTests report file not found! Not run?', False)
+        return chapterSummary
     if status:
-        summary = generate_chapter(chapterName, 'All CTests passed', True) + summary
+        chapterSummary = generate_chapter(chapterName, 'All CTests passed', True) + chapterSummary
     else:
-        summary = generate_chapter(chapterName, 'Some CTests failed', False) + summary
-    return summary
+        chapterSummary = generate_chapter(chapterName, 'Some CTests failed', False) + chapterSummary
+    return chapterSummary
 
 class HtmlReport():
     def __init__(self):
@@ -97,7 +114,7 @@ class HtmlReport():
         year = date.strftime("%Y")
         cwd = os.getcwd()
         with open(os.path.join(cwd, REPORT_NAME), 'w') as wfile:
-            wfile.write(re.sub('Core Network Test ', '', generate_header(args)))
+            wfile.write(re.sub('Core Network Test ', 'FlexRIC Test', generate_header(args)))
             wfile.write(generate_git_info(args))
             wfile.write(build_summary(args, 'flexric', '22', '9'))
             wfile.write(ctest_summary(args, 'flexric_ctests.log'))

@@ -48,5 +48,4 @@ target_include_directories(test_near_ric PRIVATE ${KPM_ASN_DIR} )
 
 
 enable_testing()
-add_test(Unit_test_near_ric test_near_ric)
-
+add_test(Unit_test_nearRT_RIC test_near_ric)
